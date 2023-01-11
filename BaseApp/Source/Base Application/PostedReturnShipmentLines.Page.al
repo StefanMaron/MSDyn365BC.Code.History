@@ -171,5 +171,10 @@ page 6653 "Posted Return Shipment Lines"
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetSecurityFilterOnRespCenter();
+    end;
 }
 

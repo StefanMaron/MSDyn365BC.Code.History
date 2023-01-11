@@ -215,7 +215,10 @@ codeunit 1283 "Export Generic XML"
                                 if not IsHandled then begin
                                     if DataExchColumnDef."Export If Not Blank" and (eValue = '') then
                                         exit;
-                                    xmlElemNew := xmlElement.Create(eName, DefaultNameSpace, eValue);
+                                    if i = xmlNodesText.Count() then
+                                        xmlElemNew := xmlElement.Create(eName, DefaultNameSpace, eValue)
+                                    else
+                                        xmlElemNew := xmlElement.Create(eName, DefaultNameSpace, '');
                                     xmlElem.Add(xmlElemNew);
                                     xmlElem := xmlElemNew;
                                     if isSubRoot then begin
@@ -244,7 +247,10 @@ codeunit 1283 "Export Generic XML"
                                 if not IsHandled then begin
                                     if DataExchColumnDef."Export If Not Blank" and (eValue = '') then
                                         exit;
-                                    xmlElemNew := xmlElement.Create(eName, DefaultNameSpace, eValue);
+                                    if i = xmlNodesText.Count() then
+                                        xmlElemNew := xmlElement.Create(eName, DefaultNameSpace, eValue)
+                                    else
+                                        xmlElemNew := xmlElement.Create(eName, DefaultNameSpace, '');
                                     xmlElem.Add(xmlElemNew);
                                     xmlElem := xmlElemNew;
 

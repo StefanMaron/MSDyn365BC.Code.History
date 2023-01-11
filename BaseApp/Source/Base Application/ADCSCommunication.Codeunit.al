@@ -144,7 +144,7 @@ codeunit 7701 "ADCS Communication"
                 end;
 
                 if MiniFormLine.Area = MiniFormLine.Area::Body then
-                    if MiniFormHdr."Form Type" <> MiniFormHdr."Form Type"::Card then
+                    if MiniFormHdr."Form Type" <> MiniFormHdr."Form Type"::Card then begin
                         while MiniFormHdr."No. of Records in List" > LineCounter do begin
                             if ((MiniFormHdr."Form Type" = MiniFormHdr."Form Type"::"Data List") or
                                 (MiniFormHdr."Form Type" = MiniFormHdr."Form Type"::"Data List Input"))
@@ -159,21 +159,21 @@ codeunit 7701 "ADCS Communication"
                                     until MiniFormLine2.Next() = 0;
                                     if GetNextRecord() = 0 then
                                         LineCounter := MiniFormHdr."No. of Records in List";
-                                end
-                                else begin
-                                    SendLineNo(MiniFormLine, AreaNode, DataLineNode, LineCounter);
-                                    SendComposition(MiniFormLine, DataLineNode);
-                                    if MiniFormLine.Next() = 0 then
-                                        LineCounter := MiniFormHdr."No. of Records in List"
-                                    else
-                                        if MiniFormLine.Area <> MiniFormLine.Area::Body then begin
-                                            MiniFormLine.Find('<');
-                                            LineCounter := MiniFormHdr."No. of Records in List";
-                                        end;
                                 end;
-                                LineCounter := LineCounter + 1;
-                            end
-                        end else
+                            end else begin
+                                SendLineNo(MiniFormLine, AreaNode, DataLineNode, LineCounter);
+                                SendComposition(MiniFormLine, DataLineNode);
+                                if MiniFormLine.Next() = 0 then
+                                    LineCounter := MiniFormHdr."No. of Records in List"
+                                else
+                                    if MiniFormLine.Area <> MiniFormLine.Area::Body then begin
+                                        MiniFormLine.Find('<');
+                                        LineCounter := MiniFormHdr."No. of Records in List";
+                                    end;
+                            end;
+                            LineCounter := LineCounter + 1;
+                        end
+                    end else
                         SendComposition(MiniFormLine, AreaNode)
                 else
                     SendComposition(MiniFormLine, AreaNode);

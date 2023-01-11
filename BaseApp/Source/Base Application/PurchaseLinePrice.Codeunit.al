@@ -221,7 +221,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetPrice(PurchaseLine, PriceListLine, AmountType, IsHandled, CurrPriceType);
+        OnBeforeSetPrice(PurchaseLine, PriceListLine, AmountType, IsHandled, CurrPriceType, PurchaseHeader);
         if IsHandled then
             exit;
 
@@ -241,7 +241,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
                 PurchaseLine."Line Discount %" := PriceListLine."Line Discount %"
         end;
 
-        OnAfterSetPrice(PurchaseLine, PriceListLine, AmountType, CurrPriceType);
+        OnAfterSetPrice(PurchaseLine, PriceListLine, AmountType, CurrPriceType, PurchaseHeader);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
@@ -251,7 +251,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
         else
             PurchaseLine.Validate("Direct Unit Cost");
 
-        OnAfterValidatePrice(PurchaseLine, CurrPriceType, AmountType);
+        OnAfterValidatePrice(PurchaseLine, CurrPriceType, AmountType, PurchaseHeader);
     end;
 
     procedure Update(AmountType: enum "Price Amount Type")
@@ -259,7 +259,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
         if not DiscountIsAllowed then
             PurchaseLine."Line Discount %" := 0;
 
-        OnAfterUpdate(PurchaseLine, CurrPriceType, AmountType);
+        OnAfterUpdate(PurchaseLine, CurrPriceType, AmountType, PurchaseHeader);
     end;
 
     [IntegrationEvent(false, false)]
@@ -291,17 +291,17 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetPrice(var PurchaseLine: Record "Purchase Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; CurrPriceType: Enum "Price Type")
+    local procedure OnAfterSetPrice(var PurchaseLine: Record "Purchase Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; CurrPriceType: Enum "Price Type"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdate(var PurchaseLine: Record "Purchase Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    local procedure OnAfterUpdate(var PurchaseLine: Record "Purchase Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterValidatePrice(var PurchaseLine: Record "Purchase Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    local procedure OnAfterValidatePrice(var PurchaseLine: Record "Purchase Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -311,7 +311,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetPrice(var PurchaseLine: Record "Purchase Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean; CurrPriceType: Enum "Price Type")
+    local procedure OnBeforeSetPrice(var PurchaseLine: Record "Purchase Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean; CurrPriceType: Enum "Price Type"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

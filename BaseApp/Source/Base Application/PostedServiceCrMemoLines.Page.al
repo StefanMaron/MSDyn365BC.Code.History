@@ -181,5 +181,10 @@ page 5952 "Posted Service Cr. Memo Lines"
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetSecurityFilterOnRespCenter();
+    end;
 }
 

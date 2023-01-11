@@ -850,6 +850,23 @@ table 6651 "Return Shipment Line"
         exit(Type <> Type::" ");
     end;
 
+    procedure SetSecurityFilterOnRespCenter()
+    var
+        UserSetupMgt: Codeunit "User Setup Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if UserSetupMgt.GetPurchasesFilter() <> '' then begin
+            FilterGroup(2);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
+            FilterGroup(0);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyPurchLineCostAndDiscountFromPurchOrderLine(var PurchaseLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
@@ -887,6 +904,11 @@ table 6651 "Return Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRetShptLineOnBeforeClearLineNumbers(var ReturnShipmentLine: Record "Return Shipment Line"; var PurchLine: Record "Purchase Line"; var NextLineNo: Integer; var TempPurchLine: Record "Purchase Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var ReturnShipmentLine: Record "Return Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

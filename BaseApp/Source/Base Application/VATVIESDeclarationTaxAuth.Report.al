@@ -127,7 +127,7 @@ report 19 "VAT- VIES Declaration Tax Auth"
                 CompanyInfo.TestField("VAT Registration No.");
 
                 VATEntriesBaseAmtSum.SetFilter(VAT_Registration_No, VATRegistrationNoFilter);
-                SetQueryFilter();
+                VATEntriesBaseAmtSum.SetFilter(VAT_Date, '%1..%2', StartDate, EndDate);
                 VATEntriesBaseAmtSum.Open();
             end;
         }
@@ -163,12 +163,19 @@ report 19 "VAT- VIES Declaration Tax Auth"
                         Caption = 'End date';
                         ToolTip = 'Specifies the end date for the report.';
                     }
+#if not CLEAN22
                     field(VATDateTypeField; VATDateType)
                     {
                         ApplicationArea = VAT;
                         Caption = 'Period Date Type';
                         ToolTip = 'Specifies the type of date used for the period.';
+                        Visible = false;
+                        Enabled = false;
+                        ObsoleteReason = 'Selected VAT Date type no longer supported.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
                     }
+#endif
                     field(VATRegistrationNoFilter; VATRegistrationNoFilter)
                     {
                         ApplicationArea = Basic, Suite;
@@ -293,8 +300,9 @@ report 19 "VAT- VIES Declaration Tax Auth"
         HeaderText: Text[50];
         CountryBlank: Boolean;
         ShowError: Boolean;
+#if not CLEAN22
         VATDateType: Enum "VAT Date Type";
-
+#endif
         Text000: Label 'All amounts are in %1.';
         Text001: Label 'The VAT Registration No. is not filled in for all VAT entries where for Customer %1 on one or more entries.';
         Text002: Label 'Start and end date must be filled in.';
@@ -305,17 +313,7 @@ report 19 "VAT- VIES Declaration Tax Auth"
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
         StartDate := NewStartDate;
         EndDate := NedEndDate;
-        VATDateType := VATDateType::"Posting Date";
         VATRegistrationNoFilter := SetVATRegistrationNoFilter;
-    end;
-
-    local procedure SetQueryFilter()
-    begin
-        case VATDateType of 
-            VATDateType::"VAT Reporting Date": VATEntriesBaseAmtSum.SetFilter(VAT_Date, '%1..%2', StartDate, EndDate);
-            VATDateType::"Posting Date": VATEntriesBaseAmtSum.SetFilter(Posting_Date, '%1..%2', StartDate, EndDate);
-            VATDateType::"Document Date": VATEntriesBaseAmtSum.SetFilter(Document_Date, '%1..%2', StartDate, EndDate);
-        end
     end;
 
 }

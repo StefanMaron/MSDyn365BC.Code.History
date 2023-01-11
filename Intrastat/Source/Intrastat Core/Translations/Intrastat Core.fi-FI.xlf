@@ -833,7 +833,7 @@
         </trans-unit>
         <trans-unit id="Page 879680616 - Control 970646220 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Enter the year first and then the month, for example, enter 1706 for June, 2017</source>
-          <target state="translated">Määrittää kuukauden, jonka tiedot raportoidaan. Anna jakso nelinumeroisena lukuna ilman välilyöntejä ja symboleja. Anna ensin kuukausi ja sitten vuosi tai päinvastoin maasi käytännön mukaan. Jos kuukausi on esimerkiksi vuoden 2017 heinäkuu, syötä joko 1706 tai 0617.</target>
+          <target state="translated">Määrittää kuukauden, jonka tiedot raportoidaan. Anna jakso nelinumeroisena lukuna ilman välilyöntejä ja symboleja. Anna ensin vuosi ja sitten kuukausi (anna esimerkiksi 1706, jos jakso on kesäkuu 2017)</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control Statistics Period - Property ToolTip</note>
         </trans-unit>

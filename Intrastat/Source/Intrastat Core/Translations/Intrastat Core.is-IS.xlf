@@ -833,7 +833,7 @@
         </trans-unit>
         <trans-unit id="Page 879680616 - Control 970646220 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Enter the year first and then the month, for example, enter 1706 for June, 2017</source>
-          <target state="translated">Tilgreinir mánuðinn sem skýrslan tekur til. Slá skal inn tímabilið með fjórum tölustöfum án bils eða tákna. Slá skal inn mánuðinn fyrst og svo árið eða fyrst árið og svo mánuðinn, allt eftir því í hvaða landi notandinn er. Til dæmis skaltu slá inn 1706 eða 0617 fyrir júní 2017.</target>
+          <target state="translated">Tilgreinir mánuðinn sem skýrslan tekur til. Slá skal inn tímabilið með fjórum tölustöfum án bils eða tákna. Slá skal inn árið fyrst og svo mánuðinn. Til dæmis skal slá inn 1706 fyrir júní 2017</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control Statistics Period - Property ToolTip</note>
         </trans-unit>

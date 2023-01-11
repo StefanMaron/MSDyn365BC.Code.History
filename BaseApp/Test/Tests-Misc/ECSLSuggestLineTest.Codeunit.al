@@ -239,6 +239,7 @@ codeunit 134068 "ECSL Suggest Line Test"
         VATEntry."Entry No." := LastId + 1;
         VATEntry.Base := -1.7;
         VATEntry."Posting Date" := PostingDate;
+        VATEntry."VAT Reporting Date" := PostingDate;
         VATEntry.Type := VATEntry.Type::Sale;
         VATEntry."EU 3-Party Trade" := false;
         VATEntry."VAT Registration No." := VatRegNo;

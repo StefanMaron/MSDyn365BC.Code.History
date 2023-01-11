@@ -1,4 +1,4 @@
-page 954 "Manager Time Sheet by Job"
+﻿page 954 "Manager Time Sheet by Job"
 {
     ApplicationArea = Jobs;
     AutoSplitKey = true;
@@ -136,7 +136,6 @@ page 954 "Manager Time Sheet by Job"
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaption[6];
                     Editable = false;
-                    Visible = false;
                     Width = 6;
                 }
                 field(Field7; CellData[7])
@@ -145,7 +144,6 @@ page 954 "Manager Time Sheet by Job"
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaption[7];
                     Editable = false;
-                    Visible = false;
                     Width = 6;
                 }
                 field(Status; Status)

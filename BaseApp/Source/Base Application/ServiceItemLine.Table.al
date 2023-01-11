@@ -2567,8 +2567,21 @@ table 5901 "Service Item Line"
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
+        if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then exit;
         InitDefaultDimensionSources(DefaultDimSource, FieldNo);
         CreateDim(DefaultDimSource);
+    end;
+
+    local procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
+    begin
+        case true of
+            FieldNo = Rec.FieldNo("Service Item No."):
+                TableValuePair.Add(Database::"Service Item", Rec."Service Item No.");
+            FieldNo = Rec.FieldNo("Service Item Group Code"):
+                TableValuePair.Add(Database::"Service Item Group", Rec."Service Item Group Code");
+            FieldNo = Rec.FieldNo("Responsibility Center"):
+                TableValuePair.Add(Database::"Responsibility Center", Rec."Responsibility Center");
+        end;
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)

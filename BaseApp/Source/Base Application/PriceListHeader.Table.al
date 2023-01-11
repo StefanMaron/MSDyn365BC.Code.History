@@ -385,7 +385,7 @@ table 7000 "Price List Header"
         end;
     end;
 
-    local procedure GetNoSeries(): Code[20];
+    local procedure GetNoSeries() Result: Code[20];
     var
         JobsSetup: Record "Jobs Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -396,23 +396,23 @@ table 7000 "Price List Header"
                 begin
                     SalesReceivablesSetup.Get();
                     SalesReceivablesSetup.TestField("Price List Nos.");
-                    exit(SalesReceivablesSetup."Price List Nos.");
+                    Result := SalesReceivablesSetup."Price List Nos.";
                 end;
             "Source Group"::Vendor:
                 begin
                     PurchasesPayablesSetup.Get();
                     PurchasesPayablesSetup.TestField("Price List Nos.");
-                    exit(PurchasesPayablesSetup."Price List Nos.");
+                    Result := PurchasesPayablesSetup."Price List Nos.";
                 end;
             "Source Group"::Job:
                 begin
                     JobsSetup.Get();
                     JobsSetup.TestField("Price List Nos.");
-                    exit(JobsSetup."Price List Nos.");
+                    Result := JobsSetup."Price List Nos.";
                 end;
         end;
 
-        OnAfterGetNoSeries(Rec);
+        OnAfterGetNoSeries(Rec, Result);
     end;
 
     local procedure CheckIfLinesExist(Caption: Text)
@@ -673,7 +673,7 @@ table 7000 "Price List Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetNoSeries(var PriceListHeader: Record "Price List Header")
+    local procedure OnAfterGetNoSeries(var PriceListHeader: Record "Price List Header"; var Result: Code[20])
     begin
     end;
 

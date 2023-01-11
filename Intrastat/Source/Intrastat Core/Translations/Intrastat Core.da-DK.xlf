@@ -833,7 +833,7 @@
         </trans-unit>
         <trans-unit id="Page 879680616 - Control 970646220 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Enter the year first and then the month, for example, enter 1706 for June, 2017</source>
-          <target state="translated">Angiver den måned, der skal rapporteres data for. Angiv perioden som et tal på fire cifre, uden mellemrum eller symboler. Afhængigt af landet indtastes enten måneden først og året derefter, eller omvendt. Angiv f.eks. 1706 eller 0617 for juni 2017.</target>
+          <target state="translated">Angiver den måned, der skal rapporteres data for. Indsæt perioden som et firecifret tal, uden mellemrum eller symboler. Afhængigt af landet/området indsættes måneden først og året derefter, eller omvendt. Indsæt f.eks. 1706 for juni 2017</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control Statistics Period - Property ToolTip</note>
         </trans-unit>

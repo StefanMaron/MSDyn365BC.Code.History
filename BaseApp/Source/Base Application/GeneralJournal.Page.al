@@ -120,7 +120,8 @@ page 39 "General Journal"
                     ApplicationArea = VAT;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
-                    Visible = NOT IsSimplePage;
+                    Visible = (not IsSimplePage) and VATDateEnabled;
+                    Editable = VATDateEnabled;
                 }
                 field("Document Date"; Rec."Document Date")
                 {
@@ -1934,6 +1935,7 @@ page 39 "General Journal"
     var
         ServerSetting: Codeunit "Server Setting";
         EnvironmentInfo: Codeunit "Environment Information";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         LastGenJnlBatch: Code[10];
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
@@ -1962,6 +1964,7 @@ page 39 "General Journal"
 
         if IsSimplePage and (CurrentDocNo = '') and GenJnlManagement.IsBatchNoSeriesEmpty(CurrentJnlBatchName, Rec) then
             Message(DocumentNumberMsg);
+		VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var
@@ -2019,6 +2022,8 @@ page 39 "General Journal"
         CurrentPostingDate: Date;
         CurrentCurrencyCode: Code[10];
         IsChangingDocNo: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
         MissingExchangeRatesQst: Label 'There are no exchange rates for currency %1 and date %2. Do you want to add them now? Otherwise, the last change you made will be reverted.', Comment = '%1 - currency code, %2 - posting date';
         PostedFromSimplePage: Boolean;
         DocumentNumberMsg: Label 'Document No. must have a value in Gen. Journal Line.';

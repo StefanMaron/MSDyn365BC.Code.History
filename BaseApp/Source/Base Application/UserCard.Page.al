@@ -56,7 +56,7 @@ page 9807 "User Card"
                     Caption = 'Status';
                     OptionCaption = 'Active, Inactive';
                     Importance = Promoted;
-                    ToolTip = 'Specifies whether the user can access companies in the current environment.';
+                    ToolTip = 'Specifies whether the user can access companies in the current environment. This field does not reflect any changes in Microsoft 365 Accounts.';
                     AboutTitle = 'Control the user''s access';
                     AboutText = 'You can temporarily prevent a user from signing in by disabling their user account. This does not remove the license from the user.';
 
@@ -144,6 +144,15 @@ page 9807 "User Card"
                         Caption = 'Authentication Status';
                         Editable = false;
                         ToolTip = 'Specifies the user''s status for Microsoft 365 authentication. When you start to create a user, the status is Disabled. After you specify an authentication email address for the user, the status changes to Inactive. After the user logs on successfully, the status changes to Active.';
+                    }
+                    field(Microsoft365State; Microsoft365State)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Microsoft 365 User Account state';
+                        OptionCaption = 'Inactive, Active';
+                        Importance = Additional;
+                        ToolTip = 'Specifies whether the user''s Microsoft 365 Account is enabled.';
+                        Editable = false;
                     }
                 }
                 group("Web Service Access")
@@ -457,6 +466,8 @@ page 9807 "User Card"
         UserProperty: Record "User Property";
         UserPermissions: Codeunit "User Permissions";
         EnvironmentInformation: Codeunit "Environment Information";
+        AzureADGraph: Codeunit "Azure AD Graph";
+        IsGraphUserAccountEnabled: Boolean;
     begin
         WindowsUserName := IdentityManagement.UserName("Windows Security ID");
 
@@ -490,6 +501,11 @@ page 9807 "User Card"
             TelemetryUserID := UserProperty."Telemetry User ID"
         else
             Clear(TelemetryUserID);
+
+        if AzureADGraph.IsGraphUserAccountEnabled(Rec."Authentication Email", IsGraphUserAccountEnabled) and IsGraphUserAccountEnabled then
+            Microsoft365State := Microsoft365State::Active
+        else
+            Microsoft365State := Microsoft365State::Inactive;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -573,6 +589,7 @@ page 9807 "User Card"
         Confirm003Qst: Label 'The user will not be able to sign in unless you change the state to Enabled. Are you sure that you want to close the page?';
         HasExchangeIdentifier: Boolean;
         AuthenticationStatus: Option Disabled,Inactive,Active;
+        Microsoft365State: Option Inactive,Active;
         Confirm004Qst: Label 'The user will not be able to sign in because no authentication data was provided. Are you sure that you want to close the page?';
         ConfirmRemoveExchangeIdentifierQst: Label 'If you delete the Exchange Identifier Mapping, the user will no longer automatically be signed in when they use Exchange applications.\Do you want to continue?';
         IsSaaS: Boolean;

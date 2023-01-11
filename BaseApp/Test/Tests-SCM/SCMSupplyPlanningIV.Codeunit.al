@@ -3670,6 +3670,38 @@ codeunit 137077 "SCM Supply Planning -IV"
         end;
     end;
 
+    [Test]
+    procedure DoNotPlanComponentsAtLocationSKUWithBlankReorderingPolicy()
+    var
+        Item: Record Item;
+        SKU: Record "Stockkeeping Unit";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Components at Location] [SKU]
+        // [SCENARIO 456929] Planning must not include item with Reordering Policy = <blank> when it creates SKU at location defined in "Components at Location" setting.
+        Initialize();
+        UpdManufSetupComponentsAtLocation(LocationBlue.Code);
+
+        LibraryInventory.CreateItem(Item);
+
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, LocationRed.Code, Item."No.", '');
+        SKU.Validate("Reordering Policy", SKU."Reordering Policy"::"Fixed Reorder Qty.");
+        SKU.Validate("Reorder Point", LibraryRandom.RandInt(10));
+        SKU.Validate("Reorder Quantity", LibraryRandom.RandIntInRange(20, 40));
+        SKU.Modify(true);
+
+        CreateSalesOrderAtLocation(Item."No.", LocationRed.Code);
+        CreateSalesOrderAtLocation(Item."No.", LocationBlue.Code);
+
+        CalculateRegenPlanForPlanningWorksheet(Item);
+
+        RequisitionLine.SetRange("Location Code", LocationRed.Code);
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+
+        RequisitionLine.SetRange("Location Code", LocationBlue.Code);
+        asserterror SelectRequisitionLine(RequisitionLine, Item."No.");
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";
@@ -4300,6 +4332,16 @@ codeunit 137077 "SCM Supply Planning -IV"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));  // Value type important for Serial tracking.
+    end;
+
+    local procedure CreateSalesOrderAtLocation(ItemNo: Code[20]; LocationCode: Code[10])
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+            ItemNo, LibraryRandom.RandInt(10), LocationCode, WorkDate());
     end;
 
     local procedure CarryOutActionMessage(ItemNo: Code[20])

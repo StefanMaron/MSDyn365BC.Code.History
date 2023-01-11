@@ -23,7 +23,7 @@ codeunit 130509 "Library - Sales"
         BatchPostSalesOrders: Report "Batch Post Sales Orders";
     begin
         BatchPostSalesOrders.UseRequestPage(false);
-        BatchPostSalesOrders.InitializeRequest(Ship, Invoice, PostingDate, ReplacePostingDate, ReplaceDocumentDate, CalcInvDiscount);
+        BatchPostSalesOrders.InitializeRequest(Ship, Invoice, PostingDate, PostingDate, ReplacePostingDate, ReplaceDocumentDate, ReplacePostingDate, CalcInvDiscount);
         BatchPostSalesOrders.SetTableView(SalesHeader);
         BatchPostSalesOrders.RunModal();
     end;

@@ -298,7 +298,7 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindRecord(Which: Text; var ReturnReceiptLine: Record "Return Receipt Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeFindRecord(var Which: Text; var ReturnReceiptLine: Record "Return Receipt Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

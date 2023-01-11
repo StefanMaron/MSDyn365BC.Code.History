@@ -55,13 +55,14 @@ codeunit 99000831 "Reservation Engine Mgt."
             RevertDateToSourceDate(ReservEntry3);
             ReservEntry3.Insert();
             TempSurplusEntry.DeleteAll();
-            UpdateSourcePlanned(ReservEntry);
             UpdateTempSurplusEntry(ReservEntry);
             UpdateTempSurplusEntry(ReservEntry3);
             UpdateOrderTracking(TempSurplusEntry);
             OnCancelReservationOnAfterDoCancel(ReservEntry, TempSurplusEntry);
         end else
             CloseReservEntry(ReservEntry, true, false);
+
+        UpdateSourcePlanned(ReservEntry);
 
         OnAfterCancelReservation(ReservEntry3, ReservEntry);
     end;
@@ -237,19 +238,24 @@ codeunit 99000831 "Reservation Engine Mgt."
     procedure ModifyReservEntry(ReservEntry: Record "Reservation Entry"; NewQuantity: Decimal; NewDescription: Text[100]; ModifyReserved: Boolean)
     var
         TotalQty: Decimal;
+        IsHandled: Boolean;
     begin
         OnBeforeModifyReservEntry(ReservEntry, NewQuantity, NewDescription, ModifyReserved);
 
-        ReservEntry.TestField("Reservation Status", ReservEntry."Reservation Status"::Reservation);
-        if NewQuantity * ReservEntry."Quantity (Base)" < 0 then
-            if NewQuantity < 0 then
-                Error(Text000, ReservEntry.FieldCaption("Quantity (Base)"))
-            else
-                Error(Text001, ReservEntry.FieldCaption("Quantity (Base)"));
-        if NewQuantity = 0 then
-            Error(Text002);
-        if Abs(NewQuantity) > Abs(ReservEntry."Quantity (Base)") then
-            Error(Text003, ReservEntry.FieldCaption("Quantity (Base)"));
+        IsHandled := false;
+        OnBeforeModifyReservEntryOnCheckNewQuantity(ReservEntry, NewQuantity, NewDescription, ModifyReserved, IsHandled);
+        if not IsHandled then begin
+            ReservEntry.TestField("Reservation Status", ReservEntry."Reservation Status"::Reservation);
+            if NewQuantity * ReservEntry."Quantity (Base)" < 0 then
+                if NewQuantity < 0 then
+                    Error(Text000, ReservEntry.FieldCaption("Quantity (Base)"))
+                else
+                    Error(Text001, ReservEntry.FieldCaption("Quantity (Base)"));
+            if NewQuantity = 0 then
+                Error(Text002);
+            if Abs(NewQuantity) > Abs(ReservEntry."Quantity (Base)") then
+                Error(Text003, ReservEntry.FieldCaption("Quantity (Base)"));
+        end;
 
         if ModifyReserved then begin
             if ReservEntry."Item No." <> Item."No." then
@@ -1437,6 +1443,11 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetKeyAndFilters(var ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyReservEntryOnCheckNewQuantity(var ReservEntry: Record "Reservation Entry"; var NewQuantity: Decimal; NewDescription: Text[100]; var ModifyReserved: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

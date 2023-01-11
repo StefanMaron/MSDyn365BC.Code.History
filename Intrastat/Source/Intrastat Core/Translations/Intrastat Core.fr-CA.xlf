@@ -833,7 +833,7 @@
         </trans-unit>
         <trans-unit id="Page 879680616 - Control 970646220 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Enter the year first and then the month, for example, enter 1706 for June, 2017</source>
-          <target state="translated">Spécifie le mois pour lequel déclarer des données. Saisissez la période sous la forme d’un nombre à quatre chiffres, sans espaces ni symboles. Selon votre pays, saisissez d’abord le mois, puis l’année, ou inversement. Par exemple, saisissez 1706 ou 0617 pour juin 2017.</target>
+          <target state="translated">Spécifie le mois pour lequel déclarer des données. Saisissez la période sous la forme d’un nombre à quatre chiffres, sans espaces ni symboles. Saisissez d’abord le mois, puis l’année. Par exemple, saisissez 0617 pour juin 2017.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control Statistics Period - Property ToolTip</note>
         </trans-unit>
@@ -2095,7 +2095,7 @@
         </trans-unit>
         <trans-unit id="TableExtension 2092778747 - Field 2959979021 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unit of Measure</source>
-          <target state="translated">unité de mesure</target>
+          <target state="translated">Unité de mesure</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 3279488167</note>

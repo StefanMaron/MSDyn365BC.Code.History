@@ -1480,6 +1480,51 @@ codeunit 136506 "New Time Sheet Experience"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CopyTimeSheetLinesWithDetails_ThreeWeeksApart()
+    var
+        FromTimeSheetHeader: Record "Time Sheet Header";
+        FromTimeSheetLine: Record "Time Sheet Line";
+        ToTimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetMgt: Codeunit "Time Sheet Management";
+        TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 454717] "Copy lines from previous time sheet" copies time sheet details if TimeSheetV2Enabled.
+        // [SCENARIO 454717] Create 4 time sheets (4 weeks) and delete 2 in the middle. Then copy lines from time sheet "1" to time sheet "4".
+        Initialize();
+
+        // [GIVEN] Create time sheet "1" with data
+        LibraryTimeSheet.CreateTimeSheet(FromTimeSheetHeader, true);
+        CreateTimeSheetLineWithTimeAllocaiton(FromTimeSheetHeader, FromTimeSheetLine);
+
+        // [GIVEN] Create time sheets "2", "3", "4" without data
+        TimeSheetCreate(FromTimeSheetHeader."Ending Date" + 1, 3, FromTimeSheetHeader."Resource No.", ToTimeSheetHeader);
+
+        // [GIVEN] Delete time sheets "2"
+        ToTimeSheetHeader.SetRange("Resource No.", FromTimeSheetHeader."Resource No.");
+        ToTimeSheetHeader.FindFirst();
+        ToTimeSheetHeader.Next();
+        ToTimeSheetHeader.Delete(true);
+
+        // [GIVEN] Delete time sheets "3"
+        ToTimeSheetHeader.SetRange("Resource No.", FromTimeSheetHeader."Resource No.");
+        ToTimeSheetHeader.FindFirst();
+        ToTimeSheetHeader.Next();
+        ToTimeSheetHeader.Delete(true);
+
+        // [GIVEN] Find the last, time sheets "4"
+        ToTimeSheetHeader.SetRange("Resource No.", FromTimeSheetHeader."Resource No.");
+        ToTimeSheetHeader.FindLast();
+
+        // [WHEN] Run function "Copy lines from previous time sheet" for time sheet "4"
+        TimeSheetMgt.CopyPrevTimeSheetLines(ToTimeSheetHeader);
+
+        // [THEN] Time sheet details copied from "1" to "4"
+        VerifyCopiedTimeSheetDetails(FromTimeSheetHeader, FromTimeSheetLine, ToTimeSheetHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TimeSheetCardDefaultFilterNotAdmin()
     var
         TimeSheetHeader: Record "Time Sheet Header";
@@ -1989,7 +2034,7 @@ codeunit 136506 "New Time Sheet Experience"
             ToTimeSheetDetail.TestField(Status, "Time Sheet Status"::Open);
             ToTimeSheetDetail.TestField(Quantity, FromTimeSheetDetail.Quantity);
             ToTimeSheetDetail.TestField("Posted Quantity", 0);
-            ToTimeSheetDetail.TestField(Date, CalcDate('<+7D>', FromTimeSheetDetail.Date));
+            ToTimeSheetDetail.TestField(Date, ToTimeSheetLine."Time Sheet Starting Date" + (FromTimeSheetDetail."Date" - FromTimeSheetLine."Time Sheet Starting Date"));
 
             ToTimeSheetDetail.Next();
         until FromTimeSheetDetail.Next() = 0;

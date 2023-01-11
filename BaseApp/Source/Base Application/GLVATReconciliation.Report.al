@@ -235,7 +235,7 @@ report 11 "G/L - VAT Reconciliation"
                                 CurrReport.Skip();
 
                             case "VAT Statement Line"."Amount Type" of
-                                "VAT Statement Line"."Amount Type"::Amount, "VAT Statement Line"."Amount Type"::Base:
+                                "VAT Statement Line"."Amount Type"::" ", "VAT Statement Line"."Amount Type"::Amount, "VAT Statement Line"."Amount Type"::Base:
                                     begin
                                         VATEntry.CalcSums(Base, "Additional-Currency Base", Amount, "Additional-Currency Amount");
                                         Amount1 := ConditionalAdd(VATEntry.Base, VATEntry."Additional-Currency Base");

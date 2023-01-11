@@ -148,6 +148,7 @@ codeunit 99000886 "Capable to Promise"
 
     local procedure CreateReqLine(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Quantity: Decimal; Unit: Code[10]; DueDate: Date; Direction: Option Forward,Backward; var ReqLine: Record "Requisition Line")
     var
+        SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
         PlngLnMgt: Codeunit "Planning Line Management";
@@ -181,6 +182,8 @@ codeunit 99000886 "Capable to Promise"
                 ReqLine."Sales Order Line No." := SalesLine."Line No.";
                 ReqLine."Sell-to Customer No." := SalesLine."Sell-to Customer No.";
                 ReqLine."Purchasing Code" := SalesLine."Purchasing Code";
+                SalesHeader.Get("Sales Document Type"::Order, ReqLine."Order Promising ID");
+                ReqLine."Ship-to Code" := SalesHeader."Ship-to Code";
             end;
         OnBeforeReqLineModify(ReqLine);
         ReqLine.Modify();

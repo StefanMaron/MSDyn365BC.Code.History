@@ -833,7 +833,7 @@
         </trans-unit>
         <trans-unit id="Page 879680616 - Control 970646220 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Enter the year first and then the month, for example, enter 1706 for June, 2017</source>
-          <target state="translated">Определяет месяц, за который необходимо представить данные. Введите период в виде четырехзначного числа без пробелов и других символов. В зависимости от страны/региона введите сначала месяц, а потом год, или наоборот. Например, введите 1706 или 0617, чтобы указать июнь 2017 г.</target>
+          <target state="translated">Определяет месяц, за который необходимо представить данные. Введите период в виде четырехзначного числа без пробелов и других символов. Сначала введите год, а затем месяц; например, введите 1706, чтобы указать июнь 2017 г.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control Statistics Period - Property ToolTip</note>
         </trans-unit>

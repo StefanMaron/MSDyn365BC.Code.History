@@ -142,8 +142,10 @@ codeunit 7006 "Price Helper - V16"
     begin
         PriceListLine.SetRange("Asset Type", AssetType);
         PriceListLine.SetRange("Asset No.", xAssetNo);
-        if not PriceListLine.IsEmpty() then
+        if not PriceListLine.IsEmpty() then begin
+            PriceListLine.ModifyAll("Product No.", AssetNo);
             PriceListLine.ModifyAll("Asset No.", AssetNo);
+        end;
 
         PriceWorksheetLine.SetRange("Asset Type", AssetType);
         PriceWorksheetLine.SetRange("Asset No.", xAssetNo);
@@ -183,8 +185,12 @@ codeunit 7006 "Price Helper - V16"
 
         PriceListLine.SetRange("Source Type", SourceType);
         PriceListLine.SetRange("Source No.", xSourceNo);
-        if not PriceListLine.IsEmpty() then
-            PriceListLine.ModifyAll("Source No.", SourceNo);
+        if PriceListLine.FindSet() then
+            repeat
+                PriceListLine."Source No." := SourceNo;
+                PriceListLine."Assign-to No." := SourceNo;
+                PriceListLine.Modify();
+            until PriceListLine.Next() = 0;
 
         PriceWorksheetLine.SetRange("Source Type", SourceType);
         PriceWorksheetLine.SetRange("Source No.", xSourceNo);
@@ -210,8 +216,12 @@ codeunit 7006 "Price Helper - V16"
 
         PriceListLine.SetRange("Source Type", SourceType);
         PriceListLine.SetRange("Source No.", xSourceNo);
-        if not PriceListLine.IsEmpty() then
-            PriceListLine.ModifyAll("Source No.", SourceNo);
+        if PriceListLine.FindSet() then
+            repeat
+                PriceListLine."Source No." := SourceNo;
+                PriceListLine."Assign-to No." := SourceNo;
+                PriceListLine.Modify();
+            until PriceListLine.Next() = 0;
 
         PriceWorksheetLine.SetRange("Source Type", SourceType);
         PriceWorksheetLine.SetRange("Source No.", xSourceNo);

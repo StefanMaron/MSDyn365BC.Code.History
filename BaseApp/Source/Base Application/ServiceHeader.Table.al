@@ -309,13 +309,17 @@
                             exit;
                         end;
                     end else
-                        if ServLineExists() then
-                            if not ConfirmManagement.GetResponseOrDefault(
-                                 StrSubstNo(Text057, FieldCaption("Ship-to Code")), true)
-                            then begin
-                                "Ship-to Code" := xRec."Ship-to Code";
-                                exit;
-                            end;
+                        if ServLineExists() then begin
+                            IsHandled := false;
+                            OnValidateShipToCodeOnBeforeConfirmDeleteLines(Rec, IsHandled);
+                            if not IsHandled then
+                                if not ConfirmManagement.GetResponseOrDefault(
+                                    StrSubstNo(Text057, FieldCaption("Ship-to Code")), true)
+                                then begin
+                                    "Ship-to Code" := xRec."Ship-to Code";
+                                    exit;
+                                end;
+                        end;
                 end;
 
                 ShouldUpdateShipToAddressFields := "Document Type" <> "Document Type"::"Credit Memo";
@@ -5144,6 +5148,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShipToPostCode(var ServiceHeader: Record "Service Header"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShipToCodeOnBeforeConfirmDeleteLines(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -51,6 +51,7 @@ codeunit 136102 "Service Contracts"
         GLEntriesExistsErr: Label 'G/L entries exists.';
         IncorrectAmountPerPeriodErr: Label 'Incorrect Amount Per Period.';
         IncorrectInvAmountErr: Label 'Incorrect Invoice Amount.';
+        IncorrectCreditMemoAmountErr: Label 'Incorrect Credit Memo Amount.';
         ServiceDocLinkNotFoundErr: Label '%1 is missing a link.';
         ServiceLineAmountErr: Label 'Incorrect Service Line Amount.';
         PositiveValueErrorErr: Label 'Line Value must not be';
@@ -3427,6 +3428,62 @@ codeunit 136102 "Service Contracts"
         // [THEN] Currency check for Service Orders are passed.
     end;
 
+    [Test]
+    [HandlerFunctions('SignContractConfirmHandler,MsgHandler,ServContrctTemplateListHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceAndCreditMemoForNewServiceContract()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceContractLine2: Record "Service Contract Line";
+        ServiceHeader: Record "Service Header";
+        ServiceItem: Record "Service Item";
+        ServiceContractAccountGroup: Record "Service Contract Account Group";
+        ShipToAddress: Record "Ship-to Address";
+        SignServContractDoc: Codeunit SignServContractDoc;
+        LockOpenServContract: Codeunit "Lock-OpenServContract";
+        ServContractManagement: Codeunit ServContractManagement;
+        CustomerNo: Code[20];
+        CreditMemoDate: Date;
+    begin
+        // [SCENARIO 447978] Service Credit Memo created for partial amount for first full month of the Prepaid Contract that was invoiced.
+
+        // [GIVEN] Setup: Create Service Item, Service Contract Header, Service Contract Line, and Sign Service Contract.
+        Initialize();
+        CreateServiceItemAndContract(ServiceContractHeader, ServiceContractLine);
+
+        SignServContractDoc.SignContract(ServiceContractHeader);
+
+        // [GIVEN] Create and Post Service Invoice.
+        FindServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, ServiceContractHeader."Contract No.");
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [WHEN] Run "Post Prepaid Service Contract Entries" batch job
+        PostPrepaidContractEntry(
+          ServiceContractHeader."Contract No.", CalcDate('<1Y>', WorkDate()), WorkDate());
+
+        // [THEN] Reopen Service Contract and modify Service Contract Line.
+        ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
+        LockOpenServContract.OpenServContract(ServiceContractHeader);
+        ServiceContractLine2.Get(ServiceContractLine."Contract Type", ServiceContractLine."Contract No.", ServiceContractLine."Line No.");
+        ServiceContractLine2.Validate("Contract Expiration Date", ServiceContractHeader."Starting Date");
+        ServiceContractLine2.Validate("Credit Memo Date", ServiceContractHeader."Starting Date");
+        ServiceContractLine2.Modify(true);
+
+        // [THEN] Lock Service Contract.
+        LockOpenServContract.LockServContract(ServiceContractHeader);
+
+        // [GIVEN] Create Service Credit Memo.
+        CreateServiceCreditMemo(ServiceContractHeader."Contract No.", ServiceContractHeader."Starting Date");
+
+        // [THEN] Post Service Credit Memo.
+        PostServiceCreditMemo(ServiceContractHeader);
+
+        // [VERIFY] Verify Post Service Invoice and Credit Memo Amount.
+        Assert.AreEqual(
+          GetPostedServiceInvoiceAmount(ServiceContractHeader."Contract No."), GetPostedServiceCrMemoAmount(ServiceContractHeader."Contract No."), IncorrectCreditMemoAmountErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4259,6 +4316,15 @@ codeunit 136102 "Service Contracts"
         ServiceInvoiceHeader.SetRange("Contract No.", ContractNo2);
         ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
+    end;
+
+    local procedure FindServiceCreditHeader(ContractNo2: Code[20]): Code[20]
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+    begin
+        ServiceCrMemoHeader.SetRange("Contract No.", ContractNo2);
+        ServiceCrMemoHeader.FindFirst();
+        exit(ServiceCrMemoHeader."No.");
     end;
 
     local procedure FindServiceItemLine(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header")
@@ -5229,6 +5295,73 @@ codeunit 136102 "Service Contracts"
         ServiceContractHeader.Status := ServiceContractHeader.Status::Signed;
         ServiceContractHeader."Change Status" := ServiceContractHeader."Change Status"::Locked;
         ServiceContractHeader.SuspendStatusCheck(true);
+    end;
+
+    local procedure CreateServiceItemAndContract(var ServiceContractHeader: Record "Service Contract Header"; var ServiceContractLine: Record "Service Contract Line")
+    var
+        ServiceContractAccountGroup: Record "Service Contract Account Group";
+        ShipToAddress: Record "Ship-to Address";
+        ServiceItem: Record "Service Item";
+        CustomerNo: Code[20];
+    begin
+        LibraryService.FindContractAccountGroup(ServiceContractAccountGroup);
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        LibrarySales.CreateShipToAddress(ShipToAddress, CustomerNo);
+
+        LibraryService.CreateServiceItem(ServiceItem, CustomerNo);
+        ServiceItem.Validate("Default Contract Cost", LibraryRandom.RandDecInRange(10, 100, 0));
+        ServiceItem.Validate("Default Contract Value", LibraryRandom.RandDecInRange(1000, 2000, 0));
+        ServiceItem.Validate("Installation Date", CalcDate('<-CM-1D>', WorkDate()));
+        ServiceItem.Modify(true);
+
+        LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, CustomerNo);
+        ModifyServiceContractHeaderWithInvoicePeriod(ServiceContractHeader, ServiceItem."Installation Date", ServiceContractHeader."Invoice Period"::Year);
+        ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", ServiceContractAccountGroup.Code);
+        ServiceContractHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        Evaluate(ServiceContractHeader."Service Period", '<12M>');
+        ServiceContractHeader.Validate("Service Period", ServiceContractHeader."Service Period");
+        ServiceContractHeader.Validate("Price Update Period", ServiceContractHeader."Service Period");
+        ModifyServiceContractExpirationDate(ServiceContractHeader, CalcDate('<11M+CM>', ServiceItem."Installation Date"));
+        LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
+        ServiceContractLine.Validate("Starting Date", ServiceContractHeader."Starting Date");
+        ServiceContractLine.Modify(true);
+    end;
+
+    local procedure GetPostedServiceInvoiceAmount(ContractNo: Code[20]): Decimal
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceInvoiceLine: Record "Service Invoice Line";
+        ServiceInvoiceNo: Code[20];
+    begin
+        ServiceInvoiceNo := FindServiceInvoiceHeader(ContractNo);
+        with ServiceInvoiceLine do begin
+            SetRange("Document No.", ServiceInvoiceNo);
+            CalcSums(Amount);
+            exit(Amount);
+        end;
+    end;
+
+    local procedure GetPostedServiceCrMemoAmount(ContractNo: Code[20]): Decimal
+    var
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        ServiceCrMemoLine: Record "Service Cr.Memo Line";
+        ServiceCreditNo: Code[20];
+    begin
+        ServiceCreditNo := FindServiceCreditHeader(ContractNo);
+        with ServiceCrMemoLine do begin
+            SetRange("Document No.", ServiceCreditNo);
+            CalcSums(Amount);
+            exit(Amount);
+        end;
+    end;
+
+    local procedure VerifyAmountOnServiceContractHeaderForPostedInvoiceAndCreditMemo(ServiceContractHeader: Record "Service Contract Header"; NoOfPostedInvoices: Integer)
+    begin
+        with ServiceContractHeader do begin
+            CalcFields("No. of Posted Invoices");
+            Assert.AreEqual(
+              NoOfPostedInvoices, "No. of Posted Invoices", StrSubstNo(ServiceContractErr, FieldCaption("No. of Posted Invoices")));
+        end;
     end;
 
     [PageHandler]

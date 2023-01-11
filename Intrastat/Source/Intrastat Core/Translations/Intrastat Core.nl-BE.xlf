@@ -833,7 +833,7 @@
         </trans-unit>
         <trans-unit id="Page 879680616 - Control 970646220 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Enter the year first and then the month, for example, enter 1706 for June, 2017</source>
-          <target state="translated">Hiermee wordt de maand opgegeven waarvoor gegevens worden gerapporteerd. Voer de periode als een getal van vier cijfers zonder spaties of symbolen in. Voer, afhankelijk van uw land/regio, eerst de maand en dan het jaar of andersom in. Voer bijvoorbeeld 1706 of 0617 in voor juni 2017.</target>
+          <target state="translated">Hiermee wordt de maand opgegeven waarvoor gegevens worden gerapporteerd. Voer de periode in als getal van vier cijfers, zonder spaties of symbolen. Voer eerst het jaar en dan de maand in. Voer bijvoorbeeld 1706 in voor juni 2017</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control Statistics Period - Property ToolTip</note>
         </trans-unit>
@@ -2303,7 +2303,7 @@
         </trans-unit>
         <trans-unit id="Enum 3069622850 - EnumValue 600482918 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>EU Country Code + VAT Reg. No</source>
-          <target state="translated">Code van EU-land/regio + btw-nr.</target>
+          <target state="translated">EU-land-/regiocode + btw-nr.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Intrastat Report VAT File Fmt - EnumValue EU Country Code + VAT Reg. No - Property Caption</note>
         </trans-unit>

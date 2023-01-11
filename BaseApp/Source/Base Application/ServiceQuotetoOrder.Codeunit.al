@@ -241,7 +241,7 @@ codeunit 5923 "Service-Quote to Order"
         if ServiceQuoteLine.FindSet() then
             repeat
                 IsHandled := false;
-                OnBeforeTransferQuoteLineToOrderLineLoop(ServiceQuoteLine, ServiceQuoteHeader, ServiceOrderHeader, IsHandled);
+                OnBeforeTransferQuoteLineToOrderLineLoop(ServiceQuoteLine, ServiceQuoteHeader, ServiceOrderHeader, IsHandled, ServiceOrderLine, ServOrderLine);
                 if not IsHandled then begin
                     ServiceOrderLine := ServiceQuoteLine;
                     ServiceLineReserve.TransServLineToServLine(
@@ -321,7 +321,7 @@ codeunit 5923 "Service-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferQuoteLineToOrderLineLoop(var ServiceQuoteLine: Record "Service Line"; var ServiceQuoteHeader: Record "Service Header"; var ServiceOrderHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforeTransferQuoteLineToOrderLineLoop(var ServiceQuoteLine: Record "Service Line"; var ServiceQuoteHeader: Record "Service Header"; var ServiceOrderHeader: Record "Service Header"; var IsHandled: Boolean; var ServiceOrderLine: Record "Service Line"; var ServiceOrderLineGlobal: Record "Service Line")
     begin
     end;
 

@@ -5,6 +5,7 @@ page 542 "Default Dimensions-Multiple"
     PageType = List;
     SourceTable = "Default Dimension";
     SourceTableTemporary = true;
+    SaveValues = true;
 
     layout
     {
@@ -52,6 +53,7 @@ page 542 "Default Dimensions-Multiple"
                         TestField("Value Posting", "Value Posting"::"Code Mandatory");
                         DimMgt.OpenAllowedDimValuesPerAccountDimMultiple(Rec, TempDimValuePerAccount);
                         "Allowed Values Filter" := CopyStr(GetFullAllowedValuesFilter(TempDimValuePerAccount), 1, MaxStrLen("Allowed Values Filter"));
+                        UpdateTempDimValuePerAcount(TempDimValuePerAccount);
                         CurrPage.Update();
                     end;
 
@@ -112,8 +114,9 @@ page 542 "Default Dimensions-Multiple"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if CloseAction = ACTION::LookupOK then
+        if (CloseAction = ACTION::LookupOK) then
             LookupOKOnPush();
+        DeleteDefaultDim();
     end;
 
     var
@@ -124,6 +127,7 @@ page 542 "Default Dimensions-Multiple"
         TempDefaultDim2: Record "Default Dimension" temporary;
         TempDefaultDim3: Record "Default Dimension" temporary;
         TotalRecNo: Integer;
+        TableIDNo: Integer;
 
     procedure ClearTempDefaultDim()
     begin
@@ -134,18 +138,6 @@ page 542 "Default Dimensions-Multiple"
     var
         DefaultDim: Record "Default Dimension";
     begin
-        SetRange(
-          "Multi Selection Action", "Multi Selection Action"::Delete);
-        if Find('-') then
-            repeat
-                if TempDefaultDim3.Find('-') then
-                    repeat
-                        if DefaultDim.Get(
-                             TempDefaultDim3."Table ID", TempDefaultDim3."No.", "Dimension Code")
-                        then
-                            DefaultDim.Delete(true);
-                    until TempDefaultDim3.Next() = 0;
-            until Next() = 0;
         SetRange(
           "Multi Selection Action", "Multi Selection Action"::Change);
         if Find('-') then
@@ -186,6 +178,7 @@ page 542 "Default Dimensions-Multiple"
         DefaultDim."Allowed Values Filter" := "Allowed Values Filter";
         TempDimValuePerAccount.Reset();
         TempDimValuePerAccount.SetRange("Dimension Code", DefaultDim."Dimension Code");
+        TempDimValuePerAccount.SetRange("No.", DefaultDim."No.");
         if TempDimValuePerAccount.FindSet() then
             repeat
                 if DimValuePerAccount.Get(DefaultDim."Table ID", DefaultDim."No.", DefaultDim."Dimension Code", TempDimValuePerAccount."Dimension Value Code") then begin
@@ -226,12 +219,15 @@ page 542 "Default Dimensions-Multiple"
 
     local procedure CreateDimValuePerAccountFromDimValue2(DimValue: Record "Dimension Value")
     begin
-        TempDimValuePerAccount.Init();
-        TempDimValuePerAccount."Dimension Code" := DimValue."Dimension Code";
-        TempDimValuePerAccount."Dimension Value Code" := DimValue.Code;
-        TempDimValuePerAccount."Table ID" := "Table ID";
-        TempDimValuePerAccount."No." := "No.";
-        TempDimValuePerAccount.Insert();
+        if TempDefaultDim3.FindSet() then
+            repeat
+                TempDimValuePerAccount.Init();
+                TempDimValuePerAccount."Dimension Code" := DimValue."Dimension Code";
+                TempDimValuePerAccount."Dimension Value Code" := DimValue.Code;
+                TempDimValuePerAccount."Table ID" := TempDefaultDim3."Table ID";
+                TempDimValuePerAccount."No." := TempDefaultDim3."No.";
+                TempDimValuePerAccount.Insert();
+            until TempDefaultDim3.Next() = 0;
     end;
 
     procedure CopyDefaultDimToDefaultDim(TableID: Integer; No: Code[20])
@@ -242,6 +238,7 @@ page 542 "Default Dimensions-Multiple"
         TempDefaultDim3."Table ID" := TableID;
         TempDefaultDim3."No." := No;
         TempDefaultDim3.Insert();
+        TableIDNo := TableID;
 
         DefaultDim.SetRange("Table ID", TableID);
         DefaultDim.SetRange("No.", No);
@@ -395,6 +392,72 @@ page 542 "Default Dimensions-Multiple"
                 repeat
                     CopyDefaultDimToDefaultDim(DATABASE::Employee, "No.");
                 until Next() = 0;
+    end;
+
+    local procedure UpdateTempDimValuePerAcount(var DimValuePerAcc: Record "Dim. Value per Account")
+    var
+        TempDimValuePerAcc3: Record "Dim. Value per Account" temporary;
+    begin
+        InsertTempDimValuePerAccountAfterChanges(TempDimValuePerAcc3, DimValuePerAcc);
+
+        if TempDimValuePerAcc3.FindSet() then
+            repeat
+                UpdateTempDimValuePerAccountAfterChanges(TempDimValuePerAcc3, DimValuePerAcc);
+            until TempDimValuePerAcc3.Next() = 0;
+    end;
+
+    local procedure GetTableIdNo(TableID1: Integer; TableID2: Integer): Integer
+    begin
+        if TableID1 = 0 then
+            exit(TableID2);
+
+        exit(TableID1);
+    end;
+
+    local procedure InsertTempDimValuePerAccountAfterChanges(var TempDimValuePerAcc3: Record "Dim. Value per Account"; var DimValuePerAcc: Record "Dim. Value per Account")
+    begin
+        DimValuePerAcc.Reset();
+        DimValuePerAcc.SetRange("Table ID", Rec."Table ID");
+        DimValuePerAcc.SetRange("No.", Rec."No.");
+        DimValuePerAcc.SetRange("Dimension Code", Rec."Dimension Code");
+        if DimValuePerAcc.FindSet() then
+            repeat
+                TempDimValuePerAcc3.Init();
+                TempDimValuePerAcc3 := DimValuePerAcc;
+                TempDimValuePerAcc3.Insert();
+            until DimValuePerAcc.Next() = 0;
+    end;
+
+    local procedure UpdateTempDimValuePerAccountAfterChanges(TempDimValuePerAcc3: Record "Dim. Value per Account"; var DimValuePerAcc: Record "Dim. Value per Account")
+    begin
+        DimValuePerAcc.Reset();
+        DimValuePerAcc.SetRange("Table ID", GetTableIdNo(TempDimValuePerAcc3."Table ID", TableIDNo));
+        DimValuePerAcc.SetRange("Dimension Code", TempDimValuePerAcc3."Dimension Code");
+        DimValuePerAcc.SetRange("Dimension Value Code", TempDimValuePerAcc3."Dimension Value Code");
+        DimValuePerAcc.SetFilter("No.", '<>%1', TempDimValuePerAcc3."No.");
+        if DimValuePerAcc.FindSet() then
+            repeat
+                DimValuePerAcc.Allowed := TempDimValuePerAcc3.Allowed;
+                DimValuePerAcc.Modify();
+            until DimValuePerAcc.Next() = 0;
+    end;
+
+    local procedure DeleteDefaultDim()
+    var
+        DefaultDim: Record "Default Dimension";
+    begin
+        SetRange(
+         "Multi Selection Action", "Multi Selection Action"::Delete);
+        if Find('-') then
+            repeat
+                if TempDefaultDim3.Find('-') then
+                    repeat
+                        if DefaultDim.Get(
+                             TempDefaultDim3."Table ID", TempDefaultDim3."No.", "Dimension Code")
+                        then
+                            DefaultDim.Delete(true);
+                    until TempDefaultDim3.Next() = 0;
+            until Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

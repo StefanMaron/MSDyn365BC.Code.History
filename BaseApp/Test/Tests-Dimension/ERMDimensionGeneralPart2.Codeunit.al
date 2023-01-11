@@ -908,7 +908,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AccScheduleOverviewPageHandler')]
+    [HandlerFunctions('AccScheduleOverviewPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure AccScheduleOverviewMatrixGLAccount()
     var
@@ -926,7 +926,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AccScheduleOverviewPageHandler')]
+    [HandlerFunctions('AccScheduleOverviewPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure AccScheduleOverviewMatrixGLAccountAndCurrency()
     var

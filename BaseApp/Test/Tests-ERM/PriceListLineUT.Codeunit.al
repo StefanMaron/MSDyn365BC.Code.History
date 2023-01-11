@@ -1,4 +1,4 @@
-codeunit 134123 "Price List Line UT"
+﻿codeunit 134123 "Price List Line UT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -49,6 +49,9 @@ codeunit 134123 "Price List Line UT"
         SourceGroupJobErr: Label 'Source Group must be equal to ''Job''';
         OutOfSyncNotificationMsg: Label 'We have detected that price list lines exists, which are out of sync. We have disabled the new lookups to prevent issues.';
         IsInitialized: Boolean;
+        ResourceNoErr: Label 'Resource Group is not updated';
+        SourceNoErr: Label 'Invalid Source No.';
+        AssignToNoErr: Label 'Invalid Assign-to No.';
 
     [Test]
     [HandlerFunctions('ItemUOMModalHandler')]
@@ -3387,6 +3390,102 @@ codeunit 134123 "Price List Line UT"
         // [THEN] Verify Product No., and Variant Code is empty
         SalesPriceList.Lines."Product No.".AssertEquals(Item2."No.");
         SalesPriceList.Lines."Variant Code".AssertEquals('');
+    end;
+
+    [Test]
+    procedure VerifyValuesOnPriceListHeaderAndPriceListLineWhenResourceAndJobTaskRename()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        ResourceGroup: Record "Resource Group";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+
+        OldNo: Code[20];
+        ResourceGroupNo: Code[20];
+        JobTaskNo: Code[20];
+    begin
+        // [SCENARIO 457323] Resource Group and Assign-to No. on the Price List Lines page is not updated by the new code.
+        Initialize();
+
+        // [GIVEN] Create 2 Jobs with Job Tasks and Create Resource.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+
+        // [GIVEN] SAve Resource Group and JOob task in a variable.
+        ResourceGroupNo := ResourceGroup."No.";
+        JobTaskNo := JobTask."Job Task No.";
+
+        // [GIVEN] Create Price List Header and it's Price List Line.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::"Job Task", Job."No.", JobTask."Job Task No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"Resource Group", ResourceGroupNo);
+
+        // [WHEN] Rename the Resource Group No. 
+        ResourceGroup.Get(ResourceGroupNo);
+        ResourceGroup.Rename(LibraryUtility.GenerateGUID());
+
+        // [WHEN] Rename the Job task No
+        JobTask.Get(Job."No.", JobTaskNo);
+        JobTask.Rename(JobTask."Job Task No.", LibraryUtility.GenerateGUID());
+
+        // [THEN] Verify Resource Group is updated in Price List Line.
+        PriceListLine.Find();
+        Assert.AreEqual(ResourceGroup."No.", PriceListLine."Product No.", ResourceNoErr);
+
+        // [THEN] Verify the Assign-to No. is updated in Price List Line
+        Assert.AreEqual(JobTask."Job Task No.", PriceListLine."Assign-to No.", AssignToNoErr);
+    end;
+
+    [Test]
+    procedure VerifyValuesOnPriceListHeaderAndPriceListLineWhenItemAndGLAccountRename()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLineItem: Record "Price List Line";
+        PriceListLineGLAcc: Record "Price List Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Item: Record Item;
+        GLAccount: Record "G/L Account";
+        ItemNo: Code[20];
+        GLAccNo: Code[20];
+    begin
+        // [SCENARIO 458555] Item and G/L Account and Assign-to No. on the Price List Lines page are not renamed
+        Initialize();
+
+        // [GIVEN] Create 2 Jobs with Job Tasks and Create Resource.
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Item and G/L Account
+        ItemNo := LibraryInventory.CreateItemNo();
+        GLAccNo := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Create Price List Header and it's Price List Line.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, PriceListHeader."Source Type"::"Job Task", Job."No.", JobTask."Job Task No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLineItem, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"Item", ItemNo);
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLineGLAcc, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"G/L Account", GLAccNo);
+
+        // [WHEN] Rename the Item
+        Item.Get(ItemNo);
+        Item.Rename(LibraryUtility.GenerateGUID());
+
+        // [WHEN] Rename the G/L Account
+        GLAccount.Get(GLAccNo);
+        GLAccount.Rename(LibraryUtility.GenerateGUID());
+
+        // [THEN] Verify Item No. is updated in Price List Line.
+        PriceListLineItem.Find();
+        Assert.AreEqual(Item."No.", PriceListLineItem."Product No.", 'Item No. is not updated');
+
+        // [THEN] Verify G/L Account No. is updated in Price List Line.
+        PriceListLineGLAcc.Find();
+        Assert.AreEqual(GLAccount."No.", PriceListLineGLAcc."Product No.", 'G/L Account No. is not updated');
     end;
 
     local procedure Initialize()

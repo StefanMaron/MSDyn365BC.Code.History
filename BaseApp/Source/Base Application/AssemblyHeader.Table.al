@@ -723,6 +723,7 @@
         Text013: Label 'Do you want to update %1?';
         Text014: Label '%1 and %2';
         Text015: Label '%1 %2 is before %3 %4.', Comment = '%1 and %3 = Date Captions, %2 and %4 = Date Values';
+        UpdateDimensionLineMsg: Label 'You may have changed a dimension.\\Do you want to update the lines?';
 
     protected var
         StatusCheckSuspended: Boolean;
@@ -956,15 +957,58 @@
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
         DimMgt: Codeunit DimensionManagement;
+        OldDimSetID: Integer;
     begin
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
 
+        OldDimSetID := "Dimension Set ID";
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
 
-        if "No." <> '' then
+        if OldDimSetID <> "Dimension Set ID" then begin
             Modify();
+            if AssemblyOrderLineExist() then
+                UpdateAllLineDim("Dimension Set ID", OldDimSetID);
+        end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
+    end;
+
+    procedure AssemblyOrderLineExist(): Boolean
+    var
+        AssemblyOrderLine: Record "Assembly Line";
+    begin
+        AssemblyOrderLine.SetRange("Document Type", "Document Type");
+        AssemblyOrderLine.SetRange("Document No.", "No.");
+        exit(not AssemblyOrderLine.IsEmpty());
+    end;
+
+    local procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
+    var
+        AssemblyOrderLine: Record "Assembly Line";
+        DimMgt: Codeunit DimensionManagement;
+        NewDimSetID: Integer;
+        OldDimSetID: Integer;
+    begin
+        // Update all lines with changed dimensions.
+        if NewParentDimSetID = OldParentDimSetID then
+            exit;
+        if not Confirm(UpdatedimensionLineMsg) then
+            exit;
+
+        AssemblyOrderLine.SetRange("Document Type", "Document Type");
+        AssemblyOrderLine.SetRange("Document No.", "No.");
+        AssemblyOrderLine.LockTable();
+        if AssemblyOrderLine.Find('-') then
+            repeat
+                OldDimSetID := AssemblyOrderLine."Dimension Set ID";
+                NewDimSetID := DimMgt.GetDeltaDimSetID(AssemblyOrderLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
+                if AssemblyOrderLine."Dimension Set ID" <> NewDimSetID then begin
+                    AssemblyOrderLine."Dimension Set ID" := NewDimSetID;
+                    DimMgt.UpdateGlobalDimFromDimSetID(
+                      AssemblyOrderLine."Dimension Set ID", AssemblyOrderLine."Shortcut Dimension 1 Code", AssemblyOrderLine."Shortcut Dimension 2 Code");
+                    AssemblyOrderLine.Modify();
+                end;
+            until AssemblyOrderLine.Next() = 0;
     end;
 
     local procedure GetItem()

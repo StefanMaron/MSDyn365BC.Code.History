@@ -2979,6 +2979,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop Location - Field Shop Code - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 298531255 - Field 3600018459 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Stock calculation</source>
+          <target state="translated">Varaston laskenta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop Location - Field Stock Calculation - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 298531255 - Field 237762718 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Version</source>
           <target state="translated">Versio</target>
@@ -7668,6 +7674,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Locations Mapping - Control Name - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 3081489686 - Control 3600018459 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select the stock calculation used for this location.</source>
+          <target state="translated">Valitse tässä sijainnissa käytettävä varaston laskenta.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Locations Mapping - Control Stock Calculation - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3081489686 - Action 4256907756 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Get the locations defined in Shopify.</source>
           <target state="translated">Hae Shopifyssa määritetyt sijainnit.</target>
@@ -9852,6 +9864,24 @@
           <target state="translated">Toimittajan nimikenro</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy SKU Mappging - EnumValue Vendor Item No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1420853479 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopify Stock Calculation"</source>
+          <target state="translated">Shopify-varaston laskenta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Stock Calculation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1420853479 - EnumValue 1864907812 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Poistettu käytöstä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Stock Calculation - EnumValue Disabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1420853479 - EnumValue 2292656616 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Projected Available Balance at Today</source>
+          <target state="translated">Oletettu saatavilla oleva saldo tänään</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Stock Calculation - EnumValue Projected Available Balance Today - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 1545563666 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Synchronization Type</source>

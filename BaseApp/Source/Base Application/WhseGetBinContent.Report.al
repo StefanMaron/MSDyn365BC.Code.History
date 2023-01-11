@@ -304,8 +304,10 @@ report 7391 "Whse. Get Bin Content"
         with ItemJournalLine do begin
             Init();
             "Line No." := "Line No." + 10000;
+            "Source Code" := ItemJournalTemplate."Source Code";
+            "Posting No. Series" := ItemJournalBatch."Posting No. Series";
             ItemLedgerEntryType := Enum::"Item Ledger Entry Type"::Transfer;
-            OnInsertItemJournalLineOnBeforeValidateEntryType(ItemJournalLine, BinContent, ItemLedgerEntryType);
+            OnInsertItemJournalLineOnBeforeValidateEntryType(ItemJournalLine, BinContent, ItemLedgerEntryType, ItemJournalTemplate, ItemJournalBatch);
             Validate("Entry Type", ItemLedgerEntryType);
             Validate("Item No.", BinContent."Item No.");
             Validate("Posting Date", PostingDate);
@@ -321,8 +323,6 @@ report 7391 "Whse. Get Bin Content"
             Validate("New Bin Code", '');
             Validate("Unit of Measure Code", BinContent."Unit of Measure Code");
             Validate(Quantity, CalcQtyUOM(QtyToEmptyBase, "Qty. per Unit of Measure"));
-            "Source Code" := ItemJournalTemplate."Source Code";
-            "Posting No. Series" := ItemJournalBatch."Posting No. Series";
             OnInsertItemJournalLineOnBeforeInsert(ItemJournalLine, BinContent);
             Insert();
             OnAfterInsertItemJnlLine(ItemJournalLine, BinContent);
@@ -606,7 +606,7 @@ report 7391 "Whse. Get Bin Content"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertItemJournalLineOnBeforeValidateEntryType(var ItemJournalLine: Record "Item Journal Line"; var BinContent: Record "Bin Content"; var ItemLedgerEntryType: Enum "Item Ledger Entry Type")
+    local procedure OnInsertItemJournalLineOnBeforeValidateEntryType(var ItemJournalLine: Record "Item Journal Line"; var BinContent: Record "Bin Content"; var ItemLedgerEntryType: Enum "Item Ledger Entry Type"; ItemJournalTemplate: Record "Item Journal Template"; ItemJournalBatch: Record "Item Journal Batch")
     begin
     end;
 

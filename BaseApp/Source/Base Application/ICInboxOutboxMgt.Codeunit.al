@@ -689,9 +689,11 @@
     procedure CreateJournalLines(InboxTransaction: Record "IC Inbox Transaction"; InboxJnlLine: Record "IC Inbox Jnl. Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; GenJnlTemplate: Record "Gen. Journal Template")
     var
         GenJnlLine2: Record "Gen. Journal Line";
+        GenJnlBatch: Record "Gen. Journal Batch";
         InOutBoxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim.";
         TempInOutBoxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim." temporary;
         HandledInboxJnlLine: Record "Handled IC Inbox Jnl. Line";
+        ICSetup: Record "IC Setup";
         DimMgt: Codeunit DimensionManagement;
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ICMapping: Codeunit "IC Mapping";
@@ -704,11 +706,16 @@
         OnBeforeCreateJournalLines(InboxTransaction, InboxJnlLine, TempGenJnlLine, GenJnlTemplate, IsHandled);
         if not IsHandled then begin
             GetGLSetup();
+            ICSetup.Get();
             with GenJnlLine2 do
                 if InboxTransaction."Transaction Source" = InboxTransaction."Transaction Source"::"Created by Partner" then begin
                     Init();
                     "Journal Template Name" := TempGenJnlLine."Journal Template Name";
                     "Journal Batch Name" := TempGenJnlLine."Journal Batch Name";
+                    if ICSetup."Auto. Send Transactions" then begin
+                        GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+                        "Posting No. Series" := GenJnlBatch."Posting No. Series";
+                    end;
                     if TempGenJnlLine."Posting Date" <> 0D then
                         "Posting Date" := TempGenJnlLine."Posting Date"
                     else

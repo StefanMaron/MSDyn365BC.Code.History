@@ -116,7 +116,7 @@ codeunit 1253 "Change Bank Rec. Statement No."
     begin
         CheckLedgerEntry.SetRange("Statement No.", BankAccReconciliation."Statement No.");
         CheckLedgerEntry.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
-        CheckLedgerEntry.SetRange("Statement Status", CheckLedgerEntry."Statement Status"::"Check Entry Applied");
+        CheckLedgerEntry.SetFilter("Statement Status", '%1|%2', CheckLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", CheckLedgerEntry."Statement Status"::"Check Entry Applied");
         if not CheckLedgerEntry.IsEmpty() then
             CheckLedgerEntry.ModifyAll("Statement No.", NewStatementNo);
     end;

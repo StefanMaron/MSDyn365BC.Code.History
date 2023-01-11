@@ -60,6 +60,8 @@ permissionset 5759 "D365 BANKING"
                   tabledata "Payment Application Proposal" = RIMD,
                   tabledata "Payment Matching Details" = RIMD,
                   tabledata "Payment Method" = Rm,
+                  tabledata "Payment Rec. Related Entry" = RIMD,
+                  tabledata "Pmt. Rec. Applied-to Entry" = RIMD,
                   tabledata "Positive Pay Entry" = RIMD,
                   tabledata "Positive Pay Entry Detail" = RIMD,
                   tabledata "Posted Payment Recon. Hdr" = Rimd,

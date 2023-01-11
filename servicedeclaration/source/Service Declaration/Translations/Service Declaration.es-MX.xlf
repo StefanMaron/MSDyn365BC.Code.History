@@ -45,6 +45,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 613874622 - NamedType 253089800" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The service declaration %1 already exists.</source>
+          <target state="translated">La declaración de servicio %1 ya existe.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = service declaration number.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - NamedType ServDeclAlreadyExistErr</note>
+        </trans-unit>
         <trans-unit id="Table 613874622 - Field 2090835627 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Config. Code</source>
           <target state="translated">Código config.</target>
@@ -422,7 +428,7 @@
         </trans-unit>
         <trans-unit id="Page 1204715772 - Control 2065359991 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies how a customer's VAT registration number exports to the file. 0 is the value of the VAT Reg. No. field, 1 adds the country code as a prefix, and 2 removes the country code.</source>
-          <target state="translated">Especifica cómo se exporta el RFC/Curp de un cliente al archivo. 0 es el valor del campo RFC/Curp, 1 agrega el código de país como prefijo, y 2 elimina el código de país.</target>
+          <target state="translated">Especifica cómo se exporta el RFC/Curp de un cliente en el archivo. 0 es el valor del campo RFC/Curp, 1 agrega el código de país o región de la UE como prefijo y 2 elimina el código de país o región.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Control Cust. VAT Reg. No. Type - Property ToolTip</note>
         </trans-unit>
@@ -470,7 +476,7 @@
         </trans-unit>
         <trans-unit id="Page 1204715772 - Control 3276852527 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies how a vendor's VAT registration number exports to the file. 0 is the value of the VAT Reg. No. field, 1 adds the country code as a prefix, and 2 removes the country code.</source>
-          <target state="translated">Especifica cómo se exporta el RFC/Curp de un proveedor al archivo. 0 es el valor del campo RFC/Curp, 1 agrega el código de país como prefijo, y 2 elimina el código de país.</target>
+          <target state="translated">Especifica cómo se exporta el RFC/Curp de un proveedor en el archivo. 0 es el valor del campo RFC/Curp, 1 agrega el código de país o región como prefijo y 2 elimina el código de país o región.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Control Vend. VAT Reg. No. Type - Property ToolTip</note>
         </trans-unit>
@@ -632,7 +638,7 @@
         </trans-unit>
         <trans-unit id="Page 3454677590 - Control 2065359991 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies how a customer's VAT registration number exports to the file. 0 is the value of the VAT Reg. No. field, 1 adds the country code as a prefix, and 2 removes the country code.</source>
-          <target state="translated">Especifica cómo se exporta el RFC/Curp de un cliente al archivo. 0 es el valor del campo RFC/Curp, 1 agrega el código de país como prefijo, y 2 elimina el código de país.</target>
+          <target state="translated">Especifica cómo se exporta el RFC/Curp de un cliente en el archivo. 0 es el valor del campo RFC/Curp, 1 agrega el código de país o región de la UE como prefijo y 2 elimina el código de país o región.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Setup - Control Cust. VAT Reg. No. Type - Property ToolTip</note>
         </trans-unit>
@@ -680,7 +686,7 @@
         </trans-unit>
         <trans-unit id="Page 3454677590 - Control 3276852527 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies how a vendor's VAT registration number exports to the file. 0 is the value of the VAT Reg. No. field, 1 adds the country code as a prefix, and 2 removes the country code.</source>
-          <target state="translated">Especifica cómo se exporta el RFC/Curp de un proveedor al archivo. 0 es el valor del campo RFC/Curp, 1 agrega el código de país como prefijo, y 2 elimina el código de país.</target>
+          <target state="translated">Especifica cómo se exporta el RFC/Curp de un proveedor en el archivo. 0 es el valor del campo RFC/Curp, 1 agrega el código de país o región como prefijo y 2 elimina el código de país o región.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Setup - Control Vend. VAT Reg. No. Type - Property ToolTip</note>
         </trans-unit>
@@ -1192,6 +1198,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 2661934884 - Control 3250917128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the code for a service transaction type.</source>
+          <target state="translated">Especifica el código para un tipo de transacción de servicio.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 997740791</note>
@@ -1387,24 +1394,28 @@
         </trans-unit>
         <trans-unit id="TableExtension 118093026 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Applicable For Service Declaration</source>
+          <target state="translated">Aplicable para declaración de servicio</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1308990239</note>
         </trans-unit>
         <trans-unit id="TableExtension 118093026 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Transaction Type Code</source>
+          <target state="translated">Cód. tipo transacción servicio</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1308990239</note>
         </trans-unit>
         <trans-unit id="TableExtension 3429814826 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Applicable For Service Declaration</source>
+          <target state="translated">Aplicable para declaración de servicio</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2850645989</note>
         </trans-unit>
         <trans-unit id="TableExtension 3429814826 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Transaction Type Code</source>
+          <target state="translated">Cód. tipo transacción servicio</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2850645989</note>
@@ -1523,7 +1534,7 @@
         </trans-unit>
         <trans-unit id="Enum 363159866 - EnumValue 424953456 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Country Code + VAT Reg. No.</source>
-          <target state="translated">Código de país + RFC/Curp</target>
+          <target state="translated">Cód. país/región + RFC/Curp</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Serv. Decl. VAT Reg. No. Type - EnumValue Country Code + VAT Reg. No. - Property Caption</note>
         </trans-unit>
@@ -1535,7 +1546,7 @@
         </trans-unit>
         <trans-unit id="Enum 363159866 - EnumValue 3216616316 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>VAT Reg. No. Without Country Code</source>
-          <target state="translated">RFC/Curp sin código de país</target>
+          <target state="translated">RFC/Curp sin cód. país/región</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Serv. Decl. VAT Reg. No. Type - EnumValue VAT Reg. No. w/o Country Code - Property Caption</note>
         </trans-unit>

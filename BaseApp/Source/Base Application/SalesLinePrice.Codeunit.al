@@ -222,7 +222,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetPrice(SalesLine, PriceListLine, AmountType, IsHandled);
+        OnBeforeSetPrice(SalesLine, PriceListLine, AmountType, IsHandled, SalesHeader);
         if IsHandled then
             exit;
 
@@ -356,7 +356,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetPrice(var SalesLine: Record "Sales Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
+    local procedure OnBeforeSetPrice(var SalesLine: Record "Sales Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 

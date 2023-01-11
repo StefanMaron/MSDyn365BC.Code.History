@@ -278,8 +278,9 @@
                             "Bank Acc. Reconciliation"."Statement Type"::"Bank Reconciliation"
                         then begin
                             BankAccLedgEntry.SetFilterBankAccNoOpen("Bank Account No.");
-                            BankAccLedgEntry.SetRange(
-                                "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
+                            BankAccLedgEntry.SetFilter("Statement Status", '=%1 | =%2',
+                                BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied",
+                                BankAccLedgEntry."Statement Status"::"Check Entry Applied");
                             BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
 
                             BankAccRecMatchBuffer.SetRange("Bank Account No.", "Bank Account No.");
@@ -294,12 +295,14 @@
 #if not CLEAN21
                             OnBankAccReconciliationLineAfterGetRecordOnAfterCheckLedgEntrySetFilters("Bank Acc. Reconciliation Line", CheckLedgEntry);
 #endif
-                            if BankAccLedgEntry.Find('-') then
+                            if not BankAccLedgEntry.IsEmpty() then begin
+                                BankAccLedgEntry.FindSet();
                                 repeat
                                     AppliedAmount := AppliedAmount + BankAccLedgEntry.Amount;
                                     VerifyCheckLedgerEntry(BankAccLedgEntry);
                                 until BankAccLedgEntry.Next() = 0;
-                        end else
+                            end;
+                       end else
                             AppliedAmount := GetPaymentReconciliationAppliedAmount("Bank Acc. Reconciliation Line");
 
                         OnBeforeCheckAppliedAmount("Bank Acc. Reconciliation Line", AppliedAmount);
@@ -606,6 +609,7 @@
         StatementDateErr: Label '%1 must be specified.', Comment = '%1=Statement Date field caption';
         StatementBalanceErr: Label '%1 is not equal to Total Balance.', Comment = '%1=Statement Ending Balance field caption';
         TableValueWrongErr: Label '%1 must be %2 for %3 %4.', Comment = '%1=field caption;%2=field value;%3=table name caption;%4=field value';
+        TableValueEmptyErr: Label '%1 must not be empty for %2 %3.', Comment = '%1=field caption;%2=table name caption;%3=field value';
         TableValueMissingErr: Label '%1 %2 does not exist.', Comment = '%1=table name caption;%2=table field name caption';
         AmountWrongErr: Label '%1 must be %2.', Comment = '%1=field name caption;%2=field value';
         ApplicationErr: Label 'Application is wrong.';
@@ -773,7 +777,8 @@
         CheckLedgEntry.SetCurrentKey("Bank Account Ledger Entry No.");
         CheckLedgEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
         CheckLedgEntry.SetRange(Open, true);
-        if CheckLedgEntry.FindSet() then
+        if not CheckLedgEntry.IsEmpty() then begin
+            CheckLedgEntry.FindSet();
             repeat
                 if not CheckLedgEntry.Open then
                     AddError(
@@ -781,26 +786,28 @@
                         TableValueWrongErr,
                         CheckLedgEntry.FieldCaption(Open), true,
                         CheckLedgEntry.TableCaption(), CheckLedgEntry."Entry No."));
-                if CheckLedgEntry."Statement Status" <> CheckLedgEntry."Statement Status"::"Bank Acc. Entry Applied" then
+                if (CheckLedgEntry."Statement Status" <> CheckLedgEntry."Statement Status"::"Bank Acc. Entry Applied") and
+                   (CheckLedgEntry."Statement Status" <> CheckLedgEntry."Statement Status"::"Check Entry Applied") then
                     AddError(
                       StrSubstNo(
                         TableValueWrongErr,
                         CheckLedgEntry.FieldCaption("Statement Status"),
                         CheckLedgEntry."Statement Status"::"Bank Acc. Entry Applied",
                         CheckLedgEntry.TableCaption(), CheckLedgEntry."Entry No."));
-                if CheckLedgEntry."Statement No." <> '' then
+                if CheckLedgEntry."Statement No." = '' then
                     AddError(
                       StrSubstNo(
-                        TableValueWrongErr,
-                        CheckLedgEntry.FieldCaption("Statement No."), '',
+                        TableValueEmptyErr,
+                        CheckLedgEntry.FieldCaption("Statement No."),
                         CheckLedgEntry.TableCaption(), CheckLedgEntry."Entry No."));
-                if CheckLedgEntry."Statement Line No." <> 0 then
+                if CheckLedgEntry."Statement Line No." = 0 then
                     AddError(
                       StrSubstNo(
-                        TableValueWrongErr,
-                        CheckLedgEntry.FieldCaption("Statement Line No."), 0,
+                        TableValueEmptyErr,
+                        CheckLedgEntry.FieldCaption("Statement Line No."),
                         CheckLedgEntry.TableCaption(), CheckLedgEntry."Entry No."));
             until CheckLedgEntry.Next() = 0;
+        end;
     end;
 
     local procedure SetupRecord()

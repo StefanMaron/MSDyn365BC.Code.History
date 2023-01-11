@@ -14,6 +14,7 @@ codeunit 134935 "ERM Posted Gen. Journal Line"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         CopyEnabledErr: Label 'Copy to Posted Gen. Journal Lines should be enabled.';
         CopyDisabledErr: Label 'Copy to Posted Gen. Journal Lines should not be enabled.';
@@ -22,6 +23,7 @@ codeunit 134935 "ERM Posted Gen. Journal Line"
         CanBeCopiedErr: Label 'You cannot copy the posted general journal lines with G/L register number %1 because they contain customer, vendor, or employee ledger entries that were posted and applied in the same G/L register.';
         ReverseDateCalcRecurringTypeErr: Label 'Recurring must have a value in Gen. Journal Template';
         ReverseDateCalcRecurringMethodErr: Label 'Recurring Method must not be';
+        PostedGenJournalLineLinkErr: Label ' Links are not equal.';
 
     [Test]
     [Scope('OnPrem')]
@@ -797,6 +799,70 @@ codeunit 134935 "ERM Posted Gen. Journal Line"
         GenJournalBatch.TestField("Copy to Posted Jnl. Lines", false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyLinkPostedOnPostedGenJournalLine()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PostedGenJournalLine: Record "Posted Gen. Journal Line";
+        Link: Text;
+    begin
+        // [SCENARIO 452729] After posting General Journal Lines a link from a line that just got posted is automatically attached to new lines
+        Initialize();
+
+        // [GIVEN] Gen. Journal Batch with enabled "Copy to Posted Jnl. Lines"
+        CreateGenJnlBatch(GenJournalBatch, true);
+
+        // [GIVEN]  Gen. Journal Line
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+            GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), 123.45);
+
+        // [GIVEN] Record Link for Sales Order with value = "SalesLink"
+        Link := CreateRecordLink(GenJournalLine);
+
+        // [WHEN] Post Gen. Journal Batch
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [VERIFY] Verify Link on Posted Gen. Journal Line 
+        PostedGenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        PostedGenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        PostedGenJournalLine.FindFirst();
+        VerifyPostedGenJournalLineLink(PostedGenJournalLine.RecordId, Link)
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyLinkDeletedOnGenJournalLineAfterPosting()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Link: Text;
+    begin
+        // [SCENARIO 452729] After posting General Journal Lines a link from a line that just got posted is automatically attached to new lines
+        Initialize();
+
+        // [GIVEN] Gen. Journal Batch with enabled "Copy to Posted Jnl. Lines"
+        CreateGenJnlBatch(GenJournalBatch, true);
+
+        // [GIVEN]  Gen. Journal Line
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+            GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), 123.45);
+
+        // [GIVEN] Record Link for Sales Order with value = "SalesLink"
+        Link := CreateRecordLink(GenJournalLine);
+
+        // [WHEN] Post Gen. Journal Batch
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [VERIFY] Verify Link on will be deleted after posting gen. journal line
+        VerifyGenJournalLineLinkNotFound(GenJournalLine.RecordId, Link)
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1059,6 +1125,35 @@ codeunit 134935 "ERM Posted Gen. Journal Line"
         CopyGenJournalParameters."Journal Template Name".AssertEquals(JournalTemplateName);
         CopyGenJournalParameters."Journal Batch Name".AssertEquals(JournalBatchName);
         CopyGenJournalParameters.Cancel().Invoke();
+    end;
+
+    local procedure CreateRecordLink(SourceRecord: Variant): Text[250]
+    var
+        RecordLink: Record "Record Link";
+        RecRef: RecordRef;
+    begin
+        RecRef.GetTable(SourceRecord);
+        RecRef.AddLink(LibraryUtility.GenerateGUID());
+        RecordLink.SetRange("Record ID", RecRef.RecordId);
+        RecordLink.FindFirst();
+        exit(RecordLink.URL1);
+    end;
+
+    local procedure VerifyPostedGenJournalLineLink(RecordId: RecordId; Link: Text)
+    var
+        RecordLink: Record "Record Link";
+    begin
+        RecordLink.SetRange("Record ID", RecordId);
+        RecordLink.FindFirst();
+        Assert.AreEqual(Link, RecordLink.URL1, PostedGenJournalLineLinkErr);
+    end;
+
+    local procedure VerifyGenJournalLineLinkNotFound(RecordId: RecordId; Link: Text)
+    var
+        RecordLink: Record "Record Link";
+    begin
+        RecordLink.SetRange("Record ID", RecordId);
+        asserterror RecordLink.FindFirst();
     end;
 
     [ModalPageHandler]

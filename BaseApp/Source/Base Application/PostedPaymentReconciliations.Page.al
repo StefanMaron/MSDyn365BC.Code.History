@@ -25,6 +25,11 @@ page 1299 "Posted Payment Reconciliations"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank statement that contained the line that represented the posted payment.';
                 }
+                field("Is Reversed"; Rec."Is Reversed")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Tooltip = 'Specifies if this posted payment reconciliation journal has been previously reversed.';
+                }
             }
         }
         area(factboxes)

@@ -121,6 +121,8 @@ page 5167 "Purchase Order Archive"
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
+                    Editable = false;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the entry''s VAT date.';
                 }
                 field("Order Date"; Rec."Order Date")
@@ -579,10 +581,13 @@ page 5167 "Purchase Order Archive"
     }
 
     trigger OnOpenPage()
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt"; 
     begin
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     trigger OnAfterGetRecord()
@@ -599,5 +604,7 @@ page 5167 "Purchase Order Archive"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 }
 

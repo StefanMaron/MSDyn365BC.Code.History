@@ -90,6 +90,7 @@ page 438 "Issued Reminder"
                 field("VAT Reporting Date"; Rec."VAT Reporting Date") 
                 {
                     ApplicationArea = VAT;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the VAT date for the reminder.';
                 }
                 field("Document Date"; Rec."Document Date")
@@ -392,6 +393,13 @@ page 438 "Issued Reminder"
         }
     }
 
+    trigger OnOpenPage()
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+    begin
+		VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+    end;
+
     trigger OnAfterGetRecord()
     var
         Customer: Record Customer;
@@ -404,6 +412,8 @@ page 438 "Issued Reminder"
         IssuedReminderHeader: Record "Issued Reminder Header";
         CurrExchRate: Record "Currency Exchange Rate";
         ChangeExchangeRate: Page "Change Exchange Rate";
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(IssuedReminderHeaderRec: Record "Issued Reminder Header"; var IssuedReminderHeaderToPrint: Record "Issued Reminder Header"; var IsHandled: Boolean)

@@ -35,7 +35,7 @@ page 353 "Item Availability Lines"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Gross Requirement';
                     DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies the sum of the total demand for the item. The gross requirement consists of independent demand (which include sales orders, service orders, transfer orders, and demand forecasts) and dependent demand (which include production order components for planned, firm planned, and released production orders and requisition and planning worksheets lines).';
+                    ToolTip = 'Specifies the sum of the total demand for the item. The gross requirement consists of independent demand (which include sales orders, service orders, transfer orders, and, if specified on the page, demand forecasts) and dependent demand (which include production order components for planned, firm planned, and released production orders and requisition and planning worksheets lines).';
 
                     trigger OnDrillDown()
                     begin

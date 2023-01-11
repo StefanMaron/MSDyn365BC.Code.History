@@ -960,6 +960,8 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Payment Matching Details" = R,
                   tabledata "Payment Method" = R,
                   tabledata "Payment Method Translation" = R,
+                  tabledata "Payment Rec. Related Entry" = R,
+                  tabledata "Pmt. Rec. Applied-to Entry" = R,
                   tabledata "Payment Registration Buffer" = R,
                   tabledata "Payment Registration Setup" = R,
                   tabledata "Payment Reporting Argument" = R,

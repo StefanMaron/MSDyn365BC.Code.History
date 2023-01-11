@@ -7275,6 +7275,116 @@ codeunit 137030 "SCM Extend Warehouse"
         ProdOrderLine.TestField("Bin Code", ProductionOrder."Bin Code");
     end;
 
+    [Test]
+    [HandlerFunctions('SyncBinCodeOnProdComponentConfirm')]
+    procedure VerifyBinCodeIsNotUpdatedOnProdOrderComponentOnUpdateBinCodeOnRoutingLine()
+    var
+        ParentItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ChildItem1: Record Item;
+        ChildItem2: Record Item;
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+        ProdBOMHeader: Record "Production BOM Header";
+        RoutingHeader: Record "Routing Header";
+        MachineCenter: array[2] of Record "Machine Center";
+        ToBin: array[2] of Record Bin;
+        FromBin: array[2] of Record Bin;
+        OSFBBin: array[2] of Record Bin;
+    begin
+        // [SCENARIO 454689] Verify Bin Code is not updated on Prod. Order Component on update Bin Code on Routing Line
+        // [GIVEN]
+        Initialize();
+
+        // [GIVEN] Create Production BOM
+        CreateBOM(ProdBOMHeader, 2, 2);
+
+        // [GIVEN] Create Work Center with White Location
+        CreateWorkCenterWithWhiteLocation(WorkCenter);
+
+        // [GIVEN] Create Machine Centers
+        CreateMachineCentersWithLocation(MachineCenter, WorkCenter);
+
+        // [GIVEN] Create Routing
+        CreateRoutingWithLines(RoutingHeader, MachineCenter[1], WorkCenter);
+
+        // [GIVEN] Setup Parent Item on BOM and Routing
+        ParentItemSetupOnBOMAndRouting(ParentItem, ProdBOMHeader, RoutingHeader);
+
+        // [GIVEN] Populate Bins Test Setup
+        PopulateBinsTestSetup(LocationWhite, ToBin, FromBin, OSFBBin);
+
+        // Reload location code as it changed
+        LocationWhite.Get(LocationWhite.Code);
+
+        // [GIVEN] Set Bins on Location
+        SetBinsOnLocation(LocationWhite, ToBin[1].Code, FromBin[1].Code, OSFBBin[1].Code);
+
+        // [GIVEN] Set Bins on Machine Centers
+        SetBinsOnMC(MachineCenter[1], ToBin[1].Code, FromBin[1].Code, OSFBBin[1].Code);
+        SetBinsOnMC(MachineCenter[2], ToBin[2].Code, FromBin[2].Code, OSFBBin[2].Code);
+        FindChild(ParentItem, ChildItem1, 1);
+        FindChild(ParentItem, ChildItem2, 2);
+
+        // [GIVEN] Create and refresh Production Order
+        CreateRelProdOrderAndRefresh(ProductionOrder, ParentItem."No.", 10, LocationWhite.Code, '');
+
+        // Assert component lines
+        AssertProdOrderComponent(ProductionOrder, ChildItem1."No.", 20, 20, 0, 0, LocationWhite.Code, ToBin[1].Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ChildItem2."No.", 20, 20, 0, 0, LocationWhite.Code, ToBin[1].Code, 1);
+
+        // Assert routing lines
+        AssertProdOrderRoutingLine(ProductionOrder, ROUTING_LINE_10, RoutingLine.Type::"Machine Center",
+          MachineCenter[1]."No.", LocationWhite.Code, ToBin[1].Code, FromBin[1].Code, OSFBBin[1].Code, 1);
+
+        // [WHEN] Change Machine Center on Routing Line
+        UpdateMachineCenterOnRoutingLine(ProductionOrder, MachineCenter);
+
+        // [THEN] Vecrify Bin Code are not updated on Component Lines
+        AssertProdOrderComponent(ProductionOrder, ChildItem1."No.", 20, 20, 0, 0, LocationWhite.Code, ToBin[1].Code, 1);
+        AssertProdOrderComponent(ProductionOrder, ChildItem2."No.", 20, 20, 0, 0, LocationWhite.Code, ToBin[1].Code, 1);
+    end;
+
+    local procedure UpdateMachineCenterOnRoutingLine(var ProductionOrder: Record "Production Order"; var MachineCenter: array[2] of Record "Machine Center")
+    var
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderRoutingLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderRoutingLine.SetRange("Operation No.", ROUTING_LINE_10);
+        ProdOrderRoutingLine.SetRange(Type, ProdOrderRoutingLine.Type::"Machine Center");
+        ProdOrderRoutingLine.SetRange("No.", MachineCenter[1]."No.");
+        ProdOrderRoutingLine.SetRange("Location Code", LocationWhite.Code);
+        if ProdOrderRoutingLine.FindFirst() then begin
+            ProdOrderRoutingLine.Validate("No.", MachineCenter[2]."No.");
+            ProdOrderRoutingLine.Modify(true);
+        end;
+    end;
+
+    local procedure CreateRoutingWithLines(var RoutingHeader: Record "Routing Header"; var MachineCenter: Record "Machine Center"; var WorkCenter: Record "Work Center")
+    begin
+        CreateRouting(RoutingHeader, MachineCenter, WorkCenter);
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure CreateWorkCenterWithWhiteLocation(var WorkCenter: Record "Work Center")
+    begin
+        CreateWorkCenter(WorkCenter, WorkCenter."Flushing Method"::Manual);
+        WorkCenter.Validate("Location Code", LocationWhite.Code);
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure CreateMachineCentersWithLocation(var MachineCenter: array[2] of Record "Machine Center"; var WorkCenter: Record "Work Center")
+    begin
+        CreateMachineCenter(MachineCenter[1], WorkCenter, MachineCenter[1]."Flushing Method"::Manual);
+        MachineCenter[1].Validate("Location Code", LocationWhite.Code);
+        MachineCenter[1].Modify(true);
+        CreateMachineCenter(MachineCenter[2], WorkCenter, MachineCenter[2]."Flushing Method"::Manual);
+        MachineCenter[2].Validate("Location Code", LocationWhite.Code);
+        MachineCenter[2].Modify(true);
+    end;
+
     local procedure PC5(var ParentItem: Record Item)
     var
         ProductionBOMHeader: Record "Production BOM Header";
@@ -7490,6 +7600,12 @@ codeunit 137030 "SCM Extend Warehouse"
     begin
         Assert.IsTrue(StrPos(Question, Text006) > 0, Question);
         Val := true;
+    end;
+
+    [ConfirmHandler]
+    procedure SyncBinCodeOnProdComponentConfirm(Question: Text[1024]; var Val: Boolean)
+    begin
+        Val := false;
     end;
 }
 

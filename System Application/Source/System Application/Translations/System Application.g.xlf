@@ -2718,6 +2718,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table SAS Parameters - Field ApiVersion - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3831263693 - Field 452288233 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SignedEncryptionScope</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SAS Parameters - Field SignedEncryptionScope - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3831263693 - Field 3633290037 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>SignedIp</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -5238,6 +5243,11 @@
           <note from="Developer" annotates="general" priority="2">%1 = the number of characters</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Handler Impl. - NamedType InsufficientPassLengthErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2592325759 - NamedType 2816297459" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All objects of type %1 (except where otherwise stated)</source>
+          <note from="Developer" annotates="general" priority="2">%1= type name, e.g. Table Data or Report or Page</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Permission Impl. - NamedType AllObjExceptTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2592325759 - NamedType 1547195898" size-unit="char" translate="yes" xml:space="preserve">
           <source>All objects of type %1</source>
           <note from="Developer" annotates="general" priority="2">%1= type name, e.g. Table Data or Report or Page</note>
@@ -5507,6 +5517,11 @@
           <source>Limited the number of records to delete for table %1, %2 to %3 records. The maximum number of records that can be deleted at the same time is %4, and %5 records were previously deleted in one or more tables.</source>
           <note from="Developer" annotates="general" priority="2">%1 = a id of a table (integer), %2 = the caption of the table, %3, %4, %5 = integer</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Reten. Pol. Delete. Impl. - NamedType LimitNumberOfRecordsLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3411327414 - NamedType 1381496626" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Max. Number of Rec. To Delete is less than 0.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Reten. Pol. Delete. Impl. - NamedType MaxNumberofRecToDeleteNegLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3411327414 - NamedType 2047030313" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unable to check number of records to delete due to missing read permission for table %1, %2</source>
@@ -8593,6 +8608,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Control Scenario - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3163801880 - Action 593408208 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download the selected attachment file.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Action Download - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3163801880 - Action 593408208 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download Attachment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Action Download - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2282749623 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Compose an Email</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -9053,8 +9078,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action Delete - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 664053810 - Action 593408208 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download the selected attachment file.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action Download - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Action 593408208 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download Attachment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action Download - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 664053810 - Action 884106764 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Choose a email scenario and add files, such as documents or images, to the email.</source>
+          <source>Choose an email scenario and add files, such as documents or images, to the email.</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action SetScenarioAndAddFile - Property ToolTip</note>
         </trans-unit>
@@ -13152,6 +13187,16 @@
           <source>Apply Manually</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Action ApplyManually - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1206474225 - Action 3028141151 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refreshes the list of tables that can be selected.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Action RestoreAllowedTables - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1206474225 - Action 3028141151 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh allowed tables</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Action RestoreAllowedTables - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1623743194 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Retention Policy Setup Lines</source>

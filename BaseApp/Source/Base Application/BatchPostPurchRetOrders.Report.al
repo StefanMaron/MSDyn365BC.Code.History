@@ -17,8 +17,10 @@ report 6665 "Batch Post Purch. Ret. Orders"
             begin
                 OnBeforePurchaseHeaderOnPreDataItem("Purchase Header", ShipReq, InvReq);
 
-                PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Ship, ShipReq);
-                PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
+                PurchaseBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::Ship, ShipReq);
+                PurchaseBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::Print, PrintDoc);
+                PurchaseBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDateReq);
+                PurchaseBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"VAT Date", VATDateReq);    
                 PurchaseBatchPostMgt.RunBatch("Purchase Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, InvReq);
 
                 CurrReport.Break();
@@ -55,6 +57,12 @@ report 6665 "Batch Post Purch. Ret. Orders"
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date that you want to use as the document date or the posting date when you post if you select the Replace Document Date check box or the Replace Posting Date check box.';
                     }
+                    field(VATDate; VATDateReq)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'VAT Date';
+                        ToolTip = 'Specifies the date that the program will use as the VAT date when you post if you place a checkmark in Replace VAT Date.';
+                    }
                     field(ReplacePostingDate; ReplacePostingDate)
                     {
                         ApplicationArea = PurchReturnOrder;
@@ -72,6 +80,12 @@ report 6665 "Batch Post Purch. Ret. Orders"
                         ApplicationArea = PurchReturnOrder;
                         Caption = 'Replace Document Date';
                         ToolTip = 'Specifies if you want to replace the document date of the orders with the date in the Posting Date field.';
+                    }
+                    field(ReplaceVATDate; ReplaceVATDateReq)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'Replace VAT Date';
+                        ToolTip = 'Specifies if you want to replace the purchase orders'' VAT date with the date in the VAT Date field.';
                     }
                     field(CalcInvDiscount; CalcInvDisc)
                     {
@@ -137,10 +151,10 @@ report 6665 "Batch Post Purch. Ret. Orders"
         Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
 
     protected var
-        PostingDateReq: Date;
+        PostingDateReq, VATDateReq: Date;
         ShipReq: Boolean;
         InvReq: Boolean;
-        ReplacePostingDate: Boolean;
+        ReplacePostingDate, ReplaceVATDateReq: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
         PrintDoc: Boolean;

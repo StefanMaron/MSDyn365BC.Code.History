@@ -29,12 +29,16 @@
         DimValueMissingErr: Label '%1 %2 - %3 is missing.', Comment = '%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value';
         Text019: Label 'You have changed a dimension.\\Do you want to update the lines?';
         DimValueNotAllowedForAccountErr: Label 'Dimension value %1, %2 is not allowed for %3, %4.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption, %4 - account number.';
-        DimValueNotAllowedForAccountTypeErr: Label 'Dimension value %1 %2 is not allowed for account type %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption.';
+        DimValueNotAllowedForAccountTypeErr: Label 'Dimension value %1 %2 is not allowed for account type %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption.';        
         NoAllowedValuesSelectedErr: Label 'There are no allowed dimension values selected.';
+        DefaultDimPrioritiesMissingLbl: Label 'Default Dimension Priorities are not defined for Source Code: %1.', Comment = '%1 = Source Code';
+        HideNotificationTxt: Label 'Don''t show again';
+        OpenDefaultDimPrioritiesLbl: Label 'Do you want to initialize Dimension Priorities?';
         LastErrorMessage: Record "Error Message";
         TempJobTaskDimBuffer: Record "Job Task Dimension" temporary;
         TempDimSetEntryBuffer: Record "Dimension Set Entry" temporary;
         ErrorMessageMgt: Codeunit "Error Message Management";
+        InstructionMgt: Codeunit "Instruction Mgt.";
         TempDimCombInitialized: Boolean;
         TempDimCombEmpty: Boolean;
         HasGotGLSetup: Boolean;
@@ -816,7 +820,7 @@
                                     if not TempDimBuf.FindFirst() then
                                         InsertTempDimBufEntry(TempDimBuf, DefaultDim."Table ID", 0, DefaultDim."Dimension Code", DefaultDim."Dimension Value Code")
                                     else
-                                        if DefaultDimPriority1.Get(SourceCode, DefaultDim."Table ID") then
+                                        if DefaultDimPriority1.Get(SourceCode, DefaultDim."Table ID") then begin
                                             if DefaultDimPriority2.Get(SourceCode, TempDimBuf."Table ID") then begin
                                                 if DefaultDimPriority1.Priority < DefaultDimPriority2.Priority then begin
                                                     TempDimBuf.Delete();
@@ -826,6 +830,9 @@
                                                 TempDimBuf.Delete();
                                                 InsertTempDimBufEntry(TempDimBuf, DefaultDim."Table ID", 0, DefaultDim."Dimension Code", DefaultDim."Dimension Value Code");
                                             end;
+                                        end else
+                                            if InstructionMgt.IsEnabled(InstructionMgt.DefaultDimPrioritiesCode()) then
+                                                InitializeDefaultDimPrioritiesMissingNotification(SourceCode);
                                     if GLSetupShortcutDimCode[1] = TempDimBuf."Dimension Code" then
                                         GlobalDim1Code := TempDimBuf."Dimension Value Code";
                                     if GLSetupShortcutDimCode[2] = TempDimBuf."Dimension Code" then
@@ -2757,6 +2764,48 @@
             DefaultDimSource.Insert(1, DimSource)
         else
             DefaultDimSource.Add(DimSource);
+    end;
+
+    procedure IsDefaultDimDefinedForTable(TableValuePair: Dictionary of [Integer, Code[20]]): Boolean
+    var
+        DefaultDim: Record "Default Dimension";
+    begin
+        if TableValuePair.Count = 0 then exit(true);
+        DefaultDim.SetRange("Table ID", TableValuePair.Keys.Get(1));
+        DefaultDim.SetRange("No.", TableValuePair.Values.Get(1));
+        DefaultDim.SetFilter("Dimension Value Code", '<>%1', '');
+        if not DefaultDim.IsEmpty() then exit(true);
+    end;
+
+    local procedure InitializeDefaultDimPrioritiesMissingNotification(SourceCode: Code[20])
+    var
+        DefaultDimPrioritiesNotification: Notification;
+    begin
+        DefaultDimPrioritiesNotification.Message(StrSubstNo(DefaultDimPrioritiesMissingLbl, SourceCode));
+        DefaultDimPrioritiesNotification.Scope := NotificationScope::LocalScope;
+        DefaultDimPrioritiesNotification.SetData('SourceCode', SourceCode);
+        DefaultDimPrioritiesNotification.AddAction(HideNotificationTxt, Codeunit::DimensionManagement, 'DontNotifyCurrentUserAgain');
+        DefaultDimPrioritiesNotification.AddAction(OpenDefaultDimPrioritiesLbl, Codeunit::DimensionManagement, 'OpenDefaultDimPriorities');
+        DefaultDimPrioritiesNotification.Send();
+    end;
+
+    procedure DontNotifyCurrentUserAgain(Notification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if not MyNotifications.Disable(InstructionMgt.GetDefaultDimPrioritiesNotificationId()) then
+            MyNotifications.InsertDefault(InstructionMgt.GetDefaultDimPrioritiesNotificationId(), InstructionMgt.GetDefaultDimPrioritiesTxt(),
+                 InstructionMgt.GetDefaultDimPrioritiesDescriptionTxt(), false);
+    end;
+
+    procedure OpenDefaultDimPriorities(DefaultDimPrioritiesNotification: Notification)
+    var
+        DefaultDimPriority: Record "Default Dimension Priority";
+        DefaultDimPriorities: Page "Default Dimension Priorities";
+    begin
+        DefaultDimPriority.SetRange("Source Code", DefaultDimPrioritiesNotification.GetData('SourceCode'));
+        DefaultDimPriorities.SetTableView(DefaultDimPriority);
+        DefaultDimPriorities.Run();
     end;
 
 #if not CLEAN20

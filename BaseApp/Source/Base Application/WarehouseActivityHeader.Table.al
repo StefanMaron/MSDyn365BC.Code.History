@@ -331,6 +331,8 @@ table 5766 "Warehouse Activity Header"
 #if not CLEAN20
                         end;
 #endif
+                    "Source Document"::"Service Order":
+                        Error(NotSupportedSourceDocumentTypeErr, "Source Document"::"Service Order");
                 end;
 
                 if "Source Document" = "Source Document"::" " then begin
@@ -443,6 +445,7 @@ table 5766 "Warehouse Activity Header"
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'You must first set up user %1 as a warehouse employee.';
         Text002: Label 'You cannot change %1 because one or more lines exist.';
+        NotSupportedSourceDocumentTypeErr: Label 'Source Document type %1 is not supported.', Comment = '%1 - source document type, like Sales Order.';
 
     procedure AssistEdit(OldWhseActivHeader: Record "Warehouse Activity Header"): Boolean
     begin

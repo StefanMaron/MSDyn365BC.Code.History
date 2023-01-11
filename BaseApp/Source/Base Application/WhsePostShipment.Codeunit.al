@@ -118,25 +118,28 @@
             FindSet(true, true);
             repeat
                 SetSourceFilter("Source Type", "Source Subtype", "Source No.", -1, false);
-                OnAfterSetSourceFilterForWhseShptLine(WhseShptLine);
-                GetSourceDocument();
-                MakePreliminaryChecks();
+                IsHandled := false;
+                OnAfterSetSourceFilterForWhseShptLine(WhseShptLine, IsHandled);
+                if not IsHandled then begin
+                    GetSourceDocument();
+                    MakePreliminaryChecks();
 
-                InitSourceDocumentLines(WhseShptLine);
-                InitSourceDocumentHeader();
-                if not SuppressCommit then
-                    Commit();
+                    InitSourceDocumentLines(WhseShptLine);
+                    InitSourceDocumentHeader();
+                    if not SuppressCommit then
+                        Commit();
 
-                CounterSourceDocTotal := CounterSourceDocTotal + 1;
+                    CounterSourceDocTotal := CounterSourceDocTotal + 1;
 
-                OnBeforePostSourceDocument(WhseShptLine, PurchHeader, SalesHeader, TransHeader, ServiceHeader, SuppressCommit);
-                PostSourceDocument(WhseShptLine);
-                WhseJnlRegisterLine.LockTables();
+                    OnBeforePostSourceDocument(WhseShptLine, PurchHeader, SalesHeader, TransHeader, ServiceHeader, SuppressCommit);
+                    PostSourceDocument(WhseShptLine);
+                    WhseJnlRegisterLine.LockTables();
 
-                if FindLast() then;
-                SetRange("Source Type");
-                SetRange("Source Subtype");
-                SetRange("Source No.");
+                    if FindLast() then;
+                    SetRange("Source Type");
+                    SetRange("Source Subtype");
+                    SetRange("Source No.");
+                end;
                 OnAfterReleaseSourceForFilterWhseShptLine(WhseShptLine);
             until Next() = 0;
         end;
@@ -1910,7 +1913,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetSourceFilterForWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line");
+    local procedure OnAfterSetSourceFilterForWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean);
     begin
     end;
 

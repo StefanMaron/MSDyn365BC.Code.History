@@ -45,6 +45,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 613874622 - NamedType 253089800" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The service declaration %1 already exists.</source>
+          <target state="translated">The service declaration %1 already exists.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = service declaration number.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - NamedType ServDeclAlreadyExistErr</note>
+        </trans-unit>
         <trans-unit id="Table 613874622 - Field 2090835627 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Config. Code</source>
           <target state="translated">Config. Code</target>

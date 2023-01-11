@@ -517,6 +517,37 @@ codeunit 134325 "ERM Purchase Quote"
         Assert.RecordIsEmpty(PurchCommentLine);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestReleasePurchaseQuoteWithPrepayment()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 455940] Purchase Quote with Prepayment % can be release
+
+        Initialize();
+
+        // [GIVEN] Create Item and Customer
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 0));
+        Item.Modify(true);
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [THEN] Update Prepayment % on customer.
+        Vendor.Validate("Prepayment %", LibraryRandom.RandDec(100, 2));
+        Vendor.Modify();
+
+        // [GIVEN] Create Purchase Quote
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+
+        // [VERIFY] Purchase Quote released succesfully
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";

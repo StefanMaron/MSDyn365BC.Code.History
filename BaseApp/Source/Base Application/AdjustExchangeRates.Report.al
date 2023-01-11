@@ -48,6 +48,7 @@ report 595 "Adjust Exchange Rates"
                                 AdjExchRateBufferUpdate(
                                   "Bank Account"."Currency Code", "Bank Account"."Bank Acc. Posting Group",
                                   TotalAdjBase, TotalAdjBaseLCY, TotalAdjAmount, 0, 0, 0, PostingDate, '');
+                                OnAfterAdjExchRateBufferUpdate("Bank Account");
                                 InsertExchRateAdjmtReg(
                                     "Exch. Rate Adjmt. Account Type"::"Bank Account", "Bank Account"."Bank Acc. Posting Group", "Bank Account"."Currency Code");
                                 TotalBankAccountsAdjusted += 1;
@@ -863,6 +864,8 @@ report 595 "Adjust Exchange Rates"
         GenJnlLine."System-Created Entry" := true;
 
         TransactionNo := PostGenJnlLine(GenJnlLine, DimSetEntry);
+
+        OnAfterPostAdjmt(GenJnlLine);
     end;
 
     local procedure PostBankAccAdjmt(BankAccount: Record "Bank Account")
@@ -935,6 +938,7 @@ report 595 "Adjust Exchange Rates"
                 CustPostingGr.GetReceivablesAccount(), AdjExchRateBuffer.AdjAmount,
                 AdjExchRateBuffer.AdjBase, AdjExchRateBuffer."Currency Code", TempDimSetEntry,
                 AdjExchRateBuffer."Posting Date", AdjExchRateBuffer."IC Partner Code");
+        OnAfterPostCustAdjmt(AdjExchRateBuffer);
         if TempDtldCVLedgEntryBuf.Insert() then;
         InsertExchRateAdjmtReg(
             "Exch. Rate Adjmt. Account Type"::Customer, AdjExchRateBuffer."Posting Group", AdjExchRateBuffer."Currency Code");
@@ -2326,6 +2330,21 @@ report 595 "Adjust Exchange Rates"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAdjExchRateBufferUpdate(var BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostAdjmt(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostCustAdjmt(var AdjExchRateBuffer: Record "Adjust Exchange Rate Buffer")
     begin
     end;
 }

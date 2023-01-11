@@ -41,6 +41,7 @@ codeunit 137927 "SCM Assembly Copy"
         BasicDataInitialized: Boolean;
         SetupDataInitialized: Boolean;
         Initialized: Boolean;
+        UpdateDimensionOnLine: Label 'You may have changed a dimension.\\Do you want to update the lines?';
 
     [Test]
     [Scope('OnPrem')]
@@ -385,6 +386,7 @@ codeunit 137927 "SCM Assembly Copy"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmUpdateDimensionOnLines')]
     procedure DimensionSetInAssemblyOrderWhenCopySalesOrderToOrderWithoutRecalcLines()
     var
         ToSalesHeader: Record "Sales Header";
@@ -429,7 +431,7 @@ codeunit 137927 "SCM Assembly Copy"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmUpdateDimensionOnLines')]
     [Scope('OnPrem')]
     procedure DimensionSetInAssemblyOrderWhenCopySalesOrderToOrderWithRecalcLines()
     var
@@ -483,7 +485,7 @@ codeunit 137927 "SCM Assembly Copy"
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityModalPageHandlerConfirmAssembly')]
+    [HandlerFunctions('AssemblyAvailabilityModalPageHandlerConfirmAssembly,ConfirmUpdateDimensionOnLines')]
     [Scope('OnPrem')]
     procedure DimensionSetInAssemblyOrderWhenCopyAssemblyOrderWithIncludeHeader()
     var
@@ -522,7 +524,7 @@ codeunit 137927 "SCM Assembly Copy"
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityModalPageHandlerConfirmAssembly')]
+    [HandlerFunctions('AssemblyAvailabilityModalPageHandlerConfirmAssembly,ConfirmUpdateDimensionOnLines')]
     [Scope('OnPrem')]
     procedure DimensionSetInAssemblyOrderWhenCopyAssemblyOrderWithoutIncludeHeader()
     var
@@ -1582,6 +1584,15 @@ codeunit 137927 "SCM Assembly Copy"
     procedure AssemblyAvailabilityModalPageHandlerConfirmAssembly(var AssemblyAvailability: TestPage "Assembly Availability")
     begin
         AssemblyAvailability.Yes.Invoke;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmUpdateDimensionOnLines(Question: Text[1024]; var Reply: Boolean)
+    var
+        Assert: Codeunit Assert;
+    begin
+        Assert.IsTrue(StrPos(Question, UpdateDimensionOnLine) > 0, Question);
+        Reply := true;
     end;
 }
 

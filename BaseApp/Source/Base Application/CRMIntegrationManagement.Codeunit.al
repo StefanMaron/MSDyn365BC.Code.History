@@ -135,6 +135,7 @@
         AccountRelationshipTypeNotSupportedErr: Label 'Dynamics 365 Sales account should have relationship type of Customer or Vendor.';
         ProductTypeNotSupportedErr: Label 'Dynamics 365 Sales product should have type of Sales Inventory or Services.';
         UpdateUnitGroupMappingJQEDescriptionTxt: Label 'Updating CRM Unit Group Mapping';
+        RescheduledTaskTxt: label 'Rescheduled task %1 for Job Queue Entry %2 (%3) to run not before %4', Locked = true;
 
     procedure IsCRMIntegrationEnabled(): Boolean
     var
@@ -3734,15 +3735,18 @@
             // The rescheduled task might start while the current transaction is not committed yet.
             // Therefore the task will restart with a delay to lower a risk of use of "old" data.
             NewEarliestStartDateTime := CurrentDateTime() + 2000;
-            if (NewEarliestStartDateTime + 5000) < JobQueueEntry."Earliest Start Date/Time" then
-                if DoesJobActOnTable(JobQueueEntry, TableNo) then
-                    if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", NewEarliestStartDateTime) then
-                        if ScheduledTask.Get(JobQueueEntry."System Task ID") then begin
-                            JobQueueEntry.RefreshLocked();
-                            JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-                            JobQueueEntry."Earliest Start Date/Time" := ScheduledTask."Not Before";
-                            JobQueueEntry.Modify();
-                        end;
+            if ScheduledTask.Get(JobQueueEntry."System Task ID") then
+                if (NewEarliestStartDateTime + 5000) < ScheduledTask."Not Before" then
+                    if DoesJobActOnTable(JobQueueEntry, TableNo) then
+                        if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", NewEarliestStartDateTime) then
+                            if JobQueueEntry.Find() then
+                                if ScheduledTask.Get(JobQueueEntry."System Task ID") then begin
+                                    JobQueueEntry.RefreshLocked();
+                                    JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+                                    JobQueueEntry."Earliest Start Date/Time" := ScheduledTask."Not Before";
+                                    JobQueueEntry.Modify();
+                                    Session.LogMessage('0000JAV', StrSubstNo(RescheduledTaskTxt, Format(ScheduledTask.ID), Format(JobQueueEntry.ID), JobQueueEntry.Description, Format(ScheduledTask."Not Before")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                                end;
         until JobQueueEntry.Next() = 0;
     end;
 
@@ -3940,19 +3944,48 @@
         end;
     end;
 
+    procedure DisableUnitGroupMapping()
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMFullSyncReviewLine: Record "CRM Full Synch. Review Line";
+    begin
+        CRMIntegrationRecord.SetFilter("Table ID", '%1', Database::"Unit Group");
+        if not CRMIntegrationRecord.IsEmpty() then
+            CRMIntegrationRecord.DeleteAll();
+
+        CRMIntegrationRecord.SetFilter("Table ID", '%1', Database::"Item Unit of Measure");
+        if not CRMIntegrationRecord.IsEmpty() then
+            CRMIntegrationRecord.DeleteAll();
+
+        CRMIntegrationRecord.SetFilter("Table ID", '%1', Database::"Resource Unit of Measure");
+        if not CRMIntegrationRecord.IsEmpty() then
+            CRMIntegrationRecord.DeleteAll();
+
+        if CRMFullSyncReviewLine.Get('UNIT GROUP') then
+            CRMFullSyncReviewLine.Delete();
+
+        if CRMFullSyncReviewLine.Get('ITEM UOM') then
+            CRMFullSyncReviewLine.Delete();
+
+        if CRMFullSyncReviewLine.Get('RESOURCE UOM') then
+            CRMFullSyncReviewLine.Delete();
+
+        RemoveIntegrationTableMapping(Database::"Unit Group", Database::"CRM Uomschedule");
+        RemoveIntegrationTableMapping(Database::"Item Unit of Measure", Database::"CRM Uom");
+        RemoveIntegrationTableMapping(Database::"Resource Unit of Measure", Database::"CRM Uom");
+    end;
+
     procedure AdjustUnitGroupCRMConnectionSetup()
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMFullSyncReviewLine: Record "CRM Full Synch. Review Line";
-        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
     begin
         CRMIntegrationRecord.SetFilter("Table ID", '%1', Database::"Unit of Measure");
         if not CRMIntegrationRecord.IsEmpty() then
             CRMIntegrationRecord.DeleteAll();
         if CRMFullSyncReviewLine.Get('UNIT OF MEASURE') then
             CRMFullSyncReviewLine.Delete();
-        if RemoveIntegrationTableMapping(Database::"Unit of Measure", Database::"CRM Uomschedule") then
-            CRMSetupDefaults.ResetUnitGroupMappingConfiguration();
+        RemoveIntegrationTableMapping(Database::"Unit of Measure", Database::"CRM Uomschedule");
     end;
 
     local procedure RemoveIntegrationTableMapping(TableId: Integer; IntTableId: Integer) JobExisted: Boolean;

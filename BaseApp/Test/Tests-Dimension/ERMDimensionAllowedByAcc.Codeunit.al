@@ -1134,11 +1134,56 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         // [WHEN] Action Dimension-Multiple for selected accounts "A1" from page Chart of Accouts, assist edit for "Allowed Values Filter", set Allowed = false for "DV0202"
         LibraryVariableStorage.Enqueue(DimensionValue[2]."Dimension Code");
         EnqueueForDimAllowedValuesPerAccSetValueModalPageHandler(DimensionValue[2].Code, false, true);
-        MockGLAccountDimensionMultiple(GLAccount);
+        MockGLAccountDimensionMultiple(GLAccount."No.");
 
         // [VERIFY] "Dim. Value per Account" for DIM02, doesn't have the value from DIM01
         asserterror DimValuePerAccount.Get(Database::"G/L Account", GLAccount."No.", DimensionValue[2]."Dimension Code", DimensionValue[1].Code);
         assert.AreEqual(StrSubstNo(ExpectedErrLbl, Database::"G/L Account", GLAccount."No.", DimensionValue[2]."Dimension Code", DimensionValue[1].Code), GetLastErrorText(), NoRecordExpected);
+    end;
+
+    [Test]
+    [HandlerFunctions('DefaultDimensionsMultipleModalPageHandlerAssistEdit,DimAllowedValuesPerAccSetValueModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyDefaultMultipleDimensionWhenMultipleGLSelected()
+    var
+        DefaultDimension: Record "Default Dimension";
+        GLAccount: array[2] of Record "G/L Account";
+        DimensionValue: array[2] of Record "Dimension Value";
+        DimValuePerAccount: Record "Dim. Value per Account";
+        GLAccountText: Text[100];
+    begin
+        // [SCENARIO 456453] Dimension values are not saving the changes after editing from multiple dimensions
+        Initialize();
+
+        // [GIVEN] Created Dimension "DIM01" with Value "DV0101" and "DV0102"
+        CreateDimensionWithValue(DimensionValue[1]);
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], DimensionValue[1]."Dimension Code");
+
+        // [GIVEN] Created Dimension "DIM02" with Value "DV0201" and "DV0202"
+        CreateDimensionWithValue(DimensionValue[2]);
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], DimensionValue[2]."Dimension Code");
+
+        // [GIVEN] Create G/L Account "A1" and A2
+        LibraryERM.CreateGLAccount(GLAccount[1]);
+        LibraryERM.CreateGLAccount(GLAccount[2]);
+        GLAccountText := GLAccount[1]."No." + '|' + GLAccount[2]."No.";
+
+        // [GIVEN] New mandatory Default Dimension for the G/L Account "A1" - "Dimension Code" = "DIM01"
+        CreateDefaultDimensionCodeMandatory(DefaultDimension, Database::"G/L Account", GLAccount[1]."No.", DimensionValue[1]."Dimension Code");
+        CreateDefaultDimensionCodeMandatory(DefaultDimension, Database::"G/L Account", GLAccount[2]."No.", DimensionValue[1]."Dimension Code");
+
+        // [GIVEN] New mandatory Default Dimension for the G/L Account "A1" - "Dimension Code" = "DIM02"
+        CreateDefaultDimensionCodeMandatory(DefaultDimension, Database::"G/L Account", GLAccount[1]."No.", DimensionValue[2]."Dimension Code");
+        CreateDefaultDimensionCodeMandatory(DefaultDimension, Database::"G/L Account", GLAccount[2]."No.", DimensionValue[2]."Dimension Code");
+
+        // [WHEN] Action Dimension-Multiple for selected accounts "A1" from page Chart of Accouts, assist edit for "Allowed Values Filter", set Allowed = false for "DV0202"
+        LibraryVariableStorage.Enqueue(DimensionValue[2]."Dimension Code");
+        EnqueueForDimAllowedValuesPerAccSetValueModalPageHandler(DimensionValue[2].Code, false, true);
+        MockGLAccountDimensionMultiple(GLAccountText);
+
+        // [VERIFY] Verify Allowed on dim value per account.
+        DimValuePerAccount.Get(Database::"G/L Account", GLAccount[1]."No.", DimensionValue[2]."Dimension Code", DimensionValue[2].Code);
+        assert.AreEqual(false, DimValuePerAccount.Allowed, '');
     end;
 
     local procedure Initialize()
@@ -1216,7 +1261,7 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
     begin
         BindSubscription(ERMDimensionAllowedByAcc);
         ERMDimensionAllowedByAcc.SetGLAccountFilter(StrSubstNo('%1|%2', SelectedGLAccount[1]."No.", SelectedGLAccount[2]."No."));
-        ChartOfAccounts.OpenView();
+        ChartOfAccounts.OpenEdit();
         ChartOfAccounts."Dimensions-&Multiple".Invoke();
     end;
 
@@ -1239,14 +1284,14 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
 
-    local procedure MockGLAccountDimensionMultiple(SelectedGLAccount: Record "G/L Account")
+    local procedure MockGLAccountDimensionMultiple(SelectedGLAccount: Text)
     var
         GLAccount: Record "G/L Account";
         ChartOfAccounts: TestPage "Chart of Accounts";
         ERMDimensionAllowedByAcc: Codeunit "ERM Dimension Allowed by Acc.";
     begin
         BindSubscription(ERMDimensionAllowedByAcc);
-        ERMDimensionAllowedByAcc.SetGLAccountFilter(SelectedGLAccount."No.");
+        ERMDimensionAllowedByAcc.SetGLAccountFilter(SelectedGLAccount);
         ChartOfAccounts.OpenView();
         ChartOfAccounts."Dimensions-&Multiple".Invoke();
     end;
@@ -1304,6 +1349,7 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
     procedure DefaultDimensionsMultipleModalPageHandlerAssistEdit(var DefaultDimensionsMultiple: TestPage "Default Dimensions-Multiple")
     begin
         DefaultDimensionsMultiple."Dimension Code".SetValue(LibraryVariableStorage.DequeueText);
+        DefaultDimensionsMultiple."Value Posting".SetValue(1);
         DefaultDimensionsMultiple.AllowedValuesFilter.AssistEdit();
         DefaultDimensionsMultiple.OK().Invoke();
     end;

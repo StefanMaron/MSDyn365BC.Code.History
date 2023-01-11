@@ -150,16 +150,12 @@ codeunit 1000 "Job Calculate WIP"
     local procedure JobTaskCalcWIP(var Job: Record Job; FromJobTask: Code[20]; ToJobTask: Code[20])
     var
         AccruedCostsJobTask: Record "Job Task";
-        AccruedSalesJobTask: Record "Job Task";
         AccruedCostsJobWIPTotal: Record "Job WIP Total";
-        AccruedSalesJobWIPTotal: Record "Job WIP Total";
         JobTask: Record "Job Task";
         JobWIPTotal: Record "Job WIP Total";
         JobWIPWarning: Record "Job WIP Warning";
         RecognizedCostAmount: Decimal;
-        RecognizedSalesAmount: Decimal;
         UsageTotalCost: Decimal;
-        ContractInvoicedPrice: Decimal;
     begin
         JobTask.SetRange("Job No.", Job."No.");
         JobTask.SetRange("Job Task No.", FromJobTask, ToJobTask);
@@ -199,22 +195,14 @@ codeunit 1000 "Job Calculate WIP"
                         AccruedCostsJobWIPTotal := JobWIPTotal;
                     end;
 
-                    if (JobTask."Recognized Sales Amount" <> 0) and (AccruedSalesJobTask."Job Task No." = '') then begin
-                        AccruedSalesJobTask := JobTask;
-                        AccruedSalesJobWIPTotal := JobWIPTotal;
-                    end;
-
                     RecognizedCostAmount += JobTask."Recognized Costs Amount";
-                    RecognizedSalesAmount += JobTask."Recognized Sales Amount";
                     UsageTotalCost += JobTask."Usage (Total Cost)";
-                    ContractInvoicedPrice += JobTask."Contract (Invoiced Price)";
 
                     JobWIPTotalChanged := false;
                     WIPAmount := 0;
                 end;
             until JobTask.Next() = 0;
         JobTaskCalcAccruedCostsWIP(Job, AccruedCostsJobWIPTotal, AccruedCostsJobTask, RecognizedCostAmount, UsageTotalCost);
-        JobTaskCalcAccruedSalesWIP(Job, AccruedSalesJobWIPTotal, AccruedSalesJobTask, RecognizedSalesAmount, ContractInvoicedPrice);
         CalcCostInvoicePercentage(JobWIPTotal);
         OnJobTaskCalcWIPOnBeforeJobWIPTotalModify(Job, JobWIPTotal);
         JobWIPTotal.Modify();
@@ -239,25 +227,6 @@ codeunit 1000 "Job Calculate WIP"
                   AccruedCostsJobTask, AccruedCostsJobWIPTotal, BufferType::"Applied Costs",
                   GetAppliedCostsAmount(RecognizedCostAmount, UsageTotalCost, JobWIPMethod, true));
                 UpdateWIPBufferEntryFromTask(AccruedCostsJobTask, AccruedCostsJobWIPTotal);
-            end;
-        end;
-    end;
-
-    local procedure JobTaskCalcAccruedSalesWIP(Job: Record Job; AccruedSalesJobWIPTotal: Record "Job WIP Total"; AccruedSalesJobTask: Record "Job Task"; RecognizedSalesAmount: Decimal; ContractTotalPrice: Decimal)
-    var
-        JobWIPMethod: Record "Job WIP Method";
-    begin
-        if (not JobComplete) and (RecognizedSalesAmount > ContractTotalPrice) and (AccruedSalesJobTask."Job Task No." <> '') then begin
-            JobWIPMethod.Get(AccruedSalesJobWIPTotal."WIP Method");
-            InitWIPBufferEntryFromTask(
-              AccruedSalesJobTask, AccruedSalesJobWIPTotal, BufferType::"Accrued Sales",
-              GetAccruedSalesWIPEntryAmount(AccruedSalesJobTask, JobWIPMethod));
-            UpdateWIPBufferEntryFromTask(AccruedSalesJobTask, AccruedSalesJobWIPTotal);
-            if Job."WIP Posting Method" = Job."WIP Posting Method"::"Per Job Ledger Entry" then begin
-                InitWIPBufferEntryFromTask(
-                  AccruedSalesJobTask, AccruedSalesJobWIPTotal, BufferType::"Applied Sales",
-                  GetAppliedSalesAmount(RecognizedSalesAmount, ContractTotalPrice, JobWIPMethod, true));
-                UpdateWIPBufferEntryFromTask(AccruedSalesJobTask, AccruedSalesJobWIPTotal);
             end;
         end;
     end;
@@ -543,6 +512,8 @@ codeunit 1000 "Job Calculate WIP"
                            (JobWIPMethod."Recognized Sales" = JobWIPMethod."Recognized Sales"::"Percentage of Completion")))
                     else
                         FindJobLedgerEntriesByJobTask(JobTask, JobWIPTotal, BufferType::"Applied Sales");
+                    if "Recognized Sales Amount" > "Contract (Invoiced Price)" then
+                        CreateWIPBufferEntryFromTask(JobTask, JobWIPTotal, BufferType::"Accrued Sales", false);
                 end;
                 if ("Recognized Costs Amount" = 0) and ("Usage (Total Cost)" <> 0) then
                     if Job."WIP Posting Method" = Job."WIP Posting Method"::"Per Job" then
@@ -662,15 +633,19 @@ codeunit 1000 "Job Calculate WIP"
     local procedure FindJobLedgerEntriesByJobTask(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; BufferType: Enum "Job WIP Buffer Type")
     var
         JobLedgerEntry: Record "Job Ledger Entry";
+        JobWIPMethod: Record "Job WIP Method";
     begin
         JobLedgerEntry.SetRange("Job No.", JobTask."Job No.");
         JobLedgerEntry.SetRange("Job Task No.", JobTask."Job Task No.");
         JobLedgerEntry.SetFilter("Posting Date", JobTask.GetFilter("Posting Date Filter"));
         if BufferType = BufferType::"Applied Costs" then
             JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Usage);
-        if BufferType = BufferType::"Applied Sales" then
+        if BufferType = BufferType::"Applied Sales" then begin
             JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Sale);
-
+            if JobWIPMethod.Get(JobWIPTotal."WIP Method") then
+                if JobWIPMethod."Recognized Sales" = JobWIPMethod."Recognized Sales"::"Usage (Total Price)" then
+                    JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+        end;
         if JobLedgerEntry.FindSet() then
             repeat
                 CreateWIPBufferEntryFromLedger(JobLedgerEntry, JobTask, JobWIPTotal, BufferType)
@@ -713,7 +688,10 @@ codeunit 1000 "Job Calculate WIP"
                     TempJobWIPBuffer[1].Type := TempJobWIPBuffer[1].Type::"Applied Sales";
                     TempJobWIPBuffer[1]."G/L Account No." := JobPostingGroup.GetJobSalesAppliedAccount();
                     TempJobWIPBuffer[1]."Bal. G/L Account No." := JobPostingGroup.GetWIPInvoicedSalesAccount();
-                    TempJobWIPBuffer[1]."WIP Entry Amount" := -JobLedgerEntry."Line Amount (LCY)";
+                    if JobLedgerEntry."Entry Type" = JobLedgerEntry."Entry Type"::Sale then
+                        TempJobWIPBuffer[1]."WIP Entry Amount" := -JobLedgerEntry."Line Amount (LCY)"
+                    else
+                        TempJobWIPBuffer[1]."WIP Entry Amount" := JobLedgerEntry."Line Amount (LCY)";
                     JobLedgerEntry."Amt. to Post to G/L" := JobLedgerEntry."Line Amount (LCY)" - JobLedgerEntry."Amt. Posted to G/L";
                 end;
         end;
@@ -1069,21 +1047,6 @@ codeunit 1000 "Job Calculate WIP"
         end;
 
         exit(-UsageTotalCost);
-    end;
-
-    local procedure GetAppliedSalesAmount(RecognizedSalesAmount: Decimal; ContractTotalPrice: Decimal; JobWIPMethod: Record "Job WIP Method"; AppliedAccrued: Boolean) AppliedSalesWIPEntryAmount: Decimal
-    begin
-        if AppliedAccrued then
-            exit(RecognizedSalesAmount - ContractTotalPrice);
-
-        if IsAccruedSalesWIPMethod(JobWIPMethod) and (RecognizedSalesAmount <> 0) then begin
-            AppliedSalesWIPEntryAmount := GetMAX(Abs(RecognizedSalesAmount), Abs(ContractTotalPrice));
-            if RecognizedSalesAmount > 0 then
-                AppliedSalesWIPEntryAmount := -AppliedSalesWIPEntryAmount;
-            exit(AppliedSalesWIPEntryAmount);
-        end;
-
-        exit(ContractTotalPrice);
     end;
 
     local procedure GetAppliedSalesWIPEntryAmount(JobTask: Record "Job Task"; JobWIPMethod: Record "Job WIP Method"; AppliedAccrued: Boolean) SalesAmount: Decimal

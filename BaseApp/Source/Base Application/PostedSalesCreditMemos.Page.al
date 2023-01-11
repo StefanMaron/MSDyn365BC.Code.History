@@ -242,6 +242,12 @@ page 144 "Posted Sales Credit Memos"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(Database::"Sales Cr.Memo Header"), "No." = FIELD("No.");
+            }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
             {
                 ApplicationArea = Basic, Suite;

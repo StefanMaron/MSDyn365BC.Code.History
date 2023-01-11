@@ -37,7 +37,12 @@ codeunit 1340 "Undo Bank Statement (Yes/No)"
         Page.Run(Page::"Bank Acc. Reconciliation", BankAccReconciliation);
     end;
 
-    procedure UndoBankAccountStatement(BankAccountStatement: Record "Bank Account Statement"): code[20]
+    procedure UndoBankAccountStatement(BankAccountStatement: Record "Bank Account Statement"): Code[20]
+    begin
+        exit(UndoBankAccountStatement(BankAccountStatement, true));
+    end;
+
+    procedure UndoBankAccountStatement(BankAccountStatement: Record "Bank Account Statement"; CreateBankRec: Boolean): Code[20]
     var
         BankAccount: Record "Bank Account";
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -48,22 +53,28 @@ codeunit 1340 "Undo Bank Statement (Yes/No)"
         BankAccount."Balance Last Statement" := BankAccountStatement."Balance Last Statement";
         BankAccount.Modify();
 
-        BankAccReconciliation.Init();
-        BankAccReconciliation.TransferFields(BankAccountStatement);
-        BankAccReconciliation."Statement No." := '';
-        BankAccReconciliation.Validate("Bank Account No.");
-        BankAccReconciliation.Insert(true);
+        if CreateBankRec then begin
+            BankAccReconciliation.Init();
+            BankAccReconciliation.TransferFields(BankAccountStatement);
+            BankAccReconciliation."Statement No." := '';
+            BankAccReconciliation.Validate("Bank Account No.");
+            BankAccReconciliation.Validate("Statement Type", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+            BankAccReconciliation.Insert(true);
+        end;
 
         BankAccountStatementLine.SetRange("Bank Account No.", BankAccountStatement."Bank Account No.");
         BankAccountStatementLine.SetRange("Statement No.", BankAccountStatement."Statement No.");
         if BankAccountStatementLine.FindSet() then
             repeat
-                BankAccReconciliationLine.Init();
-                BankAccReconciliationLine.TransferFields(BankAccountStatementLine);
-                BankAccReconciliationLine."Statement No." := BankAccReconciliation."Statement No.";
-                BankAccReconciliationLine.Insert();
+                if CreateBankRec then begin
+                    BankAccReconciliationLine.Init();
+                    BankAccReconciliationLine.TransferFields(BankAccountStatementLine);
+                    BankAccReconciliationLine."Statement No." := BankAccReconciliation."Statement No.";
+                    BankAccReconciliationLine.Validate("Statement Type", BankAccReconciliationLine."Statement Type"::"Bank Reconciliation");
+                    BankAccReconciliationLine.Insert();
+                end;
 
-                UndoBankEntries(BankAccountStatementLine, BankAccReconciliation."Statement No.");
+                UndoBankEntries(BankAccountStatementLine, BankAccReconciliation."Statement No.", CreateBankRec);
             until BankAccountStatementLine.Next() = 0;
 
         BankAccountStatementLine.DeleteAll();
@@ -72,36 +83,54 @@ codeunit 1340 "Undo Bank Statement (Yes/No)"
         exit(BankAccReconciliation."Statement No.");
     end;
 
-    local procedure UndoBankEntries(BankAccountStatementLine: Record "Bank Account Statement Line"; NewStatementNo: Code[20])
+    local procedure UndoBankEntries(BankAccountStatementLine: Record "Bank Account Statement Line"; NewStatementNo: Code[20]; CreateBankRec: Boolean)
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
     begin
+        // When posting a bank reconciliation, the related BLEs have the 
+        // match stored in their Statement No., Statement Line No.
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountStatementLine."Bank Account No.");
         BankAccountLedgerEntry.SetRange("Statement No.", BankAccountStatementLine."Statement No.");
         BankAccountLedgerEntry.SetRange("Statement Line No.", BankAccountStatementLine."Statement Line No.");
         if BankAccountLedgerEntry.FindSet(true, true) then
             repeat
-                UndoBankEntry(BankAccountLedgerEntry, BankAccountStatementLine, NewStatementNo);
+                // This removes and sets the new status for these entries
+                UndoBankEntry(BankAccountLedgerEntry, BankAccountStatementLine, NewStatementNo, CreateBankRec);
             until BankAccountLedgerEntry.Next() = 0;
+        // When posting a bank reconciliation with ManyToOne matches, the
+        // BLEs have the right Statement No. but Statement Line No. set to -1
+        // Therefore the above filters won't properly revert them.
+        RestoreManyToOneMatchesForNewBankReconciliation(BankAccountStatementLine, NewStatementNo, CreateBankRec);
+    end;
 
+    local procedure RestoreManyToOneMatchesForNewBankReconciliation(var BankAccountStatementLine: Record "Bank Account Statement Line"; NewStatementNo: Code[20]; CreateBankRec: Boolean)
+    var
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+    begin
+        // When undoing a bank statement posted from the page "Bank Acc. Reconciliation"
+        // the many to one matches are stored in "Bank Acc. Rec. Match Buffer" table,
+        // and they are kept even after posted.
+        // We update these buffer entries to point to the new Bank Reconciliation
         BankAccountStatementLine.FilterManyToOneMatches(BankAccRecMatchBuffer);
         if BankAccRecMatchBuffer.FindFirst() then begin
             BankAccountLedgerEntry.Reset();
             BankAccountLedgerEntry.SetRange("Entry No.", BankAccRecMatchBuffer."Ledger Entry No.");
             if BankAccountLedgerEntry.FindFirst() then
-                UndoBankEntry(BankAccountLedgerEntry, BankAccountStatementLine, NewStatementNo);
+                UndoBankEntry(BankAccountLedgerEntry, BankAccountStatementLine, NewStatementNo, CreateBankRec);
 
-            BankAccRecMatchBuffer.Rename(NewStatementNo,
-                                         BankAccRecMatchBuffer."Statement Line No.",
-                                         BankAccRecMatchBuffer."Bank Account No.",
-                                         BankAccRecMatchBuffer."Match ID");
-            BankAccRecMatchBuffer."Is Processed" := false;
-            BankAccRecMatchBuffer.Modify();
+            if CreateBankRec then begin
+                BankAccRecMatchBuffer.Rename(NewStatementNo,
+                                            BankAccRecMatchBuffer."Statement Line No.",
+                                            BankAccRecMatchBuffer."Bank Account No.",
+                                            BankAccRecMatchBuffer."Match ID");
+                BankAccRecMatchBuffer."Is Processed" := false;
+                BankAccRecMatchBuffer.Modify();
+            end;
         end;
     end;
 
-    local procedure UndoBankEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountStatementLine: Record "Bank Account Statement Line"; NewStatementNo: Code[20])
+    local procedure UndoBankEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountStatementLine: Record "Bank Account Statement Line"; NewStatementNo: Code[20]; CreateBankRec: Boolean)
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
@@ -113,9 +142,15 @@ codeunit 1340 "Undo Bank Statement (Yes/No)"
                 if CheckLedgerEntry."Statement Status" = CheckLedgerEntry."Statement Status"::"Check Entry Applied" then
                     CheckLedgerEntry."Statement No." := NewStatementNo
                 else begin
+                    CheckLedgerEntry."Statement No." := NewStatementNo;
+                    CheckLedgerEntry."Statement Line No." := BankAccountStatementLine."Statement Line No.";
+                end;
+                if not CreateBankRec then begin
+                    CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::Open;
                     CheckLedgerEntry."Statement No." := '';
                     CheckLedgerEntry."Statement Line No." := 0;
                 end;
+
                 CheckLedgerEntry.Open := true;
                 CheckLedgerEntry.Modify();
             until CheckLedgerEntry.Next() = 0;
@@ -130,6 +165,11 @@ codeunit 1340 "Undo Bank Statement (Yes/No)"
         end else begin
             BankAccountLedgerEntry."Statement No." := NewStatementNo;
             BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied";
+        end;
+        if not CreateBankRec then begin
+            BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::Open;
+            BankAccountLedgerEntry."Statement No." := '';
+            BankAccountLedgerEntry."Statement Line No." := 0;
         end;
 
         BankAccountLedgerEntry."Remaining Amount" := BankAccountLedgerEntry.Amount;

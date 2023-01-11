@@ -3684,6 +3684,57 @@ codeunit 137072 "SCM Production Orders II"
         PlanningComponent.TestField("Expected Quantity", QtyFixed);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReplanProdOrderWithChildLineWithInboundWhseHandlingTime()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Location: Record Location;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: array[2] of Record "Prod. Order Line";
+        DefaultSafetyLeadTimeDateFormula: DateFormula;
+        InboundWhseHandlingTimeDateFormula: DateFormula;
+        LocationCode: Code[10];
+        ItemNo: array[2] of Code[20];
+    begin
+        // [FEATURE] [Default Safety Lead Time] [Inbound Whse. Handling Time] [Make-to-Order] [Replan Production Order]
+        // [SCENARIO 449673] Due Date in child Production Order is equal to Ending Date in main Production Order.
+        Initialize();
+
+        // [GIVEN] Set "Default Safety Lead Time" to 1 day.
+        Evaluate(DefaultSafetyLeadTimeDateFormula, '<1D>');
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTimeDateFormula);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create Location with "Inbound Whse. Handling Time" set to 2 days.
+        LocationCode := LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Evaluate(InboundWhseHandlingTimeDateFormula, '<2D>');
+        Location.Validate("Inbound Whse. Handling Time", InboundWhseHandlingTimeDateFormula);
+        Location.Modify(true);
+
+        // [GIVEN] Production chain - a purchased component and two levels of manufacturing items: "I1" and "I2". "I2" is the highest level.
+        // [GIVEN] Item "I2" have Make-to-Order manufacturing policy.
+        CreateProductionChainOfItems(ItemNo, 2);
+
+        // [GIVEN] Firm planned Production Order "PO2" for item "I2". Quantity = "Q".
+        CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::"Firm Planned", ItemNo[2], LibraryRandom.RandIntInRange(11, 20), LocationCode, '');
+
+        // [WHEN] Replan procedure is run for "PO2".
+        LibraryManufacturing.RunReplanProductionOrder(ProductionOrder, Direction::Backward, CalcMethod::"All levels");
+
+        // [THEN] Another Production Order "PO1" for child Item "I1" is created.
+        FindProductionOrderLine(ProdOrderLine[1], ItemNo[1]);
+        FindProductionOrderLine(ProdOrderLine[2], ItemNo[2]);
+
+        // [THEN] Check that "PO1 Line"."Due Date" is equal to "PO2 Line"."Starting Date"
+        ProdOrderLine[1].TestField("Due Date", ProdOrderLine[2]."Starting Date");
+
+        // [THEN] Check that "PO1 Line"."Ending Date" is 3 days before "Due Date"
+        ProdOrderLine[1].TestField("Ending Date", CalcDate('<-3D>', ProdOrderLine[1]."Due Date"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

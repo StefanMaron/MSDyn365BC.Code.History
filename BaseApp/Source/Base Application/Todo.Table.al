@@ -2381,7 +2381,7 @@ table 5080 "To-do"
         if IsHandled then
             exit;
 
-        if Cont.Get("Contact No.") then
+        if Cont.Get("Contact No.") and (Rec.Type = Rec.Type::Meeting) then
             TempAttendee.CreateAttendee(
               TempAttendee,
               "No.", 10000, TempAttendee."Attendance Type"::Required,

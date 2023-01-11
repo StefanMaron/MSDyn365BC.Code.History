@@ -493,11 +493,10 @@ codeunit 5703 "Catalog Item Management"
         if IsHandled then
             exit(NewItemNo)
         else begin
-
             NonstockItemSetupMy.Get();
             case NonstockItemSetupMy."No. Format" of
                 NonstockItemSetupMy."No. Format"::"Vendor Item No.":
-                    NewItemNo := NonstockItem."Vendor Item No.";
+                    NewItemNo := CopyStr(NonstockItem."Vendor Item No.", 1, MaxStrLen(NewItemNo));
                 NonstockItemSetupMy."No. Format"::"Mfr. + Vendor Item No.":
                     if NonstockItemSetupMy."No. Format Separator" = '' then begin
                         if Length1 + Length2 <= 20 then

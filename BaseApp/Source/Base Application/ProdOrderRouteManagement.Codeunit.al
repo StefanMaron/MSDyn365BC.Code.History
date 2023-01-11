@@ -515,11 +515,7 @@ codeunit 99000772 "Prod. Order Route Management"
             SetOrderLineRoutingFilter(ProdOrderLine, Status, "Prod. Order No.", "Routing No.", "Routing Reference No.");
             if ProdOrderLine.FindSet(false) then
                 repeat
-                    ProdOrderComponent.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.", "Line No.");
-                    ProdOrderComponent.SetRange(Status, Status);
-                    ProdOrderComponent.SetRange("Prod. Order No.", "Prod. Order No.");
-                    ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-                    ProdOrderComponent.SetRange("Location Code", ProdOrderLine."Location Code");
+                    SetProdOrderComponentFilter(ProdOrderComponent, ProdOrderLine, FilteredProdOrderRtngLineSet);
                     if ProdOrderComponent.FindSet(true) then
                         repeat
                             if IgnoreErrors then
@@ -540,6 +536,15 @@ codeunit 99000772 "Prod. Order Route Management"
                 until ProdOrderLine.Next() = 0;
         end;
         exit(not ErrorOccured);
+    end;
+
+    local procedure SetProdOrderComponentFilter(var ProdOrderComponent: Record "Prod. Order Component"; var ProdOrderLine: Record "Prod. Order Line"; var FilteredProdOrderRtngLineSet: Record "Prod. Order Routing Line")
+    begin
+        ProdOrderComponent.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.", "Line No.");
+        ProdOrderComponent.SetRange(Status, FilteredProdOrderRtngLineSet.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", FilteredProdOrderRtngLineSet."Prod. Order No.");
+        ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.SetRange("Location Code", ProdOrderLine."Location Code");
     end;
 
     local procedure SetRoutingFilter(var ProdOrderRtngLine: Record "Prod. Order Routing Line"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20]; RoutingNo: Code[20]; RoutingRefNo: Integer)

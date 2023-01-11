@@ -914,6 +914,7 @@ page 234 "Apply Employee Entries"
 
     local procedure PostDirectApplication(PreviewMode: Boolean)
     var
+        RecBeforeRunPostApplicationEmployeeLedgerEntry: Record "Employee Ledger Entry";
         ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         NewApplyUnapplyParameters: Record "Apply Unapply Parameters";
         EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
@@ -943,7 +944,10 @@ page 234 "Apply Employee Entries"
                     ApplyUnapplyParameters."Journal Batch Name" := GLSetup."Apply Jnl. Batch Name";
                 end;
                 PostApplication.SetParameters(ApplyUnapplyParameters);
+                RecBeforeRunPostApplicationEmployeeLedgerEntry := Rec;
                 if ACTION::OK = PostApplication.RunModal() then begin
+                    if Rec."Entry No." <> RecBeforeRunPostApplicationEmployeeLedgerEntry."Entry No." then
+                        Rec := RecBeforeRunPostApplicationEmployeeLedgerEntry;
                     PostApplication.GetParameters(NewApplyUnapplyParameters);
                     if NewApplyUnapplyParameters."Posting Date" < ApplicationDate then
                         Error(ApplicationDateErr);

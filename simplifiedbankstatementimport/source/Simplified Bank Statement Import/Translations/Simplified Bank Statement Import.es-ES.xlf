@@ -203,7 +203,7 @@
         </trans-unit>
         <trans-unit id="Page 1261045762 - Control 480237546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Format Code</source>
-          <target state="translated">Formatear código</target>
+          <target state="translated">Código de formato</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control DataExchangeCode - Property Caption</note>
         </trans-unit>

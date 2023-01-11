@@ -413,6 +413,7 @@ table 5406 "Prod. Order Line"
 
                     OnAfterDeleteProdOrderRtngLines(Rec);
                 end;
+
                 if "Routing No." = '' then
                     exit;
 
@@ -422,6 +423,8 @@ table 5406 "Prod. Order Line"
                     RoutingHeader.TestField(Status, RoutingHeader.Status::Certified);
                     "Routing Type" := RoutingHeader.Type;
                 end;
+
+                GetDefaultBin();
             end;
         }
         field(62; "Inventory Posting Group"; Code[20])
@@ -1215,7 +1218,8 @@ table 5406 "Prod. Order Line"
         if (Quantity * xRec.Quantity > 0) and
            ("Item No." = xRec."Item No.") and
            ("Location Code" = xRec."Location Code") and
-           ("Variant Code" = xRec."Variant Code")
+           ("Variant Code" = xRec."Variant Code") and
+           ("Routing No." = xRec."Routing No.")
         then
             exit;
 

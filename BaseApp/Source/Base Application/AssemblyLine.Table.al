@@ -1904,8 +1904,10 @@ table 901 "Assembly Line"
 
     procedure CreateDimFromDefaultDim(HeaderDimensionSetID: Integer)
     var
+        DimMgt: Codeunit DimensionManagement;
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
+        if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(CurrFieldNo)) then exit;
         InitDefaultDimensionSources(DefaultDimSource);
         CreateDim(DefaultDimSource, HeaderDimensionSetID);
     end;
@@ -1918,6 +1920,18 @@ table 901 "Assembly Line"
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+    local procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        case true of
+            FieldNo = Rec.FieldNo("No."):
+                TableValuePair.Add(DimMgt.TypeToTableID4(Rec.Type.AsInteger()), Rec."No.");
+            FieldNo = Rec.FieldNo("Location Code"):
+                TableValuePair.Add(Database::Location, Rec."Location Code");
+        end;
     end;
 
 #if not CLEAN20

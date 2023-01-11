@@ -77,6 +77,36 @@ codeunit 134640 "Sales E2E"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    [HandlerFunctions('StandardStatementSetRequestOptions')]
+    [Scope('OnPrem')]
+    procedure TestCustomerLastStatementNo()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LibrarySales: Codeunit "Library - Sales";
+        LastStatementNo: Integer;
+    begin
+        // [SCENARIO 456488] Customer Statement numbering issue
+
+        // [GIVEN] Create Item, create Sales Order and post
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+        LastStatementNo := Customer."Last Statement No.";
+
+        // [WHEN] Standard statement is being printed for customer
+        PrintCustomerStatement(Customer."No.");
+
+        // [VERIFY] Verify: Last Statement No. printed on Customer "Standard Statement" report
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('LastStatmntNo_Cust', Format(LastStatementNo + 1));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Sales E2E");

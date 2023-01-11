@@ -894,6 +894,23 @@ table 125 "Purch. Cr. Memo Line"
         exit(Format(Type));
     end;
 
+    procedure SetSecurityFilterOnRespCenter()
+    var
+        UserSetupMgt: Codeunit "User Setup Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if UserSetupMgt.GetPurchasesFilter() <> '' then begin
+            FilterGroup(2);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
+            FilterGroup(0);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromPurchLine(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; PurchLine: Record "Purchase Line"; var PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     begin
@@ -906,6 +923,11 @@ table 125 "Purch. Cr. Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; ValueEntry: Record "Value Entry"; SetQuantity: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var IsHandled: Boolean)
     begin
     end;
 }

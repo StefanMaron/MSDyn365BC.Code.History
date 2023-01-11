@@ -45,7 +45,7 @@ codeunit 99000787 "Create Prod. Order Lines"
     begin
         OnBeforeCopy(ProdOrder2, Direction, VariantCode, LetDueDateDecrease, ErrorOccured, IsHandled);
         if IsHandled then
-            exit(ErrorOccured);
+            exit(not ErrorOccured);
 
         MfgSetup.Get();
 

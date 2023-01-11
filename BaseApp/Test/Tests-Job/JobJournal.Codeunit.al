@@ -2708,6 +2708,45 @@ codeunit 136305 "Job Journal"
         JobJournalLine.TestField("Unit Cost (LCY)", Resource."Unit Cost");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure ValidateDefaultBillToCustomerAfterChangeSellToContactNoinJobCardByValidatePageField()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        Job: Record Job;
+        JobCard: TestPage "Job Card";
+        BillToOptions: Enum "Sales Bill-to Options";
+    begin
+        // [SCENARIO 456124] When user change Bill-to to "Default (Customer)" after changing Sell-to contact in Job Card
+        Initialize();
+
+        // [GIVEN] Customer with two contacts [C1, C2]
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
+        LibraryMarketing.CreatePersonContact(Contact2);
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Modify(true);
+
+        // [GIVEN] Job with "Sell-to Contact No." = "C1"
+        LibraryJob.CreateJob(Job, Customer."No.");
+
+        JobCard.Trap();
+        Page.Run(Page::"Job Card", Job);
+
+        // [WHEN] User set "Sell-to Contact No." to C2 by validate page field
+        JobCard."Sell-to Contact No.".SetValue(Contact2."No.");
+
+        // [WHEN] User set "Bill-to" to Default (Customer) by validate page field
+        JobCard.BillToOptions.SetValue(BillToOptions::"Default (Customer)");
+
+        // [THEN]: Verify that the "Job Card"."Bill-to Contact No." = "Job Card"."Sell-to Contact No."
+        JobCard."Bill-to Contact No.".AssertEquals(JobCard."Sell-to Contact No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

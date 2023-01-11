@@ -126,6 +126,9 @@ codeunit 441 "Prepayment Mgt."
         if IsHandled then
             exit(TestResult);
 
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Quote then
+            exit(false);
+
         SalesLine.SetLoadFields("Prepmt. Line Amount", "Prepmt. Amt. Inv.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -147,6 +150,9 @@ codeunit 441 "Prepayment Mgt."
         OnBeforeTestPurchPrepayment(PurchaseHeader, TestResult, IsHandled);
         if IsHandled then
             exit(TestResult);
+
+        if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::Quote then
+            exit(false);
 
         PurchaseLine.SetLoadFields("Prepmt. Amt. Inv.", "Prepmt. Line Amount");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");

@@ -452,7 +452,7 @@ codeunit 950 "Time Sheet Management"
                 ToTimeSheetDetail.TransferFields(FromTimeSheetDetail);
                 ToTimeSheetDetail."Time Sheet No." := ToTimeSheetLine."Time Sheet No.";
                 ToTimeSheetDetail."Time Sheet Line No." := ToTimeSheetLine."Line No.";
-                ToTimeSheetDetail.Date := CalcDate('<+7D>', ToTimeSheetDetail.Date);
+                ToTimeSheetDetail.Date := ToTimeSheetLine."Time Sheet Starting Date" + (FromTimeSheetDetail."Date" - FromTimeSheetLine."Time Sheet Starting Date");
                 ToTimeSheetDetail.Status := "Time Sheet Status"::Open;
                 ToTimeSheetDetail.Posted := false;
                 ToTimeSheetDetail."Posted Quantity" := 0;

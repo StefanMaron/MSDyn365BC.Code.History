@@ -186,9 +186,8 @@ codeunit 1351 "Telemetry Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Access Control", 'OnAfterInsertEvent', '', true, true)]
-    local procedure SendTraceOnUserDefinedPermissionSetIsAssignedToAUser(var Rec: Record "Access Control"; RunTrigger: Boolean)
+    local procedure SendTraceOnPermissionSetIsAssignedToAUser(var Rec: Record "Access Control"; RunTrigger: Boolean)
     var
-        TenantPermissionSet: Record "Tenant Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
         if Rec.IsTemporary() then
@@ -197,70 +196,55 @@ codeunit 1351 "Telemetry Subscribers"
         if not IsSaaS() then
             exit;
 
-        if not IsNullGuid(Rec."App ID") then
-            exit;
-
-        if not TenantPermissionSet.Get(Rec."App ID", Rec."Role ID") then
-            exit;
-
         Dimensions.Add('Category', PermissionSetCategoryTxt);
         Dimensions.Add('PermissionSetId', Rec."Role ID");
+        Dimensions.Add('PermissionSetAppId', Rec."App ID");
+        Dimensions.Add('PermissionSetScope', Format(Rec.Scope));
         Session.LogMessage('0000E2C', StrSubstNo(PermissionSetAssignedToUserTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Access Control", 'OnBeforeDeleteEvent', '', true, true)]
-    local procedure SendTraceOnUserDefinedPermissionSetIsRemovedFromAUser(var Rec: Record "Access Control"; RunTrigger: Boolean)
+    local procedure SendTraceOnPermissionSetIsRemovedFromAUser(var Rec: Record "Access Control"; RunTrigger: Boolean)
     var
-        TenantPermissionSet: Record "Tenant Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
         if Rec.IsTemporary() then
             exit;
 
         if not IsSaaS() then
-            exit;
-
-        if not IsNullGuid(Rec."App ID") then
-            exit;
-
-        if not TenantPermissionSet.Get(Rec."App ID", Rec."Role ID") then
             exit;
 
         Dimensions.Add('Category', PermissionSetCategoryTxt);
         Dimensions.Add('PermissionSetId', Rec."Role ID");
+        Dimensions.Add('PermissionSetAppId', Rec."App ID");
+        Dimensions.Add('PermissionSetScope', Format(Rec.Scope));
         Session.LogMessage('0000E2D', StrSubstNo(PermissionSetRemovedFromUserTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"User Group Permission Set", 'OnAfterInsertEvent', '', true, true)]
-    local procedure SendTraceOnUserDefinedPermissionSetIsAssignedToAUserGroup(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
+    local procedure SendTraceOnPermissionSetIsAssignedToAUserGroup(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
     var
-        TenantPermissionSet: Record "Tenant Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
         if Rec.IsTemporary() then
             exit;
 
         if not IsSaaS() then
-            exit;
-
-        if not IsNullGuid(Rec."App ID") then
-            exit;
-
-        if not TenantPermissionSet.Get(Rec."App ID", Rec."Role ID") then
             exit;
 
         Session.LogMessage('0000253', StrSubstNo(PermissionSetAssignedToUserGroupTelemetryTxt, Rec."Role ID", Rec."User Group Code"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PermissionSetCategoryTxt);
 
         Dimensions.Add('Category', PermissionSetCategoryTxt);
         Dimensions.Add('PermissionSetId', Rec."Role ID");
+        Dimensions.Add('PermissionSetAppId', Rec."App ID");
+        Dimensions.Add('PermissionSetScope', Format(Rec.Scope));
         Dimensions.Add('UserGroupId', Rec."User Group Code");
         Session.LogMessage('0000E2E', StrSubstNo(PermissionSetAssignedToUserGroupTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"User Group Permission Set", 'OnBeforeDeleteEvent', '', true, true)]
-    local procedure SendTraceOnUserDefinedPermissionSetIsRemovedFromAUserGroup(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
+    local procedure SendTraceOnPermissionSetIsRemovedFromAUserGroup(var Rec: Record "User Group Permission Set"; RunTrigger: Boolean)
     var
-        TenantPermissionSet: Record "Tenant Permission Set";
         Dimensions: Dictionary of [Text, Text];
     begin
         if Rec.IsTemporary() then
@@ -269,14 +253,10 @@ codeunit 1351 "Telemetry Subscribers"
         if not IsSaaS() then
             exit;
 
-        if not IsNullGuid(Rec."App ID") then
-            exit;
-
-        if not TenantPermissionSet.Get(Rec."App ID", Rec."Role ID") then
-            exit;
-
         Dimensions.Add('Category', PermissionSetCategoryTxt);
         Dimensions.Add('PermissionSetId', Rec."Role ID");
+        Dimensions.Add('PermissionSetAppId', Rec."App ID");
+        Dimensions.Add('PermissionSetScope', Format(Rec.Scope));
         Dimensions.Add('UserGroupId', Rec."User Group Code");
         Session.LogMessage('0000E2F', StrSubstNo(PermissionSetRemovedFromUserGroupTelemetryScopeAllTxt, Rec."Role ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
     end;
@@ -635,6 +615,9 @@ codeunit 1351 "Telemetry Subscribers"
     local procedure LogDatabaseWaitStatistics()
     begin
         Codeunit.Run(Codeunit::"Emit Database Wait Statistics");
+        #if not CLEAN21
+        Codeunit.Run(Codeunit::"Emit Enabled Features Signal");
+        #endif
     end;
 }
 

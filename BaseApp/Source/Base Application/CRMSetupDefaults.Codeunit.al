@@ -1104,6 +1104,14 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::Bidirectional,
           '', true, false);
 
+        // "Ship-to Post Code"
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Ship-to Post Code"),
+          CRMSalesorder.FieldNo(ShipTo_PostalCode),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
         // Ship-to City
         InsertIntegrationFieldMapping(
           IntegrationTableMappingName,
@@ -1117,14 +1125,6 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationTableMappingName,
           SalesHeader.FieldNo("Ship-to Country/Region Code"),
           CRMSalesorder.FieldNo(ShipTo_Country),
-          IntegrationFieldMapping.Direction::Bidirectional,
-          '', true, false);
-
-        // "Ship-to Post Code"
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          SalesHeader.FieldNo("Ship-to Post Code"),
-          CRMSalesorder.FieldNo(ShipTo_PostalCode),
           IntegrationFieldMapping.Direction::Bidirectional,
           '', true, false);
 
@@ -1160,6 +1160,14 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::Bidirectional,
           '', true, false);
 
+        // "Bill-to Post Code"
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          SalesHeader.FieldNo("Bill-to Post Code"),
+          CRMSalesorder.FieldNo(BillTo_PostalCode),
+          IntegrationFieldMapping.Direction::Bidirectional,
+          '', true, false);
+
         // Bill-to City
         InsertIntegrationFieldMapping(
           IntegrationTableMappingName,
@@ -1173,14 +1181,6 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationTableMappingName,
           SalesHeader.FieldNo("Bill-to Country/Region Code"),
           CRMSalesorder.FieldNo(BillTo_Country),
-          IntegrationFieldMapping.Direction::Bidirectional,
-          '', true, false);
-
-        // "Bill-to Post Code"
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          SalesHeader.FieldNo("Bill-to Post Code"),
-          CRMSalesorder.FieldNo(BillTo_PostalCode),
           IntegrationFieldMapping.Direction::Bidirectional,
           '', true, false);
 

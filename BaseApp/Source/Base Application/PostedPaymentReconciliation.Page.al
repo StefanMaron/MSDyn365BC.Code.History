@@ -68,6 +68,24 @@ page 1295 "Posted Payment Reconciliation"
                 end;
             }
         }
+        area(processing)
+        {
+            action(Reverse)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Reverse';
+                Image = Undo;
+                ToolTip = 'Undo the bank statement, unapply, and reverse the entries created by this journal.';
+                Enabled = not Rec."Is Reversed";
+
+                trigger OnAction()
+                var
+                    ReversePaymentRecJournal: Codeunit "Reverse Payment Rec. Journal";
+                begin
+                    ReversePaymentRecJournal.RunReversalWizard(Rec);
+                end;
+            }
+        }
         area(Promoted)
         {
             group(Category_Process)
@@ -75,6 +93,9 @@ page 1295 "Posted Payment Reconciliation"
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
 
                 actionref(Print_Promoted; Print)
+                {
+                }
+                actionref(Reverse_Promoted; Reverse)
                 {
                 }
             }

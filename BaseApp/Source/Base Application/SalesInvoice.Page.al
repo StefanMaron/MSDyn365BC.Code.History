@@ -221,7 +221,8 @@ page 43 "Sales Invoice"
                 {
                     ApplicationArea = VAT;
                     Importance = Promoted;
-                    Editable = true;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
                 field("Due Date"; Rec."Due Date")
@@ -886,7 +887,7 @@ page 43 "Sales Invoice"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(36),
+                SubPageLink = "Table ID" = CONST(Database::"Sales Header"),
                               "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
             }
@@ -1786,6 +1787,7 @@ page 43 "Sales Invoice"
         PaymentServiceSetup: Record "Payment Service Setup";
         OfficeMgt: Codeunit "Office Management";
         EnvironmentInfo: Codeunit "Environment Information";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
@@ -1805,6 +1807,7 @@ page 43 "Sales Invoice"
 
         SetPostingGroupEditable();
         CheckShowBackgrValidationNotification();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1861,6 +1864,8 @@ page 43 "Sales Invoice"
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         SkipConfirmationDialogOnClosing: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     protected var
         ShipToOptions: Enum "Sales Ship-to Options";

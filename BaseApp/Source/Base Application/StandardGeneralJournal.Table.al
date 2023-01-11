@@ -1,4 +1,4 @@
-table 750 "Standard General Journal"
+﻿table 750 "Standard General Journal"
 {
     Caption = 'Standard General Journal';
     LookupPageID = "Standard General Journals";
@@ -120,6 +120,8 @@ table 750 "Standard General Journal"
 
         OnCopyGenJnlFromStdJnlOnBeforeGenJnlLineTransferFields(GenJnlLine, StdGenJnlLine);
         GenJnlLine.TransferFields(StdGenJnlLine, false);
+        if (GenJnlLine."Account Type" <> GenJnlLine."Account Type"::"G/L Account") and (GenJnlLine."Account No." <> '') then
+            GenJnlLine.Validate("Account No.");
         GenJnlLine.UpdateLineBalance();
         GenJnlLine."Currency Factor" := 0;
         GenJnlLine.Validate("Currency Code");
@@ -135,7 +137,7 @@ table 750 "Standard General Journal"
         if DocumentNo <> '' then
             GenJnlLine."Document No." := DocumentNo;
         if PostingDate <> 0D then
-            GenJnlLine."Posting Date" := PostingDate;
+            GenJnlLine.Validate("Posting Date", PostingDate);
         OnAfterCopyGenJnlFromStdJnl(GenJnlLine, StdGenJnlLine);
         GenJnlLine.Insert(true);
 

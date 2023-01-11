@@ -334,6 +334,7 @@ page 5970 "Posted Service Shipment Lines"
 
     trigger OnOpenPage()
     begin
+        Rec.SetSecurityFilterOnRespCenter();
         Clear(SelectionFilter);
         SetSelectionFilter();
     end;

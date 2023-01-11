@@ -595,7 +595,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ReverseEntriesModalPageHandlerWithCheckValues(var ReverseEntries: TestPage "Reverse Entries")
+    procedure ReverseEntriesModalPageHandlerWithCheckValues(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     var
         DummyReversalEntry: Record "Reversal Entry";
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
@@ -604,7 +604,7 @@ codeunit 134124 "ERM Reverse Employee Ledger"
         EmployeeLedgerEntry.CalcFields("Amount (LCY)");
         // Account Name, G/L Register No., Source Code, Amount, Debit and Credit Amount, Debit and Credit Amount (LCY) are invisible on page
         // Reversal Type and Line No. do not present on page;
-        with ReverseEntries do begin
+        with ReverseTransactionEntries do begin
             FILTER.SetFilter("Entry Type", Format(DummyReversalEntry."Entry Type"::Employee));
             First;
             "Entry No.".AssertEquals(EmployeeLedgerEntry."Entry No.");
@@ -629,9 +629,9 @@ codeunit 134124 "ERM Reverse Employee Ledger"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ReverseEntriesModalPageHandlerSimple(var ReverseEntries: TestPage "Reverse Entries")
+    procedure ReverseEntriesModalPageHandlerSimple(var ReverseTransactionEntries: TestPage "Reverse Transaction Entries")
     begin
-        ReverseEntries.Reverse.Invoke;
+        ReverseTransactionEntries.Reverse.Invoke;
     end;
 }
 

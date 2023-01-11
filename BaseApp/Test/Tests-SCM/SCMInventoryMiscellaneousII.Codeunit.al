@@ -1315,6 +1315,116 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         Assert.ExpectedError(PurchHeaderNotOpenErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PickQuantityBaseInBinContentsIsFilteredByUoM_WhenDirectedPutAwayAndPickIsEnabled()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        Location: Record Location;
+        Bin: Record Bin;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        BinContents: TestPage "Bin Contents";
+        QtyPerUoM: Decimal;
+        InputQtyBaseUoM: Decimal;
+        InputQtyOtherUoM: Decimal;
+        OutputQtyBaseUoM: Decimal;
+        OutputQtyOtherUoM: Decimal;
+    begin
+        // [FEATURE] [Warehouse Adjustment] [Sales Order] [Warehouse Shipment] [Warehouse Pick] [Warehouse Activity Line] [Bin Contents]
+        // [SCENARIO 448078] Item is created and put on Inventory and Warehouse in two Units of Measure. Then Warehouse Pick is created with two lines for the same Item and the same Location Bin but with different Units of Measure.
+        // [SCENARIO 448078] "Pick Quantity (Base)" in Bin Contents page is filtered by UOM of "Warehouse Active Line" when "Directed Put-Away and Pick" = true.
+        Initialize();
+        ResetWarehouseEmployeeDefaultLocation();
+
+        QtyPerUoM := LibraryRandom.RandIntInRange(25, 30);
+        InputQtyBaseUoM := LibraryRandom.RandIntInRange(16, 20);
+        InputQtyOtherUoM := LibraryRandom.RandIntInRange(11, 15);
+        OutputQtyBaseUoM := LibraryRandom.RandIntInRange(6, 10);
+        OutputQtyOtherUoM := LibraryRandom.RandIntInRange(2, 5);
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create additional "Unit of Measure" for Item with "Qty. per Unit of Measure" = QtyPerUoM.
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", QtyPerUoM);
+
+        // [GIVEN] Create Location with "Directed Put-away and Pick".
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+
+        // [GIVEN] Assign Warehouse Emplooyee for Location.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Find Bin for stocking.
+        FindBin(Bin, Location.Code, true);
+
+        // [GIVEN] Create Positive Adjustment Warehouse Journal Line for Item in "Base Unit of Measure" for Quantity = InputQtyBaseUoM.
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, "Warehouse Journal Template Type"::Item, Bin."Location Code");
+        CreateWarehouseJournalLine(WarehouseJournalLine, WarehouseJournalBatch, Bin, "Warehouse Journal Template Type"::Item, Item."No.", Item."Base Unit of Measure", InputQtyBaseUoM);
+
+        // [GIVEN] Create Positive Adjustment Warehouse Journal Line for Item in additional "Unit of Measure" for Quantity = InputQtyOtherUoM.
+        CreateWarehouseJournalLine(WarehouseJournalLine, WarehouseJournalBatch, Bin, "Warehouse Journal Template Type"::Item, Item."No.", ItemUnitOfMeasure.Code, InputQtyOtherUoM);
+
+        // [GIVEN] Register Warehouse Journal.
+        LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
+
+        // [GIVEN] Calculate and Post Warehouse Adjustment.
+        LibraryWarehouse.PostWhseAdjustment(Item);
+
+        // [GIVEN] Create Sales Order.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create Sales Order Line for Item in "Base Unit of Measure" for Quantity = OutputQtyBaseUoM.
+        LibrarySales.CreateSalesLine(
+          SalesLine[1], SalesHeader, SalesLine[1].Type::Item, Item."No.", OutputQtyBaseUoM);
+        SalesLine[1].Validate("Location Code", Location.Code);
+        SalesLine[1].Modify(true);
+
+        // [GIVEN] Create Sales Order Line for Item in additional "Unit of Measure" for Quantity = OutputQtyOtherUoM.
+        LibrarySales.CreateSalesLine(
+          SalesLine[2], SalesHeader, SalesLine[2].Type::Item, Item."No.", OutputQtyOtherUoM);
+        SalesLine[2].Validate("Location Code", Location.Code);
+        SalesLine[2].Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        SalesLine[2].Validate(Quantity, OutputQtyOtherUoM);
+        SalesLine[2].Modify(true);
+
+        // [GIVEN] Release Sales Order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create Warehouse Shipment for Sales Order.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
+
+        // [GIVEN] Create Pick for Warehouse Shipment.
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [WHEN] Open Bin Contents page and set Location Filter.
+        BinContents.OpenView();
+        BinContents.LocationCode.SetValue(Location.Code);
+
+        // [THEN] Check Item/Bin quantites for "Base Unit of Measure".
+        BinContents.GoToKey(Location.Code, Bin.Code, Item."No.", '', Item."Base Unit of Measure");
+        BinContents."CalcQtyUOM".AssertEquals(InputQtyBaseUoM);
+        BinContents."Quantity (Base)".AssertEquals(InputQtyBaseUoM);
+        BinContents."Pick Quantity (Base)".AssertEquals(OutputQtyBaseUoM);
+
+        // [THEN] Check Item/Bin quantites for additional "Unit of Measure".
+        BinContents.GoToKey(Location.Code, Bin.Code, Item."No.", '', ItemUnitOfMeasure.Code);
+        BinContents."CalcQtyUOM".AssertEquals(InputQtyOtherUoM);
+        BinContents."Quantity (Base)".AssertEquals(InputQtyOtherUoM * QtyPerUoM);
+        BinContents."Pick Quantity (Base)".AssertEquals(OutputQtyOtherUoM * QtyPerUoM);
+
+        BinContents.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2591,6 +2701,44 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         WarehouseActivityLine.SetRange("Lot No.", LotNo);
         WarehouseActivityLine.SetRange(Quantity, Quantity);
         Assert.RecordCount(WarehouseActivityLine, 2);
+    end;
+
+    local procedure ResetWarehouseEmployeeDefaultLocation()
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        WarehouseEmployee.SetRange("User ID", UserId());
+        WarehouseEmployee.SetRange(Default, true);
+        WarehouseEmployee.ModifyAll(Default, false);
+    end;
+
+    local procedure CreateWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseJournalBatch: Record "Warehouse Journal Batch"; Bin: Record Bin; WarehouseJournalTemplateType: Enum "Warehouse Journal Template Type"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10]; NewQuantity: Decimal)
+    begin
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
+          Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, NewQuantity);
+
+        if WarehouseJournalLine."Unit of Measure Code" <> UnitOfMeasureCode then begin
+            WarehouseJournalLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+            WarehouseJournalLine.Validate(Quantity, NewQuantity);
+            WarehouseJournalLine.Modify(true);
+        end;
+    end;
+
+    local procedure FindBin(var Bin: Record Bin; LocationCode: Code[10]; Pick: Boolean)
+    var
+        Zone: Record Zone;
+    begin
+        FindZone(Zone, LocationCode, LibraryWarehouse.SelectBinType(false, false, true, Pick));
+        LibraryWarehouse.FindBin(Bin, LocationCode, Zone.Code, 1);  // Use 1 for Bin Index.
+    end;
+
+    local procedure FindZone(var Zone: Record Zone; LocationCode: Code[10]; BinTypeCode: Code[10])
+    begin
+        Zone.SetRange("Location Code", LocationCode);
+        Zone.SetRange("Bin Type Code", BinTypeCode);
+        Zone.SetRange("Cross-Dock Bin Zone", false);
+        Zone.FindFirst();
     end;
 
     [ModalPageHandler]

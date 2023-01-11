@@ -1,7 +1,7 @@
 page 5058 "Alt. Addr. Date Ranges"
 {
     Caption = 'Alt. Addr. Date Ranges';
-    DataCaptionFields = "Contact Alt. Address Code";
+    DataCaptionExpression = GetDataCaption();
     DelayedInsert = true;
     PageType = List;
     PopulateAllFields = true;
@@ -44,5 +44,10 @@ page 5058 "Alt. Addr. Date Ranges"
     actions
     {
     }
+
+    local procedure GetDataCaption(): Text
+    begin
+        exit(Rec."Contact No." + ' ' + Rec."Contact Alt. Address Code");
+    end;
 }
 

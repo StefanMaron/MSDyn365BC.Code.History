@@ -60,6 +60,8 @@ permissionset 7576 "D365 FINANCIAL REP."
                   tabledata "Item Budget Name" = RIMD,
                   tabledata "Item Ledger Entry" = Rimd,
                   tabledata "Object Options" = RIMD,
+                  tabledata "Payment Rec. Related Entry" = RIMD,
+                  tabledata "Pmt. Rec. Applied-to Entry" = RIMD,
                   tabledata "Purchase Header" = Rmd,
                   tabledata "Purchase Line" = Rmd,
                   tabledata "Sales Header" = Rmd,

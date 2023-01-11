@@ -4459,6 +4459,46 @@ codeunit 137074 "SCM Capacity Requirements"
                 RequisitionLine."Ref. Order No.", PlanningRoutingLine."Worksheet Template Name", WorkCenterCode[i], 10 * RunTime[i]);
     end;
 
+    [Test]
+    procedure CombineConsequentCapacityNeedsToSpeedUpSendAhead()
+    var
+        Item: Record Item;
+        RoutingLine: Record "Routing Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        WorkCenterCode: array[2] of Code[10];
+        Forward: Boolean;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Send-Ahead]
+        // [SCENARIO 452654] Combine consequent capacity need entries to speed up calculating production order with send-ahead routing.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(100, 150);
+
+        // [GIVEN] Production item with routing.
+        // [GIVEN] Routing consists of two work centers, each is set up for three shifts - - 0-8 hrs, 8-16 hrs, 16-24 hrs.
+        // [GIVEN] The first work center has "Send-Ahead Quantity" and "Run Time" = "X".
+        CreateProductionItemWithSerialRoutingReorder(Item, WorkCenterCode, Item."Reordering Policy"::"Lot-for-Lot", 0);
+
+        // [WHEN] Create production order for "Y" qty. and calculate routing backward and then forward.
+        for Forward := false to true do begin
+            CreateAndRefreshPlannedProductionOrder(ProductionOrder, Item."No.", Qty, Forward);
+
+            // [THEN] Sum of allocated capacity for the first work center = "X" * "Y".
+            ProdOrderCapacityNeed.Reset();
+            ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProductionOrder."No.");
+            ProdOrderCapacityNeed.SetRange("Work Center No.", WorkCenterCode[1]);
+            ProdOrderCapacityNeed.FindFirst();
+            FindRoutingLine(RoutingLine, ProdOrderCapacityNeed."Routing No.", "Capacity Type Routing"::"Work Center");
+            ProdOrderCapacityNeed.CalcSums("Allocated Time");
+            ProdOrderCapacityNeed.TestField("Allocated Time", Qty * RoutingLine."Run Time");
+
+            // [THEN] Capacity needs are combined within each work shift.
+            ProdOrderCapacityNeed.SetRange("Allocated Time", 8);
+            ProdOrderCapacityNeed.FindFirst();
+        end;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

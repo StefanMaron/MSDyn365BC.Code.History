@@ -428,13 +428,13 @@ table 254 "VAT Entry"
             Caption = 'VAT Date';
 
             trigger OnValidate()
+            var
+                VATDateReportingMgt: Codeunit "VAT Reporting Date Mgt";
             begin
-                if not IsValidVATReportingDate("VAT Reporting Date") then
+                if not VATDateReportingMgt.IsVATDateModifiable() or not VATDateReportingMgt.IsValidDate("VAT Reporting Date") then
                     Error('');
 
-                FeatureTelemetry.LogUsage('0000I9D', VATDateFeatureTok, 'VAT Date field populated');
-                UpdateGLEntries("VAT Reporting Date");
-                UpdatePostedDocuments("VAT Reporting Date");
+                VATDateReportingMgt.UpdateLinkedEntries(Rec);
             end;
         }
     }
@@ -497,164 +497,12 @@ table 254 "VAT Entry"
         Cust: Record Customer;
         Vend: Record Vendor;
         GLSetup: Record "General Ledger Setup";
-        FeatureTelemetry: Codeunit "Feature Telemetry";
 
         Text000: Label 'You cannot change the contents of this field when %1 is %2.';
         ConfirmAdjustQst: Label 'Do you want to fill the G/L Account No. field in VAT entries that are linked to G/L Entries?';
         ProgressMsg: Label 'Processed entries: @2@@@@@@@@@@@@@@@@@\';
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         NoGLAccNoOnVATEntriesErr: Label 'The VAT Entry table with filter <%1> must not contain records.', Comment = '%1 - the filter expression applied to VAT entry record.';
-        VATDateFeatureTok: Label 'VAT Date', Locked = true;
-        VATReturnStatusWarningMsg: Label 'VAT Return for chosen period is already %1. Are you sure you want to make this change?', Comment = '%1 - The status of the VAT return.'; 
-        VATDateNotChangedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
-
-    local procedure UpdatePostedDocuments(NewDate: Date)
-    var
-        SalesInvHeader: Record "Sales Invoice Header";
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceInvHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-        IssuedReminderHeader: Record "Issued Reminder Header";
-        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
-        PurchInvHeader: Record "Purch. Inv. Header";
-        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
-        RecordRef: RecordRef;
-        Updated: Boolean;
-    begin
-        case "Document Type" of
-            "Document Type"::Invoice:
-                begin
-                    if Type = Type::Sale then begin
-                        FilterSalesInvoiceHeader(SalesInvHeader);
-                        RecordRef.GetTable(SalesInvHeader);
-                        Updated := UpdateVATDateFromRecordRef(RecordRef, SalesInvHeader.FieldNo("VAT Reporting Date"), NewDate);
-                        if not Updated then begin
-                            FilterServInvoiceHeader(ServiceInvHeader);
-                            RecordRef.GetTable(ServiceInvHeader);
-                            Updated := UpdateVATDateFromRecordRef(RecordRef, ServiceInvHeader.FieldNo("VAT Reporting Date"), NewDate);
-                        end;
-                    end;
-                    if Type = Type::Purchase then begin
-                        FilterPurchInvoiceHeader(PurchInvHeader);
-                        RecordRef.GetTable(PurchInvHeader);
-                        Updated := UpdateVATDateFromRecordRef(RecordRef, PurchInvHeader.FieldNo("VAT Reporting Date"), NewDate);
-                    end;
-                end;
-            "Document Type"::"Credit Memo":
-                begin
-                    if Type = Type::Sale then begin
-                        FilterSalesCrMemoHeader(SalesCrMemoHeader);
-                        RecordRef.GetTable(SalesCrMemoHeader);
-                        Updated := UpdateVATDateFromRecordRef(RecordRef, SalesCrMemoHeader.FieldNo("VAT Reporting Date"), NewDate);
-                        if not Updated then begin
-                            FilterServCrMemoHeader(ServiceCrMemoHeader);
-                            RecordRef.GetTable(ServiceCrMemoHeader);
-                            Updated := UpdateVATDateFromRecordRef(RecordRef, ServiceCrMemoHeader.FieldNo("VAT Reporting Date"), NewDate);
-                        end;
-                    end;
-                    if Type = Type::Purchase then begin
-                        FilterPurchCrMemoHeader(PurchCrMemoHeader);
-                        RecordRef.GetTable(PurchCrMemoHeader);
-                        Updated := UpdateVATDateFromRecordRef(RecordRef, PurchCrMemoHeader.FieldNo("VAT Reporting Date"), NewDate);
-                    end;
-                end;
-            "Document Type"::"Finance Charge Memo":
-                begin
-                    FilterIssuedFinChrgMemoHeader(IssuedFinChargeMemoHeader);
-                    RecordRef.GetTable(IssuedFinChargeMemoHeader);
-                    Updated := UpdateVATDateFromRecordRef(RecordRef, IssuedFinChargeMemoHeader.FieldNo("VAT Reporting Date"), NewDate);
-                end;
-            "Document Type"::Reminder:
-                begin
-                    FilterIssuedReminderHeader(IssuedReminderHeader);
-                    RecordRef.GetTable(IssuedReminderHeader);
-                    Updated := UpdateVATDateFromRecordRef(RecordRef, IssuedReminderHeader.FieldNo("VAT Reporting Date"), NewDate);
-                end;
-        end;
-        if Updated then
-            RecordRef.Modify();
-    end;
-
-    local procedure UpdateVATDateFromRecordRef(var RecordRef: RecordRef; FieldId: Integer; VATDate: Date): Boolean
-    var
-        FieldRef: FieldRef;
-    begin
-        if RecordRef.FindFirst() then begin
-            FieldRef := RecordRef.Field(FieldId);
-            FieldRef.Value := VATDate;
-            exit(true);
-        end;
-        exit(false);
-    end;
-
-    local procedure UpdateGLEntries(VATDate: Date)
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        GLEntry.SetCurrentKey("Document No.", "Posting Date");
-        GLEntry.SetRange("Document No.", "Document No.");
-        GLEntry.SetRange("Posting Date", "Posting Date");
-        GLEntry.ModifyAll("VAT Reporting Date", VATDate);
-    end;
-
-    local procedure FilterSalesInvoiceHeader(var SalesInvHeader: Record "Sales Invoice Header")
-    begin
-        SalesInvHeader.Reset();
-        SalesInvHeader.SetRange("No.", "Document No.");
-        SalesInvHeader.SetRange("Posting Date", "Posting Date");
-        SalesInvHeader.SetRange("External Document No.", "External Document No.");
-    end;
-
-    local procedure FilterSalesCrMemoHeader(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
-    begin
-        SalesCrMemoHeader.Reset();
-        SalesCrMemoHeader.SetRange("No.", "Document No.");
-        SalesCrMemoHeader.SetRange("Posting Date", "Posting Date");
-        SalesCrMemoHeader.SetRange("External Document No.", "External Document No.");
-    end;
-
-    local procedure FilterServInvoiceHeader(var ServiceInvHeader: Record "Service Invoice Header")
-    begin
-        ServiceInvHeader.Reset();
-        ServiceInvHeader.SetRange("No.", "Document No.");
-        ServiceInvHeader.SetRange("Posting Date", "Posting Date");
-    end;
-
-    local procedure FilterServCrMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header");
-    begin
-        ServiceCrMemoHeader.Reset();
-        ServiceCrMemoHeader.SetRange("No.", "Document No.");
-        ServiceCrMemoHeader.SetRange("Posting Date", "Posting Date");
-    end;
-
-    local procedure FilterIssuedReminderHeader(var IssuedReminderHeader: Record "Issued Reminder Header")
-    begin
-        IssuedReminderHeader.Reset();
-        IssuedReminderHeader.SetRange("No.", "Document No.");
-        IssuedReminderHeader.SetRange("Posting Date", "Posting Date");
-    end;
-
-    local procedure FilterIssuedFinChrgMemoHeader(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
-    begin
-        IssuedFinChargeMemoHeader.Reset();
-        IssuedFinChargeMemoHeader.SetRange("No.", "Document No.");
-        IssuedFinChargeMemoHeader.SetRange("Posting Date", "Posting Date");
-    end;
-
-    local procedure FilterPurchInvoiceHeader(var PurchInvoiceHeader: Record "Purch. Inv. Header")
-    begin
-        PurchInvoiceHeader.Reset();
-        PurchInvoiceHeader.SetRange("No.", "Document No.");
-        PurchInvoiceHeader.SetRange("Posting Date", "Posting Date");
-        PurchInvoiceHeader.SetRange("Vendor Invoice No.", "External Document No.");
-    end;
-
-    local procedure FilterPurchCrMemoHeader(var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
-    begin
-        PurchCrMemoHeader.Reset();
-        PurchCrMemoHeader.SetRange("No.", "Document No.");
-        PurchCrMemoHeader.SetRange("Posting Date", "Posting Date");
-    end;
 
     local procedure SetVATDate(var GenJnlLine: Record "Gen. Journal Line")
     begin
@@ -771,6 +619,7 @@ table 254 "VAT Entry"
     procedure CopyPostingDataFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     begin
         "Posting Date" := GenJnlLine."Posting Date";
+        "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
         "Document Type" := GenJnlLine."Document Type";
         "Document Date" := GenJnlLine."Document Date";
         "Document No." := GenJnlLine."Document No.";
@@ -937,23 +786,6 @@ table 254 "VAT Entry"
         "Realized Base" := 0;
         "Add.-Curr. Realized Amount" := 0;
         "Add.-Curr. Realized Base" := 0;
-    end;
-
-    local procedure IsValidVATReportingDate(VATReportingDate: Date): Boolean
-    var
-        VATReturnPeriod: Record "VAT Return Period";
-        ConfirmManagement: Codeunit "Confirm Management";
-    begin
-        if VATReturnPeriod.FindVATPeriodByDate(VATReportingDate) then begin
-            if VATReturnPeriod.Status = VATReturnPeriod.Status::Closed then
-                Error(VATDateNotChangedErr);
-
-            VATReturnPeriod.CalcFields("VAT Return Status");
-            if VATReturnPeriod."VAT Return Status" in [VATReturnPeriod."VAT Return Status"::Released, VATReturnPeriod."VAT Return Status"::Submitted] then
-                exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(VATReturnStatusWarningMsg, Format(VATReturnPeriod."VAT Return Status")), true));
-
-        end;
-        exit(true);
     end;
 
     [IntegrationEvent(false, false)]

@@ -136,6 +136,7 @@ report 704 "Inventory - Transaction Detail"
                 if ItemDateFilter <> '' then
                     if GetRangeMin("Date Filter") > 00000101D then begin
                         SetRange("Date Filter", 0D, GetRangeMin("Date Filter") - 1);
+                        OnItemOnAfterGetRecordOnBeforeCalcNetChange(Item);
                         CalcFields("Net Change");
                         StartOnHand := "Net Change";
                         SetFilter("Date Filter", ItemDateFilter);
@@ -211,6 +212,11 @@ report 704 "Inventory - Transaction Detail"
     procedure InitializeRequest(NewPrintOnlyOnePerPage: Boolean)
     begin
         PrintOnlyOnePerPage := NewPrintOnlyOnePerPage;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemOnAfterGetRecordOnBeforeCalcNetChange(var Item: Record Item)
+    begin
     end;
 }
 

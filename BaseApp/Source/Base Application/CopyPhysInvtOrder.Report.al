@@ -98,11 +98,8 @@ report 5882 "Copy Phys. Invt. Order"
                         if FromPhysInvtOrderLine.Find('-') then
                             repeat
                                 if FromPhysInvtOrderLine."Item No." <> '' then begin
-                                    NoOfOrderLines :=
-                                      GetSamePhysInvtOrderLine(
-                                        FromPhysInvtOrderLine,
-                                        ErrorText,
-                                        PhysInvtOrderLine2);
+                                    NoOfOrderLines := GetSamePhysInvtOrderLine(FromPhysInvtOrderLine, ErrorText, PhysInvtOrderLine2);
+                                    OnAfterGetNoOfOrderLinesFromPhysInvtOrder(NoOfOrderLines, FromPhysInvtOrderLine, PhysInvtOrderHeader);
                                     if NoOfOrderLines = 0 then begin
                                         InsertNewLine(
                                           FromPhysInvtOrderLine."Item No.", FromPhysInvtOrderLine."Variant Code",
@@ -128,8 +125,8 @@ report 5882 "Copy Phys. Invt. Order"
                                       GetSamePhysInvtOrderLine(
                                         FromPstdPhysInvtOrderLine."Item No.", FromPstdPhysInvtOrderLine."Variant Code",
                                         FromPstdPhysInvtOrderLine."Location Code", FromPstdPhysInvtOrderLine."Bin Code",
-                                        ErrorText,
-                                        PhysInvtOrderLine2);
+                                        ErrorText, PhysInvtOrderLine2);
+                                    OnAfterGetNoOfOrderLinesFromPostedPhysInvtOrder(NoOfOrderLines, FromPstdPhysInvtOrderLine, PhysInvtOrderHeader);
                                     if NoOfOrderLines = 0 then begin
                                         InsertNewLine(
                                           FromPstdPhysInvtOrderLine."Item No.", FromPstdPhysInvtOrderLine."Variant Code",
@@ -241,6 +238,16 @@ report 5882 "Copy Phys. Invt. Order"
             PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
         PhysInvtOrderLine.Modify();
         NextLineNo := NextLineNo + 10000;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetNoOfOrderLinesFromPhysInvtOrder(var NoOfOrderLines: Integer; var FromPhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetNoOfOrderLinesFromPostedPhysInvtOrder(var NoOfOrderLines: Integer; var FromPstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
+    begin
     end;
 }
 

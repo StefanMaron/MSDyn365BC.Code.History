@@ -119,7 +119,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 3960948374" maxwidth="65" size-unit="char" translate="yes" xml:space="preserve">
           <source>The biggest sales order was for %1</source>
-          <target state="translated">El valor del mayor pedido de ventas ha sido %1</target>
+          <target state="translated">El valor del mayor pedido de venta ha sido %1</target>
           <note from="Developer" annotates="general" priority="2">%1 is the order amount with currency symbol/name.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType LargestOrderPayloadTxt</note>
         </trans-unit>

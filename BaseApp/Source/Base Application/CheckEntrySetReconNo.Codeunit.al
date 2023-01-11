@@ -9,7 +9,7 @@ codeunit 376 "Check Entry Set Recon.-No."
 
     var
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
-
+        BLEMissmatchErr: Label 'Bank Ledger Entry has %1 %2, but Bank Reconciliation Line has %3.', Comment = '%1 - Either "Statement No." or "Statement Line No.", %2 - A number, %3 - a number';
         Text000: Label 'cannot be %1';
 
     procedure ToggleReconNo(var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; ChangeAmount: Boolean)
@@ -106,8 +106,13 @@ codeunit 376 "Check Entry Set Recon.-No."
             if Test then begin
                 BankAccLedgEntry.TestField(
                   "Statement Status", BankAccLedgEntry."Statement Status"::"Check Entry Applied");
-                BankAccLedgEntry.TestField("Statement No.", BankAccReconLine."Statement No.");
-                BankAccLedgEntry.TestField("Statement Line No.", BankAccReconLine."Statement Line No.");
+                if BankAccLedgEntry."Statement No." <> BankAccReconLine."Statement No." then
+                    if BankAccLedgEntry."Statement No." <> '' then // For Bank Rec's from 20.x and downwards
+                        Error(BLEMissmatchErr, BankAccLedgEntry.FieldCaption("Statement No."), BankAccLedgEntry."Statement No.", BankAccReconLine."Statement No.");
+
+                if BankAccLedgEntry."Statement Line No." <> BankAccReconLine."Statement Line No." then
+                    if BankAccLedgEntry."Statement Line No." <> 0 then // For Bank Rec's from 20.x and downwards
+                        Error(BLEMissmatchErr, BankAccLedgEntry.FieldCaption("Statement Line No."), BankAccLedgEntry."Statement Line No.", BankAccReconLine."Statement Line No.");
             end;
             BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Open;
             BankAccLedgEntry."Statement No." := '';

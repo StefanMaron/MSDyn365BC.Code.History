@@ -467,7 +467,7 @@
         </trans-unit>
         <trans-unit id="Page 1261045762 - Control 4023420792 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Review and define the local formats that are used in your bank statement file.</source>
-          <target state="translated">Überprüfen und definieren Sie die lokalen Formate, die in ihrer Bankauszugsdatei verwendet werden.</target>
+          <target state="translated">Überprüfen und definieren Sie die lokalen Formate, die in Ihrer Bankauszugsdatei verwendet werden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Bank Statement File Wizard - Control Step6 - Property InstructionalText</note>
         </trans-unit>

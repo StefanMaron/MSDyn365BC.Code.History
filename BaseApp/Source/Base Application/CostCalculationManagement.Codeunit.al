@@ -829,6 +829,7 @@ codeunit 5836 "Cost Calculation Management"
     local procedure CalcSalesShptLineCostLCY(SalesShptLine: Record "Sales Shipment Line"; QtyType: Option General,Invoicing,Shipping) AdjCostLCY: Decimal
     var
         ItemLedgEntry: Record "Item Ledger Entry";
+        ReturnRcptLine: Record "Return Receipt Line";
     begin
         with SalesShptLine do begin
             if (Quantity = 0) or (Type = Type::"Charge (Item)") then
@@ -839,6 +840,10 @@ codeunit 5836 "Cost Calculation Management"
                 if ItemLedgEntry.IsEmpty() then
                     exit(0);
                 AdjCostLCY := CalcPostedDocLineCostLCY(ItemLedgEntry, QtyType);
+                if RelatedReturnReceiptExist(SalesShptLine, ReturnRcptLine) then
+                    repeat
+                        AdjCostLCY += CalcReturnRcptLineCostLCY(ReturnRcptLine, QtyType);
+                    until ReturnRcptLine.Next() = 0;              
             end else begin
                 if QtyType = QtyType::Invoicing then
                     AdjCostLCY := -"Qty. Shipped Not Invoiced" * "Unit Cost (LCY)"
@@ -847,6 +852,14 @@ codeunit 5836 "Cost Calculation Management"
             end;
         end;
     end;
+
+    local procedure RelatedReturnReceiptExist(var SalesShptLine: Record "Sales Shipment Line"; var ReturnRcptLine: Record "Return Receipt Line"): Boolean
+    begin
+        if SalesShptLine."Item Shpt. Entry No." = 0 then exit;
+        ReturnRcptLine.SetRange("Appl.-from Item Entry", SalesShptLine."Item Shpt. Entry No.");
+        if ReturnRcptLine.FindSet() then
+            exit(true);
+    end;    
 
     local procedure CalcReturnRcptLineCostLCY(ReturnRcptLine: Record "Return Receipt Line"; QtyType: Option General,Invoicing,Shipping) AdjCostLCY: Decimal
     var

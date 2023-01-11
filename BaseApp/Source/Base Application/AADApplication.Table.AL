@@ -21,14 +21,16 @@ table 9012 "AAD Application"
             var
                 User: Record User;
                 UserPermission: codeunit "User Permissions";
+                ConfirmManagement: Codeunit "Confirm Management";
                 ErrorTxt: Text;
-
+                ConfirmQuestion: Text;
             begin
                 if xRec.State = state then
                     exit;
                 If not UserExists() and (Rec.State = Rec.State::Enabled) then begin
                     Rec.TestField(Description);
-                    If Confirm(UserNameCannotbeChangedQst, true, Rec.Description) then
+                    ConfirmQuestion := StrSubstNo(UserNameCannotbeChangedQst, Rec.Description);
+                    If ConfirmManagement.GetResponseOrDefault(ConfirmQuestion, true) then
                         CreateUserFromAADApplication()
                     else
                         error('');

@@ -19,7 +19,7 @@ report 25 "Account Schedule"
             dataitem(Heading; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-                column(TodayFormatted; TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone('d'))
+                column(TodayFormatted; Format(Today()))
                 {
                 }
                 column(ColumnLayoutName; ColumnLayoutName)
@@ -745,7 +745,6 @@ report 25 "Account Schedule"
         GLSetup: Record "General Ledger Setup";
         AccSchedManagement: Codeunit AccSchedManagement;
         FinancialReportMgt: Codeunit "Financial Report Mgt.";
-        TypeHelper: Codeunit "Type Helper";
         AccSchedName: Code[10];
         AccSchedNameHidden: Code[10];
         FinancialReportName: Code[10];

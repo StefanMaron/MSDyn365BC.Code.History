@@ -106,7 +106,8 @@ page 434 Reminder
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
                     ApplicationArea = VAT;
-                    Editable = true;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
                 field("Document Date"; Rec."Document Date")
@@ -537,9 +538,11 @@ page 434 Reminder
     trigger OnOpenPage()
     var
         OfficeMgt: Codeunit "Office Management";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         SetDocNoVisible();
         IsOfficeAddin := OfficeMgt.IsAvailable();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     trigger OnAfterGetRecord()
@@ -555,6 +558,8 @@ page 434 Reminder
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocNoVisible: Boolean;
         IsOfficeAddin: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     local procedure SetDocNoVisible()
     var

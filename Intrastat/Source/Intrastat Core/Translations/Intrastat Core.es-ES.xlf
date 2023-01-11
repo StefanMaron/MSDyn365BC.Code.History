@@ -833,7 +833,7 @@
         </trans-unit>
         <trans-unit id="Page 879680616 - Control 970646220 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Enter the year first and then the month, for example, enter 1706 for June, 2017</source>
-          <target state="translated">Especifica el mes para el que se van a notificar los datos. Indique el período como un número de cuatro dígitos, sin espacios ni símbolos. En función de su país, escriba primero el mes y después el año o viceversa. Por ejemplo, escriba 1706 o 0617 para junio de 2017.</target>
+          <target state="translated">Especifica el mes para el que se notificarán los datos. Especifique el período como un número de cuatro dígitos, sin espacios ni símbolos. Escriba primero el año y después el mes, por ejemplo, escriba 1706 para junio de 2017.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control Statistics Period - Property ToolTip</note>
         </trans-unit>

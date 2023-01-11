@@ -2303,7 +2303,7 @@
         </trans-unit>
         <trans-unit id="Table 1190380835 - Field 3632571046 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Include,Exclude</source>
-          <target state="translated">Einschließen,Ausschließen</target>
+          <target state="translated">Einschliessen,Ausschliessen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Permission Lookup Buffer - Field Lookup Type - Property OptionCaption</note>
         </trans-unit>
@@ -2339,7 +2339,7 @@
         </trans-unit>
         <trans-unit id="Table 3195683969 - Field 1394156814 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Included</source>
-          <target state="translated">Einschließlich</target>
+          <target state="translated">Einschliesslich</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Permission Set Relation Buffer - Field Inclusion Status - Property Caption</note>
         </trans-unit>
@@ -2411,7 +2411,7 @@
         </trans-unit>
         <trans-unit id="Table 3195683969 - Field 1878130204 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Include,Exclude</source>
-          <target state="translated">Einschließen,Ausschließen</target>
+          <target state="translated">Einschliessen,Ausschliessen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Permission Set Relation Buffer - Field Type - Property OptionCaption</note>
         </trans-unit>
@@ -3260,6 +3260,12 @@
           <target state="translated">ApiVersion</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table SAS Parameters - Field ApiVersion - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3831263693 - Field 452288233 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SignedEncryptionScope</source>
+          <target state="translated">Umfang der signierten Verschlüsselung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SAS Parameters - Field SignedEncryptionScope - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3831263693 - Field 3633290037 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SignedIp</source>
@@ -5039,7 +5045,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3692338268 - NamedType 935875799" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
           <source>Here are a few things you can try out</source>
-          <target state="translated">Hier sind ein paar Dinge, die Sie ausprobieren können</target>
+          <target state="translated">Hier können Sie Funktionen in Business Central ausprobieren!</target>
           <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerHeaderInProgressEvaluationLbl</note>
         </trans-unit>
@@ -5081,7 +5087,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3692338268 - NamedType 1940743142" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
           <source>Here are a few things you can try out</source>
-          <target state="translated">Hier sind ein paar Dinge, die Sie ausprobieren können</target>
+          <target state="translated">Hier können Sie Funktionen in Business Central ausprobieren!</target>
           <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType CollapsedBannerHeaderWelcomeEvaluationLbl</note>
         </trans-unit>
@@ -5609,7 +5615,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1685527521 - NamedType 170933452" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This page is for adding additional, non-default attachments to the scenario. Do you want to add an attachment?</source>
-          <target state="translated">Diese Seite dient zum Hinzufügen zusätzlicher, nicht standardmäßiger Dateianhänge zum Szenario. Möchten Sie einen Dateianhang hinzufügen?</target>
+          <target state="translated">Diese Seite dient zum Hinzufügen zusätzlicher, nicht standardmässiger Dateianhänge zum Szenario. Möchten Sie einen Dateianhang hinzufügen?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Scenario Attach Impl. - NamedType ConfirmUploadNotDefaultToListQst</note>
         </trans-unit>
@@ -6285,6 +6291,12 @@
           <note from="Developer" annotates="general" priority="2">%1 = the number of characters</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Handler Impl. - NamedType InsufficientPassLengthErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2592325759 - NamedType 2816297459" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All objects of type %1 (except where otherwise stated)</source>
+          <target state="translated">Alle Objekte vom Typ %1 (sofern nicht anders angegeben)</target>
+          <note from="Developer" annotates="general" priority="2">%1= type name, e.g. Table Data or Report or Page</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Permission Impl. - NamedType AllObjExceptTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2592325759 - NamedType 1547195898" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>All objects of type %1</source>
           <target state="translated">Alle Objekte vom Typ %1</target>
@@ -6323,13 +6335,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 3911480243 - NamedType 1054140269" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You cannot exclude the permission set you are currently modifying.</source>
-          <target state="translated">Sie können den Berechtigungssatz, den Sie gerade bearbeiten, nicht ausschließen.</target>
+          <target state="translated">Sie können den Berechtigungssatz, den Sie gerade bearbeiten, nicht ausschliessen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Permission Set Relation Impl. - NamedType CannotExcludeItselfErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 3911480243 - NamedType 1029059987" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You cannot include the permission set you are currently modifying.</source>
-          <target state="translated">Sie können den Berechtigungssatz, den Sie gerade bearbeiten, nicht einschließen.</target>
+          <target state="translated">Sie können den Berechtigungssatz, den Sie gerade bearbeiten, nicht einschliessen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Permission Set Relation Impl. - NamedType CannotIncludeItselfErr</note>
         </trans-unit>
@@ -6395,7 +6407,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3406436467 - NamedType 1943873903" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must sign out and then sign in again to make the changes take effect.</source>
-          <target state="translated">Melden Sie sich ab und anschließend wieder an, um die Änderungen zu übernehmen.</target>
+          <target state="translated">Melden Sie sich ab und anschliessend wieder an, um die Änderungen zu übernehmen.</target>
           <note from="Developer" annotates="general" priority="2">"sign out" and "sign in" are the same terms as shown in the Business Central client.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Power Automate Privacy Notice - NamedType SignInAgainMsg</note>
         </trans-unit>
@@ -6443,7 +6455,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3222076310 - NamedType 2237880948" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>By using %1, you consent to your data being shared with Microsoft services that might be outside of your organization's selected geographic boundaries and might have different compliance and security standards than %2. Your privacy is important to us, and you can choose whether to share data with the service. To learn more, follow the link below.</source>
-          <target state="translated">Durch das Verwenden von %1 stimmen Sie zu, dass Ihre Daten für Microsoft-Dienste freigegeben werden, die möglicherweise außerhalb der ausgewählten geografischen Grenzen Ihrer Organisation liegen und andere Konformitäts- und Sicherheitsstandards als bei %2 aufweisen. Ihr Datenschutz ist uns wichtig, und Sie können wählen, ob Sie Daten für den Dienst freigeben möchten. Weitere Informationen finden Sie unter dem unten stehenden Link.</target>
+          <target state="translated">Durch das Verwenden von %1 stimmen Sie zu, dass Ihre Daten für Microsoft-Dienste freigegeben werden, die möglicherweise ausserhalb der ausgewählten geografischen Grenzen Ihrer Organisation liegen und andere Konformitäts- und Sicherheitsstandards als bei %2 aufweisen. Ihr Datenschutz ist uns wichtig, und Sie können wählen, ob Sie Daten für den Dienst freigeben möchten. Weitere Informationen finden Sie unter dem unten stehenden Link.</target>
           <note from="Developer" annotates="general" priority="2">%1 = the integration service name, ex. Microsoft Sharepoint, %2 = the full marketing name, such as Microsoft Dynamics 365 Business Central.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Privacy Notice Impl. - NamedType PrivacyAgreementTxt</note>
         </trans-unit>
@@ -6608,6 +6620,12 @@
           <target state="translated">Die Anzahl der zu löschenden Datensätze für die Tabelle %1 %2 wurde auf %3 Datensätze begrenzt. Die maximale Anzahl von Datensätzen, die gleichzeitig gelöscht werden können, ist %4. Zuvor wurden %5 Datensätze in mindestens einer Tabelle gelöscht.</target>
           <note from="Developer" annotates="general" priority="2">%1 = a id of a table (integer), %2 = the caption of the table, %3, %4, %5 = integer</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Reten. Pol. Delete. Impl. - NamedType LimitNumberOfRecordsLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3411327414 - NamedType 1381496626" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Max. Number of Rec. To Delete is less than 0.</source>
+          <target state="translated">Max. Anzahl zu löschender Datensätze ist kleiner als 0.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Reten. Pol. Delete. Impl. - NamedType MaxNumberofRecToDeleteNegLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3411327414 - NamedType 2047030313" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unable to check number of records to delete due to missing read permission for table %1, %2</source>
@@ -9710,7 +9728,7 @@
         </trans-unit>
         <trans-unit id="Page 3756518970 - Control 617774859 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the maximum number of emails per minute the account can send. A rate limit of 0 indicates no limit.</source>
-          <target state="translated">Legt die Ratenbegrenzung für das aktuelle Konto fest</target>
+          <target state="translated">Gibt die maximale Anzahl von E-Mails an, die das Konto pro Minute senden kann. Eine Ratenbegrenzung von „0“ bedeutet kein Limit.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Account Wizard - Control EmailRateLimitDisplay - Property ToolTip</note>
         </trans-unit>
@@ -9972,6 +9990,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Action View - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3389183890 - Action 32936156 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Assign attachments to email scenarios.</source>
+          <target state="translated">Weisen Sie Anlagen E-Mail-Szenarios zu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Action EmailScenarioAttachments - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3389183890 - Action 32936156 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Scenario Attachments</source>
+          <target state="translated">E-Mail-Szenario-Anlagen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Action EmailScenarioAttachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3389183890 - Action 2263682359 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Assign scenarios to the email accounts.</source>
           <target state="translated">Weisen Sie den E-Mail-Konten Szenarios zu.</target>
@@ -10058,11 +10088,13 @@
         </trans-unit>
         <trans-unit id="Page 3389183890 - Action 1470853660 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Sets a limit on how many emails can be sent from the account per minute.</source>
+          <target state="translated">Legt den Grenzwert für die Anzahl der E-Mails fest, die vom Konto pro Minute gesendet werden können.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Action SetUpRateLimit - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3389183890 - Action 1470853660 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set email rate limit</source>
+          <target state="translated">E-Mail-Ratenbegrenzung festlegen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Accounts - Action SetUpRateLimit - Property Caption</note>
         </trans-unit>
@@ -10236,7 +10268,7 @@
         </trans-unit>
         <trans-unit id="Page 761349018 - Action 2912722189 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add additional attachments from default email attachments. These files are not attached by default.</source>
-          <target state="translated">Fügen Sie zusätzliche Anhänge von standardmäßigen E-Mail-Anlagen hinzu. Diese Dateien sind standardmäßig nicht angehängt.</target>
+          <target state="translated">Fügen Sie zusätzliche Anhänge von standardmässigen E-Mail-Anlagen hinzu. Diese Dateien sind standardmässig nicht angehängt.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Action UploadFromScenario - Property ToolTip</note>
         </trans-unit>
@@ -10293,6 +10325,18 @@
           <target state="translated">E-Mail-Szenario</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Control Scenario - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3163801880 - Action 593408208 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download the selected attachment file.</source>
+          <target state="translated">Laden Sie die ausgewählte Anlagedatei herunter.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Action Download - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3163801880 - Action 593408208 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download Attachment</source>
+          <target state="translated">Anlage herunterladen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Action Download - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2282749623 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Compose an Email</source>
@@ -10650,9 +10694,15 @@
         </trans-unit>
         <trans-unit id="Page 3344272628 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set Email Rate Limit per Minute</source>
-          <target state="translated">Richtet die Ratenbegrenzung pro Minute ein</target>
+          <target state="translated">Ratenbegrenzung für E-Mails pro Minute festlegen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3344272628 - NamedType 286665424" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No limit</source>
+          <target state="translated">Keine Begrenzung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - NamedType NoLimitTxt</note>
         </trans-unit>
         <trans-unit id="Page 3344272628 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The email address for the current email account.</source>
@@ -10677,6 +10727,12 @@
           <target state="translated">Name des E-Mail-Kontos</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Control EmailName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3344272628 - Control 617774859 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the maximum number of emails per minute the account can send. A rate limit of 0 indicates no limit.</source>
+          <target state="translated">Gibt die maximale Anzahl von E-Mails an, die das Konto pro Minute senden kann. Eine Ratenbegrenzung von „0“ bedeutet kein Limit.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - Control EmailRateLimitDisplay - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3344272628 - Control 617774859 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Rate Limit per Minute</source>
@@ -10768,15 +10824,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 664053810 - NamedType 2367821945" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Go ahead and delete?</source>
+          <target state="translated">Fortfahren und löschen?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - NamedType DeleteQst</note>
+        </trans-unit>
         <trans-unit id="Page 664053810 - Control 3160323516 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether to automatically attach the file to emails sent from processes related to this scenario. You can manually attach files that are not default.</source>
-          <target state="translated">Gibt an, ob die Datei automatisch an E-Mails angehängt werden soll, die von mit diesem Szenario verknüpften Prozessen gesendet werden. Sie können Dateien, die nicht standardmäßig sind, manuell anfügen.</target>
+          <target state="translated">Gibt an, ob die Datei automatisch an E-Mails angehängt werden soll, die von mit diesem Szenario verknüpften Prozessen gesendet werden. Sie können Dateien, die nicht standardmässig sind, manuell anfügen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Control File Attachments Status - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 664053810 - Control 3160323516 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Attach by Default</source>
-          <target state="translated">Standardmäßig anfügen</target>
+          <target state="translated">Standardmässig anfügen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Control File Attachments Status - Property Caption</note>
         </trans-unit>
@@ -10828,9 +10890,21 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action Delete - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 664053810 - Action 593408208 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download the selected attachment file.</source>
+          <target state="translated">Laden Sie die ausgewählte Anlagedatei herunter.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action Download - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Action 593408208 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download Attachment</source>
+          <target state="translated">Anlage herunterladen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action Download - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 664053810 - Action 884106764 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Choose a email scenario and add files, such as documents or images, to the email.</source>
-          <target state="translated">Wählen Sie ein E-Mail-Szenario aus, und fügen Sie der E-Mail Dateien (z. B. Belege oder Bilder) hinzu.</target>
+          <source>Choose an email scenario and add files, such as documents or images, to the email.</source>
+          <target state="translated">Wählen Sie ein E-Mail-Szenario aus, und fügen Sie der E-Mail Dateien (z. B. Belege oder Bilder) hinzu.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action SetScenarioAndAddFile - Property ToolTip</note>
         </trans-unit>
@@ -12660,7 +12734,7 @@
         </trans-unit>
         <trans-unit id="Page 1954735620 - NamedType 1554585786" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>User has chosen to close the installation progress and is not waiting for the installation to finish.</source>
-          <target state="translated">Der Benutzer hat sich entschieden, den Installationsfortschritt zu schließen, und wartet nicht, bis die Installation abgeschlossen ist.</target>
+          <target state="translated">Der Benutzer hat sich entschieden, den Installationsfortschritt zu schliessen, und wartet nicht, bis die Installation abgeschlossen ist.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Extn. Installation Progress - NamedType InstallationInProgressTxt</note>
         </trans-unit>
@@ -12726,7 +12800,7 @@
         </trans-unit>
         <trans-unit id="Page 4061016505 - NamedType 2845400600" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A new browser tab was opened for you to try out the feature. For now, the feature has been temporarily enabled for you only. It will remain enabled whenever you open Business Central in the browser, until you completely sign out or close the browser.</source>
-          <target state="translated">Eine neue Browser-Registerkarte wurde geöffnet, damit Sie die Funktion ausprobieren können. Die Funktion wurde nur für Sie vorübergehend aktiviert. Sie bleibt aktiviert, wenn Sie Business Central im Browser öffnen, bis Sie sich vollständig abmelden oder den Browser schließen.</target>
+          <target state="translated">Eine neue Browser-Registerkarte wurde geöffnet, damit Sie die Funktion ausprobieren können. Die Funktion wurde nur für Sie vorübergehend aktiviert. Sie bleibt aktiviert, wenn Sie Business Central im Browser öffnen, bis Sie sich vollständig abmelden oder den Browser schliessen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - NamedType TryItOutStartedMsg</note>
         </trans-unit>
@@ -13871,7 +13945,7 @@
         </trans-unit>
         <trans-unit id="Page 3338462467 - Control 1257849630 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Permission Sets FastTab lets admins add permission sets to the current set. Admins can exclude specific permission sets for each set. An excluded permission set is excluded in all other permission sets.</source>
-          <target state="translated">Das Inforegister „Berechtigungssätze“ ermöglicht Administratoren das Hinzufügen von Berechtigungssätzen zum aktuellen Satz. Administratoren können bestimmte Berechtigungssätze für jeden Satz ausschließen. Ein ausgeschlossener Berechtigungssatz ist in allen anderen Berechtigungssätzen ausgeschlossen.</target>
+          <target state="translated">Das Inforegister „Berechtigungssätze“ ermöglicht Administratoren das Hinzufügen von Berechtigungssätzen zum aktuellen Satz. Administratoren können bestimmte Berechtigungssätze für jeden Satz ausschliessen. Ein ausgeschlossener Berechtigungssatz ist in allen anderen Berechtigungssätzen ausgeschlossen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set - Control PermissionSets - Property AboutText</note>
         </trans-unit>
@@ -14099,13 +14173,13 @@
         </trans-unit>
         <trans-unit id="Page 3654121945 - Action 3810577930 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Excludes the selected permission set.</source>
-          <target state="translated">Schließt den ausgewählten Berechtigungssatz aus.</target>
+          <target state="translated">Schliesst den ausgewählten Berechtigungssatz aus.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Tree - Action ExcludeSelectedPermissionSet - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3654121945 - Action 3810577930 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Exclude</source>
-          <target state="translated">Ausschließen</target>
+          <target state="translated">Ausschliessen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Permission Set Tree - Action ExcludeSelectedPermissionSet - Property Caption</note>
         </trans-unit>
@@ -15733,6 +15807,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Action ApplyManually - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1206474225 - Action 3028141151 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refreshes the list of tables that can be selected.</source>
+          <target state="translated">Aktualisiert die Liste der Tabellen, die ausgewählt werden können.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Action RestoreAllowedTables - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1206474225 - Action 3028141151 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh allowed tables</source>
+          <target state="translated">Zulässige Tabellen aktualisieren</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Action RestoreAllowedTables - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1623743194 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Retention Policy Setup Lines</source>
           <target state="translated">Einrichtungszeilen für Aufbewahrungsrichtlinien</target>
@@ -16292,7 +16378,7 @@
         </trans-unit>
         <trans-unit id="Page 1919691214 - Control 54790405 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the average record size (in bytes).</source>
-          <target state="translated">Gibt die durchschnittliche Datensatzgröße (in Byte) an.</target>
+          <target state="translated">Gibt die durchschnittliche Datensatzgrösse (in Byte) an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information - Control Record Size (Byte</note>
         </trans-unit>
@@ -16352,7 +16438,7 @@
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 709111184 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies how much the table size grew in 30 days (in percent).</source>
-          <target state="translated">Gibt an, wie viel die Tabellengröße in 30 Tagen (in Prozent) anstieg.</target>
+          <target state="translated">Gibt an, wie viel die Tabellengrösse in 30 Tagen (in Prozent) anstieg.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Growth % - Property ToolTip</note>
         </trans-unit>
@@ -16382,7 +16468,7 @@
         </trans-unit>
         <trans-unit id="Page 398629195 - Control 54790405 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the average record size (in bytes).</source>
-          <target state="translated">Gibt die durchschnittliche Datensatzgröße (in Byte) an.</target>
+          <target state="translated">Gibt die durchschnittliche Datensatzgrösse (in Byte) an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Table Information Cache Part - Control Record Size (Byte</note>
         </trans-unit>

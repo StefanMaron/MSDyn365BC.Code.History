@@ -866,6 +866,23 @@ table 115 "Sales Cr.Memo Line"
         exit(Format(Type));
     end;
 
+    procedure SetSecurityFilterOnRespCenter()
+    var
+        UserSetupMgt: Codeunit "User Setup Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if UserSetupMgt.GetSalesFilter() <> '' then begin
+            FilterGroup(2);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
+            FilterGroup(0);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromSalesLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; SalesLine: Record "Sales Line")
     begin
@@ -885,5 +902,9 @@ table 115 "Sales Cr.Memo Line"
     local procedure OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; ValueEntry: Record "Value Entry"; SetQuantity: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var IsHandled: Boolean)
+    begin
+    end;
+}

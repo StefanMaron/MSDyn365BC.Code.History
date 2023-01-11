@@ -343,6 +343,11 @@ page 7374 "Bin Contents"
         DefFilter();
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        RecalculatePickQuantityBaseForCurrentUnitOfMeasureCodeAsFilter();
+    end;
+
     var
         Location: Record Location;
         AdjmtLocation: Record Location;
@@ -405,6 +410,32 @@ page 7374 "Bin Contents"
     local procedure ZoneCodeOnAfterValidate()
     begin
         CurrPage.Update(true);
+    end;
+
+    local procedure RecalculatePickQuantityBaseForCurrentUnitOfMeasureCodeAsFilter()
+    var
+        IsHandled: Boolean;
+        PreviousUnitOfMeasureFilter: Text;
+    begin
+        IsHandled := false;
+        OnBeforeRecalculatePickQuantityBaseForCurrentUnitOfMeasureCodeAsFilter(xRec, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (xRec."Location Code" = Rec."Location Code") and (xRec."Unit of Measure Code" = Rec."Unit of Measure Code") then
+            exit;
+
+        PreviousUnitOfMeasureFilter := Rec.GetFilter("Unit of Measure Filter");
+        Rec.SetFilterOnUnitOfMeasure();
+        if Rec.GetFilter("Unit of Measure Filter") = PreviousUnitOfMeasureFilter then
+            exit;
+
+        Rec.CalcFields("Pick Quantity (Base)");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecalculatePickQuantityBaseForCurrentUnitOfMeasureCodeAsFilter(xBinContent: Record "Bin Content"; var BinContent: Record "Bin Content"; var IsHandled: Boolean)
+    begin
     end;
 }
 

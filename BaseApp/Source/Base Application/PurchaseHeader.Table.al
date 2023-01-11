@@ -2608,7 +2608,7 @@
         DuplicatedCaptionsNotAllowedErr: Label 'Field captions must not be duplicated when using this method. Use UpdatePurchLinesByFieldNo instead.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         FullPurchaseTypesTxt: Label 'Purchase Quote,Purchase Order,Purchase Invoice,Purchase Credit Memo,Purchase Blanket Order,Purchase Return Order';
-        RecreatePurchaseLinesCancelErr: Label 'You must delete the existing purchase lines before you can change %1.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
+        RecreatePurchaseLinesCancelErr: Label 'Change in the existing purchase lines for the field %1 is cancelled by user.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
         WarnZeroQuantityPostingTxt: Label 'Warn before posting Purchase lines with 0 quantity';
         WarnZeroQuantityPostingDescriptionTxt: Label 'Warn before posting lines on Purchase documents where quantity is 0.';
         CalledFromWhseDoc: Boolean;
@@ -3320,6 +3320,7 @@
     procedure PriceMessageIfPurchLinesExist(ChangedFieldName: Text[100])
     var
         PurchaseLine: Record "Purchase Line";
+        ConfirmManagement: Codeunit "Confirm Management";
         MessageText: Text;
     begin
         if PurchLinesExist() and not GetHideValidationDialog() then begin
@@ -3328,7 +3329,8 @@
                 MessageText := StrSubstNo(SplitMessageTxt, MessageText, AffectExchangeRateMsg);
 
             if (ChangedFieldName.Contains(FieldCaption("Order Date"))) then begin
-                if (Confirm(StrSubstNo(SplitMessageTxt, MessageText, UpdateLinesOrderDateAutomaticallyQst))) then begin
+                Confirmed := ConfirmManagement.GetResponseOrDefault(StrSubstNo(SplitMessageTxt, MessageText, UpdateLinesOrderDateAutomaticallyQst), true);
+                if Confirmed then begin
                     Rec.Modify();
                     PurchaseLine.SetRange("Document Type", Rec."Document Type");
                     PurchaseLine.SetRange("Document No.", Rec."No.");
@@ -3650,18 +3652,21 @@
 
     local procedure CouldDimensionsBeKept(): Boolean;
     begin
+        if not PurchLinesExist() then
+            exit(false);
         if (xRec."Buy-from Vendor No." <> '') and (xRec."Buy-from Vendor No." <> Rec."Buy-from Vendor No.") then
             exit(false);
         if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> Rec."Pay-to Vendor No.") then
             exit(false);
-
         if (Rec."Location Code" = '') and (xRec."Location Code" <> '') then
             exit(true);
-        if (xRec."Location Code" <> '') and (xRec."location Code" <> Rec."Location Code") then
+        if xRec."Location Code" <> Rec."Location Code" then
             exit(true);
         if (xRec."Purchaser Code" <> '') and (xRec."Purchaser Code" <> Rec."Purchaser Code") then
             exit(true);
         if (xRec."Responsibility Center" <> '') and (xRec."Responsibility Center" <> Rec."Responsibility Center") then
+            exit(true);
+        if (xRec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> Rec."Sell-to Customer No.") then
             exit(true);
     end;
 
@@ -5378,6 +5383,8 @@
         end;
     end;
 
+#if not CLEAN22
+    [Obsolete('Replaced by BatchConfirmUpdateDeferralDate with VAT Date parameters.', '22.0')]
     procedure BatchConfirmUpdateDeferralDate(var BatchConfirm: Option " ",Skip,Update; ReplacePostingDate: Boolean; PostingDateReq: Date)
     begin
         if (not ReplacePostingDate) or (PostingDateReq = "Posting Date") or (BatchConfirm = BatchConfirm::Skip) then
@@ -5387,6 +5394,36 @@
             exit;
 
         "Posting Date" := PostingDateReq;
+        case BatchConfirm of
+            BatchConfirm::" ":
+                begin
+                    ConfirmUpdateDeferralDate();
+                    if Confirmed then
+                        BatchConfirm := BatchConfirm::Update
+                    else
+                        BatchConfirm := BatchConfirm::Skip;
+                end;
+            BatchConfirm::Update:
+                UpdatePurchLinesByFieldNo(PurchLine.FieldNo("Deferral Code"), false);
+        end;
+        Commit();
+    end;
+#endif
+
+    procedure BatchConfirmUpdateDeferralDate(var BatchConfirm: Option " ",Skip,Update; ReplacePostingDate: Boolean; PostingDateReq: Date; ReplaceVATDate: Boolean; VATDateReq: Date)
+    begin
+        if ((not ReplacePostingDate) and (not ReplaceVATDate)) or (BatchConfirm = BatchConfirm::Skip) then
+            exit;
+        if (PostingDateReq = "Posting Date") and (VATDateReq = "VAT Reporting Date") then
+            exit; 
+        if not DeferralHeadersExist() then
+            exit;
+
+        if ReplacePostingDate then 
+            "Posting Date" := PostingDateReq;
+        if ReplaceVATDate then 
+            "VAT Reporting Date" := VATDateReq;
+        
         case BatchConfirm of
             BatchConfirm::" ":
                 begin
@@ -5881,21 +5918,21 @@
 
     procedure TestStatusIsNotPendingApproval() NotPending: Boolean;
     begin
-        NotPending := Status in [Status::Open, Status::"Pending Prepayment", Status::Released];
+        NotPending := Status <> Status::"Pending Approval";
 
         OnTestStatusIsNotPendingApproval(Rec, NotPending);
     end;
 
     procedure TestStatusIsNotPendingPrepayment() NotPending: Boolean;
     begin
-        NotPending := Status in [Status::Open, Status::"Pending Approval", Status::Released];
+        NotPending := Status <> Status::"Pending Prepayment";
 
         OnTestStatusIsNotPendingPrepayment(Rec, NotPending);
     end;
 
     procedure TestStatusIsNotReleased() NotReleased: Boolean;
     begin
-        NotReleased := Status in [Status::Open, Status::"Pending Approval", Status::"Pending Prepayment"];
+        NotReleased := Status <> Status::Released;
 
         OnTestStatusIsNotReleased(Rec, NotReleased);
     end;

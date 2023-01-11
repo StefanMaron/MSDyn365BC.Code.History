@@ -3204,6 +3204,66 @@ codeunit 136319 "Job Item Tracking"
         Assert.RecordIsEmpty(ReservationEntry);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,ItemTrackingSummaryPageHandler,JobTransferToSalesInvoiceRequestPageHandler,MessageHandler,JobTransferFromJobPlanLineHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure S455935_PostJobJournalPartiallyForSerialItemTracking()
+    var
+        SerialTrackedItem: Record Item;
+        Location: Record Location;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        JobJournalLine: Record "Job Journal Line";
+        JobLedgerEntry: Record "Job Ledger Entry";
+    begin
+        // [FEATURE] [Serial Item Tracking] [Job] [Job Planning Line] [Sales Invoice] [Job Journal]
+        // [SCENARIO 455935] "Job Journal" created from "Job Planning Lines" can be posted after serial numbers are assigned.
+        Initialize();
+
+        // [GIVEN] Create serial tracked Item.
+        CreateSerialTrackedItem(SerialTrackedItem, false);
+
+        // [GIVEN] Create Location without WMS.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Post positive adjustment of 10 serial numbers of Item to Location.
+        CreateAndPostInvtAdjustmentWithSNTracking(SerialTrackedItem."No.", Location.Code, '', 10, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Create Job with "Apply Usage Link".
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+        Job.Validate("Apply Usage Link", true);
+        Job.Modify(true);
+
+        // [GIVEN] Create Job Task.
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Job Planning Line for Job Task: Type = Item, No. = SerialTrackedItem, Line Type = "Both Budget and Billable", Quantity = 3.
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Item, SerialTrackedItem."No.", Location.Code, '', 3);
+
+        // [GIVEN] Create and post Sales Invoice from Job Planning Lines.
+        CreateAndPostSalesInvoiceFromJobPlanningLine(JobPlanningLine);
+
+        // [GIVEN] Transfer Job Planning Lines to Job Journal.
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+
+        // [GIVEN] Set serial numbers in Job Journal Line for Item.
+        JobJournalLine.SetRange("Job No.", JobTask."Job No.");
+        JobJournalLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        JobJournalLine.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        JobJournalLine.FindFirst();
+        LibraryVariableStorage.Enqueue(ItemTrackingHandlerAction::Select); // ItemTrackingSummaryPageHandler
+        JobJournalLine.OpenItemTrackingLines(false);
+
+        // [WHEN] Post Job Journal Line for Job Planning Line.
+        OpenRelatedJournalAndPost(JobPlanningLine);
+
+        // [THEN] Verify that there are 3 Job Ledger Entries with "Serial No." values.
+        JobLedgerEntry.SetRange("Job No.", Job."No.");
+        JobLedgerEntry.SetFilter("Serial No.", '<>%1', '');
+        Assert.RecordCount(JobLedgerEntry, 3);
+    end;
+
     local procedure Initialize()
     var
         NoSeries: Record "No. Series";
@@ -3900,6 +3960,26 @@ codeunit 136319 "Job Item Tracking"
         Commit();
     end;
 
+    local procedure CreateAndPostSalesInvoiceFromJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+    begin
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+        FindSalesLine(SalesLine, SalesLine."Document Type"::Invoice, SalesLine.Type::Item, JobPlanningLine."Job No.");
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; JobNo: Code[20])
+    begin
+        SalesLine.SetRange("Document Type", DocumentType);
+        SalesLine.SetRange(Type, Type);
+        SalesLine.SetRange("Job No.", JobNo);
+        SalesLine.FindFirst();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
@@ -4099,6 +4179,13 @@ codeunit 136319 "Job Item Tracking"
     procedure ItemTrackingListPageHandler(var ItemTrackingList: TestPage "Item Tracking List")
     begin
         ItemTrackingList.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure JobTransferToSalesInvoiceRequestPageHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
+    begin
+        JobTransferToSalesInvoice.OK.Invoke;
     end;
 }
 

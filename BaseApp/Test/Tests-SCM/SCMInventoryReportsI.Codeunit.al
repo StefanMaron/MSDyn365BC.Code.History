@@ -1147,6 +1147,55 @@ codeunit 137301 "SCM Inventory Reports - I"
           RowNo + 1, LibraryReportValidation.FindColumnNoFromColumnCaption('Increases (LCY)') + 2, '0', '1');
     end;
 
+    [Test]
+    [HandlerFunctions('InvtValuationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyIncreasesInInventoryValuationReport()
+    var
+        Item: Record Item;
+        TransferLine: Record "Transfer Line";
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        FromLocationCode: Code[10];
+        ToLocationCode: Code[10];
+        InTransitLocationCode: Code[10];
+    begin
+        // [SCENARIO 457224] Transfer receipts are shown as negative decreases in Inventory Valuation report when using Location Filter
+
+        // [GIVEN] Create Item, Location and Transfer Order to New Location.
+        Initialize();
+        CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDecInRange(9, 10, 0));
+        Item.Modify(true);
+
+        // [GIVEN] Create Transfer From Location.
+        CreateLocation(Location, false);
+        FromLocationCode := Location.Code;
+
+        // [GIVEN] Update inventory
+        CreateAndPostItemJrnlWithLocation(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", FromLocationCode, LibraryRandom.RandDecInRange(9, 10, 0));
+
+        // [GIVEN] Create Transfer To Location.
+        CreateLocation(Location, false);
+        ToLocationCode := Location.Code;
+
+        // [GIVEN] Create Intransit Location.
+        CreateLocation(Location, true);
+        InTransitLocationCode := Location.Code;
+        Item.CalcFields(Inventory);
+
+        // [GIVEN] Post Transfer Order to new location
+        CreateAndPostTransferOrderWithQty(FromLocationCode, ToLocationCode, InTransitLocationCode, Item."No.", Item.Inventory);
+
+        // [WHEN] Run "Inventory Valuation" report
+        Commit();
+        RunInvtValuationReport(Item, ToLocationCode, WorkDate(), WorkDate(), false);
+
+        // [THEN] Verify: Increase Expected Quantity on "Inventory Valuation" report
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('IncreaseExpectedQty', Item.Inventory);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1296,6 +1345,32 @@ codeunit 137301 "SCM Inventory Reports - I"
         InventoryPeriod.Init();
         InventoryPeriod.Validate("Ending Date", WorkDate());
         InventoryPeriod.Insert(true);
+    end;
+
+    local procedure CreateAndPostItemJrnlWithLocation(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // Create Item Journal to populate Item Quantity with Location
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Qty);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostTransferOrderWithQty(FromLocationCode: Code[10]; ToLocationCode: Code[10]; IntransitLocationCode: Code[10]; ItemNo: Code[20]; TransferQty: Decimal)
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+    begin
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, IntransitLocationCode);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, TransferQty);
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
     end;
 
     [Normal]

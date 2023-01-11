@@ -212,7 +212,7 @@ codeunit 1252 "Match Bank Rec. Lines"
             ProgressDialog.Open(ProgressBarMsg);
         // Lines to match
         BankAccReconciliationLine.Reset();
-        BankAccReconciliationLine.FilterBankRecLines(BankAccReconciliation, Overwrite);
+        BankAccReconciliationLine.FilterBankRecLinesByDate(BankAccReconciliation, Overwrite);
         // Candidate Bank Account Ledger Entries
         BankAccountLedgerEntry.SetBankReconciliationCandidatesFilter(BankAccReconciliation);
         InitializeBLEMatchingTempTable(TempBankAccLedgerEntryMatchingBuffer, BankAccountLedgerEntry);

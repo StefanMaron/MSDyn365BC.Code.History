@@ -56,19 +56,25 @@ page 474 "VAT Statement Preview"
                         UseAmtsInAddCurrOnPush();
                     end;
                 }
+#if not CLEAN22
                 field(VATDateType; VATDateType) 
                 {
                     ApplicationArea = VAT;
                     Caption = 'VAT Date Type';
                     ToolTip = 'Specifies what date will be used to filter the amounts in the window.';
+                    Visible = false;
+                    Enabled = false;
+                    ObsoleteReason = 'Selecting VAT Date is no longer supported';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
 
                     trigger OnValidate()
                     begin
                         UpdateSubForm();
                         CurrPage.Update();
                     end;
-
                 }
+#endif
                 field(DateFilter; DateFilter)
                 {
                     ApplicationArea = Basic, Suite;
@@ -120,7 +126,6 @@ page 474 "VAT Statement Preview"
 
     trigger OnOpenPage()
     begin
-        VATDateType := VATDateType::"Posting Date";
         if ValuesPassed then begin
             Selection := PassedSelection;
             PeriodSelection := PassedPeriodSelection;
@@ -142,11 +147,13 @@ page 474 "VAT Statement Preview"
         PeriodSelection: Enum "VAT Statement Report Period Selection";
         UseAmtsInAddCurr: Boolean;
         DateFilter: Text[30];
+#if not CLEAN22
         VATDateType: Enum "VAT Date Type";
+#endif
 
     procedure UpdateSubForm()
     begin
-        CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr, VATDateType);
+        CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr);
     end;
 
     procedure GetParameters(var NewSelection: Enum "VAT Statement Report Selection"; var NewPeriodSelection: Enum "VAT Statement Report Period Selection"; var NewUseAmtsInAddCurr: Boolean)

@@ -221,6 +221,12 @@ page 27 "Vendor List"
                 ApplicationArea = Basic, Suite;
                 Visible = false;
             }
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(Database::Vendor), "No." = FIELD("No.");
+            }
             part(VendorDetailsFactBox; "Vendor Details FactBox")
             {
                 ApplicationArea = Basic, Suite;

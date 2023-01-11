@@ -245,7 +245,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2836764293 - NamedType 3120113686" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Let Business Central analyze historical data to predict future demand, so you can base procurement decisions on accurate and reliable forecasts, and help your company avoid lost revenue, optimize shipping costs, discover trends, and boost your brand reputation by always delivering on orders. Set it up now.</source>
-          <target state="translated">Ermöglichen Sie es Business Central, historische Daten zu analysieren, um die zukünftige Nachfrage vorherzusagen. So können Sie Beschaffungsentscheidungen basierend auf präzisen und zuverlässigen Vorhersagen treffen. Außerdem sind Sie dadurch in der Lage, Umsatzeinbußen zu vermeiden, Versandkosten zu optimieren, Trends zu erkennen und den Ruf Ihrer Marke zu stärken, indem Aufträge pünktlich ausgeführt werden. Beginnen Sie jetzt mit der Einrichtung.</target>
+          <target state="translated">Ermöglichen Sie es Business Central, historische Daten zu analysieren, um die zukünftige Nachfrage vorherzusagen. So können Sie Beschaffungsentscheidungen basierend auf präzisen und zuverlässigen Vorhersagen treffen. Ausserdem sind Sie dadurch in der Lage, Umsatzeinbussen zu vermeiden, Versandkosten zu optimieren, Trends zu erkennen und den Ruf Ihrer Marke zu stärken, indem Aufträge pünktlich ausgeführt werden. Beginnen Sie jetzt mit der Einrichtung.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastSetupDescriptionTxt</note>
         </trans-unit>

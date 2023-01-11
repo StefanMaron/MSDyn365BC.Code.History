@@ -45,6 +45,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 613874622 - NamedType 253089800" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The service declaration %1 already exists.</source>
+          <target state="translated">The service declaration %1 already exists.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = service declaration number.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - NamedType ServDeclAlreadyExistErr</note>
+        </trans-unit>
         <trans-unit id="Table 613874622 - Field 2090835627 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Config. Code</source>
           <target state="translated">Config. Code</target>
@@ -1192,7 +1198,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 2661934884 - Control 3250917128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the code for a service transaction type.</source>
-          <target state="translated">Specifies the code for a service Transaction Nature Code.</target>
+          <target state="translated">Specifies the code for a service transaction nature code.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 997740791</note>
@@ -1395,7 +1401,7 @@
         </trans-unit>
         <trans-unit id="TableExtension 118093026 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Transaction Type Code</source>
-          <target state="translated">Service Transaction Nature Code Code</target>
+          <target state="translated">Service Transaction Nature Code</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1308990239</note>
@@ -1409,7 +1415,7 @@
         </trans-unit>
         <trans-unit id="TableExtension 3429814826 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Transaction Type Code</source>
-          <target state="translated">Service Transaction Nature Code Code</target>
+          <target state="translated">Service Transaction Nature Code</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2850645989</note>

@@ -71,7 +71,7 @@ page 9028 "Team Member Role Center"
                     Caption = 'Financial Reporting';
                     Promoted = true;
                     PromotedCategory = Process;
-                    RunObject = Page "Account Schedule Names";
+                    RunObject = Page "Financial Reports";
                     ToolTip = 'Get insight into the financial data stored in your chart of accounts. Financial reports analyze figures in G/L accounts, and compare general ledger entries with general ledger budget entries. For example, you can view the general ledger entries as percentages of the budget entries. Financial reports provide the data for core financial statements and views, such as the Cash Flow chart.';
                 }
                 action("G/L Account Categories")

@@ -2057,13 +2057,13 @@
         </trans-unit>
         <trans-unit id="Page 1983490561 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customer Payment Journal</source>
-          <target state="translated">Registrazioni pagamenti cliente</target>
+          <target state="translated">Giornale di registrazione pagamenti cliente</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Paym. Journals - Property EntityCaption</note>
         </trans-unit>
         <trans-unit id="Page 1983490561 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Customer Payment Journals</source>
-          <target state="translated">Registrazioni pagamenti cliente</target>
+          <target state="translated">Giornali di registrazione pagamenti cliente</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Cust. Paym. Journals - Property EntitySetCaption</note>
         </trans-unit>
@@ -9695,13 +9695,13 @@
         </trans-unit>
         <trans-unit id="Page 4034971528 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Vendor Payment Journal</source>
-          <target state="translated">Registrazione pagamento fornitore</target>
+          <target state="translated">Giornale di registrazione pagamenti fornitore</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Property EntityCaption</note>
         </trans-unit>
         <trans-unit id="Page 4034971528 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Vendor Payment Journals</source>
-          <target state="translated">Registrazioni pagamenti fornitore</target>
+          <target state="translated">Giornali di registrazione pagamenti fornitore</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendor Paym. Journals - Property EntitySetCaption</note>
         </trans-unit>

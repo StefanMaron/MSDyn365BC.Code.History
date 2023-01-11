@@ -1106,16 +1106,20 @@ page 1290 "Payment Reconciliation Journal"
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    var
+        BankAccReconciliationTest: Record "Bank Acc. Reconciliation";
     begin
-        if not BankAccReconciliation.IsEmpty() then begin
+        if BankAccReconciliationTest.get(BankAccReconciliation."Statement Type", BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.") then begin
             BankAccReconciliation.Validate("Statement Ending Balance", 0.0);
             BankAccReconciliation.Modify();
         end;
     end;
 
     trigger OnDeleteRecord(): Boolean
+    var
+        BankAccReconciliationTest: Record "Bank Acc. Reconciliation";
     begin
-        if not BankAccReconciliation.IsEmpty() then begin
+        if BankAccReconciliationTest.get(BankAccReconciliation."Statement Type", BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.") then begin
             BankAccReconciliation.Validate("Statement Ending Balance", 0.0);
             BankAccReconciliation.Modify();
         end;

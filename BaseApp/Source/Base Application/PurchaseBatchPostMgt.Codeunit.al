@@ -121,22 +121,24 @@ codeunit 1372 "Purchase Batch Post Mgt."
     local procedure PreparePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var BatchConfirm: Option)
     var
         CalcInvoiceDiscont: Boolean;
-        ReplacePostingDate: Boolean;
-        PostingDate: Date;
+        ReplacePostingDate, ReplaceVATDate: Boolean;
+        PostingDate, VATDate: Date;
     begin
-        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, "Batch Posting Parameter Type"::"Calculate Invoice Discount", CalcInvoiceDiscont);
-        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, "Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate);
-        BatchProcessingMgt.GetDateParameter(PurchaseHeader.RecordId, "Batch Posting Parameter Type"::"Posting Date", PostingDate);
+        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Calculate Invoice Discount", CalcInvoiceDiscont);
+        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate);
+        BatchProcessingMgt.GetDateParameter(PurchaseHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Posting Date", PostingDate);
+        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDate);
+        BatchProcessingMgt.GetDateParameter(PurchaseHeader.RecordId, Enum::"Batch Posting Parameter Type"::"VAT Date", VATDate);
 
         if CalcInvoiceDiscont then
             CalculateInvoiceDiscount(PurchaseHeader);
 
-        PurchaseHeader.BatchConfirmUpdateDeferralDate(BatchConfirm, ReplacePostingDate, PostingDate);
+        PurchaseHeader.BatchConfirmUpdateDeferralDate(BatchConfirm, ReplacePostingDate, PostingDate, ReplaceVATDate, VATDate);
 
-        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, "Batch Posting Parameter Type"::Receive, PurchaseHeader.Receive);
-        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, "Batch Posting Parameter Type"::Invoice, PurchaseHeader.Invoice);
-        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, "Batch Posting Parameter Type"::Ship, PurchaseHeader.Ship);
-        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, "Batch Posting Parameter Type"::Print, PurchaseHeader."Print Posted Documents");
+        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, Enum::"Batch Posting Parameter Type"::Receive, PurchaseHeader.Receive);
+        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, Enum::"Batch Posting Parameter Type"::Invoice, PurchaseHeader.Invoice);
+        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, Enum::"Batch Posting Parameter Type"::Ship, PurchaseHeader.Ship);
+        BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, Enum::"Batch Posting Parameter Type"::Print, PurchaseHeader."Print Posted Documents");
 
         OnAfterPreparePurchaseHeader(PurchaseHeader);
     end;

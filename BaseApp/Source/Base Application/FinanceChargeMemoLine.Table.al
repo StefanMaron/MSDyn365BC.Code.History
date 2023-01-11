@@ -903,6 +903,7 @@ table 303 "Finance Charge Memo Line"
                       UseInterestRate, UseInterestPeriod, BaseAmount);
                     if ExtraFinChrgMemoLine.Amount <> 0 then begin
                         NrOfDays := NrOfDays + (UseCalcDate - UseDueDate);
+                        OnCreateMulitplyInterestRateEntriesOnBeforeBuildDescription(ExtraFinChrgMemoLine, UseCalcDate, UseDueDate);
                         BuildDescription(ExtraFinChrgMemoLine.Description, UseInterestRate, UseDueDate, UseCalcDate - UseDueDate, BaseAmount);
                         CumAmount := CumAmount + ExtraFinChrgMemoLine.Amount;
                         ExtraFinChrgMemoLine."Detailed Interest Rates Entry" := true;
@@ -990,6 +991,11 @@ table 303 "Finance Charge Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVATProdPostingGroupOnBeforeVATPostingSetupGet(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; xFinanceChargeMemoLine: Record "Finance Charge Memo Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateMulitplyInterestRateEntriesOnBeforeBuildDescription(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; UseCalcDate: Date; UseDueDate: Date)
     begin
     end;
 }

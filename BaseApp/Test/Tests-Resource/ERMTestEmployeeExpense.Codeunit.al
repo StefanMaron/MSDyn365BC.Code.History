@@ -189,6 +189,7 @@ codeunit 134113 "ERM Test Employee Expense"
 
         // [WHEN] The user assigns account No on General journal to this employee and balance to the expense account and post
         CreateGeneralJournalLine(GenJournalLine, 1, ExpenseAccNo, Employee."No.", Amount);
+        GenJournalLine.TestField("Source Code");
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -203,6 +204,7 @@ codeunit 134113 "ERM Test Employee Expense"
         EmployeeLedgerEntry.SetRange("Employee No.", Employee."No.");
         EmployeeLedgerEntry.FindFirst();
         EmployeeLedgerEntry.CalcFields("Amount (LCY)");
+        EmployeeLedgerEntry.TestField("Source Code"); // TEST
         Assert.AreEqual(
           1, EmployeeLedgerEntry.Count, 'Error Multiple employee ledger entries were created when posting Gen. Journal Line');
         Assert.AreEqual(

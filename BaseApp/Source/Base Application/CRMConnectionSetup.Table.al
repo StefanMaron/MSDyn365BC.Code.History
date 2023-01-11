@@ -75,7 +75,9 @@ table 5330 "CRM Connection Setup"
             begin
                 if "Is Enabled" then
                     if "Unit Group Mapping Enabled" then
-                        CRMIntegrationManagement.EnableUnitGroupMapping();
+                        CRMIntegrationManagement.EnableUnitGroupMapping()
+                    else
+                        CRMIntegrationManagement.DisableUnitGroupMapping();
 
                 EnableCRMConnection();
 #if not CLEAN20
@@ -450,7 +452,7 @@ table 5330 "CRM Connection Setup"
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CRMConnDisabledTxt: Label 'CRM connection has been disabled.', Locked = true;
         CRMConnEnabledTxt: Label 'CRM connection has been enabled.', Locked = true;
-        UnitGroupMappingEnabledConfirmLbl: Label 'When you enable unit group mapping integration table mappings will be updated and a data upgrade job to update unit groups will be scheduled. You can''t disable this feature once it is enabled. Do you want to enable?';
+        UnitGroupMappingEnabledConfirmLbl: Label 'When you enable unit group mapping integration table mappings will be updated and a data upgrade job to update unit groups will be scheduled. Do you want to enable?';
         UnitGroupMappingEnabledLbl: Label 'Unit group mapping is enabled and a data upgrade job is scheduled. Please wait the job to be completed before you start synchronizing data. Do you want to navigate to the job?';
         ScheduleJobFailedLbl: Label 'Scheduling data upgrade job failed.';
 

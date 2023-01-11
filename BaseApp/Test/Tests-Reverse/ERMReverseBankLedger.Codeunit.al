@@ -663,6 +663,8 @@
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
     begin
+        BankAccReconciliation.Reset();
+        BankAccReconciliation.DeleteAll();
         // [SCENARIO 227412] Reversed Bank Account Ledger Entries are not visible on Bank Reconciliation
         Initialize();
 
@@ -692,6 +694,7 @@
 
         // [GIVEN] Bank Account Reconciliation is opened for the Bank Account
         BankAccReconciliationPage.OpenEdit;
+        BankAccReconciliationPage.BankAccountNo.SetValue(GenJournalLine."Bal. Account No.");
         BankAccReconciliationPage.FILTER.SetFilter("Bank Account No.", GenJournalLine."Bal. Account No.");
 
         // [THEN] Only not reversed Bank Account Ledger Entry with Document No = "Y" is displayed.

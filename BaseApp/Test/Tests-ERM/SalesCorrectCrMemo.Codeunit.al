@@ -38,6 +38,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         InvRoundingLineDoesNotExistErr: Label 'Invoice rounding line does not exist.';
         FixedAssetNotPossibleToCreateCreditMemoErr: Label 'You cannot cancel this posted sales invoice because it contains lines of type Fixed Asset.\\Use the Cancel Entries function in the FA Ledger Entries window instead.';
         DirectPostingErr: Label 'G/L account %1 does not allow direct posting.', Comment = '%1 - g/l account no.';
+        PostedSalesInvoiceNotCancelledErr: Label 'Posted Sales Invoice %1 not cancelled.', Comment = '%1 = Posted Sales Invoice No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -973,6 +974,41 @@ codeunit 137026 "Sales Correct Cr. Memo"
                 GeneralPostingSetup));
 
         RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NewCanCancelSalesCrMemoWithNonInventoryItemWhenCOGSAccountIsEmpty()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Resource: Record Resource;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        LibraryResource: Codeunit "Library - Resource";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [SCENARIO 458011] Posted Sales Invoice cannot be canceled if line type = Resource
+        Initialize();
+
+        // [GIVEN] Create Resource, create Sales Invoice and post
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryResource.CreateResourceNew(Resource);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, Resource."No.", LibraryRandom.RandInt(10));
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Cancel posted sales invoice
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+        LibrarySmallBusiness.FindSalesCorrectiveCrMemo(SalesCrMemoHeader, SalesInvoiceHeader);
+        SalesCrMemoHeader.CalcFields(Corrective);
+        SalesInvoiceHeader.CalcFields(Cancelled);
+
+        // [VERIFY] Verify: Posted Sales Invoice cancelled successfuly and related Sales corrective Credit Memo posted
+        Assert.AreEqual(
+            SalesInvoiceHeader.Cancelled,
+            SalesCrMemoHeader.Corrective,
+            StrSubstNo(PostedSalesInvoiceNotCancelledErr, SalesInvoiceHeader."No."));
     end;
 
     local procedure Initialize()

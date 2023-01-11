@@ -486,20 +486,14 @@ page 7200 "CDS Connection Setup"
             {
                 ApplicationArea = Suite;
                 Caption = 'Mark Coupled Records';
-                Enabled = SetCoupledFlagsActionEnabled;
                 Image = CoupledItem;
                 ToolTip = 'Set field ''Coupled to Dataverse'' to true for all records that are coupled to an entity in Dataverse.';
 
                 trigger OnAction()
                 var
                     JobQueueEntry: Record "Job Queue Entry";
-                    UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-                    UpgradeTag: Codeunit "Upgrade Tag";
                     StartTime: DateTime;
                 begin
-                    if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSetCoupledFlagsUpgradeTag()) then
-                        exit;
-
                     StartTime := CurrentDateTime() + 1000;
                     JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
                     JobQueueEntry.SetRange("Object ID to Run", Codeunit::"CDS Set Coupled Flags");
@@ -868,8 +862,6 @@ page 7200 "CDS Connection Setup"
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         EnvironmentInfo: Codeunit "Environment Information";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
     begin
         ApplicationAreaMgmtFacade.CheckAppAreaOnlyBasic();
         SoftwareAsAService := EnvironmentInfo.IsSaaSInfrastructure();
@@ -879,7 +871,6 @@ page 7200 "CDS Connection Setup"
         SolutionKey := CDSIntegrationImpl.GetBaseSolutionUniqueName();
         SolutionName := CDSIntegrationImpl.GetBaseSolutionDisplayName();
         DefaultBusinessUnitName := CDSIntegrationImpl.GetDefaultBusinessUnitName();
-        SetCoupledFlagsActionEnabled := not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSetCoupledFlagsUpgradeTag());
         RefreshStatuses := true;
         SetVisibilityFlags();
     end;
@@ -945,7 +936,6 @@ page 7200 "CDS Connection Setup"
         UserPassword: Text;
         [NonDebuggable]
         ClientSecret: Text;
-        SetCoupledFlagsActionEnabled: Boolean;
         JobQueueCategoryLbl: Label 'BCI INTEG', Locked = true;
         VirtualTableEntityNameTxt: Label 'mserp_businesscentralentity', Locked = true;
         ResetIntegrationTableMappingConfirmQst: Label 'This will restore the default integration table mappings and synchronization jobs for Dataverse. All customizations to mappings and jobs will be deleted. The default mappings and jobs will be used the next time data is synchronized. Do you want to continue?';

@@ -47,6 +47,8 @@ page 315 "VAT Entries"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT date on the VAT entry. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
+                    Editable = IsVATDateEditable;
+                    Visible = IsVATDateEnabled;
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {
@@ -376,15 +378,22 @@ page 315 "VAT Entries"
     trigger OnOpenPage()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         if GeneralLedgerSetup.Get() then
             IsUnrealizedVATEnabled := GeneralLedgerSetup."Unrealized VAT" or GeneralLedgerSetup."Prepayment Unrealized VAT";
+        IsVATDateEditable := VATReportingDateMgt.IsVATDateModifiable();
+        IsVATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var
         Navigate: Page Navigate;
         HasIncomingDocument: Boolean;
         IsUnrealizedVATEnabled: Boolean;
+        [InDataSet]
+        IsVATDateEditable: Boolean;
+        [InDataSet]
+        IsVATDateEnabled: Boolean;
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
         ProgressMsg: Label 'Processed: @2@@@@@@@@@@@@@@@@@\';
 

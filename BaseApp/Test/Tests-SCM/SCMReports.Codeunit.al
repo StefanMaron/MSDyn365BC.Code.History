@@ -691,22 +691,18 @@ codeunit 137309 "SCM Reports"
     [HandlerFunctions('QuantityExplosionOfBOMRequestPageHandler')]
     [Scope('OnPrem')]
     procedure QuantityExplosionOfBOMWithUnCertifiedVersion()
-    var
-        ProductionBOMVersion: Record "Production BOM Version";
     begin
         // Verify Quantity Explosion of BOM Test Report values when Production Bom created with Un Certified version.
-        QuantityExplosionOfBOMWithVersions(ProductionBOMVersion.Status::New);
+        QuantityExplosionOfBOMWithVersions(Enum::"BOM Status"::New);
     end;
 
     [Test]
     [HandlerFunctions('QuantityExplosionOfBOMRequestPageHandler')]
     [Scope('OnPrem')]
     procedure QuantityExplosionOfBOMCertifiedVersion()
-    var
-        ProductionBOMVersion: Record "Production BOM Version";
     begin
         // Verify Quantity Explosion of BOM Test Report values when Production Bom created with Certified versions.
-        QuantityExplosionOfBOMWithVersions(ProductionBOMVersion.Status::Certified);
+        QuantityExplosionOfBOMWithVersions(Enum::"BOM Status"::Certified);
     end;
 
     [Test]
@@ -949,39 +945,33 @@ codeunit 137309 "SCM Reports"
     [HandlerFunctions('DetailedCalculationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure DetailedCalculationWithStatusCertifiedAndLessThanWorkDate()
-    var
-        RoutingVersion: Record "Routing Version";
     begin
         // [FEATURE] [Detailed Calculation]
         // [SCENARIO] Verify Detailed Calculation Test Report values when Routing created with certified version and report run for less than Routing Version Starting Date.
         Initialize();
-        DetailedCalculationWithTypeRoutingVersionAndCalcDate(RoutingVersion.Status::Certified, -LibraryRandom.RandInt(5));
+        DetailedCalculationWithTypeRoutingVersionAndCalcDate(Enum::"Routing Status"::Certified, -LibraryRandom.RandInt(5));
     end;
 
     [Test]
     [HandlerFunctions('DetailedCalculationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure DetailedCalculationWithStatusClosedAndGreaterThanWorkDate()
-    var
-        RoutingVersion: Record "Routing Version";
     begin
         // [FEATURE] [Detailed Calculation]
         // [SCENARIO] Verify Detailed Calculation Test Report values when Routing created with closed version and report run for greater than Routing Version Starting Date.
         Initialize();
-        DetailedCalculationWithTypeRoutingVersionAndCalcDate(RoutingVersion.Status::Closed, LibraryRandom.RandInt(5));
+        DetailedCalculationWithTypeRoutingVersionAndCalcDate(Enum::"Routing Status"::Closed, LibraryRandom.RandInt(5));
     end;
 
     [Test]
     [HandlerFunctions('DetailedCalculationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure DetailedCalculationWithStatusClosedAndLessThanWorkDate()
-    var
-        RoutingVersion: Record "Routing Version";
     begin
         // [FEATURE] [Detailed Calculation]
         // [SCENARIO] Verify Detailed Calculation Test Report values when Routing created with closed version and report run for less than Routing Version Starting Date.
         Initialize();
-        DetailedCalculationWithTypeRoutingVersionAndCalcDate(RoutingVersion.Status::Closed, -LibraryRandom.RandInt(5));
+        DetailedCalculationWithTypeRoutingVersionAndCalcDate(Enum::"Routing Status"::Closed, -LibraryRandom.RandInt(5));
     end;
 
     [Test]
@@ -1052,7 +1042,6 @@ codeunit 137309 "SCM Reports"
         ParentItem: Record Item;
         ChildItem: Record Item;
         Item: Record Item;
-        ProductionBOMHeader: Record "Production BOM Header";
     begin
         // Verify Quantity Explosion of BOM Test Report values when Production BOM is closed wihout any Error message.
 
@@ -1061,7 +1050,7 @@ codeunit 137309 "SCM Reports"
         LibraryInventory.CreateItem(ChildItem);
         CreateItemWithReplSysAndCostingMethod(ParentItem, ParentItem."Costing Method"::FIFO,
           ParentItem."Replenishment System"::"Prod. Order",
-          CreateProductionBOM(ChildItem."Base Unit of Measure", ProductionBOMHeader.Status::Closed), 0);
+          CreateProductionBOM(ChildItem."Base Unit of Measure", Enum::"BOM Status"::Closed), 0);
 
         // Exercise: Run Quantity Explosion of BOM Report.
         Commit();
@@ -1079,15 +1068,12 @@ codeunit 137309 "SCM Reports"
     procedure QuantityExplosionOfBOMWithProdBomLineTypeItem()
     var
         Item: Record Item;
-        ProductionBOMHeader: Record "Production BOM Header";
-        ProductionBOMLine: Record "Production BOM Line";
-        RoutingHeader: Record "Routing Header";
     begin
         // Verify Error message when Quantity Explosion of Bom report is run for Production Bom Line Type Item.
         Initialize();
         CreateManufacturingItem(
-          Item, Item."Costing Method"::Average, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
-        VerifyProductionBomErrorForTheReport(Item, ProductionBOMLine.Type::Item,
+          Item, Item."Costing Method"::Average, Enum::"BOM Status"::Certified, Enum::"Routing Status"::Certified);
+        VerifyProductionBomErrorForTheReport(Item, Enum::"Production BOM Line Type"::Item,
           Item."No.", Item."Production BOM No.", REPORT::"Quantity Explosion of BOM");
     end;
 
@@ -1097,15 +1083,12 @@ codeunit 137309 "SCM Reports"
     procedure QuantityExplosionOfBOMWithProdBomLineTypeProdBom()
     var
         Item: Record Item;
-        ProductionBOMHeader: Record "Production BOM Header";
-        ProductionBOMLine: Record "Production BOM Line";
-        RoutingHeader: Record "Routing Header";
     begin
         // Verify Error message when Quantity Explosion of Bom report is run for Production Bom Line Type Production Bom.
         Initialize();
         CreateManufacturingItem(
-          Item, Item."Costing Method"::Average, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
-        VerifyProductionBomErrorForTheReport(Item, ProductionBOMLine.Type::"Production BOM",
+          Item, Item."Costing Method"::Average, Enum::"BOM Status"::Certified, Enum::"Routing Status"::Certified);
+        VerifyProductionBomErrorForTheReport(Item, Enum::"Production BOM Line Type"::"Production BOM",
           Item."Production BOM No.", Item."Production BOM No.", REPORT::"Quantity Explosion of BOM");
     end;
 
@@ -1115,16 +1098,13 @@ codeunit 137309 "SCM Reports"
     procedure RolledupCostSharesWithProdBomLineTypeItem()
     var
         Item: Record Item;
-        ProductionBOMHeader: Record "Production BOM Header";
-        ProductionBOMLine: Record "Production BOM Line";
-        RoutingHeader: Record "Routing Header";
     begin
         // Verify Error message when Rolled-up Cost Shares report is run for Production Bom Line Type Item.
         Initialize();
         CreateManufacturingItem(
-          Item, Item."Costing Method"::Average, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
-        VerifyProductionBomErrorForTheReport(Item, ProductionBOMLine.Type::Item,
-          Item."No.", Item."Production BOM No.", REPORT::"Rolled-up Cost Shares");
+          Item, Item."Costing Method"::Average, Enum::"BOM Status"::Certified, Enum::"Routing Status"::Certified);
+        VerifyProductionBomErrorForTheReport(
+            Item, Enum::"Production BOM Line Type"::Item, Item."No.", Item."Production BOM No.", Report::"Rolled-up Cost Shares");
     end;
 
     [Test]
@@ -1133,16 +1113,101 @@ codeunit 137309 "SCM Reports"
     procedure RolledupCostSharesWithProdBomLineTypeProdBom()
     var
         Item: Record Item;
-        ProductionBOMHeader: Record "Production BOM Header";
-        ProductionBOMLine: Record "Production BOM Line";
-        RoutingHeader: Record "Routing Header";
     begin
         // Verify Error message when Rolled-up Cost Shares report is run for Production Bom Line Type Production Bom.
         Initialize();
+
         CreateManufacturingItem(
-          Item, Item."Costing Method"::Average, ProductionBOMHeader.Status::Certified, RoutingHeader.Status::Certified);
-        VerifyProductionBomErrorForTheReport(Item, ProductionBOMLine.Type::"Production BOM",
-          Item."Production BOM No.", Item."Production BOM No.", REPORT::"Rolled-up Cost Shares");
+          Item, Item."Costing Method"::Average, Enum::"BOM Status"::Certified, Enum::"Routing Status"::Certified);
+
+        VerifyProductionBomErrorForTheReport(
+            Item, Enum::"Production BOM Line Type"::"Production BOM", Item."Production BOM No.", Item."Production BOM No.",
+            Report::"Rolled-up Cost Shares");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhereUsedFromBomErrorOnProductionBomWithCycle()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ProdBOMHeader: Record "Production BOM Header";
+        ProdBOMLine: Record "Production BOM Line";
+        WhereUsedMgt: Codeunit "Where-Used Management";
+        CircularRefErr: Label 'The production BOM %1 has a circular reference', Comment = '%1 - Production BOM No.';
+    begin
+        // [FEATURE] [Production BOM] [Where-Used]
+        // [SCENARIO] Error message when the where-used list is run for a production BOM with circular reference
+
+        Initialize();
+
+        // [GIVEN] Production BOM "BOM1"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        ProdBOMHeader.Get(CreateProductionBOM(UnitOfMeasure.Code, Enum::"BOM Status"::"Under Development", 1));
+
+        // [GIVEN] Create a BOM line adding "BOM1" as a component of itself
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProdBOMHeader, ProdBOMLine, '', Enum::"Production BOM Line Type"::"Production BOM", ProdBOMHeader."No.", 1);
+
+        // [WHEN] Run Where-Used for "BOM1"
+        asserterror WhereUsedMgt.WhereUsedFromProdBOM(ProdBOMHeader, WorkDate(), true);
+
+        // [THEN] Error is thrown informing that the BOM conains a circular reference
+        Assert.ExpectedError(StrSubstNo(CircularRefErr, ProdBOMHeader."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProdBomWhereUsedMultiLevelNoCycle()
+    var
+        ProdBOMHeader: array[4] of Record "Production BOM Header";
+        ProdBOMLine: Record "Production BOM Line";
+        Item: Record Item;
+        TempWhereUsedLine: Record "Where-Used Line" temporary;
+        WhereUsedMgt: Codeunit "Where-Used Management";
+        QtyPer: array[4] of Decimal;
+        I: Integer;
+    begin
+        // [FEATURE] [Production BOM] [Where-Used]
+        // [SCENARIO] Where-used list for a child BOM with multiple occurrences within the top-level BOM structure
+
+        Initialize();
+
+        // [GIVEN] Bom1 is the-top level production BOM which includes components Bom2 (Qty = Q3) and Bom3 (Qty = Q4)
+        // [GIVEN] Bom2 includes components Bom3 (Qty = Q1) and Bom4 (Qty = Q2)
+        LibraryInventory.CreateItem(Item);
+
+        for I := 1 to ArrayLen(QtyPer) do
+            QtyPer[I] := LibraryRandom.RandDecInRange(10, 20, 2);
+
+        ProdBOMHeader[4].Get(CreateProductionBOM(Item."Base Unit of Measure", Enum::"BOM Status"::Certified));
+        ProdBOMHeader[3].Get(CreateProductionBOM(Item."Base Unit of Measure", Enum::"BOM Status"::Certified));
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProdBOMHeader[2], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProdBOMHeader[2], ProdBOMLine, '', Enum::"Production BOM Line Type"::"Production BOM", ProdBOMHeader[3]."No.", QtyPer[1]);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProdBOMHeader[2], ProdBOMLine, '', Enum::"Production BOM Line Type"::"Production BOM", ProdBOMHeader[4]."No.", QtyPer[2]);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProdBOMHeader[1], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProdBOMHeader[1], ProdBOMLine, '', Enum::"Production BOM Line Type"::"Production BOM", ProdBOMHeader[2]."No.", QtyPer[3]);
+        LibraryManufacturing.CreateProductionBOMLine(
+            ProdBOMHeader[1], ProdBOMLine, '', Enum::"Production BOM Line Type"::"Production BOM", ProdBOMHeader[3]."No.", QtyPer[4]);
+
+        Item.Validate("Production BOM No.", ProdBOMHeader[1]."No.");
+        Item.Modify(true);
+
+        // [WHEN] Run Where-Used list for BOM3
+        WhereUsedMgt.WhereUsedFromProdBOM(ProdBOMHeader[3], WorkDate(), true);
+
+        // [THEN] The list includes 2 lines, quantity in line 1 is Q1 * Q3, quantity in line 2 is Q4
+        WhereUsedMgt.FindRecord('-', TempWhereUsedLine);
+        Assert.AreEqual(Item."No.", TempWhereUsedLine."Item No.", 'Unexpected Item No. in the Where-Used list.');
+        Assert.AreEqual(QtyPer[1] * QtyPer[3], TempWhereUsedLine."Quantity Needed", 'Unexpected quantity in the Where-Used list.');
+
+        WhereUsedMgt.NextRecord(1, TempWhereUsedLine);
+        Assert.AreEqual(Item."No.", TempWhereUsedLine."Item No.", 'Unexpected Item No. in the Where-Used list.');
+        Assert.AreEqual(QtyPer[4], TempWhereUsedLine."Quantity Needed", 'Unexpected quantity in the Where-Used list.');
     end;
 
     [Test]
@@ -1634,7 +1699,7 @@ codeunit 137309 "SCM Reports"
         Item.Modify(true);
     end;
 
-    local procedure CreateProductionBOM(UnitOfMeasureCode: Code[10]; Status: Enum "BOM Status"): Code[20]
+    local procedure CreateProductionBOM(UnitOfMeasureCode: Code[10]; Status: Enum "BOM Status"; QtyPer: Decimal): Code[20]
     var
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMLine: Record "Production BOM Line";
@@ -1643,10 +1708,15 @@ codeunit 137309 "SCM Reports"
         LibraryInventory.CreateItem(Item);
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasureCode);
         LibraryManufacturing.CreateProductionBOMLine(
-          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", LibraryRandom.RandDec(100, 2));
+            ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", QtyPer);
         ProductionBOMHeader.Validate(Status, Status);
         ProductionBOMHeader.Modify(true);
         exit(ProductionBOMHeader."No.");
+    end;
+
+    local procedure CreateProductionBOM(UnitOfMeasureCode: Code[10]; Status: Enum "BOM Status"): Code[20]
+    begin
+        exit(CreateProductionBOM(UnitOfMeasureCode, Status, LibraryRandom.RandDec(100, 2)));
     end;
 
     local procedure CreateProductionBOMVersion(ProductionBOMNo: Code[20])
@@ -1825,14 +1895,12 @@ codeunit 137309 "SCM Reports"
     var
         ReportSelections: Record "Report Selections";
     begin
-        with ReportSelections do begin
-            Init();
-            Usage := UsageOption;
-            Sequence :=
-              LibraryUtility.GenerateRandomCode(FieldNo(Sequence), DATABASE::"Report Selections");
-            Validate("Report ID", ReportID);
-            Insert();
-        end;
+        ReportSelections.Init();
+        ReportSelections.Usage := UsageOption;
+        ReportSelections.Sequence :=
+          LibraryUtility.GenerateRandomCode(ReportSelections.FieldNo(Sequence), DATABASE::"Report Selections");
+        ReportSelections.Validate("Report ID", ReportID);
+        ReportSelections.Insert();
     end;
 
     local procedure CreateRandNumberRepSelections(UsageOption: Enum "Report Selection Usage"; ReportID: Integer) Result: Integer

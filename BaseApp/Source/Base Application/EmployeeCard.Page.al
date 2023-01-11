@@ -330,7 +330,7 @@ page 5200 "Employee Card"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(5200),
+                SubPageLink = "Table ID" = CONST(Database::Employee),
                               "No." = FIELD("No.");
             }
             systempart(Control1900383207; Links)

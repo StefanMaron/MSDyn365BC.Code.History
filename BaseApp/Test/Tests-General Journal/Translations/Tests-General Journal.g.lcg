@@ -491,6 +491,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Posted Gen. Journal Line - NamedType PostedGenJournalLineErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 772378378 - NamedType 362971793" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ Links are not equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Posted Gen. Journal Line - NamedType PostedGenJournalLineLinkErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 772378378 - NamedType 1591185774" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Recurring Method must not be]]></Val>

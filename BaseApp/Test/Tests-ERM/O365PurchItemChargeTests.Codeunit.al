@@ -16,6 +16,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         IncorrectCreditMemoQtyAssignmentErr: Label 'Item charge assignment incorrect on corrective credit memo.';
         IncorrectAmountOfLinesErr: Label 'The amount of lines must be greater than 0.';
@@ -295,6 +296,62 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         asserterror PurchRcptHeader.Delete(true);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemChargeAssignmentGetReceiptLinesModalPageHandler')]
+    procedure VariantCodeIsMandatoryDoesntDisruptItemChargePosting()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        ItemVariant: Record "Item Variant";
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineOrder: Record "Purchase Line";
+        PurchaseLineInvoice: Record "Purchase Line";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        ValueEntry: Record "Value Entry";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Copy Document]
+        // [SCENARIO 458998] Item charge can be posted for an item even when "Variant Mandatory if Exists" option is enabled
+        Initialize();
+
+        // [GIVEN] Prepare Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Prepare Item with variant
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateVariant(ItemVariant, Item);
+
+        // [GIVEN] Set "Variant Mandatory if Exists" in Inventory Setup
+        SetVariantMandatoryifExists(true);
+
+        // [GIVEN] Post purchase order with item and variant
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, Vendor."No.");
+        CreatePurchaseLineWithPrice(PurchaseLineOrder, PurchaseHeaderOrder, PurchaseLineOrder.Type::Item, Item."No.", LibraryRandom.RandIntInRange(5, 20));
+        PurchaseLineOrder.Validate("Variant Code", ItemVariant.Code);
+        PurchaseLineOrder.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
+
+        // [GIVEN] Create purchase invoice with item charge
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, Vendor."No.");
+        CreatePurchaseLineWithPrice(PurchaseLineInvoice, PurchaseHeaderInvoice, PurchaseLineInvoice.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        GetReceiptLinesForItemCharge(PurchaseLineInvoice);
+        Commit();
+
+        // [GIVEN] Assign Item Charge for lines from Receipt
+        LibraryVariableStorage.Enqueue(1);
+        LibraryVariableStorage.Enqueue(1);
+        PurchaseLineInvoice.ShowItemChargeAssgnt();
+
+        // [WHEN] Post invoice with item charge
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true);
+
+        // [THEN] It's posted successfully
+        PurchInvHeader.Get(PostedDocNo);
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -302,6 +359,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Purch Item Charge Tests");
 
+        LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
@@ -312,10 +370,19 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         PurchasesPayablesSetup."Receipt on Invoice" := true;
         PurchasesPayablesSetup.Modify(true);
 
+        LibrarySetupStorage.Save(Database::"Inventory Setup");
+
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateVATPostingSetup();
 
         IsInitialized := true;
+    end;
+
+    local procedure CreatePurchaseLineWithPrice(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, No, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Modify(true);
     end;
 
     local procedure PostAndVerifyCorrectiveCreditMemo(PurchaseHeader: Record "Purchase Header")
@@ -414,6 +481,15 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         PurchaseHeader."Currency Code" := Currency.Code;
         PurchaseHeader.Validate("Currency Factor", Currency."Currency Factor");
         PurchaseHeader.Modify(true);
+    end;
+
+    local procedure SetVariantMandatoryifExists(NewValue: Boolean)
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get();
+        InventorySetup.Validate("Variant Mandatory if Exists");
+        InventorySetup.Modify(true);
     end;
 
     [Scope('OnPrem')]

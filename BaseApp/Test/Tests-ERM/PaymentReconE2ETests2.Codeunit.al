@@ -1698,6 +1698,103 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         ClearBankAccReconciliations();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler,ReversalUndoStatementHandler,ReversalRelatedHandler,ReversalFinalizeHandler')]
+    procedure ReversePaymentRecJournal()
+    var
+        SalesHeader: Record "Sales Header";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
+        BankAccountStatement: Record "Bank Account Statement";
+        ReversePaymentRecJournal: Codeunit "Reverse Payment Rec. Journal";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+        StatementEndingBalance: Decimal;
+        InvoiceNo: Code[20];
+        SalesHeaderNo: Code[20];
+        BankAccNo: Code[20];
+        StatementNo: Code[20];
+    begin
+        // [SCENARIO] A user that has posted a Payment Rec Journal with post and reconcile wants to reverse it
+        // [GIVEN] A posted and reconciled Paym Rec Journal
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesHeader.CalcFields("Amount Including VAT");
+        SalesHeaderNo := SalesHeader."No.";
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        CreatePaymentReconciliationAndMatchAutomatically(PaymentReconciliationJournal, InvoiceNo, SalesHeader."Amount Including VAT", BankAccReconciliation);
+        BankAccNo := BankAccReconciliation."Bank Account No.";
+        StatementNo := BankAccReconciliation."Statement No.";
+        BankAccReconciliation."Statement Date" := WorkDate();
+        Evaluate(StatementEndingBalance, PaymentReconciliationJournal."Statement Amount".Value());
+        BankAccReconciliation."Statement Ending Balance" := StatementEndingBalance;
+        BankAccReconciliation.Modify();
+        PaymentReconciliationJournal.Post.Invoke();
+
+        // [WHEN] Running the Reversal Wizard with default selection
+        PostedPaymentReconHdr.Get(BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
+        ReversePaymentRecJournal.RunReversalWizard(PostedPaymentReconHdr);
+
+        Commit();
+        // [THEN] the original bank statement shouldn't exist
+        asserterror BankAccReconciliation.Get(BankAccNo, StatementNo);
+        asserterror BankAccountStatement.Get(BankAccNo, StatementNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MsgHandler,ConfirmHandlerYes,PostAndReconcilePageHandler,ReversalUndoStatementCancelYesHandler,ReversalRelatedHandler,ReversalFinalizeHandler')]
+    procedure ReversePaymentRecJournalWhenPreviouslyUndone()
+    var
+        SalesHeader: Record "Sales Header";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccountStatement: Record "Bank Account Statement";
+        PostedPaymentReconHdr: Record "Posted Payment Recon. Hdr";
+        ReversePaymentRecJournal: Codeunit "Reverse Payment Rec. Journal";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+        UndoBankStatementYesNo: Codeunit "Undo Bank Statement (Yes/No)";
+        StatementEndingBalance: Decimal;
+        InvoiceNo: Code[20];
+        SalesHeaderNo: Code[20];
+        BankAccNo: Code[20];
+        StatementNo: Code[20];
+    begin
+        // [SCENARIO] A user that has posted a Payment Rec Journal with post and reconcile, undoes the bank statment, and then wants to reverse it
+        // [GIVEN] A posted and reconciled Paym Rec Journal
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesHeader.CalcFields("Amount Including VAT");
+        SalesHeaderNo := SalesHeader."No.";
+        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        CreatePaymentReconciliationAndMatchAutomatically(PaymentReconciliationJournal, InvoiceNo, SalesHeader."Amount Including VAT", BankAccReconciliation);
+        BankAccNo := BankAccReconciliation."Bank Account No.";
+        StatementNo := BankAccReconciliation."Statement No.";
+        BankAccReconciliation."Statement Date" := WorkDate();
+        Evaluate(StatementEndingBalance, PaymentReconciliationJournal."Statement Amount".Value());
+        BankAccReconciliation."Statement Ending Balance" := StatementEndingBalance;
+        BankAccReconciliation.Modify();
+        PaymentReconciliationJournal.Post.Invoke();
+        Commit();
+
+        // [GIVEN] The reversal of the payment rec. journal was executed and canceled
+        LibraryVariableStorage.Enqueue(true);
+        PostedPaymentReconHdr.Get(BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
+        ReversePaymentRecJournal.RunReversalWizard(PostedPaymentReconHdr);
+
+        // [GIVEN] The bank account statement created is undone
+        BankAccountStatement.Get(BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.");
+        UndoBankStatementYesNo.UndoBankAccountStatement(BankAccountStatement, false);
+        Commit();
+
+        // [WHEN] Running the Reversal Wizard with default selection
+        LibraryVariableStorage.Enqueue(false);
+        ReversePaymentRecJournal.RunReversalWizard(PostedPaymentReconHdr);
+        // [THEN] there should be no errors
+        // [THEN] the original bank statement shouldn't exist
+        asserterror BankAccReconciliation.Get(BankAccNo, StatementNo);
+        asserterror BankAccountStatement.Get(BankAccNo, StatementNo);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -1811,8 +1908,14 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
 
     local procedure CreatePaymentReconciliationAndMatchAutomatically(var PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal"; InvoiceNo: Code[20]; PaymentAmount: Decimal)
     var
-        BankAccount: Record "Bank Account";
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
+    begin
+        CreatePaymentReconciliationAndMatchAutomatically(PaymentReconciliationJournal, InvoiceNo, PaymentAmount, BankAccReconciliation);
+    end;
+
+    local procedure CreatePaymentReconciliationAndMatchAutomatically(var PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal"; InvoiceNo: Code[20]; PaymentAmount: Decimal; var BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    var
+        BankAccount: Record "Bank Account";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         NoSeriesCode: Code[20];
     begin
@@ -2865,6 +2968,34 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
     procedure OnBeforePrintDocument(TempReportSelections: Record "Report Selections" temporary; IsGUI: Boolean; RecVarToPrint: Variant; var IsHandled: Boolean)
     begin
         Commit();
+    end;
+
+    [ModalPageHandler]
+    procedure ReversalUndoStatementHandler(var PmtRecUndoStatement: TestPage "Pmt. Rec. Undo Statement")
+    begin
+        PmtRecUndoStatement.ActionNext.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ReversalUndoStatementCancelYesHandler(var PmtRecUndoStatement: TestPage "Pmt. Rec. Undo Statement")
+    begin
+        if LibraryVariableStorage.DequeueBoolean() then
+            exit
+        else
+            PmtRecUndoStatement.ActionNext.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ReversalRelatedHandler(var PaymentRecRelatedEntries: TestPage "Payment Rec. Related Entries")
+    begin
+        PaymentRecRelatedEntries.ActionNext.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure ReversalFinalizeHandler(var PmtRecReversalFinalize: TestPage "Pmt. Rec. Reversal Finalize")
+    begin
+        PmtRecReversalFinalize.CreatePaymentRecJournal.Value(Format(false));
+        PmtRecReversalFinalize.ActionFinalize.Invoke();
     end;
 
     [ModalPageHandler]

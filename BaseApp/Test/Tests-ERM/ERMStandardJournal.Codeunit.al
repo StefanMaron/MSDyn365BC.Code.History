@@ -1,4 +1,4 @@
-codeunit 134921 "ERM Standard Journal"
+﻿codeunit 134921 "ERM Standard Journal"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -380,6 +380,48 @@ codeunit 134921 "ERM Standard Journal"
         GenJournalLine.FindFirst();
 
         GenJournalLine.TestField("External Document No.", StandardGeneralJournalLine."External Document No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure GetStandardJournalWithPaymentTermsAndMethod()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+        StandardGeneralJournalLine: Record "Standard General Journal Line";
+        PaymentTerms: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
+        Vendor: Record Vendor;
+    begin
+        // [SCENARIO 458858] "Payment Terms Code" and "Payment Method Code" passed to gen. jnl. line when create it from standard gen. jnl. line
+        Initialize();
+
+        // Create Vendor with "Payment Terms" and "Payment Method"
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        Vendor.validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Modify();
+
+        // [GIVEN] Standard gen. jnl. line with Vendor payment
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"Vendor", Vendor."No.", '', '');
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // [WHEN] Create gen. jnl. line from standard gen. jnl. line
+        DeleteGeneralJournalLine(GenJournalBatch.Name);
+        StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
+
+        // [THEN] Verify "Payment Terms Code" and "Payment Method Code"
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+
+        GenJournalLine.TestField("Payment Method Code", PaymentMethod.Code);
+        GenJournalLine.TestField("Payment Terms Code", PaymentTerms.Code);
     end;
 
     [Test]

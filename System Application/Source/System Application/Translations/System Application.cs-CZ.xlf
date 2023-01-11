@@ -3261,6 +3261,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table SAS Parameters - Field ApiVersion - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 3831263693 - Field 452288233 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SignedEncryptionScope</source>
+          <target state="translated">RozsahPodepsanéhoŠifrování</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SAS Parameters - Field SignedEncryptionScope - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 3831263693 - Field 3633290037 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SignedIp</source>
           <target state="translated">PodepsanýIp</target>
@@ -6285,6 +6291,12 @@
           <note from="Developer" annotates="general" priority="2">%1 = the number of characters</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Password Handler Impl. - NamedType InsufficientPassLengthErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2592325759 - NamedType 2816297459" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All objects of type %1 (except where otherwise stated)</source>
+          <target state="translated">Všechny objekty typu %1 (pokud není uvedeno jinak)</target>
+          <note from="Developer" annotates="general" priority="2">%1= type name, e.g. Table Data or Report or Page</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Permission Impl. - NamedType AllObjExceptTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2592325759 - NamedType 1547195898" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>All objects of type %1</source>
           <target state="translated">Všechny objekty typu %1</target>
@@ -6608,6 +6620,12 @@
           <target state="translated">Omezen počet záznamů, které mají být odstraněny pro tabulku %1, %2 na %3 záznamů. Maximální počet záznamů, které lze odstranit současně, je %4 a %5 záznamů bylo již dříve odstraněno v jedné nebo více tabulkách.</target>
           <note from="Developer" annotates="general" priority="2">%1 = a id of a table (integer), %2 = the caption of the table, %3, %4, %5 = integer</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Reten. Pol. Delete. Impl. - NamedType LimitNumberOfRecordsLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3411327414 - NamedType 1381496626" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Max. Number of Rec. To Delete is less than 0.</source>
+          <target state="translated">Max. počet záznamů k odstranění je menší než 0.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Reten. Pol. Delete. Impl. - NamedType MaxNumberofRecToDeleteNegLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3411327414 - NamedType 2047030313" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unable to check number of records to delete due to missing read permission for table %1, %2</source>
@@ -10308,6 +10326,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Control Scenario - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3163801880 - Action 593408208 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download the selected attachment file.</source>
+          <target state="translated">Stáhněte vybraný soubor přílohy.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Action Download - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3163801880 - Action 593408208 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download Attachment</source>
+          <target state="translated">Stáhnout přílohu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Action Download - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2282749623 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Compose an Email</source>
           <target state="translated">Vytvoření e-mailu</target>
@@ -10670,6 +10700,7 @@
         </trans-unit>
         <trans-unit id="Page 3344272628 - NamedType 286665424" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No limit</source>
+          <target state="translated">Bez omezení</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Rate Limit Wizard - NamedType NoLimitTxt</note>
         </trans-unit>
@@ -10859,8 +10890,20 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action Delete - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 664053810 - Action 593408208 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download the selected attachment file.</source>
+          <target state="translated">Stáhněte vybraný soubor přílohy.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action Download - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 664053810 - Action 593408208 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download Attachment</source>
+          <target state="translated">Stáhnout přílohu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action Download - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 664053810 - Action 884106764 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Choose a email scenario and add files, such as documents or images, to the email.</source>
+          <source>Choose an email scenario and add files, such as documents or images, to the email.</source>
           <target state="translated">Vyberte scénář e-mailu a přidejte do něj soubory, například dokumenty nebo obrázky.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Scenario Attach Setup - Action SetScenarioAndAddFile - Property ToolTip</note>
@@ -15763,6 +15806,18 @@
           <target state="translated">Vyrovnat ručně</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Action ApplyManually - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1206474225 - Action 3028141151 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refreshes the list of tables that can be selected.</source>
+          <target state="translated">Aktualizuje seznam tabulek, které lze vybrat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Action RestoreAllowedTables - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1206474225 - Action 3028141151 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh allowed tables</source>
+          <target state="translated">Aktualizace povolených tabulek</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Action RestoreAllowedTables - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1623743194 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Retention Policy Setup Lines</source>

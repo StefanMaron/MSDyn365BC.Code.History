@@ -1270,6 +1270,58 @@ codeunit 137280 "SCM Inventory Basic"
     end;
 
     [Test]
+    [HandlerFunctions('SelectItemTemplateHandler')]
+    procedure CreateItemFromItemTemplateWithoutInventoryValueZero()
+    var
+        Item: Record Item;
+        ItemTemplate: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [FEATURE] [Item Template] [Inventory Value Zero]
+        // [SCENARIO 80] Item 'Inventory Value Zero' should be empty if created from an item template with empty 'Inventory Value Zero'
+        Initialize();
+
+        // [GIVEN] Item Template with empty 'Inventory Value Zero'
+        Item.Init();
+        LibraryTemplates.CreateItemTemplate(ItemTemplate);
+        ItemTemplate."Inventory Value Zero" := false;
+        ItemTemplate.Modify();
+        LibraryVariableStorage.Enqueue(ItemTemplate.Code);
+
+        // [WHEN] Create new Item using Item Template
+        ItemTemplMgt.InsertItemFromTemplate(Item);
+
+        // [THEN] 'Inventory Value Zero' is empty        
+        Assert.AreEqual(ItemTemplate."Inventory Value Zero", Item."Inventory Value Zero", 'Inventory Value Zero must be empty');
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectItemTemplateHandler')]
+    procedure CreateItemFromItemTemplateWithInventoryValueZero()
+    var
+        Item: Record Item;
+        ItemTemplate: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [FEATURE] [Item Template] [Inventory Value Zero]
+        // [SCENARIO 80] Item 'Inventory Value Zero' should be set if created from an item template with 'Inventory Value Zero' set 
+        Initialize();
+
+        // [GIVEN] Item Template with 'Inventory Value Zero' set
+        Item.Init();
+        LibraryTemplates.CreateItemTemplate(ItemTemplate);
+        ItemTemplate."Inventory Value Zero" := true;
+        ItemTemplate.Modify();
+        LibraryVariableStorage.Enqueue(ItemTemplate.Code);
+
+        // [WHEN] Create new Item using Item Template
+        ItemTemplMgt.InsertItemFromTemplate(Item);
+
+        // [THEN] 'Inventory Value Zero' is set         
+        Assert.AreEqual(ItemTemplate."Inventory Value Zero", Item."Inventory Value Zero", 'Inventory Value Zero must be set');
+    end;
+
+    [Test]
     [HandlerFunctions('ItemChargeAssignmentPurchPageHandler,PurchReceiptLinePageHandler,ItemStatisticsPageHandler,ItemStatisticsMatrixPageHandlerForSpecificLine')]
     [Scope('OnPrem')]
     procedure ItemStatisticsMatrixForItemChargePostedAsPurchaseCreditMemo()

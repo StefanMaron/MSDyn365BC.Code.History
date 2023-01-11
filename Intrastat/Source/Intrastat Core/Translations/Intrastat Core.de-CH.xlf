@@ -569,13 +569,13 @@
         </trans-unit>
         <trans-unit id="Table 3132071445 - Field 3550498315 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Trans. Type</source>
-          <target state="translated">Standardmäßige Art des Geschäftes</target>
+          <target state="translated">Standardmässige Art des Geschäftes</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Default Trans. - Purchase - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3132071445 - Field 2305921724 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Trans. Type - Returns</source>
-          <target state="translated">Standardmäßige Art des Geschäftes – Rücksendungen</target>
+          <target state="translated">Standardmässige Art des Geschäftes – Rücksendungen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Default Trans. - Return - Property Caption</note>
         </trans-unit>
@@ -833,7 +833,7 @@
         </trans-unit>
         <trans-unit id="Page 879680616 - Control 970646220 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Enter the year first and then the month, for example, enter 1706 for June, 2017</source>
-          <target state="translated">Gibt den Monat für die Berichtsdaten an. Geben Sie den Zeitraum als vierstellige Zahl ohne Leerzeichen oder Sonderzeichen an. Je nach Land geben Sie entweder zuerst den Monat und dann das Jahr oder zuerst das Jahr ein. Geben Sie für Juni 2017 z. B. 1706 oder 0617 ein.</target>
+          <target state="translated">Gibt den Monat für die Berichtsdaten an. Geben Sie den Zeitraum als vierstellige Zahl ohne Leerzeichen oder Sonderzeichen an. Geben Sie zuerst das Jahr und dann den Monat ein. Beispiel: „1706“ für Juni, 2017</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report - Control Statistics Period - Property ToolTip</note>
         </trans-unit>
@@ -1031,13 +1031,13 @@
         </trans-unit>
         <trans-unit id="Page 3132071445 - Control 19531693 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the default 3-party trade VAT number.</source>
-          <target state="translated">Gibt die standardmäßige MWST-Nummer des Drittanbieters an.</target>
+          <target state="translated">Gibt die standardmässige MWST-Nummer des Drittanbieters an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Setup - Control Def. 3-Party Trade VAT No. - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3132071445 - Control 4168804269 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows the default receiving country code.</source>
-          <target state="translated">Gibt den standardmäßigen Code des Empfängerlandes an</target>
+          <target state="translated">Gibt den standardmässigen Code des Empfängerlandes an</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Setup - Control Def. Country/Region Code - Property ToolTip</note>
         </trans-unit>
@@ -1049,7 +1049,7 @@
         </trans-unit>
         <trans-unit id="Page 3132071445 - Control 694900210 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the default VAT number for unknown state.</source>
-          <target state="translated">Gibt die standardmäßige MWST-Nummer für den Status „Unbekannt“ an.</target>
+          <target state="translated">Gibt die standardmässige MWST-Nummer für den Status „Unbekannt“ an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Setup - Control Def. VAT for Unknown State - Property ToolTip</note>
         </trans-unit>
@@ -1353,13 +1353,13 @@
         </trans-unit>
         <trans-unit id="Page 3458657684 - Control 19531693 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the default 3-party trade VAT number.</source>
-          <target state="translated">Gibt die standardmäßige MWST-Nummer des Drittanbieters an.</target>
+          <target state="translated">Gibt die standardmässige MWST-Nummer des Drittanbieters an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Setup Wizard - Control Def. 3-Party Trade VAT No. - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3458657684 - Control 4168804269 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shows the default receiving country code.</source>
-          <target state="translated">Gibt den standardmäßigen Code des Empfängerlandes an</target>
+          <target state="translated">Gibt den standardmässigen Code des Empfängerlandes an</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Setup Wizard - Control Def. Country/Region Code - Property ToolTip</note>
         </trans-unit>
@@ -1371,7 +1371,7 @@
         </trans-unit>
         <trans-unit id="Page 3458657684 - Control 694900210 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the default VAT number for unknown state.</source>
-          <target state="translated">Gibt die standardmäßige MWST-Nummer für den Status „Unbekannt“ an.</target>
+          <target state="translated">Gibt die standardmässige MWST-Nummer für den Status „Unbekannt“ an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Setup Wizard - Control Def. VAT for Unknown State - Property ToolTip</note>
         </trans-unit>
@@ -1629,7 +1629,7 @@
         </trans-unit>
         <trans-unit id="Page 1949250098 - Control 3998061958 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if you must report information about quantity and units of measure for this item.</source>
-          <target state="translated">Legt fest, ob Sie über die Menge und die Maßeinheit für diesen Artikel Bericht erstatten müssen.</target>
+          <target state="translated">Legt fest, ob Sie über die Menge und die Masseinheit für diesen Artikel Bericht erstatten müssen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Subform - Control Supplementary Units - Property ToolTip</note>
         </trans-unit>
@@ -1767,7 +1767,7 @@
         </trans-unit>
         <trans-unit id="Report 3076093313 - Control 1542740196 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the amount of the entry including any item charges.</source>
-          <target state="translated">Gibt den Betrag des Postens an, einschließlich aller Artikelzuschläge/-abschläge.</target>
+          <target state="translated">Gibt den Betrag des Postens an, einschliesslich aller Artikelzuschläge/-abschläge.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Report Intrastat Report Get Lines - Control AmountInclItemCharges - Property ToolTip</note>
         </trans-unit>
@@ -2011,14 +2011,14 @@
         </trans-unit>
         <trans-unit id="TableExtension 3644027860 - Field 830567041 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Trans. Type</source>
-          <target state="translated">Standardmäßige Art des Geschäftes</target>
+          <target state="translated">Standardmässige Art des Geschäftes</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1994964448</note>
         </trans-unit>
         <trans-unit id="TableExtension 3644027860 - Field 1663358532 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Trans. Type - Returns</source>
-          <target state="translated">Standardmäßige Art des Geschäftes – Rücksendungen</target>
+          <target state="translated">Standardmässige Art des Geschäftes – Rücksendungen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1994964448</note>
@@ -2032,7 +2032,7 @@
         </trans-unit>
         <trans-unit id="TableExtension 437226862 - Field 1335947384 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Exclude from Intrastat Report</source>
-          <target state="translated">Aus Intrastat-Bericht ausschließen</target>
+          <target state="translated">Aus Intrastat-Bericht ausschliessen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 372951706</note>
@@ -2067,7 +2067,7 @@
         </trans-unit>
         <trans-unit id="TableExtension 3148640699 - Field 1335947384 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Exclude from Intrastat Report</source>
-          <target state="translated">Aus Intrastat-Bericht ausschließen</target>
+          <target state="translated">Aus Intrastat-Bericht ausschliessen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 3276313895</note>
@@ -2109,14 +2109,14 @@
         </trans-unit>
         <trans-unit id="TableExtension 1323922556 - Field 830567041 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Trans. Type</source>
-          <target state="translated">Standardmäßige Art des Geschäftes</target>
+          <target state="translated">Standardmässige Art des Geschäftes</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1936001480</note>
         </trans-unit>
         <trans-unit id="TableExtension 1323922556 - Field 1663358532 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Trans. Type - Returns</source>
-          <target state="translated">Standardmäßige Art des Geschäftes – Rücksendungen</target>
+          <target state="translated">Standardmässige Art des Geschäftes – Rücksendungen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1936001480</note>

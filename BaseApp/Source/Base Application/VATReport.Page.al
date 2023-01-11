@@ -141,7 +141,7 @@ page 740 "VAT Report"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(740),
+                SubPageLink = "Table ID" = CONST(Database::"VAT Report Header"),
                               "No." = FIELD("No."),
                               "VAT Report Config. Code" = FIELD("VAT Report Config. Code");
             }
@@ -316,7 +316,7 @@ page 740 "VAT Report"
                     var
                         CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
                     begin
-                        CalcAndPostVATSettlement.InitializeRequest("Start Date", "End Date", Enum::"VAT Date Type"::"Posting Date", WorkDate(), "No.", '', false, false);
+                        CalcAndPostVATSettlement.InitializeRequest("Start Date", "End Date", WorkDate(), "No.", '', false, false);
                         CalcAndPostVATSettlement.Run();
                     end;
                 }

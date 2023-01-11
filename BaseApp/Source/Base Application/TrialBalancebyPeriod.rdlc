@@ -6205,12 +6205,6 @@ End Function</Code>
         <Field Name="Trial_Balance_by_PeriodCaption">
           <DataField>Trial_Balance_by_PeriodCaption</DataField>
         </Field>
-        <Field Name="G_L_Account_Balance">
-          <DataField>G_L_Account_Balance</DataField>
-        </Field>
-        <Field Name="G_L_Account_BalanceFormat">
-          <DataField>G_L_Account_BalanceFormat</DataField>
-        </Field>
         <Field Name="ColumnValuesAsText_4_">
           <DataField>ColumnValuesAsText_4_</DataField>
         </Field>

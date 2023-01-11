@@ -1139,6 +1139,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType DimensionSetIDErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3227769053 - NamedType 3622575458" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Dimensions - NamedType DimensionValueCodeError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3227769053 - NamedType 2301312705" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect Shortcut Dimension value for %1]]></Val>

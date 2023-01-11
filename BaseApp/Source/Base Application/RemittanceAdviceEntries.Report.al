@@ -236,9 +236,14 @@ report 400 "Remittance Advice - Entries"
                     DtldVendLedgEntry.SetRange(Unapplied, false);
                     if DtldVendLedgEntry.IsEmpty() then
                         CurrReport.Skip();
-                    DtldVendLedgEntry.CalcSums(Amount);
+                    DtldVendLedgEntry.CalcSums(Amount, "Remaining Pmt. Disc. Possible");
                     LineAmount := DtldVendLedgEntry.Amount;
-                    LineDiscount := CurrExchRate.ExchangeAmtFCYToFCY("Posting Date", '', "Currency Code", "Pmt. Disc. Rcd.(LCY)");
+
+                    if "Currency Code" <> '' then begin
+                        if IsDiscountAppliedToPayment("Vendor Ledger Entry"."Entry No.", "Vendor Ledger Entry"."Document No.") then
+                            LineDiscount := DtldVendLedgEntry."Remaining Pmt. Disc. Possible"
+                    end else
+                        LineDiscount := CurrExchRate.ExchangeAmtFCYToFCY("Posting Date", '', "Currency Code", "Pmt. Disc. Rcd.(LCY)");
 
                     "Vendor Ledger Entry".Amount += LineDiscount;
 
@@ -395,6 +400,21 @@ report 400 "Remittance Advice - Entries"
                         VendLedgEntry2.Mark(true);
                 end;
             until DtldVendLedgEntry1.Next() = 0;
+    end;
+
+    local procedure IsDiscountAppliedToPayment(VendLedgEntryNo: Integer; DocNo: Code[20]): Boolean
+    var
+        DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+    begin
+        DtldVendLedgEntry.LoadFields("Vendor Ledger Entry No.", "Entry Type", "Document Type", "Document No.", "Currency Code", Unapplied);
+        DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntryNo);
+        DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::"Payment Discount");
+        DtldVendLedgEntry.SetRange("Document Type", DtldVendLedgEntry."Document Type"::Payment);
+        DtldVendLedgEntry.SetRange("Document No.", DocNo);
+        DtldVendLedgEntry.SetFilter("Currency Code", '<>%1', '');
+        DtldVendLedgEntry.SetRange(Unapplied, false);
+        if not DtldVendLedgEntry.IsEmpty() then
+            exit(true);
     end;
 }
 

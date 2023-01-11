@@ -2979,6 +2979,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop Location - Field Shop Code - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 298531255 - Field 3600018459 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Stock calculation</source>
+          <target state="translated">Lagerbestandsberechnung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop Location - Field Stock Calculation - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 298531255 - Field 237762718 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Version</source>
           <target state="translated">Version</target>
@@ -3293,7 +3299,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3329328528 - NamedType 3369057591" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No callback was received from Shopify. Make sure that you haven't closed the page that says "Waiting for a response - do not close this page", and then try again.</source>
-          <target state="translated">Es wurde kein Rückruf von Shopify empfangen. Stellen Sie sicher, dass Sie die Seite mit der Meldung „Warten auf eine Antwort. Schließen Sie diese Seite nicht.“ nicht geschlossen haben, und versuchen Sie es dann erneut.</target>
+          <target state="translated">Es wurde kein Rückruf von Shopify empfangen. Stellen Sie sicher, dass Sie die Seite mit der Meldung „Warten auf eine Antwort. Schliessen Sie diese Seite nicht.“ nicht geschlossen haben, und versuchen Sie es dann erneut.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Authentication Mgt. - NamedType NoCallbackErr</note>
         </trans-unit>
@@ -3491,7 +3497,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2066436824 - NamedType 288678031" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Easily set basic connection and synchronization settings. You can control how data flows to and from your shop on Shopify.</source>
-          <target state="translated">Legen Sie ganz einfach grundlegende Verbindungs- und Synchronisierungseinstellungen fest. Sie können steuern, wie die Daten zu und von Ihrem Shop auf Shopify fließen.</target>
+          <target state="translated">Legen Sie ganz einfach grundlegende Verbindungs- und Synchronisierungseinstellungen fest. Sie können steuern, wie die Daten zu und von Ihrem Shop auf Shopify fliessen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Shpfy Guided Experience - NamedType ConnectYourShopDescriptionTxt</note>
         </trans-unit>
@@ -3665,7 +3671,7 @@
         </trans-unit>
         <trans-unit id="Page 881753888 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Waiting for a response - do not close this page</source>
-          <target state="translated">Warten auf eine Antwort-schließen Sie diese Seite nicht</target>
+          <target state="translated">Warten auf eine Antwort-schliessen Sie diese Seite nicht</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Authentication - Property Caption</note>
         </trans-unit>
@@ -3695,7 +3701,7 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - NamedType 1777866872" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>By enabling this feature, you consent to your data being shared with a Microsoft service that might be outside of your organization's selected geographic boundaries and might have different compliance and security standards than Microsoft Dynamics Business Central. Your privacy is important to us, and you can choose whether to share data with the service. To learn more, follow the link below.</source>
-          <target state="translated">Durch das Aktivieren dieses Features stimmen Sie zu, dass Ihre Daten für einen Microsoft-Dienst freigegeben werden, der möglicherweise außerhalb der ausgewählten geografischen Grenzen Ihrer Organisation liegt und andere Konformitäts- und Sicherheitsstandards als bei Microsoft Dynamics Business Central aufweist. Ihr Datenschutz ist uns wichtig, und Sie können wählen, ob Sie Daten für den Dienst freigeben möchten. Weitere Informationen finden Sie unter dem unten stehenden Link.</target>
+          <target state="translated">Durch das Aktivieren dieses Features stimmen Sie zu, dass Ihre Daten für einen Microsoft-Dienst freigegeben werden, der möglicherweise ausserhalb der ausgewählten geografischen Grenzen Ihrer Organisation liegt und andere Konformitäts- und Sicherheitsstandards als bei Microsoft Dynamics Business Central aufweist. Ihr Datenschutz ist uns wichtig, und Sie können wählen, ob Sie Daten für den Dienst freigeben möchten. Weitere Informationen finden Sie unter dem unten stehenden Link.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - NamedType ConsentLbl</note>
         </trans-unit>
@@ -4071,7 +4077,7 @@
         </trans-unit>
         <trans-unit id="Page 3918578631 - Control 2488202391 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Additionally, choose the G/L account to use for shipping costs from Shopify.</source>
-          <target state="translated">Wählen Sie außerdem das Fibukonto aus, das für die Kalkulation der Versandkosten von Shopify verwendet werden soll.</target>
+          <target state="translated">Wählen Sie ausserdem das Fibukonto aus, das für die Kalkulation der Versandkosten von Shopify verwendet werden soll.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Connector Guide - Control Control13 - Property InstructionalText</note>
         </trans-unit>
@@ -5144,7 +5150,7 @@
         </trans-unit>
         <trans-unit id="Page 437915150 - Control 1704117941 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the street address of the buy address.</source>
-          <target state="translated">Gibt die Straße der Kaufadresse an.</target>
+          <target state="translated">Gibt die Strasse der Kaufadresse an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Order - Control SellToAddress - Property ToolTip</note>
         </trans-unit>
@@ -6116,13 +6122,13 @@
         </trans-unit>
         <trans-unit id="Page 2760837339 - Control 3513921754 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the customer who will buy the products and be billed by default.</source>
-          <target state="translated">Gibt den Namen des Kunden an, der die Produkte kauft und dem standardmäßig eine Rechnung gestellt wird.</target>
+          <target state="translated">Gibt den Namen des Kunden an, der die Produkte kauft und dem standardmässig eine Rechnung gestellt wird.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Orders - Control SellToCustomerName - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2760837339 - Control 609988052 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of the customer who will buy the products and be billed by default.</source>
-          <target state="translated">Gibt die Nummer des Kunden an, der die Produkte kauft und dem standardmäßig eine Rechnung gestellt wird.</target>
+          <target state="translated">Gibt die Nummer des Kunden an, der die Produkte kauft und dem standardmässig eine Rechnung gestellt wird.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Orders - Control SellToCustomerNo - Property ToolTip</note>
         </trans-unit>
@@ -6716,7 +6722,7 @@
         </trans-unit>
         <trans-unit id="Page 2806160088 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>**Products** in Shopify is called **items** in Business Central. This is a list of items you sell in your shop. Map each product you want to sell to an item so that you can synchronize their information.</source>
-          <target state="translated">Die **Produkte** in Shopify heißen in Business Central **Artikel**. Dies ist eine Liste der Artikel, die Sie in Ihrem Shop verkaufen. Ordnen Sie jedes Produkt, das Sie verkaufen möchten, einem Artikel zu, damit Sie dessen Informationen synchronisieren können.</target>
+          <target state="translated">Die **Produkte** in Shopify heissen in Business Central **Artikel**. Dies ist eine Liste der Artikel, die Sie in Ihrem Shop verkaufen. Ordnen Sie jedes Produkt, das Sie verkaufen möchten, einem Artikel zu, damit Sie dessen Informationen synchronisieren können.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Products - Property AboutText</note>
         </trans-unit>
@@ -6992,7 +6998,7 @@
         </trans-unit>
         <trans-unit id="Page 1970429680 - Control 2008095221 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specify how to synchronize customers between Shopify and Business Central. You can auto-create Shopify customers on Business Central or use the same customer entity for every sales order. When connected, Business Central can also update customer information in Shopify.</source>
-          <target state="translated">Legen Sie fest, wie Kunden zwischen Shopify und Business Central synchronisiert werden sollen. Sie können Shopify-Kunden automatisch in Business Central anlegen oder dieselbe Kundenentität für jeden Kundenauftrag verwenden. Wenn eine Verbindung besteht, kann Business Central außerdem Kundeninformationen in Shopify aktualisieren.</target>
+          <target state="translated">Legen Sie fest, wie Kunden zwischen Shopify und Business Central synchronisiert werden sollen. Sie können Shopify-Kunden automatisch in Business Central anlegen oder dieselbe Kundenentität für jeden Kundenauftrag verwenden. Wenn eine Verbindung besteht, kann Business Central ausserdem Kundeninformationen in Shopify aktualisieren.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control CustomerSync - Property AboutText</note>
         </trans-unit>
@@ -7310,7 +7316,7 @@
         </trans-unit>
         <trans-unit id="Page 1970429680 - Control 1639899710 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if you want to have the different unit of measures as an variant in Shopify.</source>
-          <target state="translated">Gibt an, ob Sie die verschiedenen Maßeinheiten als Variante in Shopify haben möchten.</target>
+          <target state="translated">Gibt an, ob Sie die verschiedenen Masseinheiten als Variante in Shopify haben möchten.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Card - Control UOMAsVariant - Property ToolTip</note>
         </trans-unit>
@@ -7634,7 +7640,7 @@
         </trans-unit>
         <trans-unit id="Page 3081489686 - Method 4177352842 - NamedType 1995065214" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>One or more lines have %1 specified, but stock synchronization is disabled. Do you want to close the page?</source>
-          <target state="translated">In einer oder mehreren Zeilen ist %1 angegeben. Die Bestandssynchronisierung ist jedoch deaktiviert. Möchten Sie die Seite schließen?</target>
+          <target state="translated">In einer oder mehreren Zeilen ist %1 angegeben. Die Bestandssynchronisierung ist jedoch deaktiviert. Möchten Sie die Seite schliessen?</target>
           <note from="Developer" annotates="general" priority="2">%1 the name for location filter</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Locations Mapping - Method OnQueryClosePage - NamedType DisableQst</note>
         </trans-unit>
@@ -7667,6 +7673,12 @@
           <target state="translated">Gibt den Namen des Lagerorts an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Locations Mapping - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3081489686 - Control 3600018459 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select the stock calculation used for this location.</source>
+          <target state="translated">Wählen Sie die für diesen Lagerort verwendete Lagerberechnung aus.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Locations Mapping - Control Stock Calculation - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3081489686 - Action 4256907756 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Get the locations defined in Shopify.</source>
@@ -9591,7 +9603,7 @@
         </trans-unit>
         <trans-unit id="Enum 1109428354 - EnumValue 3844911025 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Canceled</source>
-          <target state="translated">Abgebrochen</target>
+          <target state="translated">Storniert</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Payout Status - EnumValue Canceled - Property Caption</note>
         </trans-unit>
@@ -9852,6 +9864,24 @@
           <target state="translated">Kreditorenartikelnr.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy SKU Mappging - EnumValue Vendor Item No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1420853479 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopify Stock Calculation"</source>
+          <target state="translated">Shopify-Lagerbestandsberechnung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Stock Calculation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1420853479 - EnumValue 1864907812 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Disabled</source>
+          <target state="translated">Deaktiviert</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Stock Calculation - EnumValue Disabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1420853479 - EnumValue 2292656616 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Projected Available Balance at Today</source>
+          <target state="translated">Geplanter verfügbarer Saldo heute</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Stock Calculation - EnumValue Projected Available Balance Today - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 1545563666 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Synchronization Type</source>

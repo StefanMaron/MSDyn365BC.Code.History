@@ -45,6 +45,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 613874622 - NamedType 253089800" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The service declaration %1 already exists.</source>
+          <target state="translated">Hlášení o službách %1 již existuje.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = service declaration number.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - NamedType ServDeclAlreadyExistErr</note>
+        </trans-unit>
         <trans-unit id="Table 613874622 - Field 2090835627 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Config. Code</source>
           <target state="translated">Kód konfig.</target>
@@ -1184,6 +1190,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 2661934884 - Control 3250917128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the code for a service transaction type.</source>
+          <target state="translated">Určuje kód pro typ transakce služby.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 997740791</note>
@@ -1379,24 +1386,28 @@
         </trans-unit>
         <trans-unit id="TableExtension 118093026 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Applicable For Service Declaration</source>
+          <target state="translated">Platí pro hlášení o službách</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1308990239</note>
         </trans-unit>
         <trans-unit id="TableExtension 118093026 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Transaction Type Code</source>
+          <target state="translated">Kód typu transakce služby</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1308990239</note>
         </trans-unit>
         <trans-unit id="TableExtension 3429814826 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Applicable For Service Declaration</source>
+          <target state="translated">Platí pro hlášení o službách</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2850645989</note>
         </trans-unit>
         <trans-unit id="TableExtension 3429814826 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Transaction Type Code</source>
+          <target state="translated">Kód typu transakce služby</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2850645989</note>

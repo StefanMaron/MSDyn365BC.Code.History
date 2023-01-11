@@ -2240,6 +2240,9 @@
         key(Key5; "Journal Template Name", "Journal Batch Name", "Item No.", "Location Code", "Variant Code")
         {
         }
+        key(Key6; "Journal Template Name", "Journal Batch Name", "Document No.")
+        {
+        }
     }
 
     fieldgroups
@@ -2322,6 +2325,8 @@
         BlockedErr: Label 'You cannot choose item number %1 because the Blocked check box is selected on its item card.', Comment = '%1 - Item No.';
         SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
         LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
+        DocNoFilterErr: Label 'The document numbers cannot be renumbered while there is an active filter on the Document No. field.';
+        RenumberDocNoQst: Label 'If you have many documents it can take time to sort them, and %1 might perform slowly during the process. In those cases we suggest that you sort them during non-working hours. Do you want to continue?', Comment = '%1= Business Central';
         ScrapCodeTypeErr: Label 'When using Scrap Code, Type must be Work Center or Machine Center.';
 
     protected var
@@ -3684,6 +3689,7 @@
         ProdOrderLine."Prod. Order No." := "Order No.";
         ProdOrderLine."Line No." := "Order Line No.";
         ProdOrderLine."Item No." := "Item No.";
+        ProdOrderLine."Variant Code" := "Variant Code";
 
         ProdOrderLineList.LookupMode(true);
         ProdOrderLineList.SetTableView(ProdOrderLine);
@@ -3692,6 +3698,8 @@
         if ProdOrderLineList.RunModal() = ACTION::LookupOK then begin
             ProdOrderLineList.GetRecord(ProdOrderLine);
             Validate("Item No.", ProdOrderLine."Item No.");
+            if ProdOrderLine."Variant Code" <> '' then
+                Validate("Variant Code", ProdOrderLine."Variant Code");
             if "Order Line No." <> ProdOrderLine."Line No." then
                 Validate("Order Line No.", ProdOrderLine."Line No.");
         end;
@@ -4196,6 +4204,121 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.", FieldNo = Rec.FieldNo("Work Center No."));
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
+    end;
+
+   procedure RenumberDocumentNo()
+    var
+        ItemJnlLine2: Record "Item Journal Line";
+        DocNo: Code[20];
+        FirstDocNo: Code[20];
+        FirstTempDocNo: Code[20];
+        LastTempDocNo: Code[20];
+    begin
+        if SkipRenumberDocumentNo() then
+            exit;
+
+        ItemJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+        if ItemJnlBatch."No. Series" = '' then
+            exit;
+        if GetFilter("Document No.") <> '' then
+            Error(DocNoFilterErr);
+        Clear(NoSeriesMgt);
+        FirstDocNo := NoSeriesMgt.TryGetNextNo(ItemJnlBatch."No. Series", "Posting Date");
+        FirstTempDocNo := GetTempRenumberDocumentNo();
+        // step1 - renumber to non-existing document number
+        DocNo := FirstTempDocNo;
+        ItemJnlLine2 := Rec;
+        ItemJnlLine2.Reset();
+        RenumberDocNoOnLines(DocNo, ItemJnlLine2);
+        LastTempDocNo := DocNo;
+
+        // step2 - renumber to real document number (within Filter)
+        DocNo := FirstDocNo;
+        ItemJnlLine2.CopyFilters(Rec);
+        ItemJnlLine2 := Rec;
+        RenumberDocNoOnLines(DocNo, ItemJnlLine2);
+
+        // step3 - renumber to real document number (outside filter)
+        DocNo := IncStr(DocNo);
+        ItemJnlLine2.Reset();
+        ItemJnlLine2.SetRange("Document No.", FirstTempDocNo, LastTempDocNo);
+        RenumberDocNoOnLines(DocNo, ItemJnlLine2);
+
+        if Get("Journal Template Name", "Journal Batch Name", "Line No.") then;
+    end;
+
+    local procedure GetTempRenumberDocumentNo(): Code[20]
+    begin
+        exit('RENUMBERED-000000001');
+    end;
+
+    local procedure SkipRenumberDocumentNo() Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSkipRenumberDocumentNo(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(GuiAllowed() and not DIALOG.Confirm(StrSubstNo(RenumberDocNoQst, ProductName.Short()), true));
+    end;
+
+    local procedure RenumberDocNoOnLines(var DocNo: Code[20]; var ItemJnlLine2: Record "Item Journal Line")
+    var
+        LastItemJnlLine: Record "Item Journal Line";
+        ItemJnlLine3: Record "Item Journal Line";
+        PrevDocNo: Code[20];
+        FirstDocNo: Code[20];
+        TempFirstDocNo: Code[20];
+        First: Boolean;
+        IsHandled: Boolean;
+        PrevPostingDate: Date;
+    begin
+        IsHandled := false;
+        OnBeforeRenumberDocNoOnLines(DocNo, ItemJnlLine2, IsHandled);
+        if IsHandled then
+            exit;
+
+        FirstDocNo := DocNo;
+        with ItemJnlLine2 do begin
+            SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.");
+            SetRange("Journal Template Name", "Journal Template Name");
+            SetRange("Journal Batch Name", "Journal Batch Name");
+            LastItemJnlLine.Init();
+            First := true;
+            if FindSet() then
+                repeat
+                    if ((FirstDocNo <> GetTempRenumberDocumentNo()) and (ItemJnlLine2.GetFilter("Document No.") = '')) then begin
+                        Commit();
+                        Clear(NoSeriesMgt);
+                        ItemJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+                        TempFirstDocNo := NoSeriesMgt.TryGetNextNo(ItemJnlBatch."No. Series", "Posting Date");
+                        if (FirstDocNo <> TempFirstDocNo) AND (FirstDocNo <> IncStr(TempFirstDocNo)) then begin
+                            DocNo := TempFirstDocNo;
+                            FirstDocNo := DocNo;
+                            First := true;
+                        end;
+                    end;
+                    if "Document No." = FirstDocNo then
+                        exit;
+                    if not First and
+                        (("Posting Date" <> PrevPostingDate) or
+                        ("Document No." = '')) and
+                        not LastItemJnlLine.EmptyLine()
+                    then
+                        DocNo := IncStr(DocNo);
+                    PrevDocNo := "Document No.";
+                    PrevPostingDate := "Posting Date";
+                    ItemJnlLine3.Get("Journal Template Name", "Journal Batch Name", "Line No.");
+                    ItemJnlLine3."Document No." := DocNo;
+                    ItemJnlLine3.Modify();
+                    First := false;
+                    LastItemJnlLine := ItemJnlLine2
+                until Next() = 0
+        end;
+
+        OnAfterRenumberDocNoOnLines(DocNo, ItemJnlLine2);
     end;
 
 #if not CLEAN20
@@ -4881,6 +5004,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterValidateProdOrderCompLineNo(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSkipRenumberDocumentNo(ItemJournalLine: Record "Item Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRenumberDocNoOnLines(var DocNo: Code[20]; var ItemJnlLine2: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRenumberDocNoOnLines(var DocNo: Code[20]; var ItemJnlLine2: Record "Item Journal Line")
     begin
     end;
 }

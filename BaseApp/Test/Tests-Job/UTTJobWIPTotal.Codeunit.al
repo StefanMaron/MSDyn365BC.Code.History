@@ -503,6 +503,203 @@ codeunit 136357 "UT T Job WIP Total"
         JobPage.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerMultipleResponses,MessageHandler,TransferToInvoiceHandler')]
+    [Scope('OnPrem')]
+    procedure TestSalesAmountForWIPRecognizedSalesPOC()
+    var
+        JobWIPMethod: Record "Job WIP Method";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        JobPlanningLine1: Record "Job Planning Line";
+        JobPlanningLine2: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        JobPage: TestPage "Job Card";
+        ResourceNo: Code[20];
+        UnitCost1: Integer;
+        UnitCost2: Integer;
+        UnitPrice1: Integer;
+        UnitPrice2: Integer;
+    begin
+        // Bug - https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/454399
+        // [Scenario] Verify that the WIP Sales Amount calculated is correct when the 'Recognized Sales' is set to 'Percentage of Completion'
+        Initialize();
+
+        // [GIVEN] Input for JobPlanningLines
+        UnitCost1 := 10000;
+        UnitPrice1 := 11000;
+        UnitCost2 := 165;
+        UnitPrice2 := 9000;
+
+        // [GIVEN] Job with task where the WIP Posting Method is 'Per Job'
+        // Create and setup 'Job WIP Method'
+        LibraryJob.CreateJobWIPMethod(JobWIPMethod);
+        JobWIPMethod.Validate("Recognized Costs", JobWIPMethod."Recognized Costs"::"Usage (Total Cost)");
+        JobWIPMethod.Validate("Recognized Sales", JobWIPMethod."Recognized Sales"::"Percentage of Completion");
+        JobWIPMethod.Validate(Valid, true);
+        JobWIPMethod.Modify(true);
+
+        // Create Job
+        LibraryJob.CreateJob(Job);
+        Job.Validate("WIP Method", JobWIPMethod.Code);
+        Job.Validate("WIP Posting Method", Job."WIP Posting Method"::"Per Job Ledger Entry");
+        Job.Modify(true);
+
+        // Create Job Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+        JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
+        JobTask.Validate("WIP Method", JobWIPMethod.Code);
+        JobTask.Modify(true);
+
+        // [GIVEN] Create JobPlanningLines
+        ResourceNo := LibraryResource.CreateResourceNo();
+        LibraryJob.CreateJobPlanningLine("Job Planning Line Line Type"::"Both Budget and Billable", "Job Planning Line Type"::Resource, JobTask, JobPlanningLine1);
+        JobPlanningLine1.Validate("No.", ResourceNo);
+        JobPlanningLine1.Validate(Quantity, 1);
+        JobPlanningLine1.Validate("Unit Cost", UnitCost1);
+        JobPlanningLine1.Validate("Unit Price", UnitPrice1);
+        JobPlanningLine1.Modify(true);
+
+        LibraryJob.CreateJobPlanningLine("Job Planning Line Line Type"::Billable, "Job Planning Line Type"::Resource, JobTask, JobPlanningLine2);
+        JobPlanningLine2.Validate("No.", ResourceNo);
+        JobPlanningLine2.Validate(Quantity, 1);
+        JobPlanningLine2.Validate("Unit Cost", UnitCost2);
+        JobPlanningLine2.Validate("Unit Price", UnitPrice2);
+        JobPlanningLine2.Modify(true);
+
+        // [GIVEN] Post usage for 80% of the needed resource consumption
+        LibraryJob.CreateJobJournalLine("Job Line Type"::" ", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Resource);
+        JobJournalLine.Validate("No.", ResourceNo);
+        JobJournalLine.Validate(Quantity, 1);
+        JobJournalLine.Validate("Unit Cost", UnitCost1 * 0.8); // 80% usage cost = 8000);
+        JobJournalLine.Modify(true);
+
+        LibraryVariableStorage.Enqueue(true);
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [WHEN] 'Calculate WIP' is called
+        LibraryVariableStorage.Enqueue(false);
+        RunJobCalculateWIP(Job);
+
+        // [THEN] 'Total WIP Sales Amount' is calculated correctly -> 80% of the total price
+        JobPage.OpenView();
+        JobPage.GoToRecord(Job);
+        JobPage."Total WIP Sales Amount".AssertEquals(-((UnitPrice1 + UnitPrice2) * 0.8)); // 80% of price = 16000);
+        JobPage.Close();
+
+        // [GIVEN] Sales invoice for second job plnning line is posted
+        JobPlanningLine2.SetRecFilter();
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine2, false);
+
+        GetSalesDocument(JobPlanningLine2, "Sales Document Type"::Invoice, SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] 'Calculate WIP' is called
+        LibraryVariableStorage.Enqueue(false);
+        RunJobCalculateWIP(Job);
+
+        // [THEN] 'Total WIP Sales Amount' is calculated correctly
+        JobPage.OpenView();
+        JobPage.GoToRecord(Job);
+        JobPage."Total WIP Sales Amount".AssertEquals(-(((UnitPrice1 + UnitPrice2) * 0.8) - UnitPrice2));// 80% of total price - posted sales invoice amount = 7000);
+        JobPage.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerMultipleResponses,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure TestTotalWIPSalesAmountWhenUsgeIsPosted()
+    var
+        JobWIPMethod: Record "Job WIP Method";
+        Job: Record Job;
+        JobTask1: Record "Job Task";
+        JobTask2: Record "Job Task";
+        JobTask3: Record "Job Task";
+        JobJournalLine1: Record "Job Journal Line";
+        JobJournalLine2: Record "Job Journal Line";
+        JobPage: TestPage "Job Card";
+        ResourceNo: Code[20];
+        UnitCost: Integer;
+        UnitPrice: Integer;
+
+    begin
+        // Bug - https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/454399
+        // [Scenario] Verify that the WIP Sales Amount calculated is correct when usage is posted for a job
+        Initialize();
+
+        // [GIVEN] Input for Job Journal Lines
+        UnitCost := 165;
+        UnitPrice := 290;
+
+        // [GIVEN] Job with task where the WIP Posting Method is 'Per Job'
+        // Create and setup 'Job WIP Method'
+        LibraryJob.CreateJobWIPMethod(JobWIPMethod);
+        JobWIPMethod.Validate("Recognized Costs", JobWIPMethod."Recognized Costs"::"Usage (Total Cost)");
+        JobWIPMethod.Validate("Recognized Sales", JobWIPMethod."Recognized Sales"::"Usage (Total Price)");
+        JobWIPMethod.Validate(Valid, true);
+        JobWIPMethod.Modify(true);
+
+        // Create Job
+        LibraryJob.CreateJob(Job);
+        Job.Validate("WIP Method", JobWIPMethod.Code);
+        Job.Validate("WIP Posting Method", Job."WIP Posting Method"::"Per Job");
+        Job.Modify(true);
+
+        // Create Job Task
+        LibraryJob.CreateJobTask(Job, JobTask1);
+        JobTask1.Validate("Job Task Type", JobTask1."Job Task Type"::Posting);
+        JobTask1.Modify(true);
+
+        LibraryJob.CreateJobTask(Job, JobTask2);
+        JobTask2.Validate("Job Task Type", JobTask2."Job Task Type"::Posting);
+        JobTask2.Modify(true);
+
+        LibraryJob.CreateJobTask(Job, JobTask3);
+        JobTask3.Validate("Job Task Type", JobTask3."Job Task Type"::Total);
+        JobTask3.Validate(Totaling, StrSubstNo('%1..%2', JobTask1."Job Task No.", JobTask2."Job Task No."));
+        JobTask3.Validate("WIP-Total", JobTask3."WIP-Total"::Total);
+        JobTask3.Validate("WIP Method", JobWIPMethod.Code);
+        JobTask3.Modify(true);
+
+        // [GIVEN] Post 2 journal lines(usage)
+        ResourceNo := LibraryResource.CreateResourceNo();
+        LibraryJob.CreateJobJournalLine("Job Line Type"::" ", JobTask1, JobJournalLine1);
+        JobJournalLine1.Validate("Job Task No.", JobTask1."Job Task No.");
+        JobJournalLine1.Validate(Type, JobJournalLine1.Type::Resource);
+        JobJournalLine1.Validate("No.", ResourceNo);
+        JobJournalLine1.Validate(Quantity, 1);
+        JobJournalLine1.Validate("Unit Cost", UnitCost);
+        JobJournalLine1.Validate("Unit Price", UnitPrice);
+        JobJournalLine1.Modify(true);
+
+        LibraryJob.CreateJobJournalLine("Job Line Type"::" ", JobTask2, JobJournalLine2);
+        JobJournalLine2.Validate("Job Task No.", JobTask2."Job Task No.");
+        JobJournalLine2.Validate(Type, JobJournalLine2.Type::Resource);
+        JobJournalLine2.Validate("No.", ResourceNo);
+        JobJournalLine2.Validate(Quantity, 1);
+        JobJournalLine2.Validate("Unit Cost", UnitCost);
+        JobJournalLine2.Validate("Unit Price", UnitPrice);
+        JobJournalLine2.Modify(true);
+
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryJob.PostJobJournal(JobJournalLine1);
+
+        // [WHEN] 'Calculate WIP' is called
+        LibraryVariableStorage.Enqueue(false);
+        RunJobCalculateWIP(Job);
+
+        // [THEN] 'Total WIP Sales Amount' is calculated correctly
+        JobPage.OpenView();
+        JobPage.GoToRecord(Job);
+        JobPage."Total WIP Sales Amount".AssertEquals(-(UnitPrice * 2));
+        JobPage.Close();
+    end;
+
     local procedure GetSalesDocument(JobPlanningLine: Record "Job Planning Line"; DocumentType: Enum "Sales Document Type"; var SalesHeader: Record "Sales Header")
     var
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";

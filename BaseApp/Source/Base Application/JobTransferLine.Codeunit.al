@@ -757,17 +757,25 @@
     begin
         if SalesLine.Type = SalesLine.Type::Item then begin
             Item.Get(SalesLine."No.");
-            if Item."Costing Method" = Item."Costing Method"::Standard then
+            if (Item."Costing Method" = Item."Costing Method"::Standard) and not IsCreatedFromJob(SalesLine) then
                 exit(false); // Do not update Unit Cost in Job Journal Line, it is correct.
         end;
 
         exit(true);
     end;
 
+    local procedure IsCreatedFromJob(var SalesLine: Record "Sales Line"): Boolean
+    begin
+        if (SalesLine."Job No." <> '') and (SalesLine."Job Task No." <> '') and (SalesLine."Job Contract Entry No." <> 0) then
+            exit(true);
+    end;
+
     procedure ValidateUnitCostAndPrice(var JobJournalLine: Record "Job Journal Line"; SalesLine: Record "Sales Line"; UnitCost: Decimal; UnitPrice: Decimal)
     begin
-        if DoUpdateUnitCost(SalesLine) then
+        if DoUpdateUnitCost(SalesLine) then begin
+            JobJournalLine.DontCheckStdCost();
             JobJournalLine.Validate("Unit Cost", UnitCost);
+        end;
         JobJournalLine.Validate("Unit Price", UnitPrice);
     end;
 

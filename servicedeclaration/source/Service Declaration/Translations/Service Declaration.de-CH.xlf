@@ -45,6 +45,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 613874622 - NamedType 253089800" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The service declaration %1 already exists.</source>
+          <target state="translated">Die Servicemeldung %1 ist bereits vorhanden.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = service declaration number.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - NamedType ServDeclAlreadyExistErr</note>
+        </trans-unit>
         <trans-unit id="Table 613874622 - Field 2090835627 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Config. Code</source>
           <target state="translated">Konfigurationscode</target>
@@ -458,7 +464,7 @@
         </trans-unit>
         <trans-unit id="Page 1204715772 - Control 4064329094 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether the item charges have to be reported in the service declaration. If enabled, system checks the service transaction code for item charges and include them into service declarations.</source>
-          <target state="translated">Gibt an, ob die Artikel Zu-/Abschläge in der Servicemeldung angegeben werden müssen. Falls aktiviert, prüft das System den Servicebuchungscode auf Artikel Zu-/Abschläge und schließt diese in Servicemeldungen ein.</target>
+          <target state="translated">Gibt an, ob die Artikel Zu-/Abschläge in der Servicemeldung angegeben werden müssen. Falls aktiviert, prüft das System den Servicebuchungscode auf Artikel Zu-/Abschläge und schliesst diese in Servicemeldungen ein.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Control Report Item Charges - Property ToolTip</note>
         </trans-unit>
@@ -668,7 +674,7 @@
         </trans-unit>
         <trans-unit id="Page 3454677590 - Control 4064329094 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether the item charges have to be reported in the service declaration. If enabled, system checks the service transaction code for item charges and include them into service declarations.</source>
-          <target state="translated">Gibt an, ob die Artikel Zu-/Abschläge in der Servicemeldung angegeben werden müssen. Falls aktiviert, prüft das System den Servicebuchungscode auf Artikel Zu-/Abschläge und schließt diese in Servicemeldungen ein.</target>
+          <target state="translated">Gibt an, ob die Artikel Zu-/Abschläge in der Servicemeldung angegeben werden müssen. Falls aktiviert, prüft das System den Servicebuchungscode auf Artikel Zu-/Abschläge und schliesst diese in Servicemeldungen ein.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Setup - Control Report Item Charges - Property ToolTip</note>
         </trans-unit>
@@ -1192,6 +1198,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 2661934884 - Control 3250917128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the code for a service transaction type.</source>
+          <target state="translated">Gibt den Code für eine Servicebuchungsart an</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 997740791</note>
@@ -1303,7 +1310,7 @@
         </trans-unit>
         <trans-unit id="TableExtension 2300690243 - Field 2326494239 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Exclude From Service Declaration</source>
-          <target state="translated">Von Servicemeldung ausschließen</target>
+          <target state="translated">Von Servicemeldung ausschliessen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 3276313895</note>
@@ -1317,7 +1324,7 @@
         </trans-unit>
         <trans-unit id="TableExtension 2383839733 - Field 2326494239 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Exclude From Service Declaration</source>
-          <target state="translated">Von Servicemeldung ausschließen</target>
+          <target state="translated">Von Servicemeldung ausschliessen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 151375497</note>
@@ -1387,31 +1394,35 @@
         </trans-unit>
         <trans-unit id="TableExtension 118093026 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Applicable For Service Declaration</source>
+          <target state="translated">Anwendbar für Servicemeldung</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1308990239</note>
         </trans-unit>
         <trans-unit id="TableExtension 118093026 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Transaction Type Code</source>
+          <target state="translated">Code für Servicebuchungsart</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1308990239</note>
         </trans-unit>
         <trans-unit id="TableExtension 3429814826 - Field 1771796126 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Applicable For Service Declaration</source>
+          <target state="translated">Anwendbar für Servicemeldung</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2850645989</note>
         </trans-unit>
         <trans-unit id="TableExtension 3429814826 - Field 3250917128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Transaction Type Code</source>
+          <target state="translated">Code für Servicebuchungsart</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 2850645989</note>
         </trans-unit>
         <trans-unit id="TableExtension 1002602554 - Field 2326494239 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Exclude From Service Declaration</source>
-          <target state="translated">Von Servicemeldung ausschließen</target>
+          <target state="translated">Von Servicemeldung ausschliessen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 348912950</note>

@@ -1715,6 +1715,42 @@ codeunit 134476 "ERM Dimension Purchase"
         // [VERIFY] Verify Location Change message on handler page.
     end;
 
+    [Test]
+    procedure VerifyDimensionsAreNotReInitializedIfDefaultDimensionDoesntExist()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        Location: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DimensionValue: Record "Dimension Value";
+        DimensionValue2: Record "Dimension Value";
+    begin
+        // [SCENARIO 455039] Verify dimensions are not re-initialized on validate field if default dimensions does not exist
+        Initialize();
+
+        // [GIVEN] Create Vendor with default global dimension value
+        CreateVendorWithDefaultGlobalDimValue(Vendor, DimensionValue);
+
+        // [GIVEN] Create Item without Default Dimension
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Location without Default Dimension
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Create Purchase Order
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Vendor."No.", Item."No.");
+
+        // [GIVEN] Update global dimension 1 on Purchase Line
+        UpdateGlobalDimensionOnPurchaseLine(PurchaseLine, DimensionValue2);
+
+        // [WHEN] Change Location on Purchase Line
+        UpdateLocationOnPurchaseLine(PurchaseLine, Location.Code);
+
+        // [VERIFY] Verify Dimensions are not re initialized on Purchase Line
+        VerifyDimensionOnPurchaseOrderLine(PurchaseHeader."Document Type", PurchaseHeader."No.", DimensionValue2."Dimension Code");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2569,6 +2605,44 @@ codeunit 134476 "ERM Dimension Purchase"
             Assert.AreEqual(ExpectedVATAmount[Index], VATEntryAmount[Index], StrSubstNo('Incorrect Amount in "VAT Entry"[%1]', Index));
             Assert.AreEqual(ExpectedVATAmountACY[Index], VATEntryAmountACY[Index], StrSubstNo('Incorrect Additional-Currency Amount in "VAT Entry"[%1]', Index));
         end;
+    end;
+
+    local procedure UpdateLocationOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10])
+    begin
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure UpdateGlobalDimensionOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; var DimensionValue: Record "Dimension Value")
+    begin
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        PurchaseLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; ItemNo: Code[20])
+    begin
+        // Purchase Order with one Purchase line. Take random value for Quantity and Direct Unit Cost.        
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        CreateAndModifyPurchaseLine(
+          PurchaseLine, PurchaseHeader, ItemNo, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
+    end;
+
+    local procedure CreateAndModifyPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateVendorWithDefaultGlobalDimValue(var Vendor: Record Vendor; var DimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimensionVendor(
+          DefaultDimension, Vendor."No.", DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
     [ConfirmHandler]

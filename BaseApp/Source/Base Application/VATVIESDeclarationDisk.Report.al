@@ -47,11 +47,7 @@ report 88 "VAT- VIES Declaration Disk"
                     GroupTotal := true;
 
                 if GroupTotal then begin
-                    case VATDateType of 
-                        VATDateType::"VAT Reporting Date": WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal, EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, "VAT Reporting Date");
-                        VATDateType::"Posting Date": WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal, EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, "Posting Date");
-                        VATDateType::"Document Date": WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal, EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, "Document Date");
-                    end;
+                    WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal, EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, "VAT Reporting Date");
                     EU3PartyItemTradeTotalAmt += EU3PartyItemTradeAmt;
                     EU3PartyServiceTradeTotalAmt += EU3PartyServiceTradeAmt;
 
@@ -90,11 +86,7 @@ report 88 "VAT- VIES Declaration Disk"
                 VATFile.Write(Format('0100001', 80));
 
                 NoOfGrTotal := 0;
-                case VATDateType of 
-                    VATDateType::"VAT Reporting Date": Period := GetRangeMax("VAT Reporting Date");
-                    VATDateType::"Posting Date": Period := GetRangeMax("Posting Date");
-                    VATDateType::"Document Date": Period := GetRangeMax("Document Date");
-                end;
+                Period := GetRangeMax("VAT Reporting Date");
                 InternalReferenceNo := Format(Period, 4, 2) + '000000';
             end;
         }
@@ -118,12 +110,19 @@ report 88 "VAT- VIES Declaration Disk"
                         MultiLine = true;
                         ToolTip = 'Specifies if the reported amounts are shown in the additional reporting currency.';
                     }
+#if not CLEAN22
                     field(VATDateTypeField; VATDateType)
                     {
                         ApplicationArea = VAT;
                         Caption = 'Period Date Type';
                         ToolTip = 'Specifies the type of date used for the report period.';
+                        Visible = false;
+                        Enabled = false;
+                        ObsoleteReason = 'Selected VAT Date type no longer supported.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
                     }
+#endif
                 }
             }
         }
@@ -178,8 +177,9 @@ report 88 "VAT- VIES Declaration Disk"
         UseAmtsInAddCurr: Boolean;
         ToFileNameTxt: Label 'Default.txt';
         HideFileDialog: Boolean;
+#if not CLEAN22
         VATDateType: Enum "VAT Date Type";
-
+#endif
         Text001: Label 'WwWw';
         Text002: Label 'LIST';
         Text003: Label '%1 was not filled in for all VAT entries in which %2 = %3.';
@@ -270,7 +270,6 @@ report 88 "VAT- VIES Declaration Disk"
     procedure InitializeRequest(NewHideFileDialog: Boolean)
     begin
         HideFileDialog := NewHideFileDialog;
-        VATDateType := VATDateType::"Posting Date";
     end;
 
     local procedure ModifyVATEntryInternalRefNo(CountryRegionCode: Code[10]; BillToPayToNo: Code[20]; InternalRefNo: Text[30]; VATDate: Date)
@@ -279,11 +278,7 @@ report 88 "VAT- VIES Declaration Disk"
     begin
         VATEntry.SetRange("Country/Region Code", CountryRegionCode);
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
-        case VATDateType of 
-            VATDateType::"VAT Reporting Date": VATEntry.SetRange("VAT Reporting Date", VATDate);
-            VATDateType::"Posting Date": VATEntry.SetRange("Posting Date", VATDate);
-            VATDateType::"Document Date": VATEntry.SetRange("Document Date", VATDate);
-        end;
+        VATEntry.SetRange("VAT Reporting Date", VATDate);
         VATEntry.ModifyAll("Internal Ref. No.", InternalRefNo);
     end;
 

@@ -12,6 +12,16 @@ codeunit 827 "Service Post Invoice Events"
     begin
     end;
 
+    procedure RunOnAfterGetSalesAccount(ServiceLine: Record "Service Line"; GenPostingSetup: Record "General Posting Setup"; var SalesAccountNo: Code[20])
+    begin
+        OnAfterGetSalesAccount(ServiceLine, GenPostingSetup, SalesAccountNo);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSalesAccount(ServiceLine: Record "Service Line"; GenPostingSetup: Record "General Posting Setup"; var SalesAccountNo: Code[20])
+    begin
+    end;
+
     // OnBefore events
 
     procedure RunOnBeforePrepareLine(ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; ServiceLineACY: Record "Service Line"; var IsHandled: Boolean)
@@ -44,6 +54,26 @@ codeunit 827 "Service Post Invoice Events"
     begin
     end;
 
+    procedure RunOnBeforeGetSalesAccount(ServiceLine: Record "Service Line"; GenPostingSetup: Record "General Posting Setup"; var SalesAccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+        OnBeforeGetSalesAccount(ServiceLine, GenPostingSetup, SalesAccountNo, IsHandled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSalesAccount(ServiceLine: Record "Service Line"; GenPostingSetup: Record "General Posting Setup"; var SalesAccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    procedure RunOnUpdateInvoicePostingBufferOnBeforeUpdate(var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+        OnUpdateInvoicePostingBufferOnBeforeUpdate(InvoicePostingBuffer);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateInvoicePostingBufferOnBeforeUpdate(var InvoicePostingBuffer: Record "Invoice Posting Buffer")
+    begin
+    end;
+
     // Prepare Line
 
     procedure RunOnPrepareLineOnAfterFillInvoicePostingBuffer(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; ServiceLine: Record "Service Line"; ServiceLineACY: Record "Service Line"; SuppressCommit: Boolean)
@@ -53,6 +83,36 @@ codeunit 827 "Service Post Invoice Events"
 
     [IntegrationEvent(false, false)]
     local procedure OnPrepareLineOnAfterFillInvoicePostingBuffer(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; ServiceLine: Record "Service Line"; ServiceLineACY: Record "Service Line"; SuppressCommit: Boolean)
+    begin
+    end;
+
+    procedure RunOnPrepareLineOnAfterSetAmounts(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; ServiceLine: Record "Service Line")
+    begin
+        OnPrepareLineOnAfterSetAmounts(InvoicePostingBuffer, ServiceLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareLineOnAfterSetAmounts(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    procedure RunOnPrepareLineOnBeforeSetAmounts(ServiceLine: Record "Service Line"; ServiceLineACY: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var TotalVAT: Decimal; var TotalVATACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; var TotalVATBase: Decimal; var TotalVATBaseACY: Decimal; var IsHandled: Boolean)
+    begin
+        OnPrepareLineOnBeforeSetAmounts(ServiceLine, ServiceLineACY, InvoicePostingBuffer, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY, IsHandled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareLineOnBeforeSetAmounts(ServiceLine: Record "Service Line"; ServiceLineACY: Record "Service Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var TotalVAT: Decimal; var TotalVATACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; var TotalVATBase: Decimal; var TotalVATBaseACY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    procedure RunOnPrepareLineOnBeforeSetAccount(ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; var SalesAccountNo: Code[20])
+    begin
+        OnPrepareLineOnBeforeSetAccount(ServiceHeader, ServiceLine, SalesAccountNo);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareLineOnBeforeSetAccount(ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; var SalesAccountNo: Code[20])
     begin
     end;
 
@@ -119,16 +179,6 @@ codeunit 827 "Service Post Invoice Events"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostLinesOnBeforeGenJnlLinePost(var GenJnlLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; TempInvoicePostingBuffer: Record "Invoice Posting Buffer"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean; SuppressCommit: Boolean)
-    begin
-    end;
-
-    procedure RunOnUpdateInvoicePostingBufferOnBeforeUpdate(var InvoicePostingBuffer: Record "Invoice Posting Buffer")
-    begin
-        OnUpdateInvoicePostingBufferOnBeforeUpdate(InvoicePostingBuffer);
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnUpdateInvoicePostingBufferOnBeforeUpdate(var InvoicePostingBuffer: Record "Invoice Posting Buffer")
     begin
     end;
 }

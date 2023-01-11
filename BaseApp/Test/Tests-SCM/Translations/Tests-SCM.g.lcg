@@ -554,6 +554,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Availability II - NamedType TestVSTF266309)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1989809506 - NamedType 3885162458" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You may have changed a dimension.\\Do you want to update the lines?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Copy - NamedType UpdateDimensionOnLine)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4118839715 - NamedType 1966940157" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must assign a lot number for item]]></Val>
@@ -635,6 +644,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Order - NamedType MSGAssertLineCount)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3611501519 - NamedType 134290712" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimensions are not matching on header and line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Order - NamedType NotMatchingDimensionsMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3611501519 - NamedType 518004169" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[is of lesser precision than expected]]></Val>
@@ -660,6 +678,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Order - NamedType TXTQtyPerNoChange)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3611501519 - NamedType 3885162458" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You may have changed a dimension.\\Do you want to update the lines?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Assembly Order - NamedType UpdateDimensionOnLine)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1551810128 - NamedType 1002876972" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5702,6 +5729,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Invt Item Tracking III - NamedType WrongNoOfComponentEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 759729229 - NamedType 1101712672" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Qty. to Handle or Qty. to Invoice, %2 - Item No., %3 - actual value, %4 - expected value, %5 - Serial No., %6 - Lot No.]D;]A;(LookupHint=Codeunit SCM Invt Item Tracking III - NamedType WrongQtyForItemErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 759729229 - NamedType 3721496425" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong Serial No. in Pick Line.]]></Val>
@@ -7115,6 +7151,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Kitting - D3 - Part 1 - NamedType ResPostGrErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4146562578 - NamedType 3885162458" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You may have changed a dimension.\\Do you want to update the lines?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Kitting - D3 - Part 1 - NamedType UpdateDimensionOnLine)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4146562578 - NamedType 3535663031" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[value entries have been posted to the general ledger.]]></Val>
@@ -7248,6 +7293,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Kitting - Printout Reports - NamedType NothingToPostTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 598808852 - NamedType 3885162458" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You may have changed a dimension.\\Do you want to update the lines?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Kitting - Printout Reports - NamedType UpdateDimensionOnLine)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 996190155 - NamedType 2800311422" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -12765,6 +12819,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = The routing operation number being tested.]D;]A;(LookupHint=Codeunit SCM Reports - NamedType RoutingLineNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 594660516 - Method 1457654776 - NamedType 210726671" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The production BOM %1 has a circular reference]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Production BOM No.]D;]A;(LookupHint=Codeunit SCM Reports - Method WhereUsedFromBomErrorOnProductionBomWithCycle - NamedType CircularRefErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 270750239 - NamedType 636688274" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

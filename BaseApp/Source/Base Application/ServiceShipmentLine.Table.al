@@ -819,6 +819,23 @@ table 5991 "Service Shipment Line"
         NavigateForm.Run();
     end;
 
+    procedure SetSecurityFilterOnRespCenter()
+    var
+        UserSetupMgt: Codeunit "User Setup Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if UserSetupMgt.GetServiceFilter() <> '' then begin
+            FilterGroup(2);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
+            FilterGroup(0);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterServiceInvLineInsert(var ToServiceLine: Record "Service Line"; FromServiceLine: Record "Service Line"; ServiceShipmentLine: Record "Service Shipment Line"; var NextLineNo: Integer)
     begin
@@ -836,6 +853,11 @@ table 5991 "Service Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertInvLineFromShptLineOnAfterInsertTextLine(var ServiceLine: Record "Service Line"; ServiceShipmentLine: Record "Service Shipment Line"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceShipmentLine: Record "Service Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

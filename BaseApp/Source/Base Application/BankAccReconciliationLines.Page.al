@@ -293,9 +293,9 @@ page 380 "Bank Acc. Reconciliation Lines"
     procedure ToggleMatchedFilter(SetFilterOn: Boolean)
     begin
         if SetFilterOn then
-            SetFilter(Difference, '<>%1', 0)
+            Rec.SetFilter(Difference, '<>%1', 0)
         else
-            Reset();
+            Rec.SetRange(Difference);
         CurrPage.Update();
     end;
 }

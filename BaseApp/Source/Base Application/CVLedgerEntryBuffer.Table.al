@@ -533,6 +533,7 @@
         "Dimension Set ID" := EmplLedgEntry."Dimension Set ID";
         "Salesperson Code" := EmplLedgEntry."Salespers./Purch. Code";
         "User ID" := EmplLedgEntry."User ID";
+        "Source Code" := EmplLedgEntry."Source Code";
         "Applies-to Doc. Type" := EmplLedgEntry."Applies-to Doc. Type";
         "Applies-to Doc. No." := EmplLedgEntry."Applies-to Doc. No.";
         Open := EmplLedgEntry.Open;

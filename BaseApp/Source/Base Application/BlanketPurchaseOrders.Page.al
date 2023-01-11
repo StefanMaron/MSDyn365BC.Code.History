@@ -176,7 +176,7 @@ page 9310 "Blanket Purchase Orders"
             part("Attached Documents"; "Document Attachment Factbox")
             {
                 ApplicationArea = All;
-                SubPageLink = "Table ID" = CONST(38),
+                SubPageLink = "Table ID" = CONST(Database::"Purchase Header"),
                               "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
             }

@@ -234,8 +234,7 @@ report 1016 "Job Quote"
                 JobTotalValue := 0;
                 NewTaskGroup := 0;
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
-                Customer.Get("Bill-to Customer No.");
-                FormatAddr.Customer(BillToAddr, Customer);
+                FormatAddr.JobBillTo(BillToAddr, Job);
             end;
         }
     }
@@ -295,7 +294,6 @@ report 1016 "Job Quote"
 
     var
         CompanyInfo: Record "Company Information";
-        Customer: Record Customer;
         JobsSetup: Record "Jobs Setup";
         FormatAddr: Codeunit "Format Address";
         JobFilter: Text;

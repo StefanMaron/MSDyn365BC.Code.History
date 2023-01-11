@@ -36,10 +36,27 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date on which deferral posting to the company books is allowed.';
                 }
-                field("Default VAT Reporting Date"; "VAT Reporting Date")
+                field("VAT Reporting Date Usage"; Rec."VAT Reporting Date Usage")
                 {
                     ApplicationArea = VAT;
-                    ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on this setting.';
+                    ToolTip = 'Specifies the usage of VAT date.';
+
+                    trigger OnValidate()
+                    begin
+                        if Rec."VAT Reporting Date Usage" = Rec."VAT Reporting Date Usage"::Disabled then
+                            Rec."VAT Reporting Date" := Rec."VAT Reporting Date"::"Posting Date";
+                        CurrPage.Update(false);
+                    end;
+                }
+                group(VATReportingDateGroup) 
+                {    
+                    Visible = Rec."VAT Reporting Date Usage" <> Rec."VAT Reporting Date Usage"::Disabled;
+                    ShowCaption = false;
+                    field("Default VAT Reporting Date"; Rec."VAT Reporting Date")
+                    {
+                        ApplicationArea = VAT;
+                        ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on this setting.';
+                    }
                 }
                 field("Register Time"; Rec."Register Time")
                 {

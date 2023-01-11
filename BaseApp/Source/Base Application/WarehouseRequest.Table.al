@@ -157,6 +157,9 @@ table 5765 "Warehouse Request"
         key(Key5; Type, "Location Code", "Completely Handled", "Document Status", "Expected Receipt Date", "Shipment Date", "Source Document", "Source No.")
         {
         }
+        key(Key6; "Source No.", "Source Subtype", "Source Type", Type, "Document Status")
+        {
+        }
     }
 
     fieldgroups

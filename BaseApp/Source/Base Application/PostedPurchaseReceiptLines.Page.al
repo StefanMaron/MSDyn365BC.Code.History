@@ -172,7 +172,7 @@ page 528 "Posted Purchase Receipt Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -203,6 +203,11 @@ page 528 "Posted Purchase Receipt Lines"
 
     var
         PurchRcptHeader: Record "Purch. Rcpt. Header";
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetSecurityFilterOnRespCenter();
+    end;
 
     procedure GetSelectedRecords(var TempPurchRcptLine: Record "Purch. Rcpt. Line" temporary)
     var
