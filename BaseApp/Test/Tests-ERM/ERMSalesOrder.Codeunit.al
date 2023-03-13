@@ -63,6 +63,7 @@ codeunit 134378 "ERM Sales Order"
         RoundingTo0Err: Label 'Rounding of the field';
         CompletelyShippedErr: Label 'Completely Shipped should be yes';
         AdjustedCostChangedMsg: Label 'Adjusted Cost (LCY) has changed.';
+        DimensionSetIdHasChangedMsg: Label 'Dimension Set ID has changed on Sales Order';
 
     [Test]
     [Scope('OnPrem')]
@@ -4929,6 +4930,47 @@ codeunit 134378 "ERM Sales Order"
         Assert.IsTrue(AdjustedCostLCY = LibraryVariableStorage.DequeueDecimal(), AdjustedCostChangedMsg);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerYes,ShipToAddressListModalPageHandlerOK')]
+    procedure VerifyConfirmationDialogIsShownOnChangedShipToCodeOption()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ShipToAddress: Record "Ship-to Address";
+        SalesOrder: TestPage "Sales Order";
+        DimensionSetID: Integer;
+        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
+    begin
+        // [SCENARIO 459751] Verify Confirmation Dialog is shown on update Ship-to Code option on Sales Order
+        Initialize();
+
+        // [GIVEN] Customer with default Dimension
+        CreateCustomerWithAddressAndDefaultDim(Customer);
+
+        // [GIVEN] Create Alternate Shipping Address for Customer
+        CreateAlternateShippingAddressForCustomer(Customer, ShipToAddress);
+        LibraryVariableStorage.Enqueue(ShipToAddress.Code);
+
+        // [GIVEN] Create Sales Order
+        LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
+          Customer."No.", '', LibraryRandom.RandInt(10), '', 0D);
+
+        // [GIVEN] Update value of Dimension on Sales Header.        
+        DimensionSetID := UpdateDimensionOnSalesHeader(SalesHeader);
+
+        // [GIVEN] Open Sales Order
+        SalesOrder.OpenEdit;
+        SalesOrder.GotoRecord(SalesHeader);
+
+        // [WHEN] Update Ship-to Code on Sales Order
+        SalesOrder.ShippingOptions.SetValue(ShipToOptions::"Alternate Shipping Address");
+
+        // [THEN] Verify Dimension Set ID is not changed        
+        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesHeader."No.");
+        Assert.IsTrue(SalesHeader."Dimension Set ID" = DimensionSetID, DimensionSetIdHasChangedMsg);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -6653,6 +6695,57 @@ codeunit 134378 "ERM Sales Order"
         MyNotifications.Modify();
     end;
 
+    local procedure UpdateDimensionOnSalesHeader(var SalesHeader: Record "Sales Header") DimensionSetID: Integer
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        // Update Dimension value on Sales Header Dimension.
+        LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, SalesHeader."Dimension Set ID");
+        DimensionSetID :=
+          LibraryDimension.EditDimSet(
+            DimensionSetEntry."Dimension Set ID", DimensionSetEntry."Dimension Code",
+            FindDifferentDimensionValue(DimensionSetEntry."Dimension Code", DimensionSetEntry."Dimension Value Code"));
+        SalesHeader.Validate("Dimension Set ID", DimensionSetID);
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure FindDifferentDimensionValue(DimensionCode: Code[20]; "Code": Code[20]): Code[20]
+    var
+        DimensionValue: Record "Dimension Value";
+    begin
+        DimensionValue.SetFilter(Code, '<>%1', Code);
+        LibraryDimension.FindDimensionValue(DimensionValue, DimensionCode);
+        exit(DimensionValue.Code);
+    end;
+
+    local procedure CreateCustomerWithAddressAndDefaultDim(var Customer: Record Customer)
+    var
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+    begin
+        // Create Customer with Address
+        LibrarySales.CreateCustomerWithAddress(Customer);
+
+        // Add default dimension on Customer
+        LibraryDimension.FindDimension(Dimension);
+        LibraryDimension.FindDimensionValue(DimensionValue, Dimension.Code);
+        LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, Customer."No.", Dimension.Code, DimensionValue.Code);
+    end;
+
+    local procedure CreateAlternateShippingAddressForCustomer(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
+    var
+        Location: Record Location;
+    begin
+        // Create Location
+        LibraryWarehouse.CreateLocation(Location);
+
+        // Create Ship-to Address
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate("Location Code", Location.Code);
+        ShipToAddress.Modify(true);
+    end;
+
     [PageHandler]
     [Scope('OnPrem')]
     procedure NavigatePageHandler(var Navigate: Page Navigate)
@@ -6993,6 +7086,16 @@ codeunit 134378 "ERM Sales Order"
     begin
         GetShipmentLines.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
         GetShipmentLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ShipToAddressListModalPageHandlerOK(var ShipToAddressList: TestPage "Ship-to Address List")
+    var
+        ShipToCode: Code[10];
+    begin
+        ShipToCode := LibraryVariableStorage.DequeueText();
+        ShipToAddressList.Filter.SetFilter(Code, ShipToCode);
+        ShipToAddressList.OK.Invoke;
     end;
 }
 

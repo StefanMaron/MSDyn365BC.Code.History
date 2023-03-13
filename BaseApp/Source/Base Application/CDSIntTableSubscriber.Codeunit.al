@@ -1228,7 +1228,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                     NewValue := CRMID; // Blank GUID
                     IsValueFound := true;
                 end else begin
-                    if CRMSynchHelper.FindRecordIDByPK(SourceFieldRef.Relation(), SourceFieldRef.Value(), RecID) then
+                    if CRMSynchHelper.FindRecordIDByPK(IntegrationTableMapping."Table ID", SourceFieldRef.Value(), RecID) then
                         if CRMIntegrationRecord.FindIDFromRecordID(RecID, NewValue) then
                             exit(true);
                     if CRMSynchHelper.IsClearValueOnFailedSync(SourceFieldRef, DestinationFieldRef) then begin
@@ -1244,7 +1244,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                         NewValue := '';
                         IsValueFound := true;
                     end else begin
-                        if CRMIntegrationRecord.FindRecordIDFromID(CRMID, DestinationFieldRef.Relation(), RecID) then
+                        if CRMIntegrationRecord.FindRecordIDFromID(CRMID, IntegrationTableMapping."Table ID", RecID) then
                             if CRMSynchHelper.FindPKByRecordID(RecID, NewValue) then
                                 exit(true);
                         if CRMSynchHelper.IsClearValueOnFailedSync(DestinationFieldRef, SourceFieldRef) then begin
