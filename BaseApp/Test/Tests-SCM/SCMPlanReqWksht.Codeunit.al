@@ -3898,6 +3898,86 @@
         RequisitionLine.TestField(Quantity, SalesQty[3] + SalesQty[5] + SalesQty[6] - ItemVariantStockQty[3]);
     end;
 
+    [Test]
+    [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler')]
+    procedure VerifyQuantityOnReqLineForCompItemWithLotToLotAndMakeToOrderSetupWhenInventoryIsAvailable()
+    var
+        Location: Record Location;
+        ParentItem, ChildItem : Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 462567] Verify Qty. on Req. Line for Component Item with Lot-to-Lot and Make-to-Order setup when Inventory is available
+        Initialize();
+
+        // [GIVEN] Create Location
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, false);
+
+        // [GIVEN] Set Location at "Component At Location" on Manufacturing Setup
+        UpdateManufacturingSetupComponentsAtLocation(Location.Code);
+
+        // [GIVEN] Create two Manufacturing Items
+        CreateManufacturingItems(ParentItem, ChildItem, '<1W>', 13);
+
+        // [GIVEN] Create Sales Order
+        CreateSalesOrder(SalesHeader, SalesLine, ParentItem."No.", 5);
+
+        // [GIVEN] Update Shipment Date on Sales Line
+        UpdateShipmentDateOnSalesLine(SalesLine, SalesLine."Shipment Date" + LibraryRandom.RandInt(5));
+
+        // [GIVEN] Create and Post Item Journal
+        CreateAndPostItemJournal(ChildItem."No.", 1, Location.Code);
+
+        // [WHEN] Calculate Regenerative Plan
+        CalculateRegenerativePlanForPlanWorksheet(ChildItem."No.", ParentItem."No.");
+
+        // [THEN] Verify results        
+        VerifyQtyOnReqLines(ParentItem, ChildItem, 5, 4);
+    end;
+
+    [Test]
+    [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandlerWithThreeItems')]
+    procedure VerifyLinesAndQuantityOnReqLineOneCompItemAndManyParentWithLotToLotAndMakeToOrderSetupWhenInventoryIsAvailable()
+    var
+        Location: Record Location;
+        ParentItem: array[2] of Record Item;
+        ChildItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+    begin
+        // [SCENARIO 463825] Verify No. of Lines and Qty. on Req. Line for Component Item and two BOM Item with Lot-to-Lot and Make-to-Order setup when Inventory is available
+        Initialize();
+
+        // [GIVEN] Create Location
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, false);
+
+        // [GIVEN] Set Location at "Component At Location" on Manufacturing Setup
+        UpdateManufacturingSetupComponentsAtLocation(Location.Code);
+
+        // [GIVEN] Create three Manufacturing Items
+        CreateManufacturingItems(ParentItem, ChildItem, '<1W>');
+
+        // [GIVEN] Create Sales Order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::Item, ParentItem[1]."No.", 5);
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::Item, ParentItem[2]."No.", 6);
+
+        // [GIVEN] Update Shipment Date on Sales Line
+        UpdateShipmentDateOnSalesLine(SalesLine[1], SalesLine[1]."Shipment Date" + LibraryRandom.RandInt(5));
+        UpdateShipmentDateOnSalesLine(SalesLine[2], SalesLine[1]."Shipment Date");
+
+        // [GIVEN] Create and Post Item Journal
+        CreateAndPostItemJournal(ChildItem."No.", 1, Location.Code);
+
+        // [WHEN] Calculate Regenerative Plan
+        CalculateRegenerativePlanForPlanWorksheet(ChildItem."No.", ParentItem[1]."No.", ParentItem[2]."No.");
+
+        // [THEN] Verify results        
+        VerifyQtyOnReqLines(ParentItem, ChildItem, 5);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -4473,6 +4553,18 @@
         PlanningWorksheet.OK.Invoke;
     end;
 
+    local procedure CalcRegenPlanForPlanWkshPage(var PlanningWorksheet: TestPage "Planning Worksheet"; Name: Code[10]; ItemNo: Code[20]; ItemNo2: Code[20]; ItemNo3: Code[20])
+    begin
+        // Regenerative Planning using Page required where Forecast is used.
+        LibraryVariableStorage.Enqueue(ItemNo);  // Set Global Value.
+        LibraryVariableStorage.Enqueue(ItemNo2);  // Set Global Value.
+        LibraryVariableStorage.Enqueue(ItemNo3);  // Set Global Value.
+        Commit();  // Required for Test.
+        OpenPlanningWorksheetPage(PlanningWorksheet, Name);
+        PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
+        PlanningWorksheet.OK.Invoke;
+    end;
+
     local procedure ReqWorksheetCalculatePlan(ItemFilter: Text; LocationFilter: Text; FromDate: Date; ToDate: Date; RespectPlanningParm: Boolean)
     var
         ReqWkshTemplate: Record "Req. Wksh. Template";
@@ -4609,6 +4701,12 @@
     begin
         RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
         RequisitionLine.SetRange("No.", No, No2);
+    end;
+
+    local procedure FilterOnRequisitionLines(var RequisitionLine: Record "Requisition Line"; ItemNoFilter: Text)
+    begin
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetFilter("No.", ItemNoFilter);
     end;
 
     local procedure FilterRequisitionLineByLocationAndPurchaseItem(var RequisitionLine: Record "Requisition Line"; LocationCode: Code[10]; ItemNo: Code[20])
@@ -4779,6 +4877,16 @@
         Clear(RequisitionWkshName);
         CreateRequisitionWorksheetName(RequisitionWkshName);
         CalcRegenPlanForPlanWkshPage(PlanningWorksheet, RequisitionWkshName.Name, ItemNo, ItemNo2);
+    end;
+
+    local procedure CalculateRegenerativePlanForPlanWorksheet(ItemNo: Code[20]; ItemNo2: Code[20]; ItemNo3: Code[20])
+    var
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        PlanningWorksheet: TestPage "Planning Worksheet";
+    begin
+        Clear(RequisitionWkshName);
+        CreateRequisitionWorksheetName(RequisitionWkshName);
+        CalcRegenPlanForPlanWkshPage(PlanningWorksheet, RequisitionWkshName.Name, ItemNo, ItemNo2, ItemNo3);
     end;
 
     local procedure CalculateRegenerativePlanAndCarryOut(ItemNo: Code[20]; ItemNo2: Code[20]; CheckAllAcceptActionMessage: Boolean)
@@ -5179,6 +5287,105 @@
         LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
     end;
 
+    local procedure VerifyQtyOnReqLines(ParentItem: Record Item; var ChildItem: Record Item; ParentQty: Decimal; ChildQty: Decimal)
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        FilterOnRequisitionLines(RequisitionLine, ChildItem."No.", ParentItem."No.");
+        RequisitionLine.FindSet();
+        repeat
+            if RequisitionLine."No." = ParentItem."No." then
+                RequisitionLine.TestField(Quantity, ParentQty);
+            if RequisitionLine."No." = ChildItem."No." then
+                RequisitionLine.TestField(Quantity, ChildQty);
+        until RequisitionLine.Next() = 0;
+    end;
+
+    local procedure VerifyQtyOnReqLines(ParentItem: array[2] of Record Item; var ChildItem: Record Item; Qty: Decimal)
+    var
+        RequisitionLine: Record "Requisition Line";
+        ItemNoFilter: Text;
+    begin
+        ItemNoFilter := ParentItem[1]."No." + '|' + ParentItem[2]."No." + '|' + ChildItem."No.";
+        FilterOnRequisitionLines(RequisitionLine, ItemNoFilter);
+        Assert.RecordCount(RequisitionLine, 4);
+        RequisitionLine.FindSet();
+        repeat
+            if RequisitionLine."No." = ParentItem[1]."No." then
+                RequisitionLine.TestField(Quantity, Qty);
+            if RequisitionLine."No." = ParentItem[2]."No." then
+                RequisitionLine.TestField(Quantity, Qty + 1);
+            if RequisitionLine."No." = ChildItem."No." then
+                RequisitionLine.TestField(Quantity, Qty);
+        until RequisitionLine.Next() = 0;
+    end;
+
+    local procedure CreateAndPostItemJournal(ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure UpdateManufacturingSetupComponentsAtLocation(NewComponentsAtLocation: Code[10])
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Components at Location", NewComponentsAtLocation);
+        ManufacturingSetup.Modify(true);
+    end;
+
+    local procedure CreateManufacturingItems(var ParentItem: Record Item; var ChildItem: Record Item; LotAccumulationPeriod: Text[30]; OrderMultiple: Decimal)
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        LotAccumulationPeriodDateFormula: DateFormula;
+    begin
+        CreateItem(ChildItem, ChildItem."Reordering Policy"::"Lot-for-Lot", ChildItem."Replenishment System"::"Prod. Order");
+        ChildItem.Validate("Manufacturing Policy", ChildItem."Manufacturing Policy"::"Make-to-Order");
+        Evaluate(LotAccumulationPeriodDateFormula, LotAccumulationPeriod);
+        ChildItem.Validate("Lot Accumulation Period", LotAccumulationPeriodDateFormula);
+        ChildItem.Validate("Order Multiple", OrderMultiple);
+        ChildItem.Modify(true);
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
+
+        CreateItem(ParentItem, ParentItem."Reordering Policy"::"Lot-for-Lot", ParentItem."Replenishment System"::"Prod. Order");
+        ParentItem.Validate("Manufacturing Policy", ParentItem."Manufacturing Policy"::"Make-to-Order");
+        Evaluate(LotAccumulationPeriodDateFormula, LotAccumulationPeriod);
+        ParentItem.Validate("Lot Accumulation Period", LotAccumulationPeriodDateFormula);
+        ParentItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ParentItem.Modify(true);
+    end;
+
+    local procedure CreateManufacturingItems(var ParentItem: array[2] of Record Item; var ChildItem: Record Item; LotAccumulationPeriod: Text[30])
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        LotAccumulationPeriodDateFormula: DateFormula;
+        i: Integer;
+    begin
+        CreateItem(ChildItem, ChildItem."Reordering Policy"::"Lot-for-Lot", ChildItem."Replenishment System"::"Prod. Order");
+        ChildItem.Validate("Manufacturing Policy", ChildItem."Manufacturing Policy"::"Make-to-Order");
+        Evaluate(LotAccumulationPeriodDateFormula, LotAccumulationPeriod);
+        ChildItem.Validate("Lot Accumulation Period", LotAccumulationPeriodDateFormula);
+        ChildItem.Modify(true);
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
+
+        for i := 1 to ArrayLen(ParentItem) do begin
+            CreateItem(ParentItem[i], ParentItem[i]."Reordering Policy"::"Lot-for-Lot", ParentItem[i]."Replenishment System"::"Prod. Order");
+            if i = 1 then
+                ParentItem[i].Validate("Manufacturing Policy", ParentItem[i]."Manufacturing Policy"::"Make-to-Order")
+            else
+                ParentItem[i].Validate("Manufacturing Policy", ParentItem[i]."Manufacturing Policy"::"Make-to-Stock");
+            ParentItem[i].Validate("Production BOM No.", ProductionBOMHeader."No.");
+            ParentItem[i].Modify(true);
+        end;
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalculatePlanPlanWkshRequestPageHandler(var CalculatePlanPlanWksh: TestRequestPage "Calculate Plan - Plan. Wksh.")
@@ -5190,6 +5397,23 @@
         LibraryVariableStorage.Dequeue(ItemNo);
         LibraryVariableStorage.Dequeue(ItemNo2);
         CalculatePlanPlanWksh.Item.SetFilter("No.", StrSubstNo('%1|%2', ItemNo, ItemNo2));
+        CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
+        CalculatePlanPlanWksh.EndingDate.SetValue(GetRandomDateUsingWorkDate(90));
+        CalculatePlanPlanWksh.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure CalculatePlanPlanWkshRequestPageHandlerWithThreeItems(var CalculatePlanPlanWksh: TestRequestPage "Calculate Plan - Plan. Wksh.")
+    var
+        ItemNo: Variant;
+        ItemNo2: Variant;
+        ItemNo3: Variant;
+    begin
+        // Calculate Regenerative Plan using page. Required where Forecast is used.
+        LibraryVariableStorage.Dequeue(ItemNo);
+        LibraryVariableStorage.Dequeue(ItemNo2);
+        LibraryVariableStorage.Dequeue(ItemNo3);
+        CalculatePlanPlanWksh.Item.SetFilter("No.", StrSubstNo('%1|%2|%3', ItemNo, ItemNo2, ItemNo3));
         CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.EndingDate.SetValue(GetRandomDateUsingWorkDate(90));
         CalculatePlanPlanWksh.OK.Invoke;

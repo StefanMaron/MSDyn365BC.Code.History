@@ -523,6 +523,7 @@ table 5700 "Stockkeeping Unit"
             trigger OnValidate()
             var
                 FromSKU: Record "Stockkeeping Unit";
+                IsHandled: Boolean;
             begin
                 FromSKU.SetRange("Location Code", "Transfer-from Code");
                 FromSKU.SetRange("Item No.", "Item No.");
@@ -532,7 +533,10 @@ table 5700 "Stockkeeping Unit"
                 else
                     "Transfer-Level Code" := FromSKU."Transfer-Level Code" - 1;
                 FromLocation := "Transfer-from Code";
-                Modify(true);
+                IsHandled := false;
+                OnValidateTransferfromCodeOnBeforeModify(Rec, IsHandled);
+                if not IsHandled then
+                    Modify(true);
 
                 CheckTransferRoute();
             end;
@@ -1078,6 +1082,11 @@ table 5700 "Stockkeeping Unit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateStandardCost(var StockkeepingUnit: Record "Stockkeeping Unit"; xStockkeepingUnit: Record "Stockkeeping Unit"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateTransferfromCodeOnBeforeModify(var StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
     begin
     end;
 

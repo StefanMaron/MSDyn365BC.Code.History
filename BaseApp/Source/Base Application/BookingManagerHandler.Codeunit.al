@@ -31,6 +31,7 @@ codeunit 6722 "Booking Manager Handler"
         O365SyncManagement.GetBookingMailboxes(BookingSync, TempBookingMailbox, '');
     end;
 
+    [NonDebuggable]
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Booking Manager", 'OnRegisterAppointmentConnection', '', false, false)]
     local procedure OnRegisterAppointmentConnection()
     var

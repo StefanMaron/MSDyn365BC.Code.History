@@ -259,7 +259,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure GetCompanyAddr(RespCenterCode: Code[10]; var ResponsibilityCenter: Record "Responsibility Center"; var CompanyInfo: Record "Company Information"; var CompanyAddr: array[8] of Text[100])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCompanyAddr(RespCenterCode, ResponsibilityCenter, CompanyInfo, CompanyAddr, IsHandled);
+        if IsHandled then
+            exit;
+
         if ResponsibilityCenter.Get(RespCenterCode) then begin
             RespCenter(CompanyAddr, ResponsibilityCenter);
             CompanyInfo."Phone No." := ResponsibilityCenter."Phone No.";
@@ -1686,6 +1693,11 @@ codeunit 365 "Format Address"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCompany(var AddrArray: array[8] of Text[100]; var CompanyInfo: Record "Company Information"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCompanyAddr(RespCenterCode: Code[10]; var ResponsibilityCenter: Record "Responsibility Center"; var CompanyInfo: Record "Company Information"; var CompanyAddr: array[8] of Text[100]; var IsHandled: Boolean)
     begin
     end;
 

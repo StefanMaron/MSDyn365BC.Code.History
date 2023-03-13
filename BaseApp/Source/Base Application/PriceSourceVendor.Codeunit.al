@@ -62,5 +62,11 @@ codeunit 7035 "Price Source - Vendor" implements "Price Source"
         PriceSource."Currency Code" := Vendor."Currency Code";
         PriceSource."Price Includes VAT" := Vendor."Prices Including VAT";
         PriceSource."VAT Bus. Posting Gr. (Price)" := Vendor."VAT Bus. Posting Group";
+        OnAfterFillAdditionalFields(PriceSource, Vendor);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillAdditionalFields(var PriceSource: Record "Price Source"; Vendor: Record Vendor)
+    begin
     end;
 }

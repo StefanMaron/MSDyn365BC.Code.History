@@ -358,6 +358,7 @@ codeunit 7324 "Whse.-Activity-Post"
             exit;
 
         if (PurchHeader."Posting Date" <> WhseActivHeader."Posting Date") and (WhseActivHeader."Posting Date" <> 0D) then begin
+            PurchRelease.SetSkipWhseRequestOperations(true);
             PurchRelease.Reopen(PurchHeader);
             PurchRelease.SetSkipCheckReleaseRestrictions();
             PurchHeader.SetHideValidationDialog(true);
@@ -376,19 +377,19 @@ codeunit 7324 "Whse.-Activity-Post"
     begin
         IsHandled := false;
         OnBeforeReleaseSalesDocument(SalesHeader, WhseActivHeader, ModifyHeader, IsHandled);
-        if IsHandled then
-            exit;
-
-        if (SalesHeader."Posting Date" <> WhseActivHeader."Posting Date") and (WhseActivHeader."Posting Date" <> 0D) then begin
-            SalesRelease.Reopen(SalesHeader);
-            SalesRelease.SetSkipCheckReleaseRestrictions();
-            SalesHeader.SetHideValidationDialog(true);
-            SalesHeader.Validate("Posting Date", WhseActivHeader."Posting Date");
-            OnReleaseSalesDocumentOnBeforeSalesReleaseRun(SalesHeader, WhseActivHeader);
-            SalesRelease.Run(SalesHeader);
-            OnReleaseSalesDocumentOnAfterSalesReleaseRun(SalesHeader, WhseActivHeader);
-            ModifyHeader := true;
-        end;
+        if not IsHandled then
+            if (SalesHeader."Posting Date" <> WhseActivHeader."Posting Date") and (WhseActivHeader."Posting Date" <> 0D) then begin
+                SalesRelease.SetSkipWhseRequestOperations(true);
+                SalesRelease.Reopen(SalesHeader);
+                SalesRelease.SetSkipCheckReleaseRestrictions();
+                SalesHeader.SetHideValidationDialog(true);
+                SalesHeader.Validate("Posting Date", WhseActivHeader."Posting Date");
+                OnReleaseSalesDocumentOnBeforeSalesReleaseRun(SalesHeader, WhseActivHeader);
+                SalesRelease.Run(SalesHeader);
+                OnReleaseSalesDocumentOnAfterSalesReleaseRun(SalesHeader, WhseActivHeader);
+                ModifyHeader := true;
+            end;
+        OnAfterReleaseSalesDocument(SalesHeader, WhseActivHeader, ModifyHeader);
     end;
 
     local procedure ModifyPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ModifyHeader: Boolean)
@@ -609,6 +610,7 @@ codeunit 7324 "Whse.-Activity-Post"
                             if HideDialog then
                                 TransferPostReceipt.SetHideValidationDialog(HideDialog);
                             TransHeader."Posting from Whse. Ref." := PostingReference;
+                            OnPostSourceDocumentOnBeforeTransferPostReceiptRun(TransHeader, WhseActivHeader);
                             TransferPostReceipt.Run(TransHeader);
                             PostedSourceType := DATABASE::"Transfer Receipt Header";
                             PostedSourceNo := TransHeader."Last Receipt No.";
@@ -1174,7 +1176,14 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     local procedure CheckAvailability(WhseActivLine: Record "Warehouse Activity Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckAvailability(WhseActivLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if WhseActivLine."Activity Type" <> WhseActivLine."Activity Type"::"Invt. Pick" then
             exit;
 
@@ -1217,6 +1226,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateWhseJnlLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReleaseSalesDocument(var SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; var ModifyHeader: Boolean)
     begin
     end;
 
@@ -1287,6 +1301,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitSourceDocument(var WhseActivityHeader: Record "Warehouse Activity Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAvailability(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1437,6 +1456,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostConsumptionLineOnAfterCreateItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; SourceCodeSetup: Record "Source Code Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforeTransferPostReceiptRun(var TransferHeader: Record "Transfer Header"; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 

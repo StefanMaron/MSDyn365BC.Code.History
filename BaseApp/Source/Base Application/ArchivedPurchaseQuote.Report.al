@@ -116,6 +116,12 @@ report 415 "Archived Purchase Quote"
                     column(CompanyAddr_6_; CompanyAddr[6])
                     {
                     }
+                    column(CompanyAddr_7_; CompanyAddr[7])
+                    {
+                    }
+                    column(CompanyAddr_8_; CompanyAddr[8])
+                    {
+                    }
                     column(STRSUBSTNO_Text004__Purchase_Header_Archive___Version_No____Purchase_Header_Archive___No__of_Archived_Versions__; StrSubstNo(Text004, "Purchase Header Archive"."Version No.", "Purchase Header Archive"."No. of Archived Versions"))
                     {
                     }

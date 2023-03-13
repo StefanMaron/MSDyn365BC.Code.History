@@ -1947,6 +1947,7 @@
             TempConfigPackageField."Processing Order" := ConfigPackageField."Processing Order";
             TempConfigPackageField.Insert();
         end;
+        OnAfterGetKeyFieldsOrder(RecRef, PackageCode, TempConfigPackageField, ValidationFieldID);
     end;
 
     local procedure GetFieldsMarkedAsPrimaryKey(PackageCode: Code[20]; TableID: Integer; var TempConfigPackageField: Record "Config. Package Field" temporary)
@@ -2516,6 +2517,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyPackageRecords(var ConfigPackageRecord: Record "Config. Package Record"; PackageCode: Code[20]; TableNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetKeyFieldsOrder(RecordRef: RecordRef; PackageCode: Code[20]; var TempConfigPackageField: Record "Config. Package Field" temporary; var ValidationFieldID: Integer)
     begin
     end;
 

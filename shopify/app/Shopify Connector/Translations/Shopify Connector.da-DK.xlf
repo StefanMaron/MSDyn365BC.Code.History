@@ -8874,7 +8874,7 @@
         </trans-unit>
         <trans-unit id="Table 298531255 - Field 3600018459 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Stock calculation</source>
-          <target state="translated">Aktieberegning</target>
+          <target state="translated">Lagerberegning</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop Location - Field Stock Calculation - Property Caption</note>
         </trans-unit>

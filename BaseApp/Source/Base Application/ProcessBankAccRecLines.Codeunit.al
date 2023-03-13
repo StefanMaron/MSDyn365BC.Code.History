@@ -25,11 +25,13 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         DataExchMapping: Record "Data Exch. Mapping";
         DataExchLineDef: Record "Data Exch. Line Def";
         TempBankAccReconLine: Record "Bank Acc. Reconciliation Line" temporary;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ProgressWindow: Dialog;
         NumberOfLinesImported: Integer;
         StartDateTime: DateTime;
         FinishDateTime: DateTime;
     begin
+        FeatureTelemetry.LogUptake('0000JLJ', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
         PrepareDataExch(BankAccRecon, DataExch, DataExchDef);
 
         if not DataExch.ImportToDataExch(DataExchDef) then
@@ -59,6 +61,7 @@ codeunit 1248 "Process Bank Acc. Rec Lines"
         ProgressWindow.Close();
         FinishDateTime := CurrentDateTime();
         LogTelemetryOnBankAccRecOnAfterImportBankStatement(NumberOfLinesImported, StartDateTime, FinishDateTime);
+        FeatureTelemetry.LogUptake('0000JLK', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
         OnAfterImportBankStatement(TempBankAccReconLine, DataExch);
         exit(true);
     end;

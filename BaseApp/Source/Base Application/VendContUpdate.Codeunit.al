@@ -59,6 +59,8 @@ codeunit 5057 "VendCont-Update"
 
             OnBeforeTransferFieldsFromVendToCont(Cont, Vend);
             Cont.Validate("E-Mail", Vend."E-Mail");
+            if (Cont."VAT Registration No." <> Vend."VAT Registration No.") and VendVATLogExist(Vend) then
+                Cont.Validate("VAT Registration No.", Vend."VAT Registration No.");
             Cont.TransferFields(Vend);
             OnAfterTransferFieldsFromVendToCont(Cont, Vend);
 
@@ -195,6 +197,23 @@ codeunit 5057 "VendCont-Update"
                 exit(true);
             exit(Contact.Name = '');
         end;
+    end;
+
+    local procedure VendVATLogExist(Vendor: Record Vendor): Boolean
+    var
+        VATRegistrationLog: Record "VAT Registration Log";
+        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
+    begin
+        if Vendor."VAT Registration No." = '' then
+            exit(false);
+        if not VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then
+            exit(false);
+
+        VATRegistrationLog.SetRange("Account Type", VATRegistrationLog."Account Type"::Vendor);
+        VATRegistrationLog.SetRange("Account No.", Vendor."No.");
+        VATRegistrationLog.SetRange("VAT Registration No.", Vendor."VAT Registration No.");
+        if not VATRegistrationLog.IsEmpty() then
+            exit(true);
     end;
 
     [IntegrationEvent(false, false)]

@@ -31,14 +31,7 @@ page 6401 "Flow Selector"
 
                     trigger ControlAddInReady()
                     begin
-                        CurrPage.FlowAddin.Initialize(
-                          FlowServiceManagement.GetFlowUrl(), FlowServiceManagement.GetLocale(),
-                          AzureAdMgt.GetAccessToken(FlowServiceManagement.GetFlowServiceResourceUrl(), FlowServiceManagement.GetFlowResourceName(), false)
-                        );
-
-                        LoadFlows();
-
-                        AddInReady := true;
+                        InitializeAddIn();
                     end;
 
                     trigger ErrorOccurred(error: Text; description: Text)
@@ -254,6 +247,7 @@ page 6401 "Flow Selector"
         Initialize();
     end;
 
+    [NonDebuggable]
     [TryFunction]
     local procedure TryGetAccessTokenForFlowService()
     begin
@@ -268,6 +262,19 @@ page 6401 "Flow Selector"
             TextToShow := FlowServiceManagement.GetGenericError();
         ErrorMessageText := TextToShow;
         CurrPage.Update();
+    end;
+
+    [NonDebuggable]
+    local procedure InitializeAddIn()
+    begin
+        CurrPage.FlowAddin.Initialize(
+            FlowServiceManagement.GetFlowUrl(), FlowServiceManagement.GetLocale(),
+            AzureAdMgt.GetAccessToken(FlowServiceManagement.GetFlowServiceResourceUrl(), FlowServiceManagement.GetFlowResourceName(), false)
+        );
+
+        LoadFlows();
+
+        AddInReady := true;
     end;
 }
 

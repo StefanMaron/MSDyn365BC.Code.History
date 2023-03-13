@@ -71,7 +71,6 @@ codeunit 5771 "Whse.-Sales Release"
 
         WarehouseRequest.Reset();
         WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        WarehouseRequest.SetRange(Type, WarehouseRequest.Type);
         WarehouseRequest.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         WarehouseRequest.SetRange("Document Status", SalesHeader.Status::Open);
         if not WarehouseRequest.IsEmpty() then

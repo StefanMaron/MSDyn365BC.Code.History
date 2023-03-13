@@ -72,6 +72,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
     procedure IsDiscountAllowed() Result: Boolean;
     begin
         Result := DiscountIsAllowed or not PriceCalculated;
+        OnAfterIsDiscountAllowed(PurchaseLine, PriceCalculated, Result);
     end;
 
     procedure Verify()
@@ -272,6 +273,11 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillBuffer(
         var PriceCalculationBuffer: Record "Price Calculation Buffer"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsDiscountAllowed(PurchaseLine: Record "Purchase Line"; PriceCalculated: Boolean; var Result: Boolean)
     begin
     end;
 

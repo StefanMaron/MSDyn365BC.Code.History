@@ -131,6 +131,12 @@ report 418 "Arch. Sales Return Order"
                     column(CompanyAddr_6_; CompanyAddr[6])
                     {
                     }
+                    column(CompanyAddr_7_; CompanyAddr[7])
+                    {
+                    }
+                    column(CompanyAddr_8_; CompanyAddr[8])
+                    {
+                    }
                     column(Sales_Header_Archive___Prices_Including_VAT_; "Sales Header Archive"."Prices Including VAT")
                     {
                     }

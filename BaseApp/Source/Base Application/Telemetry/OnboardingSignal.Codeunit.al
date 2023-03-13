@@ -59,7 +59,7 @@ codeunit 7580 "Onboarding Signal"
                     OnboardingSignal."Onboarding Completed" := true;
                     OnboardingSignal.Modify();
 
-                    Telemetry.LogMessage('0000EIV', 'Onboarding Completed for criteria: ' + Format(OnboardingSignal."Onboarding Signal Type"), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All);
+                    Telemetry.LogMessage('0000EIV', 'Onboarding Completed for criteria: ' + GetOnboardingSignalStringForTelemetry(OnboardingSignal."Onboarding Signal Type"), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All);
                 end;
             until OnboardingSignal.Next() = 0;
     end;
@@ -73,5 +73,10 @@ codeunit 7580 "Onboarding Signal"
 
         if OnboardingSignal.FindFirst() then
             OnboardingSignal.DeleteAll();
+    end;
+
+    local procedure GetOnboardingSignalStringForTelemetry(OnboardingSignalType: Enum "Onboarding Signal Type"): Text
+    begin
+        exit(Format(OnboardingSignalType.AsInteger()) + ', ' + Format(OnboardingSignalType));
     end;
 }

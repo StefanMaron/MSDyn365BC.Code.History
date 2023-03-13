@@ -258,6 +258,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         DirectTransHeader."Transfer Order No." := TransferHeader."No.";
         DirectTransHeader."External Document No." := TransferHeader."External Document No.";
         DirectTransHeader."No. Series" := InvtSetup."Posted Direct Trans. Nos.";
+        OnInsertDirectTransHeaderOnBeforeGetNextNo(DirectTransHeader, TransferHeader);
         DirectTransHeader."No." :=
             NoSeriesMgt.GetNextNo(InvtSetup."Posted Direct Trans. Nos.", TransferHeader."Posting Date", true);
         OnInsertDirectTransHeaderOnBeforeDirectTransHeaderInsert(DirectTransHeader, TransferHeader);
@@ -540,6 +541,11 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertDirectTransHeaderOnBeforeDirectTransHeaderInsert(var DirectTransHeader: Record "Direct Trans. Header"; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertDirectTransHeaderOnBeforeGetNextNo(var DirectTransHeader: Record "Direct Trans. Header"; TransferHeader: Record "Transfer Header")
     begin
     end;
 

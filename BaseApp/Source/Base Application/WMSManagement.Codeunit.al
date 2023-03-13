@@ -92,6 +92,7 @@ codeunit 7302 "WMS Management"
 
             TestField("Order Type", "Order Type"::Production);
             GetLocation("Location Code");
+            TestField("Unit of Measure Code");
             InitWhseJnlLine(ItemJnlLine, WhseJnlLine, "Output Quantity (Base)");
             OnCreateWhseJnlLineFromOutputJnlOnAfterInitWhseJnlLine(WhseJnlLine, ItemJnlLine);
             SetZoneAndBinsForOutput(ItemJnlLine, WhseJnlLine);
@@ -115,6 +116,7 @@ codeunit 7302 "WMS Management"
 
             TestField("Order Type", "Order Type"::Production);
             GetLocation("Location Code");
+            TestField("Unit of Measure Code");
             InitWhseJnlLine(ItemJnlLine, WhseJnlLine, "Quantity (Base)");
             SetZoneAndBinsForConsumption(ItemJnlLine, WhseJnlLine);
             WhseJnlLine.SetSource(DATABASE::"Item Journal Line", 4, "Order No.", "Order Line No.", "Prod. Order Comp. Line No."); // Consumption Journal

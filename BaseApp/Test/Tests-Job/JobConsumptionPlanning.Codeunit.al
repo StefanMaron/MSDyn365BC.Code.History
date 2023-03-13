@@ -22,6 +22,7 @@ codeunit 136307 "Job Consumption - Planning"
         PlanningLineQuantity: Decimal;
         TotalQuantity: Decimal;
         LineTypeRef: Option " ",Budget,Billable,"Both Budget and Billable";
+        WrongQtyOnPlanningLineMsg: Label 'Qty. is not transfer to right field on Job Planning Line.';
 
     [Test]
     [Scope('OnPrem')]
@@ -337,6 +338,45 @@ codeunit 136307 "Job Consumption - Planning"
 
         // [THEN] The page is not editable
         Assert.IsFalse(JobPlanningLines.Editable, 'Job Planning Lines page should not be editable');
+    end;
+
+    [Test]
+    [HandlerFunctions('JobJournalCofirmHandler,MessageHandler')]
+    procedure VerifyPostedAndRemainingQtyOnTransferToJobPlanningLineFromJobLedgerEntry()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 459777] Verify Qty. Posted and Remaining Qty. on Job Planning Line after Transfer to Job Planning Line action from Job Ledger Entry
+        Initialize();
+
+        // [GIVEN] Create Job, Job Task, Job Journal Line and Post Job Journal Line
+        CreatePostJobJournalLineWithItem(Job, JobTask, true);
+
+        // [WHEN] Transfer Job Lenger Entry to Job Planning Line with "Budget" option
+        TransferToPlanngLine(Job, LineTypeRef::Budget);
+
+        // [THEN] Verify Qty. on Job Planning Line        
+        FindJobPlanningLine(JobTask, JobPlanningLine, true);
+        Assert.IsTrue(JobPlanningLine."Qty. Posted" <> 0, WrongQtyOnPlanningLineMsg);
+        Assert.IsTrue(JobPlanningLine."Remaining Qty." = 0, WrongQtyOnPlanningLineMsg);
+        Assert.IsTrue(JobPlanningLine."Remaining Qty. (Base)" = 0, WrongQtyOnPlanningLineMsg);
+
+        // [THEN] Verify Usage Link exist
+        VerifyUsageLinkExist(JobPlanningLine, true);
+
+        // [WHEN] Transfer Job Lenger Entry to Job Planning Line with "Budget" option second time
+        TransferToPlanngLine(Job, LineTypeRef::Budget);
+
+        // [THEN] Verify Qty. on Job Planning Line        
+        FindJobPlanningLine(JobTask, JobPlanningLine, false);
+        Assert.IsTrue(JobPlanningLine."Qty. Posted" = 0, WrongQtyOnPlanningLineMsg);
+        Assert.IsTrue(JobPlanningLine."Remaining Qty." <> 0, WrongQtyOnPlanningLineMsg);
+        Assert.IsTrue(JobPlanningLine."Remaining Qty. (Base)" <> 0, WrongQtyOnPlanningLineMsg);
+
+        // [THEN] Verify Usage Link not exist
+        VerifyUsageLinkExist(JobPlanningLine, false);
     end;
 
     local procedure Initialize()
@@ -743,6 +783,55 @@ codeunit 136307 "Job Consumption - Planning"
         repeat
             JobPlanningLine.TestField("Qty. to Transfer to Journal", 0)
         until JobPlanningLine.Next() = 0;
+    end;
+
+    local procedure VerifyUsageLinkExist(JobPlanningLine: Record "Job Planning Line"; LinkExist: Boolean)
+    var
+        JobUsageLink: Record "Job Usage Link";
+    begin
+        JobUsageLink.SetRange("Job No.", JobPlanningLine."Job No.");
+        JobUsageLink.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        JobUsageLink.SetRange("Line No.", JobPlanningLine."Line No.");
+        if LinkExist then
+            Assert.RecordIsNotEmpty(JobUsageLink)
+        else
+            Assert.RecordIsEmpty(JobUsageLink);
+    end;
+
+    local procedure FindJobPlanningLine(JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line"; first: Boolean)
+    begin
+        JobPlanningLine.Reset();
+        JobPlanningLine.SetRange("Job No.", JobTask."Job No.");
+        JobPlanningLine.SetRange("Job Task No.", JobTask."Job Task No.");
+        if first then
+            JobPlanningLine.FindFirst()
+        else
+            JobPlanningLine.FindLast();
+    end;
+
+    local procedure CreatePostJobJournalLineWithItem(var Job: Record Job; var JobTask: Record "Job Task"; ApplyUsageLink: Boolean)
+    var
+        JobJournalLine: Record "Job Journal Line";
+    begin
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Apply Usage Link", ApplyUsageLink);
+        Job.Modify(true);
+        CreateJobTask(JobTask, Job);
+
+        CreateJobJournalLineWithItem(JobJournalLine, JobTask);
+        LibraryJob.PostJobJournal(JobJournalLine);
+    end;
+
+    local procedure CreateJobJournalLineWithItem(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task")
+    begin
+        with JobJournalLine do begin
+            LibraryJob.CreateJobJournalLine("Line Type"::" ", JobTask, JobJournalLine);
+            Validate(Type, Type::Item);
+            Validate("No.", LibraryInventory.CreateItemNo());
+            Validate(Quantity, 1);
+            Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+            Modify(true);
+        end;
     end;
 
     [RequestPageHandler]

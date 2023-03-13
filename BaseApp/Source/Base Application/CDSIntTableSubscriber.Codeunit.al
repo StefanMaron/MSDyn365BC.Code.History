@@ -1048,7 +1048,7 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         exit(false);
     end;
 
-    local procedure FixPrimaryContactNo(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef): Boolean
+    local procedure FixPrimaryContactNo(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef) Result: Boolean
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -1109,7 +1109,8 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                         exit(true);
                     end;
 
-        exit(false);
+        Result := false;
+        OnAfterFixPrimaryContactNo(SourceRecordRef, DestinationRecordRef, Result);
     end;
 
     local procedure UpdateChildContactsParentCompany(CRMAccountRecordRef: RecordRef)
@@ -1494,6 +1495,11 @@ codeunit 7205 "CDS Int. Table. Subscriber"
             IntegrationUserId := CRMSystemuser.SystemUserId;
 
         exit(IntegrationUserId);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFixPrimaryContactNo(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; var Result: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

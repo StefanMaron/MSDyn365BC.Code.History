@@ -1408,6 +1408,7 @@
 
     local procedure VerifyUnrealizedVATEntry(GenJournalLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup")
     var
+        VATEntry: Record "VAT Entry";
         GLEntry: Record "G/L Entry";
         UnrealizedVATAmount: Decimal;
     begin
@@ -1415,11 +1416,12 @@
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.SetRange("Bal. Account No.", VATPostingSetup."Purch. VAT Unreal. Account");
         GLEntry.FindLast();
-        UnrealizedVATAmount :=
-          LibraryERM.VATAmountRounding(
-            GenJournalLine."Amount (LCY)" * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"), GenJournalLine."Currency Code");
-        Assert.AreNearlyEqual(
-          UnrealizedVATAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntry.FieldCaption(Amount));
+        UnrealizedVATAmount := LibraryERM.VATAmountRounding(GenJournalLine."Amount (LCY)" * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"), GenJournalLine."Currency Code");
+        Assert.AreNearlyEqual(UnrealizedVATAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntry.FieldCaption(Amount));
+
+        FindLastVATEntry(VATEntry, GLEntry."Document No.");
+        Assert.AreEqual(VATEntry."VAT Reporting Date", GLEntry."VAT Reporting Date", 'VATEntry and GLEntry should have the same VAT Date');
+        Assert.AreNotEqual(VATEntry."VAT Reporting Date", '', 'VAT Reporting Date in VATEntry is Empty');
     end;
 
     local procedure VerifyUnrealizedVATEntryIsRealized(PmtDocumentNo: Code[20]; UnrealizedTransactionNo: Integer; RealizedTransactionNo: Integer)
@@ -1454,8 +1456,9 @@
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntry.FieldCaption(Amount));
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntry.FieldCaption(Amount));
+
+        Assert.AreNotEqual(GLEntry."VAT Reporting Date", '', 'VAT Reporting Date in GLEntry is Empty');
     end;
 
     local procedure VerifyVendorLedgerEntry(VendorNo: Code[20])

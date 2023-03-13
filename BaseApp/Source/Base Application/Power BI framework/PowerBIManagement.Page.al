@@ -21,19 +21,8 @@ page 6319 "Power BI Management"
                     ApplicationArea = Basic, Suite;
 
                     trigger AddInReady()
-                    var
-                        PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
-                        Url: Text;
                     begin
-                        Url := PowerBIUrlMgt.GetPowerBIEmbedReportsUrl();
-
-                        if not IsNullGuid(TargetReportId) and (TargetReportUrl <> '') then begin
-                            CurrPage.PowerBIManagement.InitializeReport(TargetReportUrl, TargetReportId,
-                              AzureADMgt.GetAccessToken(PowerBIServiceMgt.GetPowerBIResourceUrl(),
-                                PowerBIServiceMgt.GetPowerBiResourceName(), false), Url);
-
-                            CurrPage.Update();
-                        end;
+                        InitializeAddIn();
                     end;
                 }
             }
@@ -132,6 +121,23 @@ page 6319 "Power BI Management"
     begin
         TargetReportId := ReportId;
         TargetReportUrl := ReportUrl;
+    end;
+
+    [NonDebuggable]
+    local procedure InitializeAddIn()
+    var
+        PowerBIUrlMgt: Codeunit "Power BI Url Mgt";
+        Url: Text;
+    begin
+        Url := PowerBIUrlMgt.GetPowerBIEmbedReportsUrl();
+
+        if not IsNullGuid(TargetReportId) and (TargetReportUrl <> '') then begin
+            CurrPage.PowerBIManagement.InitializeReport(TargetReportUrl, TargetReportId,
+                AzureADMgt.GetAccessToken(PowerBIServiceMgt.GetPowerBIResourceUrl(),
+                PowerBIServiceMgt.GetPowerBiResourceName(), false), Url);
+
+            CurrPage.Update();
+        end;
     end;
 }
 

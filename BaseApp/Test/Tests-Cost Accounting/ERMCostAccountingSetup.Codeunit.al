@@ -16,6 +16,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         CostCenterDim: Code[20];
         CostObjectDim: Code[20];
         CostCenterError: Label 'No Cost Center should be created.';
@@ -424,6 +425,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure TestAlignDimensionBeginTotalCC()
     var
@@ -439,6 +441,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure TestAlignDimensionBeginTotalCO()
     var
@@ -454,6 +457,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure TestAlignDimensionEndTotalCC()
     var
@@ -469,6 +473,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure TestAlignDimensionEndTotalCO()
     var
@@ -508,7 +513,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure TestAutomaticAlignOnCostCenter()
     var
@@ -525,7 +530,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure TestAutomaticAlignOnCostObject()
     var
@@ -564,6 +569,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure TestNoAlignOnCostCenters()
     var
@@ -580,6 +586,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure TestNoAlignOnCostObjects()
     var
@@ -711,7 +718,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
     [Scope('OnPrem')]
     procedure TestUpdateCCDimension()
     var
@@ -734,7 +741,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
     [Scope('OnPrem')]
     procedure TestUpdateCODimension()
     var
@@ -810,7 +817,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Initialize();
         LibraryCostAccounting.SetAlignment(CostAccountingSetup.FieldNo("Align Cost Center Dimension"), AlignCostCenters);
 
-        // Excercise:
+        // Excercise:        
         CreateDimensionValue(DimensionValue, CostCenterDimension, LineType);
         exit(DimensionValue.Code);
     end;
@@ -906,6 +913,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     [Normal]
     local procedure CreateDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20]; DimensionValueType: Option)
     begin
+        CreateDefDimensionNotExist(DimensionCode, DimensionValueType);
         DimensionValue.Init();
         DimensionValue.Validate("Dimension Code", DimensionCode);
         DimensionValue.Validate("Dimension Value Type", DimensionValueType);
@@ -916,6 +924,37 @@ codeunit 134810 "ERM Cost Accounting Setup"
             1,
             LibraryUtility.GetFieldLength(DATABASE::"Dimension Value", DimensionValue.FieldNo(Code))));
         DimensionValue.Insert(true);
+    end;
+
+    local procedure CreateDefDimensionNotExist(DimensionCode: Code[20]; DimensionValueType: Option)
+    var
+        Dimension: Record Dimension;
+        DefDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        Location: Record Location;
+    begin
+        Dimension.Get(DimensionCode);
+        DefDimension.SetRange("Dimension Code", Dimension.Code);
+        DefDimension.SetRange("Value Posting", DefDimension."Value Posting"::"Code Mandatory");
+        DefDimension.SetFilter("Allowed Values Filter", '<>%1', '');
+        if not DefDimension.IsEmpty() then
+            exit;
+
+        LibraryWarehouse.CreateLocation(Location);
+        DimensionValue.Init();
+        DimensionValue.Validate("Dimension Code", DimensionCode);
+        DimensionValue.Validate("Dimension Value Type", DimensionValueType);
+        DimensionValue.Validate(
+          Code,
+          CopyStr(
+            LibraryUtility.GenerateRandomCode(DimensionValue.FieldNo(Code), DATABASE::"Dimension Value"),
+            1,
+            LibraryUtility.GetFieldLength(DATABASE::"Dimension Value", DimensionValue.FieldNo(Code))));
+        DimensionValue.Insert(true);
+        LibraryDimension.CreateDefaultDimension(DefDimension, Database::Location, Location.Code, Dimension.Code, DimensionValue.Code);
+        DefDimension.Validate("Value Posting", DefDimension."Value Posting"::"Code Mandatory");
+        DefDimension.Validate("Allowed Values Filter", DimensionValue.Code);
+        DefDimension.Modify();
     end;
 
     local procedure CreateBeginEndCostTypes(var BeginTotalNo: Code[20]; var EndTotalNo: Code[20])

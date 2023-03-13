@@ -26,6 +26,7 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderLineDescription: Label 'Balance %1';
         ReminderLevelNo: Integer;
         NoOfRemindersErr: Label 'The value of No. Of Reminders is not correct.';
+        ReminderDueDateErr: Label 'The Reminder/Fin. Charge Entry Due Date should equal to Cust. Ledger Entry Due Date.';
 
     [Test]
     [Scope('OnPrem')]
@@ -539,6 +540,55 @@ codeunit 134905 "ERM Issued Reminder Addnl Fee"
         ReminderLine.SetRange("No. of Reminders", OldReminderLevel);
 
         Assert.RecordIsNotEmpty(ReminderLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyDueDateInReminderFinChargeEntryAfterUpdateDueDateInCustLedgerEntry()
+    var
+        Customer: Record Customer;
+        ReminderLevel: Record "Reminder Level";
+        ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DueDate: Date;
+        DocumentDate: Date;
+        IssuedReminderNo: Code[20];
+    begin
+        // [SCENARIO: 461162] The Due date in the Reminder/Fin Charge Entry is updated incorrectly when changing the Due date in the Customer Ledger Entry.
+        Initialize();
+
+        // [GIVEN] Setup: Create Customer, Reminder Term, Update Payment Terms, and Post Sales Invoice 
+        CreateCustomer(Customer, '');
+        DueDate := CreateAndPostSalesInvoice(Customer."No.", '');
+        GetReminderLevel(ReminderLevel, Customer."Reminder Terms Code");
+        DocumentDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', CalcDate(ReminderLevel."Grace Period", DueDate));
+
+        // [GIVEN] Create and issue 1st reminder
+        CreateReminder(Customer."No.", DocumentDate, false);
+        IssuedReminderNo := IssueReminder(DocumentDate);
+
+        // [GIVEN] Create and issue 2nd reminder
+        DueDate := DocumentDate + LibraryRandom.RandIntInRange(10, 11);
+        CreateReminder(Customer."No.", DueDate, false);
+        IssuedReminderNo := IssueReminder(DueDate);
+
+        // [GIVEN] Create and issue 3rd reminder
+        DueDate := DocumentDate + LibraryRandom.RandIntInRange(14, 15);
+        CreateReminder(Customer."No.", DueDate, false);
+        IssuedReminderNo := IssueReminder(DueDate);
+
+        // [WHEN] Update Due Date for posted Customer Ledger Entry
+        DueDate := DocumentDate + LibraryRandom.RandIntInRange(16, 17);
+        CustLedgerEntry.SetRange("Customer No.", Customer."No.");
+        CustLedgerEntry.FindLast();
+        CustLedgerEntry.Validate("Due Date", DueDate);
+        CustLedgerEntry.Modify(true);
+
+        // [VERIFY] Verify Due Date in Reminder/Fin. Charge Entry should equals Cust. Ledger Entry - Due Date
+        ReminderFinChargeEntry.SetRange(Type, ReminderFinChargeEntry.Type::Reminder);
+        ReminderFinChargeEntry.SetRange("No.", IssuedReminderNo);
+        ReminderFinChargeEntry.FindFirst();
+        Assert.AreEqual(ReminderFinChargeEntry."Due Date", CustLedgerEntry."Due Date", ReminderDueDateErr);
     end;
 
     local procedure Initialize()

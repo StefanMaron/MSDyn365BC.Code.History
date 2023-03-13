@@ -19,6 +19,7 @@ codeunit 1200 "Import Bank Statement"
         ProgressWindow.Open(ProgressMsg);
         Parse(DataExchLineDef, "Entry No.", XmlNode, '', '', LineNo, LineNo);
         ProgressWindow.Close();
+        OnRunOnAfterRun(Rec);
     end;
 
     var
@@ -88,6 +89,11 @@ codeunit 1200 "Import Bank Statement"
                 DataExchField.InsertRecXMLField(EntryNo, LineNo, DataExchColumnDef."Column No.", NodeId, Value,
                   DataExchLineDef.Code);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterRun(var DataExch: Record "Data Exch.")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

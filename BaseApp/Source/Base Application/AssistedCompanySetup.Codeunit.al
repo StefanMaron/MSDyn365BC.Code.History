@@ -207,7 +207,7 @@ codeunit 1800 "Assisted Company Setup"
             Company.Modify();
             Commit();
             DataClassificationEvalData.CreateEvaluationData();
-            Session.LogMessage('0000HUJ', StrSubstNo(CompanyEvaluationTxt, Company."Evaluation Company"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', CompanyEvaluationCategoryTok);
+            Session.LogMessage('0000HUJ', StrSubstNo(CompanyEvaluationTxt, Company."Evaluation Company"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CompanyEvaluationCategoryTok);
         end;
 
         UserPersonalization.Get(UserSecurityId());

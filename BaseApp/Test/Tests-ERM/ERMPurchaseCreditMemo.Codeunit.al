@@ -1352,6 +1352,7 @@ codeunit 134330 "ERM Purchase Credit Memo"
     begin
         // [FEATURE] [Get Document Lines to Reverse]
         // [SCENARIO 393339] Action "Get Document Lines to Reserse" copies Unit Price from Posted Purchase Shipment and not from current Purchase Price
+        Initialize();
 
         // [GIVEN] Purchase order with one line: Item "I1" with Unit Cost = X.
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo);

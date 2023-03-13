@@ -517,7 +517,13 @@
         TotalWeight: Decimal;
         Cubage: Decimal;
         Weight: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckMaxQtyBinContent(Rec, CheckWeight, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Maximum Cubage" <> 0) or ("Maximum Weight" <> 0) then begin
             BinContent.SetRange("Location Code", "Location Code");
             BinContent.SetRange("Zone Code", "Zone Code");
@@ -635,6 +641,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBinCreateWkshTemplateSetPageIDFilter(var BinCreateWkshTemplate: Record "Bin Creation Wksh. Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckMaxQtyBinContent(var BinCreationWorksheetLine: Record "Bin Creation Worksheet Line"; CheckWeight: Boolean; var IsHandled: Boolean)
     begin
     end;
 

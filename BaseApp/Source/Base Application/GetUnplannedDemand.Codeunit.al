@@ -85,6 +85,7 @@
         if SalesOrderLine.FindSet() then begin
             repeat
                 // Find all the items needed to be planned and add it to a temp item bufffer
+                OnSetFilterToSpecificSalesOrderOnBeforeTempItemGet(TempItem, SalesOrderLine);
                 if not TempItem.Get(SalesOrderLine."No.") then
                     if Item.Get(SalesOrderLine."No.") then begin
                         TempItem := Item;
@@ -695,6 +696,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertSalesLineOnAfterInitRecord(var UnplannedDemand: Record "Unplanned Demand"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFilterToSpecificSalesOrderOnBeforeTempItemGet(var TempItem: Record Item temporary; SalesOrderLine: Record "Sales Line")
     begin
     end;
 }

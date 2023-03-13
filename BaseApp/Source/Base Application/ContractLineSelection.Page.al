@@ -268,6 +268,12 @@ page 6057 "Contract Line Selection"
     local procedure LookupOKOnPush()
     begin
         OKButton := "No." <> '';
+        OnAfterLookupOKOnPush(Rec, OKButton);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupOKOnPush(ServiceItem: Record "Service Item"; var OKButton: Boolean)
+    begin
     end;
 }
 

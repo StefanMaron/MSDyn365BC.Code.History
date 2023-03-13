@@ -43,6 +43,7 @@ codeunit 1336 "Item Templ. Mgt."
     begin
         ApplyTemplate(Item, ItemTempl, UpdateExistingValues);
         InsertDimensions(Item."No.", ItemTempl.Code, Database::Item, Database::"Item Templ.");
+        OnApplyItemTemplateOnBeforeItemGet(Item, ItemTempl, UpdateExistingValues);
         Item.Get(Item."No.");
     end;
 
@@ -299,6 +300,7 @@ codeunit 1336 "Item Templ. Mgt."
 
         InsertTemplateFromItem(ItemTempl, Item);
         InsertDimensions(ItemTempl.Code, Item."No.", Database::"Item Templ.", Database::Item);
+        OnCreateTemplateFromItemOnBeforeItemTemplGet(Item, ItemTempl);
         ItemTempl.Get(ItemTempl.Code);
         ShowItemTemplCard(ItemTempl);
     end;
@@ -490,6 +492,11 @@ codeunit 1336 "Item Templ. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyItemTemplateOnBeforeItemGet(var Item: Record Item; ItemTempl: Record "Item Templ."; UpdateExistingValues: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateItemFromTemplateOnBeforeSelectItemTemplate(Item: Record Item; var ItemTempl: Record "Item Templ.")
     begin
     end;
@@ -590,6 +597,11 @@ codeunit 1336 "Item Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitItemNo(var Item: Record Item; ItemTempl: Record "Item Templ."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTemplateFromItemOnBeforeItemTemplGet(Item: Record Item; ItemTempl: Record "Item Templ.")
     begin
     end;
 

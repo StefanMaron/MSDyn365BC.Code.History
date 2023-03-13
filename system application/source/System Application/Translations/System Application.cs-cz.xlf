@@ -2927,7 +2927,7 @@
         </trans-unit>
         <trans-unit id="Enum 1989856109 - EnumValue 290207576 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Prompt</source>
-          <target state="translated">Pobídnout</target>
+          <target state="translated">Výzva</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Document Sharing Intent - EnumValue Prompt - Property Caption</note>
         </trans-unit>
@@ -8955,7 +8955,7 @@
         </trans-unit>
         <trans-unit id="Page 2622225351 - Control 3735914638 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Delete Permission</source>
-          <target state="translated">Odstranit oprávnění</target>
+          <target state="translated">Právo odstranit</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Tenant Permission Subform - Control Delete Permission - Property Caption</note>
         </trans-unit>

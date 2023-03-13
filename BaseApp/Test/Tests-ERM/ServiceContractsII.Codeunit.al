@@ -1107,55 +1107,6 @@ codeunit 136145 "Service Contracts II"
     end;
 
     [Test]
-    [HandlerFunctions('SignContractYesConfirmHandler,CreateContractInvoicesDiffDatesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreateServContractInvoicesPartMonthForPrepaidServContract()
-    var
-        ServiceContractHeader: Record "Service Contract Header";
-        ServiceContractLine: Record "Service Contract Line";
-        ContractStartingDate: Date;
-        FullContractLineAmount: Decimal;
-        PartMonthAmount: Decimal;
-    begin
-        // [FEATURE] [Prepaid Contract]
-        // [SCENARIO 360045] Create Service Invoice by report "Create Service Contract Invoices" in case Starting Date of prepaid Contract is not the first day of month.
-        Initialize();
-        ContractStartingDate := LibraryRandom.RandDateFromInRange(CalcDate('<CM>', WorkDate()), 10, 20);
-
-        // [GIVEN] Signed prepaid Service Contract with Starting Date = 10.02.22 and Invoice Period = Year; Contract has one line with Line Amount = 120.
-        CreateServiceContractWithLine(
-          ServiceContractHeader, ServiceContractLine, ContractStartingDate, 0D, ServiceContractHeader."Invoice Period"::Year, true);
-        SignContract(ServiceContractHeader);
-        FullContractLineAmount :=
-          CalcContractLineAmount(
-            ServiceContractLine."Line Amount", ServiceContractLine."Starting Date", ServiceContractHeader."Next Invoice Period End");
-        PartMonthAmount :=
-          CalcContractLineAmount(
-            ServiceContractLine."Line Amount", ServiceContractLine."Starting Date", ServiceContractHeader."Next Invoice Period Start" - 1);
-
-        // [WHEN] Run report "Create Service Contract Invoices" on Service Contract, set Posting Date = 27.01.22, InvoiceToDate = 01.03.22.
-        LibraryVariableStorage.Enqueue(WorkDate());
-        LibraryVariableStorage.Enqueue(ServiceContractHeader."Next Invoice Date");
-        LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
-        RunCreateContractInvoices();
-
-        // [THEN] 13 Service Ledger Entries are created. First Ledger Entry is for period 10.02.22 - 28.02.22, i.e. for 19 of 28 days and has Amount = (120/12)*(19/28).
-        // [THEN] Service Invoice with 13 Service Lines is created. First line with Amount = (120/12)*(19/28) is for period 10.02.22 - 28.02.22.
-        // [THEN] Other 12 Service Ledger Entries and Service Lines are for each month of Invoice Period 01.03.22 - 28.02.23, each line has Amount = 120/12.
-        VerifyFirstServiceLineForServiceContractLine(
-          ServiceContractHeader."Contract No.", ServiceContractLine."Service Item No.",
-          GetServContractGLAcc(ServiceContractHeader."Serv. Contract Acc. Gr. Code", true), WorkDate(),
-          ServiceContractHeader."Starting Date", CalcDate('<CM>', ServiceContractHeader."Starting Date"), PartMonthAmount);
-
-        VerifyServContractLineAmountSplitByPeriod(
-          ServiceContractHeader."Contract No.", ServiceContractLine."Service Item No.",
-          GetServContractGLAcc(ServiceContractHeader."Serv. Contract Acc. Gr. Code", true),
-          WorkDate(), 13, FullContractLineAmount);
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
     [HandlerFunctions('NoConfirmHandler,CreateContractInvoicesDiffDatesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CreateServContractInvoicesPartMonthInvCreatedForPrepaidServContract()
@@ -1195,59 +1146,6 @@ codeunit 136145 "Service Contracts II"
           ServiceContractHeader."Contract No.", ServiceContractLine."Service Item No.",
           GetServContractGLAcc(ServiceContractHeader."Serv. Contract Acc. Gr. Code", true),
           WorkDate(), 12, ServiceContractLine."Line Amount");
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [HandlerFunctions('SignContractYesConfirmHandler,CreateContractInvoicesDiffDatesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure CreateServContractInvoicesPartMonthForPrepaidServContractWithExpDate()
-    var
-        ServiceContractHeader: Record "Service Contract Header";
-        ServiceContractLine: Record "Service Contract Line";
-        ContractStartingDate: Date;
-        ContractExpirationDate: Date;
-        FullContractLineAmount: Decimal;
-        PartMonthAmount: Decimal;
-    begin
-        // [FEATURE] [Prepaid Contract]
-        // [SCENARIO 360045] Create Service Invoice by report "Create Service Contract Invoices" in case Starting Date of prepaid Contract is not the first day of month and Expiration Date is set.
-        Initialize();
-        ContractStartingDate := LibraryRandom.RandDateFromInRange(CalcDate('<CM>', WorkDate()), 10, 20);
-        ContractExpirationDate := CalcDate('<6M-1D>', ContractStartingDate);
-
-        // [GIVEN] Signed prepaid Service Contract with Starting Date = 10.02.22, Expiration Date = 09.08.22 and Invoice Period = Year; Contract has one line with Line Amount = 120.
-        CreateServiceContractWithLine(
-          ServiceContractHeader, ServiceContractLine, ContractStartingDate,
-          ContractExpirationDate, ServiceContractHeader."Invoice Period"::Year, true);
-        SignContract(ServiceContractHeader);
-        FullContractLineAmount :=
-          CalcContractLineAmount(
-            ServiceContractLine."Line Amount", ServiceContractLine."Starting Date", ServiceContractHeader."Expiration Date");
-        PartMonthAmount :=
-          CalcContractLineAmount(
-            ServiceContractLine."Line Amount", ServiceContractLine."Starting Date", ServiceContractHeader."Next Invoice Period Start" - 1);
-
-        // [WHEN] Run report "Create Service Contract Invoices" on Service Contract, set Posting Date = 27.01.22, InvoiceToDate = 01.03.22.
-        LibraryVariableStorage.Enqueue(WorkDate());
-        LibraryVariableStorage.Enqueue(ServiceContractHeader."Next Invoice Date");
-        LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
-        RunCreateContractInvoices();
-
-        // [THEN] 7 Service Ledger Entries are created. First Ledger Entry is for period 10.02.22 - 28.02.22, i.e. for 19 of 28 days and has Amount = (120/12)*(19/28).
-        // [THEN] Service Invoice with 7 Service Lines is created. First line with Amount = (120/12)*(19/28) is for period 10.02.22 - 28.02.22.
-        // [THEN] The next 5 Service Ledger Entries and Service Lines are for each month of Invoice Period 01.03.22 - 31.07.22, each line has Amount = 120/12.
-        // [THEN] The last Service Ledger Entry and Service Line is for period 01.08.22 - 09.08.22 and has Amount = (120/12)*(9/31).
-        VerifyFirstServiceLineForServiceContractLine(
-          ServiceContractHeader."Contract No.", ServiceContractLine."Service Item No.",
-          GetServContractGLAcc(ServiceContractHeader."Serv. Contract Acc. Gr. Code", true), WorkDate(),
-          ServiceContractHeader."Starting Date", CalcDate('<CM>', ServiceContractHeader."Starting Date"), PartMonthAmount);
-
-        VerifyServContractLineAmountSplitByPeriod(
-          ServiceContractHeader."Contract No.", ServiceContractLine."Service Item No.",
-          GetServContractGLAcc(ServiceContractHeader."Serv. Contract Acc. Gr. Code", true),
-          WorkDate(), 7, FullContractLineAmount);
 
         LibraryVariableStorage.AssertEmpty();
     end;

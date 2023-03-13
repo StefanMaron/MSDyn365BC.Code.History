@@ -145,7 +145,6 @@ page 6700 "Exchange Sync. Setup"
     trigger OnOpenPage()
     var
         User: Record User;
-        AzureADMgt: Codeunit "Azure AD Mgt.";
     begin
         Reset();
         GetUser(User);
@@ -163,7 +162,7 @@ page 6700 "Exchange Sync. Setup"
             Commit();
         end;
 
-        PasswordRequired := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false) = '';
+        EvaluatePasswordRequired();
 
         if (ExchangeAccountUserName <> '') and (not IsNullGuid("Exchange Account Password Key")) then
             ExchangeAccountPasswordTemp := '**********';
@@ -188,6 +187,14 @@ page 6700 "Exchange Sync. Setup"
             if FindFirst() then
                 exit(true);
         end;
+    end;
+
+    [NonDebuggable]
+    local procedure EvaluatePasswordRequired()
+    var
+        AzureADMgt: Codeunit "Azure AD Mgt.";
+    begin
+        PasswordRequired := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false) = '';
     end;
 }
 

@@ -82,6 +82,7 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         SalesHeader.Insert(true);
         CopyDocMgt.SetPropertiesForInvoiceCorrection(false);
         CopyDocMgt.CopySalesDocForCrMemoCancelling(SalesCrMemoHeader."No.", SalesHeader);
+        OnAfterCreateCopyDocument(SalesCrMemoHeader, SalesHeader);
     end;
 
     procedure TestCorrectCrMemoIsAllowed(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -481,6 +482,11 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
             ErrorType::DimErr:
                 Error(InvalidDimCodeCancelErr, AccountCaption, AccountNo, No, Name);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCopyDocument(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SalesHeader: Record "Sales Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

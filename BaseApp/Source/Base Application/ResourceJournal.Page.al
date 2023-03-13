@@ -591,6 +591,8 @@ page 207 "Resource Journal"
 
         SetDimensionsVisibility();
 
+        OnOpenPageOnBeforeOpenJnl(Rec, CurrentJnlBatchName);
+
         if IsOpenedFromBatch() then begin
             CurrentJnlBatchName := "Journal Batch Name";
             ResJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
@@ -669,6 +671,11 @@ page 207 "Resource Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ResJournalLine: Record "Res. Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnBeforeOpenJnl(var ResJournalLine: Record "Res. Journal Line"; var CurrentJnlBatchName: Code[10])
     begin
     end;
 }

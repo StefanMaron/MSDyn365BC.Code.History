@@ -504,46 +504,51 @@ table 5870 "BOM Buffer"
         BOMItem: Record Item;
         UOMMgt: Codeunit "Unit of Measure Management";
         CostCalculationMgt: Codeunit "Cost Calculation Management";
+        IsHandled: Boolean;
     begin
-        Init();
-        EntryNo += 1;
-        "Entry No." := EntryNo;
-        Type := Type::Item;
+        IsHandled := false;
+        OnBeforeTransferFromProdComp(EntryNo, ProdBOMLine, NewIndentation, ParentQtyPer, ParentScrapQtyPer, ParentScrapPct, NeedByDate, ParentLocationCode, ParentItem, BOMQtyPerUOM, IsHandled);
+        if not IsHandled then begin
+            Init();
+            EntryNo += 1;
+            "Entry No." := EntryNo;
+            Type := Type::Item;
 
-        BOMItem.Get(ProdBOMLine."No.");
-        InitFromItem(BOMItem);
+            BOMItem.Get(ProdBOMLine."No.");
+            InitFromItem(BOMItem);
 
-        if ParentItem."Lot Size" = 0 then
-            ParentItem."Lot Size" := 1;
+            if ParentItem."Lot Size" = 0 then
+                ParentItem."Lot Size" := 1;
 
-        Description := ProdBOMLine.Description;
-        "Qty. per Parent" :=
-          CostCalculationMgt.CalcCompItemQtyBase(
-            ProdBOMLine, WorkDate(),
-            CostCalculationMgt.CalcQtyAdjdForBOMScrap(ParentItem."Lot Size", ParentScrapPct), ParentItem."Routing No.", true) /
-          UOMMgt.GetQtyPerUnitOfMeasure(BOMItem, ProdBOMLine."Unit of Measure Code") /
-          BOMQtyPerUOM / ParentItem."Lot Size";
-        "Qty. per Top Item" := Round(ParentQtyPer * "Qty. per Parent", UOMMgt.QtyRndPrecision());
-        "Qty. per Parent" := Round("Qty. per Parent", UOMMgt.QtyRndPrecision());
+            Description := ProdBOMLine.Description;
+            "Qty. per Parent" :=
+              CostCalculationMgt.CalcCompItemQtyBase(
+                ProdBOMLine, WorkDate(),
+                CostCalculationMgt.CalcQtyAdjdForBOMScrap(ParentItem."Lot Size", ParentScrapPct), ParentItem."Routing No.", true) /
+              UOMMgt.GetQtyPerUnitOfMeasure(BOMItem, ProdBOMLine."Unit of Measure Code") /
+              BOMQtyPerUOM / ParentItem."Lot Size";
+            "Qty. per Top Item" := Round(ParentQtyPer * "Qty. per Parent", UOMMgt.QtyRndPrecision());
+            "Qty. per Parent" := Round("Qty. per Parent", UOMMgt.QtyRndPrecision());
 
-        "Scrap Qty. per Parent" := "Qty. per Parent" - (ProdBOMLine.Quantity / BOMQtyPerUOM);
-        "Scrap Qty. per Top Item" :=
-          "Qty. per Top Item" -
-          Round((ParentQtyPer - ParentScrapQtyPer) * ("Qty. per Parent" - "Scrap Qty. per Parent"), UOMMgt.QtyRndPrecision());
-        "Scrap Qty. per Parent" := Round("Scrap Qty. per Parent", UOMMgt.QtyRndPrecision());
+            "Scrap Qty. per Parent" := "Qty. per Parent" - (ProdBOMLine.Quantity / BOMQtyPerUOM);
+            "Scrap Qty. per Top Item" :=
+              "Qty. per Top Item" -
+              Round((ParentQtyPer - ParentScrapQtyPer) * ("Qty. per Parent" - "Scrap Qty. per Parent"), UOMMgt.QtyRndPrecision());
+            "Scrap Qty. per Parent" := Round("Scrap Qty. per Parent", UOMMgt.QtyRndPrecision());
 
-        "Qty. per BOM Line" := ProdBOMLine."Quantity per";
-        "Unit of Measure Code" := ProdBOMLine."Unit of Measure Code";
-        "Variant Code" := ProdBOMLine."Variant Code";
-        "Location Code" := ParentLocationCode;
-        "Lead-Time Offset" := ProdBOMLine."Lead-Time Offset";
-        "Needed by Date" := NeedByDate;
-        Indentation := NewIndentation;
-        if ProdBOMLine."Calculation Formula" = ProdBOMLine."Calculation Formula"::"Fixed Quantity" then
-            "Calculation Formula" := ProdBOMLine."Calculation Formula";
+            "Qty. per BOM Line" := ProdBOMLine."Quantity per";
+            "Unit of Measure Code" := ProdBOMLine."Unit of Measure Code";
+            "Variant Code" := ProdBOMLine."Variant Code";
+            "Location Code" := ParentLocationCode;
+            "Lead-Time Offset" := ProdBOMLine."Lead-Time Offset";
+            "Needed by Date" := NeedByDate;
+            Indentation := NewIndentation;
+            if ProdBOMLine."Calculation Formula" = ProdBOMLine."Calculation Formula"::"Fixed Quantity" then
+                "Calculation Formula" := ProdBOMLine."Calculation Formula";
 
-        OnTransferFromProdCompCopyFields(Rec, ProdBOMLine, ParentItem, ParentQtyPer);
-        Insert(true);
+            OnTransferFromProdCompCopyFields(Rec, ProdBOMLine, ParentItem, ParentQtyPer);
+            Insert(true);
+        end;
         OnAfterTransferFromProdComp(Rec, ProdBOMLine, ParentItem, EntryNo)
     end;
 
@@ -757,7 +762,13 @@ table 5870 "BOM Buffer"
         Item: Record Item;
         UOMMgt: Codeunit "Unit of Measure Management";
         QtyPerUOM: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAbleToMake(Rec, AvailQty, IsHandled);
+        if IsHandled then
+            exit;
+
         QtyPerUOM := 1;
         if Type = Type::Item then begin
             Item.Get("No.");
@@ -912,7 +923,13 @@ table 5870 "BOM Buffer"
         Item: Record Item;
         UOMMgt: Codeunit "Unit of Measure Management";
         LotSize: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcOvhdCost(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         LotSize := 1;
         if "Lot Size" <> 0 then
             LotSize := "Lot Size";
@@ -973,16 +990,22 @@ table 5870 "BOM Buffer"
         WaitTimeFactor: Decimal;
         MoveTimeFactor: Decimal;
         CurrentTimeFactor: Decimal;
+        LotSizeFactor: Decimal;
     begin
         SetupTimeFactor := CalendarMgt.TimeFactor(RoutingLine."Setup Time Unit of Meas. Code");
         RunTimeFactor := CalendarMgt.TimeFactor(RoutingLine."Run Time Unit of Meas. Code");
         WaitTimeFactor := CalendarMgt.TimeFactor(RoutingLine."Wait Time Unit of Meas. Code");
         MoveTimeFactor := CalendarMgt.TimeFactor(RoutingLine."Move Time Unit of Meas. Code");
 
-        RunTimeQty := RoutingLine."Run Time" * RunTimeFactor;
+        if RoutingLine."Lot Size" = 0 then
+            LotSizeFactor := 1
+        else
+            LotSizeFactor := RoutingLine."Lot Size";
+
+        RunTimeQty := RoutingLine."Run Time" * RunTimeFactor / LotSizeFactor;
         SetupWaitMoveTimeQty :=
-          RoutingLine."Setup Time" * SetupTimeFactor + RoutingLine."Wait Time" * WaitTimeFactor +
-          RoutingLine."Move Time" * MoveTimeFactor;
+          (RoutingLine."Setup Time" * SetupTimeFactor + RoutingLine."Wait Time" * WaitTimeFactor +
+          RoutingLine."Move Time" * MoveTimeFactor) / LotSizeFactor;
 
         if "Unit of Measure Code" = '' then begin
             // select base UOM from Setup/Run/Wait/Move UOMs
@@ -1287,6 +1310,11 @@ table 5870 "BOM Buffer"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcOvhdCost(var BOMBuffer: Record "BOM Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInitFromItem(var BOMBuffer: Record "BOM Buffer"; Item: Record Item; var IsHandled: Boolean);
     begin
     end;
@@ -1313,6 +1341,16 @@ table 5870 "BOM Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnbeforeInitFromWorkCenter(var BOMBuffer: Record "BOM Buffer"; WorkCenter: Record "Work Center"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferFromProdComp(var EntryNo: Integer; ProductionBOMLine: Record "Production BOM Line"; NewIndentation: Integer; ParentQtyPer: Decimal; ParentScrapQtyPer: Decimal; ParentScrapPct: Decimal; NeedByDate: Date; ParentLocationCode: Code[10]; ParentItem: Record Item; BOMQtyPerUOM: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAbleToMake(var BOMBuffer: Record "BOM Buffer"; var AvailQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 

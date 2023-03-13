@@ -17,6 +17,7 @@
         LibraryJournals: Codeunit "Library - Journals";
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryDimension: Codeunit "Library - Dimension";
         IsInitialized: Boolean;
 
     [Test]
@@ -486,6 +487,37 @@
         GenJournalLine.TestField("Posting Date", CalcDate('<+2D>', WorkDate()));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure VerifyDimensionsOnGeneralJournalOnGetStandardJournal()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+    begin
+        // [SCENARIO 464111] Verify dimensions are transfered properly from Standard Journal to General Journal Lines with Get Standard Journal action
+        Initialize();
+
+        // [GIVEN] Create General Journal Batch
+        CreateGeneralJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create multiple General Journal Lines
+        CreateGeneralJournalLines(GenJournalLine, GenJournalBatch);
+
+        // [GIVEN] Update dimensions on General Jnl. Lines
+        UpdateDimensionsOnGeneralJournalLine(GenJournalLine);
+
+        // [GIVEN] Save General Journal Lines as Standard Journal
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // [WHEN] Delete and get saved standard Journal in General Journal
+        DeleteGeneralJournalLine(GenJournalBatch.Name);
+        StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
+
+        // [THEN] Verify dimensions on General Journal Lines
+        VerifyDimensionsOnGeneralJournalLines(StandardGeneralJournal, GenJournalLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -497,6 +529,42 @@
 
         IsInitialized := true;
         Commit();
+    end;
+
+    local procedure VerifyDimensionsOnGeneralJournalLines(var StandardGeneralJournal: Record "Standard General Journal"; var GenJournalLine: Record "Gen. Journal Line")
+    var
+        StandardGeneralJnlLine: Record "Standard General Journal Line";
+    begin
+        StandardGeneralJnlLine.SetRange("Journal Template Name", StandardGeneralJournal."Journal Template Name");
+        StandardGeneralJnlLine.FindSet();
+        repeat
+            GenJournalLine.Reset();
+            GenJournalLine.SetRange("Journal Template Name", StandardGeneralJnlLine."Journal Template Name");
+            GenJournalLine.SetRange("Account Type", StandardGeneralJnlLine."Account Type");
+            GenJournalLine.SetRange("Account No.", StandardGeneralJnlLine."Account No.");
+            if GenJournalLine.FindFirst() then begin
+                GenJournalLine.TestField("Shortcut Dimension 1 Code", StandardGeneralJnlLine."Shortcut Dimension 1 Code");
+                GenJournalLine.TestField("Shortcut Dimension 2 Code", StandardGeneralJnlLine."Shortcut Dimension 2 Code");
+            end;
+        until StandardGeneralJnlLine.Next() = 0;
+    end;
+
+    local procedure UpdateDimensionsOnGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DimensionValue: Record "Dimension Value";
+        DimensionValue2: Record "Dimension Value";
+    begin
+        GeneralLedgerSetup.Get();
+        LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 1 Code");
+        LibraryDimension.FindDimensionValue(DimensionValue2, GeneralLedgerSetup."Shortcut Dimension 2 Code");
+        GenJournalLine.Reset();
+        FindGeneralJournalLines(GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
+        repeat
+            GenJournalLine.Validate("Shortcut Dimension 1 Code", DimensionValue.Code);
+            GenJournalLine.Validate("Shortcut Dimension 2 Code", DimensionValue2.Code);
+            GenJournalLine.Modify(true);
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")

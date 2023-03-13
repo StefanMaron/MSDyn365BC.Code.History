@@ -949,6 +949,7 @@ codeunit 132600 "Report Layout"
         FindGLAccount(GLAccount);
         CalcandPostVATSettlement.StartingDate.SetValue(CalcDate('<-2Y>', WorkDate()));
         CalcandPostVATSettlement.PostingDt.SetValue(WorkDate());
+        CalcandPostVATSettlement.VATDt.SetValue(WorkDate());
         CalcandPostVATSettlement.SettlementAcc.SetValue(GLAccount."No.");
         CalcandPostVATSettlement.DocumentNo.SetValue(GLAccount."No.");
         CalcandPostVATSettlement.ShowVATEntries.SetValue(true);

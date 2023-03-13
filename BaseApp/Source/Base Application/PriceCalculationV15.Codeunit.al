@@ -473,6 +473,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
                     end;
                 end;
         end;
+        OnAfterApplyPricePurchHandler(CurrLineWithPrice, Header, Line, CalledByFieldNo);
     end;
 
     local procedure FindPriceListLine(var PriceListLine: Record "Price List Line")
@@ -527,6 +528,11 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyPriceSalesHandler(var CurrLineWithPrice: Interface "Line With Price"; Header: Variant; Line: Variant; CalledByFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyPricePurchHandler(var CurrLineWithPrice: Interface "Line With Price"; Header: Variant; Line: Variant; CalledByFieldNo: Integer)
     begin
     end;
 

@@ -1623,7 +1623,7 @@ codeunit 8800 "Custom Layout Reporting"
         exit(RunReportOncePerFilter);
     end;
 
-    local procedure GetSendToEmailID(CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
+    local procedure GetSendToEmailID(var CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
     begin
         if CustomReportSelection.GetSendToEmail(true) = '' then
             GetSendToEmailIDFromSource(CustomReportSelection, EmailID)
@@ -1633,7 +1633,7 @@ codeunit 8800 "Custom Layout Reporting"
         OnAfterGetSendToEmailID(CustomReportSelection, EmailID);
     end;
 
-    local procedure GetSendToEmailIDFromSource(CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
+    local procedure GetSendToEmailIDFromSource(var CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -1705,14 +1705,16 @@ codeunit 8800 "Custom Layout Reporting"
     begin
     end;
 
+#pragma warning disable AS0077
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetSendToEmailID(CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
+    local procedure OnAfterGetSendToEmailID(var CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetSendToEmailIDFromSource(CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
+    local procedure OnAfterGetSendToEmailIDFromSource(var CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
     begin
     end;
+#pragma warning restore AS0077
 }
 

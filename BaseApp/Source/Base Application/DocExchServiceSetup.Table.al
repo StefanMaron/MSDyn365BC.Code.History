@@ -582,7 +582,14 @@ table 1275 "Doc. Exch. Service Setup"
     end;
 
     local procedure EnableConnection()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEnableConnection(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Enabled := false;
         Modify();
         DocExchServiceMgt.AcquireAccessTokenByAuthorizationCode(false);
@@ -665,6 +672,11 @@ table 1275 "Doc. Exch. Service Setup"
     local procedure LogTelemetryWhenServiceCreated()
     begin
         Session.LogMessage('00008AD', DocExchServiceCreatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnableConnection(var DocExchServiceSetup: Record "Doc. Exch. Service Setup"; var IsHandled: Boolean)
+    begin
     end;
 }
 

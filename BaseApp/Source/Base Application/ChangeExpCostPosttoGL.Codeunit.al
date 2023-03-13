@@ -10,27 +10,33 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
     end;
 
     var
-        Text000: Label 'If you change the %1, the program must update table %2.';
-        Text001: Label 'This can take several hours.\';
-        Text002: Label 'Do you really want to change the %1?';
+        ExpCostEnableTxt: Label 'If you enable the %1, the program must update table %2.', Comment = '%1 - Expected Cost Posting to G/L; %2 - Post Value Entry to G/L';
+        ExpCostDisableTxt: Label 'If you disable the %1, the program must update table %2.', Comment = '%1 - Expected Cost Posting to G/L; %2 - Post Value Entry to G/L';
+        TakeHoursTxt: Label 'This can take several hours.\';
+        ConfirmChangeTxt: Label 'Do you really want to change the %1?', Comment = '%1 - Expected Cost Posting to G/L';
         Text003: Label 'The change has been cancelled.';
         Text004: Label 'Processing entries...\\';
         Text005: Label 'Item No. #1########## @2@@@@@@@@@@@@@';
         Text007: Label '%1 has been changed to %2. You should now run %3.';
         Text008: Label 'Deleting %1 entries...';
+        DisableWarningTxt: Label 'This will not change amounts on the interim accounts and the eventual clean-up in the G/L must be done manually.\';
         Window: Dialog;
         EntriesModified: Boolean;
 
-    procedure ChangeExpCostPostingToGL(var InvtSetup: Record "Inventory Setup"; ExpCostPostingToGL: Boolean)
+    procedure ChangeExpCostPostingToGL(var InventorySetup: Record "Inventory Setup"; ExpCostPostingToGL: Boolean)
     var
         PostValueEntryToGL: Record "Post Value Entry to G/L";
+        ConfirmMessage: Text;
     begin
+        if ExpCostPostingToGL then
+            ConfirmMessage := ExpCostEnableTxt + TakeHoursTxt + ConfirmChangeTxt
+        else
+            ConfirmMessage := ExpCostDisableTxt + TakeHoursTxt + DisableWarningTxt + ConfirmChangeTxt;
+
         if not
            Confirm(
              StrSubstNo(
-               Text000 + Text001 + Text002,
-               InvtSetup.FieldCaption("Expected Cost Posting to G/L"),
-               PostValueEntryToGL.TableCaption()), false)
+                ConfirmMessage, InventorySetup.FieldCaption("Expected Cost Posting to G/L"), PostValueEntryToGL.TableCaption()), false)
         then
             Error(Text003);
 
@@ -39,7 +45,7 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
         else
             DisableExpCostPostingToGL();
 
-        UpdateInvtSetup(InvtSetup, ExpCostPostingToGL)
+        UpdateInvtSetup(InventorySetup, ExpCostPostingToGL)
     end;
 
     local procedure EnableExpCostPostingToGL()

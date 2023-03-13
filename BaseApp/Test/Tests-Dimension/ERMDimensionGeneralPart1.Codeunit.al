@@ -323,6 +323,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure DimensionValueWithExistingCode()
     var
@@ -344,6 +345,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure DimensionValueWithConflict()
     var
@@ -636,6 +638,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure RenameDimensionValueCode()
     var
@@ -662,6 +665,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure RenameDimensionValueName()
     var
@@ -690,6 +694,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure RenameBlockDimensionValueCode()
     var
@@ -717,6 +722,7 @@ codeunit 134477 "ERM Dimension General Part-1"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure BlankDimensionValueCode()
     var
@@ -1738,6 +1744,12 @@ codeunit 134477 "ERM Dimension General Part-1"
             else
                 Error(InvalidColumnIndexErr)
         end
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

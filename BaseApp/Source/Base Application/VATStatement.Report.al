@@ -302,7 +302,7 @@ report 12 "VAT Statement"
                         EndDate := DMY2Date(31, 12, 9999)
                     else
                         EndDate := EndDateReq;
-                    GLAcc.SetRange("Date Filter", StartDate, EndDate);
+                    GLAcc.SetRange("VAT Reporting Date Filter", StartDate, EndDate);
                     OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(GLAcc, VATStmtLine2);
                     Amount := 0;
                     if GLAcc.Find('-') and (VATStmtLine2."Account Totaling" <> '') then

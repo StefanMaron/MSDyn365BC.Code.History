@@ -3430,7 +3430,7 @@
 
         // [WHEN] Rename the Job task No
         JobTask.Get(Job."No.", JobTaskNo);
-        JobTask.Rename(JobTask."Job Task No.", LibraryUtility.GenerateGUID());
+        JobTask.Rename(JobTask."Job No.", LibraryUtility.GenerateGUID());
 
         // [THEN] Verify Resource Group is updated in Price List Line.
         PriceListLine.Find();
@@ -3745,10 +3745,12 @@
         LibraryPriceCalculation.CreateSalesPriceLine(
             PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", GLAccount."No.");
         PriceListLine."Unit of Measure Code" := UOM1;
+        PriceListLine."Unit of Measure Code Lookup" := UOM1;
         PriceListLine.Modify();
         LibraryPriceCalculation.CreateSalesPriceLine(
             PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::"G/L Account", GLAccount."No.");
         PriceListLine."Unit of Measure Code" := UOM2;
+        PriceListLine."Unit of Measure Code Lookup" := UOM2;
         PriceListLine.Modify();
     end;
 
@@ -3818,10 +3820,13 @@
         PriceListLine.SetRange("Asset Type", "Price Asset Type"::Item);
         PriceListLine.SetRange("Asset No.", ItemNo);
         PriceListLine.SetRange("Variant Code", VariantCode1);
+        PriceListLine.SetRange("Variant Code Lookup", VariantCode1);
         Assert.RecordCount(PriceListLine, 1);
         PriceListLine.SetRange("Variant Code", VariantCode2);
+        PriceListLine.SetRange("Variant Code Lookup", VariantCode2);
         Assert.RecordCount(PriceListLine, 1);
         PriceListLine.SetRange("Variant Code", OldVariantCode);
+        PriceListLine.SetRange("Variant Code Lookup", OldVariantCode);
         Assert.RecordIsEmpty(PriceListLine);
     end;
 
@@ -3830,10 +3835,13 @@
         PriceListLine: Record "Price List Line";
     begin
         PriceListLine.SetRange("Unit of Measure Code", UOM1);
+        PriceListLine.SetRange("Unit of Measure Code Lookup", UOM1);
         Assert.RecordCount(PriceListLine, 1);
         PriceListLine.SetRange("Unit of Measure Code", UOM2);
+        PriceListLine.SetRange("Unit of Measure Code Lookup", UOM2);
         Assert.RecordCount(PriceListLine, 1);
         PriceListLine.SetRange("Unit of Measure Code", OldUOM);
+        PriceListLine.SetRange("Unit of Measure Code Lookup", OldUOM);
         Assert.RecordIsEmpty(PriceListLine);
     end;
 

@@ -701,6 +701,7 @@ table 4 Currency
         EuroChar: Char;
         YenChar: Char;
     begin
+        OnBeforeResolveCurrencySymbol(Rec, CurrencyCode);
         if Currency.Get(CurrencyCode) then
             if Currency.Symbol <> '' then
                 exit(Currency.Symbol);
@@ -841,6 +842,11 @@ table 4 Currency
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetGainLossAccount(var Currency: Record Currency; DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResolveCurrencySymbol(var Currency: Record Currency; var CurrencyCode: Code[10])
     begin
     end;
 }

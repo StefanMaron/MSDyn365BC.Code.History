@@ -24,6 +24,7 @@
         UnpostedPrepaymentAmountsErr: Label 'There are unposted prepayment amounts on the document of type %1 with the number %2.', Comment = '%1 - Document Type; %2 - Document No.';
         PreviewMode: Boolean;
         SkipCheckReleaseRestrictions: Boolean;
+        SkipWhseRequestOperations: Boolean;
 
     local procedure "Code"() LinesWereModified: Boolean
     var
@@ -100,7 +101,8 @@
 
             if NotOnlyDropShipment then
                 if "Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"] then
-                    WhsePurchRelease.Release(PurchaseHeader);
+                    if not SkipWhseRequestOperations then
+                        WhsePurchRelease.Release(PurchaseHeader);
 
             OnAfterReleasePurchaseDoc(PurchaseHeader, PreviewMode, LinesWereModified);
         end;
@@ -167,7 +169,8 @@
             if Status = Status::Open then
                 exit;
             if "Document Type" in ["Document Type"::Order, "Document Type"::"Return Order"] then
-                WhsePurchRelease.Reopen(PurchHeader);
+                if not SkipWhseRequestOperations then
+                    WhsePurchRelease.Reopen(PurchHeader);
             Status := Status::Open;
             OnReopenOnBeforePurchaseHeaderModify(PurchHeader);
             Modify(true);
@@ -267,6 +270,11 @@
     procedure SetSkipCheckReleaseRestrictions()
     begin
         SkipCheckReleaseRestrictions := true;
+    end;
+
+    internal procedure SetSkipWhseRequestOperations(NewSkipWhseRequestOperations: Boolean)
+    begin
+        SkipWhseRequestOperations := NewSkipWhseRequestOperations;
     end;
 
     [IntegrationEvent(false, false)]

@@ -46,6 +46,8 @@ report 498 "Batch Post Purch. Credit Memos"
                     {
                         ApplicationArea = VAT;
                         Caption = 'VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
                         ToolTip = 'Specifies the date that the program will use as the VAT date when you post if you place a checkmark in Replace VAT Date.';
                     }
                     field(ReplacePostingDate; ReplacePostingDate)
@@ -70,6 +72,8 @@ report 498 "Batch Post Purch. Credit Memos"
                     {
                         ApplicationArea = VAT;
                         Caption = 'Replace VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
                         ToolTip = 'Specifies if you want to replace the purchase orders'' VAT date with the date in the VAT Date field.';
                     }
                     field(CalcInvDiscount; CalcInvDisc)
@@ -116,6 +120,7 @@ report 498 "Batch Post Purch. Credit Memos"
         var
             PurchasesPayablesSetup: Record "Purchases & Payables Setup";
             ClientTypeManagement: Codeunit "Client Type Management";
+            VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         begin
             if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
                 exit;
@@ -123,6 +128,7 @@ report 498 "Batch Post Purch. Credit Memos"
             CalcInvDisc := PurchasesPayablesSetup."Calc. Inv. Discount";
             PrintDoc := false;
             PrintDocVisible := PurchasesPayablesSetup."Post & Print with Job Queue";
+            VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
         end;
     }
 
@@ -141,5 +147,6 @@ report 498 "Batch Post Purch. Credit Memos"
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
+        VATDateEnabled: Boolean;
 }
 

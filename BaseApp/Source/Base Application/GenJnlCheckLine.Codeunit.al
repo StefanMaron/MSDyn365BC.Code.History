@@ -44,6 +44,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
         PurchDocAlreadyExistsErr: Label 'Purchase %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
         EmployeeBalancingDocTypeErr: Label 'must be empty or set to Payment when Balancing Account Type field is set to Employee';
         EmployeeAccountDocTypeErr: Label 'must be empty or set to Payment when Account Type field is set to Employee';
+        VATDateNotAllowedErr: Label 'is not within your range of allowed posting dates.';
 
     procedure RunCheck(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -344,6 +345,9 @@ codeunit 11 "Gen. Jnl.-Check Line"
                     ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account"))
                 then
                     GenJnlLine.FieldError("Document Date", ErrorInfo.Create(Text000, true));
+
+            if HasVAT(GenJnlLine) then
+                CheckVATDate(GenJnlLine);
         end;
     end;
 
@@ -952,7 +956,26 @@ codeunit 11 "Gen. Jnl.-Check Line"
         GenJnlLine.TestField("Applies-to Doc. No.", '', ErrorInfo.Create());
         GenJnlLine.TestField("Applies-to ID", '', ErrorInfo.Create());
     end;
+    
+    local procedure CheckVATDate(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
+        SetupRecID: RecordID;
+    begin
+        // check whether VAT Date is within allowed VAT Periods
+        GenJnlCheckLine.CheckVATDateAllowed(GenJournalLine."VAT Reporting Date");
 
+        // check whether VAT Date is within Allowed period fedined in Gen. Ledger Setup
+        if GenJnlCheckLine.IsDateNotAllowed(GenJournalLine."VAT Reporting Date", SetupRecID, GenJournalLine."Journal Template Name") then
+            GenJournalLine.FieldError(GenJournalLine."VAT Reporting Date", ErrorInfo.Create(VATDateNotAllowedErr, true));
+    end;
+
+    internal procedure HasVAT(var GenJnlLine: Record "Gen. Journal Line") : Boolean
+    begin
+        exit((GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::" ") or 
+            (GenJnlLine."Bal. Gen. Posting Type" <> GenJnlLine."Bal. Gen. Posting Type"::" "));
+    end;
+    
     [IntegrationEvent(true, false)]
     local procedure OnAfterCheckAccountNo(var GenJournalLine: Record "Gen. Journal Line")
     begin

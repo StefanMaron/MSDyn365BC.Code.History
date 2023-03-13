@@ -44,6 +44,7 @@ codeunit 136302 "Job Consumption Purchase"
         ValueMustMatchErr: Label '%1 must equal to %2.';
         EmptyValueErr: Label '%1 is empty in %2';
         WrongTotalCostAmtErr: Label 'Total cost amount must be 0 in Posted Purchase Receipt %1.', Comment = '%1 = Document No. (e.g. "Total cost amount must be 0 in Posted Purchase Receipt 107031").';
+        JobPlanningLineQuantityErr: Label 'The Job Planning Line Quantity should not change.';
 
     [Test]
     [Scope('OnPrem')]
@@ -3142,6 +3143,55 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [THEN] Posting Purchase Receipt is interrupted with Expected Empty Error
         Assert.ExpectedError('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyJobPlanningLineQuantityShouldNotChangeWhenPartialReceiveOrInvoice()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        PurchLine2: Record "Purchase Line";
+        JobPlanningLine: Record "Job Planning Line";
+        Quantity: Decimal;
+        QtyToReceiveOrInvoice: Decimal;
+    begin
+        // [SCENARIO 461139] Job Planning Line Quantity changes after Posting Purchase Order as partially Received and partially Invoiced with multiple postings using Job Usage Link functionality
+        Initialize();
+
+        // [GIVEN] Job with Planning Line - "Usage Link" and Item "X"
+        Quantity := LibraryRandom.RandDecInRange(100, 200, 2);
+        CreateJobAndJobPlanningLine(JobPlanningLine, CreateItem(), Quantity);
+
+        // [GIVEN] Purchase Order with Item "X", wiht Job Planning line and without "Job Planning Line No." on Purchase Line
+        CreatePurchaseDocument(PurchLine, PurchHeader."Document Type"::Order, JobPlanningLine."No.");
+        PurchLine.Validate(Quantity, Quantity);
+        PurchLine.Validate("Job No.", JobPlanningLine."Job No.");
+        PurchLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
+        QtyToReceiveOrInvoice := Round(Quantity / LibraryRandom.RandIntInRange(4, 6));
+        PurchLine.Validate("Qty. to Receive", QtyToReceiveOrInvoice);
+        PurchLine.Modify(true);
+
+        // [GIVEN] Post 1st Purchase Receipt
+        PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
+
+        // [GIVEN] Post 2nd Purchase Receipt
+        PurchLine2.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
+        PurchLine2.Validate("Qty. to Receive", QtyToReceiveOrInvoice);
+        PurchLine2.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchHeader, true, false);
+
+        // [WHEN] Post Purchase Invoice with Partial Quantity
+        PurchLine2.Get(PurchLine."Document Type", PurchLine."Document No.", PurchLine."Line No.");
+        QtyToReceiveOrInvoice += LibraryRandom.RandInt(10);
+        PurchLine2.Validate("Qty. to Invoice", QtyToReceiveOrInvoice);
+        PurchLine2.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchHeader, false, true);
+
+        // [VERIFY] Verify: Job Planning Line Quantity not changed
+        Assert.AreEqual(JobPlanningLine.Quantity, Quantity, JobPlanningLineQuantityErr);
     end;
 
     local procedure Initialize()

@@ -33,6 +33,12 @@ report 1322 "Standard Purchase - Order"
             column(CompanyAddress6; CompanyAddr[6])
             {
             }
+            column(CompanyAddress7; CompanyAddr[7])
+            {
+            }
+            column(CompanyAddress8; CompanyAddr[8])
+            {
+            }
             column(CompanyHomePage_Lbl; HomePageCaptionLbl)
             {
             }

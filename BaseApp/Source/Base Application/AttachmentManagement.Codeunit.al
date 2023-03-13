@@ -260,8 +260,8 @@ codeunit 5052 AttachmentManagement
         Commit();
         User.SetRange("User Name", UserId);
 #if CLEAN19
-        if not User.FindFirst() and not InitializeExchangeWithToken(ExchangeWebServicesServer, User."Authentication Email") then            
-                Error('');
+        if not User.FindFirst() and not InitializeExchangeWithToken(ExchangeWebServicesServer, User."Authentication Email") then
+            Error('');
 #else
         if not User.FindFirst() and not InitializeExchangeWithToken(ExchangeWebServicesServer, User."Authentication Email") then
             if not InitializeExchangeWithCredentials(ExchangeWebServicesServer) then
@@ -559,6 +559,7 @@ codeunit 5052 AttachmentManagement
 
     local procedure SetDeliveryState(var InteractLogEntry: Record "Interaction Log Entry"; IsSent: Boolean)
     begin
+        OnBeforeSetDeliveryState(InteractLogEntry, IsSent);
         if IsSent then
             InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::" "
         else
@@ -609,10 +610,10 @@ codeunit 5052 AttachmentManagement
                             TempDeliverySorterWord.Insert();
                         end;
                     else begin
-                            TempDeliverySorterOther := DeliverySorter;
-                            OnProcessDeliverySorterOther(DeliverySorter, TempDeliverySorterOther, Attachment, I);
-                            TempDeliverySorterOther.Insert();
-                        end;
+                        TempDeliverySorterOther := DeliverySorter;
+                        OnProcessDeliverySorterOther(DeliverySorter, TempDeliverySorterOther, Attachment, I);
+                        TempDeliverySorterOther.Insert();
+                    end;
                 end;
                 I := I + 1;
                 Window.Update(2, Round(I / NoOfAttachments * 10000, 1));
@@ -664,10 +665,10 @@ codeunit 5052 AttachmentManagement
             CorrespondenceType::Fax:
                 exit("Correspondence Type"::Fax);
             else begin
-                    OnConvertCorrespondenceTypeElse(CorrespondenceType, ReturnType, IsHandled);
-                    if IsHandled then
-                        exit(ReturnType);
-                end;
+                OnConvertCorrespondenceTypeElse(CorrespondenceType, ReturnType, IsHandled);
+                if IsHandled then
+                    exit(ReturnType);
+            end;
         end;
     end;
 
@@ -698,6 +699,11 @@ codeunit 5052 AttachmentManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSend(var DeliverySorter: Record "Delivery Sorter"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDeliveryState(var InteractLogEntry: Record "Interaction Log Entry"; var IsSent: Boolean)
     begin
     end;
 

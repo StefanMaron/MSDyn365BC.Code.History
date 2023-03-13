@@ -285,10 +285,13 @@ codeunit 5870 "Calculate BOM Tree"
                 if TreeType = TreeType::Availability then
                     SetFilter("Quantity per", '>%1', 0);
             if FindSet() then begin
-                if ParentItem."Replenishment System" <> ParentItem."Replenishment System"::"Prod. Order" then
-                    exit(true);
+                if ParentItem."Replenishment System" <> ParentItem."Replenishment System"::"Prod. Order" then begin
+                    FoundSubTree := true;
+                    OnGenerateProdCompSubTreeOnBeforeExitForNonProdOrder(ParentItem, BOMBuffer, FoundSubTree);
+                    exit(FoundSubTree);
+                end;
                 repeat
-                    IsHandled := FALSE;
+                    IsHandled := false;
                     OnBeforeTransferProdBOMLine(BOMBuffer, ProdBOMLine, ParentItem, ParentBOMBuffer, EntryNo, TreeType, IsHandled);
                     if not IsHandled then
                         if "No." <> '' then
@@ -1094,6 +1097,11 @@ codeunit 5870 "Calculate BOM Tree"
 
     [IntegrationEvent(false, false)]
     local procedure OnGenerateAsmHeaderSubTreeOnAfterAsmLineLoop(var ParentBOMBuffer: Record "BOM Buffer"; var BOMBuffer: Record "BOM Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateProdCompSubTreeOnBeforeExitForNonProdOrder(ParentItem: Record Item; var BOMBuffer: Record "BOM Buffer"; var FoundSubTree: Boolean)
     begin
     end;
 

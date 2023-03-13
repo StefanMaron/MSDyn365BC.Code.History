@@ -50,7 +50,13 @@ codeunit 1262 "Pre & Post Process XML Import"
     procedure PreProcessBankAccount(DataExch: Record "Data Exch."; BankAccNo: Code[20]; IBANPathFilter: Text; BankAccIDPathFilter: Text; CurrCodePathFilter: Text)
     var
         BankAccount: Record "Bank Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePreProcessBankAccount(DataExch, BankAccNo, IBANPathFilter, BankAccIDPathFilter, CurrCodePathFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         BankAccount.Get(BankAccNo);
         CheckBankAccNo(DataExch, BankAccount, IBANPathFilter, BankAccIDPathFilter);
         CheckBankAccCurrency(DataExch, BankAccount, CurrCodePathFilter);
@@ -79,7 +85,14 @@ codeunit 1262 "Pre & Post Process XML Import"
     end;
 
     procedure PreProcessFile(DataExch: Record "Data Exch."; StatementIdPathFilter: Text)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePreProcessFile(DataExch, StatementIdPathFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckMultipleStatements(DataExch, StatementIdPathFilter);
     end;
 
@@ -186,6 +199,16 @@ codeunit 1262 "Pre & Post Process XML Import"
 
         RecRef.Modify(true);
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreProcessBankAccount(DataExch: Record "Data Exch."; BankAccNo: Code[20]; IBANPathFilter: Text; BankAccIDPathFilter: Text; CurrCodePathFilter: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreProcessFile(DataExch: Record "Data Exch."; StatementIdPathFilter: Text; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

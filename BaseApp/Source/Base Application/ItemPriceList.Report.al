@@ -52,6 +52,12 @@ report 7050 "Item Price List"
             column(CompanyAddr6; CompanyAddr[6])
             {
             }
+            column(CompanyAddr7; CompanyAddr[7])
+            {
+            }
+            column(CompanyAddr8; CompanyAddr[8])
+            {
+            }
             column(SourceType; PriceSource."Source Type")
             {
             }

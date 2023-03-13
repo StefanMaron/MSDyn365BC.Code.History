@@ -930,7 +930,7 @@ table 114 "Sales Cr.Memo Header"
 
         if CancelledDocument.FindSalesCancelledCrMemo("No.") then begin
             SalesInvHeader.Get(CancelledDocument."Cancelled By Doc. No.");
-            PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvHeader);
+            RunSalesInvoiceHeaderPage(SalesInvHeader, PAGE::"Posted Sales Invoice");
         end;
     end;
 
@@ -945,8 +945,20 @@ table 114 "Sales Cr.Memo Header"
 
         if CancelledDocument.FindSalesCorrectiveCrMemo("No.") then begin
             SalesInvHeader.Get(CancelledDocument."Cancelled Doc. No.");
-            PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvHeader);
+            RunSalesInvoiceHeaderPage(SalesInvHeader, PAGE::"Posted Sales Invoice");
         end;
+    end;
+
+    local procedure RunSalesInvoiceHeaderPage(var SalesInvoiceHeader: Record "Sales Invoice Header"; PageID: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunSalesInvoiceHeaderPage(SalesInvoiceHeader, PageID, IsHandled);
+        if IsHandled then
+            exit;
+
+        PAGE.Run(PageID, SalesInvoiceHeader);
     end;
 
     procedure GetWorkDescription(): Text
@@ -986,6 +998,11 @@ table 114 "Sales Cr.Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunSalesInvoiceHeaderPage(var SalesInvoiceHeader: Record "Sales Invoice Header"; var PageID: Integer; var IsHandled: Boolean)
     begin
     end;
 

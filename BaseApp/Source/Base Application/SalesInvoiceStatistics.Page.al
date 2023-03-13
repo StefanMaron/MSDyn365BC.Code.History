@@ -296,6 +296,7 @@ page 397 "Sales Invoice Statistics"
             exit;
 
         SalesInvLine.SetRange("Document No.", "No.");
+        OnCalculateTotalsOnAfterSalesInvLineSetFilters(SalesInvLine, Rec);
         if SalesInvLine.Find('-') then
             repeat
                 CustAmount += SalesInvLine.Amount;
@@ -332,6 +333,11 @@ page 397 "Sales Invoice Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateTotals(SalesInvoiceHeader: Record "Sales Invoice Header"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean; var VATPercentage: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterSalesInvLineSetFilters(var SalesInvoiceLine: Record "Sales Invoice Line"; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 

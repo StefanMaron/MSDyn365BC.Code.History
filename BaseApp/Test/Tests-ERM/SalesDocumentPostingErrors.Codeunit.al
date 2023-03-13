@@ -53,8 +53,9 @@ codeunit 132501 "Sales Document Posting Errors"
 
         // [THEN] "Error Message" page is open, where is one error:
         // [THEN] "Posting Date is not within your range of allowed posting dates."
+        // [THEN] "VAT Reporting Date is not within your range of allowed posting dates."
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
-        Assert.RecordCount(TempErrorMessage, 1);
+        Assert.RecordCount(TempErrorMessage, 2);
         TempErrorMessage.FindFirst();
         TempErrorMessage.TestField("Message", PostingDateNotAllowedErr);
         // [THEN] Call Stack contains '"Sales-Post"(CodeUnit 80).CheckAndUpdate '
@@ -108,8 +109,9 @@ codeunit 132501 "Sales Document Posting Errors"
 
         // [THEN] "Error Message" page is open, where is one error:
         // [THEN] "Posting Date is not within your range of allowed posting dates."
+        // [THEN] "VAT Reporting Date is not within your range of allowed posting dates."
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
-        Assert.RecordCount(TempErrorMessage, 1);
+        Assert.RecordCount(TempErrorMessage, 2);
         TempErrorMessage.FindFirst();
         TempErrorMessage.TestField("Message", PostingDateNotAllowedErr);
         // [THEN] Call Stack contains '"Sales-Post"(CodeUnit 80).CheckAndUpdate '
@@ -347,7 +349,7 @@ codeunit 132501 "Sales Document Posting Errors"
         Assert.ExpectedError('');
         // [THEN] Opened page "Error Messages" with two lines:
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
-        Assert.RecordCount(TempErrorMessage, 2);
+        Assert.RecordCount(TempErrorMessage, 3);
         // [THEN] Second line, where Description is 'There is nothing to post', Context is 'Sales Header: Order, 1002'
         TempErrorMessage.FindLast();
         TempErrorMessage.TestField("Message", DocumentErrorsMgt.GetNothingToPostErrorMsg());
@@ -389,18 +391,18 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Clear(RegisterID);
         TempErrorMessage.SetRange("Register ID", RegisterID);
-        Assert.RecordCount(TempErrorMessage, 3);
+        Assert.RecordCount(TempErrorMessage, 5);
         // [THEN] The first error for Order '1002' is 'Posting Date is not within your range of allowed posting dates.'
 
         TempErrorMessage.Get(1);
         Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage."Message");
         Assert.AreEqual(SalesHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 1st error');
         // [THEN] The second error for Order '1002' is 'There is nothing to post'
-        TempErrorMessage.Get(2);
+        TempErrorMessage.Get(3);
         Assert.ExpectedMessage(DocumentErrorsMgt.GetNothingToPostErrorMsg(), TempErrorMessage."Message");
         Assert.AreEqual(SalesHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 2nd error');
         // [THEN] The Error for Invoice '1003' is 'Posting Date is not within your range of allowed posting dates.'
-        TempErrorMessage.Get(3);
+        TempErrorMessage.Get(4);
         Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage."Message");
         Assert.AreEqual(SalesHeader[2].RecordId, TempErrorMessage."Context Record ID", 'Context for 3rd error');
     end;
@@ -456,16 +458,17 @@ codeunit 132501 "Sales Document Posting Errors"
         // [THEN] 2 lines for Invoice '1002' and 1 line for Invoice '1003'
         // [THEN] The first error for Invoice '1002' is 'Posting Date is not within your range of allowed posting dates.'
         ErrorMessage.SetRange("Context Record ID", SalesHeader[1].RecordId);
-        Assert.RecordCount(ErrorMessage, 2);
+        Assert.RecordCount(ErrorMessage, 3);
         ErrorMessage.FindFirst();
         Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage."Message");
         // [THEN] The second error for Invoice '1002' is 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.'
+        ErrorMessage.Next();
         ErrorMessage.Next();
         Assert.ExpectedMessage(StrSubstNo(DefaultDimErr, DefaultDimension."Dimension Code", CustomerNo), ErrorMessage."Message");
 
         // [THEN] The Error for Invoice '1003' is 'Posting Date is not within your range of allowed posting dates.'
         ErrorMessage.SetRange("Context Record ID", SalesHeader[2].RecordId);
-        Assert.RecordCount(ErrorMessage, 1);
+        Assert.RecordCount(ErrorMessage, 2);
         ErrorMessage.FindFirst();
         Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage."Message");
     end;
@@ -521,6 +524,7 @@ codeunit 132501 "Sales Document Posting Errors"
         JobQueueEntries.ShowError.Invoke();
         ErrorMessages.First();
         Assert.IsSubstring(ErrorMessages.Description.Value, PostingDateNotAllowedErr);
+        ErrorMessages.Next();
         ErrorMessages.Next();
         Assert.IsSubstring(ErrorMessages.Description.Value, StrSubstNo(DefaultDimErr, DefaultDimension."Dimension Code", CustomerNo));
         Assert.IsFalse(ErrorMessages.Next(), 'Wrong number of error messages.');

@@ -1,8 +1,5 @@
 codeunit 1251 "Record Match Mgt."
 {
-    var
-        RespectThresholdForNumbers: Boolean;
-
     trigger OnRun()
     begin
     end;
@@ -36,14 +33,9 @@ codeunit 1251 "Record Match Mgt."
         exit(Result);
     end;
 
-    procedure SetRespectThresholdForNumbers(NewValue: Boolean)
-    begin
-        RespectThresholdForNumbers := NewValue;
-    end;
-
     /// <summary>
-    /// Computes a nearness score between strings. Nearness is based on the longest common substrings.
-    /// Substring matches below Threshold are not considered unless they are numeric.
+    /// Computes a nearness score between strings. Nearness is based on repeatedly finding longest common substrings.
+    /// Substring matches below Threshold are not considered.
     /// Normalizing factor is the max value returned by this procedure.
     /// </summary>
     /// <param name="FirstString">First string to match</param>
@@ -64,8 +56,7 @@ codeunit 1251 "Record Match Mgt."
         FirstString := UpperCase(FirstString);
         SecondString := UpperCase(SecondString);
 
-        // The max length that can be matched is the length of the shortest string: (this is a Min)
-        MinLength := (StrLen(FirstString) + StrLen(SecondString) - Abs(StrLen(FirstString) - StrLen(SecondString))) / 2;
+        MinLength := GetLengthOfShortestString(FirstString, SecondString);
         if MinLength = 0 then
             MinLength := 1;
 
@@ -80,10 +71,34 @@ codeunit 1251 "Record Match Mgt."
             ShouldContinue := IsSubstringConsideredForNearness(Result, Threshold);
         end;
 
-        exit(NormalizingFactor * TotalMatchedChars div MinLength);
+        exit((NormalizingFactor * TotalMatchedChars) div MinLength);
     end;
 
-    local procedure IsSubstringConsideredForNearness(Substring: Text; Threshold: Integer): Boolean
+    /// <summary>
+    /// Like CalculateStringNearness, however it doesn't repeatedly takes substrings, only once.
+    /// The result is normalized with respect to the length of the BaseString, in contrast with 
+    /// CalculateStringNearness where it was normalized with respect ot the shorter one.
+    /// </summary>
+    /// <param name="ComparingString"></param>
+    /// <param name="BaseString"></param>
+    /// <param name="NormalizingFactor">Max value returned by this procedure</param>
+    /// <returns>A number between 0 and NormalizingFactor representing how much of BaseString was found in ComparingString</returns>
+    procedure CalculateExactStringNearness(ComparingString: Text; BaseString: Text; NormalizingFactor: Integer): Integer
+    var
+        LongestCommonLength: Integer;
+    begin
+        ComparingString := UpperCase(ComparingString);
+        BaseString := UpperCase(BaseString);
+        LongestCommonLength := StrLen(GetLongestCommonSubstring(ComparingString, BaseString));
+
+        if BaseString = '' then
+            exit(0);
+        if StrLen(BaseString) < LongestCommonLength then
+            exit(NormalizingFactor);
+        exit((NormalizingFactor * LongestCommonLength) div StrLen(BaseString));
+    end;
+
+    local procedure IsSubstringConsideredForNearness(Substring: Text; MinThreshold: Integer): Boolean
     var
         Length: Integer;
     begin
@@ -91,25 +106,25 @@ codeunit 1251 "Record Match Mgt."
         if Length <= 1 then
             exit(false);
 
-        if Length >= Threshold then
-            exit(true);
-
-        // Matches smaller than threshold are only considered when the values are numeric
-        if AllNumeric(Substring) and (not RespectThresholdForNumbers) then
-            exit(true);
+        exit(MinThreshold <= Length);
     end;
 
-    local procedure AllNumeric(String: Text): Boolean
-    var
-        WithoutNumeric: Text;
+    local procedure GetLengthOfShortestString(FirstString: Text; SecondString: Text): Integer
     begin
-        WithoutNumeric := Text.DelChr(String, '=', '0123456789');
-        exit(WithoutNumeric = '');
+        exit((StrLen(FirstString) + StrLen(SecondString) - Abs(StrLen(FirstString) - StrLen(SecondString))) / 2);
     end;
 
     procedure Trim(InputString: Text): Text
     begin
         exit(DelChr(DelChr(InputString, '<'), '>'));
     end;
+
+#if not CLEAN22
+    [Obsolete('Numeric matches are not considered below the Lower limit threshold. This procedure is unused', '22.0')]
+    procedure SetRespectThresholdForNumbers(NewValue: Boolean)
+    begin
+    end;
+#endif
+
 }
 

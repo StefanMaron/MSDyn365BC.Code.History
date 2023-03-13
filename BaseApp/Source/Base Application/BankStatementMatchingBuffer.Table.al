@@ -89,6 +89,21 @@ table 1250 "Bank Statement Matching Buffer"
             Caption = 'Date Matches';
             DataClassification = SystemMetadata;
         }
+        field(20; "Doc. No. Exact Score"; Integer)
+        {
+            Caption = 'Doc. No. Exact Score';
+            DataClassification = SystemMetadata;
+        }
+        field(21; "Ext. Doc. No. Exact Score"; Integer)
+        {
+            Caption = 'Ext. Doc. No. Exact Score';
+            DataClassification = SystemMetadata;
+        }
+        field(22; "Description Exact Score"; Integer)
+        {
+            Caption = 'Description Exact Score';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

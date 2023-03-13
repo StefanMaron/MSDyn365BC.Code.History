@@ -1175,7 +1175,7 @@
                 CheckEndingDate(ValidateFields());
 
                 ShouldSetDueDate := true;
-                OnValidateStartingTimeOnBeforeSetDueDate(Rec, ShouldSetDueDate);
+                OnValidateStartingTimeOnBeforeSetDueDate(Rec, ShouldSetDueDate, xRec, CurrentFieldNo, CurrFieldNo);
                 if ShouldSetDueDate then
                     SetDueDate();
 
@@ -1969,6 +1969,7 @@
 
         if "Vendor No." <> '' then
             UpdateItemReferenceDescription();
+        OnAfterUpdateDescription(Rec, Item, ItemVariant, CurrFieldNo);
     end;
 
     local procedure ValidateItemDescriptionAndQuantity(Vendor: Record Vendor)
@@ -3731,6 +3732,7 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::Vendor, Rec."Vendor No.");
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
         DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Purchaser Code");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Job, Rec."Demand Order No.");
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, CurrFieldNo);
     end;
@@ -3811,6 +3813,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var RequisitionLine: Record "Requisition Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDescription(RequisitionLine: Record "Requisition Line"; Item: Record Item; ItemVariant: Record "Item Variant"; FieldNo: Integer)
     begin
     end;
 
@@ -4123,7 +4130,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateStartingTimeOnBeforeSetDueDate(var RequisitionLine: Record "Requisition Line"; var ShouldSetDueDate: Boolean);
+    local procedure OnValidateStartingTimeOnBeforeSetDueDate(var RequisitionLine: Record "Requisition Line"; var ShouldSetDueDate: Boolean; xRequisitionLine: Record "Requisition Line"; CurrentFieldNo: Integer; CurrFieldNo: Integer)
     begin
     end;
 

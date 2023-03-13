@@ -955,6 +955,7 @@ table 5741 "Transfer Line"
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
     begin
+        OnBeforeOnDelete(Rec);
         TestStatusOpen();
 
         TestField("Quantity Shipped", "Quantity Received");
@@ -2011,6 +2012,11 @@ table 5741 "Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenItemTrackingLines(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var TransferLine: Record "Transfer Line")
     begin
     end;
 

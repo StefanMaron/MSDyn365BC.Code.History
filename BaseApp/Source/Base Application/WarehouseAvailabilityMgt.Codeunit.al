@@ -835,8 +835,8 @@ codeunit 7314 "Warehouse Availability Mgt."
 
                 Item.SetRange("Location Filter", "Location Code");
                 Item.SetRange("Variant Filter", "Variant Code");
-                Item.CalcFields("Reserved Qty. on Inventory", "Qty. Picked");
-                AvailQtyBase := AvailQtyBase - Item."Reserved Qty. on Inventory" - Item."Qty. Picked";
+                Item.CalcFields("Reserved Qty. on Inventory");
+                AvailQtyBase := AvailQtyBase - Item."Reserved Qty. on Inventory" - CalcQtyBasePickedNotShippedOnWarehouseShipmentLine(WhseWorksheetLine, Item);
             end else
                 AvailQtyBase := CalcInvtAvailQty(Item, Location, "Variant Code", TempWhseActivLine);
 
@@ -850,6 +850,18 @@ codeunit 7314 "Warehouse Availability Mgt."
 
             AvailQtyBase := AvailQtyBase + QtyReservedOnPickShip + QtyReservedForCurrLine;
         end;
+    end;
+
+    local procedure CalcQtyBasePickedNotShippedOnWarehouseShipmentLine(WhseWorksheetLine: Record "Whse. Worksheet Line"; Item: Record Item): Decimal
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        WarehouseShipmentLine.SetRange("Item No.", Item."No.");
+        WarehouseShipmentLine.SetRange("Location Code", WhseWorksheetLine."Location Code");
+        if WhseWorksheetLine."Variant Code" <> '' then
+            WarehouseShipmentLine.SetRange("Variant Code", WhseWorksheetLine."Variant Code");
+        WarehouseShipmentLine.CalcSums("Qty. Picked (Base)", "Qty. Shipped (Base)");
+        exit(WarehouseShipmentLine."Qty. Picked (Base)" - WarehouseShipmentLine."Qty. Shipped (Base)")
     end;
 
     [IntegrationEvent(false, false)]

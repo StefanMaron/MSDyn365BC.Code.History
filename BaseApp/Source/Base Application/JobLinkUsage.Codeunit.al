@@ -50,6 +50,9 @@ codeunit 1026 "Job Link Usage"
                 end else
                     CreateJobPlanningLine(JobPlanningLine, JobLedgerEntry, RemainingQtyToMatch);
 
+            if (RemainingQtyToMatch = JobPlanningLine."Qty. Posted") and (JobPlanningLine."Remaining Qty. (Base)" = 0) then
+                exit;
+
             if RemainingQtyToMatch <> 0 then begin
                 JobUsageLink.Create(JobPlanningLine, JobLedgerEntry);
                 if Abs(RemainingQtyToMatch) > Abs(JobPlanningLine."Remaining Qty. (Base)") then
@@ -110,10 +113,11 @@ codeunit 1026 "Job Link Usage"
         end;
         // CalledFromInvtPutawayPick - Skip this quantity validation for Inventory Pick posting as quantity cannot be updated with an active Warehouse Activity Line.
         if not (CalledFromInvtPutawayPick or PartialJobPlanningLineQuantityPosting) then
-            JobPlanningLine.Validate(Quantity,
-                UOMMgt.CalcQtyFromBase(
-                    JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
-                    TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure"));
+            if (TotalQtyBase > JobPlanningLine.Quantity) or (JobPlanningLine.Quantity = 0) then
+                JobPlanningLine.Validate(Quantity,
+                    UOMMgt.CalcQtyFromBase(
+                        JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code",
+                        TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure"));
 
         JobPlanningLine.CopyTrackingFromJobLedgEntry(JobLedgerEntry);
         OnHandleMatchUsageSpecifiedJobPlanningLineOnBeforeJobPlanningLineUse(JobPlanningLine, JobJournalLine, JobLedgerEntry);

@@ -515,6 +515,7 @@ codeunit 99000773 "Calculate Prod. Order"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         ErrorOccured: Boolean;
         IsHandled: Boolean;
+        ShouldCheckIfEntriesExist: Boolean;
     begin
         ProdOrderLine := ProdOrderLine2;
 
@@ -523,10 +524,13 @@ codeunit 99000773 "Calculate Prod. Order"
         if IsHandled then
             exit(not ErrorOccured);
 
-        if ProdOrderLine.Status = ProdOrderLine.Status::Released then begin
+        ShouldCheckIfEntriesExist := ProdOrderLine.Status = ProdOrderLine.Status::Released;
+        OnCalculateOnAfterCalcShouldCheckIfEntriesExist(ProdOrderLine, CalcRouting, ShouldCheckIfEntriesExist);
+        if ShouldCheckIfEntriesExist then begin
             ItemLedgEntry.SetCurrentKey("Order Type", "Order No.");
             ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
             ItemLedgEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
+            OnCalculateOnAfterItemLedgEntrySetFilters(ProdOrderLine, ItemLedgEntry);
             if not ItemLedgEntry.IsEmpty() then
                 Error(
                   Text001,
@@ -821,7 +825,13 @@ codeunit 99000773 "Calculate Prod. Order"
     var
         Location: Record Location;
         FromProdBinCode: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetProdOrderLineBinCode(ProdOrderLine, ParentBinCode, ParentLocationCode, IsHandled);
+        if IsHandled then
+            exit;
+
         ProdOrder.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.");
         if (ProdOrder."Location Code" = ProdOrderLine."Location Code") and (ProdOrder."Bin Code" <> '') then begin
             ProdOrderLine.Validate("Bin Code", ProdOrder."Bin Code");
@@ -977,6 +987,11 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetProdOrderLineBinCode(var ProdOrderLine: Record "Prod. Order Line"; ParentBinCode: Code[20]; ParentLocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferBOM(var ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; ProdBOMNo: Code[20]; Level: Integer; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal; Blocked: Boolean; var ErrorOccured: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -998,6 +1013,16 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateOnAfterGetpLanningParameterAtSKUCalcComponents(var ProdOrderLine: Record "Prod. Order Line"; var SKU: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnAfterCalcShouldCheckIfEntriesExist(var ProdOrderLine: Record "Prod. Order Line"; var CalcRouting: Boolean; var ShouldCheckIfEntriesExist: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnAfterItemLedgEntrySetFilters(ProdOrderLine: Record "Prod. Order Line"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 

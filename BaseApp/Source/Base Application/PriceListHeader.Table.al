@@ -391,6 +391,7 @@ table 7000 "Price List Header"
             Rec."Starting Date" := 0D;
             Rec."Ending Date" := 0D;
         end;
+        OnAfterBlankDefaults(Rec);
     end;
 
     local procedure GetNoSeries() Result: Code[20];
@@ -668,6 +669,11 @@ table 7000 "Price List Header"
             TestField("Source No.")
         else
             TestField("Source No.", '');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterBlankDefaults(var PriceListHeader: Record "Price List Header")
+    begin
     end;
 
     [IntegrationEvent(true, false)]

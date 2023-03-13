@@ -30,7 +30,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         FieldMustNotBeErr: Label '%1 must not be %2', Comment = '%1 - field name, %2 - field value';
         SameSignErr: Label '%1 must have the same sign as %2', Comment = '%1 - field name, %2 - field name';
         OutOfBalanceFilterTxt: Label '*is out of balance by*';
-        OtherIssuesTxt: Label '(+%1 other issues)', comment = '%1 - number of issues';
         ExtendingGenJnlCheckLineTxt: Label 'ExtendingGenJnlCheckLine', Locked = true;
         ExtendingGenJnlCheckLineNewTxt: Label 'ExtendingGenJnlCheckLineWithCollectError', Locked = true;
         LogTestFieldOptionTxt: Label 'LogTestFieldOption', Locked = true;
@@ -180,9 +179,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Commit();
         GeneralJournal.Trap();
         Page.Run(Page::"General Journal", GenJournalLine);
-
-        // [THEN] Second line is "(+2 other issues)"
-        GeneralJournal.JournalErrorsFactBox.Error2.AssertEquals(StrSubstNo(OtherIssuesTxt, 2));
     end;
 
     [Test]

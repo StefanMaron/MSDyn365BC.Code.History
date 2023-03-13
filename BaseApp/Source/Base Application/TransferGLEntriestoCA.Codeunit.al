@@ -54,7 +54,7 @@ codeunit 1105 "Transfer GL Entries to CA"
     begin
         ClearAll();
 
-        CostAccMgt.LinkCostTypesToGLAccounts();
+        LinkCostTypesToGLAccounts();
 
         Window.Open(Text001);
 
@@ -62,6 +62,18 @@ codeunit 1105 "Transfer GL Entries to CA"
         GetGLEntries();
 
         Window.Close();
+    end;
+
+    local procedure LinkCostTypesToGLAccounts()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeLinkCostTypesToGLAccounts(IsHandled);
+        if IsHandled then
+            exit;
+
+        CostAccMgt.LinkCostTypesToGLAccounts();
     end;
 
     procedure GetGLEntries()
@@ -317,6 +329,11 @@ codeunit 1105 "Transfer GL Entries to CA"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertCostJournalLine(var TempCostJnlLine: Record "Cost Journal Line" temporary; GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeLinkCostTypesToGLAccounts(var IsHandled: Boolean)
     begin
     end;
 

@@ -1554,22 +1554,6 @@ codeunit 5940 ServContractManagement
                                     CreateDetailedServiceLine(ServHeader, ServContractLine, "Contract Type", "Contract No.");
                         OnCreateAllServLinesOnAfterCreateDetailedServLine(ServContractToInvoice, ServHeader, ServContractLine);
 
-                        if Prepaid then
-                            if (ServContractLine."Starting Date" < "Next Invoice Date") and (ServContractLine."Invoiced to Date" = 0D) then begin
-                                PartInvoiceFrom := ServContractLine."Starting Date";
-                                PartInvoiceTo := "Next Invoice Date" - 1;
-                                ServiceApplyEntry :=
-                                  CreateServiceLedgEntry(
-                                    ServHeader, "Contract Type", "Contract No.", CalcDate('<-CM>', PartInvoiceFrom), PartInvoiceTo,
-                                    false, false, ServContractLine."Line No.");
-                                ShouldCraeteServiceApplyEntry := ServiceApplyEntry <> 0;
-                                OnCreateAllServLinesOnAfterCalcShouldCraeteServiceApplyEntry(ServHeader, ServContractToInvoice, ServContractLine, PartInvoiceFrom, PartInvoiceTo, ServiceApplyEntry, ShouldCraeteServiceApplyEntry);
-                                if ShouldCraeteServiceApplyEntry then
-                                    CreateServiceLine(ServHeader, "Contract Type", "Contract No.", PartInvoiceFrom, PartInvoiceTo, ServiceApplyEntry, false);
-                                ServiceApplyEntry := 0;
-                            end;
-                        OnCreateAllServLinesOnAfterCreateServiceLedgerEntry(ServContractLine, ServiceApplyEntry);
-
                         ServiceApplyEntry :=
                           CreateServiceLedgEntry(
                             ServHeader, "Contract Type", "Contract No.", InvoiceFrom, InvoiceTo,
@@ -2748,10 +2732,13 @@ codeunit 5940 ServContractManagement
     begin
     end;
 
+#if not CLEAN22
+    [Obsolete('Removed code that caused issues with Service Invoice calculation.', '22.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCreateAllServLinesOnAfterCreateServiceLedgerEntry(var ServContractLine: Record "Service Contract Line"; var ServiceApplyEntry: Integer)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateAllServLinesOnAfterCalcShouldCraeteServiceApplyEntry(var ServHeader: Record "Service Header"; ServContractToInvoice: Record "Service Contract Header"; var ServContractLine: Record "Service Contract Line"; var PartInvoiceFrom: Date; var PartInvoiceTo: Date; var ServiceApplyEntry: Integer; var ShouldCraeteServiceApplyEntry: Boolean)

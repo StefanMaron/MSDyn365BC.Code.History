@@ -126,7 +126,6 @@ codeunit 5770 "Whse.-Service Release"
     begin
         WarehouseRequest.Reset();
         WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        WarehouseRequest.SetRange(Type, WarehouseRequest.Type);
         WarehouseRequest.SetRange("Source Type", DATABASE::"Service Line");
         WarehouseRequest.SetRange("Source Subtype", ServiceHeader."Document Type");
         WarehouseRequest.SetRange("Source No.", ServiceHeader."No.");

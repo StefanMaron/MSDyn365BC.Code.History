@@ -521,6 +521,7 @@ codeunit 5063 ArchiveManagement
                 SalesCommentLineArch.TransferFields(SalesCommentLine);
                 SalesCommentLineArch."Doc. No. Occurrence" := DocNoOccurrence;
                 SalesCommentLineArch."Version No." := VersionNo;
+                OnStoreSalesDocumentCommentsOnBeforeSalesCommentLineArchInsert(SalesCommentLineArch, SalesCommentLine);
                 SalesCommentLineArch.Insert();
             until SalesCommentLine.Next() = 0;
     end;
@@ -538,6 +539,7 @@ codeunit 5063 ArchiveManagement
                 PurchCommentLineArch.TransferFields(PurchCommentLine);
                 PurchCommentLineArch."Doc. No. Occurrence" := DocNoOccurrence;
                 PurchCommentLineArch."Version No." := VersionNo;
+                OnStorePurchDocumentCommentsOnBeforePurchCommentLineArchInsert(PurchCommentLineArch, PurchCommentLine);
                 PurchCommentLineArch.Insert();
             until PurchCommentLine.Next() = 0;
     end;
@@ -899,6 +901,16 @@ codeunit 5063 ArchiveManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnRestoreSalesLinesOnAfterValidateQuantity(var SalesLine: Record "Sales Line"; var SalesLineArchive: Record "Sales Line Archive")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStorePurchDocumentCommentsOnBeforePurchCommentLineArchInsert(var PurchCommentLineArchive: Record "Purch. Comment Line Archive"; PurchCommentLine: Record "Purch. Comment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStoreSalesDocumentCommentsOnBeforeSalesCommentLineArchInsert(var SalesCommentLineArchive: Record "Sales Comment Line Archive"; SalesCommentLine: Record "Sales Comment Line")
     begin
     end;
 

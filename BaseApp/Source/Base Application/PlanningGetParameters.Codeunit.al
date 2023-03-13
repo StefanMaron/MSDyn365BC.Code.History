@@ -277,6 +277,8 @@ codeunit 99000855 "Planning-Get Parameters"
             SKU."Overflow Level" := 0;
 
         AdjustInvalidValues(SKU, PlanningParameters."Reorder Point Enabled");
+
+        OnAfterAdjustInvalidSettings(SKU, PlanningParameters);
     end;
 
     local procedure AdjustInvalidValues(var SKU: Record "Stockkeeping Unit"; ReorderPointEnabled: Boolean)
@@ -371,6 +373,11 @@ codeunit 99000855 "Planning-Get Parameters"
             end else
                 WarningLevel := 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAdjustInvalidSettings(var StockkeepingUnit: Record "Stockkeeping Unit"; var PlanningParameters: Record "Planning Parameters")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

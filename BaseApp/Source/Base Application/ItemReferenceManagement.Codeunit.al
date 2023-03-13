@@ -569,7 +569,13 @@
     procedure PurchaseReferenceNoLookup(var PurchaseLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
     var
         ItemReference2: Record "Item Reference";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchaseReferenceNoLookup(PurchaseLine, PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if PurchaseLine.Type = PurchaseLine.Type::Item then begin
             ItemReference2.Reset();
             ItemReference2.SetCurrentKey("Reference Type", "Reference Type No.");
@@ -589,39 +595,43 @@
     procedure ValidatePurchaseReferenceNo(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemReference: Record "Item Reference"; SearchItem: Boolean; CurrentFieldNo: Integer)
     var
         ReturnedItemReference: Record "Item Reference";
+        IsHandled: Boolean;
     begin
-        ReturnedItemReference.Init();
-        if PurchaseLine."Item Reference No." <> '' then begin
-            if SearchItem then
-                ReferenceLookupPurchaseItem(PurchaseLine, ReturnedItemReference, CurrentFieldNo <> 0)
-            else
-                ReturnedItemReference := ItemReference;
+        IsHandled := false;
+        OnBeforeValidatePurchaseReferenceNo(PurchaseLine, PurchaseHeader, ItemReference, SearchItem, CurrentFieldNo, IsHandled);
+        if not IsHandled then begin
+            ReturnedItemReference.Init();
+            if PurchaseLine."Item Reference No." <> '' then begin
+                if SearchItem then
+                    ReferenceLookupPurchaseItem(PurchaseLine, ReturnedItemReference, CurrentFieldNo <> 0)
+                else
+                    ReturnedItemReference := ItemReference;
 
-            OnValidatePurchaseReferenceNoOnBeforeAssignNo(PurchaseLine, ReturnedItemReference);
+                OnValidatePurchaseReferenceNoOnBeforeAssignNo(PurchaseLine, ReturnedItemReference);
 
-            PurchaseLine.Validate("No.", ReturnedItemReference."Item No.");
-            PurchaseLine.SetVendorItemNo();
-            if ReturnedItemReference."Variant Code" <> '' then
-                PurchaseLine.Validate("Variant Code", ReturnedItemReference."Variant Code");
-            if ReturnedItemReference."Unit of Measure" <> '' then
-                PurchaseLine.Validate("Unit of Measure Code", ReturnedItemReference."Unit of Measure");
-            OnValidatePurchaseReferenceNoOnBeforePurchaseLineUpdateDirectUnitCost(PurchaseLine, ReturnedItemReference);
+                PurchaseLine.Validate("No.", ReturnedItemReference."Item No.");
+                PurchaseLine.SetVendorItemNo();
+                if ReturnedItemReference."Variant Code" <> '' then
+                    PurchaseLine.Validate("Variant Code", ReturnedItemReference."Variant Code");
+                if ReturnedItemReference."Unit of Measure" <> '' then
+                    PurchaseLine.Validate("Unit of Measure Code", ReturnedItemReference."Unit of Measure");
+                OnValidatePurchaseReferenceNoOnBeforePurchaseLineUpdateDirectUnitCost(PurchaseLine, ReturnedItemReference);
+                PurchaseLine.UpdateDirectUnitCost(PurchaseLine.FieldNo("Item Reference No."));
+            end;
+
+            PurchaseLine."Item Reference Unit of Measure" := ReturnedItemReference."Unit of Measure";
+            PurchaseLine."Item Reference Type" := ReturnedItemReference."Reference Type";
+            PurchaseLine."Item Reference Type No." := ReturnedItemReference."Reference Type No.";
+            PurchaseLine."Item Reference No." := ReturnedItemReference."Reference No.";
+
+            if (ReturnedItemReference.Description <> '') or (ReturnedItemReference."Description 2" <> '') then begin
+                PurchaseLine.Description := ReturnedItemReference.Description;
+                PurchaseLine."Description 2" := ReturnedItemReference."Description 2";
+            end;
+
             PurchaseLine.UpdateDirectUnitCost(PurchaseLine.FieldNo("Item Reference No."));
+            PurchaseLine.UpdateICPartner();
         end;
-
-        PurchaseLine."Item Reference Unit of Measure" := ReturnedItemReference."Unit of Measure";
-        PurchaseLine."Item Reference Type" := ReturnedItemReference."Reference Type";
-        PurchaseLine."Item Reference Type No." := ReturnedItemReference."Reference Type No.";
-        PurchaseLine."Item Reference No." := ReturnedItemReference."Reference No.";
-
-        if (ReturnedItemReference.Description <> '') or (ReturnedItemReference."Description 2" <> '') then begin
-            PurchaseLine.Description := ReturnedItemReference.Description;
-            PurchaseLine."Description 2" := ReturnedItemReference."Description 2";
-        end;
-
-        PurchaseLine.UpdateDirectUnitCost(PurchaseLine.FieldNo("Item Reference No."));
-        PurchaseLine.UpdateICPartner();
-
         OnAfterValidatePurchaseReferenceNo(PurchaseLine, ItemReference, ReturnedItemReference);
     end;
 
@@ -717,6 +727,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchaseReferenceNoLookup(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeProcessDecisionTree(var ItemReference: Record "Item Reference"; QtyCustOrVendCR: Integer; QtyBarCodeAndBlankCR: Integer; ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30]; var TempRecRequired: Boolean; var MultipleItemsToChoose: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -738,6 +753,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelectOrFindReference(var ItemReference: Record "Item Reference"; ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30]; TempRecRequired: Boolean; MultipleItemsToChoose: Boolean; ShowDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePurchaseReferenceNo(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemReference: Record "Item Reference"; SearchItem: Boolean; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

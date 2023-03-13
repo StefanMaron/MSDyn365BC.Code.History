@@ -44,6 +44,7 @@ codeunit 137060 "SCM Inventory 7.0"
         ItemVendorMustExistErr: Label 'Item Vendor must exist.';
         ItemVendorMustNotExistErr: Label 'Item Vendor must not exist.';
         DescriptionErr: Label 'Incorrect Description';
+        TestFieldCodeErr: Label 'TestField';
 
     [Test]
     [Scope('OnPrem')]
@@ -1029,6 +1030,31 @@ codeunit 137060 "SCM Inventory 7.0"
 
         // [THEN] Description is validated from Item Description
         Assert.AreEqual(ItemTranslationDescription, RequisitionLine.Description, DescriptionErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckFailedInsertUnitOfMeasureWithBlankCode()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        // [SCENARIO 462492]: Users are able to import blank records and this leads to setup issue "Unit of Measure Code must have a value in Warehouse Journal Line
+        Initialize(true);
+
+        // [GIVEN] Create item "I" with base unit of measure "U1"
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create unit of measure with blank Code for item "I"
+        ItemUnitOfMeasure.Init();
+        ItemUnitOfMeasure.Validate("Item No.", Item."No.");
+
+        // [WHEN] Insert record
+        asserterror ItemUnitOfMeasure.Insert(true);
+
+        // [THEN] The TestField Error was shown
+        Assert.ExpectedErrorCode(TestFieldCodeErr);
     end;
 
     local procedure Initialize(Enable: Boolean)

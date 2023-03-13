@@ -967,6 +967,9 @@ table 472 "Job Queue Entry"
     end;
 
     local procedure HandleExecutionError()
+    var
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        TelemetrySubscribers: Codeunit "Telemetry Subscribers";
     begin
         if Rec."Maximum No. of Attempts to Run" > Rec."No. of Attempts to Run" then begin
             Rec."No. of Attempts to Run" += 1;
@@ -976,6 +979,9 @@ table 472 "Job Queue Entry"
             SetStatusValue(Rec.Status::Error);
             Commit();
             TryRunJobQueueSendNotification();
+
+            JobQueueLogEntry.SetErrorCallStack(GetLastErrorCallStack());
+            TelemetrySubscribers.SendTraceOnJobQueueEntryFinalRunErrored(JobQueueLogEntry, Rec);
         end;
     end;
 

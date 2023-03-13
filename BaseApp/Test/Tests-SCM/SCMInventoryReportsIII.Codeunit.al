@@ -871,7 +871,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     end;
 
     [Test]
-    [HandlerFunctions('PostInvtCostToGLTestPageHandler')]
+    [HandlerFunctions('ConfirmHandlerNo,PostInvtCostToGLTestPageHandler')]
     [Scope('OnPrem')]
     procedure DimensionOnPostInvtCostToGLTestReport()
     var
@@ -912,7 +912,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     end;
 
     [Test]
-    [HandlerFunctions('PostInventoryCostToGLRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('ConfirmHandlerNo,PostInventoryCostToGLRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure DimensionOnPostInvtCostToGLReportRunPerPostingGroup()
     var
@@ -2984,6 +2984,12 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryVariableStorage.Dequeue(JournalBatchName);
         ItemJournalBatches.FindFirstField(Name, JournalBatchName);
         ItemJournalBatches.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerNo(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

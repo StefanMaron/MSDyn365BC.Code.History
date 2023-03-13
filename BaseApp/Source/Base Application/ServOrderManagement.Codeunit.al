@@ -684,6 +684,7 @@ codeunit 5900 ServOrderManagement
         if CustomerTemplMgt.SelectCustomerTemplate(CustTempl) then begin
             CopyCustFromServiceHeader(Cust, ServHeader);
             Cust.CopyFromNewCustomerTemplate(CustTempl);
+            CustomerTemplMgt.InitCustomerNo(Cust, CustTempl);
             Cust.Insert(true);
 
             if ServHeader."Contact Name" <> '' then begin

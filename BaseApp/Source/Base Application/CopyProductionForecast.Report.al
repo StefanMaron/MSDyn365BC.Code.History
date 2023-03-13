@@ -39,7 +39,7 @@ report 99003803 "Copy Production Forecast"
             trigger OnPreDataItem()
             begin
                 ToProdForecastEntry.TestField("Production Forecast Name");
-                if not Confirm(Text000, false) then
+                if not ShowConfirm() then
                     exit;
 
                 LockTable();
@@ -163,8 +163,25 @@ report 99003803 "Copy Production Forecast"
             exit(true);
     end;
 
+    local procedure ShowConfirm() Confirmed: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowConfirm(IsHandled);
+        if IsHandled then
+            exit;
+
+        Confirmed := Confirm(Text000, false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProdForecastEntryInsert(var ProdForecastEntry: Record "Production Forecast Entry"; ToProdForecastEntry: Record "Production Forecast Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowConfirm(var IsHandled: Boolean)
     begin
     end;
 }

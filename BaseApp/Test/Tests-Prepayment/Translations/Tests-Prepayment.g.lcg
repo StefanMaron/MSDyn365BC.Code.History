@@ -403,11 +403,11 @@
   </Item>
   <Item ItemId=";Codeunit 2622802986 - NamedType 3156942507" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Prepayment account is assigned to a VAT product posting group where the VAT percentage is not equal to zero. This can cause posting errors when invoices have mixed VAT lines. To avoid errors, set the VAT percentage to zero for the account.]]></Val>
+      <Val><![CDATA[The Prepayment account is assigned to a VAT product posting group where the VAT percentage is not equal to zero. This can cause posting errors when invoices have mixed VAT lines. To avoid errors, set the VAT percentage to zero for the account.\\Prepayment amount to be posted is %1. It differs from document amount %2 by %3 in related lines. If the difference is related to rounding, please adjust amounts in lines related to prepayments.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment III - NamedType PrepaymentAmountHigherThanTheOrderErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - prepayment amount; %2 = document amount; %3 = difference amount]D;]A;(LookupHint=Codeunit ERM Prepayment III - NamedType PrepaymentAmountHigherThanTheOrderErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2622802986 - NamedType 350963927" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

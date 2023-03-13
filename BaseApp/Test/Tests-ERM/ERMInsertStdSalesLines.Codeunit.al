@@ -25,6 +25,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         RefMode: Option Manual,Automatic,"Always Ask";
         FieldNotVisibleErr: Label 'Field must be visible.';
         StdCodeDeleteConfirmLbl: Label 'If you delete the code %1, the related records in the %2 table will also be deleted. Do you want to continue?';
+        CompanyBankAccountCodeErr: Label 'The Company Bank Account Code is missing on Sales Invoice.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1090,6 +1091,39 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         // [THEN] No other lines were added
         SalesLineOrder.SetFilter("No.", '<>%1', SalesLineBlanketOrder."No.");
         Assert.RecordIsEmpty(SalesLineOrder);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyCompanyBankAccountCodeOnSalesInvoiceWithEmptyCurrencyCode()
+    var
+        BankAccount: Record "Bank Account";
+        Customer: Record Customer;
+        CustomerCard: TestPage "Customer Card";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [SCENARIO 461721] The "Company Bank Account Code" is not filled initially in a Sales Invoice with an empty Currency Code (LCY)
+        Initialize();
+
+        // [GIVEN] Create Customer, Bank Account
+        LibrarySales.CreateCustomer(Customer);
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount."Use as Default for Currency" := true;
+        BankAccount.Modify();
+
+        // [GIVEN] Open Customer Card page
+        CustomerCard.OpenEdit();
+        CustomerCard.GoToRecord(Customer);
+
+        // [WHEN] Invoke New Sales Invoice action from Customer Card
+        SalesInvoice.Trap();
+        CustomerCard.NewSalesInvoice.Invoke();
+
+        // [WHEN] Activate "Sell-to Customer No." field
+        SalesInvoice."Sell-to Customer No.".Activate();
+
+        // [VERIFY] Verify: Company Bank Account Code on Sales Invoice Page
+        Assert.AreEqual(Format(BankAccount."No."), Format(SalesInvoice."Company Bank Account Code"), CompanyBankAccountCodeErr);
     end;
 
     local procedure Initialize()

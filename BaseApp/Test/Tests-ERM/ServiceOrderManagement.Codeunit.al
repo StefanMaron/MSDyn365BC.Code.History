@@ -121,6 +121,56 @@ codeunit 136135 "Service Order Management"
     end;
 
     [Test]
+    [HandlerFunctions('CustomerTemplateListHandler')]
+    [Scope('OnPrem')]
+    procedure S463463_CustomerCreationFromOrderWithNoSeries()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        ServiceOrder: TestPage "Service Order";
+        ServiceOrderNo: Code[20];
+        DoCleanCustomerTemplateNoSeries: Boolean;
+    begin
+        // [FEATURE] [Service Order] [Create Customer] [Customer Template]
+        // [SCENARIO 463463] Test Customer Creation from Service Order using Customer Tempalte with No. Series.
+        Initialize();
+
+        // [GIVEN] Update No. Series to Customer Template.
+        CustomerTempl.FindFirst();
+        if CustomerTempl."No. Series" = '' then begin
+            LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
+            LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+            CustomerTempl.Validate("No. Series", NoSeries.Code);
+            CustomerTempl.Modify(true);
+            DoCleanCustomerTemplateNoSeries := true;
+        end;
+
+        // [GIVEN] Create Service Order with Name, Address, City and Post Code.
+        ServiceOrderNo := CreateHeaderWithNameAndAddress();
+
+        // [WHEN] Create Customer from Service Order.
+        OpenServiceOrder(ServiceOrder, ServiceOrderNo);
+        ServiceOrder."Create Customer".Invoke();
+
+        // [THEN] Verify Customer created from Service Order.
+        Customer.Get(ServiceOrder."Customer No.".Value);
+        Customer.TestField(Name, ServiceOrder.Name.Value);
+        Customer.TestField(Address, ServiceOrder.Address.Value);
+        Customer.TestField(City, ServiceOrder.City.Value);
+
+        // [THEN] Verify Customer "No. Series" was created using Customer Template "No. Series".
+        Customer.TestField("No. Series", CustomerTempl."No. Series");
+
+        // Cleanup
+        if DoCleanCustomerTemplateNoSeries then begin
+            CustomerTempl.Validate("No. Series", '');
+            CustomerTempl.Modify(true);
+        end;
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
     [Scope('OnPrem')]
     procedure ServiceItemCreationFromOrder()

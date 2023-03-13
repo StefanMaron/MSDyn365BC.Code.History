@@ -316,7 +316,14 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         PriceSourceList: Codeunit "Price Source List";
         Level: array[2] of Integer;
         CurrLevel: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindLines(AmountType, TempPriceListLine, PriceCalculationBufferMgt, ShowAll, FoundLines, IsHandled);
+        if IsHandled then
+            exit(FoundLines);
+
+
         if not TempPriceListLine.IsTemporary() then
             Error(TempTableErr);
 
@@ -436,6 +443,11 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPickBestLine(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line"; var BestPriceListLine: Record "Price List Line"; var FoundBestLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindLines(AmountType: Enum "Price Amount Type"; var TempPriceListLine: Record "Price List Line" temporary; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; ShowAll: Boolean; var FoundLines: Boolean; var IsHandled: Boolean)
     begin
     end;
 

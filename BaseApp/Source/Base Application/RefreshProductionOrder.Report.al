@@ -302,7 +302,7 @@ report 99001025 "Refresh Production Order"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateRoutingNo("Production Order", RoutingNo, IsHandled);
+        OnBeforeUpdateRoutingNo("Production Order", RoutingNo, IsHandled, CalcLines, CalcComponents, CalcRoutings);
         if IsHandled then
             exit;
 
@@ -427,7 +427,7 @@ report 99001025 "Refresh Production Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateRoutingNo(var ProductionOrder: Record "Production Order"; RoutingNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateRoutingNo(var ProductionOrder: Record "Production Order"; RoutingNo: Code[20]; var IsHandled: Boolean; var CalcLines: Boolean; var CalcComponents: Boolean; var CalcRoutings: Boolean)
     begin
     end;
 

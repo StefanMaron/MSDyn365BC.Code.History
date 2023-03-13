@@ -80,6 +80,7 @@ page 6665 "Return Receipt Statistics"
             exit;
 
         ReturnRcptLine.SetRange("Document No.", Rec."No.");
+        OnCalculateTotalsOnAfterReturnRcptLineSetFilters(ReturnRcptLine, Rec);
         if ReturnRcptLine.Find('-') then
             repeat
                 LineQty += ReturnRcptLine.Quantity;
@@ -100,6 +101,11 @@ page 6665 "Return Receipt Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateTotalsOnAfterAddLineTotals(var ReturnReceiptLine: Record "Return Receipt Line"; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; ReturnReceiptHeader: Record "Return Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterReturnRcptLineSetFilters(var ReturnReceiptLine: Record "Return Receipt Line"; ReturnReceiptHeader: Record "Return Receipt Header")
     begin
     end;
 }

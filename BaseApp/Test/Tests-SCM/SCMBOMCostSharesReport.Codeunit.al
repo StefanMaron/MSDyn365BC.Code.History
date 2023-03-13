@@ -26,6 +26,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         isInitialized: Boolean;
         GLBShowLevelAs: Option "First BOM Level","BOM Leaves";
         GLBShowCostShareAs: Option "Single-level","Rolled-up";
+        IncorrectValueErr: Label 'Incorrect value of %1.%2.';
 
     local procedure Initialize()
     begin
@@ -586,6 +587,142 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('AllLevelsStrMenuHandler')]
+    procedure VerifyCostsOnBOMCostSharesForWorkCenterWithLotSize()
+    var
+        MfgSetup: Record "Manufacturing Setup";
+        WorkCenter: Record "Work Center";
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        BOMBuffer: Record "BOM Buffer";
+        CompItem: array[2] of Record Item;
+        BOMCostShares: TestPage "BOM Cost Shares";
+        CalculateStandardCost: Codeunit "Calculate Standard Cost";
+        RoutingNo: Code[20];
+        LotSize, Scrap, Cost, Rounding : Decimal;
+    begin
+        // [SCENARIO 460218] Verify Cost Shares are calculated correctly for Work Center, with Lot Size defined
+        Initialize();
+
+        // [GIVEN] Init values
+        LotSize := 100;
+        Scrap := 10;
+        Cost := 10;
+        Rounding := 0.00001;
+
+        // [GIVEN] Set Cost Incl. Setup to true on Manufacturing Setup
+        LibraryManufacturing.UpdateManufacturingSetup(MfgSetup, '', '', true, true, true);
+
+        // [GIVEN] Create Work Center with Calendar
+        CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create Prod. and Comp. Items
+        CreateItems(ProdItem, CompItem, LotSize, Scrap, Cost, Rounding);
+
+        // [GIVEN] Create Production BOM
+        CreateProductionBOM(ProductionBOMHeader, CompItem);
+
+        // [GIVEN] Create Routing for Work Center
+        RoutingNo := CreateRoutingWithWorkCenter(WorkCenter."No.", 10, 2, LotSize);
+
+        // [GIVEN] Update Item with Production BOM and Routing No.
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Validate("Routing No.", RoutingNo);
+        ProdItem.Modify(true);
+
+        // [WHEN] Calculate Standard Cost for "PI"
+        CalculateStandardCost.CalcItem(ProdItem."No.", false);
+
+        // [THEN] Standard cost is 61
+        ProdItem.Find();
+        Assert.AreNearlyEqual(61, ProdItem."Standard Cost", ProdItem."Rounding Precision", StrSubstNo(IncorrectValueErr, ProdItem.TableName, ProdItem.FieldName("Standard Cost")));
+
+        // [WHEN] Cost Shares
+        BOMCostShares.Trap;
+        RunBOMCostSharesPage(ProdItem);
+
+        // [THEN] Verify Cost Shares for Work Center
+        BOMCostShares.Expand(true);
+        BOMCostShares.Filter.SetFilter(Type, Format(BOMBuffer.Type::"Work Center"));
+        BOMCostShares.Filter.SetFilter("No.", WorkCenter."No.");
+        BOMCostShares."Qty. per Parent".AssertEquals(0.12);
+        BOMCostShares."Qty. per Top Item".AssertEquals(0.12);
+        BOMCostShares."Rolled-up Capacity Cost".AssertEquals(6);
+        BOMCostShares.Close();
+    end;
+
+    local procedure CreateRoutingWithWorkCenter(WorkCenterNo: Code[20]; SetupTime: Decimal; RunTime: Decimal; LotSize: Decimal): Code[20]
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        with RoutingLine do begin
+            LibraryManufacturing.CreateRoutingLine(
+              RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(100)), Type::"Work Center", WorkCenterNo);
+            Validate("Setup Time", SetupTime);
+            Validate("Run Time", RunTime);
+            Validate("Lot Size", LotSize);
+            Modify(true);
+        end;
+
+        with RoutingHeader do begin
+            Validate(Status, Status::Certified);
+            Modify(true);
+            exit("No.");
+        end;
+    end;
+
+    local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; CompItem: array[2] of Record Item)
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, CompItem[1]."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[1]."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem[2]."No.", 2);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure CreateItems(var ProdItem: Record Item; var CompItem: array[2] of Record Item; LotSize: Decimal; Scrap: Decimal; Cost: Decimal; Rounding: Decimal)
+    begin
+        LibraryInventory.CreateItem(CompItem[1]);
+        UpdateItemData(CompItem[1], Cost, Scrap, Rounding);
+        LibraryInventory.CreateItem(CompItem[2]);
+        UpdateItemData(CompItem[2], Cost * 2, Scrap, Rounding);
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Costing Method", ProdItem."Costing Method"::Standard);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Rounding Precision", Rounding);
+        ProdItem.Validate("Lot Size", LotSize);
+        ProdItem.Modify(true);
+    end;
+
+    local procedure UpdateItemData(var Item: Record Item; Cost: Decimal; Scrap: Decimal; Rounding: Decimal)
+    begin
+        Item.Validate("Costing Method", Item."Costing Method"::Standard);
+        Item.Validate("Standard Cost", Cost);
+        Item.Validate("Scrap %", Scrap);
+        Item.Validate("Rounding Precision", Rounding);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateWorkCenterWithCalendar(var WorkCenter: Record "Work Center")
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Work Center Group Code", '1');
+        WorkCenter.Validate("Direct Unit Cost", 50);
+        WorkCenter.Validate("Unit of Measure Code", 'HOURS');
+        WorkCenter.Validate(Capacity, 1);
+        WorkCenter.Validate(Efficiency, 100);
+        WorkCenter.Validate("Shop Calendar Code", '1');
+        WorkCenter.Modify(true);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-1M>', Today()), CalcDate('<1M>', Today()));
+    end;
+
     local procedure RunBOMCostSharesReport(Item: Record Item; ShowLevelAs: Option; ShowDetails: Boolean; ShowCostShareAs: Option)
     var
         Item1: Record Item;
@@ -759,7 +896,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
     [PageHandler]
     procedure BOMCostSharesPageHandlerRunDistribution(var BOMCostShares: TestPage "BOM Cost Shares")
     begin
-        BOMCostShares.ItemFilter.AssertEquals(StrSubstNo('''%1''',LibraryVariableStorage.DequeueText()));
+        BOMCostShares.ItemFilter.AssertEquals(StrSubstNo('''%1''', LibraryVariableStorage.DequeueText()));
 
         Commit();
         BOMCostShares."BOM Cost Share Distribution".Invoke();
@@ -822,6 +959,12 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
     procedure ItemAvailabilityByBOMPageHandler(var ItemAvailByBOMLevel: TestPage "Item Availability by BOM Level")
     begin
         ItemAvailByBOMLevel.OK.Invoke;
+    end;
+
+    [StrMenuHandler]
+    procedure AllLevelsStrMenuHandler(StrMenuText: Text; var Choice: Integer; InstructionText: Text)
+    begin
+        Choice := 2; // All levels
     end;
 }
 

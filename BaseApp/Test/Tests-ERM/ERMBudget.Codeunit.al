@@ -2475,6 +2475,43 @@ codeunit 134922 "ERM Budget"
         BudgetNamesSales.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('PrintBudgetRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure GLBudgetAddNewGLBudgetEntryWith2DecimalPlaces()
+    var
+        GLBudgetName: Record "G/L Budget Name";
+        Budget: TestPage Budget;
+        GLAccountNo: Code[20];
+        BudgetDate: Date;
+        EntryAmount: Decimal;
+    begin
+        // [SCENARIO 457899] G/L Budget  doesn't show the same amount as the Budget G/L Entries.
+        Initialize();
+
+        // [GIVEN] G/L Account and G/L Budget.
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        LibraryERM.CreateGLBudgetName(GLBudgetName);
+
+        // [GIVEN] Budget Entry with Amount with decimal places
+        EntryAmount := LibraryRandom.RandDec(1000000, 2);
+        BudgetDate := CalcDate('<-CY + 5M>', WorkDate());
+        CreateGLBudgetEntryWithDate(GLBudgetName.Name, GLAccountNo, EntryAmount, BudgetDate);
+
+        // [GIVEN] Open budget "Budget" with Budget page
+        Budget.OpenEdit();
+        Budget.BudgetName.SetValue(GLBudgetName.Name);
+
+        // [WHEN] Budget is being printed with "Starting Date" = "01.05.2020"
+        LibraryVariableStorage.Enqueue(BudgetDate);
+        Commit();
+        Budget.ReportBudget.Invoke();
+
+        // [VERIFY] Verify the Budget Amount on xml will be same.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('GLBudgetedAmount1', EntryAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -3,6 +3,12 @@
   <file datatype="xml" source-language="en-US" target-language="es-MX" original="Intrastat Core">
     <body>
       <group id="body">
+        <trans-unit id="Codeunit 150943441 - NamedType 1064465840" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There is a conflict in checklist rules for '%1' in '%2' (field must be both blank and not blank). Please review filters in %3.</source>
+          <target state="translated">Hay un conflicto en las reglas de la lista de comprobación para "%1" en "%2" (el campo debe estar tanto en blanco como no en blanco). Revise los filtros en %3.</target>
+          <note from="Developer" annotates="general" priority="2">%1=caption of a field, %2=key of record, %3=caption of report checklist page</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit IntrastatReportManagement - NamedType RangeCrossingErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 150943441 - NamedType 1351222670" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Alert users about the capabilities of the Intrastat Report extension.</source>
           <target state="translated">Alertar a los usuarios acerca de las capacidades de la extensión Informe Intrastat.</target>
@@ -39,6 +45,12 @@
           <note from="Developer" annotates="general" priority="2">%1 - Statistics Period</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit IntrastatReportManagement - NamedType ZipFileNameLbl</note>
         </trans-unit>
+        <trans-unit id="Codeunit 150943441 - NamedType 235017519" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 was updated, due to change of %2.</source>
+          <target state="translated">Se ha actualizado %1, debido al cambio de %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Supplementary Unit of Measure caption, %2 - Tariff Number caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit IntrastatReportManagement - NamedType SupplementaryUnitUpdateNotificationTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 150943441 - NamedType 245488723" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Disable this notification</source>
           <target state="translated">Deshabilitar esta notificación</target>
@@ -63,6 +75,12 @@
           <note from="Developer" annotates="general" priority="2">%1 - old page caption, %2 - new page caption</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit IntrastatReportManagement - NamedType NewFeatureEnabledMessageTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 150943441 - NamedType 3217697877" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Alert users about the update of %1 during %2 change.</source>
+          <target state="translated">Alertar a los usuarios acerca de la actualización de %1 durante el cambio de %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Supplementary Unit of Measure caption, %2 - Tariff Number caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit IntrastatReportManagement - NamedType SupplementaryUnitUpdateNotificationDescriptionTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 150943441 - NamedType 3314864117" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The file has not been saved.</source>
           <target state="translated">No se ha guardado el archivo.</target>
@@ -74,6 +92,12 @@
           <target state="translated">Más información</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit IntrastatReportManagement - NamedType LearnMoreTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 150943441 - NamedType 3363457358" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Notify the user about the %1 update.</source>
+          <target state="translated">Notificar al usuario acerca de la actualización de %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Supplementary Unit of Measure caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit IntrastatReportManagement - NamedType SupplementaryUnitUpdateNotificationNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 150943441 - NamedType 3415447349" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Intrastat-%1.txt</source>
@@ -729,6 +753,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Checklist - Control Field Name - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 2405959708 - Control 3506477580 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the filter expression that must be applied to the Intrastat line where field must be blank. The check for fields is run only on the lines that meet the filter criteria.</source>
+          <target state="translated">Especifica la expresión de filtro que debe aplicarse a la línea de Intrastat en la que el campo debe estar en blanco. La comprobación de campos se ejecuta únicamente en las líneas que cumplen los criterios del filtro.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Checklist - Control Must Be Blank For Filter Expr. - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 2405959708 - Control 3531868071 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of the table field that this entry in the checklist uses.</source>
           <target state="translated">Especifica el número de campo de la tabla que este movimiento de la lista de comprobación utiliza.</target>
@@ -736,8 +766,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Checklist - Control Field No. - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2405959708 - Control 3793438982 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the filter expression that must be applied to the Intrastat line. The check for fields is run only on those lines that are passes the filter expression.</source>
-          <target state="translated">Especifica la expresión de filtro que debe aplicarse a la línea de Intrastat. La comprobación de campos se ejecuta únicamente en las líneas que pasan la expresión del filtro.</target>
+          <source>Specifies the filter expression that must be applied to the Intrastat line. The check for fields is run only on the lines that meet the filter criteria.</source>
+          <target state="translated">Especifica la expresión de filtro que debe aplicarse a la línea de Intrastat. La comprobación de campos se ejecuta únicamente en las líneas que cumplen los criterios del filtro.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Checklist - Control Filter Expression - Property ToolTip</note>
         </trans-unit>
@@ -1872,6 +1902,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Line - Field Statistics Period - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 2405959708 - Field 2178486780 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Must Be Blank Record View String</source>
+          <target state="translated">El campo debe ser una cadena de vista de registro en blanco</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Checklist - Field Must Be Blank Rec. View String - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2405959708 - Field 2523111426 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reversed Filter Expression</source>
           <target state="translated">Expresión de filtro invertida</target>
@@ -1883,6 +1919,12 @@
           <target state="translated">Nombre de campo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Checklist - Field Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2405959708 - Field 3506477580 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Must Be Blank For Filter Expression</source>
+          <target state="translated">El campo debe estar en blanco para la expresión de filtro</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Checklist - Field Must Be Blank For Filter Expr. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2405959708 - Field 3531868071 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Field No.</source>

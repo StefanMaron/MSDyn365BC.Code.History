@@ -29,6 +29,7 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         ExpectedErrLbl: Label 'The Dim. Value per Account does not exist. Identification fields and values: Table ID=''%1'',No.=''%2'',Dimension Code=''%3'',Dimension Value Code=''%4''',
                                 Comment = '%1 = Table ID, %2= No., %3= Dimension Code, %4= Dimension Value Code';
         NoRecordExpected: Label 'No record expected.';
+        DefDimensionIsNotAllowedMsg: Label 'Default Dimension is not allowed by default.';
 
     [Test]
     [Scope('OnPrem')]
@@ -253,6 +254,7 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
     [Scope('OnPrem')]
     procedure CreateNewDimValue()
     var
@@ -1186,6 +1188,37 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         assert.AreEqual(false, DimValuePerAccount.Allowed, '');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure VerifyNewDimensionValueIsAllowedForDefDimensioIfItsIncludedInAllowedValuesFilter()
+    var
+        GLAccount: Record "G/L Account";
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+    begin
+        // [SCENARIO 460671] Verify New Dimension Value is allowed for Default Dimension if it's included in "Allowed Values Filter" 
+        Initialize();
+
+        // [GIVEN] Create G/L Account
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // [GIVEN] Created Dimension with Value
+        CreateDimensionWithValue(DimensionValue);
+
+        // [GIVEN] New mandatory Default Dimension for the G/L Account
+        CreateDefaultDimensionCodeMandatory(DefaultDimension, Database::"G/L Account", GLAccount."No.", DimensionValue."Dimension Code");
+
+        // [GIVEN] Add "Allowed Values Filter" on Default Dimension
+        DefaultDimension.Validate("Allowed Values Filter", 'GU*');
+        DefaultDimension.Modify(true);
+
+        // [WHEN] Create new Dimension Value
+        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionValue."Dimension Code");
+
+        // [THEN] Verify new Dimension Value is allowed
+        VerifyNewDimensionValueIsAllowed(GLAccount, DimensionValue);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1204,6 +1237,14 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Dimension Allowed by Acc.");
+    end;
+
+    local procedure VerifyNewDimensionValueIsAllowed(GLAccount: Record "G/L Account"; DimensionValue: Record "Dimension Value")
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
+    begin
+        DimValuePerAccount.Get(Database::"G/L Account", GLAccount."No.", DimensionValue."Dimension Code", DimensionValue.Code);
+        Assert.IsTrue(DimValuePerAccount.Allowed, DefDimensionIsNotAllowedMsg);
     end;
 
     local procedure CreateDimensionWithValue(var DimensionValue: Record "Dimension Value")

@@ -104,6 +104,7 @@ table 64 "Merge Duplicates Buffer"
         CurrRecordErr: Label 'The current record is not set.';
         ModifyPKeyFieldErr: Label 'You must modify one of the primary key fields.';
         RestorePKeyFieldErr: Label 'You must restore the modified primary key field.';
+        CommentLineCopiedByMergeNoteLbl: Label 'Copied by merge from %1 %2 %3', Comment = '%1 - Table Caption; %2 - Key Primary Field Caption; %3 - Key Primary Field Value';
 
     local procedure CalcTableName()
     var
@@ -372,6 +373,7 @@ table 64 "Merge Duplicates Buffer"
     begin
         Customer[1].Get(Duplicate);
         Customer[2].Get(Current);
+        MoveCommentLinesFromDuplicateToCurrent("Comment Line Table Name"::Customer, Customer[1]."No.", Customer[2]."No.");
         MergeRecords(Customer[1].RecordId, Customer[2].RecordId, Customer[1].FieldNo(SystemId));
     end;
 
@@ -381,6 +383,7 @@ table 64 "Merge Duplicates Buffer"
     begin
         Vendor[2].Get(Current);
         Vendor[1].Get(Duplicate);
+        MoveCommentLinesFromDuplicateToCurrent("Comment Line Table Name"::Vendor, Vendor[1]."No.", Vendor[2]."No.");
         MergeRecords(Vendor[1].RecordId, Vendor[2].RecordId, Vendor[1].FieldNo(SystemId));
     end;
 
@@ -470,7 +473,9 @@ table 64 "Merge Duplicates Buffer"
         if OverrideSelectedFields(RecordRef[2], RecordRef[1], true) then
             RecordRef[1].Modify();
         RecordRef[1].Close();
+        OnRemoveConflictingRecordOnBeforeDelete(Rec, RecordRef[2]);
         Result := RecordRef[2].Delete(true);
+        OnRemoveConflictingRecordOnAfterDelete(Rec, RecordRef[2]);
         RecordRef[2].Close();
     end;
 
@@ -594,6 +599,74 @@ table 64 "Merge Duplicates Buffer"
             until TableRelationsMetadata.Next() = 0;
     end;
 
+    local procedure MoveCommentLinesFromDuplicateToCurrent(CommentLineTableName: Enum "Comment Line Table Name"; DuplicateNo: Code[20]; CurrentNo: Code[20])
+    var
+        DuplicateCommentLine: Record "Comment Line";
+        CurrentCommentLine: Record "Comment Line";
+        NextCommentLineLineNo: Integer;
+    begin
+        if (DuplicateNo = '') or (CurrentNo = '') then
+            exit;
+
+        DuplicateCommentLine.SetRange("Table Name", CommentLineTableName);
+        DuplicateCommentLine.SetRange("No.", DuplicateNo);
+        if DuplicateCommentLine.IsEmpty() then
+            exit;
+
+        NextCommentLineLineNo := FindLastCurrentCommentLineLineNo(CommentLineTableName, CurrentNo) + 10000;
+
+        InsertCopiedByMergeNoteCommentLine(CommentLineTableName, DuplicateNo, CurrentNo, NextCommentLineLineNo);
+
+        DuplicateCommentLine.Reset();
+        DuplicateCommentLine.SetRange("Table Name", CommentLineTableName);
+        DuplicateCommentLine.SetRange("No.", DuplicateNo);
+        if DuplicateCommentLine.FindSet() then begin
+            repeat
+                NextCommentLineLineNo += 10000;
+                CurrentCommentLine := DuplicateCommentLine;
+                CurrentCommentLine."No." := CurrentNo;
+                CurrentCommentLine."Line No." := NextCommentLineLineNo;
+                CurrentCommentLine.Insert();
+            until DuplicateCommentLine.Next() = 0;
+            DuplicateCommentLine.DeleteAll();
+        end;
+    end;
+
+    local procedure FindLastCurrentCommentLineLineNo(CommentLineTableName: Enum "Comment Line Table Name"; CurrentNo: Code[20]): Integer
+    var
+        CurrentCommentLine: Record "Comment Line";
+    begin
+        CurrentCommentLine.SetLoadFields("Line No.");
+        CurrentCommentLine.SetRange("Table Name", CommentLineTableName);
+        CurrentCommentLine.SetRange("No.", CurrentNo);
+        if CurrentCommentLine.FindLast() then
+            exit(CurrentCommentLine."Line No.");
+
+        exit(0);
+    end;
+
+    local procedure InsertCopiedByMergeNoteCommentLine(CommentLineTableName: Enum "Comment Line Table Name"; DuplicateNo: Code[20]; CurrentNo: Code[20]; NewCommentLineLineNo: Integer)
+    var
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        CopiedByMergeNoteCommentLine: Record "Comment Line";
+    begin
+        CopiedByMergeNoteCommentLine.Init();
+        CopiedByMergeNoteCommentLine.Validate("Table Name", CommentLineTableName);
+        CopiedByMergeNoteCommentLine.Validate("No.", CurrentNo);
+        CopiedByMergeNoteCommentLine.Validate("Line No.", NewCommentLineLineNo);
+        CopiedByMergeNoteCommentLine.Validate(Date, Today());
+        case CommentLineTableName of
+            CommentLineTableName::Customer:
+                CopiedByMergeNoteCommentLine.Validate(Comment,
+                    CopyStr(StrSubstNo(CommentLineCopiedByMergeNoteLbl, Customer.TableCaption(), Customer.FieldCaption("No."), DuplicateNo), 1, MaxStrLen(CopiedByMergeNoteCommentLine.Comment)));
+            CommentLineTableName::Vendor:
+                CopiedByMergeNoteCommentLine.Validate(Comment,
+                    CopyStr(StrSubstNo(CommentLineCopiedByMergeNoteLbl, Vendor.TableCaption(), Vendor.FieldCaption("No."), DuplicateNo), 1, MaxStrLen(CopiedByMergeNoteCommentLine.Comment)));
+        end;
+        CopiedByMergeNoteCommentLine.Insert();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCollectData(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer"; var TempMergeDuplicatesLineBuffer: Record "Merge Duplicates Line Buffer" temporary)
     begin
@@ -601,6 +674,16 @@ table 64 "Merge Duplicates Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindRelatedFields(var TempTableRelationsMetadata: Record "Table Relations Metadata" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRemoveConflictingRecordOnAfterDelete(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer"; RecordRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRemoveConflictingRecordOnBeforeDelete(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer"; RecordRef: RecordRef)
     begin
     end;
 }

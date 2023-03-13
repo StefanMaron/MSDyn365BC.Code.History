@@ -1288,6 +1288,47 @@ codeunit 136350 "UT T Job"
         Assert.AreEqual(ExpectedErr, GetLastErrorText(), BlockedCustomerExpectedErr);
     end;
 
+    [Test]
+    [HandlerFunctions('CustomerLookupModalHandler,ConfirmHandlerYes')]
+    procedure S463319_SwitchSellToCustomerNameToCustomerWithTheSameName()
+    var
+        Job: Record Job;
+        SellToCustomer: array[2] of Record Customer;
+        JobCard: TestPage "Job Card";
+    begin
+        // [FEATURE] [Job Card] [Customer]
+        // [SCENARIO 463319] Switch Customer Name in Job card (by using lookup & select) for a Customer with the same Name but different No.
+        Initialize();
+
+        // [GIVEN] Create customer "1" with random Name.
+        LibrarySales.CreateCustomer(SellToCustomer[1]);
+        SellToCustomer[1].Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(SellToCustomer[1].Name)));
+        SellToCustomer[1].Modify(true);
+
+        // [GIVEN] Create customers "2", with the same Name as customer "1" and random Address.
+        LibrarySales.CreateCustomer(SellToCustomer[2]);
+        SellToCustomer[2].Validate(Name, SellToCustomer[1].Name);
+        SellToCustomer[2].Validate(Address, LibraryUtility.GenerateRandomText(MaxStrLen(SellToCustomer[2].Address)));
+        SellToCustomer[2].Modify(true);
+
+        // [GIVEN] Create Job for customer "1".
+        LibraryJob.CreateJob(Job, SellToCustomer[1]."No.");
+        JobCard.OpenEdit();
+        JobCard.GoToRecord(Job);
+
+        // [WHEN] Switch Job to customer "2" via "Sell-to Customer Name".
+        LibraryVariableStorage.Enqueue(SellToCustomer[2]."No.");
+        JobCard."Sell-to Customer Name".Lookup(); // Uses CustomerLookupModalHandler handler.
+        Job.Validate("Sell-to Customer Name", SellToCustomer[2].Name); // Uses ConfirmHandlerYes handler.
+        Job.Modify(true);
+        JobCard.Close();
+
+        // [THEN] Verify that Job is switched customer "2".
+        Job.TestField("Sell-to Customer No.", SellToCustomer[2]."No.");
+        Job.TestField("Sell-to Address", SellToCustomer[2].Address);
+        Job.TestField("Bill-to Address", SellToCustomer[2].Address);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1586,6 +1627,13 @@ codeunit 136350 "UT T Job"
         Reply := false;
     end;
 
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
     [ModalPageHandler]
     procedure ShipToAddressListModalHandler(var ShipToAddressList: TestPage "Ship-to Address List")
     var
@@ -1594,6 +1642,14 @@ codeunit 136350 "UT T Job"
         ShipToAddress.Get(LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueText());
         ShipToAddressList.GoToRecord(ShipToAddress);
         ShipToAddressList.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomerLookupModalHandler(var CustomerLookup: TestPage "Customer Lookup")
+    begin
+        CustomerLookup.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        CustomerLookup.OK.Invoke();
     end;
 }
 

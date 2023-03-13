@@ -4971,6 +4971,49 @@ codeunit 134378 "ERM Sales Order"
         Assert.IsTrue(SalesHeader."Dimension Set ID" = DimensionSetID, DimensionSetIdHasChangedMsg);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure VerifyServiceChargeLineIsRecreatedOnUpdateBillToCustomerOnSalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        CustomerNo: array[2] of Code[20];
+        ServiceChargeAmt: array[2] of Decimal;
+        BillToOptions: Option "Default (Customer)","Another Customer";
+    begin
+        // [SCENARIO 461917] Verify Service Charge line is removed and new is created on update Bill-to Customer on Sales Order 
+        // [GIVEN] Initialize
+        Initialize();
+
+        // [GIVEN] Enable invoice discount calculation on "Sales & Receivables Setup".
+        LibrarySales.SetCalcInvDiscount(true);
+
+        // [GIVEN] Create two Customers with Service Charge line 
+        CreateCustomerWithServiceChargeAmount(CustomerNo[1], ServiceChargeAmt[1]);
+        CreateCustomerWithServiceChargeAmount(CustomerNo[2], ServiceChargeAmt[2]);
+
+        // [WHEN] Sales Order with customer
+        CreateSalesOrderWithServiceCharge(SalesHeader, CustomerNo[1]);
+        LibrarySales.CalcSalesDiscount(SalesHeader);
+
+        // [THEN] Verify Charge Line is created
+        FindSalesServiceChargeLine(SalesLine, SalesHeader);
+        Assert.RecordCount(SalesLine, 1);
+        SalesLine.TestField(Amount, ServiceChargeAmt[1]);
+
+        // [WHEN] Sales Order page is opened, and Bill-to Customer is picked        
+        SalesOrder.OpenEdit;
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.BillToOptions.SetValue(BillToOptions::"Another Customer");
+        SalesOrder."Bill-to Name".SetValue(CustomerNo[2]);
+
+        // [THEN] Verify Charge Line is recreated
+        FindSalesServiceChargeLine(SalesLine, SalesHeader);
+        Assert.RecordCount(SalesLine, 1);
+        SalesLine.TestField(Amount, ServiceChargeAmt[2]);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -6976,6 +7019,39 @@ codeunit 134378 "ERM Sales Order"
         repeat
             UpdateQtyToShipAndInvoiceOnSalesLine(SalesLine, 3, 3);
         until SalesLine.Next() = 0;
+    end;
+
+    local procedure CreateSalesOrderWithServiceCharge(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+        Amount: Decimal;
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+        SalesLine.Validate("Unit Price", Amount);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure FindSalesServiceChargeLine(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
+    begin
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange(Type, SalesLine.Type::"G/L Account");
+        SalesLine.FindFirst();
+    end;
+
+    local procedure CreateCustomerWithServiceChargeAmount(var CustomerNo: Code[20]; var ServiceChargeAmt: Decimal)
+    var
+        CustomerInvoiceDisc: Record "Cust. Invoice Disc.";
+    begin
+        CustomerNo := CreateCustomerInvDiscount;
+        ServiceChargeAmt := LibraryRandom.RandDecInDecimalRange(10, 20, 2);
+        CustomerInvoiceDisc.SetRange(Code, CustomerNo);
+        CustomerInvoiceDisc.FindFirst();
+        CustomerInvoiceDisc.Validate("Service Charge", ServiceChargeAmt);
+        CustomerInvoiceDisc.Modify(true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]
