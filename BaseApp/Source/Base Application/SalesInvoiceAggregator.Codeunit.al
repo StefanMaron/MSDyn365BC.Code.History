@@ -1,6 +1,7 @@
 codeunit 5477 "Sales Invoice Aggregator"
 {
-    Permissions = TableData "Sales Invoice Header" = rimd;
+    Permissions = tabledata "Sales Invoice Header" = rimd,
+                  tabledata "Sales Invoice Entity Aggregate" = RM;
 
     trigger OnRun()
     begin
@@ -804,7 +805,13 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         IsRenameAllowed: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferRecordIDs(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if IsNullGuid(SalesHeader.SystemId) then
             exit;
 
@@ -1155,6 +1162,11 @@ codeunit 5477 "Sales Invoice Aggregator"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetStatusOptionFromSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferRecordIDs(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

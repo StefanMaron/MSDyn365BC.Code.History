@@ -22,14 +22,21 @@ table 701 "Error Message Register"
             //This property is currently not supported
             //TestTableRelation = false;
         }
-        field(4; Description; Text[250])
+        field(4; "Description"; Text[250])
         {
             Caption = 'Description';
             DataClassification = SystemMetadata;
+#if not CLEAN22
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteTag = '22.0';
+            ObsoleteReason = 'Replaced by "Message"';
         }
         field(5; Errors; Integer)
         {
-            CalcFormula = Count ("Error Message" WHERE("Register ID" = FIELD(ID),
+            CalcFormula = Count("Error Message" WHERE("Register ID" = FIELD(ID),
                                                        "Message Type" = CONST(Error)));
             Caption = 'Errors';
             Editable = false;
@@ -37,7 +44,7 @@ table 701 "Error Message Register"
         }
         field(6; Warnings; Integer)
         {
-            CalcFormula = Count ("Error Message" WHERE("Register ID" = FIELD(ID),
+            CalcFormula = Count("Error Message" WHERE("Register ID" = FIELD(ID),
                                                        "Message Type" = CONST(Warning)));
             Caption = 'Warnings';
             Editable = false;
@@ -45,11 +52,16 @@ table 701 "Error Message Register"
         }
         field(7; Information; Integer)
         {
-            CalcFormula = Count ("Error Message" WHERE("Register ID" = FIELD(ID),
+            CalcFormula = Count("Error Message" WHERE("Register ID" = FIELD(ID),
                                                        "Message Type" = CONST(Information)));
             Caption = 'Information';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(8; "Message"; Text[2048])
+        {
+            Caption = 'Description';
+            DataClassification = SystemMetadata;
         }
     }
 
@@ -81,8 +93,8 @@ table 701 "Error Message Register"
         Init();
         ID := CreateGuid();
         "Created On" := CurrentDateTime;
-        "User ID" := UserId;
-        Description := NewDescription;
+        "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
+        "Message" := NewDescription;
         Insert();
         exit(ID);
     end;

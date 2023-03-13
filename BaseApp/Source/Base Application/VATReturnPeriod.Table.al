@@ -142,7 +142,7 @@ table 737 "VAT Return Period"
             VATReportHeader."Period No." := 0;
         end;
     end;
-
+    
     internal procedure FindVATPeriodByDate(VATReportingDate: Date): Boolean
     begin
         Rec.SetFilter("End Date", '>=%1', VATReportingDate);

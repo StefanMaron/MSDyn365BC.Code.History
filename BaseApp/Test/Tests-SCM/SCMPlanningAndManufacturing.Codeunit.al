@@ -42,6 +42,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdBOMMustBeCertifiedErr: Label 'Status must be equal to ''Certified''';
         ErrorsWhenPlanningMsg: Label 'Not all items were planned.';
         OnlyOneRecordErr: Label 'Only one record is expected.';
+        BinCodesNotEqualErr: Label 'Bin Codes are not equal.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2157,6 +2158,167 @@ codeunit 137080 "SCM Planning And Manufacturing"
         Assert.RecordIsEmpty(RequisitionLine);
     end;
 
+    [Test]
+    procedure ForecastOnVariantsInPlanning()
+    var
+        Item: Record Item;
+        Location: array[2] of Record Location;
+        ItemVariant: array[2] of Record "Item Variant";
+        ProductionForecastName: Record "Production Forecast Name";
+        Qty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Item Variant] [Demand Forecast]
+        // [SCENARIO 458828] Correct planning result of demand forecast by variants.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Set "Use Forecast on Variants" = TRUE and "Use Forecast on Locations" = FALSE in Manufacturing Setup.
+        UpdateUseForecastOnVariantsInManufacturingSetup(true);
+        UpdateUseForecastOnLocationsInManufacturingSetup(false);
+
+        // [GIVEN] Planning item.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Modify(true);
+
+        // [GIVEN] 2 locations and 2 variants//, create 4 stockkeeping units.
+        for i := 1 to ArrayLen(Location) do
+            LibraryWarehouse.CreateLocation(Location[i]);
+        for i := 1 to ArrayLen(ItemVariant) do
+            LibraryInventory.CreateItemVariant(ItemVariant[i], Item."No.");
+
+        // [GIVEN] Create demand forecast:
+        // [GIVEN] Variant 1 in January, Variant 2 in February, Variant 1 in March for each location.
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[1].Code, ItemVariant[1].Code, WorkDate(), Qty);
+        CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[1].Code, ItemVariant[1].Code, WorkDate() + 60, Qty);
+        CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[1].Code, ItemVariant[2].Code, WorkDate() + 30, Qty);
+        CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[2].Code, ItemVariant[1].Code, WorkDate(), Qty);
+        CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[2].Code, ItemVariant[1].Code, WorkDate() + 60, Qty);
+        CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[2].Code, ItemVariant[2].Code, WorkDate() + 30, Qty);
+
+        // [GIVEN] Select this forecast in manufacturing setup.
+        UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, '');
+
+        // [WHEN] Calculate regenerative plan for the item.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY', WorkDate()));
+
+        // [THEN] Demand forecast is properly planned - two supplies suggested for Variant 1 and one for Variant 2.
+        VerifyRequisitionLineCountAndQty(Item."No.", ItemVariant[1].Code, 2, 4 * Qty);
+        VerifyRequisitionLineCountAndQty(Item."No.", ItemVariant[2].Code, 1, 2 * Qty);
+    end;
+
+    [Test]
+    procedure ForecastOnVariantsAndLocationsInPlanning()
+    var
+        Item: Record Item;
+        Location: array[2] of Record Location;
+        ItemVariant: array[2] of Record "Item Variant";
+        ProductionForecastName: Record "Production Forecast Name";
+        Qty: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Item Variant] [Demand Forecast]
+        // [SCENARIO 458828] Correct planning result of demand forecast by variants and locations.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Set "Use Forecast on Variants" = TRUE and "Use Forecast on Locations" = TRUE in Manufacturing Setup.
+        UpdateUseForecastOnVariantsInManufacturingSetup(true);
+        UpdateUseForecastOnLocationsInManufacturingSetup(true);
+
+        // [GIVEN] Planning item.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Modify(true);
+
+        // [GIVEN] 2 locations and 2 variants, create 4 stockkeeping units.
+        for i := 1 to ArrayLen(Location) do
+            LibraryWarehouse.CreateLocation(Location[i]);
+        for i := 1 to ArrayLen(ItemVariant) do
+            LibraryInventory.CreateItemVariant(ItemVariant[i], Item."No.");
+
+        // [GIVEN] Create demand forecast:
+        // [GIVEN] Variant 1 in January, Variant 2 in February, Variant 1 in March for each location.
+        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
+        CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[1].Code, ItemVariant[1].Code, WorkDate(), Qty);
+        CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[1].Code, ItemVariant[1].Code, WorkDate() + 60, Qty);
+        CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[1].Code, ItemVariant[2].Code, WorkDate() + 30, Qty);
+        CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[2].Code, ItemVariant[1].Code, WorkDate(), Qty);
+        CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[2].Code, ItemVariant[1].Code, WorkDate() + 60, Qty);
+        CreateProductionForecastEntry(ProductionForecastName.Name, Item, Location[2].Code, ItemVariant[2].Code, WorkDate() + 30, Qty);
+
+        // [GIVEN] Select this forecast in manufacturing setup.
+        UpdateCurrentProductionForecastAndComponentsAtLocationOnManufacturingSetup(ProductionForecastName.Name, '');
+
+        // [WHEN] Calculate regenerative plan for the item.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY', WorkDate()));
+
+        // [THEN] Demand forecast is properly planned - two supplies suggested for Variant 1 and one for Variant 2 for each location.
+        VerifyRequisitionLineCountAndQty(Item."No.", ItemVariant[1].Code, 4, 4 * Qty);
+        VerifyRequisitionLineCountAndQty(Item."No.", ItemVariant[2].Code, 2, 2 * Qty);
+    end;
+
+    [Test]
+    procedure VerifyBinCodesOnPlanningComponentsForComponentsWithRoutingLinkCode()
+    var
+        ParentItem: Record Item;
+        LocationSilver: Record Location;
+        WorkCenter: Record "Work Center";
+        ComponentItems: array[3] of Record Item;
+        RoutingLinks: array[2] of Record "Routing Link";
+        Bins: array[5] of Record Bin;
+        MachineCenters: array[2] of Record "Machine Center";
+    begin
+        // [SCENARIO 461527] Verify Bin Codes on Planning Components are pulled from Machine Centers, when we have Routing Link Code
+        Initialize();
+
+        // [GIVEN] Location Silver with Require Put-away, Require Pick and Bin Mandatory
+        CreateAndUpdateLocation(LocationSilver, true, true, false, false, true);
+
+        // [GIVEN] Create Bins on Location
+        CreateBinsOnLocation(Bins, LocationSilver);
+
+        // [GIVEN] Add Silver Location on Manufacturing Setup
+        AddLocationOnManufacturingSetup(LocationSilver.Code);
+
+        // [GIVEN] Work center with Location
+        CreateWorkCenterWithLocation(WorkCenter, LocationSilver.Code);
+
+        // [GIVEN] Machine Centers
+        CreateMachineCentersWithBins(MachineCenters, WorkCenter, Bins);
+
+        // [GIVEN] Create Item with  Replenishment System = Prod. Order, Manufacturing Policy = Make-to-Order, Reordering Policy = Lot-for-Lot
+        CreateLotProdMakeToOrderItemWithRoutingNo(ParentItem, '');
+
+        // [GIVEN] Create Component Items
+        CreateComponentItems(ComponentItems);
+
+        // [GIVEN] Create Routing Links
+        CreateRoutingLinks(RoutingLinks);
+
+        // [GIVEN] Create Prod. BOM with Component Items
+        CreateAndCertifyProdBOMWithMultipleComponents(ParentItem, ComponentItems, RoutingLinks);
+
+        // [GIVEN] Create Routing and assign to Item
+        CreateRouting(ParentItem, WorkCenter, MachineCenters, RoutingLinks);
+
+        // [GIVEN] Create and Post Purchase Order
+        CreateAndPostPurchaseOrderWithBin(ComponentItems, Bins[5].Code, LocationSilver.Code);
+
+        // [GIVEN] Create and Release Sales Order for Parent Item
+        CreateAndReleaseSalesOrder(ParentItem."No.", LocationSilver.Code);
+
+        // [WHEN] Calculate regenerative plan for the item.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ParentItem, CalcDate('<-CY>', WorkDate()), CalcDate('<CY', WorkDate()));
+
+        // [THEN] Verify Bin Code On Planning Component
+        VerifyBinCodeOnPlanningComponent(ComponentItems[1], Bins[2].Code);
+        VerifyBinCodeOnPlanningComponent(ComponentItems[2], Bins[2].Code);
+        VerifyBinCodeOnPlanningComponent(ComponentItems[3], Bins[4].Code);
+    end;
+
     local procedure Initialize()
     var
         PlanningErrorLog: Record "Planning Error Log";
@@ -2890,6 +3052,18 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProductionForecastEntry.Modify(true);
     end;
 
+    local procedure CreateProductionForecastEntry(ProductionForecastName: Code[10]; Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; ForecastDate: Date; Qty: Decimal)
+    var
+        ProductionForecastEntry: Record "Production Forecast Entry";
+    begin
+        LibraryManufacturing.CreateProductionForecastEntry(
+          ProductionForecastEntry, ProductionForecastName, Item."No.", LocationCode, ForecastDate, false);
+        ProductionForecastEntry.Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        ProductionForecastEntry.Validate("Variant Code", VariantCode);
+        ProductionForecastEntry.Validate("Forecast Quantity", Qty);
+        ProductionForecastEntry.Modify(true);
+    end;
+
     local procedure DeleteRequisitionLine(ItemNo: Code[20])
     var
         RequisitionLine: Record "Requisition Line";
@@ -3081,6 +3255,15 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ManufacturingSetup.Modify(true);
     end;
 
+    local procedure UpdateUseForecastOnVariantsInManufacturingSetup(UseForecastOnVariants: Boolean)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Use Forecast on Variants", UseForecastOnVariants);
+        ManufacturingSetup.Modify(true);
+    end;
+
     local procedure UpdateQuantityOnSalesLine(var SalesLine: Record "Sales Line")
     begin
         SalesLine.Validate(Quantity, SalesLine.Quantity + LibraryRandom.RandDec(100, 2));  // Increase Quantity on Sales Line after calculate regenerative plan required for test.
@@ -3197,6 +3380,17 @@ codeunit 137080 "SCM Planning And Manufacturing"
         RequisitionLine.TestField("Ending Date-Time", EndingDateTime);
     end;
 
+    local procedure VerifyRequisitionLineCountAndQty(ItemNo: Code[20]; VariantCode: Code[10]; RecCount: Integer; Qty: Decimal)
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        RequisitionLine.SetRange("No.", ItemNo);
+        RequisitionLine.SetRange("Variant Code", VariantCode);
+        RequisitionLine.CalcSums(Quantity);
+        RequisitionLine.TestField(Quantity, Qty);
+        Assert.RecordCount(RequisitionLine, RecCount);
+    end;
+
     local procedure VerifyReservationEntry(ProductionOrder: Record "Production Order"; LotNo: Code[50])
     var
         ReservationEntry: Record "Reservation Entry";
@@ -3232,6 +3426,168 @@ codeunit 137080 "SCM Planning And Manufacturing"
         ProdOrderRoutingLine.TestField("Location Code", '');
         ProdOrderRoutingLine.TestField("To-Production Bin Code", '');
         ProdOrderRoutingLine.TestField("From-Production Bin Code", '');
+    end;
+
+    local procedure VerifyBinCodeOnPlanningComponent(Item: Record Item; BinCode: Code[10])
+    var
+        PlanningComponent: Record "Planning Component";
+    begin
+        PlanningComponent.SetRange("Item No.", Item."No.");
+        PlanningComponent.FindFirst();
+        Assert.AreEqual(BinCode, PlanningComponent."Bin Code", BinCodesNotEqualErr);
+    end;
+
+    local procedure CreateAndReleaseSalesOrder(ItemNo: Code[20]; LocationCode: Code[10])
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ItemNo, 1, LocationCode, 0D);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CreateAndPostPurchaseOrderWithBin(var Items: array[3] of Record Item; BinCode: Code[20]; LocationCode: Code[10])
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        CreatePurchaseOrderLine(Purchaseheader, Items[1], BinCode, LocationCode);
+        CreatePurchaseOrderLine(Purchaseheader, Items[2], BinCode, LocationCode);
+        CreatePurchaseOrderLine(Purchaseheader, Items[3], BinCode, LocationCode);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
+    local procedure CreatePurchaseOrderLine(var PurchaseHeader: Record "Purchase Header"; Item: Record Item; BinCode: Code[20]; LocationCode: Code[10])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 100);
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Validate("Bin Code", BinCode);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateRoutingLinks(var RoutingLinks: array[2] of Record "Routing Link")
+    begin
+        LibraryManufacturing.CreateRoutingLink(RoutingLinks[1]);
+        LibraryManufacturing.CreateRoutingLink(RoutingLinks[2]);
+    end;
+
+    local procedure CreateRouting(var Item: Record Item; var WorkCenter: Record "Work Center"; var MachineCenters: array[2] of Record "Machine Center"; var RoutingLinks: array[2] of Record "Routing Link")
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        RoutingLine.Type := RoutingLine.Type::"Machine Center";
+        CreateRoutingLine(RoutingLine, RoutingHeader, MachineCenters[1]."No.", RoutingLinks[1].Code);
+        RoutingLine.Type := RoutingLine.Type::"Machine Center";
+        CreateRoutingLine(RoutingLine, RoutingHeader, MachineCenters[2]."No.", RoutingLinks[2].Code);
+        RoutingLine.Type := RoutingLine.Type::"Work Center";
+        CreateRoutingLine(RoutingLine, RoutingHeader, WorkCenter."No.", '');
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateRoutingLine(var RoutingLine: Record "Routing Line"; RoutingHeader: Record "Routing Header"; CenterNo: Code[20]; RoutingLinkCode: Code[10])
+    var
+        OperationNo: Code[10];
+    begin
+        // Random used such that the Next Operation No is greater than the Previous Operation No.
+        OperationNo := FindLastOperationNo(RoutingHeader."No.") + Format(LibraryRandom.RandInt(5));
+
+        LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, CenterNo, OperationNo, 0, 0);
+        RoutingLine.Validate("Routing Link Code", RoutingLinkCode);
+        RoutingLine.Modify(true);
+    end;
+
+    local procedure FindLastOperationNo(RoutingNo: Code[20]): Code[10]
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        RoutingLine.SetRange("Routing No.", RoutingNo);
+        if RoutingLine.FindLast() then
+            exit(RoutingLine."Operation No.");
+    end;
+
+    local procedure CreateMachineCentersWithBins(var MachineCenters: array[2] of Record "Machine Center"; var WorkCenter: Record "Work Center"; var Bins: array[7] of Record Bin)
+    begin
+        LibraryManufacturing.CreateMachineCenter(MachineCenters[1], WorkCenter."No.", 1);
+        MachineCenters[1].Validate("Open Shop Floor Bin Code", Bins[1].Code);
+        MachineCenters[1].Validate("To-Production Bin Code", Bins[2].Code);
+        MachineCenters[1].Modify(true);
+        LibraryManufacturing.CreateMachineCenter(MachineCenters[2], WorkCenter."No.", 1);
+        MachineCenters[2].Validate("Open Shop Floor Bin Code", Bins[3].Code);
+        MachineCenters[2].Validate("To-Production Bin Code", Bins[4].Code);
+        MachineCenters[2].Modify(true);
+    end;
+
+    local procedure CreateWorkCenterWithLocation(var WorkCenter: Record "Work Center"; LocationCode: Code[10])
+    var
+        Bin: Record Bin;
+    begin
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Location Code", LocationCode);
+        WorkCenter.Modify(true);
+    end;
+
+    local procedure CreateBinsOnLocation(var Bins: array[5] of Record Bin; var Location: Record Location)
+    begin
+        LibraryWarehouse.CreateBin(Bins[1], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bins[2], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bins[3], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bins[4], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bins[5], Location.Code, '', '', '');
+    end;
+
+    local procedure CreateComponentItems(var Items: array[3] of Record Item)
+    begin
+        // Create Component Items
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Items[1], LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(1000, 2));
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Items[2], LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(1000, 2));
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Items[3], LibraryRandom.RandDec(1000, 2), LibraryRandom.RandDec(1000, 2));
+    end;
+
+    local procedure CreateAndCertifyProdBOMWithMultipleComponents(var Item: Record Item; var Items: array[3] of Record Item; var RoutingLinks: array[2] of Record "Routing Link")
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, Items[1], RoutingLinks[1].Code);
+        CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, Items[2], RoutingLinks[1].Code);
+        CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, Items[3], RoutingLinks[2].Code);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateProductionBOMLine(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; Item: Record Item; RoutingLinkCode: Code[10])
+    begin
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", 1);
+        ProductionBOMLine.Validate("Routing Link Code", RoutingLinkCode);
+        ProductionBOMLine.Modify(true);
+    end;
+
+    local procedure CreateAndUpdateLocation(var Location: Record Location; RequirePutAway: Boolean; RequirePick: Boolean; RequireReceive: Boolean; RequireShipment: Boolean; BinMandatory: Boolean)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        LibraryWarehouse.CreateLocationWMS(Location, BinMandatory, RequirePutAway, RequirePick, RequireReceive, RequireShipment);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+    end;
+
+    local procedure AddLocationOnManufacturingSetup(LocationCode: Code[20])
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Components at Location" := LocationCode;
+        ManufacturingSetup.Modify(true);
     end;
 
     [ConfirmHandler]

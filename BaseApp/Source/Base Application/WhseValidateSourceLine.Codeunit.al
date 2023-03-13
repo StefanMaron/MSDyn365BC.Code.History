@@ -138,6 +138,20 @@ codeunit 5777 "Whse. Validate Source Line"
             FirstFieldRef.FieldError(ErrorMessage);
     end;
 
+    local procedure FieldValueIsChanged(FirstRecordRef: RecordRef; SecondRecordRef: RecordRef; FieldNumber: Integer): Boolean
+    var
+        FirstFieldRef: FieldRef;
+        SecondFieldRef: FieldRef;
+    begin
+        FirstFieldRef := FirstRecordRef.Field(FieldNumber);
+        SecondFieldRef := SecondRecordRef.Field(FieldNumber);
+
+        if Format(FirstFieldRef.Value) <> Format(SecondFieldRef.Value) then
+            exit(true);
+
+        exit(false);
+    end;
+
     procedure PurchaseLineVerifyChange(var NewPurchLine: Record "Purchase Line"; var OldPurchLine: Record "Purchase Line")
     var
         OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
@@ -253,7 +267,6 @@ codeunit 5777 "Whse. Validate Source Line"
     var
         WhseRcptLine: Record "Warehouse Receipt Line";
         WhseShptLine: Record "Warehouse Shipment Line";
-        WhseWorkSheetLine: Record "Whse. Worksheet Line";
         WhseManagement: Codeunit "Whse. Management";
         IsHandled: Boolean;
     begin
@@ -297,14 +310,6 @@ codeunit 5777 "Whse. Validate Source Line"
             exit(true);
         end;
 
-        if (SourceType = Database::Job) or (SourceType = Database::"Prod. Order Component") then begin
-            WhseWorkSheetLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
-            if not WhseWorkSheetLine.IsEmpty() then begin
-                TableCaptionValue := WhseWorkSheetLine.TableCaption();
-                exit(true);
-            end;
-        end;
-
         TableCaptionValue := '';
         exit(false);
     end;
@@ -316,6 +321,37 @@ codeunit 5777 "Whse. Validate Source Line"
         Success := WhseLinesExist(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSublineNo, SourceQty);
         TableCaptionValueOut := TableCaptionValue;
         exit(Success);
+    end;
+
+    procedure WhseWorkSheetLinesExistForJobOrProdOrderComponent(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer; SourceQty: Decimal): Boolean
+    var
+    begin
+        if not (SourceType in [Database::Job, Database::"Prod. Order Component"]) then begin
+            TableCaptionValue := '';
+            exit(false);
+        end;
+
+        exit(WhseWorkSheetLinesExist(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSublineNo, SourceQty));
+    end;
+
+    local procedure WhseWorkSheetLinesExist(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer; SourceQty: Decimal) Result: Boolean
+    var
+        WhseWorkSheetLine: Record "Whse. Worksheet Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeWhseWorkSheetLinesExist(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSublineNo, SourceQty, TableCaptionValue, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        WhseWorkSheetLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
+        if not WhseWorkSheetLine.IsEmpty() then begin
+            TableCaptionValue := WhseWorkSheetLine.TableCaption();
+            exit(true);
+        end;
+
+        TableCaptionValue := '';
+        exit(false);
     end;
 
     procedure ProdComponentVerifyChange(var NewProdOrderComp: Record "Prod. Order Component"; var OldProdOrderComp: Record "Prod. Order Component")
@@ -332,8 +368,18 @@ codeunit 5777 "Whse. Validate Source Line"
         if not WhseLinesExist(
              DATABASE::"Prod. Order Component", OldProdOrderComp.Status.AsInteger(), OldProdOrderComp."Prod. Order No.",
              OldProdOrderComp."Prod. Order Line No.", OldProdOrderComp."Line No.", OldProdOrderComp.Quantity)
-        then
-            exit;
+        then begin
+            NewRecRef.GetTable(NewProdOrderComp);
+            OldRecRef.GetTable(OldProdOrderComp);
+            if FieldValueIsChanged(NewRecRef, OldRecRef, NewProdOrderComp.FieldNo(Status)) then begin
+                if not WhseWorkSheetLinesExist(
+                    Database::"Prod. Order Component", OldProdOrderComp.Status.AsInteger(), OldProdOrderComp."Prod. Order No.",
+                    OldProdOrderComp."Prod. Order Line No.", OldProdOrderComp."Line No.", OldProdOrderComp.Quantity)
+                then
+                    exit;
+            end else
+                exit;
+        end;
 
         NewRecRef.GetTable(NewProdOrderComp);
         OldRecRef.GetTable(OldProdOrderComp);
@@ -364,6 +410,13 @@ codeunit 5777 "Whse. Validate Source Line"
         then
             Error(Text001, ProdOrderComp.TableCaption(), TableCaptionValue);
 
+        if WhseWorkSheetLinesExist(
+            Database::"Prod. Order Component",
+            ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrderComp."Prod. Order Line No.",
+            ProdOrderComp."Line No.", ProdOrderComp.Quantity)
+        then
+            Error(Text001, ProdOrderComp.TableCaption(), TableCaptionValue);
+
         OnAfterProdComponentDelete(ProdOrderComp);
     end;
 
@@ -379,7 +432,11 @@ codeunit 5777 "Whse. Validate Source Line"
         if not WhseLinesExist(
              DATABASE::Job, 0, NewJobPlanningLine."Job No.", NewJobPlanningLine."Job Contract Entry No.", NewJobPlanningLine."Line No.", NewJobPlanningLine.Quantity)
         then
-            exit;
+            if not WhseWorkSheetLinesExist(
+                Database::Job, 0, NewJobPlanningLine."Job No.", NewJobPlanningLine."Job Contract Entry No.", NewJobPlanningLine."Line No.", NewJobPlanningLine.Quantity)
+            then
+                exit;
+
         NewRecRef.GetTable(NewJobPlanningLine);
         OldRecRef.GetTable(OldJobPlanningLine);
         VerifyFieldNotChanged(NewRecRef, OldRecRef, FieldNo);
@@ -388,6 +445,9 @@ codeunit 5777 "Whse. Validate Source Line"
     procedure JobPlanningLineDelete(var JobPlanningLine: Record "Job Planning Line")
     begin
         if WhseLinesExist(DATABASE::Job, 0, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.", JobPlanningLine.Quantity) then
+            Error(Text001, JobPlanningLine.TableCaption(), TableCaptionValue);
+
+        if WhseWorkSheetLinesExist(Database::Job, 0, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.", JobPlanningLine.Quantity) then
             Error(Text001, JobPlanningLine.TableCaption(), TableCaptionValue);
     end;
 
@@ -439,7 +499,9 @@ codeunit 5777 "Whse. Validate Source Line"
 
                         LinesExist :=
                           WhseLinesExist(
-                            DATABASE::"Prod. Order Component", 3, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.", Quantity);
+                            DATABASE::"Prod. Order Component", 3, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.", Quantity) or
+                          WhseWorkSheetLinesExist(
+                            Database::"Prod. Order Component", 3, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.", Quantity);
                     end;
                 "Entry Type"::Output:
                     begin
@@ -824,6 +886,11 @@ codeunit 5777 "Whse. Validate Source Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProdComponentVerifyChange(var NewProdOrderComp: Record "Prod. Order Component"; var OldProdOrderComp: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWhseWorkSheetLinesExist(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer; SourceQty: Decimal; var TableCaptionValue: Text[100]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

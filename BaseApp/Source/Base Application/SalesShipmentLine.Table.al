@@ -783,6 +783,8 @@ table 111 "Sales Shipment Line"
             if not ExtTextLine and (SalesLine.Type <> SalesLine.Type::" ") then begin
                 IsHandled := false;
                 OnInsertInvLineFromShptLineOnBeforeValidateQuantity(Rec, SalesLine, IsHandled, SalesInvHeader);
+                if SalesLine."Deferral Code" <> '' then
+                    SalesLine.Validate("Deferral Code");
                 if not IsHandled then
                     SalesLine.Validate(Quantity, Quantity - "Quantity Invoiced");
                 CalcBaseQuantities(SalesLine, "Quantity (Base)" / Quantity);

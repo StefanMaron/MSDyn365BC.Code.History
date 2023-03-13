@@ -190,14 +190,14 @@ codeunit 134776 "Document Attachment Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure EnsureDuplicateFileWithSameNameAndExtIsNotSaved()
+    procedure EnsureDuplicateFileWithSameNameAndExtIsNotSavedIfDisabled()
     var
         Customer: Record Customer;
         DocumentAttachment: Record "Document Attachment";
         TempBlob: Codeunit "Temp Blob";
         RecRef: RecordRef;
     begin
-        // [SCENARIO] Ensure duplicate file name with same extension is not saved. For example saving 'test.jpeg' twice is NOT allowed.
+        // [SCENARIO] Ensure duplicate file name with same extension is not saved if duplicates are disabled. For example saving 'test.jpeg' twice is NOT allowed.
 
         // [GIVEN] Two Image files
         // [WHEN] Save attachment function is called twice
@@ -213,8 +213,50 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment.SaveAttachment(RecRef, 'test.jpeg', TempBlob);
 
         // Save second time
-        asserterror DocumentAttachment.SaveAttachment(RecRef, 'test.jpeg', TempBlob);
+        asserterror DocumentAttachment.SaveAttachment(RecRef, 'test.jpeg', TempBlob, false);
         Assert.ExpectedError(DuplicateErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EnsureDuplicateFileWithSameNameAndExtIsSavedIfEnabled()
+    var
+        Customer: Record Customer;
+        DocumentAttachment: Record "Document Attachment";
+        DocumentAttachment2: Record "Document Attachment";
+        TempBlob: Codeunit "Temp Blob";
+        RecRef: RecordRef;
+    begin
+        // [SCENARIO] Ensure duplicate file name with same extension is saved if duplicates are enabled. For example saving 'test.jpeg' a second time should rename the filename to 'test (1).jpeg'.
+
+        // [GIVEN] Two Image files
+        // [WHEN] Save attachment function is called twice
+        // [THEN] Second attachment has been renamed.
+        // Initialize
+        Initialize();
+        DocumentAttachment.DeleteAll();
+        DocumentAttachment.Init();
+        DocumentAttachment2.Init();
+        CreateTempBLOBWithImageOfType(TempBlob, 'jpeg');
+
+        RecRef.GetTable(Customer);
+
+        // Save first attachment
+        DocumentAttachment.SaveAttachment(RecRef, 'test.jpeg', TempBlob);
+
+        // Save second attachment
+        DocumentAttachment2.SaveAttachment(RecRef, 'test.jpeg', TempBlob);
+
+        // Only two attachments exists
+        Assert.AreEqual(2, DocumentAttachment.Count(), 'There does not exist exactly two attachments.');
+
+        // First attachment has original name
+        DocumentAttachment.SetRange("File Name", 'test');
+        Assert.IsTrue(DocumentAttachment.FindFirst(), 'No attachment with the original filename exists.');
+
+        // Second attachment has been renamed to 'test (1).jpeg'
+        DocumentAttachment.SetRange("File Name", 'test (1)');
+        Assert.IsTrue(DocumentAttachment.FindFirst(), 'No attachment with the renamed filename exists.');
     end;
 
     [Test]

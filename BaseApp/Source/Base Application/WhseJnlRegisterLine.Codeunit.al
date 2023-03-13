@@ -93,6 +93,7 @@
         WhseEntry."Location Code" := WhseJnlLine."Location Code";
         WhseEntry."Zone Code" := ZoneCode;
         WhseEntry."Bin Code" := BinCode;
+        GetLocation(WhseJnlLine."Location Code");
         GetBin(WhseJnlLine."Location Code", BinCode);
         WhseEntry.Dedicated := Bin.Dedicated;
         WhseEntry."Bin Type Code" := Bin."Bin Type Code";
@@ -375,6 +376,7 @@
             BinContent."Unit of Measure Code" := "Unit of Measure Code";
             BinContent."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
             BinContent.Fixed := WhseIntegrationMgt.IsOpenShopFloorBin("Location Code", "Bin Code");
+            GetLocation("Location Code");
             if not Location."Directed Put-away and Pick" then begin
                 CheckDefaultBin(WhseEntry, BinContent);
                 BinContent.Fixed := BinContent.Default;

@@ -1061,7 +1061,7 @@ codeunit 139158 "Invoice Mapping Tests"
     begin
         IncomingDocument.Get(DataExch."Incoming Entry No.");
         ErrorMessage.SetRange("Context Record ID", IncomingDocument.RecordId);
-        ErrorMessage.SetFilter(Description, StrSubstNo('*%1*', Message));
+        ErrorMessage.SetFilter("Message", StrSubstNo('*%1*', Message));
         ErrorMessage.SetRange("Message Type", MessageType);
         Assert.IsTrue(ErrorMessage.FindFirst, StrSubstNo('Expected message ''%1'' not found', Message));
     end;

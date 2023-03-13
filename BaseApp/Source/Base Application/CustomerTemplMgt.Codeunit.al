@@ -213,7 +213,10 @@ codeunit 1381 "Customer Templ. Mgt."
         if not CanBeUpdatedFromTemplate(CustomerTempl, IsHandled) then
             exit;
 
-        ApplyCustomerTemplate(Customer, CustomerTempl, GetUpdateExistingValuesParam());
+        if not GetUpdateExistingValuesParam() then
+            exit;
+
+        ApplyCustomerTemplate(Customer, CustomerTempl, true);
     end;
 
     procedure UpdateCustomersFromTemplate(var Customer: Record Customer)

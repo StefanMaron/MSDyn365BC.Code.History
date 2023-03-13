@@ -106,14 +106,16 @@ page 7020 "Purchase Job Price Lists"
             }
         }
     }
-actions{        area(Promoted)
+    actions
+    {
+        area(Promoted)
         {
             group(Category_Report)
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
-}
+    }
 #if not CLEAN21
     trigger OnInit()
     var
@@ -125,13 +127,11 @@ actions{        area(Promoted)
     trigger OnAfterGetRecord()
     begin
         CurrRec := Rec;
-        CurrRec.BlankDefaults();
     end;
 
     trigger OnAfterGetCurrRecord()
     begin
         CurrRec := Rec;
-        CurrRec.BlankDefaults();
     end;
 
     var

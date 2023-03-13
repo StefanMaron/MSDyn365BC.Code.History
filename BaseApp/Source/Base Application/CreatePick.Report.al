@@ -322,6 +322,10 @@ report 5754 "Create Pick"
                     CreatePick.SetTempWhseItemTrkgLine(
                       PickWhseWkshLine."Source No.", PickWhseWkshLine."Source Type", '', PickWhseWkshLine."Source Line No.",
                       PickWhseWkshLine."Source Subline No.", PickWhseWkshLine."Location Code");
+                PickWhseWkshLine."Whse. Document Type"::Job:
+                    CreatePick.SetTempWhseItemTrkgLine(
+                      PickWhseWkshLine."Source No.", Database::"Job Planning Line", '', 0,
+                      PickWhseWkshLine."Source Line No.", PickWhseWkshLine."Location Code");
                 else // Movement Worksheet Line
                     CreatePick.SetTempWhseItemTrkgLine(
                       PickWhseWkshLine.Name, DATABASE::"Prod. Order Component", PickWhseWkshLine."Worksheet Template Name",

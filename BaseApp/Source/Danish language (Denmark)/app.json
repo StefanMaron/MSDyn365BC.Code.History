@@ -2,7 +2,7 @@
     "id":  "bdbd8422-02d6-4b5f-9a35-948c5700a436",
     "name":  "Danish language (Denmark)",
     "publisher":  "Microsoft",
-    "version":  "21.3.51409.52692",
+    "version":  "21.4.52563.52785",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "21.3.0.0"
+    "application":  "21.4.0.0"
 }

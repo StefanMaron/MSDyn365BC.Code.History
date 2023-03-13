@@ -751,8 +751,10 @@ report 2 "General Journal - Test"
                 AmountLCY := 0;
                 BalanceLCY := 0;
 
-                "Gen. Journal Line".CopyFilter("Journal Batch Name", Name);
-                "Gen. Journal Line".CopyFilter("Journal Template Name", "Journal Template Name");
+                if (GetFilter(Name) = '') and (GetFilter("Journal Template Name") = '') then begin
+                    "Gen. Journal Line".CopyFilter("Journal Batch Name", Name);
+                    "Gen. Journal Line".CopyFilter("Journal Template Name", "Journal Template Name");
+                end;
             end;
         }
     }

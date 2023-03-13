@@ -2365,7 +2365,7 @@ codeunit 139157 "Invoice Premapping Tests"
     begin
         IncomingDocument.Get(DataExch."Incoming Entry No.");
         ErrorMessage.SetRange("Context Record ID", IncomingDocument.RecordId);
-        ErrorMessage.SetFilter(Description, ExpectedError);
+        ErrorMessage.SetFilter("Message", ExpectedError);
         Assert.IsTrue(ErrorMessage.FindFirst, StrSubstNo(ExpectedErrorMsgNotFoundErr, ExpectedError, ErrorMessage.TableCaption()));
         ErrorMessages.Trap;
         ErrorMessage.SetContext(IncomingDocument);

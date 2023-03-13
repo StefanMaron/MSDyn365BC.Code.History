@@ -53,6 +53,7 @@ codeunit 134386 "ERM Sales Documents II"
         EmptyStartingDateIsFoundErr: Label 'The record''s starting date (%1) is not equal to date within filter field (%2).';
         WorkStartingDateRecIsFoundErr: Label 'The record''s startings date (%1) is not empty. Only records with empty starting date should be found.';
         ExpectedRenameErr: Label 'You cannot rename the line.';
+        SalesQuoteLineNotEditableErr: Label 'The Sales Quote line should be editable';
 
     [Test]
     [Scope('OnPrem')]
@@ -4180,6 +4181,39 @@ codeunit 134386 "ERM Sales Documents II"
         SalesLine.TestField("VAT Bus. Posting Group");
 
         Assert.AreEqual(Customer."VAT Bus. Posting Group", SalesLine."VAT Bus. Posting Group", 'incorrect VAT Bus. Posting Group in Sales Line');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifySalesQuoteLineEditableWhenCreatingSalesQuoteUsingContact()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        ContactCard: TestPage "Contact Card";
+        SalesQuotes: TestPage "Sales Quotes";
+        SalesQuote: TestPage "Sales Quote";
+        FilterValue: Text;
+    begin
+        // [SCENARIO 460330] Quote not editable when creating sales quote from contact page.
+        Initialize();
+
+        // [GIVEN] Create Contact and Customer
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+
+        // [GIVEN] Open Contact Card page
+        ContactCard.OpenEdit();
+        ContactCard.GoToRecord(Contact);
+
+        // [WHEN] Open Sales Quotes List Page from Contact
+        SalesQuotes.Trap;
+        ContactCard.SalesQuotes.Invoke();
+
+        // [THEN] Create new Sales Quote with filtered Sell-to Contact No.
+        SalesQuote.OpenNew();
+        SalesQuote."Sell-to Contact No.".SetValue(SalesQuotes.Filter.GetFilter("Sell-to Contact No."));
+
+        // [VERIFY] Verify: Line Page is Editable
+        Assert.IsTrue(SalesQuote.SalesLines.Editable, SalesQuoteLineNotEditableErr);
     end;
 
     local procedure Initialize()

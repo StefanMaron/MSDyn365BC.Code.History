@@ -287,7 +287,7 @@ codeunit 136140 "Service Order Release"
         Assert.AreEqual(
           StrSubstNo(WarehouseShipmentMsg, 1), ShipmentConfirmationMessage, 'Confirmation message displayed on whse shpmnt creation');
         Assert.IsTrue(
-          WarehouseShipmentHeader.Get(WarehouseShipment."No."), 'Displayed warehouse shipment can be located');
+          WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value())), 'Displayed warehouse shipment can be located');
         GetAllServiceLinesOfTypeItem(ServiceLine, ServiceHeader);
         FindWarehouseShipmentLinesByServiceOrder(WarehouseShipmentLine, ServiceHeader, WarehouseShipmentHeader);
         Assert.AreEqual(ServiceLine.Count, WarehouseShipmentLine.Count, 'Count of Lines in Whse shipment and service lines match');
@@ -321,7 +321,7 @@ codeunit 136140 "Service Order Release"
 
         // Verify: All service lines are present in warehouse shipment and the quantities match
         Assert.IsTrue(
-          WarehouseShipmentHeader.Get(WarehouseShipment."No."), 'Displayed warehouse shipment can be located');
+          WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value())), 'Displayed warehouse shipment can be located');
         GetAllServiceLinesOfTypeItem(ServiceLine, ServiceHeader);
         FindWarehouseShipmentLinesByServiceOrder(WarehouseShipmentLine, ServiceHeader, WarehouseShipmentHeader);
         Assert.AreEqual(ServiceLine.Count, WarehouseShipmentLine.Count, 'Count of Lines in Whse shipment and service lines match');
@@ -1291,7 +1291,7 @@ codeunit 136140 "Service Order Release"
 
         WarehouseShipment.Trap;
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
-        WarehouseShipmentHeader.Get(WarehouseShipment."No.");
+        WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
 
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         RegisterWarehouseActivity(ServiceHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -1475,7 +1475,7 @@ codeunit 136140 "Service Order Release"
 
         WarehouseShipment.Trap;
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
-        WarehouseShipmentHeader.Get(WarehouseShipment."No.");
+        WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
 
         // EXECUTE: Create and Register Pick. Post the whse shpmnt twice with the ship option.
         // EXECUTE: Undo the Second posted service shipment only.
@@ -1563,7 +1563,7 @@ codeunit 136140 "Service Order Release"
 
         WarehouseShipment.Trap;
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
-        WarehouseShipmentHeader.Get(WarehouseShipment."No.");
+        WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
 
         // EXECUTE: Create and Register Pick. Post the whse shpmnt twice with the ship option.
         // EXECUTE: Undo the Second posted service shipment only.
@@ -1615,7 +1615,7 @@ codeunit 136140 "Service Order Release"
 
         WarehouseShipment.Trap;
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
-        WarehouseShipmentHeader.Get(WarehouseShipment."No.");
+        WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
 
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         RegisterWarehouseActivity(ServiceHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
@@ -1667,7 +1667,7 @@ codeunit 136140 "Service Order Release"
 
         WarehouseShipment.Trap;
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
-        WarehouseShipmentHeader.Get(WarehouseShipment."No.");
+        WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
 
         // EXECUTE: Create Pick, Register Pick and post Warehouse shipment with ship option, Invoice Service order partialy.
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
@@ -1727,7 +1727,7 @@ codeunit 136140 "Service Order Release"
 
         WarehouseShipment.Trap;
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
-        WarehouseShipmentHeader.Get(WarehouseShipment."No.");
+        WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
         WarehouseShipment.Close();
 
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
@@ -1744,7 +1744,7 @@ codeunit 136140 "Service Order Release"
 
         WarehouseShipment.Trap;
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
-        WarehouseShipmentHeader.Get(WarehouseShipment."No.");
+        WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
         WarehouseShipment.Close();
 
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
@@ -2036,7 +2036,7 @@ codeunit 136140 "Service Order Release"
         // VERIFY: warehouse shipment Line:Due Date = ServiceLine."Needed by date" - Service Line.Shipping Time
         // VERIFY: Shipping time on service line matches the expected offset
         // VERIFY: WHSe Shipment Line.Shipping date= = ServiceLine."Needed by date" - ServiceLine.Shipping Time - Location."Whse Outbound handling time"
-        WarehouseShipmentHeader.Get(WarehouseShipment."No.");
+        WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
         GetAllServiceLinesOfTypeItem(ServiceLine, ServiceHeader);
         FindWarehouseShipmentLinesByServiceOrder(WarehouseShipmentLine, ServiceHeader, WarehouseShipmentHeader);
 
@@ -2603,9 +2603,9 @@ codeunit 136140 "Service Order Release"
         ServiceHeader.Modify(true);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
-        WarehouseShipment.Trap;
+        WarehouseShipment.Trap();
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
-        WarehouseShipmentHeader.Get(WarehouseShipment."No.");
+        WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
 
         // EXECUTE: Create an warehouse shipment with the release service order.
         // EXECUTE: Create and register pick for the full quantity.

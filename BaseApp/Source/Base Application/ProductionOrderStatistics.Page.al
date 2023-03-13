@@ -388,7 +388,7 @@ page 99000816 "Production Order Statistics"
     begin
         for i := 1 to ArrayLen(VarAmt) do begin
             IsHandled := false;
-            OnBeforeCalcVariance(VarAmt, VarPct, StdCost, ActCost, i, IsHandled);
+            OnBeforeCalcVariance(VarAmt, VarPct, StdCost, ActCost, i, IsHandled, ExpCost);
             if not IsHandled then begin
                 VarAmt[i] := ActCost[i] - StdCost[i];
                 VarPct[i] := CalcIndicatorPct(StdCost[i], ActCost[i]);
@@ -405,7 +405,7 @@ page 99000816 "Production Order Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcVariance(var VarAmt: array[6] of Decimal; var VarPct: array[6] of Decimal; var StdCost: array[6] of Decimal; var ActCost: array[6] of Decimal; i: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeCalcVariance(var VarAmt: array[6] of Decimal; var VarPct: array[6] of Decimal; var StdCost: array[6] of Decimal; var ActCost: array[6] of Decimal; i: Integer; var IsHandled: Boolean; var ExpCost: array[6] of Decimal)
     begin
     end;
 }

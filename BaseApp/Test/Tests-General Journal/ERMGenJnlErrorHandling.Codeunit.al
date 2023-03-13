@@ -239,7 +239,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         MockGenJnlCheckLineRun(GenJournalLine, TempErrorMessage);
 
         // [THEN] Error message has Description = "Dummy error"
-        TempErrorMessage.TestField(Description, DummyErr);
+        TempErrorMessage.TestField("Message", DummyErr);
         TempErrorMessage.TestField("Context Record ID", GenJournalLine.RecordId());
 
         UnbindSubscription(ERMGenJnlErrorHandling);
@@ -271,7 +271,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
 
         // [THEN] Error message has Description = "IC Direction must be Outgoing"
         VerifyErrorMessageText(
-            TempErrorMessage.Description,
+            TempErrorMessage."Message",
             StrSubstNo(TestFieldValueErr, GenJournalLine.FieldCaption("IC Direction"), GenJournalLine."IC Direction"::Outgoing));
 
         UnbindSubscription(ERMGenJnlErrorHandling);
@@ -302,7 +302,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         MockGenJnlCheckLineRunWithErrorBehaviorCollect(GenJournalLine, TempErrorMessage);
 
         // [THEN] Error message has Description = "Dummy error"
-        TempErrorMessage.TestField(Description, DummyErr);
+        TempErrorMessage.TestField("Message", DummyErr);
         TempErrorMessage.TestField("Context Record ID", GenJournalLine.RecordId());
 
         UnbindSubscription(ERMGenJnlErrorHandling);
@@ -334,7 +334,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
 
         // [THEN] Error message has Description = "IC Direction must be 'Outgoing'"
         VerifyErrorMessageText(
-            TempErrorMessage.Description,
+            TempErrorMessage."Message",
             StrSubstNo(TestFieldOptionValueErr, GenJournalLine.FieldCaption("IC Direction"), GenJournalLine."IC Direction"::Outgoing));
 
         UnbindSubscription(ERMGenJnlErrorHandling);
@@ -496,7 +496,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         MockLineModified(xGenJournalLine, GenJournalLine, TempErrorMessage);
 
         // [THEN] Number of "out of balance" errors = 6
-        TempErrorMessage.SetFilter(Description, OutOfBalanceFilterTxt);
+        TempErrorMessage.SetFilter("Message", OutOfBalanceFilterTxt);
         Assert.AreEqual(GenJournalLine.Count(), TempErrorMessage.Count(), 'Invalid number of errors');
     end;
 
@@ -527,7 +527,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         MockLineModified(xGenJournalLine, GenJournalLine, TempErrorMessage);
 
         // [THEN] Number of "out of balance" errors = 6
-        TempErrorMessage.SetFilter(Description, OutOfBalanceFilterTxt);
+        TempErrorMessage.SetFilter("Message", OutOfBalanceFilterTxt);
         Assert.AreEqual(GenJournalLine.Count(), TempErrorMessage.Count(), 'Invalid number of errors');
     end;
 
@@ -557,7 +557,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         MockLineModified(xGenJournalLine, GenJournalLine, TempErrorMessage);
 
         // [THEN] Number of "out of balance" errors = 6
-        TempErrorMessage.SetFilter(Description, OutOfBalanceFilterTxt);
+        TempErrorMessage.SetFilter("Message", OutOfBalanceFilterTxt);
         Assert.AreEqual(GenJournalLine.Count(), TempErrorMessage.Count(), 'Invalid number of errors');
     end;
 
@@ -953,7 +953,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
 
         // [THEN] Errors created for DIM1 and DIM2: "Select a Dimension Value Code for the Dimension Code ..."
         for i := 1 to 2 do begin
-            TempErrorMessage.SetFilter(Description, StrSubstNo(DimErr, Dimension[1].Code, GenJournalLine."Account No."));
+            TempErrorMessage.SetFilter("Message", StrSubstNo(DimErr, Dimension[1].Code, GenJournalLine."Account No."));
             Assert.IsTrue(TempErrorMessage.FindFirst(), 'Expected error not found');
         end;
     end;
@@ -1416,7 +1416,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         // [THEN] Error message "Amount must have a value"
         TempErrorMessage.TestField("Context Record ID", GenJournalLine.RecordId());
         VerifyErrorMessageText(
-            TempErrorMessage.Description,
+            TempErrorMessage."Message",
             StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine.FieldCaption(Amount)));
 
         UnBindSubscription(ERMGenJnlErrorHandling);

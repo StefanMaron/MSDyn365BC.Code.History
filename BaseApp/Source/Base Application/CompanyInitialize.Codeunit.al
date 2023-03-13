@@ -185,6 +185,7 @@ codeunit 2 "Company-Initialize"
         Text116: Label 'Cost Allocation';
         Text117: Label 'TRABUD', Comment = 'Uppercase of the translation of Transfer Budget to Actual with a max of 10 char';
         Text118: Label 'Transfer Budget to Actual';
+        DocumentCreatedToAvoidGapInNoSeriesTxt: Label 'Document created to avoid gap in No. Series';
         InvtReceiptsTxt: Label 'INVTRCPT', Comment = 'INVENTORY RECEIPTS';
         InvtShipmentsTxt: Label 'INVTSHPT', Comment = 'INVENTORY SHIPMENTS';
         InvtOrderTxt: Label 'INVTORDER', Comment = 'INVENTORY ORDERS';
@@ -384,7 +385,7 @@ codeunit 2 "Company-Initialize"
                 Init();
                 InsertSourceCode(Sales, Text001, Text002);
                 InsertSourceCode(Purchases, Text003, Text004);
-                InsertSourceCode("Deleted Document", Text005, CopyStr(FieldCaption("Deleted Document"), 1, 30));
+                InsertSourceCode("Deleted Document", Text005, DocumentCreatedToAvoidGapInNoSeriesTxt);
                 InsertSourceCode("Inventory Post Cost", Text006, ReportName(REPORT::"Post Inventory Cost to G/L"));
 #if not CLEAN20
                 InsertSourceCode("Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Adjust Exchange Rates"));

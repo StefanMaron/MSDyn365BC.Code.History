@@ -46,7 +46,7 @@
         IsInitialized := false;
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Replaced by FillInvoicePostBuffer().', '19.0')]
     procedure FillInvPostingBuffer(var InvPostingBuffer: array[2] of Record "Invoice Post. Buffer" temporary; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header")
     var
@@ -812,7 +812,7 @@
     end;
 #endif
 
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('Replaced by event OnBeforeFillInvoicePostBuffer().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFillInvPostingBuffer(var InvPostingBuffer: array[2] of Record "Invoice Post. Buffer"; var ServiceLine: Record "Service Line"; var ServiceLineACY: Record "Service Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)

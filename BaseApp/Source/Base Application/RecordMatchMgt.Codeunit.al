@@ -1,5 +1,7 @@
 codeunit 1251 "Record Match Mgt."
 {
+    var
+        RespectThresholdForNumbers: Boolean;
 
     trigger OnRun()
     begin
@@ -32,6 +34,11 @@ codeunit 1251 "Record Match Mgt."
         end;
 
         exit(Result);
+    end;
+
+    procedure SetRespectThresholdForNumbers(NewValue: Boolean)
+    begin
+        RespectThresholdForNumbers := NewValue;
     end;
 
     /// <summary>
@@ -88,7 +95,7 @@ codeunit 1251 "Record Match Mgt."
             exit(true);
 
         // Matches smaller than threshold are only considered when the values are numeric
-        if AllNumeric(Substring) then
+        if AllNumeric(Substring) and (not RespectThresholdForNumbers) then
             exit(true);
     end;
 

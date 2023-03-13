@@ -34,11 +34,11 @@ codeunit 8612 "Config. Template Management"
 
     local procedure UpdateRecordWithSkipFields(ConfigTemplateHeader: Record "Config. Template Header"; var RecRef: RecordRef; SkipFields: Boolean; var TempSkipFields: Record "Field" temporary)
     begin
-        if TestKeyFields(RecRef) then
+        if TestKeyFields(RecRef, ConfigTemplateHeader) then
             InsertTemplate(RecRef, ConfigTemplateHeader, SkipFields, TempSkipFields)
         else begin
             InsertRecordWithKeyFields(RecRef, ConfigTemplateHeader);
-            if TestKeyFields(RecRef) then
+            if TestKeyFields(RecRef, ConfigTemplateHeader) then
                 InsertTemplate(RecRef, ConfigTemplateHeader, SkipFields, TempSkipFields)
             else
                 Error(NoSeriesErr, RecRef.Number, RecRef.Caption);
@@ -129,12 +129,18 @@ codeunit 8612 "Config. Template Management"
         RecRef.Modify(true);
     end;
 
-    local procedure TestKeyFields(var RecRef: RecordRef): Boolean
+    local procedure TestKeyFields(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header") Result: Boolean
     var
         FieldRef: FieldRef;
         KeyRef: KeyRef;
         KeyFieldCount: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestKeyFields(RecRef, ConfigTemplateHeader, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         KeyRef := RecRef.KeyIndex(1);
         for KeyFieldCount := 1 to KeyRef.FieldCount do begin
             FieldRef := KeyRef.FieldIndex(KeyFieldCount);
@@ -582,7 +588,12 @@ codeunit 8612 "Config. Template Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateWithSkipFields(var SkipFieldValidation: Boolean; var RecRef: RecordRef; TempDummyField: Record "Field" temporary)
+    local procedure OnBeforeTestKeyFields(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWithSkipFields(var SkipFieldValidation: Boolean; var RecRef: RecordRef; var TempDummyField: Record "Field" temporary)
     begin
     end;
 

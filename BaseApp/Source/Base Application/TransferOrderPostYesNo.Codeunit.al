@@ -25,7 +25,7 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
         Selection: Option " ",Shipment,Receipt;
         IsHandled: Boolean;
     begin
-        OnBeforePost(TransHeader, IsHandled);
+        OnBeforePost(TransHeader, IsHandled, TransferPostShipment, TransferPostReceipt);
         if IsHandled then
             exit;
 
@@ -81,7 +81,7 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePost(var TransHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    local procedure OnBeforePost(var TransHeader: Record "Transfer Header"; var IsHandled: Boolean; var TransferOrderPostShipment: Codeunit "TransferOrder-Post Shipment"; var TransferOrderPostReceipt: Codeunit "TransferOrder-Post Receipt")
     begin
     end;
 

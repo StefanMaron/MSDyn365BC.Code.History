@@ -159,7 +159,6 @@ table 1173 "Document Attachment"
     var
         FileManagement: Codeunit "File Management";
         IncomingFileName: Text;
-
         NoDocumentAttachedErr: Label 'Please attach a document first.';
         EmptyFileNameErr: Label 'Please choose a file to attach.';
         NoContentErr: Label 'The selected file has no content. Please choose another file.';
@@ -211,6 +210,11 @@ table 1173 "Document Attachment"
 
     [Scope('OnPrem')]
     procedure SaveAttachment(RecRef: RecordRef; FileName: Text; TempBlob: Codeunit "Temp Blob")
+    begin
+        SaveAttachment(RecRef, FileName, TempBlob, true);
+    end;
+
+    procedure SaveAttachment(RecRef: RecordRef; FileName: Text; TempBlob: Codeunit "Temp Blob"; AllowDuplicateFileName: Boolean)
     var
         DocStream: InStream;
     begin
@@ -223,33 +227,42 @@ table 1173 "Document Attachment"
             Error(NoContentErr);
 
         TempBlob.CreateInStream(DocStream);
-        InsertAttachment(DocStream, RecRef, FileName);
+        InsertAttachment(DocStream, RecRef, FileName, AllowDuplicateFileName);
     end;
 
     procedure SaveAttachmentFromStream(DocStream: InStream; RecRef: RecordRef; FileName: Text)
+    begin
+        SaveAttachmentFromStream(DocStream, RecRef, FileName, true);
+    end;
+
+    procedure SaveAttachmentFromStream(DocStream: InStream; RecRef: RecordRef; FileName: Text; AllowDuplicateFileName: Boolean)
     begin
         OnBeforeSaveAttachmentFromStream(Rec, RecRef, FileName, DocStream);
 
         if FileName = '' then
             Error(EmptyFileNameErr);
 
-        InsertAttachment(DocStream, RecRef, FileName);
+        InsertAttachment(DocStream, RecRef, FileName, AllowDuplicateFileName);
     end;
 
-    local procedure InsertAttachment(DocStream: InStream; RecRef: RecordRef; FileName: Text)
+    local procedure InsertAttachment(DocStream: InStream; RecRef: RecordRef; FileName: Text; AllowDuplicateFileName: Boolean)
     begin
-        IncomingFileName := FileName;
+        InitFieldsFromRecRef(RecRef);
+
+        // If duplicate filename is allowed, use increment versions (specifically needed for phone Take/Use Photo functionality)
+        if AllowDuplicateFileName then
+            IncomingFileName := FindUniqueFileName(FileManagement.GetFileNameWithoutExtension(FileName), FileManagement.GetExtension(FileName))
+        else
+            IncomingFileName := FileName;
 
         Validate("File Extension", FileManagement.GetExtension(IncomingFileName));
         Validate("File Name", CopyStr(FileManagement.GetFileNameWithoutExtension(IncomingFileName), 1, MaxStrLen("File Name")));
 
         // IMPORTSTREAM(stream,description, mime-type,filename)
-        // description and mime-type are set empty and will be automatically set by platform code from the stream
-        "Document Reference ID".ImportStream(DocStream, '');
+        // description and mime-type are set empty and will be automatically set by platform code from the filename
+        "Document Reference ID".ImportStream(DocStream, '', '', FileName);
         if not "Document Reference ID".HasValue() then
             Error(NoDocumentAttachedErr);
-
-        InitFieldsFromRecRef(RecRef);
 
         OnBeforeInsertAttachment(Rec, RecRef);
         Insert(true);

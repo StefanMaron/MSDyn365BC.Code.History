@@ -528,7 +528,13 @@ codeunit 5940 ServContractManagement
         TotalServLine: Record "Service Line";
         TotalServLineLCY: Record "Service Line";
         ServContractAccGr: Record "Service Contract Account Group";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateServiceLine(ServHeader, ContractType, ContractNo, InvFromDate, InvToDate, ServiceApplyEntry, SignningContract, IsHandled);
+        if IsHandled then
+            exit;
+
         ServContractHeader.Get(ContractType, ContractNo);
         if ServContractHeader."Invoice Period" = ServContractHeader."Invoice Period"::None then
             exit;
@@ -608,75 +614,75 @@ codeunit 5940 ServContractManagement
     begin
         IsHandled := false;
         OnBeforeCreateDetailedServiceLine(ServHeader, IsHandled, ContractType, ContractNo);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            ServContractHeader.Get(ContractType, ContractNo);
+            if ServContractHeader."Invoice Period" = ServContractHeader."Invoice Period"::None then
+                exit;
 
-        ServContractHeader.Get(ContractType, ContractNo);
-        if ServContractHeader."Invoice Period" = ServContractHeader."Invoice Period"::None then
-            exit;
+            ServLineNo := 0;
+            ServLine.SetRange("Document Type", ServLine."Document Type"::Invoice);
+            ServLine.SetRange("Document No.", ServHeader."No.");
+            if ServLine.FindLast() then begin
+                ServLineNo := ServLine."Line No.";
+                NewContract := ServLine."Contract No." <> ServContractHeader."Contract No.";
+                ServLine.Init();
+            end else begin
+                FirstLine := true;
+                NewContract := true;
+            end;
 
-        ServLineNo := 0;
-        ServLine.SetRange("Document Type", ServLine."Document Type"::Invoice);
-        ServLine.SetRange("Document No.", ServHeader."No.");
-        if ServLine.FindLast() then begin
-            ServLineNo := ServLine."Line No.";
-            NewContract := ServLine."Contract No." <> ServContractHeader."Contract No.";
-            ServLine.Init();
-        end else begin
-            FirstLine := true;
-            NewContract := true;
+            OnCreateDetailedServLineOnAfterSetFirstLineAndNewContract(FirstLine, NewContract, ServContractHeader);
+
+            Cust.Get(ServContractHeader."Bill-to Customer No.");
+            ServLine.Reset();
+
+            if FirstLine or NewContract then
+                ServMgtSetup.Get();
+
+            if FirstLine then begin
+                ServLine.Init();
+                ServLineNo := ServLineNo + 10000;
+                ServLine."Document Type" := ServHeader."Document Type";
+                ServLine."Document No." := ServHeader."No.";
+                ServLine."Line No." := ServLineNo;
+                ServLine.Type := ServLine.Type::" ";
+                if ServMgtSetup."Contract Line Inv. Text Code" <> '' then begin
+                    StdText.Get(ServMgtSetup."Contract Line Inv. Text Code");
+                    ServLine.Description := StdText.Description;
+                end else
+                    ServLine.Description := Text003;
+                OnCreateDetailedServLineOnBeforeServLineInsertFirstLine(ServLine, ServContractHeader);
+                ServLine.Insert();
+            end;
+
+            if NewContract then begin
+                OnBeforeCreateServLineForNewContract(ServHeader, ServContractHeader, ServLineNo);
+                ServLine.Init();
+                ServLineNo := ServLineNo + 10000;
+                ServLine."Document Type" := ServHeader."Document Type";
+                ServLine."Document No." := ServHeader."No.";
+                ServLine."Line No." := ServLineNo;
+                ServLine.Type := ServLine.Type::" ";
+                if ServMgtSetup."Contract Inv. Line Text Code" <> '' then begin
+                    StdText.Get(ServMgtSetup."Contract Inv. Line Text Code");
+                    TempServLineDescription := StrSubstNo('%1 %2', StdText.Description, ServContractHeader."Contract No.");
+                    if StrLen(TempServLineDescription) > MaxStrLen(ServLine.Description) then
+                        Error(
+                          Text013,
+                          ServLine.TableCaption(), ServLine.FieldCaption(Description),
+                          StdText.TableCaption(), StdText.Code, StdText.FieldCaption(Description),
+                          Format(StrLen(TempServLineDescription) - MaxStrLen(ServLine.Description)));
+                    ServLine.Description := CopyStr(TempServLineDescription, 1, MaxStrLen(ServLine.Description));
+                end else
+                    ServLine.Description := StrSubstNo(Text002, ServContractHeader."Contract No.");
+                OnCreateDetailedServLineOnBeforeServLineInsertNewContract(ServLine, ServContractHeader);
+                ServLine.Insert();
+            end;
+
+            OnCreateDetailedServLineOnBeforeCreateDescriptionServiceLines(ServContractHeader, ServContractLine, ServHeader);
+            CreateDescriptionServiceLines(ServContractLine."Service Item No.", ServContractLine.Description, ServContractLine."Serial No.");
         end;
-
-        OnCreateDetailedServLineOnAfterSetFirstLineAndNewContract(FirstLine, NewContract, ServContractHeader);
-
-        Cust.Get(ServContractHeader."Bill-to Customer No.");
-        ServLine.Reset();
-
-        if FirstLine or NewContract then
-            ServMgtSetup.Get();
-
-        if FirstLine then begin
-            ServLine.Init();
-            ServLineNo := ServLineNo + 10000;
-            ServLine."Document Type" := ServHeader."Document Type";
-            ServLine."Document No." := ServHeader."No.";
-            ServLine."Line No." := ServLineNo;
-            ServLine.Type := ServLine.Type::" ";
-            if ServMgtSetup."Contract Line Inv. Text Code" <> '' then begin
-                StdText.Get(ServMgtSetup."Contract Line Inv. Text Code");
-                ServLine.Description := StdText.Description;
-            end else
-                ServLine.Description := Text003;
-            OnCreateDetailedServLineOnBeforeServLineInsertFirstLine(ServLine, ServContractHeader);
-            ServLine.Insert();
-        end;
-
-        if NewContract then begin
-            OnBeforeCreateServLineForNewContract(ServHeader, ServContractHeader, ServLineNo);
-            ServLine.Init();
-            ServLineNo := ServLineNo + 10000;
-            ServLine."Document Type" := ServHeader."Document Type";
-            ServLine."Document No." := ServHeader."No.";
-            ServLine."Line No." := ServLineNo;
-            ServLine.Type := ServLine.Type::" ";
-            if ServMgtSetup."Contract Inv. Line Text Code" <> '' then begin
-                StdText.Get(ServMgtSetup."Contract Inv. Line Text Code");
-                TempServLineDescription := StrSubstNo('%1 %2', StdText.Description, ServContractHeader."Contract No.");
-                if StrLen(TempServLineDescription) > MaxStrLen(ServLine.Description) then
-                    Error(
-                      Text013,
-                      ServLine.TableCaption(), ServLine.FieldCaption(Description),
-                      StdText.TableCaption(), StdText.Code, StdText.FieldCaption(Description),
-                      Format(StrLen(TempServLineDescription) - MaxStrLen(ServLine.Description)));
-                ServLine.Description := CopyStr(TempServLineDescription, 1, MaxStrLen(ServLine.Description));
-            end else
-                ServLine.Description := StrSubstNo(Text002, ServContractHeader."Contract No.");
-            OnCreateDetailedServLineOnBeforeServLineInsertNewContract(ServLine, ServContractHeader);
-            ServLine.Insert();
-        end;
-
-        OnCreateDetailedServLineOnBeforeCreateDescriptionServiceLines(ServContractHeader, ServContractLine, ServHeader);
-        CreateDescriptionServiceLines(ServContractLine."Service Item No.", ServContractLine.Description, ServContractLine."Serial No.");
+        OnAfterCreateDetailedServiceLine(ServHeader, ServContractLine, NewContract, ServContractHeader, ServLineNo);
     end;
 
 #if not CLEAN19
@@ -2237,7 +2243,13 @@ codeunit 5940 ServContractManagement
     var
         ServLineDescription: Text;
         RequiredLength: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDescriptionServiceLines(ServContractLineItemNo, ServContractLineDesc, ServContractLineItemSerialNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServContractLineItemNo <> '' then begin
             ServLineDescription := StrSubstNo('%1 %2 %3', ServContractLineItemNo, ServContractLineDesc, ServContractLineItemSerialNo);
             OnCreateDescriptionServiceLinesOnAfterCalcServLineDescription(ServLineDescription, ServContractLineItemNo, ServContractLineDesc, ServContractLineItemSerialNo);
@@ -2442,6 +2454,11 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDetailedServiceLine(ServiceHeader: Record "Service Header"; ServiceContractLine: Record "Service Contract Line"; NewContract: Boolean; ServiceContractHeader: Record "Service Contract Header"; var ServLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateInvoice(var ServiceContractHeader: Record "Service Contract Header"; PostingDate: Date)
     begin
     end;
@@ -2468,6 +2485,16 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcInvAmounts(var InvAmount: array[4] of Decimal; var ServiceContractLine: Record "Service Contract Line"; InvFrom: Date; InvTo: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDescriptionServiceLines(ServContractLineItemNo: Code[20]; ServContractLineDesc: Text[100]; ServContractLineItemSerialNo: Code[50]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateServiceLine(ServiceHeader: Record "Service Header"; ContractType: Enum "Service Contract Type"; ContractNo: Code[20]; InvFromDate: Date; InvToDate: Date; ServiceApplyEntry: Integer; SigningContract: Boolean; var IsHandled: Boolean)
     begin
     end;
 

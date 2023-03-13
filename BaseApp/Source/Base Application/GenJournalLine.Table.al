@@ -1,8 +1,14 @@
 ﻿table 81 "Gen. Journal Line"
 {
     Caption = 'Gen. Journal Line';
-    Permissions = TableData "Sales Invoice Header" = r,
-                  TableData "Data Exch. Field" = rimd;
+    Permissions = tabledata "Sales Invoice Header" = r,
+                  tabledata Customer = R,
+                  tabledata "Cust. Ledger Entry" = R,
+                  tabledata "G/L Account" = R,
+                  tabledata "VAT Posting Setup" = R,
+                  tabledata Vendor = R,
+                  tabledata "Vendor Ledger Entry" = R,
+                  tabledata "Data Exch. Field" = rimd;
 
     fields
     {
@@ -30,7 +36,7 @@
                       Text000,
                       FieldCaption("Account Type"), FieldCaption("Bal. Account Type"));
 
-                CheckCurrencyForEmployee();
+                CheckCurrencyForEmployee(("Account Type" = "Account Type"::Employee) and ("Currency Code" <> ''));
 
                 Validate("Account No.", '');
                 OnValidateAccountTypeOnBeforeCheckKeepDescription(Rec, xRec, CurrFieldNo);
@@ -401,8 +407,8 @@
                       FieldCaption("Currency Code"), FieldCaption("Recurring Method"), "Recurring Method");
 
                 if "Currency Code" <> '' then begin
-                    if ("Bal. Account Type" = "Bal. Account Type"::Employee) or ("Account Type" = "Account Type"::Employee) then
-                        Error(OnlyLocalCurrencyForEmployeeErr);
+                    CheckCurrencyForEmployee(
+                        ("Bal. Account Type" = "Bal. Account Type"::Employee) or ("Account Type" = "Account Type"::Employee));
                     GetCurrency();
                     if ("Currency Code" <> xRec."Currency Code") or
                        ("Posting Date" <> xRec."Posting Date") or
@@ -1114,8 +1120,7 @@
                       Text000,
                       FieldCaption("Account Type"), FieldCaption("Bal. Account Type"));
 
-                if ("Bal. Account Type" = "Bal. Account Type"::Employee) and ("Currency Code" <> '') then
-                    Error(OnlyLocalCurrencyForEmployeeErr);
+                CheckCurrencyForEmployee(("Bal. Account Type" = "Bal. Account Type"::Employee) and ("Currency Code" <> ''));
 
                 ReadGLSetup();
                 if GLSetup."Journal Templ. Name Mandatory" then
@@ -4404,6 +4409,7 @@
                     VendLedgEntry.SetRange("Vendor No.", TempGenJnlLine."Account No.");
                     VendLedgEntry.SetRange("Applies-to ID", TempGenJnlLine."Applies-to ID");
                     VendLedgEntry.SetRange(Open, true);
+                    OnValidateApplyRequirementsOnAfterVendLedgEntrySetFiltersWithAppliesToID(TempGenJnlLine, VendLedgEntry);
                     if VendLedgEntry.FindSet() then
                         repeat
                             CheckIfPostingDateIsEarlier(
@@ -4417,6 +4423,7 @@
                             VendLedgEntry.SetRange("Document Type", TempGenJnlLine."Applies-to Doc. Type");
                         VendLedgEntry.SetRange("Vendor No.", TempGenJnlLine."Account No.");
                         VendLedgEntry.SetRange(Open, true);
+                        OnValidateApplyRequirementsOnAfterVendLedgEntrySetFiltersWithoutAppliesToID(TempGenJnlLine, VendLedgEntry);
                         if VendLedgEntry.FindFirst() then
                             CheckIfPostingDateIsEarlier(
                               TempGenJnlLine, VendLedgEntry."Posting Date", VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry);
@@ -6181,16 +6188,16 @@
         end;
     end;
 
-    local procedure CheckCurrencyForEmployee()
+    local procedure CheckCurrencyForEmployee(Condition: Boolean)
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckCurrencyForEmployee(Rec, IsHandled);
+        OnBeforeCheckCurrencyForEmployee(Rec, IsHandled, Condition);
         if IsHandled then
             exit;
 
-        if ("Account Type" = "Account Type"::Employee) and ("Currency Code" <> '') then
+        if Condition then
             Error(OnlyLocalCurrencyForEmployeeErr);
     end;
 
@@ -7954,6 +7961,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateApplyRequirementsOnAfterVendLedgEntrySetFiltersWithAppliesToID(TempGenJournalLine: Record "Gen. Journal Line" temporary; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateApplyRequirementsOnAfterVendLedgEntrySetFiltersWithoutAppliesToID(TempGenJournalLine: Record "Gen. Journal Line" temporary; var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateBalAccountNoOnAfterAssignValue(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -8724,7 +8741,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckCurrencyForEmployee(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckCurrencyForEmployee(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var Condition: Boolean)
     begin
     end;
 

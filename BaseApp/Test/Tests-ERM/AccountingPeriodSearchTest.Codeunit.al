@@ -14,7 +14,6 @@ codeunit 134362 "Accounting Period Search Test"
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure MakeDateFilterForFirstPeriod()
     var
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         FilterTokens: Codeunit "Filter Tokens";
         DateFilterText: Text;
         ExpectedDateFilterText: Text;
@@ -37,7 +36,6 @@ codeunit 134362 "Accounting Period Search Test"
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure MakeDateFilterForSingleYear()
     var
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         FilterTokens: Codeunit "Filter Tokens";
         DateFilterText: Text;
         ExpectedDateFilterText: Text;
@@ -61,7 +59,6 @@ codeunit 134362 "Accounting Period Search Test"
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure MakeDateFilterForSinglePeriod()
     var
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         FilterTokens: Codeunit "Filter Tokens";
         DateFilterText: Text;
         ExpectedDateFilterText: Text;
@@ -84,7 +81,6 @@ codeunit 134362 "Accounting Period Search Test"
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure MakeDateFilterForSinglePeriodFullText()
     var
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         FilterTokens: Codeunit "Filter Tokens";
         DateFilterText: Text;
         ExpectedDateFilterText: Text;
@@ -107,7 +103,6 @@ codeunit 134362 "Accounting Period Search Test"
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure MakeDateFilterForSinglePeriodPlusDays()
     var
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         FilterTokens: Codeunit "Filter Tokens";
         DateFilterText: Text;
         ExpectedDateFilterText: Text;
@@ -130,7 +125,6 @@ codeunit 134362 "Accounting Period Search Test"
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure MakeDateFilterForSinglePeriodMinusDays()
     var
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         FilterTokens: Codeunit "Filter Tokens";
         DateFilterText: Text;
         ExpectedDateFilterText: Text;
@@ -153,7 +147,6 @@ codeunit 134362 "Accounting Period Search Test"
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure MakeDateFilterForPeriodInterval()
     var
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         FilterTokens: Codeunit "Filter Tokens";
         DateFilterText: Text;
         ExpectedDateFilterText: Text;
@@ -176,7 +169,6 @@ codeunit 134362 "Accounting Period Search Test"
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure MakeDateFilterForMultiplePeriods()
     var
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         FilterTokens: Codeunit "Filter Tokens";
         DateFilterText: Text;
         ExpectedDateFilterText: Text;
@@ -199,7 +191,6 @@ codeunit 134362 "Accounting Period Search Test"
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure MakeDateFilterForCombinationOfPeriods()
     var
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         FilterTokens: Codeunit "Filter Tokens";
         DateFilterText: Text;
         ExpectedDateFilterText: Text;
@@ -222,7 +213,6 @@ codeunit 134362 "Accounting Period Search Test"
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure MakeDateFilterForCombinationOfPeriodsAndYearsInterval()
     var
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         FilterTokens: Codeunit "Filter Tokens";
         DateFilterText: Text;
         ExpectedDateFilterText: Text;
@@ -245,7 +235,6 @@ codeunit 134362 "Accounting Period Search Test"
     [TransactionModel(TransactionModel::AutoRollback)]
     procedure MakeDateFilterForCombinationOfPeriodsAndYears()
     var
-        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         FilterTokens: Codeunit "Filter Tokens";
         DateFilterText: Text;
         ExpectedDateFilterText: Text;

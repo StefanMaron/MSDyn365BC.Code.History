@@ -73,12 +73,12 @@ page 1300 "Pmt. Rec. Undo Statement"
         if StatementSet then
             exit;
         IsNextSelected := true;
-        CurrPage.Close();
+        Error('');
     end;
 
     procedure SetBankAccountStatement(BankAccountNoToOpen: Code[20]; StatementNoToOpen: Code[20])
     begin
-        if not Rec.Get(BankAccountNoToOpen, StatementNoToOpen) then 
+        if not Rec.Get(BankAccountNoToOpen, StatementNoToOpen) then
             exit;
         StatementSet := true;
     end;

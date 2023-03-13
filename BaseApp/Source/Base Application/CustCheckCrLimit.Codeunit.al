@@ -98,7 +98,13 @@ codeunit 312 "Cust-Check Cr. Limit"
     procedure ServiceHeaderCheck(ServiceHeader: Record "Service Header")
     var
         AdditionalContextId: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceHeaderCheck(ServiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if not GuiAllowed then
             exit;
 
@@ -265,6 +271,11 @@ codeunit 312 "Cust-Check Cr. Limit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesHeaderCheck(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var CreditLimitExceeded: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceHeaderCheck(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean);
     begin
     end;
 

@@ -3,167 +3,11 @@
   <file datatype="xml" source-language="en-US" target-language="nl-BE" original="Email - SMTP Connector">
     <body>
       <group id="body">
-        <trans-unit id="Table 4170592685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SMTP Account</source>
-          <target state="translated">SMTP-account</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - NamedType 3113222550" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Unable to get SMTP Account password</source>
-          <target state="translated">Kan wachtwoord van SMTP-account niet ophalen</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - NamedType UnableToGetPasswordMsg</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - NamedType 2956157570" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Unable to set SMTP Account password</source>
-          <target state="translated">Kan wachtwoord van SMTP-account niet instellen</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - NamedType UnableToSetPasswordMsg</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 486669812 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Authentication</source>
-          <target state="translated">Verificatie</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Authentication - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 2906998308 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Authentication Type</source>
-          <target state="translated">Verificatietype</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Authentication Type - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 90141998 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email Address</source>
-          <target state="translated">E-mailadres</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Email Address - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 415504711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Primary Key</source>
-          <target state="translated">Primaire sleutel</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Id - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name of account</source>
-          <target state="translated">Naam van account</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 204649572 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Password Key</source>
-          <target state="translated">Wachtwoordsleutel</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Password Key - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 798922739 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Secure Connection</source>
-          <target state="translated">Beveiligde verbinding</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Secure Connection - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 780397200 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sender Name</source>
-          <target state="translated">Naam van afzender</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Sender Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 1340278269 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sender Type</source>
-          <target state="translated">Type afzender</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Sender Type - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 892320855 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Server</source>
-          <target state="translated">Server</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Server - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 3455630760 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SMTP Server Port</source>
-          <target state="translated">SMTP-serverpoort</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Server Port - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4170592685 - Field 129688762 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>User Name</source>
-          <target state="translated">Gebruikersnaam</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field User Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4052218681 - NamedType 2563123446" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not authenticate.</source>
-          <target state="translated">Kan niet verifiëren.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2 SMTP Authentication - NamedType AuthenticationFailedMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4052218681 - NamedType 1534236911" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1 was authenticated.</source>
-          <target state="translated">%1 is geverifieerd.</target>
-          <note from="Developer" annotates="general" priority="2">%1 - user email, for example, admin@domain.com</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2 SMTP Authentication - NamedType AuthenticationSuccessfulMsg</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4052218681 - NamedType 441163528" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not authenticate. To resolve the problem, choose the Authenticate action on the SMTP Account page.</source>
-          <target state="translated">Kan niet verifiëren. Als u het probleem wilt oplossen, kiest u de actie Verifiëren op de pagina SMTP-account.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2 SMTP Authentication - NamedType CouldNotAuthenticateErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 1293915263" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Use SMTP to send emails.</source>
           <target state="translated">SMTP gebruiken om e-mails te verzenden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType ConnectorDescriptionTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 441163528" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not authenticate on the SMTP server.\\%1</source>
-          <target state="translated">Kan niet verifiëren op de SMTP-server.\\%1</target>
-          <note from="Developer" annotates="general" priority="2">%1 = the error message returned by the SMTP server.</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType CouldNotAuthenticateErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 3828645481" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not connect to the SMTP server.\\%1</source>
-          <target state="translated">Kan geen verbinding maken met de SMTP-server.\\%1</target>
-          <note from="Developer" annotates="general" priority="2">%1 = the error message returned by the SMTP server.</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType CouldNotConnectErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 2318586236" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The provided SMTP Server URL %1 is not valid.</source>
-          <target state="translated">De opgegeven URL %1 van de SMTP-server is niet geldig.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = server URL</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType CouldNotRecogniseTheServerErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 3684459175" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not send the email.\\%1</source>
-          <target state="translated">Kan de e-mail niet verzenden.\\%1</target>
-          <note from="Developer" annotates="general" priority="2">%1 = the error message returned by the SMTP server.</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType CouldNotSendErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 4034431664" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The SMTP server rejected the authentication request, as the authentication data is incorrect. Verify that your Username and Password are correct and that the SMTP server supports the specified authentication type (%1). SMTP error code: 535.</source>
-          <target state="translated">De SMTP-server heeft de verificatieaanvraag geweigerd, omdat de verificatiegegevens onjuist zijn. Controleer of uw gebruikersnaam en wachtwoord juist zijn en of de SMTP-server het opgegeven verificatietype (%1) ondersteunt. SMTP-foutcode: 535.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = authentication type (e. g. Basic)</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType IncorrectAuthenticationDataErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 447844760" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not send the email, as no recipients have been specified.</source>
-          <target state="translated">De e-mail kan niet worden verzonden omdat er geen ontvangers zijn opgegeven.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NoRecipientsErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 4203003612" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The SMTP server %1 did not respond to the connection request.</source>
-          <target state="translated">De SMTP-server %1 heeft niet gereageerd op de verbindingsaanvraag.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = server URL</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NoResponseOnConnectErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 938971449" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not send the email, as the sender has not been specified.</source>
-          <target state="translated">De e-mail kan niet worden verzonden omdat de afzender niet is opgegeven.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NoSenderErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 1482857067" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>We could not find the account. Typically, this is because the account has been deleted.</source>
@@ -171,23 +15,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NotRegisteredAccountErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 2880798304" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not send the email. The %1 account does not have Send As permissions on your mail server for the %2 account.</source>
-          <target state="translated">Kan de e-mail niet verzenden. Het account %1 heeft op uw e-mailserver niet de machtiging Verzenden als voor het account %2.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = the email account sending the email, e.g. sales@cronus.com; %2 = the email account used for authentication, e.g. email@cronus.com</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SendAsDeniedErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 156443413" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Server URL field cannot be empty.</source>
           <target state="translated">Het veld Server-URL kan niet leeg zijn.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType ServerCannotBeEmptyErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1780013033 - NamedType 3798978956" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email sent.</source>
-          <target state="translated">E-mail verzonden.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SmtpSendTelemetryMsg</note>
+        <trans-unit id="Codeunit 1780013033 - NamedType 2318586236" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The provided SMTP Server URL %1 is not valid.</source>
+          <target state="translated">De opgegeven URL %1 van de SMTP-server is niet geldig.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = server URL</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType CouldNotRecogniseTheServerErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1780013033 - NamedType 2355073837" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The user specified for SMTP emailing does not have a contact email set. Please update the user's contact email to use Current User type for SMTP.</source>
@@ -195,143 +33,96 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType UserHasNoContactEmailErr</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SMTP Account</source>
-          <target state="translated">SMTP-account</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Property Caption</note>
+        <trans-unit id="Codeunit 1780013033 - NamedType 2880798304" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not send the email. The %1 account does not have Send As permissions on your mail server for the %2 account.</source>
+          <target state="translated">Kan de e-mail niet verzenden. Het account %1 heeft op uw e-mailserver niet de machtiging Verzenden als voor het account %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = the email account sending the email, e.g. sales@cronus.com; %2 = the email account used for authentication, e.g. email@cronus.com</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SendAsDeniedErr</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - NamedType 1197554121" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Do you want to override the current data?</source>
-          <target state="translated">Wilt u de huidige gegevens overschrijven?</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - NamedType ConfirmApplyO365Qst</note>
+        <trans-unit id="Codeunit 1780013033 - NamedType 3684459175" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not send the email.\\%1</source>
+          <target state="translated">Kan de e-mail niet verzenden.\\%1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = the error message returned by the SMTP server.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType CouldNotSendErr</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - NamedType 3367967186" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Before people can send email they must authenticate their email account. They can do that by choosing the Authenticate action on the SMTP Account page.</source>
-          <target state="translated">Voordat gebruikers e-mail kunnen verzenden, moeten ze hun e-mailaccount verifiëren. Ze doen dat door de actie Verifiëren te kiezen op de pagina SMTP-account.</target>
+        <trans-unit id="Codeunit 1780013033 - NamedType 3798978956" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email sent.</source>
+          <target state="translated">E-mail verzonden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - NamedType EveryUserShouldPressAuthenticateMsg</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType SmtpSendTelemetryMsg</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 486669812 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the type of authentication that the SMTP mail server uses.</source>
-          <target state="translated">Hiermee geeft u het type verificatie op dat door de SMTP-server wordt gebruikt.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Authentication - Property ToolTip</note>
+        <trans-unit id="Codeunit 1780013033 - NamedType 3828645481" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not connect to the SMTP server.\\%1</source>
+          <target state="translated">Kan geen verbinding maken met de SMTP-server.\\%1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = the error message returned by the SMTP server.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType CouldNotConnectErr</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 486669812 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Authentication</source>
-          <target state="translated">Verificatie</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Authentication - Property Caption</note>
+        <trans-unit id="Codeunit 1780013033 - NamedType 4034431664" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The SMTP server rejected the authentication request, as the authentication data is incorrect. Verify that your Username and Password are correct and that the SMTP server supports the specified authentication type (%1). SMTP error code: 535.</source>
+          <target state="translated">De SMTP-server heeft de verificatieaanvraag geweigerd, omdat de verificatiegegevens onjuist zijn. Controleer of uw gebruikersnaam en wachtwoord juist zijn en of de SMTP-server het opgegeven verificatietype (%1) ondersteunt. SMTP-foutcode: 535.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = authentication type (e. g. Basic)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType IncorrectAuthenticationDataErr</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the email address to show as the sender on email messages. This field is available if you choose Specific Account in the Sender Email Account field. For example, this lets all emails appear to come from the same account, such as sales@cronus.com. This account must have the Send As permission on your mail server to the account in the User Name field.</source>
-          <target state="translated">Hiermee wordt het e-mailadres opgegeven dat als afzender moet worden weergegeven in e-mailberichten. Dit veld is beschikbaar als u Specifiek account kiest in het veld E-mailaccount van afzender. Zo lijkt het bijvoorbeeld alsof alle e-mailberichten van hetzelfde account afkomstig zijn, bijvoorbeeld sales@cronus.com. Dit account moet op uw e-mailserver de machtiging Verzenden als hebben voor het account in het veld Gebruikersnaam.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control EmailAddress - Property ToolTip</note>
+        <trans-unit id="Codeunit 1780013033 - NamedType 4203003612" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The SMTP server %1 did not respond to the connection request.</source>
+          <target state="translated">De SMTP-server %1 heeft niet gereageerd op de verbindingsaanvraag.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = server URL</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NoResponseOnConnectErr</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 2814033574 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email Address</source>
-          <target state="translated">E-mailadres</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control EmailAddress - Property Caption</note>
+        <trans-unit id="Codeunit 1780013033 - NamedType 441163528" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not authenticate on the SMTP server.\\%1</source>
+          <target state="translated">Kan niet verifiëren op de SMTP-server.\\%1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = the error message returned by the SMTP server.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType CouldNotAuthenticateErr</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 1459871223 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the SMTP account</source>
-          <target state="translated">Hiermee wordt de naam van het SMTP-account opgegeven</target>
+        <trans-unit id="Codeunit 1780013033 - NamedType 447844760" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not send the email, as no recipients have been specified.</source>
+          <target state="translated">De e-mail kan niet worden verzonden omdat er geen ontvangers zijn opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control NameField - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NoRecipientsErr</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 1459871223 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Account Name</source>
-          <target state="translated">Accountnaam</target>
+        <trans-unit id="Codeunit 1780013033 - NamedType 938971449" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not send the email, as the sender has not been specified.</source>
+          <target state="translated">De e-mail kan niet worden verzonden omdat de afzender niet is opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control NameField - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Connector Impl. - NamedType NoSenderErr</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 2575460289 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the password of the SMTP server.</source>
-          <target state="translated">Hiermee wordt het wachtwoord van de SMTP-server opgegeven.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Password - Property ToolTip</note>
+        <trans-unit id="Codeunit 4052218681 - NamedType 1534236911" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 was authenticated.</source>
+          <target state="translated">%1 is geverifieerd.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - user email, for example, admin@domain.com</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2 SMTP Authentication - NamedType AuthenticationSuccessfulMsg</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 2575460289 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Password</source>
-          <target state="translated">Wachtwoord</target>
+        <trans-unit id="Codeunit 4052218681 - NamedType 2563123446" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not authenticate.</source>
+          <target state="translated">Kan niet verifiëren.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Password - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2 SMTP Authentication - NamedType AuthenticationFailedMsg</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 3453676707 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies whether your SMTP mail server setup requires a secure connection that uses a cryptography or security protocol, such as secure socket layers (SSL).</source>
-          <target state="translated">Hiermee wordt opgegeven of uw instelling van de SMTP-e-mailserver een beveiligde verbinding vereist die gebruikmaakt van cryptografie of een beveiligingsprotocol, zoals Secure Socket Layers (SSL).</target>
+        <trans-unit id="Codeunit 4052218681 - NamedType 441163528" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not authenticate. To resolve the problem, choose the Authenticate action on the SMTP Account page.</source>
+          <target state="translated">Kan niet verifiëren. Als u het probleem wilt oplossen, kiest u de actie Verifiëren op de pagina SMTP-account.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SecureConnection - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit OAuth2 SMTP Authentication - NamedType CouldNotAuthenticateErr</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 3453676707 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Secure Connection</source>
-          <target state="translated">Beveiligde verbinding</target>
+        <trans-unit id="Enum 1821775830 - EnumValue 1780646972 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Current User</source>
+          <target state="translated">Huidige gebruiker</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SecureConnection - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum SMTP Connector Sender Type - EnumValue Current User - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 3099537666 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies a name to add in front of the sender email address on emails. The name depends on the Sender Email Address field. For Current User, this is the name from the account you used to sign in. For Specific Account, this can be any name. For example, if you enter Stan, and the address in the Email Address field is stan@cronus.coml, the sender name will appear as Stan stan@cronus.com.</source>
-          <target state="translated">Hiermee wordt een naam opgegeven die vóór het e-mailadres van de afzender wordt toegevoegd aan e-mails. De naam is afhankelijk van het veld E-mailadres van afzender. Voor Huidige gebruiker is het de naam van het account waarmee u zich hebt aangemeld. Voor Specifiek account kan dit elke naam zijn. Als u bijvoorbeeld Jan invoert en het e-mailadres jan@cronus.com is, wordt de naam van de afzender weergegeven als Jan jan@cronus.com.</target>
+        <trans-unit id="Enum 1821775830 - EnumValue 2947392435 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specific User</source>
+          <target state="translated">Specifieke gebruiker</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderNameField - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum SMTP Connector Sender Type - EnumValue Specific User - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 3099537666 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sender Name</source>
-          <target state="translated">Naam van afzender</target>
+        <trans-unit id="EnumExtension 557475667 - EnumValue 303760854 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SMTP</source>
+          <target state="translated">SMTP</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderNameField - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 3041790947 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies whether emails appear to come from the email accounts that people sign in with, or the account you enter in the Email Address field. For Current User, everyone who uses this SMTP account must have the Send As permission on your mail server to the account in the User Name field. For Specific Account, only the account in the Email Address field must have the Send As permission.</source>
-          <target state="translated">Hiermee wordt opgegeven of e-mails worden weergegeven alsof ze afkomstig zijn van de e-mailaccounts waarmee mensen zich aanmelden, of van het account dat u invoert in het veld E-mailadres. Voor Huidige gebruiker moet iedereen die dit SMTP-account gebruikt, op uw e-mailserver beschikken over de machtiging Verzenden als voor het account in het veld Gebruikersnaam. Voor Specifiek account hoeft alleen het account in het veld E-mailadres de machtiging Verzenden als te hebben.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderTypeField - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 3041790947 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sender Email Account</source>
-          <target state="translated">E-mailaccount van afzender</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderTypeField - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 3316402952 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the port of the SMTP server. The default setting is 25.</source>
-          <target state="translated">Hiermee wordt de poort van de SMTP-server opgegeven. De standaardinstelling is 25.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerPort - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 3316402952 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Server Port</source>
-          <target state="translated">Serverpoort</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerPort - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 2502982218 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the URL of the SMTP server.</source>
-          <target state="translated">Hiermee wordt de URL van de SMTP-server opgegeven.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerUrl - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 2502982218 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Server URL</source>
-          <target state="translated">Server-URL</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerUrl - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 3549826426 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the user account to use when authenticating to the SMTP server.</source>
-          <target state="translated">Hiermee wordt het gebruikersaccount opgegeven dat moet worden gebruikt voor verificatie bij de SMTP-server.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control UserName - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 4170592685 - Control 3549826426 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>User Name</source>
-          <target state="translated">Gebruikersnaam</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control UserName - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 1993094577</note>
         </trans-unit>
         <trans-unit id="Page 4170592685 - Action 2678050976 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Apply the Office 365 server settings to this record.</source>
@@ -369,155 +160,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Action Check OAuth 2.0 authentication - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 707219180 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Setup SMTP Account</source>
-          <target state="translated">SMTP-account instellen</target>
+        <trans-unit id="Page 707219180 - Action 1235620153 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <target state="translated">Volgende</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Action Next - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 707219180 - NamedType 1197554121" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Do you want to override the current data?</source>
-          <target state="translated">Wilt u de huidige gegevens overschrijven?</target>
+        <trans-unit id="Page 707219180 - Action 1235620153 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <target state="translated">Volgende</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - NamedType ConfirmApplyO365Qst</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - NamedType 3367967186" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Before people can send email they must authenticate their email account. They can do that by choosing the Authenticate action on the SMTP Account page.</source>
-          <target state="translated">Voordat gebruikers e-mail kunnen verzenden, moeten ze hun e-mailaccount verifiëren. Ze doen dat door de actie Verifiëren te kiezen op de pagina SMTP-account.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - NamedType EveryUserShouldPressAuthenticateMsg</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 486669812 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the type of authentication that the SMTP mail server uses.</source>
-          <target state="translated">Hiermee geeft u het type verificatie op dat door de SMTP-server wordt gebruikt.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control Authentication - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 486669812 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Authentication</source>
-          <target state="translated">Verificatie</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control Authentication - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the Email Address specified as the from email address.</source>
-          <target state="translated">Hiermee wordt het e-mailadres opgegeven dat als het Van-adres wordt gebruikt.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control EmailAddress - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 2814033574 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email Address</source>
-          <target state="translated">E-mailadres</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control EmailAddress - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 1459871223 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the SMTP account</source>
-          <target state="translated">Hiermee wordt de naam van het SMTP-account opgegeven</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control NameField - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 1459871223 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Account Name</source>
-          <target state="translated">Accountnaam</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control NameField - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 2575460289 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the password of the SMTP server.</source>
-          <target state="translated">Hiermee wordt het wachtwoord van de SMTP-server opgegeven.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control Password - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 2575460289 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Password</source>
-          <target state="translated">Wachtwoord</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control Password - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 3453676707 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies if your SMTP mail server setup requires a secure connection that uses a cryptography or security protocol, such as secure socket layers (SSL). Clear the check box if you do not want to enable this security setting.</source>
-          <target state="translated">Hiermee wordt opgegeven of uw instelling van de SMTP-e-mailserver een beveiligde verbinding vereist die gebruikmaakt van cryptografie of een beveiligingsprotocol, zoals Secure Socket Layers (SSL). Schakel het selectievakje uit als u deze beveiligingsinstelling niet wilt inschakelen.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SecureConnection - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 3453676707 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Secure Connection</source>
-          <target state="translated">Beveiligde verbinding</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SecureConnection - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 3099537666 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies a name to add in front of the sender email address. For example, if you enter Stan in this field, and the email address is stan@cronus.com, the recipient will see the sender as Stan stan@cronus.com.</source>
-          <target state="translated">Hiermee wordt een naam opgegeven die vóór het e-mailadres van de afzender wordt geplaatst. Als u in dit veld bijvoorbeeld Stan invoert en het e-mailadres stan@cronus.com is, ziet de ontvanger de afzender als Stan stan@cronus.com.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderNameField - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 3099537666 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sender Name</source>
-          <target state="translated">Naam van afzender</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderNameField - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 3041790947 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies if a specific sender or the current user is used as sender. If the current user is used, it must be ensured that the account is allowed to send on behalf of the user.</source>
-          <target state="translated">Hiermee wordt opgegeven of een specifieke afzender of de huidige gebruiker wordt gebruikt als afzender. Als de huidige gebruiker wordt gebruikt, moet worden gezorgd dat het account namens de gebruiker mag verzenden.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderTypeField - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 3041790947 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sender Type</source>
-          <target state="translated">Type afzender</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderTypeField - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 3316402952 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the port of the SMTP server. The default setting is 25.</source>
-          <target state="translated">Hiermee wordt de poort van de SMTP-server opgegeven. De standaardinstelling is 25.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control ServerPort - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 3316402952 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Server Port</source>
-          <target state="translated">Serverpoort</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control ServerPort - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 2502982218 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the SMTP server.</source>
-          <target state="translated">Hiermee wordt de naam van de SMTP-server opgegeven.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control ServerUrl - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 2502982218 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Server Url</source>
-          <target state="translated">Server-URL</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control ServerUrl - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 2141615146 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> </source>
-          <target state="translated"> </target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control NotDoneIcon - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 2141615146 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> </source>
-          <target state="translated"> </target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control NotDoneIcon - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 3549826426 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the username to use when authenticating with the SMTP server.</source>
-          <target state="translated">Hiermee wordt de gebruikersnaam opgegeven die moet worden gebruikt voor verificatie bij de SMTP-server.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control UserName - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 707219180 - Control 3549826426 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>User Name</source>
-          <target state="translated">Gebruikersnaam</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control UserName - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Action Next - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 707219180 - Action 2678050976 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Apply the Office 365 server settings to this record.</source>
@@ -543,42 +196,293 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Action Back - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 707219180 - Action 1235620153 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Next</source>
-          <target state="translated">Volgende</target>
+        <trans-unit id="Page 4170592685 - Control 1459871223 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the SMTP account</source>
+          <target state="translated">Hiermee wordt de naam van het SMTP-account opgegeven</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Action Next - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control NameField - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 707219180 - Action 1235620153 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Next</source>
-          <target state="translated">Volgende</target>
+        <trans-unit id="Page 4170592685 - Control 1459871223 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Name</source>
+          <target state="translated">Accountnaam</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Action Next - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control NameField - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Enum 1821775830 - EnumValue 1780646972 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Current User</source>
-          <target state="translated">Huidige gebruiker</target>
+        <trans-unit id="Page 4170592685 - Control 2502982218 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the URL of the SMTP server.</source>
+          <target state="translated">Hiermee wordt de URL van de SMTP-server opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum SMTP Connector Sender Type - EnumValue Current User - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerUrl - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Enum 1821775830 - EnumValue 2947392435 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specific User</source>
-          <target state="translated">Specifieke gebruiker</target>
+        <trans-unit id="Page 4170592685 - Control 2502982218 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Server URL</source>
+          <target state="translated">Server-URL</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum SMTP Connector Sender Type - EnumValue Specific User - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerUrl - Property Caption</note>
         </trans-unit>
-        <trans-unit id="EnumExtension 557475667 - EnumValue 303760854 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SMTP</source>
-          <target state="translated">SMTP</target>
+        <trans-unit id="Page 4170592685 - Control 2575460289 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the password of the SMTP server.</source>
+          <target state="translated">Hiermee wordt het wachtwoord van de SMTP-server opgegeven.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Enum 1993094577</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Password - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="PermissionSet 352980177 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email - SMTP Connector - Edit</source>
-          <target state="translated">E-mail - SMTP-connector - Bewerken</target>
+        <trans-unit id="Page 4170592685 - Control 2575460289 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Password</source>
+          <target state="translated">Wachtwoord</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email SMTP - Edit - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Password - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the email address to show as the sender on email messages. This field is available if you choose Specific Account in the Sender Email Account field. For example, this lets all emails appear to come from the same account, such as sales@cronus.com. This account must have the Send As permission on your mail server to the account in the User Name field.</source>
+          <target state="translated">Hiermee wordt het e-mailadres opgegeven dat als afzender moet worden weergegeven in e-mailberichten. Dit veld is beschikbaar als u Specifiek account kiest in het veld E-mailaccount van afzender. Zo lijkt het bijvoorbeeld alsof alle e-mailberichten van hetzelfde account afkomstig zijn, bijvoorbeeld sales@cronus.com. Dit account moet op uw e-mailserver de machtiging Verzenden als hebben voor het account in het veld Gebruikersnaam.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control EmailAddress - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 2814033574 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Address</source>
+          <target state="translated">E-mailadres</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control EmailAddress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3041790947 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether emails appear to come from the email accounts that people sign in with, or the account you enter in the Email Address field. For Current User, everyone who uses this SMTP account must have the Send As permission on your mail server to the account in the User Name field. For Specific Account, only the account in the Email Address field must have the Send As permission.</source>
+          <target state="translated">Hiermee wordt opgegeven of e-mails worden weergegeven alsof ze afkomstig zijn van de e-mailaccounts waarmee mensen zich aanmelden, of van het account dat u invoert in het veld E-mailadres. Voor Huidige gebruiker moet iedereen die dit SMTP-account gebruikt, op uw e-mailserver beschikken over de machtiging Verzenden als voor het account in het veld Gebruikersnaam. Voor Specifiek account hoeft alleen het account in het veld E-mailadres de machtiging Verzenden als te hebben.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderTypeField - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3041790947 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Email Account</source>
+          <target state="translated">E-mailaccount van afzender</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderTypeField - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3099537666 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a name to add in front of the sender email address on emails. The name depends on the Sender Email Address field. For Current User, this is the name from the account you used to sign in. For Specific Account, this can be any name. For example, if you enter Stan, and the address in the Email Address field is stan@cronus.coml, the sender name will appear as Stan stan@cronus.com.</source>
+          <target state="translated">Hiermee wordt een naam opgegeven die vóór het e-mailadres van de afzender wordt toegevoegd aan e-mails. De naam is afhankelijk van het veld E-mailadres van afzender. Voor Huidige gebruiker is het de naam van het account waarmee u zich hebt aangemeld. Voor Specifiek account kan dit elke naam zijn. Als u bijvoorbeeld Jan invoert en het e-mailadres jan@cronus.com is, wordt de naam van de afzender weergegeven als Jan jan@cronus.com.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderNameField - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3099537666 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Name</source>
+          <target state="translated">Naam van afzender</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SenderNameField - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3316402952 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the port of the SMTP server. The default setting is 25.</source>
+          <target state="translated">Hiermee wordt de poort van de SMTP-server opgegeven. De standaardinstelling is 25.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerPort - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3316402952 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Server Port</source>
+          <target state="translated">Serverpoort</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control ServerPort - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3453676707 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether your SMTP mail server setup requires a secure connection that uses a cryptography or security protocol, such as secure socket layers (SSL).</source>
+          <target state="translated">Hiermee wordt opgegeven of uw instelling van de SMTP-e-mailserver een beveiligde verbinding vereist die gebruikmaakt van cryptografie of een beveiligingsprotocol, zoals Secure Socket Layers (SSL).</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SecureConnection - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3453676707 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Secure Connection</source>
+          <target state="translated">Beveiligde verbinding</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control SecureConnection - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3549826426 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the user account to use when authenticating to the SMTP server.</source>
+          <target state="translated">Hiermee wordt het gebruikersaccount opgegeven dat moet worden gebruikt voor verificatie bij de SMTP-server.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control UserName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 3549826426 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Name</source>
+          <target state="translated">Gebruikersnaam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control UserName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 486669812 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of authentication that the SMTP mail server uses.</source>
+          <target state="translated">Hiermee geeft u het type verificatie op dat door de SMTP-server wordt gebruikt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Authentication - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Control 486669812 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication</source>
+          <target state="translated">Verificatie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Control Authentication - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 1459871223 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the SMTP account</source>
+          <target state="translated">Hiermee wordt de naam van het SMTP-account opgegeven</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control NameField - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 1459871223 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Name</source>
+          <target state="translated">Accountnaam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control NameField - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 2141615146 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <target state="translated"> </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control NotDoneIcon - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 2141615146 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <target state="translated"> </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control NotDoneIcon - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 2502982218 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the SMTP server.</source>
+          <target state="translated">Hiermee wordt de naam van de SMTP-server opgegeven.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control ServerUrl - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 2502982218 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Server Url</source>
+          <target state="translated">Server-URL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control ServerUrl - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 2575460289 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the password of the SMTP server.</source>
+          <target state="translated">Hiermee wordt het wachtwoord van de SMTP-server opgegeven.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control Password - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 2575460289 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Password</source>
+          <target state="translated">Wachtwoord</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control Password - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the Email Address specified as the from email address.</source>
+          <target state="translated">Hiermee wordt het e-mailadres opgegeven dat als het Van-adres wordt gebruikt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control EmailAddress - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 2814033574 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Address</source>
+          <target state="translated">E-mailadres</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control EmailAddress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3041790947 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if a specific sender or the current user is used as sender. If the current user is used, it must be ensured that the account is allowed to send on behalf of the user.</source>
+          <target state="translated">Hiermee wordt opgegeven of een specifieke afzender of de huidige gebruiker wordt gebruikt als afzender. Als de huidige gebruiker wordt gebruikt, moet worden gezorgd dat het account namens de gebruiker mag verzenden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderTypeField - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3041790947 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Type</source>
+          <target state="translated">Type afzender</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderTypeField - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3099537666 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a name to add in front of the sender email address. For example, if you enter Stan in this field, and the email address is stan@cronus.com, the recipient will see the sender as Stan stan@cronus.com.</source>
+          <target state="translated">Hiermee wordt een naam opgegeven die vóór het e-mailadres van de afzender wordt geplaatst. Als u in dit veld bijvoorbeeld Stan invoert en het e-mailadres stan@cronus.com is, ziet de ontvanger de afzender als Stan stan@cronus.com.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderNameField - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3099537666 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Name</source>
+          <target state="translated">Naam van afzender</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SenderNameField - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3316402952 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the port of the SMTP server. The default setting is 25.</source>
+          <target state="translated">Hiermee wordt de poort van de SMTP-server opgegeven. De standaardinstelling is 25.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control ServerPort - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3316402952 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Server Port</source>
+          <target state="translated">Serverpoort</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control ServerPort - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3453676707 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if your SMTP mail server setup requires a secure connection that uses a cryptography or security protocol, such as secure socket layers (SSL). Clear the check box if you do not want to enable this security setting.</source>
+          <target state="translated">Hiermee wordt opgegeven of uw instelling van de SMTP-e-mailserver een beveiligde verbinding vereist die gebruikmaakt van cryptografie of een beveiligingsprotocol, zoals Secure Socket Layers (SSL). Schakel het selectievakje uit als u deze beveiligingsinstelling niet wilt inschakelen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SecureConnection - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3453676707 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Secure Connection</source>
+          <target state="translated">Beveiligde verbinding</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control SecureConnection - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3549826426 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the username to use when authenticating with the SMTP server.</source>
+          <target state="translated">Hiermee wordt de gebruikersnaam opgegeven die moet worden gebruikt voor verificatie bij de SMTP-server.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control UserName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 3549826426 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Name</source>
+          <target state="translated">Gebruikersnaam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control UserName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 486669812 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of authentication that the SMTP mail server uses.</source>
+          <target state="translated">Hiermee geeft u het type verificatie op dat door de SMTP-server wordt gebruikt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control Authentication - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Control 486669812 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication</source>
+          <target state="translated">Verificatie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Control Authentication - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - NamedType 1197554121" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to override the current data?</source>
+          <target state="translated">Wilt u de huidige gegevens overschrijven?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - NamedType ConfirmApplyO365Qst</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - NamedType 3367967186" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Before people can send email they must authenticate their email account. They can do that by choosing the Authenticate action on the SMTP Account page.</source>
+          <target state="translated">Voordat gebruikers e-mail kunnen verzenden, moeten ze hun e-mailaccount verifiëren. Ze doen dat door de actie Verifiëren te kiezen op de pagina SMTP-account.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - NamedType EveryUserShouldPressAuthenticateMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - NamedType 1197554121" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to override the current data?</source>
+          <target state="translated">Wilt u de huidige gegevens overschrijven?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - NamedType ConfirmApplyO365Qst</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - NamedType 3367967186" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Before people can send email they must authenticate their email account. They can do that by choosing the Authenticate action on the SMTP Account page.</source>
+          <target state="translated">Voordat gebruikers e-mail kunnen verzenden, moeten ze hun e-mailaccount verifiëren. Ze doen dat door de actie Verifiëren te kiezen op de pagina SMTP-account.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - NamedType EveryUserShouldPressAuthenticateMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 4170592685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SMTP Account</source>
+          <target state="translated">SMTP-account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 707219180 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Setup SMTP Account</source>
+          <target state="translated">SMTP-account instellen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SMTP Account Wizard - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 1344122031 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email - SMTP Connector - Objects</source>
@@ -586,11 +490,107 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email SMTP - Objects - Property Caption</note>
         </trans-unit>
+        <trans-unit id="PermissionSet 352980177 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email - SMTP Connector - Edit</source>
+          <target state="translated">E-mail - SMTP-connector - Bewerken</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email SMTP - Edit - Property Caption</note>
+        </trans-unit>
         <trans-unit id="PermissionSet 3915651955 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email - SMTP Connector - Read</source>
           <target state="translated">E-mail - SMTP-connector - Lezen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email SMTP - Read - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 129688762 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Name</source>
+          <target state="translated">Gebruikersnaam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field User Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 1340278269 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Type</source>
+          <target state="translated">Type afzender</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Sender Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 204649572 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Password Key</source>
+          <target state="translated">Wachtwoordsleutel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Password Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 2906998308 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication Type</source>
+          <target state="translated">Verificatietype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Authentication Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name of account</source>
+          <target state="translated">Naam van account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 3455630760 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SMTP Server Port</source>
+          <target state="translated">SMTP-serverpoort</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Server Port - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 415504711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <target state="translated">Primaire sleutel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 486669812 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authentication</source>
+          <target state="translated">Verificatie</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Authentication - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 780397200 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sender Name</source>
+          <target state="translated">Naam van afzender</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Sender Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 798922739 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Secure Connection</source>
+          <target state="translated">Beveiligde verbinding</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Secure Connection - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 892320855 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Server</source>
+          <target state="translated">Server</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Server - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Field 90141998 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Address</source>
+          <target state="translated">E-mailadres</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Field Email Address - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - NamedType 2956157570" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unable to set SMTP Account password</source>
+          <target state="translated">Kan wachtwoord van SMTP-account niet instellen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - NamedType UnableToSetPasswordMsg</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - NamedType 3113222550" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Unable to get SMTP Account password</source>
+          <target state="translated">Kan wachtwoord van SMTP-account niet ophalen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - NamedType UnableToGetPasswordMsg</note>
+        </trans-unit>
+        <trans-unit id="Table 4170592685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SMTP Account</source>
+          <target state="translated">SMTP-account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table SMTP Account - Property Caption</note>
         </trans-unit>
       </group>
     </body>

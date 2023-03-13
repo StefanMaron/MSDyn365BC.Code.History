@@ -580,7 +580,7 @@ table 5876 "Phys. Invt. Order Line"
             OnCalcQtyAndLastItemLedgExpectedOnAfterCalcItemLedgEntryQtyExpected(ItemLedgEntry, QtyExpected);
         end;
 
-        OnAfterCalcQtyAndLastItemLedgExpected(QtyExpected, LastItemLedgEntryNo);
+        OnAfterCalcQtyAndLastItemLedgExpected(QtyExpected, LastItemLedgEntryNo, Rec);
     end;
 
     procedure ResetQtyExpected()
@@ -1168,7 +1168,7 @@ table 5876 "Phys. Invt. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcQtyAndLastItemLedgExpected(var QtyExpected: Decimal; var LastItemLedgEntryNo: Integer)
+    local procedure OnAfterCalcQtyAndLastItemLedgExpected(var QtyExpected: Decimal; var LastItemLedgEntryNo: Integer; var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
 }

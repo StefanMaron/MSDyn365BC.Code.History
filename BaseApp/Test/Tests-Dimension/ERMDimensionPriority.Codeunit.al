@@ -606,46 +606,6 @@ codeunit 134381 "ERM Dimension Priority"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure VerifySalesOrderWithItemDefaultDimPrioritiesOnSalesLine()
-    var
-        Dimension: Record Dimension;
-        Item: Record Item;
-        ItemDimensionValue: Record "Dimension Value";
-        Location: Record Location;
-        LocationDimensionValue: Record "Dimension Value";
-        Customer: Record Customer;
-        CustomerDimensionValue: Record "Dimension Value";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        // [SCENARIO 444690] Check Dimension Priorities will work on sales orders when you have three Priorities.
-        Initialize();
-
-        // [GIVEN] Default Dimension Priorities for Source Code = SALES are set as 1 for Customer and 2 for Item and 3 for Location
-        SetSalesOrderDimensionPriorities(1, 2, 3);
-
-        // [GIVEN] Create Dimension Code
-        LibraryDimension.CreateDimension(Dimension);
-
-        // [GIVEN] Customer with Default Dimension Value .
-        CreateCustomerWithDefaultDimension(Customer, ItemDimensionValue, Dimension.Code);
-
-        // [GIVEN] Location with Default Dimension Value .
-        CreateLocationWithDefaultDimension(Location, LocationDimensionValue, Dimension.Code);
-
-        // [GIVEN] Item with Default Dimension Value .
-        CreateItemWithDefaultDimension(Item, ItemDimensionValue, Dimension.Code);
-
-        // [GIVEN] Create Sales Order with sales line 
-        CreateSalesOrderWithSalesLine(SalesHeader, SalesLine, Customer."No.", Location.Code, Item."No.");
-        Commit();
-
-        // [VERIFY] Verify Item Dimension on Sales Line
-        VerifySalesLineDimensionValue(SalesLine, ItemDimensionValue.Code);
-    end;
-
-    [Test]
     [HandlerFunctions('MsgHandler')]
     procedure VerifyGlobalDimensionIsSetFromPurchaserRelatedToVendorForPurchaseOrderCreatedFromReqWorksheet()
     var
@@ -1303,47 +1263,6 @@ codeunit 134381 "ERM Dimension Priority"
         CreateDefaultDimensionPriority(SourceCode, DATABASE::Customer, 1);
         CreateDefaultDimensionPriority(SourceCode, DATABASE::Vendor, 1);
         CreateDefaultDimensionPriority(SourceCode, DATABASE::"G/L Account", 2);
-    end;
-
-    local procedure SetSalesOrderDimensionPriorities(CustomerPriority: Integer; ItemPriority: Integer; LocationPriority: Integer)
-    var
-        SourceCodeSetup: Record "Source Code Setup";
-    begin
-        SourceCodeSetup.Get();
-        ClearDefaultDimensionPriorities(SourceCodeSetup.Sales);
-        CreateDefaultDimensionPriority(SourceCodeSetup.Sales, DATABASE::Customer, CustomerPriority);
-        CreateDefaultDimensionPriority(SourceCodeSetup.Sales, DATABASE::Item, ItemPriority);
-        CreateDefaultDimensionPriority(SourceCodeSetup.Sales, DATABASE::Location, LocationPriority);
-    end;
-
-    local procedure CreateLocationWithDefaultDimension(var Location: Record Location; var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20])
-    var
-        DefaultDimension: Record "Default Dimension";
-    begin
-        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
-        LibraryWarehouse.CreateLocation(Location);
-        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Location, Location.Code, DimensionCode, DimensionValue.Code);
-    end;
-
-    local procedure CreateCustomerWithDefaultDimension(var Customer: Record Customer; var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20])
-    var
-        DefaultDimension: Record "Default Dimension";
-    begin
-        LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
-        LibrarySales.CreateCustomer(Customer);
-        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::Customer, Customer."No.", DimensionCode, DimensionValue.Code);
-    end;
-
-    local procedure CreateSalesOrderWithSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; LocationCode: Code[10]; ItemNo: Code[20])
-    var
-        DummyGLAccount: Record "G/L Account";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        SalesHeader.Validate("Location Code", LocationCode);
-        SalesHeader.Modify();
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, 1);
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
-        SalesLine.Modify(true);
     end;
 
     [MessageHandler]

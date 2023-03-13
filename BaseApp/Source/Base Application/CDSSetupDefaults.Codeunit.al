@@ -1001,6 +1001,7 @@ codeunit 7204 "CDS Setup Defaults"
         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
         JobQueueEntry."Rerun Delay (sec.)" := 30;
         JobQueueEntry.Description := CopyStr(JobDescription, 1, MaxStrLen(JobQueueEntry.Description));
+        OnCreateJobQueueEntryOnBeforeJobQueueEnqueue(JobQueueEntry, IntegrationTableMapping, JobCodeunitId, JobDescription);
         exit(Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry))
     end;
 
@@ -1503,6 +1504,11 @@ codeunit 7204 "CDS Setup Defaults"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResetVendorAccountMapping(var IntegrationTableMappingName: Code[20]; var ShouldRecreateJobQueueEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateJobQueueEntryOnBeforeJobQueueEnqueue(var JobQueueEntry: Record "Job Queue Entry"; var IntegrationTableMapping: Record "Integration Table Mapping"; JobCodeunitId: Integer; JobDescription: Text)
     begin
     end;
 }

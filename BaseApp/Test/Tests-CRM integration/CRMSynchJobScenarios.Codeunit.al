@@ -186,7 +186,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestSynchFromCRMIgnoresChangesByIntegrationUser()
+    procedure TestSynchFromCRMIncludesChangesByIntegrationUser()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         UnitOfMeasure: Record "Unit of Measure";
@@ -217,9 +217,9 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         IntegrationTableMapping.Modify();
 
         // [WHEN] Scheduled synch executes
-        // [THEN] 1 records should be created in NAV
+        // [THEN] 3 records should be created in NAV
         CODEUNIT.Run(CODEUNIT::"CRM Integration Table Synch.", IntegrationTableMapping);
-        Assert.AreEqual(1, UnitOfMeasure.Count, 'Expected 1 records to be synchronized');
+        Assert.AreEqual(3, UnitOfMeasure.Count, 'Expected 3 records to be synchronized');
     end;
 
     [Test]

@@ -1,6 +1,6 @@
 codeunit 1535 "Approvals Mgmt."
 {
-    Permissions = TableData "Approval Entry" = imd,
+    Permissions = TableData "Approval Entry" = Rimd,
                   TableData "Approval Comment Line" = imd,
                   TableData "Posted Approval Entry" = imd,
                   TableData "Posted Approval Comment Line" = imd,
@@ -2418,7 +2418,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateApprReqForApprTypeWorkflowUserGroupOnBeforeMakeApprovalEntry(var WorkflowUserGroupMember: Record "Workflow User Group Member"; ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument"; var ApproverId: Code[50]; var IsHandled: Boolean)
+    local procedure OnCreateApprReqForApprTypeWorkflowUserGroupOnBeforeMakeApprovalEntry(var WorkflowUserGroupMember: Record "Workflow User Group Member"; var ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument"; var ApproverId: Code[50]; var IsHandled: Boolean)
     begin
     end;
 

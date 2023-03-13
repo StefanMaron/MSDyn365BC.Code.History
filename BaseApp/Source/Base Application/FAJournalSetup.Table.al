@@ -112,6 +112,7 @@ table 5605 "FA Journal Setup"
         FAJnlSetup.TestField("Gen. Jnl. Batch Name");
         TemplateName := FAJnlSetup."Gen. Jnl. Template Name";
         BatchName := FAJnlSetup."Gen. Jnl. Batch Name";
+        OnGenJnlNameOnBeforeGenJnlTemplateGet(DeprBook, GenJnlLine, NextLineNo, TemplateName, BatchName);
         GenJnlTemplate.Get(TemplateName);
         GenJnlBatch.Get(TemplateName, BatchName);
         FAGetJnl.SetGenJnlRange(GenJnlLine, TemplateName, BatchName);
@@ -133,6 +134,7 @@ table 5605 "FA Journal Setup"
         FAJnlSetup.TestField("FA Jnl. Batch Name");
         TemplateName := FAJnlSetup."FA Jnl. Template Name";
         BatchName := FAJnlSetup."FA Jnl. Batch Name";
+        OnFAJnlNameOnBeforeFAJnlTemplateGet(DeprBook, FAJnlLine, NextLineNo, TemplateName, BatchName);
         FAJnlTemplate.Get(TemplateName);
         FAJnlBatch.Get(TemplateName, BatchName);
         FAGetJnl.SetFAJnlRange(FAJnlLine, TemplateName, BatchName);
@@ -341,6 +343,16 @@ table 5605 "FA Journal Setup"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetFAJnlTrailCodes(var FAJnlLine: Record "FA Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFAJnlNameOnBeforeFAJnlTemplateGet(var DepreciationBook: Record "Depreciation Book"; var FAJournalLine: Record "FA Journal Line"; NextLineNo: Integer; var TemplateName: Code[10]; var BatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenJnlNameOnBeforeGenJnlTemplateGet(var DepreciationBook: Record "Depreciation Book"; var GenJournalLine: Record "Gen. Journal Line"; NextLineNo: Integer; var TemplateName: Code[10]; var BatchName: Code[10])
     begin
     end;
 }

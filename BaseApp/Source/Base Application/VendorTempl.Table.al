@@ -404,6 +404,7 @@ table 1383 "Vendor Templ."
     begin
         CopyTemplate(SourceVendorTempl);
         CopyDimensions(SourceVendorTempl);
+        OnAfterCopyFromTemplate(SourceVendorTempl, Rec);
     end;
 
     local procedure CopyTemplate(SourceVendorTempl: Record "Vendor Templ.")
@@ -414,6 +415,7 @@ table 1383 "Vendor Templ."
         TransferFields(SourceVendorTempl, false);
         Code := SavedVendorTempl.Code;
         Description := SavedVendorTempl.Description;
+        OnCopyTemplateOnBeforeModify(SourceVendorTempl, SavedVendorTempl, Rec);
         Modify();
     end;
 
@@ -438,6 +440,16 @@ table 1383 "Vendor Templ."
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
                 if DestDefaultDimension.Insert(true) then;
             until SourceDefaultDimension.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromTemplate(SourceVendorTempl: Record "Vendor Templ."; var VendorTempl: Record "Vendor Templ.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyTemplateOnBeforeModify(SourceVendorTempl: Record "Vendor Templ."; SavedVendorTempl: Record "Vendor Templ."; var VendorTempl: Record "Vendor Templ.")
+    begin
     end;
 }
 

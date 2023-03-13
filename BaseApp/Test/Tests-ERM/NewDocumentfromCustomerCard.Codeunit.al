@@ -18,6 +18,7 @@ codeunit 134771 "New Document from CustomerCard"
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         RefMode: Option Manual,Automatic,"Always Ask";
+        ContactEmailNotCarriedErr: Label 'Contact E-Mail is not carried over to the document';
 
     local procedure Initialize()
     var
@@ -597,6 +598,35 @@ codeunit 134771 "New Document from CustomerCard"
         VerifyRecurringSalesLineFilledOut(Customer, Item);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NewSalesOrderFromCustomerWithContact()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        CustomerCard: TestPage "Customer Card";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 460343] Email address primary contact not copied to sales order
+
+        // [GIVEN] Initialize Setup, Create customer, and contact
+        Initialize();
+        CreateCustomerWithContactWithEmail(Customer, Contact, LibraryUtility.GenerateRandomEmail);
+
+        // [GIVEN] Open Customer Card
+        CustomerCard.OpenEdit;
+        CustomerCard.GotoRecord(Customer);
+
+        // [WHEN] Invoke NewSalesOrder action
+        SalesOrder.Trap;
+        CustomerCard.NewSalesOrder.Invoke;
+        if SalesOrder."Sell-to E-Mail".Value = '' then
+            SalesOrder."Sell-to E-Mail".Activate();
+
+        // [VERIFY] Verify: Contact E-Mail is copied to Sales Order document
+        Assert.AreEqual(Contact."E-Mail", SalesOrder."Sell-to E-Mail".Value, ContactEmailNotCarriedErr);
+    end;
+
     local procedure CreateCustomer(var Customer: Record Customer)
     var
         PostCode: Record "Post Code";
@@ -608,6 +638,26 @@ codeunit 134771 "New Document from CustomerCard"
         Customer.Validate("Post Code", PostCode.Code);
         Customer.Contact := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Contact)), 1, MaxStrLen(Customer.Contact));
         Customer.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithContactWithEmail(var Customer: Record Customer; var Contact: Record Contact; Email: Text)
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.SetRange("No.", Customer."No.");
+        ContactBusinessRelation.FindFirst();
+        Contact.Init();
+        Contact.Get(ContactBusinessRelation."Contact No.");
+        Contact."No." := LibraryUtility.GenerateRandomCode(Contact.FieldNo("No."), Database::Contact);
+        Contact.Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Contact.Name)), 1, MaxStrLen(Contact.Name));
+        Contact.Type := Contact.Type::Person;
+        Contact.Validate("E-Mail", Email);
+        Contact.Insert(true);
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer."E-Mail" := LibraryUtility.GenerateRandomEmail();
+        Customer.Modify();
     end;
 
     local procedure VerifySalesInvoicePage(Customer: Record Customer; SalesInvoice: TestPage "Sales Invoice")

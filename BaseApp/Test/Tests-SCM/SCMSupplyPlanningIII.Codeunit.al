@@ -1130,7 +1130,7 @@
 
         SelectSalesOrderLine(SalesLine, SalesHeader."No.");
         Item.SetFilter("No.", '%1|%2', Item."No.", ChildItem."No.");
-        CreateBOMTree(BOMBuffer, Item);
+        CreateBOMTree(BOMBuffer, Item, WorkDate());
         VerifyGrossReqAndScheduledRecOnBOMTree(BOMBuffer, Item."No.", 0, SalesLine.Quantity);
         VerifyGrossReqAndScheduledRecOnBOMTree(BOMBuffer, ChildItem."No.", 0, 0);
     end;
@@ -2991,6 +2991,46 @@
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure GrossRequirementInItemAvailByBOMLevelDoNotIncludeSupplies()
+    var
+        ChildItem: Record Item;
+        Item: Record Item;
+        BOMBuffer: Record "BOM Buffer";
+        ReceiptQty: Decimal;
+        Quantities: array[4] of Decimal;
+        ShipmentDates: array[4] of Date;
+        i: Integer;
+    begin
+        // [FEATURE] [Item Availability by BOM]
+        // [SCENARIO 457299] Gross Requirement in Item Availability by BOM Level respects Demand Date and does not consider supplies.
+        Initialize();
+        for i := 1 to ArrayLen(ShipmentDates) do
+            ShipmentDates[i] := WorkDate() + 30 * i;
+        ReceiptQty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Item with BOM.
+        CreateOrderItemSetup(ChildItem, Item);
+
+        // [GIVEN] Sales order with 4 lines -
+        // [GIVEN] Line 1: Quantity = 50, Shipment Date = WorkDate + 30 days.
+        // [GIVEN] Line 2: Quantity = 100, Shipment Date = WorkDate + 60 days.
+        // [GIVEN] Line 3: Quantity = 150, Shipment Date = WorkDate + 90 days.
+        // [GIVEN] Line 4: Quantity = 200, Shipment Date = WorkDate + 120 days.
+        CreateSalesOrderWithFourLinesOfSingleItemWithSpecifiedShipmentDates(Quantities, Item."No.", ShipmentDates);
+
+        // [GIVEN] Purchase order with Quantity = 10, Expected Receipt Date = WorkDate + 70 days.
+        CreatePurchaseOrderWithReceiptDate(Item."No.", ReceiptQty, WorkDate() + 70);
+
+        // [WHEN] Calculate BOM tree for Item Availability by BOM level page with Demand Date = WorkDate + 100 days.
+        Item.SetRecFilter();
+        CreateBOMTree(BOMBuffer, Item, WorkDate() + 100);
+
+        // [THEN] Scheduled Receipt = 10.
+        // [THEN] Gross Requirement includes the first three lines of the sales order and therefore equals to 50 + 100 + 150 = 300.
+        VerifyGrossReqAndScheduledRecOnBOMTree(BOMBuffer, Item."No.", ReceiptQty, Quantities[1] + Quantities[2] + Quantities[3]);
+    end;
+
     local procedure Initialize()
     var
         UntrackedPlanningElement: Record "Untracked Planning Element";
@@ -3737,6 +3777,15 @@
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
     end;
 
+    local procedure CreatePurchaseOrderWithReceiptDate(ItemNo: Code[20]; Quantity: Decimal; ExpectedReceiptDate: Date)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, Quantity, '', ExpectedReceiptDate);
+    end;
+
     local procedure CalculatePlanForRequisitionWorksheet(Item: Record Item)
     var
         RequisitionWkshName: Record "Requisition Wksh. Name";
@@ -4033,12 +4082,12 @@
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
     end;
 
-    local procedure CreateBOMTree(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item)
+    local procedure CreateBOMTree(var BOMBuffer: Record "BOM Buffer"; var Item: Record Item; EndDate: Date)
     var
         CalculateBOMTree: Codeunit "Calculate BOM Tree";
         TreeType: Option " ",Availability,Cost;
     begin
-        Item.SetRange("Date Filter", 0D, WorkDate());
+        Item.SetRange("Date Filter", 0D, EndDate);
         CalculateBOMTree.SetShowTotalAvailability(true);
         CalculateBOMTree.GenerateTreeForItems(Item, BOMBuffer, TreeType::Availability);
         BOMBuffer.Find();

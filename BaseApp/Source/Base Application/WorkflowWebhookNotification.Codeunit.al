@@ -124,12 +124,12 @@ codeunit 1545 "Workflow Webhook Notification"
     [TryFunction]
     local procedure PostHttpRequest(DataID: Guid; WorkflowStepInstanceID: Guid; NotificationUrl: Text; RequestedByUserEmail: Text)
     var
-        TypeHelper: Codeunit "Type Helper";
         HttpWebRequest: DotNet HttpWebRequest;
         HttpWebResponse: DotNet HttpWebResponse;
         RequestStr: DotNet Stream;
         StreamWriter: DotNet StreamWriter;
         Encoding: DotNet Encoding;
+        WebhookPayload: Text;
     begin
         HttpWebRequest := HttpWebRequest.Create(NotificationUrl);
         HttpWebRequest.Method := 'POST';
@@ -137,9 +137,8 @@ codeunit 1545 "Workflow Webhook Notification"
 
         RequestStr := HttpWebRequest.GetRequestStream();
         StreamWriter := StreamWriter.StreamWriter(RequestStr, Encoding.ASCII);
-        StreamWriter.Write('{"Row Id":"' + TypeHelper.GetGuidAsString(DataID) +
-          '","Workflow Step Id":"' + TypeHelper.GetGuidAsString(WorkflowStepInstanceID) +
-          '","Requested By User Email":"' + RequestedByUserEmail + '"}');
+        WebhookPayload := PrepareWebhookPayload(DataID, WorkflowStepInstanceID, RequestedByUserEmail);
+        StreamWriter.Write(WebhookPayload);
         StreamWriter.Flush();
         StreamWriter.Close();
         StreamWriter.Dispose();
@@ -147,6 +146,27 @@ codeunit 1545 "Workflow Webhook Notification"
         HttpWebResponse := HttpWebRequest.GetResponse();
         HttpWebResponse.Close(); // close connection
         HttpWebResponse.Dispose(); // cleanup of IDisposable
+    end;
+
+    local procedure PrepareWebhookPayload(DataID: Guid; WorkflowStepInstanceID: Guid; RequestedByUserEmail: Text) WebhookPayload: Text
+    var
+        Company: Record Company;
+        TypeHelper: Codeunit "Type Helper";
+        EnvironmentInformation: Codeunit "Environment Information";
+        JsonPayload: JsonObject;
+    begin
+        JsonPayload.Add('Row Id', TypeHelper.GetGuidAsString(DataID));
+        JsonPayload.Add('Workflow Step Id', TypeHelper.GetGuidAsString(WorkflowStepInstanceID));
+        JsonPayload.Add('Requested By User Email', RequestedByUserEmail);
+
+        if Company.ReadPermission then
+            if Company.Get(CompanyName()) then
+                JsonPayload.Add('Company Id', TypeHelper.GetGuidAsString(Company.SystemId));
+
+        if EnvironmentInformation.IsSaaS() then
+            JsonPayload.Add('Environment Name', EnvironmentInformation.GetEnvironmentName());
+
+        JsonPayload.WriteTo(WebhookPayload);
     end;
 
     local procedure FindNotificationRecord(var WorkflowWebhookNotificationTable: Record "Workflow Webhook Notification"; WorkflowStepInstanceID: Guid): Boolean

@@ -118,16 +118,21 @@ codeunit 5530 "Calc. Item Availability"
     local procedure TryGetPurchOrderSupplyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
-        PurchLine: Record "Purchase Line";
+        PurchaseLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
-        if not PurchLine.ReadPermission then
+        if not PurchaseLine.ReadPermission then
             exit(false);
 
-        if PurchLine.FindLinesWithItemToPlan(Item, PurchLine."Document Type"::Order) then
+        if PurchaseLine.FindLinesWithItemToPlan(Item, "Purchase Document Type"::Order) then
             repeat
-                InvtEventBuf.TransferFromPurchase(PurchLine);
-                InsertEntry(InvtEventBuf);
-            until PurchLine.Next() = 0;
+                IsHandled := false;
+                OnTryGetPurchOrderSupplyEntriesOnBeforeInsertEntry(PurchaseLine, IsHandled);
+                if not IsHandled then begin
+                    InvtEventBuf.TransferFromPurchase(PurchaseLine);
+                    InsertEntry(InvtEventBuf);
+                end;
+            until PurchaseLine.Next() = 0;
 
         exit(true);
     end;
@@ -1329,6 +1334,11 @@ codeunit 5530 "Calc. Item Availability"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowReturnShptHeader(ReturnShptHeader: Record "Return Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTryGetPurchOrderSupplyEntriesOnBeforeInsertEntry(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -463,7 +463,7 @@ codeunit 7312 "Create Pick"
             SetRange("Variant Code", VariantCode);
             GetLocation(LocationCode);
             IsHandled := false;
-            OnBeforeSetBinCodeFilter(BinCodeFilterText, LocationCode, ItemNo, VariantCode, ToBinCode, IsHandled);
+            OnBeforeSetBinCodeFilter(BinCodeFilterText, LocationCode, ItemNo, VariantCode, ToBinCode, IsHandled, SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo);
             if not IsHandled then begin
                 if Location."Require Pick" and (Location."Shipment Bin Code" <> '') then
                     AddToFilterText(BinCodeFilterText, '&', '<>', Location."Shipment Bin Code");
@@ -483,7 +483,7 @@ codeunit 7312 "Create Pick"
 #if not CLEAN20
             OnFindBWPickBinOnBeforeFindFromBinContent(FromBinContent, SourceType, TotalQtyPickedBase, IsHandled, TotalQtyToPickBase);
 #endif
-            OnFindBWPickBinOnBeforeFromBinContentFindSet(FromBinContent, SourceType, TotalQtyPickedBase, TotalQtyToPickBase, IsHandled);
+            OnFindBWPickBinOnBeforeFromBinContentFindSet(FromBinContent, SourceType, TotalQtyPickedBase, TotalQtyToPickBase, IsHandled, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo);
             if not IsHandled then
                 if FindSet() then
                     repeat
@@ -1675,7 +1675,8 @@ codeunit 7312 "Create Pick"
             CreatePickParameters."Whse. Document"::Job:
                 LineReservedQty :=
                   WhseAvailMgt.CalcLineReservedQtyOnInvt(
-                    Database::Job, 2, JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
+                    Database::Job, "Job Planning Line Status"::Order.AsInteger(), JobPlanningLine."Job No.",
+                    JobPlanningLine."Job Contract Entry No.",
                     JobPlanningLine."Line No.", true, TempWhseActivLine);
         end;
 
@@ -1927,7 +1928,9 @@ codeunit 7312 "Create Pick"
     begin
         JobPlanningLine := JobPlanningLine2;
         TempNo := 1;
-        SetSource(DATABASE::"Job Planning Line", 2, JobPlanningLine2."Job No.", JobPlanningLine2."Job Contract Entry No.", JobPlanningLine2."Line No.");
+        SetSource(
+          DATABASE::"Job Planning Line", "Job Planning Line Status"::Order.AsInteger(),
+          JobPlanningLine2."Job No.", JobPlanningLine2."Job Contract Entry No.", JobPlanningLine2."Line No.");
     end;
 
     procedure SetTempWhseItemTrkgLine(SourceID: Code[20]; SourceType: Integer; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; LocationCode: Code[10])
@@ -3295,7 +3298,7 @@ codeunit 7312 "Create Pick"
                     begin
                         SetRange("Source Ref. No.", SourceLineNo);
                         SetRange("Source Type", Database::"Job Planning Line");
-                        SetRange("Source Subtype", 2);
+                        SetRange("Source Subtype", "Job Planning Line Status"::Order.AsInteger());
                     end;
                 else
                     SetRange("Source Ref. No.", SourceLineNo);
@@ -3686,7 +3689,7 @@ codeunit 7312 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetBinCodeFilter(var BinCodeFilterText: Text[250]; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeSetBinCodeFilter(var BinCodeFilterText: Text[250]; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20]; var IsHandled: Boolean; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
     begin
     end;
 
@@ -3940,7 +3943,7 @@ codeunit 7312 "Create Pick"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindBWPickBinOnBeforeFromBinContentFindSet(var FromBinContent: Record "Bin Content"; SourceType: Integer; var TotalQtyPickedBase: Decimal; var TotalQtyToPickBase: Decimal; var IsHandled: Boolean)
+    local procedure OnFindBWPickBinOnBeforeFromBinContentFindSet(var FromBinContent: Record "Bin Content"; SourceType: Integer; var TotalQtyPickedBase: Decimal; var TotalQtyToPickBase: Decimal; var IsHandled: Boolean; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
     begin
     end;
 

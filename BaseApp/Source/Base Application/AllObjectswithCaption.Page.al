@@ -38,7 +38,6 @@ page 9174 "All Objects with Caption"
                     ApplicationArea = All;
                     Caption = 'Object Caption';
                     ToolTip = 'Specifies the caption of the object, that is, the name that will be displayed in the user interface.';
-                    Visible = false;
                 }
                 field("Object Subtype"; Rec."Object Subtype")
                 {

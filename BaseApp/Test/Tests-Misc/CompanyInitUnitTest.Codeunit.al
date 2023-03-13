@@ -17,7 +17,7 @@ codeunit 134163 "Company Init Unit Test"
         PurchasesCodeTxt: Label 'PURCHASES', Comment = 'Purchases';
         PurchasesValueTxt: Label 'Purchases';
         DeleteCodeTxt: Label 'DELETE', Comment = 'Delete';
-        DeleteValueTxt: Label 'Deleted Document';
+        DocumentCreatedToAvoidGapInNoSeriesTxt: Label 'Document created to avoid gap in No. Series';
         InvPCostCodeTxt: Label 'INVTPCOST', Comment = 'Post Inventory to G/L';
         InvPCostValueTxt: Label 'Post Inventory Cost to G/L';
         AdjExchRatesCodeTxt: Label 'EXCHRATADJ', Comment = 'Adjust Exchange Rates';
@@ -418,7 +418,7 @@ codeunit 134163 "Company Init Unit Test"
     begin
         CheckSourceCodeEntry(SalesCodeTxt, SalesValueTxt);
         CheckSourceCodeEntry(PurchasesCodeTxt, PurchasesValueTxt);
-        CheckSourceCodeEntry(DeleteCodeTxt, DeleteValueTxt);
+        CheckSourceCodeEntry(DeleteCodeTxt, DocumentCreatedToAvoidGapInNoSeriesTxt);
         CheckSourceCodeEntry(InvPCostCodeTxt, InvPCostValueTxt);
         CheckSourceCodeEntry(AdjExchRatesCodeTxt, AdjExchRatesValueTxt);
         CheckSourceCodeEntry(ClsIncStmtCodeTxt, ClsIncStmtValueTxt);

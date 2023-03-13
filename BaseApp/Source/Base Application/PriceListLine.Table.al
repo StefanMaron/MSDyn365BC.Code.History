@@ -4,11 +4,13 @@ table 7001 "Price List Line"
     {
         field(1; "Price List Code"; Code[20])
         {
+            Caption = 'Price List Code';
             DataClassification = CustomerContent;
             TableRelation = "Price List Header";
         }
         field(2; "Line No."; Integer)
         {
+            Caption = 'Line No.';
             DataClassification = CustomerContent;
             AutoIncrement = true;
         }
@@ -174,6 +176,7 @@ table 7001 "Price List Line"
         }
         field(10; "Currency Code"; Code[10])
         {
+            Caption = 'Currency Code';
             DataClassification = CustomerContent;
             TableRelation = Currency;
 
@@ -186,6 +189,7 @@ table 7001 "Price List Line"
         }
         field(11; "Work Type Code"; Code[10])
         {
+            Caption = 'Work Type Code';
             DataClassification = CustomerContent;
             TableRelation = "Work Type";
             trigger OnValidate()
@@ -198,6 +202,7 @@ table 7001 "Price List Line"
         }
         field(12; "Starting Date"; Date)
         {
+            Caption = 'Starting Date';
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
@@ -209,6 +214,7 @@ table 7001 "Price List Line"
         }
         field(13; "Ending Date"; Date)
         {
+            Caption = 'Ending Date';
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
@@ -220,6 +226,7 @@ table 7001 "Price List Line"
         }
         field(14; "Minimum Quantity"; Decimal)
         {
+            Caption = 'Minimum Quantity';
             DataClassification = CustomerContent;
             DecimalPlaces = 0 : 5;
             MinValue = 0;
@@ -354,6 +361,7 @@ table 7001 "Price List Line"
         }
         field(21; "Allow Line Disc."; Boolean)
         {
+            Caption = 'Allow Line Disc.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -364,6 +372,7 @@ table 7001 "Price List Line"
         }
         field(22; "Allow Invoice Disc."; Boolean)
         {
+            Caption = 'Allow Invoice Disc.';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -374,6 +383,7 @@ table 7001 "Price List Line"
         }
         field(23; "Price Includes VAT"; Boolean)
         {
+            Caption = 'Price Includes VAT';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -383,6 +393,7 @@ table 7001 "Price List Line"
         }
         field(24; "VAT Bus. Posting Gr. (Price)"; Code[20])
         {
+            Caption = 'VAT Bus. Posting Gr. (Price)';
             DataClassification = CustomerContent;
             TableRelation = "VAT Business Posting Group";
 
@@ -393,6 +404,7 @@ table 7001 "Price List Line"
         }
         field(25; "VAT Prod. Posting Group"; Code[20])
         {
+            Caption = 'VAT Prod. Posting Group';
             DataClassification = CustomerContent;
             TableRelation = "VAT Product Posting Group";
 
@@ -403,6 +415,7 @@ table 7001 "Price List Line"
         }
         field(26; "Asset ID"; Guid)
         {
+            Caption = 'Asset ID';
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
@@ -423,6 +436,7 @@ table 7001 "Price List Line"
         }
         field(28; "Price Type"; Enum "Price Type")
         {
+            Caption = 'Price Type';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -432,6 +446,7 @@ table 7001 "Price List Line"
         }
         field(29; Description; Text[100])
         {
+            Caption = 'Description';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -441,6 +456,7 @@ table 7001 "Price List Line"
         }
         field(30; Status; Enum "Price Status")
         {
+            Caption = 'Price Status';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -466,6 +482,7 @@ table 7001 "Price List Line"
         }
         field(32; "Source Group"; Enum "Price Source Group")
         {
+            Caption = 'Source Group';
             DataClassification = CustomerContent;
         }
         field(33; "Product No."; Code[20])
@@ -492,6 +509,7 @@ table 7001 "Price List Line"
         }
         field(34; "Assign-to No."; Code[20])
         {
+            Caption = 'Assign-to No.';
             DataClassification = CustomerContent;
             TableRelation = IF ("Source Type" = CONST(Campaign)) Campaign
             ELSE
@@ -517,6 +535,7 @@ table 7001 "Price List Line"
         }
         field(35; "Assign-to Parent No."; Code[20])
         {
+            Caption = 'Assign-to Parent No.';
             DataClassification = CustomerContent;
             TableRelation = IF ("Source Type" = CONST("Job Task")) Job;
             ValidateTableRelation = false;
@@ -764,6 +783,7 @@ table 7001 "Price List Line"
                 "Price Includes VAT" := PriceAsset."Price Includes VAT";
                 "VAT Bus. Posting Gr. (Price)" := PriceAsset."VAT Bus. Posting Gr. (Price)";
             end;
+        CopyFromAssetType();
         OnAfterCopyFromPriceAsset(PriceAsset, Rec);
     end;
 
@@ -1039,6 +1059,44 @@ table 7001 "Price List Line"
             ModifyAll("Product No.", NewNo, true);
     end;
 
+    local procedure CopyFromAssetType()
+    var
+        Item: Record Item;
+        GLAccount: Record "G/L Account";
+        Resource: Record Resource;
+        IsHandled: Boolean;
+    begin
+        OnBeforeCopyFromAssetType(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Asset No." = '' then
+            exit;
+
+        Case "Asset Type" of
+            "Asset Type"::Item:
+                begin
+                    Item.Get("Asset No.");
+                    Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+                end;
+            "Asset Type"::"G/L Account":
+                begin
+                    GLAccount.Get("Asset No.");
+                    Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
+                end;
+            "Asset Type"::Resource:
+                begin
+                    Resource.Get("Asset No.");
+                    Validate("VAT Prod. Posting Group", Resource."VAT Prod. Posting Group");
+                end;
+            else begin
+                OnCopyFromAssetTypeElseCase(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+            end;
+        end;
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyFromPriceAsset(PriceAsset: Record "Price Asset"; var riceListLine: Record "Price List Line")
     begin
@@ -1096,6 +1154,16 @@ table 7001 "Price List Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFilteredLinesToTemporaryBufferOnBeforeInsert(var TempPriceListLine: Record "Price List Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromAssetType(var PriceListLine: Record "Price List Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromAssetTypeElseCase(var PriceListLine: Record "Price List Line"; var IsHandled: Boolean)
     begin
     end;
 }

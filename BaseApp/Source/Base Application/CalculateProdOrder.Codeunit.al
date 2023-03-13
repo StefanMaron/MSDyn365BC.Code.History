@@ -202,7 +202,7 @@ codeunit 99000773 "Calculate Prod. Order"
                             end;
                         ProdBOMLine[Level].Type::"Production BOM":
                             begin
-                                OnTransferBOMOnBeforeProcessProdBOM(ProdBOMLine[Level], LineQtyPerUOM, ItemQtyPerUOM, ReqQty);
+                                OnTransferBOMOnBeforeProcessProdBOM(ProdBOMLine[Level], LineQtyPerUOM, ItemQtyPerUOM, ReqQty, ProdOrderLine);
                                 TransferBOM(ProdBOMLine[Level]."No.", Level + 1, ReqQty, 1);
                                 ProdBOMLine[Level].SetRange("Production BOM No.", ProdBOMNo);
                                 if Level > 1 then
@@ -1062,7 +1062,7 @@ codeunit 99000773 "Calculate Prod. Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferBOMOnBeforeProcessProdBOM(ProdBOMLine: Record "Production BOM Line"; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal; var ReqQty: Decimal)
+    local procedure OnTransferBOMOnBeforeProcessProdBOM(ProdBOMLine: Record "Production BOM Line"; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal; var ReqQty: Decimal; var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 

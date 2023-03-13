@@ -203,7 +203,7 @@ page 5930 "Fault/Resol. Cod. Relationship"
         ServTableID := TableID;
     end;
 
-    local procedure UpdateOrginalRecord()
+    local procedure UpdateOriginalRecord()
     begin
         case ServTableID of
             DATABASE::"Service Item Line":
@@ -213,6 +213,7 @@ page 5930 "Fault/Resol. Cod. Relationship"
                     ServItemLine."Symptom Code" := "Symptom Code";
                     ServItemLine."Fault Code" := "Fault Code";
                     ServItemLine."Resolution Code" := "Resolution Code";
+                    OnUpdateOriginalRecordOnBeforeServItemLineModify(Rec, ServItemLine);
                     ServItemLine.Modify(true);
                 end;
             DATABASE::"Service Line":
@@ -222,6 +223,7 @@ page 5930 "Fault/Resol. Cod. Relationship"
                     ServInvLine."Symptom Code" := "Symptom Code";
                     ServInvLine."Fault Code" := "Fault Code";
                     ServInvLine."Resolution Code" := "Resolution Code";
+                    OnUpdateOriginalRecordOnBeforeServInvLineModify(Rec, ServInvLine);
                     ServInvLine.Modify();
                 end;
         end;
@@ -249,8 +251,18 @@ page 5930 "Fault/Resol. Cod. Relationship"
 
     local procedure OKOnPush()
     begin
-        UpdateOrginalRecord();
+        UpdateOriginalRecord();
         CurrPage.Close();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOriginalRecordOnBeforeServItemLineModify(FaultResolCodRelationship: Record "Fault/Resol. Cod. Relationship"; var ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateOriginalRecordOnBeforeServInvLineModify(FaultResolCodRelationship: Record "Fault/Resol. Cod. Relationship"; var ServiceLine: Record "Service Line")
+    begin
     end;
 }
 

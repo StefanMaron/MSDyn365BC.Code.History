@@ -1,6 +1,7 @@
 table 5475 "Sales Invoice Entity Aggregate"
 {
     Caption = 'Sales Invoice Entity Aggregate';
+    Permissions = tabledata "VAT Posting Setup" = R;
 
     fields
     {

@@ -826,7 +826,7 @@
         </trans-unit>
         <trans-unit id="Page 2572387921 - Control 3656808776 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the shipment date.</source>
-          <target state="translated">Gibt das Lieferdatum an.</target>
+          <target state="translated">Gibt das Lieferungsdatum an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Credit Mem Lines - Control shipmentDate - Property ToolTip</note>
         </trans-unit>
@@ -1030,7 +1030,7 @@
         </trans-unit>
         <trans-unit id="Page 3908586298 - Control 3656808776 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the shipment date.</source>
-          <target state="translated">Gibt das Lieferdatum an.</target>
+          <target state="translated">Gibt das Lieferungsdatum an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Invoice Lines - Control shipmentDate - Property ToolTip</note>
         </trans-unit>
@@ -1246,7 +1246,7 @@
         </trans-unit>
         <trans-unit id="Page 1254803123 - Control 3656808776 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the shipment date.</source>
-          <target state="translated">Gibt das Lieferdatum an.</target>
+          <target state="translated">Gibt das Lieferungsdatum an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV1 - Sales Order Lines - Control shipmentDate - Property ToolTip</note>
         </trans-unit>

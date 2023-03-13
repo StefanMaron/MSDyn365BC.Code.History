@@ -417,6 +417,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         DestinationRecordRef: RecordRef;
         SourceFieldRef: FieldRef;
         DestinationFieldRef: FieldRef;
+        IsHandled: Boolean;
     begin
         Session.LogMessage('0000DF0', StrSubstNo(StartingToCreateSalesOrderHeaderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
         SalesHeader.Init();
@@ -432,7 +433,9 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CopyBillToInformationIfNotEmpty(CRMSalesorder, SalesHeader);
         CopyShipToInformationIfNotEmpty(CRMSalesorder, SalesHeader);
         CopyCRMOptionFields(CRMSalesorder, SalesHeader);
-        SalesHeader.Validate("Payment Discount %", CRMSalesorder.DiscountPercentage);
+        OnSetSalesHeaderPaymentDiscountFromCRM(SalesHeader, CRMSalesOrder, IsHandled);
+        if not IsHandled then
+            SalesHeader.Validate("Payment Discount %", CRMSalesorder.DiscountPercentage);
         SalesHeader.Validate("External Document No.", CopyStr(CRMSalesorder.Name, 1, MaxStrLen(SalesHeader."External Document No.")));
         SourceRecordRef.GetTable(CRMSalesorder);
         DestinationRecordRef.GetTable(SalesHeader);
@@ -748,6 +751,9 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         NAVItemUomRecordId: RecordID;
         NAVResourceUomRecordId: RecordID;
     begin
+        if IsNullGuid(CRMProduct.ProductId) then
+            exit;
+
         case CRMProduct.ProductTypeCode of
             CRMProduct.ProductTypeCode::SalesInventory:
                 begin
@@ -897,6 +903,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyShipToInformationIfNotEmptyOnBeforeValidateShipToCountryRegionCode(var SalesHeader: Record "Sales Header"; CRMSalesorder: Record "CRM Salesorder"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSalesHeaderPaymentDiscountFromCRM(var SalesHeader: Record "Sales Header"; var CRMSalesOrder: Record "CRM Salesorder"; var IsHandled: Boolean)
     begin
     end;
 }

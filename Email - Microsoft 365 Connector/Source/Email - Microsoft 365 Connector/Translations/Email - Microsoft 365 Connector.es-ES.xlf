@@ -15,95 +15,36 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Microsoft 365 Connector - NamedType NotRegisteredAccountErr</note>
         </trans-unit>
-        <trans-unit id="Page 1423208027 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Microsoft 365 Email Account</source>
-          <target state="translated">Cuenta de correo electrónico de Microsoft 365</target>
+        <trans-unit id="EnumExtension 1136830377 - EnumValue 726727560 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Microsoft 365</source>
+          <target state="translated">Microsoft 365</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Account - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 1993094577</note>
         </trans-unit>
-        <trans-unit id="Page 1423208027 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the email address of the account.</source>
-          <target state="translated">Especifica la dirección de correo electrónico de la cuenta.</target>
+        <trans-unit id="Page 1107894685 - Action 1235620153 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <target state="translated">Siguiente</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Account - Control EmailAddress - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Action Next - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 1423208027 - Control 2814033574 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email Address</source>
-          <target state="translated">Dirección de correo electrónico</target>
+        <trans-unit id="Page 1107894685 - Action 1235620153 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <target state="translated">Siguiente</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Account - Control EmailAddress - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Action Next - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 1423208027 - Control 1459871223 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The name of the account.</source>
-          <target state="translated">El nombre de la cuenta.</target>
+        <trans-unit id="Page 1107894685 - Action 742034285 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="translated">Atrás</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Account - Control NameField - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Action Back - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 1423208027 - Control 1459871223 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Account Name</source>
-          <target state="translated">Nombre de cuenta</target>
+        <trans-unit id="Page 1107894685 - Action 742034285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="translated">Atrás</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Account - Control NameField - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 1107894685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Setup Microsoft 365 Email Account</source>
-          <target state="translated">Configurar cuenta de correo electrónico de Microsoft 365</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 1107894685 - NamedType 2205015059" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more about shared mailboxes permissions</source>
-          <target state="translated">Más información acerca de los permisos de buzones compartidos</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - NamedType LearnMorePermissionsTok</note>
-        </trans-unit>
-        <trans-unit id="Page 1107894685 - NamedType 1052459003" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more</source>
-          <target state="translated">Más información</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - NamedType LearnMoreTok</note>
-        </trans-unit>
-        <trans-unit id="Page 1107894685 - NamedType 3071455556" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>https://go.microsoft.com/fwlink/?linkid=2206606</source>
-          <target state="translated">https://go.microsoft.com/fwlink/?linkid=2206606</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - NamedType SharedMailboxesPermissionsURLTxt</note>
-        </trans-unit>
-        <trans-unit id="Page 1107894685 - NamedType 802537132" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>https://go.microsoft.com/fwlink/?linkid=2139305</source>
-          <target state="translated">https://go.microsoft.com/fwlink/?linkid=2139305</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - NamedType SharedMailboxesURLTxt</note>
-        </trans-unit>
-        <trans-unit id="Page 1107894685 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the email address of the account.</source>
-          <target state="translated">Especifica la dirección de correo electrónico de la cuenta.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control EmailAddress - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 1107894685 - Control 2814033574 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email Address</source>
-          <target state="translated">Dirección de correo electrónico</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control EmailAddress - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 1107894685 - Control 907109761 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Enter the email address of your shared mailbox in the Microsoft 365 admin center.</source>
-          <target state="translated">Escriba la dirección de correo electrónico de su buzón compartido en el centro de administración de Microsoft 365.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control Header - Property InstructionalText</note>
-        </trans-unit>
-        <trans-unit id="Page 1107894685 - Control 2300938776 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more</source>
-          <target state="translated">Más información</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control LearnMoreAboutSharedAccount - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 1107894685 - Control 2300938776 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> </source>
-          <target state="translated"> </target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control LearnMoreAboutSharedAccount - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Action Back - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1107894685 - Control 1349865275 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more about user permissions to use shared mailboxes.</source>
@@ -129,36 +70,95 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control NameField - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 1107894685 - Action 742034285 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Back</source>
-          <target state="translated">Atrás</target>
+        <trans-unit id="Page 1107894685 - Control 2300938776 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more</source>
+          <target state="translated">Más información</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Action Back - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control LearnMoreAboutSharedAccount - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 1107894685 - Action 742034285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Back</source>
-          <target state="translated">Atrás</target>
+        <trans-unit id="Page 1107894685 - Control 2300938776 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <target state="translated"> </target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Action Back - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control LearnMoreAboutSharedAccount - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 1107894685 - Action 1235620153 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Next</source>
-          <target state="translated">Siguiente</target>
+        <trans-unit id="Page 1107894685 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the email address of the account.</source>
+          <target state="translated">Especifica la dirección de correo electrónico de la cuenta.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Action Next - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control EmailAddress - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 1107894685 - Action 1235620153 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Next</source>
-          <target state="translated">Siguiente</target>
+        <trans-unit id="Page 1107894685 - Control 2814033574 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Address</source>
+          <target state="translated">Dirección de correo electrónico</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Action Next - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control EmailAddress - Property Caption</note>
         </trans-unit>
-        <trans-unit id="EnumExtension 1136830377 - EnumValue 726727560 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Microsoft 365</source>
-          <target state="translated">Microsoft 365</target>
+        <trans-unit id="Page 1107894685 - Control 907109761 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enter the email address of your shared mailbox in the Microsoft 365 admin center.</source>
+          <target state="translated">Escriba la dirección de correo electrónico de su buzón compartido en el centro de administración de Microsoft 365.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Enum 1993094577</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Control Header - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 1423208027 - Control 1459871223 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The name of the account.</source>
+          <target state="translated">El nombre de la cuenta.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Account - Control NameField - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1423208027 - Control 1459871223 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Name</source>
+          <target state="translated">Nombre de cuenta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Account - Control NameField - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1423208027 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the email address of the account.</source>
+          <target state="translated">Especifica la dirección de correo electrónico de la cuenta.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Account - Control EmailAddress - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1423208027 - Control 2814033574 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Address</source>
+          <target state="translated">Dirección de correo electrónico</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Account - Control EmailAddress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1107894685 - NamedType 1052459003" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more</source>
+          <target state="translated">Más información</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - NamedType LearnMoreTok</note>
+        </trans-unit>
+        <trans-unit id="Page 1107894685 - NamedType 2205015059" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about shared mailboxes permissions</source>
+          <target state="translated">Más información acerca de los permisos de buzones compartidos</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - NamedType LearnMorePermissionsTok</note>
+        </trans-unit>
+        <trans-unit id="Page 1107894685 - NamedType 3071455556" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>https://go.microsoft.com/fwlink/?linkid=2206606</source>
+          <target state="translated">https://go.microsoft.com/fwlink/?linkid=2206606</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - NamedType SharedMailboxesPermissionsURLTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 1107894685 - NamedType 802537132" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>https://go.microsoft.com/fwlink/?linkid=2139305</source>
+          <target state="translated">https://go.microsoft.com/fwlink/?linkid=2139305</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - NamedType SharedMailboxesURLTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 1107894685 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Setup Microsoft 365 Email Account</source>
+          <target state="translated">Configurar cuenta de correo electrónico de Microsoft 365</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Wizard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1423208027 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Microsoft 365 Email Account</source>
+          <target state="translated">Cuenta de correo electrónico de Microsoft 365</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Microsoft 365 Email Account - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 2604401247 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Microsoft 365 Connector - Objects</source>

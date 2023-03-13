@@ -1192,7 +1192,7 @@ codeunit 135000 "Error Message Tests"
         // [THEN] 2 records added, where "Message Type" is 'Error', "Support URL" is 'Link'
         Assert.RecordCount(ErrorMessage, 2);
         ErrorMessage.TestField("Message Type", ErrorMessage."Message Type"::Error);
-        ErrorMessage.TestField(Description, GenericErrorDescriptionTxt);
+        ErrorMessage.TestField("Message", GenericErrorDescriptionTxt);
         ErrorMessage.TestField("Support Url", 'Link');
         // [THEN] Context record is Customer 'A', "Context Table Number" is Customer, "Context Field Number" is 90
         ErrorMessage.TestField("Context Record ID", GLBCustomerContext.RecordId);
@@ -1346,7 +1346,7 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessage.FindFirst();
         Assert.AreEqual(
             StrSubstNo(FieldMustNotBeErr, DummySalesHeader.FieldCaption("Document Type"), DummySalesHeader."Document Type"),
-            TempErrorMessage.Description,
+            TempErrorMessage."Message",
             'Invalid error message');
     end;
 
@@ -1477,6 +1477,70 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessageActual.TestField("Field Number", TableWithFieldCaption.FieldNo(MyField));
     end;
 
+#if not CLEAN22
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSyncingOfErrorMessageDescriptionAndMessage()
+    var
+        ErrorMessage: Record "Error Message";
+        TextLbl: Label 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.';
+    begin
+        // [SCENARIO] Test the syncing of Error Message fields, Description and Message
+        ErrorMessage.DeleteAll();
+
+        // [GIVEN] Error Message with Description
+        ErrorMessage.Description := CopyStr(TextLbl, 1, MaxStrLen(ErrorMessage.Description));
+
+        // [WHEN] Insert error
+        ErrorMessage.Insert();
+
+        // [THEN] Message field should be populated with the same text
+        Assert.AreEqual(ErrorMessage.Description, ErrorMessage.Message, 'The text was not copied properly');
+
+        ErrorMessage.DeleteAll();
+
+        // [GIVEN] Error Message with Description
+        ErrorMessage.Message := CopyStr(TextLbl, 1, MaxStrLen(ErrorMessage.Message));
+
+        // [WHEN] Insert error
+        ErrorMessage.Insert();
+
+        // [THEN] Message field should be populated with the same text
+        Assert.AreEqual(CopyStr(ErrorMessage.Message, 1, MaxStrLen(ErrorMessage.Description)), ErrorMessage.Description, 'The text was not copied properly');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSyncingOfErrorMessageRegisterDescriptionAndMessage()
+    var
+        ErrorMessageRegister: Record "Error Message Register";
+        TextLbl: Label 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.';
+    begin
+        // [SCENARIO] Test the syncing of Error Message Register fields, Description and Message
+        ErrorMessageRegister.DeleteAll();
+
+        // [GIVEN] Error Message Register with Description
+        ErrorMessageRegister.Description := CopyStr(TextLbl, 1, MaxStrLen(ErrorMessageRegister.Description));
+
+        // [WHEN] Insert error
+        ErrorMessageRegister.Insert();
+
+        // [THEN] Message field should be populated with the same text
+        Assert.AreEqual(ErrorMessageRegister.Description, ErrorMessageRegister.Message, 'The text was not copied properly');
+
+        ErrorMessageRegister.DeleteAll();
+
+        // [GIVEN] Error Message Register with Description
+        ErrorMessageRegister.Message := CopyStr(TextLbl, 1, MaxStrLen(ErrorMessageRegister.Message));
+
+        // [WHEN] Insert error
+        ErrorMessageRegister.Insert();
+
+        // [THEN] Message field should be populated with the same text
+        Assert.AreEqual(CopyStr(ErrorMessageRegister.Message, 1, MaxStrLen(ErrorMessageRegister.Description)), ErrorMessageRegister.Description, 'The text was not copied properly');
+    end;
+#endif
+
     local procedure Initialize()
     var
         DataTypeBuffer: Record "Data Type Buffer";
@@ -1496,7 +1560,7 @@ codeunit 135000 "Error Message Tests"
         TempErrorMessage.Get(ID);
         Assert.AreEqual(FieldNumber, TempErrorMessage."Field Number", InvalidErrorMessageDataErr);
         Assert.AreEqual(ErrorType, TempErrorMessage."Message Type", InvalidErrorMessageDataErr);
-        Assert.AreEqual(Description, TempErrorMessage.Description, InvalidErrorMessageDataErr);
+        Assert.AreEqual(Description, TempErrorMessage."Message", InvalidErrorMessageDataErr);
     end;
 
     local procedure VerifyPersistentErrorMessage(var TempErrorMessage: Record "Error Message" temporary; ID: Integer; ContextRecordID: RecordID; FieldNumber: Integer; ErrorType: Option; Description: Text)
@@ -1505,7 +1569,7 @@ codeunit 135000 "Error Message Tests"
         Assert.AreEqual(ContextRecordID, TempErrorMessage."Context Record ID", InvalidErrorMessageDataErr);
         Assert.AreEqual(FieldNumber, TempErrorMessage."Field Number", InvalidErrorMessageDataErr);
         Assert.AreEqual(ErrorType, TempErrorMessage."Message Type", InvalidErrorMessageDataErr);
-        Assert.AreEqual(Description, TempErrorMessage.Description, InvalidErrorMessageDataErr);
+        Assert.AreEqual(Description, TempErrorMessage."Message", InvalidErrorMessageDataErr);
     end;
 
     local procedure VerifyDetailedErrorMessage(var TempErrorMessage: Record "Error Message" temporary; ID: Integer; AdditionalInformation: Text[250]; SupportUrl: Text[250])

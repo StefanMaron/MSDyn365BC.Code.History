@@ -2,18 +2,23 @@
 {
     Permissions = TableData "G/L Account" = r,
                   TableData "G/L Entry" = rimd,
-                  TableData "Cust. Ledger Entry" = imd,
-                  TableData "Vendor Ledger Entry" = imd,
-                  TableData "G/L Register" = imd,
+                  TableData "Cust. Ledger Entry" = Imd,
+                  tabledata "Customer Posting Group" = R,
+                  TableData "Vendor Ledger Entry" = Imd,
+                  tabledata "Vendor Posting Group" = R,
+                  TableData "G/L Register" = Rimd,
                   TableData "G/L Entry - VAT Entry Link" = rimd,
-                  TableData "VAT Entry" = imd,
+                  TableData "VAT Entry" = Rimd,
                   TableData "Bank Account Ledger Entry" = imd,
                   TableData "Check Ledger Entry" = imd,
-                  TableData "Detailed Cust. Ledg. Entry" = imd,
-                  TableData "Detailed Vendor Ledg. Entry" = imd,
+                  TableData "Detailed Cust. Ledg. Entry" = Rimd,
+                  TableData "Detailed Vendor Ledg. Entry" = Rimd,
                   TableData "Line Fee Note on Report Hist." = rim,
-                  TableData "Employee Ledger Entry" = imd,
-                  TableData "Detailed Employee Ledger Entry" = imd,
+                  TableData "Employee Ledger Entry" = Rimd,
+                  TableData "Detailed Employee Ledger Entry" = Rimd,
+                  tabledata "Source Code Setup" = R,
+                  tabledata "Sales & Receivables Setup" = R,
+                  tabledata "Purchases & Payables Setup" = R,
                   TableData "FA Ledger Entry" = rimd,
                   TableData "FA Register" = imd,
                   TableData "Maintenance Ledger Entry" = rimd;
@@ -147,11 +152,7 @@
                 exit;
             end;
 
-            if CheckLine then begin
-                if OverrideDimErr then
-                    GenJnlCheckLine.SetOverDimErr();
-                GenJnlCheckLine.RunCheck(GenJnlLine);
-            end;
+            CheckGenJnlLine(GenJnlLine, CheckLine);
 
             AmountRoundingPrecision := InitAmounts(GenJnlLine);
 
@@ -206,11 +207,13 @@
 
             OnCodeOnBeforeFinishPosting(GenJnlLine, Balancing, FirstEntryNo);
             IsTransactionConsistent := FinishPosting(GenJnlLine);
-            GLEntryInconsistent := not IsTransactionConsistent;
         end;
 
         OnAfterGLFinishPosting(
-          GlobalGLEntry, GenJnlLine, IsTransactionConsistent, FirstTransactionNo, GLReg, TempGLEntryBuf, NextEntryNo, NextTransactionNo);
+            GlobalGLEntry, GenJnlLine, IsTransactionConsistent, FirstTransactionNo, GLReg, TempGLEntryBuf,
+            NextEntryNo, NextTransactionNo);
+
+        GLEntryInconsistent := not IsTransactionConsistent;
     end;
 
     procedure IsGLEntryInconsistent(): Boolean
@@ -228,6 +231,22 @@
             exit;
 
         Page.Run(Page::"G/L Entries Preview", TempGLEntryPreview);
+    end;
+
+    local procedure CheckGenJnlLine(GenJournalLine: Record "Gen. Journal Line"; CheckLine: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckGenJnlLine(GenJournalLine, CheckLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CheckLine then begin
+            if OverrideDimErr then
+                GenJnlCheckLine.SetOverDimErr();
+            GenJnlCheckLine.RunCheck(GenJournalLine);
+        end;
     end;
 
     local procedure PostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; Balancing: Boolean)
@@ -849,7 +868,6 @@
     begin
         IsHandled := false;
         OnBeforePostGLAcc(GenJnlLine, GLEntry, GLEntryNo, IsHandled);
-
         if not IsHandled then
             with GenJnlLine do begin
                 GLAcc.Get("Account No.");
@@ -1405,8 +1423,12 @@
     local procedure PostJob(GenJnlLine: Record "Gen. Journal Line"; GLEntry: Record "G/L Entry")
     var
         JobPostLine: Codeunit "Job Post-Line";
+        IsHandled: Boolean;
     begin
-        OnBeforePostJob(GenJnlLine, GLEntry, JobLine);
+        IsHandled := false;
+        OnBeforePostJob(GenJnlLine, GLEntry, JobLine, IsHandled);
+        if IsHandled then
+            exit;
 
         if JobLine then begin
             JobLine := false;
@@ -1645,8 +1667,10 @@
                 ((GLAccNo = GenJnlLine."Bal. Account No.") and
                  (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::"G/L Account"))) and
                not FADimAlreadyChecked
-            then
+            then begin
+                OnInitGLEntryOnBeforeCheckGLAccDimError(GenJnlLine, GLAcc);
                 CheckGLAccDimError(GenJnlLine, GLAccNo);
+            end;
         end;
 
         GLEntry.Init();
@@ -3024,8 +3048,12 @@
         CVLedgEntryBuf: Record "CV Ledger Entry Buffer";
         GenJnlLine: Record "Gen. Journal Line";
         DtldLedgEntryInserted: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeCustPostApplyCustLedgEntry(GenJnlLinePostApply);
+        IsHandled := false;
+        OnBeforeCustPostApplyCustLedgEntry(GenJnlLinePostApply, CustLedgEntryPostApply, IsHandled);
+        if IsHandled then
+            exit;
 
         GenJnlLine := GenJnlLinePostApply;
         CustLedgEntry.TransferFields(CustLedgEntryPostApply);
@@ -3792,7 +3820,13 @@
         CVLedgEntryBuf: Record "CV Ledger Entry Buffer";
         GenJnlLine: Record "Gen. Journal Line";
         DtldLedgEntryInserted: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEmplPostApplyEmplLedgEntry(GenJnlLinePostApply, EmplLedgEntryPostApply, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlLine := GenJnlLinePostApply;
         EmplLedgEntry.TransferFields(EmplLedgEntryPostApply);
         with GenJnlLine do begin
@@ -4622,19 +4656,19 @@
         OnAfterPostApply(GenJnlLine, DtldCVLedgEntryBuf, OldCVLedgEntryBuf, NewCVLedgEntryBuf, NewCVLedgEntryBuf2);
     end;
 
-    procedure UnapplyCustLedgEntry(GenJnlLine2: Record "Gen. Journal Line"; DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    procedure UnapplyCustLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     var
-        Cust: Record Customer;
-        CustPostingGr: Record "Customer Posting Group";
-        GenJnlLine: Record "Gen. Journal Line";
-        DtldCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
-        NewDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer";
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        GenJournalLineToPost: Record "Gen. Journal Line";
+        DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
+        NewDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
         VATEntry: Record "VAT Entry";
         TempVATEntry2: Record "VAT Entry" temporary;
         CurrencyLCY: Record Currency;
-        TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary;
+        TempDimensionPostingBuffer: Record "Dimension Posting Buffer" temporary;
 #if not CLEAN19
         TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary;
 #endif
@@ -4644,154 +4678,161 @@
         PmtDiscTolExists: Boolean;
         IsHandled: Boolean;
     begin
-        GenJnlLine.TransferFields(GenJnlLine2);
-        if GenJnlLine."Document Date" = 0D then
-            GenJnlLine."Document Date" := GenJnlLine."Posting Date";
+        IsHandled := false;
+        OnBeforeUnapplyCustLedgEntry(GenJournalLine, DetailedCustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJournalLineToPost.TransferFields(GenJournalLine);
+        if GenJournalLineToPost."Document Date" = 0D then
+            GenJournalLineToPost."Document Date" := GenJournalLineToPost."Posting Date";
 
         if NextEntryNo = 0 then
-            StartPosting(GenJnlLine)
+            StartPosting(GenJournalLineToPost)
         else
-            ContinuePosting(GenJnlLine);
+            ContinuePosting(GenJournalLineToPost);
 
         ReadGLSetup(GLSetup);
 
-        Cust.Get(DtldCustLedgEntry."Customer No.");
-        Cust.CheckBlockedCustOnJnls(Cust, GenJnlLine2."Document Type"::Payment, true);
+        Customer.Get(DetailedCustLedgEntry."Customer No.");
+        Customer.CheckBlockedCustOnJnls(Customer, GenJournalLine."Document Type"::Payment, true);
 
-        OnUnapplyCustLedgEntryOnBeforeCheckPostingGroup(GenJnlLine, Cust);
-        CustPostingGr.Get(GenJnlLine."Posting Group");
-        GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr);
+        OnUnapplyCustLedgEntryOnBeforeCheckPostingGroup(GenJournalLineToPost, Customer);
+        CustomerPostingGroup.Get(GenJournalLineToPost."Posting Group");
+        GetCustomerReceivablesAccount(GenJournalLineToPost, CustomerPostingGroup);
 
         VATEntry.LockTable();
-        DtldCustLedgEntry.LockTable();
-        CustLedgEntry.LockTable();
+        DetailedCustLedgEntry.LockTable();
+        CustLedgerEntry.LockTable();
 
-        DtldCustLedgEntry.TestField("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
+        DetailedCustLedgEntry.TestField("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
 
-        DtldCustLedgEntry2.Reset();
-        DtldCustLedgEntry2.FindLast();
-        NextDtldLedgEntryNo := DtldCustLedgEntry2."Entry No." + 1;
-        if DtldCustLedgEntry."Transaction No." = 0 then begin
-            DtldCustLedgEntry2.SetCurrentKey("Application No.", "Customer No.", "Entry Type");
-            DtldCustLedgEntry2.SetRange("Application No.", DtldCustLedgEntry."Application No.");
+        DetailedCustLedgEntry2.Reset();
+        DetailedCustLedgEntry2.FindLast();
+        NextDtldLedgEntryNo := DetailedCustLedgEntry2."Entry No." + 1;
+        if DetailedCustLedgEntry."Transaction No." = 0 then begin
+            DetailedCustLedgEntry2.SetCurrentKey("Application No.", "Customer No.", "Entry Type");
+            DetailedCustLedgEntry2.SetRange("Application No.", DetailedCustLedgEntry."Application No.");
         end else begin
-            DtldCustLedgEntry2.SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
-            DtldCustLedgEntry2.SetRange("Transaction No.", DtldCustLedgEntry."Transaction No.");
+            DetailedCustLedgEntry2.SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
+            DetailedCustLedgEntry2.SetRange("Transaction No.", DetailedCustLedgEntry."Transaction No.");
         end;
-        DtldCustLedgEntry2.SetRange("Customer No.", DtldCustLedgEntry."Customer No.");
-        DtldCustLedgEntry2.SetFilter("Entry Type", '>%1', DtldCustLedgEntry."Entry Type"::"Initial Entry");
-        OnUnapplyCustLedgEntryOnAfterDtldCustLedgEntrySetFilters(DtldCustLedgEntry2, DtldCustLedgEntry);
-        if DtldCustLedgEntry."Transaction No." <> 0 then begin
+        DetailedCustLedgEntry2.SetRange("Customer No.", DetailedCustLedgEntry."Customer No.");
+        DetailedCustLedgEntry2.SetFilter("Entry Type", '>%1', DetailedCustLedgEntry."Entry Type"::"Initial Entry");
+        OnUnapplyCustLedgEntryOnAfterDtldCustLedgEntrySetFilters(DetailedCustLedgEntry2, DetailedCustLedgEntry);
+        if DetailedCustLedgEntry."Transaction No." <> 0 then begin
             UnapplyVATEntries := false;
-            DtldCustLedgEntry2.FindSet();
+            DetailedCustLedgEntry2.FindSet();
             repeat
-                DtldCustLedgEntry2.TestField(Unapplied, false);
-                if IsVATAdjustment(DtldCustLedgEntry2."Entry Type") then
+                DetailedCustLedgEntry2.TestField(Unapplied, false);
+                if IsVATAdjustment(DetailedCustLedgEntry2."Entry Type") then
                     UnapplyVATEntries := true;
                 if not GLSetup."Pmt. Disc. Excl. VAT" and GLSetup."Adjust for Payment Disc." then
-                    if IsVATExcluded(DtldCustLedgEntry2."Entry Type") then
+                    if IsVATExcluded(DetailedCustLedgEntry2."Entry Type") then
                         UnapplyVATEntries := true;
-                if DtldCustLedgEntry2."Entry Type" = DtldCustLedgEntry2."Entry Type"::"Payment Discount Tolerance (VAT Excl.)" then
+                if DetailedCustLedgEntry2."Entry Type" = DetailedCustLedgEntry2."Entry Type"::"Payment Discount Tolerance (VAT Excl.)" then
                     PmtDiscTolExists := true;
-            until DtldCustLedgEntry2.Next() = 0;
+            until DetailedCustLedgEntry2.Next() = 0;
 
-            OnUnapplyCustLedgEntryOnBeforePostUnapply(DtldCustLedgEntry, DtldCustLedgEntry2);
+            OnUnapplyCustLedgEntryOnBeforePostUnapply(DetailedCustLedgEntry, DetailedCustLedgEntry2);
 
             PostUnapply(
-              GenJnlLine, VATEntry, VATEntry.Type::Sale,
-              DtldCustLedgEntry."Customer No.", DtldCustLedgEntry."Transaction No.", UnapplyVATEntries, TempVATEntry);
+              GenJournalLineToPost, VATEntry, VATEntry.Type::Sale,
+              DetailedCustLedgEntry."Customer No.", DetailedCustLedgEntry."Transaction No.", UnapplyVATEntries, TempVATEntry);
 
-            OnUnapplyCustLedgEntryOnAfterPostUnapply(GenJnlLine, DtldCustLedgEntry, DtldCustLedgEntry2);
+            OnUnapplyCustLedgEntryOnAfterPostUnapply(GenJournalLineToPost, DetailedCustLedgEntry, DetailedCustLedgEntry2);
 
             if PmtDiscTolExists then
-                ProcessTempVATEntryCust(DtldCustLedgEntry2, TempVATEntry)
+                ProcessTempVATEntryCust(DetailedCustLedgEntry2, TempVATEntry)
             else begin
-                DtldCustLedgEntry2.SetRange("Entry Type", DtldCustLedgEntry2."Entry Type"::"Payment Tolerance (VAT Excl.)");
-                ProcessTempVATEntryCust(DtldCustLedgEntry2, TempVATEntry);
-                DtldCustLedgEntry2.SetRange("Entry Type", DtldCustLedgEntry2."Entry Type"::"Payment Discount (VAT Excl.)");
-                ProcessTempVATEntryCust(DtldCustLedgEntry2, TempVATEntry);
-                DtldCustLedgEntry2.SetFilter("Entry Type", '>%1', DtldCustLedgEntry."Entry Type"::"Initial Entry");
+                DetailedCustLedgEntry2.SetRange("Entry Type", DetailedCustLedgEntry2."Entry Type"::"Payment Tolerance (VAT Excl.)");
+                ProcessTempVATEntryCust(DetailedCustLedgEntry2, TempVATEntry);
+                DetailedCustLedgEntry2.SetRange("Entry Type", DetailedCustLedgEntry2."Entry Type"::"Payment Discount (VAT Excl.)");
+                ProcessTempVATEntryCust(DetailedCustLedgEntry2, TempVATEntry);
+                DetailedCustLedgEntry2.SetFilter("Entry Type", '>%1', DetailedCustLedgEntry."Entry Type"::"Initial Entry");
             end;
         end;
 
         // Look one more time
-        OnOnUnapplyCustLedgEntryOnBeforeSecondLook(DtldCustLedgEntry2, NextDtldLedgEntryNo);
-        DtldCustLedgEntry2.FindSet();
-        TempDimPostingBuffer.DeleteAll();
+        OnOnUnapplyCustLedgEntryOnBeforeSecondLook(DetailedCustLedgEntry2, NextDtldLedgEntryNo);
+        DetailedCustLedgEntry2.FindSet();
+        TempDimensionPostingBuffer.DeleteAll();
         repeat
-            DtldCustLedgEntry2.TestField(Unapplied, false);
-            InsertDtldCustLedgEntryUnapply(GenJnlLine, NewDtldCustLedgEntry, DtldCustLedgEntry2, NextDtldLedgEntryNo, CustPostingGr);
+            DetailedCustLedgEntry2.TestField(Unapplied, false);
+            InsertDtldCustLedgEntryUnapply(
+                GenJournalLineToPost, NewDetailedCustLedgEntry, DetailedCustLedgEntry2, NextDtldLedgEntryNo, CustomerPostingGroup);
 
-            DtldCVLedgEntryBuf.Init();
-            DtldCVLedgEntryBuf.TransferFields(NewDtldCustLedgEntry);
-            OnUnapplyCustLedgEntryOnAfterFillDtldCVLedgEntryBuf(GenJnlLine, DtldCVLedgEntryBuf);
-            SetAddCurrForUnapplication(DtldCVLedgEntryBuf);
+            DetailedCVLedgEntryBuffer.Init();
+            DetailedCVLedgEntryBuffer.TransferFields(NewDetailedCustLedgEntry);
+            OnUnapplyCustLedgEntryOnAfterFillDtldCVLedgEntryBuf(GenJournalLineToPost, DetailedCVLedgEntryBuffer);
+            SetAddCurrForUnapplication(DetailedCVLedgEntryBuffer);
             CurrencyLCY.InitRoundingPrecision();
 
-            if (DtldCustLedgEntry2."Transaction No." <> 0) and IsVATExcluded(DtldCustLedgEntry2."Entry Type") then begin
+            if (DetailedCustLedgEntry2."Transaction No." <> 0) and IsVATExcluded(DetailedCustLedgEntry2."Entry Type") then begin
                 UnapplyExcludedVAT(
-                  TempVATEntry2, DtldCustLedgEntry2."Transaction No.", DtldCustLedgEntry2."VAT Bus. Posting Group",
-                  DtldCustLedgEntry2."VAT Prod. Posting Group", DtldCustLedgEntry2."Gen. Prod. Posting Group");
-                DtldCVLedgEntryBuf."VAT Amount (LCY)" :=
-                  CalcVATAmountFromVATEntry(DtldCVLedgEntryBuf."Amount (LCY)", TempVATEntry2, CurrencyLCY);
+                  TempVATEntry2, DetailedCustLedgEntry2."Transaction No.", DetailedCustLedgEntry2."VAT Bus. Posting Group",
+                  DetailedCustLedgEntry2."VAT Prod. Posting Group", DetailedCustLedgEntry2."Gen. Prod. Posting Group");
+                DetailedCVLedgEntryBuffer."VAT Amount (LCY)" :=
+                  CalcVATAmountFromVATEntry(DetailedCVLedgEntryBuffer."Amount (LCY)", TempVATEntry2, CurrencyLCY);
             end;
             IsHandled := false;
-            OnOnUnapplyCustLedgEntryOnBeforeUpdateTotalAmounts(IsHandled, GenJnlLine, DtldCVLedgEntryBuf);
+            OnOnUnapplyCustLedgEntryOnBeforeUpdateTotalAmounts(IsHandled, GenJournalLineToPost, DetailedCVLedgEntryBuffer);
             if not IsHandled then begin
-                UpdateTotalAmounts(TempDimPostingBuffer, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
-                OnUnapplyCustLedgEntryOnAfterUpdateTotals(GenJnlLine, DtldCVLedgEntryBuf);
+                UpdateTotalAmounts(TempDimensionPostingBuffer, GenJournalLineToPost."Dimension Set ID", DetailedCVLedgEntryBuffer);
+                OnUnapplyCustLedgEntryOnAfterUpdateTotals(GenJournalLineToPost, DetailedCVLedgEntryBuffer);
 
-                if not (DtldCVLedgEntryBuf."Entry Type" in [
-                                                            DtldCVLedgEntryBuf."Entry Type"::"Initial Entry",
-                                                            DtldCVLedgEntryBuf."Entry Type"::Application])
+                if not (DetailedCVLedgEntryBuffer."Entry Type" in [
+                                                            DetailedCVLedgEntryBuffer."Entry Type"::"Initial Entry",
+                                                            DetailedCVLedgEntryBuffer."Entry Type"::Application])
                 then
                     CollectAdjustment(AdjAmount,
-                      -DtldCVLedgEntryBuf."Amount (LCY)", -DtldCVLedgEntryBuf."Additional-Currency Amount");
+                      -DetailedCVLedgEntryBuffer."Amount (LCY)", -DetailedCVLedgEntryBuffer."Additional-Currency Amount");
             end;
 
             PostDtldCustLedgEntryUnapply(
-              GenJnlLine, DtldCVLedgEntryBuf, CustPostingGr, DtldCustLedgEntry2."Transaction No.");
+              GenJournalLineToPost, DetailedCVLedgEntryBuffer, CustomerPostingGroup, DetailedCustLedgEntry2."Transaction No.");
 
-            DtldCustLedgEntry2.Unapplied := true;
-            DtldCustLedgEntry2."Unapplied by Entry No." := NewDtldCustLedgEntry."Entry No.";
-            DtldCustLedgEntry2.Modify();
+            DetailedCustLedgEntry2.Unapplied := true;
+            DetailedCustLedgEntry2."Unapplied by Entry No." := NewDetailedCustLedgEntry."Entry No.";
+            DetailedCustLedgEntry2.Modify();
 
-            OnUnapplyCustLedgEntryOnBeforeUpdateCustLedgEntry(DtldCustLedgEntry2, DtldCVLedgEntryBuf);
-            UpdateCustLedgEntry(DtldCustLedgEntry2);
-        until DtldCustLedgEntry2.Next() = 0;
+            OnUnapplyCustLedgEntryOnBeforeUpdateCustLedgEntry(DetailedCustLedgEntry2, DetailedCVLedgEntryBuffer);
+            UpdateCustLedgEntry(DetailedCustLedgEntry2);
+        until DetailedCustLedgEntry2.Next() = 0;
 
         IsHandled := false;
 #if not CLEAN19
-        CopyDimPostBufToInvPostBuf(TempDimPostingBuffer, TempInvoicePostBuffer);
-        OnBeforeCreateGLEntriesForTotalAmountsUnapply(DtldCustLedgEntry, CustPostingGr, GenJnlLine, TempInvoicePostBuffer, IsHandled);
-        CopyInvPostBufToDimPostBuf(TempInvoicePostBuffer, TempDimPostingBuffer);
+        CopyDimPostBufToInvPostBuf(TempDimensionPostingBuffer, TempInvoicePostBuffer);
+        OnBeforeCreateGLEntriesForTotalAmountsUnapply(DetailedCustLedgEntry, CustomerPostingGroup, GenJournalLineToPost, TempInvoicePostBuffer, IsHandled);
+        CopyInvPostBufToDimPostBuf(TempInvoicePostBuffer, TempDimensionPostingBuffer);
 #endif
-        OnBeforeCreateGLEntriesForTotalAmountsUnapplyV19(DtldCustLedgEntry, CustPostingGr, GenJnlLine, TempDimPostingBuffer, IsHandled);
+        OnBeforeCreateGLEntriesForTotalAmountsUnapplyV19(DetailedCustLedgEntry, CustomerPostingGroup, GenJournalLineToPost, TempDimensionPostingBuffer, IsHandled);
         if not IsHandled then
-            CreateGLEntriesForTotalAmountsUnapply(GenJnlLine, TempDimPostingBuffer, GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr));
+            CreateGLEntriesForTotalAmountsUnapply(
+                GenJournalLineToPost, TempDimensionPostingBuffer, GetCustomerReceivablesAccount(GenJournalLineToPost, CustomerPostingGroup));
 
-        OnUnapplyCustLedgEntryOnAfterCreateGLEntriesForTotalAmounts(GenJnlLine2, DtldCustLedgEntry, GLReg);
+        OnUnapplyCustLedgEntryOnAfterCreateGLEntriesForTotalAmounts(GenJournalLine, DetailedCustLedgEntry, GLReg);
 
         if IsTempGLEntryBufEmpty() then
-            DtldCustLedgEntry.SetZeroTransNo(NextTransactionNo);
-        CheckPostUnrealizedVAT(GenJnlLine, true);
+            DetailedCustLedgEntry.SetZeroTransNo(NextTransactionNo);
+        CheckPostUnrealizedVAT(GenJournalLineToPost, true);
 
-        FinishPosting(GenJnlLine);
+        FinishPosting(GenJournalLineToPost);
     end;
 
-    procedure UnapplyVendLedgEntry(GenJnlLine2: Record "Gen. Journal Line"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry")
+    procedure UnapplyVendLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry")
     var
-        Vend: Record Vendor;
-        VendPostingGr: Record "Vendor Posting Group";
-        GenJnlLine: Record "Gen. Journal Line";
-        DtldVendLedgEntry2: Record "Detailed Vendor Ledg. Entry";
-        NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer";
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+        GenJournalLineToPost: Record "Gen. Journal Line";
+        DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
+        NewDetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
         VATEntry: Record "VAT Entry";
         TempVATEntry2: Record "VAT Entry" temporary;
         CurrencyLCY: Record Currency;
-        TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary;
+        TempDimensionPostingBuffer: Record "Dimension Posting Buffer" temporary;
 #if not CLEAN19
         TempInvPostBuffer: Record "Invoice Post. Buffer" temporary;
 #endif
@@ -4801,215 +4842,226 @@
         PmtDiscTolExists: Boolean;
         IsHandled: Boolean;
     begin
-        GenJnlLine.TransferFields(GenJnlLine2);
-        if GenJnlLine."Document Date" = 0D then
-            GenJnlLine."Document Date" := GenJnlLine."Posting Date";
+        IsHandled := false;
+        OnBeforeUnapplyVendLedgEntry(GenJournalLine, DetailedVendorLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJournalLineToPost.TransferFields(GenJournalLine);
+        if GenJournalLineToPost."Document Date" = 0D then
+            GenJournalLineToPost."Document Date" := GenJournalLineToPost."Posting Date";
 
         if NextEntryNo = 0 then
-            StartPosting(GenJnlLine)
+            StartPosting(GenJournalLineToPost)
         else
-            ContinuePosting(GenJnlLine);
+            ContinuePosting(GenJournalLineToPost);
 
         ReadGLSetup(GLSetup);
 
-        Vend.Get(DtldVendLedgEntry."Vendor No.");
-        Vend.CheckBlockedVendOnJnls(Vend, GenJnlLine2."Document Type"::Payment, true);
+        Vendor.Get(DetailedVendorLedgEntry."Vendor No.");
+        Vendor.CheckBlockedVendOnJnls(Vendor, GenJournalLine."Document Type"::Payment, true);
 
-        OnUnapplyVendLedgEntryOnBeforeCheckPostingGroup(GenJnlLine, Vend);
-        GetVendorPostingGroup(GenJnlLine, VendPostingGr);
-        VendPostingGr.GetPayablesAccount();
+        OnUnapplyVendLedgEntryOnBeforeCheckPostingGroup(GenJournalLineToPost, Vendor);
+        GetVendorPostingGroup(GenJournalLineToPost, VendorPostingGroup);
+        VendorPostingGroup.GetPayablesAccount();
 
         VATEntry.LockTable();
-        DtldVendLedgEntry.LockTable();
-        VendLedgEntry.LockTable();
+        DetailedVendorLedgEntry.LockTable();
+        VendorLedgerEntry.LockTable();
 
-        DtldVendLedgEntry.TestField("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
+        DetailedVendorLedgEntry.TestField("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
 
-        DtldVendLedgEntry2.Reset();
-        DtldVendLedgEntry2.FindLast();
-        NextDtldLedgEntryNo := DtldVendLedgEntry2."Entry No." + 1;
-        if DtldVendLedgEntry."Transaction No." = 0 then begin
-            DtldVendLedgEntry2.SetCurrentKey("Application No.", "Vendor No.", "Entry Type");
-            DtldVendLedgEntry2.SetRange("Application No.", DtldVendLedgEntry."Application No.");
+        DetailedVendorLedgEntry2.Reset();
+        DetailedVendorLedgEntry2.FindLast();
+        NextDtldLedgEntryNo := DetailedVendorLedgEntry2."Entry No." + 1;
+        if DetailedVendorLedgEntry."Transaction No." = 0 then begin
+            DetailedVendorLedgEntry2.SetCurrentKey("Application No.", "Vendor No.", "Entry Type");
+            DetailedVendorLedgEntry2.SetRange("Application No.", DetailedVendorLedgEntry."Application No.");
         end else begin
-            DtldVendLedgEntry2.SetCurrentKey("Transaction No.", "Vendor No.", "Entry Type");
-            DtldVendLedgEntry2.SetRange("Transaction No.", DtldVendLedgEntry."Transaction No.");
+            DetailedVendorLedgEntry2.SetCurrentKey("Transaction No.", "Vendor No.", "Entry Type");
+            DetailedVendorLedgEntry2.SetRange("Transaction No.", DetailedVendorLedgEntry."Transaction No.");
         end;
-        DtldVendLedgEntry2.SetRange("Vendor No.", DtldVendLedgEntry."Vendor No.");
-        DtldVendLedgEntry2.SetFilter("Entry Type", '>%1', DtldVendLedgEntry."Entry Type"::"Initial Entry");
-        OnUnapplyVendLedgEntryOnAfterFilterSourceEntries(DtldVendLedgEntry, DtldVendLedgEntry2);
-        if DtldVendLedgEntry."Transaction No." <> 0 then begin
+        DetailedVendorLedgEntry2.SetRange("Vendor No.", DetailedVendorLedgEntry."Vendor No.");
+        DetailedVendorLedgEntry2.SetFilter("Entry Type", '>%1', DetailedVendorLedgEntry."Entry Type"::"Initial Entry");
+        OnUnapplyVendLedgEntryOnAfterFilterSourceEntries(DetailedVendorLedgEntry, DetailedVendorLedgEntry2);
+        if DetailedVendorLedgEntry."Transaction No." <> 0 then begin
             UnapplyVATEntries := false;
-            DtldVendLedgEntry2.FindSet();
+            DetailedVendorLedgEntry2.FindSet();
             repeat
-                DtldVendLedgEntry2.TestField(Unapplied, false);
-                if IsVATAdjustment(DtldVendLedgEntry2."Entry Type") then
+                DetailedVendorLedgEntry2.TestField(Unapplied, false);
+                if IsVATAdjustment(DetailedVendorLedgEntry2."Entry Type") then
                     UnapplyVATEntries := true;
                 if not GLSetup."Pmt. Disc. Excl. VAT" and GLSetup."Adjust for Payment Disc." then
-                    if IsVATExcluded(DtldVendLedgEntry2."Entry Type") then
+                    if IsVATExcluded(DetailedVendorLedgEntry2."Entry Type") then
                         UnapplyVATEntries := true;
-                if DtldVendLedgEntry2."Entry Type" = DtldVendLedgEntry2."Entry Type"::"Payment Discount Tolerance (VAT Excl.)" then
+                if DetailedVendorLedgEntry2."Entry Type" = DetailedVendorLedgEntry2."Entry Type"::"Payment Discount Tolerance (VAT Excl.)" then
                     PmtDiscTolExists := true;
-            until DtldVendLedgEntry2.Next() = 0;
+            until DetailedVendorLedgEntry2.Next() = 0;
 
-            OnUnapplyVendLedgEntryOnBeforePostUnapply(DtldVendLedgEntry, DtldVendLedgEntry2);
+            OnUnapplyVendLedgEntryOnBeforePostUnapply(DetailedVendorLedgEntry, DetailedVendorLedgEntry2);
 
             PostUnapply(
-              GenJnlLine, VATEntry, VATEntry.Type::Purchase,
-              DtldVendLedgEntry."Vendor No.", DtldVendLedgEntry."Transaction No.", UnapplyVATEntries, TempVATEntry);
+              GenJournalLineToPost, VATEntry, VATEntry.Type::Purchase,
+              DetailedVendorLedgEntry."Vendor No.", DetailedVendorLedgEntry."Transaction No.", UnapplyVATEntries, TempVATEntry);
 
-            OnUnapplyVendLedgEntryOnAfterPostUnapply(GenJnlLine, DtldVendLedgEntry, DtldVendLedgEntry2);
+            OnUnapplyVendLedgEntryOnAfterPostUnapply(GenJournalLineToPost, DetailedVendorLedgEntry, DetailedVendorLedgEntry2);
 
             if PmtDiscTolExists then
-                ProcessTempVATEntryVend(DtldVendLedgEntry2, TempVATEntry)
+                ProcessTempVATEntryVend(DetailedVendorLedgEntry2, TempVATEntry)
             else begin
-                DtldVendLedgEntry2.SetRange("Entry Type", DtldVendLedgEntry2."Entry Type"::"Payment Tolerance (VAT Excl.)");
-                ProcessTempVATEntryVend(DtldVendLedgEntry2, TempVATEntry);
-                DtldVendLedgEntry2.SetRange("Entry Type", DtldVendLedgEntry2."Entry Type"::"Payment Discount (VAT Excl.)");
-                ProcessTempVATEntryVend(DtldVendLedgEntry2, TempVATEntry);
-                DtldVendLedgEntry2.SetFilter("Entry Type", '>%1', DtldVendLedgEntry2."Entry Type"::"Initial Entry");
+                DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::"Payment Tolerance (VAT Excl.)");
+                ProcessTempVATEntryVend(DetailedVendorLedgEntry2, TempVATEntry);
+                DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::"Payment Discount (VAT Excl.)");
+                ProcessTempVATEntryVend(DetailedVendorLedgEntry2, TempVATEntry);
+                DetailedVendorLedgEntry2.SetFilter("Entry Type", '>%1', DetailedVendorLedgEntry2."Entry Type"::"Initial Entry");
             end;
         end;
 
         // Look one more time
-        OnUnapplyVendLedgEntryOnBeforeSecondLook(DtldVendLedgEntry2, NextDtldLedgEntryNo);
-        DtldVendLedgEntry2.FindSet();
-        TempDimPostingBuffer.DeleteAll();
+        OnUnapplyVendLedgEntryOnBeforeSecondLook(DetailedVendorLedgEntry2, NextDtldLedgEntryNo);
+        DetailedVendorLedgEntry2.FindSet();
+        TempDimensionPostingBuffer.DeleteAll();
         repeat
-            DtldVendLedgEntry2.TestField(Unapplied, false);
-            InsertDtldVendLedgEntryUnapply(GenJnlLine, NewDtldVendLedgEntry, DtldVendLedgEntry2, NextDtldLedgEntryNo);
+            DetailedVendorLedgEntry2.TestField(Unapplied, false);
+            InsertDtldVendLedgEntryUnapply(GenJournalLineToPost, NewDetailedVendorLedgEntry, DetailedVendorLedgEntry2, NextDtldLedgEntryNo);
 
-            DtldCVLedgEntryBuf.Init();
-            DtldCVLedgEntryBuf.TransferFields(NewDtldVendLedgEntry);
-            OnUnapplyVendLedgEntryOnAfterFillDtldCVLedgEntryBuf(GenJnlLine, DtldCVLedgEntryBuf);
-            SetAddCurrForUnapplication(DtldCVLedgEntryBuf);
+            DetailedCVLedgEntryBuffer.Init();
+            DetailedCVLedgEntryBuffer.TransferFields(NewDetailedVendorLedgEntry);
+            OnUnapplyVendLedgEntryOnAfterFillDtldCVLedgEntryBuf(GenJournalLineToPost, DetailedCVLedgEntryBuffer);
+            SetAddCurrForUnapplication(DetailedCVLedgEntryBuffer);
             CurrencyLCY.InitRoundingPrecision();
 
-            if (DtldVendLedgEntry2."Transaction No." <> 0) and IsVATExcluded(DtldVendLedgEntry2."Entry Type") then begin
+            if (DetailedVendorLedgEntry2."Transaction No." <> 0) and IsVATExcluded(DetailedVendorLedgEntry2."Entry Type") then begin
                 UnapplyExcludedVAT(
-                  TempVATEntry2, DtldVendLedgEntry2."Transaction No.", DtldVendLedgEntry2."VAT Bus. Posting Group",
-                  DtldVendLedgEntry2."VAT Prod. Posting Group", DtldVendLedgEntry2."Gen. Prod. Posting Group");
-                DtldCVLedgEntryBuf."VAT Amount (LCY)" :=
-                  CalcVATAmountFromVATEntry(DtldCVLedgEntryBuf."Amount (LCY)", TempVATEntry2, CurrencyLCY);
+                  TempVATEntry2, DetailedVendorLedgEntry2."Transaction No.", DetailedVendorLedgEntry2."VAT Bus. Posting Group",
+                  DetailedVendorLedgEntry2."VAT Prod. Posting Group", DetailedVendorLedgEntry2."Gen. Prod. Posting Group");
+                DetailedCVLedgEntryBuffer."VAT Amount (LCY)" :=
+                  CalcVATAmountFromVATEntry(DetailedCVLedgEntryBuffer."Amount (LCY)", TempVATEntry2, CurrencyLCY);
             end;
             IsHandled := false;
-            OnUnapplyVendLedgEntryOnBeforeUpdateTotalAmounts(IsHandled, GenJnlLine, DtldCVLedgEntryBuf);
+            OnUnapplyVendLedgEntryOnBeforeUpdateTotalAmounts(IsHandled, GenJournalLineToPost, DetailedCVLedgEntryBuffer);
             if not IsHandled then begin
-                UpdateTotalAmounts(TempDimPostingBuffer, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
+                UpdateTotalAmounts(TempDimensionPostingBuffer, GenJournalLineToPost."Dimension Set ID", DetailedCVLedgEntryBuffer);
 
-                if not (DtldCVLedgEntryBuf."Entry Type" in [
-                                                            DtldCVLedgEntryBuf."Entry Type"::"Initial Entry",
-                                                            DtldCVLedgEntryBuf."Entry Type"::Application])
+                if not (DetailedCVLedgEntryBuffer."Entry Type" in [
+                                                            DetailedCVLedgEntryBuffer."Entry Type"::"Initial Entry",
+                                                            DetailedCVLedgEntryBuffer."Entry Type"::Application])
                 then
                     CollectAdjustment(AdjAmount,
-                      -DtldCVLedgEntryBuf."Amount (LCY)", -DtldCVLedgEntryBuf."Additional-Currency Amount");
+                      -DetailedCVLedgEntryBuffer."Amount (LCY)", -DetailedCVLedgEntryBuffer."Additional-Currency Amount");
             end;
 
             PostDtldVendLedgEntryUnapply(
-              GenJnlLine, DtldCVLedgEntryBuf, VendPostingGr, DtldVendLedgEntry2."Transaction No.");
+              GenJournalLineToPost, DetailedCVLedgEntryBuffer, VendorPostingGroup, DetailedVendorLedgEntry2."Transaction No.");
 
-            DtldVendLedgEntry2.Unapplied := true;
-            DtldVendLedgEntry2."Unapplied by Entry No." := NewDtldVendLedgEntry."Entry No.";
-            DtldVendLedgEntry2.Modify();
+            DetailedVendorLedgEntry2.Unapplied := true;
+            DetailedVendorLedgEntry2."Unapplied by Entry No." := NewDetailedVendorLedgEntry."Entry No.";
+            DetailedVendorLedgEntry2.Modify();
 
-            OnUnapplyVendLedgEntryOnBeforeUpdateVendLedgEntry(DtldVendLedgEntry2, DtldCVLedgEntryBuf);
-            UpdateVendLedgEntry(DtldVendLedgEntry2);
-        until DtldVendLedgEntry2.Next() = 0;
+            OnUnapplyVendLedgEntryOnBeforeUpdateVendLedgEntry(DetailedVendorLedgEntry2, DetailedCVLedgEntryBuffer);
+            UpdateVendLedgEntry(DetailedVendorLedgEntry2);
+        until DetailedVendorLedgEntry2.Next() = 0;
 
         IsHandled := false;
 #if not CLEAN19
-        CopyDimPostBufToInvPostBuf(TempDimPostingBuffer, TempInvPostBuffer);
-        OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendor(DtldVendLedgEntry, VendPostingGr, GenJnlLine, TempInvPostBuffer, IsHandled);
-        CopyInvPostBufToDimPostBuf(TempInvPostBuffer, TempDimPostingBuffer);
+        CopyDimPostBufToInvPostBuf(TempDimensionPostingBuffer, TempInvPostBuffer);
+        OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendor(DetailedVendorLedgEntry, VendorPostingGroup, GenJournalLineToPost, TempInvPostBuffer, IsHandled);
+        CopyInvPostBufToDimPostBuf(TempInvPostBuffer, TempDimensionPostingBuffer);
 #endif
-        OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendorV19(DtldVendLedgEntry, VendPostingGr, GenJnlLine, TempDimPostingBuffer, IsHandled);
+        OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendorV19(DetailedVendorLedgEntry, VendorPostingGroup, GenJournalLineToPost, TempDimensionPostingBuffer, IsHandled);
         if not IsHandled then
-            CreateGLEntriesForTotalAmountsUnapply(GenJnlLine, TempDimPostingBuffer, GetVendorPayablesAccount(GenJnlLine, VendPostingGr));
+            CreateGLEntriesForTotalAmountsUnapply(GenJournalLineToPost, TempDimensionPostingBuffer, GetVendorPayablesAccount(GenJournalLineToPost, VendorPostingGroup));
 
-        OnUnapplyVendLedgEntryOnAfterCreateGLEntriesForTotalAmounts(GenJnlLine2, DtldVendLedgEntry, GLReg);
+        OnUnapplyVendLedgEntryOnAfterCreateGLEntriesForTotalAmounts(GenJournalLine, DetailedVendorLedgEntry, GLReg);
 
         if IsTempGLEntryBufEmpty() then
-            DtldVendLedgEntry.SetZeroTransNo(NextTransactionNo);
-        CheckPostUnrealizedVAT(GenJnlLine, true);
+            DetailedVendorLedgEntry.SetZeroTransNo(NextTransactionNo);
+        CheckPostUnrealizedVAT(GenJournalLineToPost, true);
 
-        FinishPosting(GenJnlLine);
+        FinishPosting(GenJournalLineToPost);
 
-        OnAfterUnapplyVendLedgEntry(GenJnlLine2, DtldVendLedgEntry);
+        OnAfterUnapplyVendLedgEntry(GenJournalLine, DetailedVendorLedgEntry);
     end;
 
-    procedure UnapplyEmplLedgEntry(GenJnlLine2: Record "Gen. Journal Line"; DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry")
+    procedure UnapplyEmplLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
     var
         Employee: Record Employee;
         EmployeePostingGroup: Record "Employee Posting Group";
-        GenJnlLine: Record "Gen. Journal Line";
-        DtldEmplLedgEntry2: Record "Detailed Employee Ledger Entry";
-        NewDtldEmplLedgEntry: Record "Detailed Employee Ledger Entry";
-        EmplLedgEntry: Record "Employee Ledger Entry";
-        DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer";
+        GenJournalLineToPost: Record "Gen. Journal Line";
+        DetailedEmployeeLedgerEntry2: Record "Detailed Employee Ledger Entry";
+        NewDetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry";
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
         CurrencyLCY: Record Currency;
-        TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary;
+        TempDimensionPostingBuffer: Record "Dimension Posting Buffer" temporary;
         NextDtldLedgEntryNo: Integer;
+        IsHandled: Boolean;
     begin
-        GenJnlLine.TransferFields(GenJnlLine2);
-        if GenJnlLine."Document Date" = 0D then
-            GenJnlLine."Document Date" := GenJnlLine."Posting Date";
+        IsHandled := false;
+        OnBeforeUnapplyEmplLedgEntry(GenJournalLine, DetailedEmployeeLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJournalLineToPost.TransferFields(GenJournalLine);
+        if GenJournalLineToPost."Document Date" = 0D then
+            GenJournalLineToPost."Document Date" := GenJournalLineToPost."Posting Date";
 
         if NextEntryNo = 0 then
-            StartPosting(GenJnlLine)
+            StartPosting(GenJournalLineToPost)
         else
-            ContinuePosting(GenJnlLine);
+            ContinuePosting(GenJournalLineToPost);
 
         ReadGLSetup(GLSetup);
 
-        Employee.Get(DtldEmplLedgEntry."Employee No.");
+        Employee.Get(DetailedEmployeeLedgerEntry."Employee No.");
         Employee.CheckBlockedEmployeeOnJnls(true);
-        EmployeePostingGroup.Get(GenJnlLine."Posting Group");
+        EmployeePostingGroup.Get(GenJournalLineToPost."Posting Group");
         EmployeePostingGroup.GetPayablesAccount();
 
-        DtldEmplLedgEntry.LockTable();
-        EmplLedgEntry.LockTable();
+        DetailedEmployeeLedgerEntry.LockTable();
+        EmployeeLedgerEntry.LockTable();
 
-        DtldEmplLedgEntry.TestField("Entry Type", DtldEmplLedgEntry."Entry Type"::Application);
+        DetailedEmployeeLedgerEntry.TestField("Entry Type", DetailedEmployeeLedgerEntry."Entry Type"::Application);
 
-        DtldEmplLedgEntry2.Reset();
-        DtldEmplLedgEntry2.FindLast();
-        NextDtldLedgEntryNo := DtldEmplLedgEntry2."Entry No." + 1;
-        if DtldEmplLedgEntry."Transaction No." = 0 then begin
-            DtldEmplLedgEntry2.SetCurrentKey("Application No.", "Employee No.", "Entry Type");
-            DtldEmplLedgEntry2.SetRange("Application No.", DtldEmplLedgEntry."Application No.");
+        DetailedEmployeeLedgerEntry2.Reset();
+        DetailedEmployeeLedgerEntry2.FindLast();
+        NextDtldLedgEntryNo := DetailedEmployeeLedgerEntry2."Entry No." + 1;
+        if DetailedEmployeeLedgerEntry."Transaction No." = 0 then begin
+            DetailedEmployeeLedgerEntry2.SetCurrentKey("Application No.", "Employee No.", "Entry Type");
+            DetailedEmployeeLedgerEntry2.SetRange("Application No.", DetailedEmployeeLedgerEntry."Application No.");
         end else begin
-            DtldEmplLedgEntry2.SetCurrentKey("Transaction No.", "Employee No.", "Entry Type");
-            DtldEmplLedgEntry2.SetRange("Transaction No.", DtldEmplLedgEntry."Transaction No.");
+            DetailedEmployeeLedgerEntry2.SetCurrentKey("Transaction No.", "Employee No.", "Entry Type");
+            DetailedEmployeeLedgerEntry2.SetRange("Transaction No.", DetailedEmployeeLedgerEntry."Transaction No.");
         end;
-        DtldEmplLedgEntry2.SetRange("Employee No.", DtldEmplLedgEntry."Employee No.");
-        DtldEmplLedgEntry2.SetFilter("Entry Type", '>%1', DtldEmplLedgEntry."Entry Type"::"Initial Entry");
+        DetailedEmployeeLedgerEntry2.SetRange("Employee No.", DetailedEmployeeLedgerEntry."Employee No.");
+        DetailedEmployeeLedgerEntry2.SetFilter("Entry Type", '>%1', DetailedEmployeeLedgerEntry."Entry Type"::"Initial Entry");
 
         // Look one more time
-        DtldEmplLedgEntry2.FindSet();
-        TempDimPostingBuffer.DeleteAll();
+        DetailedEmployeeLedgerEntry2.FindSet();
+        TempDimensionPostingBuffer.DeleteAll();
         repeat
-            DtldEmplLedgEntry2.TestField(Unapplied, false);
-            InsertDtldEmplLedgEntryUnapply(GenJnlLine, NewDtldEmplLedgEntry, DtldEmplLedgEntry2, NextDtldLedgEntryNo);
+            DetailedEmployeeLedgerEntry2.TestField(Unapplied, false);
+            InsertDtldEmplLedgEntryUnapply(GenJournalLineToPost, NewDetailedEmployeeLedgerEntry, DetailedEmployeeLedgerEntry2, NextDtldLedgEntryNo);
 
-            DtldCVLedgEntryBuf.Init();
-            DtldCVLedgEntryBuf.TransferFields(NewDtldEmplLedgEntry);
-            SetAddCurrForUnapplication(DtldCVLedgEntryBuf);
+            DetailedCVLedgEntryBuffer.Init();
+            DetailedCVLedgEntryBuffer.TransferFields(NewDetailedEmployeeLedgerEntry);
+            SetAddCurrForUnapplication(DetailedCVLedgEntryBuffer);
             CurrencyLCY.InitRoundingPrecision();
-            OnUnapplyEmplLedgEntryOnBeforeUpdateTotalAmounts(GenJnlLine, DtldCVLedgEntryBuf);
-            UpdateTotalAmounts(TempDimPostingBuffer, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
-            DtldEmplLedgEntry2.Unapplied := true;
-            DtldEmplLedgEntry2."Unapplied by Entry No." := NewDtldEmplLedgEntry."Entry No.";
-            DtldEmplLedgEntry2.Modify();
+            OnUnapplyEmplLedgEntryOnBeforeUpdateTotalAmounts(GenJournalLineToPost, DetailedCVLedgEntryBuffer);
+            UpdateTotalAmounts(TempDimensionPostingBuffer, GenJournalLineToPost."Dimension Set ID", DetailedCVLedgEntryBuffer);
+            DetailedEmployeeLedgerEntry2.Unapplied := true;
+            DetailedEmployeeLedgerEntry2."Unapplied by Entry No." := NewDetailedEmployeeLedgerEntry."Entry No.";
+            DetailedEmployeeLedgerEntry2.Modify();
 
-            UpdateEmplLedgEntry(DtldEmplLedgEntry2);
-        until DtldEmplLedgEntry2.Next() = 0;
+            UpdateEmplLedgEntry(DetailedEmployeeLedgerEntry2);
+        until DetailedEmployeeLedgerEntry2.Next() = 0;
 
-        CreateGLEntriesForTotalAmountsUnapply(GenJnlLine, TempDimPostingBuffer, EmployeePostingGroup.GetPayablesAccount());
+        CreateGLEntriesForTotalAmountsUnapply(GenJournalLineToPost, TempDimensionPostingBuffer, EmployeePostingGroup.GetPayablesAccount());
 
         if IsTempGLEntryBufEmpty() then
-            DtldEmplLedgEntry.SetZeroTransNo(NextTransactionNo);
+            DetailedEmployeeLedgerEntry.SetZeroTransNo(NextTransactionNo);
 
-        FinishPosting(GenJnlLine);
+        FinishPosting(GenJournalLineToPost);
     end;
 
     local procedure UnapplyExcludedVAT(var TempVATEntry: Record "VAT Entry" temporary; TransactionNo: Integer; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
@@ -6302,20 +6354,17 @@
                   DeferralLine, DeferralDocType::"G/L".AsInteger(), "Journal Template Name", "Journal Batch Name", 0, '', "Line No.");
                 if DeferralLine.FindSet() then
                     repeat
-                        if DeferralLine.Amount = 0.0 then
+                        if DeferralLine.Amount = 0 then
                             EmptyDeferralLine := true;
                     until (DeferralLine.Next() = 0) or EmptyDeferralLine;
                 if EmptyDeferralLine then
                     Error(ZeroDeferralAmtErr, "Line No.", "Deferral Code");
                 DeferralHeader."Amount to Defer (LCY)" :=
-                  Round(CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code",
-                      DeferralHeader."Amount to Defer", "Currency Factor"));
+                    Round(CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code", DeferralHeader."Amount to Defer", "Currency Factor"));
                 DeferralHeader.Modify();
+                DeferralUtilities.RoundDeferralAmount(
+                    DeferralHeader, "Currency Code", "Currency Factor", "Posting Date", AmtToDefer, AmtToDeferACY);
             end;
-
-            DeferralUtilities.RoundDeferralAmount(
-              DeferralHeader,
-              "Currency Code", "Currency Factor", "Posting Date", AmtToDefer, AmtToDeferACY);
 
             DeferralTemplate.Get("Deferral Code");
             DeferralTemplate.TestField("Deferral Account");
@@ -6395,7 +6444,7 @@
 
     local procedure PostDeferralPostBuffer(GenJournalLine: Record "Gen. Journal Line")
     var
-        DeferralPostBuffer: Record "Deferral Posting Buffer";
+        DeferralPostingBuffer: Record "Deferral Posting Buffer";
         GLEntry: Record "G/L Entry";
         PostDate: Date;
         IsHandled: Boolean;
@@ -6409,43 +6458,43 @@
                 else
                     DeferralDocType := DeferralDocType::Purchase;
 
-                DeferralPostBuffer.SetRange("Deferral Doc. Type", DeferralDocType);
-                DeferralPostBuffer.SetRange("Document No.", "Document No.");
-                DeferralPostBuffer.SetRange("Deferral Line No.", "Deferral Line No.");
-                OnPostDeferralPostBufferOnAfterSetFilters(DeferralPostBuffer, GenJournalLine);
+                DeferralPostingBuffer.SetRange("Deferral Doc. Type", DeferralDocType);
+                DeferralPostingBuffer.SetRange("Document No.", "Document No.");
+                DeferralPostingBuffer.SetRange("Deferral Line No.", "Deferral Line No.");
+                OnPostDeferralPostBufferOnAfterSetFilters(DeferralPostingBuffer, GenJournalLine);
 
-                if DeferralPostBuffer.FindSet() then begin
+                if DeferralPostingBuffer.FindSet() then begin
                     repeat
-                        PostDate := DeferralPostBuffer."Posting Date";
-                        if DeferralUtilities.IsDateNotAllowed(PostDate) then
-                            Error(InvalidPostingDateErr, PostDate);
+                        PostDate := DeferralPostingBuffer."Posting Date";
+                        IsHandled := false;
+                        OnPostDeferralPostBufferOnAfterSetPostDate(DeferralPostingBuffer, IsHandled);
+                        if not IsHandled then
+                            if DeferralUtilities.IsDateNotAllowed(PostDate) then
+                                Error(InvalidPostingDateErr, PostDate);
 
                         // When no sales/purch amount is entered, the offset was already posted
-                        if (DeferralPostBuffer."Sales/Purch Amount" <> 0) or (DeferralPostBuffer."Sales/Purch Amount (LCY)" <> 0) then begin
-                            InitGLEntry(GenJournalLine, GLEntry, DeferralPostBuffer."G/L Account",
-                              DeferralPostBuffer."Sales/Purch Amount (LCY)",
-                              DeferralPostBuffer."Sales/Purch Amount",
-                              true, true);
+                        if (DeferralPostingBuffer."Sales/Purch Amount" <> 0) or (DeferralPostingBuffer."Sales/Purch Amount (LCY)" <> 0) then begin
+                            InitGLEntry(
+                                GenJournalLine, GLEntry, DeferralPostingBuffer."G/L Account",
+                                DeferralPostingBuffer."Sales/Purch Amount (LCY)", DeferralPostingBuffer."Sales/Purch Amount", true, true);
                             GLEntry."Posting Date" := PostDate;
-                            GLEntry.Description := SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostBuffer, DeferralPostBuffer."G/L Account");
-                            GLEntry.CopyFromDeferralPostBuffer(DeferralPostBuffer);
-                            OnPostDeferralPostBufferOnBeforeInsertGLEntryForGLAccount(GenJournalLine, DeferralPostBuffer, GLEntry);
+                            GLEntry.Description := SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostingBuffer, DeferralPostingBuffer."G/L Account");
+                            GLEntry.CopyFromDeferralPostBuffer(DeferralPostingBuffer);
+                            OnPostDeferralPostBufferOnBeforeInsertGLEntryForGLAccount(GenJournalLine, DeferralPostingBuffer, GLEntry);
                             InsertGLEntry(GenJournalLine, GLEntry, true);
                         end;
 
-                        if DeferralPostBuffer.Amount <> 0 then begin
-                            InitGLEntry(GenJournalLine, GLEntry,
-                              DeferralPostBuffer."Deferral Account",
-                              -DeferralPostBuffer."Amount (LCY)",
-                              -DeferralPostBuffer.Amount,
-                              true, true);
+                        if DeferralPostingBuffer.Amount <> 0 then begin
+                            InitGLEntry(
+                                GenJournalLine, GLEntry, DeferralPostingBuffer."Deferral Account",
+                                -DeferralPostingBuffer."Amount (LCY)", -DeferralPostingBuffer.Amount, true, true);
                             GLEntry."Posting Date" := PostDate;
-                            GLEntry.Description := SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostBuffer, DeferralPostBuffer."Deferral Account");
-                            OnPostDeferralPostBufferOnBeforeInsertGLEntryForDeferralAccount(GenJournalLine, DeferralPostBuffer, GLEntry);
+                            GLEntry.Description := SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostingBuffer, DeferralPostingBuffer."Deferral Account");
+                            OnPostDeferralPostBufferOnBeforeInsertGLEntryForDeferralAccount(GenJournalLine, DeferralPostingBuffer, GLEntry);
                             InsertGLEntry(GenJournalLine, GLEntry, true);
                         end;
-                    until DeferralPostBuffer.Next() = 0;
-                    DeferralPostBuffer.DeleteAll();
+                    until DeferralPostingBuffer.Next() = 0;
+                    DeferralPostingBuffer.DeleteAll();
                 end;
             end;
 
@@ -7048,7 +7097,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGLFinishPosting(GLEntry: Record "G/L Entry"; var GenJnlLine: Record "Gen. Journal Line"; IsTransactionConsistent: Boolean; FirstTransactionNo: Integer; var GLRegister: Record "G/L Register"; var TempGLEntryBuf: Record "G/L Entry" temporary; var NextEntryNo: Integer; var NextTransactionNo: Integer)
+    local procedure OnAfterGLFinishPosting(GLEntry: Record "G/L Entry"; var GenJnlLine: Record "Gen. Journal Line"; var IsTransactionConsistent: Boolean; FirstTransactionNo: Integer; var GLRegister: Record "G/L Register"; var TempGLEntryBuf: Record "G/L Entry" temporary; var NextEntryNo: Integer; var NextTransactionNo: Integer)
     begin
     end;
 
@@ -7103,7 +7152,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostJob(var GenJournalLine: Record "Gen. Journal Line"; GLEntry: Record "G/L Entry"; var IsJobLine: Boolean)
+    local procedure OnBeforePostJob(var GenJournalLine: Record "Gen. Journal Line"; GLEntry: Record "G/L Entry"; var IsJobLine: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -7321,7 +7370,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCustPostApplyCustLedgEntry(var GenJnlLinePostApply: Record "Gen. Journal Line")
+    local procedure OnBeforeCustPostApplyCustLedgEntry(var GenJnlLinePostApply: Record "Gen. Journal Line"; var CustLedgEntryPostApply: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8525,6 +8574,41 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowInconsistentEntries(TempGLEntryPrevie: Record "G/L Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitGLEntryOnBeforeCheckGLAccDimError(var GenJnlLine: Record "Gen. Journal Line"; var GLAcc: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDeferralPostBufferOnAfterSetPostDate(var DeferralPostBuffer: Record "Deferral Posting Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEmplPostApplyEmplLedgEntry(var GenJnlLinePostApply: Record "Gen. Journal Line"; var EmplLedgEntryPostApply: Record "Employee Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUnapplyVendLedgEntry(GenJnlLine2: Record "Gen. Journal Line"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUnapplyCustLedgEntry(GenJnlLine2: Record "Gen. Journal Line"; DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGenJnlLine(GenJnlLine: Record "Gen. Journal Line"; CheckLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUnapplyEmplLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

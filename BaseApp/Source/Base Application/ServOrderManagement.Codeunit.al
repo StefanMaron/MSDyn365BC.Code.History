@@ -412,6 +412,7 @@ codeunit 5900 ServOrderManagement
         if ServHeader."Contract No." = '' then begin
             if ServItem.Get(ServItemLine."Service Item No.") then
                 ServItemList.SetRecord(ServItem);
+            OnLookupServItemNoOnBeforeServItemReset(ServItemLine, ServItem, ServHeader);
             ServItem.Reset();
             ServItem.SetCurrentKey("Customer No.", "Ship-to Code");
             ServItem.SetRange("Customer No.", ServHeader."Customer No.");
@@ -719,6 +720,11 @@ codeunit 5900 ServOrderManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupServItemNoOnAfterServItemSetFilters(var ServItemLine: Record "Service Item Line"; var ServItem: Record "Service Item"; ServHeader: Record "Service Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupServItemNoOnBeforeServItemReset(var ServiceItemLine: Record "Service Item Line"; var ServiceItem: Record "Service Item"; ServiceHeader: Record "Service Header")
     begin
     end;
 

@@ -55,6 +55,7 @@ codeunit 99000769 "Production BOM-Check"
         Item.SetCurrentKey("Production BOM No.");
         Item.SetRange("Production BOM No.", ProdBOMHeader."No.");
 
+        OnProcessItemsOnAfterItemSetFilters(Item, ProdBOMHeader);
         if Item.Find('-') then begin
             OpenDialogWindow();
             NoOfItems := Item.Count();
@@ -221,6 +222,11 @@ codeunit 99000769 "Production BOM-Check"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDialogWindow(var Item: Record Item; ItemCounter: Integer; NoOfItems: Integer; var Window: Dialog; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessItemsOnAfterItemSetFilters(var Item: Record Item; var ProductionBOMHeader: Record "Production BOM Header")
     begin
     end;
 }

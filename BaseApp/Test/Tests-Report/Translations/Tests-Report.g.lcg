@@ -887,6 +887,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Rep. Selections - Std. Stmt. - NamedType RequestParametersErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3196030910 - NamedType 1098092381" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Customer Statement are not Sent.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Rep. Selections - Std. Stmt. - NamedType StatementCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3196030910 - NamedType 623369263" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Statement for %1 as of %2.docx]]></Val>

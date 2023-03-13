@@ -21,6 +21,7 @@ codeunit 134323 "Approval History Tests"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
 
     local procedure Initialize()
@@ -233,7 +234,7 @@ codeunit 134323 "Approval History Tests"
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(GenJournalLine.RecordId);
 
-        LinkId := CreateRecordLink(ApprovalEntry);
+        LinkId := LibraryUtility.CreateRecordLink(ApprovalEntry);
 
         // [WHEN] Approval Entry is approved and General Journal Line posted
         ApproveApprovalRequest(ApprovalEntry);
@@ -324,25 +325,6 @@ codeunit 134323 "Approval History Tests"
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, LibraryRandom.RandDecInRange(10000, 50000, 2));
-    end;
-
-    local procedure CreateRecordLink(RecVar: Variant): Integer
-    var
-        RecordLink: Record "Record Link";
-        PageManagement: Codeunit "Page Management";
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(RecVar);
-        RecordLink."Record ID" := RecRef.RecordId();
-        RecordLink.URL1 :=
-          GetUrl(DefaultClientType, CompanyName, OBJECTTYPE::Page, PageManagement.GetPageID(RecVar), RecRef);
-        RecordLink.Type := RecordLink.Type::Note;
-        RecordLink.Notify := true;
-        RecordLink.Company := CompanyName();
-        RecordLink."User ID" := UserId();
-        RecordLink."To User ID" := UserId();
-        RecordLink.Insert();
-        exit(RecordLink."Link ID");
     end;
 
     local procedure SendApprovalRequestForLine(GenJournalBatchName: Code[20])

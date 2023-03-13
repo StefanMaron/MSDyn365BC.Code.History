@@ -357,7 +357,7 @@ codeunit 5816 "Undo Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertNewReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; PostedWhseRcptLineFound: Boolean; DocLineNo: Integer; var IsHandled: Boolean)
+    local procedure OnAfterInsertNewReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var PostedWhseRcptLineFound: Boolean; DocLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,7 +1,8 @@
 table 1053 "Line Fee Note on Report Hist."
 {
     Caption = 'Line Fee Note on Report Hist.';
-    Permissions = TableData "Line Fee Note on Report Hist." = rimd;
+    Permissions = TableData "Line Fee Note on Report Hist." = rimd,
+                  tabledata "Reminder Terms" = R;
 
     fields
     {

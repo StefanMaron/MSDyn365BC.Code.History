@@ -230,7 +230,7 @@ codeunit 136316 "Job Jnl. Error Handling"
         TempErrorMessage.FindFirst();
 
         VerifyErrorMessageText(
-            TempErrorMessage.Description,
+            TempErrorMessage."Message",
             StrSubstNo(TestFieldMustHaveValueErr, JobJournalLine[2].FieldCaption("Quantity")));
     end;
 

@@ -52,7 +52,7 @@ codeunit 132215 "Library - Error Message"
                 TempErrorMessage.Init();
                 TempErrorMessage.ID += 1;
                 Evaluate(TempErrorMessage."Message Type", ErrorMessages."Message Type".Value);
-                TempErrorMessage.Description := ErrorMessages.Description.Value;
+                TempErrorMessage."Message" := ErrorMessages.Description.Value;
                 Evaluate(TempErrorMessage."Record ID", ErrorMessages.Source.Value, 9);
                 TempErrorMessage.Validate("Record ID");
                 TempErrorMessage.Validate("Field Number", GetFieldNo(TempErrorMessage."Table Number", ErrorMessages."Field Name".Value));
@@ -198,7 +198,7 @@ codeunit 132215 "Library - Error Message"
     local procedure AssertMessageExists(ExpectedDescription: Text; MessageType: Option)
     begin
         TempErrorMessage.Reset();
-        TempErrorMessage.SetRange(Description, ExpectedDescription);
+        TempErrorMessage.SetRange("Message", ExpectedDescription);
         TempErrorMessage.SetRange("Message Type", MessageType);
         Assert.IsFalse(TempErrorMessage.IsEmpty,
           StrSubstNo(ErrorMessageNotFoundTxt,

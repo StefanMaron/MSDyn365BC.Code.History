@@ -210,6 +210,7 @@ codeunit 5819 "Undo Service Consumption Line"
             if not TrackingSpecificationExists then begin
                 ItemJnlPostLine.SetServUndoConsumption(true);
                 ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+                OnItemJnlPostLineOnAfteItemJnlPostLineOnBeforeExit(ItemJnlLine, ServShptLine);
                 exit("Item Shpt. Entry No.");
             end;
 
@@ -230,29 +231,37 @@ codeunit 5819 "Undo Service Consumption Line"
         end;
     end;
 
-    local procedure PostResourceJnlLine(ServiceShptLine: Record "Service Shipment Line")
+    local procedure PostResourceJnlLine(ServiceShipmentLine: Record "Service Shipment Line")
     var
-        ResJnlLine: Record "Res. Journal Line";
+        ResJournalLine: Record "Res. Journal Line";
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
+        IsHandled: Boolean;
     begin
-        SourceCodeSetup.Get();
-        ServShptHeader.Get(ServiceShptLine."Document No.");
+        IsHandled := false;
+        OnBeforePostResourceJnlLine(ServiceShipmentLine, IsHandled);
+        if IsHandled then
+            exit;
 
-        with ResJnlLine do begin
+        SourceCodeSetup.Get();
+        ServShptHeader.Get(ServiceShipmentLine."Document No.");
+
+        with ResJournalLine do begin
             Init();
-            CopyDocumentFields(ServiceShptLine."Document No.", '', SourceCodeSetup."Service Management", ServShptHeader."No. Series");
+            CopyDocumentFields(ServiceShipmentLine."Document No.", '', SourceCodeSetup."Service Management", ServShptHeader."No. Series");
 
             CopyFromServShptHeader(ServShptHeader);
-            CopyFromServShptLine(ServiceShptLine);
+            CopyFromServShptLine(ServiceShipmentLine);
             "Source Type" := "Source Type"::Customer;
             "Source No." := ServShptHeader."Customer No.";
 
-            Quantity := -ServiceShptLine."Quantity Consumed";
-            "Unit Cost" := ServiceShptLine."Unit Cost (LCY)";
-            "Total Cost" := ServiceShptLine."Unit Cost (LCY)" * Quantity;
+            Quantity := -ServiceShipmentLine."Quantity Consumed";
+            "Unit Cost" := ServiceShipmentLine."Unit Cost (LCY)";
+            "Total Cost" := ServiceShipmentLine."Unit Cost (LCY)" * Quantity;
             "Unit Price" := 0;
             "Total Price" := 0;
-            ResJnlPostLine.RunWithCheck(ResJnlLine);
+
+            OnPostResourceJnlLineOnBeforeResJnlPostLine(ResJournalLine, ServShptHeader, ServiceShipmentLine);
+            ResJnlPostLine.RunWithCheck(ResJournalLine);
         end;
     end;
 
@@ -295,7 +304,7 @@ codeunit 5819 "Undo Service Consumption Line"
                 QtyToConsumeBase -= "Quantity (Base)";
             end;
 
-            OnBeforePostItemJnlLineWithIT(ItemJnlLine);
+            OnBeforePostItemJnlLineWithIT(ItemJnlLine, ServShptLine);
 
             UndoPostingMgt.CollectItemLedgEntries(TempItemLedgerEntry, DATABASE::"Service Shipment Line",
               ServShptLine."Document No.", ServShptLine."Line No.", ServShptLine."Quantity (Base)",
@@ -431,32 +440,34 @@ codeunit 5819 "Undo Service Consumption Line"
             LineSpacing := 10000;
     end;
 
-    local procedure InsertCorrectiveShipmentLine(OldServShptLine: Record "Service Shipment Line"; ItemShptEntryNo: Integer)
+    local procedure InsertCorrectiveShipmentLine(OldServiceShipmentLine: Record "Service Shipment Line"; ItemShptEntryNo: Integer)
     var
-        NewServShptLine: Record "Service Shipment Line";
+        NewServiceShipmentLine: Record "Service Shipment Line";
         LineSpacing: Integer;
     begin
-        with OldServShptLine do begin
-            LineSpacing := GetCorrectiveShptLineNoStep("Document No.", "Line No.");
-            NewServShptLine.Reset();
-            NewServShptLine.Init();
-            NewServShptLine.Copy(OldServShptLine);
-            NewServShptLine."Line No." := "Line No." + LineSpacing;
-            NewServShptLine."Item Shpt. Entry No." := ItemShptEntryNo;
-            NewServShptLine."Appl.-to Service Entry" := "Appl.-to Service Entry";
-            NewServShptLine.Quantity := -Quantity;
-            NewServShptLine."Quantity (Base)" := -"Quantity (Base)";
-            NewServShptLine."Qty. Shipped Not Invoiced" := 0;
-            NewServShptLine."Qty. Shipped Not Invd. (Base)" := 0;
-            NewServShptLine."Quantity Consumed" := NewServShptLine.Quantity;
-            NewServShptLine."Qty. Consumed (Base)" := NewServShptLine."Quantity (Base)";
-            NewServShptLine.Correction := true;
-            NewServShptLine.Insert();
+        OnBeforeInsertCorrectiveShipmentLine(OldServiceShipmentLine);
 
-            UpdateItemJnlLine(NewServShptLine, ItemShptEntryNo);
+        with OldServiceShipmentLine do begin
+            LineSpacing := GetCorrectiveShptLineNoStep("Document No.", "Line No.");
+            NewServiceShipmentLine.Reset();
+            NewServiceShipmentLine.Init();
+            NewServiceShipmentLine.Copy(OldServiceShipmentLine);
+            NewServiceShipmentLine."Line No." := "Line No." + LineSpacing;
+            NewServiceShipmentLine."Item Shpt. Entry No." := ItemShptEntryNo;
+            NewServiceShipmentLine."Appl.-to Service Entry" := "Appl.-to Service Entry";
+            NewServiceShipmentLine.Quantity := -Quantity;
+            NewServiceShipmentLine."Quantity (Base)" := -"Quantity (Base)";
+            NewServiceShipmentLine."Qty. Shipped Not Invoiced" := 0;
+            NewServiceShipmentLine."Qty. Shipped Not Invd. (Base)" := 0;
+            NewServiceShipmentLine."Quantity Consumed" := NewServiceShipmentLine.Quantity;
+            NewServiceShipmentLine."Qty. Consumed (Base)" := NewServiceShipmentLine."Quantity (Base)";
+            NewServiceShipmentLine.Correction := true;
+            NewServiceShipmentLine.Insert();
+
+            UpdateItemJnlLine(NewServiceShipmentLine, ItemShptEntryNo);
             if Type = Type::Item then begin
-                InsertNewTrackSpecifications(NewServShptLine, true);
-                InsertItemEntryRelation(TempGlobalItemEntryRelation, NewServShptLine);
+                InsertNewTrackSpecifications(NewServiceShipmentLine, true);
+                InsertItemEntryRelation(TempGlobalItemEntryRelation, NewServiceShipmentLine);
             end;
         end;
     end;
@@ -538,7 +549,7 @@ codeunit 5819 "Undo Service Consumption Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItemJnlLineWithIT(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnBeforePostItemJnlLineWithIT(var ItemJournalLine: Record "Item Journal Line"; var ServiceShipmentLine: Record "Service Shipment Line")
     begin
     end;
 
@@ -559,6 +570,26 @@ codeunit 5819 "Undo Service Consumption Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterUpdateServShptLine(var ServiceShipmentLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertCorrectiveShipmentLine(var OldServiceShipmentLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostResourceJnlLine(var ServiceShipmentLine: Record "Service Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemJnlPostLineOnAfteItemJnlPostLineOnBeforeExit(var ItemJournalLine: Record "Item Journal Line"; var ServiceShipmentLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostResourceJnlLineOnBeforeResJnlPostLine(var ResJournalLine: Record "Res. Journal Line"; var ServiceShipmentHeader: Record "Service Shipment Header"; var ServiceShipmentLine: Record "Service Shipment Line")
     begin
     end;
 }

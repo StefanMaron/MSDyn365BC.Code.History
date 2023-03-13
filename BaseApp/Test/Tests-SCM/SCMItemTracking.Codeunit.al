@@ -47,6 +47,7 @@ codeunit 137405 "SCM Item Tracking"
         FieldVisibleErr: Label 'Field %1 should not be visible on page %2.', Comment = '%1: FieldCaption, %2: PageCaption';
         FieldEditableErr: Label 'Field %1 should not be editable on page %2.', Comment = '%1: FieldCaption, %2: PageCaption';
         AdjustTrackingErr: Label 'You must adjust the existing item tracking and then reenter the new quantity';
+        NewSerialNoCannotBeChangedErr: Label 'Quantity (Base) must be -1, 0 or 1 when Serial No. is stated.';
         QtyAndQtyToHandleMismatchErr: Label 'Quantity and Quantity to Handle does not match.';
         QtyAndQtyOnWarehousePickMismatchErr: Label 'Quantity (%1) and Quantity to %3 (%2) does not match.';
         WrongNoOfTrackingSpecsErr: Label 'Wrong number of item tracking specifications';
@@ -4862,6 +4863,42 @@ codeunit 137405 "SCM Item Tracking"
         SalesLineReturn.Find();
         SalesLineReturn.TestField("Return Qty. Received", Qty);
     end;
+
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CannotUpdateNewSerialNoForLineWithQuanintyMoreThanOne()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        LotNo: Code[20];
+    begin
+        // [FEATURE] [UT] [Serial No]
+        // [SCENARIO 455523] Assigning "New Serial No." is not possible for Item Tracking Lines with Quantity > 1
+        Initialize();
+
+        // [GIVEN] Prepare Item
+        CreateItem(Item, CreateItemTrackingCodeLotSerial, '', '');
+
+        // [GIVEN] Post inventory for that item
+        LotNo := LibraryUtility.GenerateGUID();
+        MockItemEntryWithSerialAndLot(Item."No.", '', LotNo, WorkDate());
+
+        // [GIVEN] Item journal line with quantity > 1
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandIntInRange(2, 20));
+
+        // [GIVEN] Open item tracking to initialize the item tracking spec
+        MockTrackingSpecificationForItemJnlLine(TempTrackingSpecification, ItemJournalLine, 0, '', LotNo, WorkDate());
+
+        // [WHEN] Assigning "New Serial No.", error occurs
+        asserterror TempTrackingSpecification.Validate("New Serial No.", LibraryUtility.GenerateGUID());
+
+        // [THEN] The error states that quantity needs to be -1, 0 or 1
+        Assert.ExpectedError(NewSerialNoCannotBeChangedErr);
+    end;
+
 
     local procedure Initialize()
     var

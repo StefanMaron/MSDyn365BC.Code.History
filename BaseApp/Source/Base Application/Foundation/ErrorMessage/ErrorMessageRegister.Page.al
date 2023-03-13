@@ -31,7 +31,7 @@ page 709 "Error Message Register"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Description; Description)
+                field(Description; Rec."Message")
                 {
                     ApplicationArea = Basic, Suite;
                 }

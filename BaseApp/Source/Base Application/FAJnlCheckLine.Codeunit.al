@@ -86,12 +86,12 @@ codeunit 5631 "FA Jnl.-Check Line"
         Text018: Label 'You cannot dispose Main Asset %1 until Components are disposed.';
         Text019Err: Label 'You cannot post depreciation, because the calculation is across different fiscal year periods, which is not supported.';
 
-    procedure CheckFAJnlLine(var FAJnlLine2: Record "FA Journal Line")
+    procedure CheckFAJnlLine(var FAJournalLine: Record "FA Journal Line")
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        with FAJnlLine2 do begin
+        with FAJournalLine do begin
             if "FA No." = '' then
                 exit;
             TestField("FA Posting Date");
@@ -125,10 +125,11 @@ codeunit 5631 "FA Jnl.-Check Line"
                     Error(DimMgt.GetDimValuePostingErr());
         end;
         GenJnlPosting := false;
-        FAJnlLine := FAJnlLine2;
+        OnCheckFAJnlLineOnBeforeCheckJnlLine(FAJournalLine);
+        FAJnlLine := FAJournalLine;
         CheckJnlLine();
 
-        OnAfterCheckFAJnlLine(FAJnlLine2);
+        OnAfterCheckFAJnlLine(FAJournalLine);
     end;
 
     local procedure CheckAccountNo(var GenJournalLine: Record "Gen. Journal Line")
@@ -638,6 +639,11 @@ codeunit 5631 "FA Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckConsistencyOnBeforeCheckQuantity(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var FAJournalLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckFAJnlLineOnBeforeCheckJnlLine(var FAJournalLine2: Record "FA Journal Line")
     begin
     end;
 }

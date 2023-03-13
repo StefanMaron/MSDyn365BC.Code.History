@@ -611,13 +611,24 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('0000AHW', StrSubstNo(BankAccountRecTransferToGJMsg, BankAccReconciliationLine.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', true, true)]
+    local procedure LogOnboardingStartSignalOnCompanyInitialize()
+    begin
+        if not IsSaaS() then
+            exit;
+        Telemetry.LogMessage('0000EIW', 'Onboarding Started', Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Management", 'OnSendDailyTelemetry', '', true, true)]
     local procedure LogDatabaseWaitStatistics()
+    var
+        OnboardingSignal: Codeunit "Onboarding Signal";
     begin
         Codeunit.Run(Codeunit::"Emit Database Wait Statistics");
-        #if not CLEAN21
+        OnboardingSignal.CheckAndEmitOnboardingSignals();
+#if not CLEAN21
         Codeunit.Run(Codeunit::"Emit Enabled Features Signal");
-        #endif
+#endif
     end;
 }
 

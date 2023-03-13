@@ -13,6 +13,19 @@ page 911 "Component - Item Details"
                 ApplicationArea = Assembly;
                 Caption = 'Item No.';
                 ToolTip = 'Specifies the number of the item.';
+
+                trigger OnDrillDown()
+                var
+                    Item: Record Item;
+                begin
+                    if Rec."No." = '' then
+                        exit;
+
+                    if not Item.Get(Rec."No.") then
+                        exit;
+
+                    Page.RunModal(Page::"Item Card", Item);
+                end;
             }
             field("Base Unit of Measure"; Rec."Base Unit of Measure")
             {

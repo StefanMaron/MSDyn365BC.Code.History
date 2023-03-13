@@ -101,7 +101,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         PostingDateReq := PurchOrderHeader."Posting Date";
         ReceiveDateReq := PurchOrderHeader."Expected Receipt Date";
         ReferenceReq := PurchOrderHeader."Your Reference";
-        OnAfterSet(PurchOrderHeader, SuppressCommit, EndOrderDate, PrintPurchOrders);
+        OnAfterSet(PurchOrderHeader, SuppressCommit, EndOrderDate, PrintPurchOrders, OrderDateReq, ReceiveDateReq, PostingDateReq, PurchOrderHeader);
     end;
 
     local procedure "Code"(var ReqLine: Record "Requisition Line")
@@ -914,7 +914,10 @@ codeunit 333 "Req. Wksh.-Make Order"
                             if not TempFailedReqLine.Find() then begin
                                 ReqLine2.SetReservationFilters(ReservEntry);
                                 ReservEntry.DeleteAll(true);
-                                ReqLine2.Delete(true);
+                                IsHandled := false;
+                                OnFinalizeOrderHeaderOnBeforeReqLine2Delete(ReqLine2, IsHandled);
+                                if not IsHandled then
+                                    ReqLine2.Delete(true);
                             end;
                         end;
                     until ReqLine2.Next() = 0;
@@ -1502,7 +1505,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSet(NewPurchOrderHeader: Record "Purchase Header"; CommitIsSuppressed: Boolean; EndingOrderDate: Date; PrintPurchOrder: Boolean)
+    local procedure OnAfterSet(NewPurchOrderHeader: Record "Purchase Header"; CommitIsSuppressed: Boolean; EndingOrderDate: Date; PrintPurchOrder: Boolean; var OrderDateReq: Date; ReceiveDateReq: Date; var PostingDateReq: Date; var PurchOrderHeader: Record "Purchase Header")
     begin
     end;
 
@@ -1623,6 +1626,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(true, false)]
     local procedure OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizeOrderHeaderOnBeforeReqLine2Delete(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 

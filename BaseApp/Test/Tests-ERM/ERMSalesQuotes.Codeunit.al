@@ -139,8 +139,47 @@ codeunit 134379 "ERM Sales Quotes"
         // [THEN] O."Responsibility Center" = "RC" and O.SalesLine.COUNT = "NumL"
         FindSalesLine(SalesLine, SalesHeader."No.");
         Assert.AreEqual(LineCount, SalesLine.Count, LineError);
-        FindSalesResponsibilityCenterCode(SalesHeader);
+        FindSalesOrderHeader(SalesHeader);
         SalesHeader.TestField("Responsibility Center", ResponsibilityCenterCode);
+
+        // Tear Down: Cleanup of Setup Done.
+        UpdateSalesReceivablesSetup(OldDefaultPostingDate, OldDefaultPostingDate, OldStockoutWarning);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderFromSalesQuoteWithVATRegNo()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        OldDefaultPostingDate: Enum "Default Posting Date";
+        OldStockoutWarning: Boolean;
+        VATRegNo: Code[20];
+    begin
+        // [SCENARIO] Test Create Sales Order from Sales Quote with "VAT Registration No."
+
+        // [GIVEN] Sales Quote for the Customer without "VAT Registration No."
+        Initialize();
+        OldStockoutWarning :=
+          UpdateSalesReceivablesSetup(OldDefaultPostingDate, SalesReceivablesSetup."Default Posting Date"::"Work Date", false);
+        LibrarySales.CreateCustomer(Customer);
+        Customer.TestField("VAT Registration No.", '');
+
+        CreateSalesQuote(SalesHeader, SalesLine, Customer."No.", LibraryRandom.RandInt(5));
+
+        // [GIVEN] Update "VAT Registration No." on Customer
+        Customer."VAT Registration No." :=
+            LibraryUtility.GenerateRandomCode20(Customer.FieldNo("VAT Registration No."), Database::Customer);
+        Customer.Modify();
+
+        // [WHEN] Create Sales Order from Quote
+        CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", SalesHeader);
+
+        // [THEN] Check "VAT Registration No." on Sales Order equal to Customer "VAT Registration No."
+        FindSalesOrderHeader(SalesHeader);
+        SalesHeader.TestField("VAT Registration No.", Customer."VAT Registration No.");
 
         // Tear Down: Cleanup of Setup Done.
         UpdateSalesReceivablesSetup(OldDefaultPostingDate, OldDefaultPostingDate, OldStockoutWarning);
@@ -1936,7 +1975,7 @@ codeunit 134379 "ERM Sales Quotes"
         exit(SalesLine.Count);
     end;
 
-    local procedure FindSalesResponsibilityCenterCode(var SalesHeader: Record "Sales Header")
+    local procedure FindSalesOrderHeader(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader.SetRange("Quote No.", SalesHeader."No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);

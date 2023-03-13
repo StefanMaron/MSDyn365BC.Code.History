@@ -19,10 +19,10 @@ codeunit 345 "Sales Line CaptionClass Mgmt"
             SalesLine.FieldNo("No."):
                 exit(StrSubstNo('3,%1', GetFieldCaption(DATABASE::"Sales Line", FieldNumber)));
             else begin
-                    if GlobalSalesHeader."Prices Including VAT" then
-                        exit('2,1,' + GetFieldCaption(DATABASE::"Sales Line", FieldNumber));
-                    exit('2,0,' + GetFieldCaption(DATABASE::"Sales Line", FieldNumber));
-                end;
+                if GlobalSalesHeader."Prices Including VAT" then
+                    exit('2,1,' + GetFieldCaption(DATABASE::"Sales Line", FieldNumber));
+                exit('2,0,' + GetFieldCaption(DATABASE::"Sales Line", FieldNumber));
+            end;
         end;
     end;
 
@@ -31,6 +31,11 @@ codeunit 345 "Sales Line CaptionClass Mgmt"
         if (GlobalField.TableNo <> TableNumber) or (GlobalField."No." <> FieldNumber) then
             GlobalField.Get(TableNumber, FieldNumber);
         exit(GlobalField."Field Caption");
+    end;
+
+    procedure SetCachedSalesHeader(SalesHeader: Record "Sales Header")
+    begin
+        GlobalSalesHeader := SalesHeader;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterChangePricesIncludingVAT', '', true, true)]

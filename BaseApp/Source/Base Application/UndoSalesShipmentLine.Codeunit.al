@@ -90,10 +90,7 @@
             ServItem.SetCurrentKey("Sales/Serv. Shpt. Document No.");
             ServItem.SetRange("Sales/Serv. Shpt. Document No.", "Document No.");
             if ServItem.FindFirst() then
-                if not HideDialog then
-                    DeleteServItems := Confirm(Text004, true)
-                else
-                    DeleteServItems := true;
+                DeleteServItems := ShouldDeleteServItems(ServItem);
 
             Find('-');
             repeat
@@ -156,6 +153,21 @@
         end;
 
         OnAfterCode(SalesShptLine);
+    end;
+
+    local procedure ShouldDeleteServItems(var ServiceItem: Record "Service Item") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetDeleteServItems(SalesShptLine, ServiceItem, HideDialog, Result, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not HideDialog then
+            Result := Confirm(Text004, true)
+        else
+            Result := true;
     end;
 
     local procedure CheckSalesShptLine(SalesShptLine: Record "Sales Shipment Line")
@@ -297,12 +309,14 @@
                     RemQtyBase -= ItemJnlLine.Quantity;
                     if ItemLedgEntryNotInvoiced.Next() = 0 then;
                 until (RemQtyBase = 0);
+                OnItemJnlPostLineOnAfterGetInvoicedShptEntriesOnBeforeExit(ItemJnlLine, SalesShptLine);
                 exit(ItemJnlLine."Item Shpt. Entry No.");
             end;
 
             UndoPostingMgt.PostItemJnlLineAppliedToList(
                 ItemJnlLine, TempApplyToEntryList, Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, "Qty. Shipped Not Invoiced" <> Quantity);
 
+            OnAfterPostItemJnlLine(ItemJnlLine, SalesShptLine);
             exit(0); // "Item Shpt. Entry No."
         end;
     end;
@@ -641,7 +655,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertNewShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; var PostedWhseShptLineFound: Boolean; DocLineNo: Integer; ItemShptEntryNo: Integer)
+    local procedure OnAfterInsertNewShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; var PostedWhseShptLineFound: Boolean; DocLineNo: Integer; ItemShptEntryNo: Integer)
     begin
     end;
 
@@ -657,6 +671,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemJnlLine(var SalesShipmentLine: Record "Sales Shipment Line"; var DocLineNo: Integer; var ItemLedgEntryNo: Integer; var IsHandled: Boolean; var TempGlobalItemLedgEntry: Record "Item Ledger Entry" temporary; var TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDeleteServItems(SalesShipmentLine: Record "Sales Shipment Line"; var ServiceItem: Record "Service Item"; HideDialog: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -722,6 +741,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSynchronizeATOOnBeforeModify(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var SalesShipmentLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemJnlPostLineOnAfterGetInvoicedShptEntriesOnBeforeExit(var ItemJournalLine: Record "Item Journal Line"; var SalesShipmentLine: Record "Sales Shipment Line")
     begin
     end;
 }

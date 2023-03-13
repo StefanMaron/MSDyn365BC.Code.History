@@ -25,6 +25,7 @@ codeunit 137120 "Non-inventory Item Costing"
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryService: Codeunit "Library - Service";
         LibraryCosting: Codeunit "Library - Costing";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         isInitialized: Boolean;
 
     [Test]
@@ -226,6 +227,36 @@ codeunit 137120 "Non-inventory Item Costing"
         ValueEntry.TestField("Cost Amount (Actual)", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('AssemblyOrderRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PrintAssemblyOrder()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        Resource: Record Resource;
+        AssemblyHeaderNo: Code[20];
+    begin
+        // [SCENARIO 459646] Too many decimals printed on Assembly order (Quantity per) report 902
+        // [GIVEN] Create Item with Resource Asm. BOM.
+        Initialize();
+
+        CreateAssemblyItemAndResourceWithBOM(Item, Resource);
+
+        // [GIVEN] Create Assembly Order
+        LibraryAssembly.CreateAssemblyHeader(
+          AssemblyHeader, LibraryRandom.RandDateFromInRange(WorkDate(), 1, 10), Item."No.", '', LibraryRandom.RandInt(10), '');
+        Commit();
+
+        // [WHEN] Run Assembly Order report
+        REPORT.Run(REPORT::"Assembly Order", true, false, AssemblyHeader);
+
+        // [VERIFY] Verify Assembly Order Line Data
+        LibraryReportDataset.LoadDataSetFile();
+        VerifyComponentsReportAOLines(AssemblyHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -372,6 +403,63 @@ codeunit 137120 "Non-inventory Item Costing"
         ValueEntry.SetRange("Item No.", ItemNonInventory."No.");
         ValueEntry.FindFirst();
         Assert.AreEqual(-ItemNonInventory."Unit Cost", ItemLedgerEntry."Cost Amount (Non-Invtbl.)", '');
+    end;
+
+    local procedure CreateAssemblyItemAndResourceWithBOM(var Item: Record Item; var Resource: Record Resource) QuantityPer: Decimal
+    var
+        BOMComponent: Record "BOM Component";
+    begin
+        CreateAndUpdateItem(
+          Item, Item."Replenishment System"::Assembly, Item."Reordering Policy"::Order,
+          Item."Manufacturing Policy", '');
+
+        // Create Resource
+        LibraryAssembly.CreateResource(Resource, false, Item."Gen. Prod. Posting Group");
+        QuantityPer := LibraryRandom.RandDec(1, 4);
+        LibraryAssembly.CreateAssemblyListComponent(
+          BOMComponent.Type::Resource, Resource."No.", Item."No.", '', BOMComponent."Resource Usage Type"::Direct,
+          QuantityPer, true);  // Use Base Unit of Measure as True and Variant as blank.
+        exit(QuantityPer);
+    end;
+
+    local procedure CreateAndUpdateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReorderingPolicy: Enum "Reordering Policy"; ManufacturingPolicy: Enum "Manufacturing Policy"; VendorNo: Code[20])
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Reordering Policy", ReorderingPolicy);
+        Item.Validate("Manufacturing Policy", ManufacturingPolicy);
+        Item.Validate("Vendor No.", VendorNo);
+        Item.Modify(true);
+    end;
+
+    local procedure VerifyComponentsReportAOLines(var AssemblyHeader: Record "Assembly Header")
+    var
+        AssemblyLine: Record "Assembly Line";
+    begin
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item, AssemblyLine.Type::Resource);
+        AssemblyLine.FindSet();
+
+        repeat
+            LibraryReportDataset.SetRange('No_AssemblyLine', AssemblyLine."No.");
+            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.AssertCurrentRowValueEquals('Description_AssemblyLine', AssemblyLine.Description);
+            LibraryReportDataset.AssertCurrentRowValueEquals('QuantityPer_AssemblyLine', AssemblyLine."Quantity per");
+            LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_AssemblyLine', AssemblyLine.Quantity);
+            LibraryReportDataset.AssertCurrentRowValueEquals('UnitOfMeasureCode_AssemblyLine', AssemblyLine."Unit of Measure Code");
+            LibraryReportDataset.AssertCurrentRowValueEquals('LocationCode_AssemblyLine', AssemblyLine."Location Code");
+            LibraryReportDataset.AssertCurrentRowValueEquals('BinCode_AssemblyLine', AssemblyLine."Bin Code");
+            LibraryReportDataset.AssertCurrentRowValueEquals('VariantCode_AssemblyLine', AssemblyLine."Variant Code");
+            LibraryReportDataset.AssertCurrentRowValueEquals('QuantityToConsume_AssemblyLine', AssemblyLine."Quantity to Consume");
+            LibraryReportDataset.AssertCurrentRowValueEquals('DueDate_AssemblyLine', Format(AssemblyLine."Due Date"));
+        until AssemblyLine.Next() = 0;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AssemblyOrderRequestPageHandler(var AssemblyOrder: TestRequestPage "Assembly Order")
+    begin
+        AssemblyOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [ModalPageHandler]

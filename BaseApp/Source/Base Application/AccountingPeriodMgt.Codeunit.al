@@ -1,5 +1,6 @@
 codeunit 360 "Accounting Period Mgt."
 {
+    Permissions = tabledata "Accounting Period" = R;
 
     trigger OnRun()
     begin

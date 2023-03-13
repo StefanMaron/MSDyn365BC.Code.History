@@ -102,6 +102,9 @@ table 172 "Standard Customer Sales Code"
         {
             Clustered = true;
         }
+        key(Key2; Code, "Currency Code")
+        {
+        }
     }
 
     fieldgroups

@@ -303,7 +303,14 @@ table 96 "G/L Budget Entry"
     end;
 
     local procedure CheckIfBlocked()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckIfBlocked(Rec, xRec, GLBudgetName, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Budget Name" = GLBudgetName.Name then
             exit;
         if GLBudgetName.Name <> "Budget Name" then
@@ -496,6 +503,11 @@ table 96 "G/L Budget Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateDimensionSetId(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary; var GLBudgetEntry: Record "G/L Budget Entry"; xGLBudgetEntry: Record "G/L Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfBlocked(var GLBudgetEntry: Record "G/L Budget Entry"; xGLBudgetEntry: Record "G/L Budget Entry"; GLBudgetName: Record "G/L Budget Name"; var IsHandled: Boolean)
     begin
     end;
 

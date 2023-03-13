@@ -151,7 +151,7 @@ codeunit 29 "Error Message Handler"
                 CRLF[2] := 10;
                 LogFile.CreateOutStream(OutStr);
                 repeat
-                    OutStr.WriteText("Additional Information" + ' : ' + Description + CRLF);
+                    OutStr.WriteText("Additional Information" + ' : ' + "Message" + CRLF);
                 until Next() = 0;
                 if ErrorCallStack <> '' then
                     OutStr.WriteText(ErrorCallStack);
@@ -217,7 +217,7 @@ codeunit 29 "Error Message Handler"
     begin
         if Active then begin
             ID := TempErrorMessage.GetLastID();
-            ErrorMessage := TempErrorMessage.Description;
+            ErrorMessage := CopyStr(TempErrorMessage."Message", 1, MaxStrLen(ErrorMessage));
         end;
     end;
 

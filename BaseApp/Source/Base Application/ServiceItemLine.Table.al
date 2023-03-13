@@ -792,6 +792,7 @@ table 5901 "Service Item Line"
                 ServContractLine.SetFilter("Starting Date", '<=%1', ServHeader."Order Date");
                 ServContractLine.SetFilter("Contract Expiration Date", '>=%1 | =%2', ServHeader."Order Date", 0D);
                 ServContractLine.FilterGroup(0);
+                OnLookupContractNoOnAfterServContractLineSetFilters(ServContractLine, Rec);
                 ServContractList.SetTableView(ServContractLine);
                 ServContractList.LookupMode(true);
                 if ServContractList.RunModal() = ACTION::LookupOK then begin
@@ -1649,7 +1650,7 @@ table 5901 "Service Item Line"
             Warranty := false;
 
         IsHandled := false;
-        OnCheckWarrantyOnAfterSetWarranty(Rec, IsHandled);
+        OnCheckWarrantyOnAfterSetWarranty(Rec, IsHandled, Date);
         if IsHandled then
             exit;
 
@@ -2756,12 +2757,17 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckWarrantyOnAfterSetWarranty(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    local procedure OnCheckWarrantyOnAfterSetWarranty(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean; Date: Date)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckWarrantyOnAfterSetWarrantyPartsLabor(var ServiceItemLine: Record "Service Item Line"; Date: Date; var WarrantyParts: Boolean; var WarrantyLabor: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupContractNoOnAfterServContractLineSetFilters(var ServiceContractLine: Record "Service Contract Line"; ServiceItemLine: Record "Service Item Line")
     begin
     end;
 

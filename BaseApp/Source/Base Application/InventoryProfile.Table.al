@@ -1105,7 +1105,9 @@ table 99000853 "Inventory Profile"
         if "Source Type" = DATABASE::"Transfer Line" then
             exit(WhseValidateSourceLine.WhseLinesExist("Source Type", 0, "Source ID", "Source Ref. No.", 0, Quantity));
 
-        exit(WhseValidateSourceLine.WhseLinesExist("Source Type", "Source Order Status", "Source ID", "Source Ref. No.", 0, Quantity));
+        exit(
+            WhseValidateSourceLine.WhseLinesExist("Source Type", "Source Order Status", "Source ID", "Source Ref. No.", 0, Quantity) or
+            WhseValidateSourceLine.WhseWorkSheetLinesExistForJobOrProdOrderComponent("Source Type", "Source Order Status", "Source ID", "Source Ref. No.", 0, Quantity));
     end;
 
     local procedure GetExpectedReceiptDate(): Date
@@ -1123,6 +1125,16 @@ table 99000853 "Inventory Profile"
         "Source Ref. No." := SourceRefNo;
         "Source Batch Name" := SourceBatchName;
         "Source Prod. Order Line" := SourceProdOrderLine;
+    end;
+
+    procedure SetSourceFilter(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; SourceBatchName: Code[10]; SourceProdOrderLine: Integer)
+    begin
+        SetRange("Source Type", SourceType);
+        SetRange("Source Order Status", SourceSubtype);
+        SetRange("Source ID", SourceID);
+        SetRange("Source Ref. No.", SourceRefNo);
+        SetRange("Source Batch Name", SourceBatchName);
+        SetRange("Source Prod. Order Line", SourceProdOrderLine);
     end;
 
     procedure CopyTrackingFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")

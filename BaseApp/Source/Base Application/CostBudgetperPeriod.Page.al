@@ -280,6 +280,7 @@ page 1117 "Cost Budget per Period"
 
     trigger OnOpenPage()
     begin
+        OnBeforeOnOpenPage(PeriodType);
         SetMatrixColumns("Matrix Page Step Type"::Initial);
         BudgetFilter := GetFilter("Budget Filter");
         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
@@ -335,6 +336,11 @@ page 1117 "Cost Budget per Period"
         MatrixMgt.GeneratePeriodMatrixData(
           StepType.AsInteger(), CurrSetLength, false, PeriodType, '',
           PKFirstRecInCurrSet, MatrixColumnCaptions, ColumnSet, CurrSetLength, MatrixRecords);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnOpenPage(var AnalysisPeriodType: Enum "Analysis Period Type")
+    begin
     end;
 }
 

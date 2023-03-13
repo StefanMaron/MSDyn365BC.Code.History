@@ -648,6 +648,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         ReplenishmentLocationFound: Boolean;
         ComponentForecast: Boolean;
         ComponentForecastFrom: Boolean;
+        ByLocations: Boolean;
+        ByVariants: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -659,16 +661,29 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
         UpdatedOrderDate := OrderDate;
         ComponentForecastFrom := false;
-        if not ManufacturingSetup."Use Forecast on Locations" then begin
+        ByLocations := ManufacturingSetup."Use Forecast on Locations";
+        ByVariants := ManufacturingSetup."Use Forecast on Variants";
+
+        if not ByLocations then begin
             ReplenishmentLocationFound := FindReplishmentLocation(ReplenishmentLocation, Item);
             if InvtSetup."Location Mandatory" and not ReplenishmentLocationFound then
                 ComponentForecastFrom := true;
+        end;
 
-            ForecastEntry.SetCurrentKey(
-              "Production Forecast Name", "Item No.", "Component Forecast", "Forecast Date", "Location Code");
-        end else
-            ForecastEntry.SetCurrentKey(
-              "Production Forecast Name", "Item No.", "Location Code", "Forecast Date", "Component Forecast");
+        case true of
+            ByLocations and ByVariants:
+                ForecastEntry.SetCurrentKey(
+                  "Production Forecast Name", "Item No.", "Location Code", "Variant Code", "Forecast Date", "Component Forecast");
+            ByLocations and not ByVariants:
+                ForecastEntry.SetCurrentKey(
+                  "Production Forecast Name", "Item No.", "Location Code", "Forecast Date", "Component Forecast", "Variant Code");
+            not ByLocations and ByVariants:
+                ForecastEntry.SetCurrentKey(
+                  "Production Forecast Name", "Item No.", "Variant Code", "Forecast Date", "Component Forecast", "Location Code");
+            not ByLocations and not ByVariants:
+                ForecastEntry.SetCurrentKey(
+                  "Production Forecast Name", "Item No.", "Component Forecast", "Forecast Date", "Location Code", "Variant Code");
+        end;
 
         ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
@@ -698,7 +713,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             ForecastEntry2.SetRange("Component Forecast", ComponentForecast);
             if ForecastEntry2.Find('-') then
                 repeat
-                    if ManufacturingSetup."Use Forecast on Locations" then begin
+                    if ByLocations then begin
                         ForecastEntry2.SetRange("Location Code", ForecastEntry2."Location Code");
                         ItemLedgEntry.SetRange("Location Code", ForecastEntry2."Location Code");
                         DemandInvtProfile.SetRange("Location Code", ForecastEntry2."Location Code");
@@ -708,7 +723,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         Item.CopyFilter("Location Filter", DemandInvtProfile."Location Code");
                     end;
 
-                    if ManufacturingSetup."Use Forecast on Variants" then begin
+                    if ByVariants then begin
                         ForecastEntry2.SetRange("Variant Code", ForecastEntry2."Variant Code");
                         ItemLedgEntry.SetRange("Variant Code", ForecastEntry2."Variant Code");
                         DemandInvtProfile.SetRange("Variant Code", ForecastEntry2."Variant Code");
@@ -816,7 +831,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         BlanketSalesLine: Record "Sales Line";
         QtyReleased: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBlanketOrderConsump(InventoryProfile, Item, ToDate, IsHandled);
+        if IsHandled then
+            exit;
+
         InventoryProfile.Reset();
         with BlanketSalesLine do begin
             SetCurrentKey("Document Type", "Document No.", Type, "No.");
@@ -2559,7 +2580,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         PrevTempEntryNo: Integer;
         PrevInsertedEntryNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCommitTracking(TempTrkgReservEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if not TempTrkgReservEntry.Find('-') then
             exit;
 
@@ -2729,15 +2756,25 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 AdjustTransferDates(ReqLine);
                 if ReqLine."Action Message" = ReqLine."Action Message"::New then begin
                     CurrentSupplyInvtProfile.Copy(SupplyInvtProfile);
-                    SupplyInvtProfile.Init();
-                    SupplyInvtProfile."Line No." := NextLineNo();
-                    SupplyInvtProfile."Item No." := ReqLine."No.";
-                    SupplyInvtProfile.TransferFromOutboundTransfPlan(ReqLine, TempItemTrkgEntry);
-                    SupplyInvtProfile.CopyTrackingFromInvtProfile(CurrentSupplyInvtProfile);
-                    if SupplyInvtProfile.IsSupply then
-                        SupplyInvtProfile.ChangeSign();
-                    OnMaintainPlanningLineOnBeforeSupplyInvtProfileInsert(SupplyInvtProfile, CurrentSupplyInvtProfile);
-                    SupplyInvtProfile.Insert();
+
+                    SupplyInvtProfile.Reset();
+                    SupplyInvtProfile.SetSourceFilter(
+                      DATABASE::"Requisition Line", 1, ReqLine."Worksheet Template Name", ReqLine."Line No.", ReqLine."Journal Batch Name", 0);
+                    SupplyInvtProfile.SetTrackingFilter(CurrentSupplyInvtProfile);
+                    if not SupplyInvtProfile.FindFirst() then begin
+                        SupplyInvtProfile.Init();
+                        SupplyInvtProfile."Line No." := NextLineNo();
+                        SupplyInvtProfile."Item No." := ReqLine."No.";
+                        SupplyInvtProfile.TransferFromOutboundTransfPlan(ReqLine, TempItemTrkgEntry);
+                        SupplyInvtProfile.CopyTrackingFromInvtProfile(CurrentSupplyInvtProfile);
+                        if SupplyInvtProfile.IsSupply then
+                            SupplyInvtProfile.ChangeSign();
+                        OnMaintainPlanningLineOnBeforeSupplyInvtProfileInsert(SupplyInvtProfile, CurrentSupplyInvtProfile);
+                        SupplyInvtProfile.Insert();
+                    end else begin
+                        SupplyInvtProfile.TransferFromOutboundTransfPlan(ReqLine, TempItemTrkgEntry);
+                        SupplyInvtProfile.Modify();
+                    end;
 
                     SupplyInvtProfile.Copy(CurrentSupplyInvtProfile);
                 end else
@@ -3039,7 +3076,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateReqLineOriginalQuantity(ReqLine, SupplyInventoryProfile, IsHandled);
+        OnBeforeUpdateReqLineOriginalQuantity(ReqLine, SupplyInventoryProfile, IsHandled, TempSKU);
         if IsHandled then
             exit;
 
@@ -5246,6 +5283,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeBlanketOrderConsump(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; ToDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckInsertPurchLineToProfile(var InventoryProfile: Record "Inventory Profile"; var PurchLine: Record "Purchase Line"; ToDate: Date; var IsHandled: Boolean)
     begin
     end;
@@ -5257,6 +5299,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckUpdateInventoryProfileMaxQuantity(var InventoryProfile: Record "Inventory Profile"; var SKU: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCommitTracking(TempReservationEntry: Record "Reservation Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 
@@ -5721,7 +5768,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateReqLineOriginalQuantity(var ReqLine: Record "Requisition Line"; var SupplyInventoryProfile: Record "Inventory Profile"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateReqLineOriginalQuantity(var ReqLine: Record "Requisition Line"; var SupplyInventoryProfile: Record "Inventory Profile"; var IsHandled: Boolean; TempStockkeepingUnit: Record "Stockkeeping Unit" temporary)
     begin
     end;
 

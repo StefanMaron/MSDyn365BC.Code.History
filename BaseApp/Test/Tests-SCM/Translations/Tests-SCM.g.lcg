@@ -6269,6 +6269,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Lot No.]D;]A;(LookupHint=Codeunit SCM Item Tracking - NamedType MultipleExpDateForLotErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4274535345 - NamedType 2438191192" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Quantity (Base) must be -1, 0 or 1 when Serial No. is stated.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Item Tracking - NamedType NewSerialNoCannotBeChangedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4274535345 - NamedType 3305088714" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Posted Warehouse Shipment must have same quantity as Warehouse Shipment]]></Val>
@@ -10983,6 +10992,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning - NTF tests - NamedType WrongSerialNoTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1981732821 - NamedType 2632635105" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Bin Codes are not equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning And Manufacturing - NamedType BinCodesNotEqualErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1981732821 - NamedType 2922193226" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

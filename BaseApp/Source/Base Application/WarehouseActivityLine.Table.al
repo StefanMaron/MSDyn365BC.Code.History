@@ -171,10 +171,13 @@ table 5767 "Warehouse Activity Line"
             Editable = false;
 
             trigger OnValidate()
+            var
+                QuantityNotRounded: Decimal;
             begin
+                QuantityNotRounded := Quantity;
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
-                "Qty. (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
-                Validate("Qty. Outstanding", (Quantity - "Qty. Handled"));
+                "Qty. (Base)" := CalcBaseQty(QuantityNotRounded, FieldCaption(Quantity), FieldCaption("Qty. (Base)"));
+                Validate("Qty. Outstanding", (QuantityNotRounded - "Qty. Handled"));
             end;
         }
         field(21; "Qty. (Base)"; Decimal)
@@ -204,16 +207,18 @@ table 5767 "Warehouse Activity Line"
 
             trigger OnValidate()
             var
+                QuantityNotRounded: Decimal;
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
                 OnBeforeValidateQtyOutstanding(Rec, xRec, CurrFieldNo, IsHandled);
                 if IsHandled then
                     exit;
+                QuantityNotRounded := "Qty. Outstanding";
                 "Qty. Outstanding" := UOMMgt.RoundAndValidateQty("Qty. Outstanding", "Qty. Rounding Precision", FieldCaption("Qty. Outstanding"));
                 "Qty. Outstanding (Base)" :=
-                    CalcBaseQty("Qty. Outstanding", FieldCaption("Qty. Outstanding"), FieldCaption("Qty. Outstanding (Base)"));
-                Validate("Qty. to Handle", "Qty. Outstanding");
+                    CalcBaseQty(QuantityNotRounded, FieldCaption("Qty. Outstanding"), FieldCaption("Qty. Outstanding (Base)"));
+                Validate("Qty. to Handle", QuantityNotRounded);
             end;
         }
         field(25; "Qty. Outstanding (Base)"; Decimal)
@@ -237,13 +242,16 @@ table 5767 "Warehouse Activity Line"
             trigger OnValidate()
             var
                 QtyToHandleBase: Decimal;
+                QuantityNotRounded, QuantityRounded : Decimal;
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
                 OnBeforeValidateQtyToHandle(Rec, IsHandled);
-                if not IsHandled then
-                    if "Qty. to Handle" > "Qty. Outstanding" then
+                if not IsHandled then begin
+                    QuantityRounded := UOMMgt.RoundAndValidateQty("Qty. to Handle", "Qty. Rounding Precision", FieldCaption("Qty. to Handle"));
+                    if QuantityRounded > "Qty. Outstanding" then
                         Error(Text002, "Qty. Outstanding");
+                end;
 
                 GetLocation("Location Code");
                 if Location."Directed Put-away and Pick" then
@@ -262,10 +270,11 @@ table 5767 "Warehouse Activity Line"
                 OnValidateQtyToHandleOnBeforeCalcQtyToHandleBase(Rec, xRec, Location, CurrFieldNo);
 
                 if not UseBaseQty then begin
+                    QuantityNotRounded := "Qty. to Handle";
                     "Qty. to Handle" :=
                         UOMMgt.RoundAndValidateQty("Qty. to Handle", "Qty. Rounding Precision", FieldCaption("Qty. to Handle"));
                     "Qty. to Handle (Base)" :=
-                        CalcBaseQty("Qty. to Handle", FieldCaption("Qty. to Handle"), FieldCaption("Qty. to Handle (Base)"));
+                        CalcBaseQty(QuantityNotRounded, FieldCaption("Qty. to Handle"), FieldCaption("Qty. to Handle (Base)"));
 
                     if (("Qty. to Handle" = "Qty. Outstanding") and ("Qty. to Handle (Base)" < "Qty. Outstanding (Base)")) then // Rounding fix (Round Down)- Qty same, not Base Qty
                         "Qty. to Handle (Base)" := "Qty. Outstanding (Base)";
@@ -2105,6 +2114,8 @@ table 5767 "Warehouse Activity Line"
         Job.SetLoadFields("Sell-to Customer No.");
         Job.Get(JobPlanningLine."Job No.");
         "Destination No." := Job."Sell-to Customer No.";
+
+        OnAfterTransferFromJobPlanningLine(Rec, JobPlanningLine);
     end;
 
     procedure TransferFromMovWkshLine(WhseWkshLine: Record "Whse. Worksheet Line")
@@ -3355,6 +3366,11 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteBinContent(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFromJobPlanningLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

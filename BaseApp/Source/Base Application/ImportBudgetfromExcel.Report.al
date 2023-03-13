@@ -292,7 +292,7 @@ report 81 "Import Budget from Excel"
         Text021: Label 'Dimension7', Locked = true;
         Text022: Label 'Dimension8', Locked = true;
         Text023: Label 'You cannot import the same information twice.\';
-        Text024: Label 'The combination G/L Account No. - Dimensions - Date must be unique.';
+        Text024: Label 'The combination G/L Account No. - Dimensions - Date must be unique: %1', Comment = '%1 - Record ID';
         Text025: Label 'G/L Accounts have not been found in the Excel worksheet.';
         Text026: Label 'Dates have not been recognized in the Excel worksheet.';
         TheUsedDimensionValueAreAlsoUsedAsACaptionForADimensionErr: Label 'The used Dimension value %1 are also used as a caption for a Dimension.', Comment = '%1 is a dimension value';
@@ -311,6 +311,7 @@ report 81 "Import Budget from Excel"
         OldRowNo: Integer;
         DimRowNo: Integer;
         DimCode3: Code[20];
+        IsHandled: Boolean;
     begin
         Window.Open(Text007);
         Window.Update(1, 0);
@@ -475,8 +476,12 @@ report 81 "Import Budget from Excel"
                                             Evaluate(BudgetBuf.Amount, TempGlobalExcelBuf."Cell Value as Text");
                                             if not BudgetBuf.Find('=') then
                                                 BudgetBuf.Insert()
-                                            else
-                                                Error(Text023 + Text024);
+                                            else begin
+                                                IsHandled := false;
+                                                OnAnalyzeDataOnBeforeCombinationMustBeUniqueError(BudgetBuf, IsHandled);
+                                                if not IsHandled then
+                                                    Error(Text023 + Text024 + Format(BudgetBuf.RecordId()));
+                                            end;
                                         end;
                                 end;
                         end;
@@ -642,6 +647,11 @@ report 81 "Import Budget from Excel"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnPreReport(var TempDimension: Record Dimension temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAnalyzeDataOnBeforeCombinationMustBeUniqueError(var BudgetBuf: Record "Budget Buffer"; var IsHandled: Boolean)
     begin
     end;
 }

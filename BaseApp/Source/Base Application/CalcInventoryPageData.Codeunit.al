@@ -27,6 +27,8 @@ codeunit 5531 "Calc. Inventory Page Data"
 
     procedure Initialize(var Item: Record Item; ForecastName: Code[10]; IncludeBlanketOrders: Boolean; ExcludeForecastBefore: Date; IncludePlan: Boolean)
     begin
+        OnBeforeInitialize(Item, ForecastName, IncludeBlanketOrders, ExcludeForecastBefore, IncludePlan);
+
         TempInvtEventBuf.Reset();
         TempInvtEventBuf.DeleteAll();
 
@@ -53,6 +55,7 @@ codeunit 5531 "Calc. Inventory Page Data"
                     InvtPageData."Period Start" := TempInvtEventBuf."Availability Date";
                     InvtPageData.Description := Format(TempInvtEventBuf.Type);
                     InvtPageData.Level := 0;
+                    OnCreatePeriodEntriesOnBeforeInvtPageDataInsert(InvtPageData, TempInvtEventBuf);
                     InvtPageData.Insert();
                     LastDateInPeriod := TempInvtEventBuf."Availability Date";
                 end else begin
@@ -159,10 +162,10 @@ codeunit 5531 "Calc. Inventory Page Data"
                 DATABASE::"Assembly Line":
                     TransferAssemblyLine(FromInvtEventBuf, InventoryPageData, SourceSubtype, SourceID, SourceRefNo);
                 else begin
-                        OnTransferToPeriodDetailsElseCase(InventoryPageData, FromInvtEventBuf, IsHandled);
-                        if not IsHandled then
-                            Error(UnsupportedEntitySourceErr, SourceType, SourceSubtype);
-                    end;
+                    OnTransferToPeriodDetailsElseCase(InventoryPageData, FromInvtEventBuf, IsHandled);
+                    if not IsHandled then
+                        Error(UnsupportedEntitySourceErr, SourceType, SourceSubtype);
+                end;
             end;
         end;
         OnAfterTransferToPeriodDetails(InventoryPageData, FromInvtEventBuf, SourceType, SourceSubtype);
@@ -297,6 +300,7 @@ codeunit 5531 "Calc. Inventory Page Data"
                     Error(UnsupportedEntitySourceErr, SourceType, SourceSubtype);
             end;
         end;
+        OnAfterTransferTransLine(InventoryPageData, TransHeader);
     end;
 
     local procedure TransferProdOrderLine(InventoryEventBuffer: Record "Inventory Event Buffer"; var InventoryPageData: Record "Inventory Page Data"; SourceSubtype: Integer; SourceID: Code[20])
@@ -343,6 +347,7 @@ codeunit 5531 "Calc. Inventory Page Data"
                     end;
             end;
         end;
+        OnAfterTransferProdOrderComp(InventoryPageData, ProdOrder);
     end;
 
     local procedure TransferServiceLine(InventoryEventBuffer: Record "Inventory Event Buffer"; var InventoryPageData: Record "Inventory Page Data"; SourceSubtype: Integer; SourceID: Code[20])
@@ -411,6 +416,7 @@ codeunit 5531 "Calc. Inventory Page Data"
             InventoryPageData."Action Message Qty." := "Remaining Quantity (Base)";
             InventoryPageData."Action Message" := "Action Message";
         end;
+        OnAfterTransferPlanningComp(InventoryPageData, ReqLine);
     end;
 
     local procedure TransferProdForecastEntry(InventoryEventBuffer: Record "Inventory Event Buffer"; var InventoryPageData: Record "Inventory Page Data"; SourceRefNo: Integer)
@@ -534,6 +540,21 @@ codeunit 5531 "Calc. Inventory Page Data"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferTransLine(var InventoryPageData: Record "Inventory Page Data"; var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferProdOrderComp(var InventoryPageData: Record "Inventory Page Data"; var ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferPlanningComp(var InventoryPageData: Record "Inventory Page Data"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateInventory(var InvtPageData: Record "Inventory Page Data"; var InvtEventBuf: Record "Inventory Event Buffer")
     begin
     end;
@@ -555,6 +576,16 @@ codeunit 5531 "Calc. Inventory Page Data"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferToPeriodDetailsElseCase(var InventoryPageData: Record "Inventory Page Data"; InventoryEventBuffer: Record "Inventory Event Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitialize(var Item: Record Item; var ForecastName: Code[10]; var IncludeBlanketOrders: Boolean; var ExcludeForecastBefore: Date; var IncludePlan: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePeriodEntriesOnBeforeInvtPageDataInsert(var InventoryPageData: Record "Inventory Page Data"; var TempInventoryEventBuffer: Record "Inventory Event Buffer" temporary)
     begin
     end;
 }

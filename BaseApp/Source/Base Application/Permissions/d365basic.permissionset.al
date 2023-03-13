@@ -597,6 +597,7 @@ permissionset 207 "D365 BASIC"
 #endif
                   tabledata "Purchase Price Access" = Rim,
                   tabledata "Purchases & Payables Setup" = Rm,
+                  tabledata "Query Metadata" = imd,
                   tabledata "RapidStart Services Cue" = RIMD,
                   tabledata "RC Headlines User Data" = RIMD,
                   tabledata "Reason Code" = RIMD,

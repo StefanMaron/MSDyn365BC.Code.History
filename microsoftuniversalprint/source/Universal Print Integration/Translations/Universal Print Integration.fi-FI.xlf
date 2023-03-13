@@ -3,132 +3,6 @@
   <file datatype="xml" source-language="en-US" target-language="fi-FI" original="Universal Print Integration">
     <body>
       <group id="body">
-        <trans-unit id="Table 4244855267 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Universal Print Share Buffer</source>
-          <target state="translated">Yleistulostusresurssin puskuri</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Print Share Buffer - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4244855267 - Field 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Print Share ID</source>
-          <target state="translated">Tulosta jaetun resurssin tunnus</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Print Share Buffer - Field ID - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 4244855267 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Print Share Name</source>
-          <target state="translated">Tulosta jaetun resurssin nimi</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Print Share Buffer - Field Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Universal Printer Settings</source>
-          <target state="translated">Yleistulostimen asetukset</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Field 1345097150 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Allow all users</source>
-          <target state="translated">Salli kaikille käyttäjille</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field AllowAllUsers - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Description</source>
-          <target state="translated">Kuvaus</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Description - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Field 2259985461 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Landscape</source>
-          <target state="translated">Vaakasuunta</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Landscape - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <target state="translated">Nimi</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Field 982017318 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Output Bin</source>
-          <target state="translated">Tulostuslokero</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field outputBin - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Field 4189842715 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Printer Paper Height</source>
-          <target state="translated">Tulostimen paperin korkeus</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Paper Height - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Field 975863445 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paper Size</source>
-          <target state="translated">Paperikoko</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Paper Size - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Field 1993365940 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paper Tray</source>
-          <target state="translated">Paperilokero</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Paper Tray - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Field 2022138324 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Printer Paper Units</source>
-          <target state="translated">Tulostimen paperiyksiköt</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Paper Unit - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Field 2319021892 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Printer Paper Width</source>
-          <target state="translated">Tulostimen paperin leveys</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Paper Width - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Field 36730115 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Print Share ID</source>
-          <target state="translated">Tulosta jaetun resurssin tunnus</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Print Share ID - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 2804880794 - Field 2470318573 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Print Share Name</source>
-          <target state="translated">Tulosta jaetun resurssin nimi</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Print Share Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2007124620 - NamedType 446071167" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You don't have access to the printer %1.</source>
-          <target state="translated">Et voi käyttää tulostinta %1.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = name of the printer</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType NoAccessToPrinterErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2007124620 - NamedType 633893206" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cannot send the print job because the size is too large. The size limit for print job is 10 MB.</source>
-          <target state="translated">Tulostustyötä ei voi lähettää, koska se on liian suuri. Tulostustyön kokoraja on 10 Mt.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType PrintJobTooLargeErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2007124620 - NamedType 543018968" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The print job couldn't be created.\\%1</source>
-          <target state="translated">Tulostustyötä ei voitu luoda.\\%1</target>
-          <note from="Developer" annotates="general" priority="2">%1 = a more detailed error message</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType UnableToCreateJobErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2007124620 - NamedType 2850327668" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The print job %1 couldn't be started.\\%2</source>
-          <target state="translated">Tulostustyötä %1 voitu aloittaa.\\%2</target>
-          <note from="Developer" annotates="general" priority="2">%1 = a print job ID, %2 = a more detailed error message</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType UnableToStartJobErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2007124620 - NamedType 1715385768" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Could not upload the document to print job %1.\\%2</source>
-          <target state="translated">Tulostustyön %1 asiakirjaa ei voitu ladata.\\%2</target>
-          <note from="Developer" annotates="general" priority="2">%1 = a print job ID, %2 = a more detailed error message</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType UnableToUploadDocErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1382942930 - NamedType 1254422327" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You don't have access to the data. Make sure your account has been assigned a Universal Print license and you have the required permissions.</source>
           <target state="translated">Et voi käyttää tietoja. Varmista, että tilillesi on määritetty Yleistulostus-käyttöoikeus ja että sinulla on tarvittavat käyttöoikeudet.</target>
@@ -141,41 +15,35 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Graph Helper - NamedType UserNotAuthenticatedTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - NamedType 137853743" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sends print jobs to the %1.</source>
-          <target state="translated">Lähettää tulostustyöt kohteeseen %1.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Print share name</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType DefaultDescriptionTxt</note>
+        <trans-unit id="Codeunit 2007124620 - NamedType 1715385768" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Could not upload the document to print job %1.\\%2</source>
+          <target state="translated">Tulostustyön %1 asiakirjaa ei voitu ladata.\\%2</target>
+          <note from="Developer" annotates="general" priority="2">%1 = a print job ID, %2 = a more detailed error message</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType UnableToUploadDocErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - NamedType 323739191" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>There was an error fetching properties for the selected printer.\\%1</source>
-          <target state="translated">Virhe noudettaessa valitun tulostimen ominaisuuksia.\\%1</target>
+        <trans-unit id="Codeunit 2007124620 - NamedType 2850327668" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The print job %1 couldn't be started.\\%2</source>
+          <target state="translated">Tulostustyötä %1 voitu aloittaa.\\%2</target>
+          <note from="Developer" annotates="general" priority="2">%1 = a print job ID, %2 = a more detailed error message</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType UnableToStartJobErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2007124620 - NamedType 446071167" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You don't have access to the printer %1.</source>
+          <target state="translated">Et voi käyttää tulostinta %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = name of the printer</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType NoAccessToPrinterErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2007124620 - NamedType 543018968" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The print job couldn't be created.\\%1</source>
+          <target state="translated">Tulostustyötä ei voitu luoda.\\%1</target>
           <note from="Developer" annotates="general" priority="2">%1 = a more detailed error message</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType GetPrintShareDetailsErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType UnableToCreateJobErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - NamedType 3089843368" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>There was an error fetching printers shared to you.\\%1</source>
-          <target state="translated">Virhe noudettaessa sinulle jaettuja tulostimia.\\%1</target>
-          <note from="Developer" annotates="general" priority="2">%1 = a more detailed error message</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType GetPrintSharesErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - NamedType 4159406584" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The value in the Paper Height field must be greater than 0.</source>
-          <target state="translated">Paperin korkeus -kentän arvon on oltava suurempi kuin 0.</target>
+        <trans-unit id="Codeunit 2007124620 - NamedType 633893206" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot send the print job because the size is too large. The size limit for print job is 10 MB.</source>
+          <target state="translated">Tulostustyötä ei voi lähettää, koska se on liian suuri. Tulostustyön kokoraja on 10 Mt.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType HeightInputErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - NamedType 123382634" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The Universal Print share name is not valid. Do you want to exit?</source>
-          <target state="translated">Yleistulostus-resurssin nimi ei kelpaa. Haluatko poistua?</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType InvalidPrintShareClosePageQst</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 4208063072 - NamedType 3319436045" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You cannot delete printer %1. It is used on the Printer Selections page.</source>
-          <target state="translated">Tulostinta %1 ei voi poistaa. Sitä käytetään Tulostimen valinnat -sivulla.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Printer ID</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType UsedInPrinterSelectionErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Print Document Ready - NamedType PrintJobTooLargeErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 4208063072 - NamedType 1051200959" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The value in the Paper Width field must be greater than 0.</source>
@@ -183,295 +51,89 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType WidthInputErr</note>
         </trans-unit>
-        <trans-unit id="Page 669761542 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Add Universal Print Printers</source>
-          <target state="translated">Lisää Yleistulostus-tulostimet</target>
+        <trans-unit id="Codeunit 4208063072 - NamedType 123382634" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Universal Print share name is not valid. Do you want to exit?</source>
+          <target state="translated">Yleistulostus-resurssin nimi ei kelpaa. Haluatko poistua?</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType InvalidPrintShareClosePageQst</note>
         </trans-unit>
-        <trans-unit id="Page 669761542 - NamedType 807771867" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more about registering an Azure AD application</source>
-          <target state="translated">Lisätietoja Azure AD -sovelluksen rekisteröimisestä</target>
+        <trans-unit id="Codeunit 4208063072 - NamedType 137853743" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sends print jobs to the %1.</source>
+          <target state="translated">Lähettää tulostustyöt kohteeseen %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Print share name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType DefaultDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4208063072 - NamedType 3089843368" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There was an error fetching printers shared to you.\\%1</source>
+          <target state="translated">Virhe noudettaessa sinulle jaettuja tulostimia.\\%1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = a more detailed error message</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType GetPrintSharesErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4208063072 - NamedType 323739191" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There was an error fetching properties for the selected printer.\\%1</source>
+          <target state="translated">Virhe noudettaessa valitun tulostimen ominaisuuksia.\\%1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = a more detailed error message</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType GetPrintShareDetailsErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4208063072 - NamedType 3319436045" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You cannot delete printer %1. It is used on the Printer Selections page.</source>
+          <target state="translated">Tulostinta %1 ei voi poistaa. Sitä käytetään Tulostimen valinnat -sivulla.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Printer ID</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType UsedInPrinterSelectionErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4208063072 - NamedType 4159406584" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The value in the Paper Height field must be greater than 0.</source>
+          <target state="translated">Paperin korkeus -kentän arvon on oltava suurempi kuin 0.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType LearnMoreAzureAppTxt</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Universal Printer Setup - NamedType HeightInputErr</note>
         </trans-unit>
-        <trans-unit id="Page 669761542 - NamedType 4042170785" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more and sign up!</source>
-          <target state="translated">Lue lisää ja rekisteröidy!</target>
+        <trans-unit id="Enum 1159317063 - EnumValue 110278997 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>landscape</source>
+          <target state="translated">vaakasuunta</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType LearnMoreSignupTxt</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Orientation - EnumValue landscape - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 669761542 - NamedType 3334639707" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more about Universal Print.</source>
-          <target state="translated">Lisätietoja Yleistulostuksesta.</target>
+        <trans-unit id="Enum 1159317063 - EnumValue 1661607393 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>portrait</source>
+          <target state="translated">pystysuunta</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType LearnMoreTxt</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Orientation - EnumValue portrait - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 669761542 - NamedType 209090251" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Universal Print portal</source>
-          <target state="translated">Yleistulostus-portaali</target>
+        <trans-unit id="Enum 1159317063 - EnumValue 2096888721 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>reversePortrait</source>
+          <target state="translated">reversePortrait</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType LearnMoreUniversalPrintPortalTxt</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Orientation - EnumValue reversePortrait - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 669761542 - NamedType 2402058382" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You do not have the necessary table permissions to access Universal Print printers. Ask your system administrator for permissions, then run this page again.</source>
-          <target state="translated">Sinulla ei ole Yleistulostus-tulostimien käyttämiseen tarvittavia taulukon käyttöoikeuksia. Pyydä järjestelmänvalvojalta käyttöoikeudet ja suorita tämä sivu uudelleen.</target>
+        <trans-unit id="Enum 1159317063 - EnumValue 3509585829 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>reverseLandscape</source>
+          <target state="translated">reverseLandscape</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType NoTablePermissionsErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Orientation - EnumValue reverseLandscape - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 669761542 - NamedType 2724577049" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>We couldn't connect to Universal Print using your Azure AD application registration. Run the Set Up Azure Active Directory assisted setup again, and make sure all the values are set correctly.</source>
-          <target state="translated">Yleistulostus-yhteyttä ei voitu muodostaa Azure AD -sovellusrekisteröinnin avulla. Suorita Azure Active Directory -asetusten ohjattu määritys uudelleen ja varmista, että kaikki arvot on määritetty oikein.</target>
+        <trans-unit id="Enum 1794915805 - EnumValue 2441939078 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inches (in)</source>
+          <target state="translated">Tuumaa (in)</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType NoTokenForOnPremErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Paper Unit - EnumValue Inches - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 669761542 - NamedType 4264832025" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Number of printers added: %1.</source>
-          <target state="translated">Lisättyjen tulostimien määrä: %1.</target>
-          <note from="Developer" annotates="general" priority="2">%1: a number.</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType NumberOfPrintersAddedTemplateTxt</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - NamedType 757360088" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more about how the data is handled.</source>
-          <target state="translated">Lisätietoja tietojen käsittelystä.</target>
+        <trans-unit id="Enum 1794915805 - EnumValue 2986160639 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Millimeters (mm)</source>
+          <target state="translated">Millimetriä (mm)</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType PrivacyLbl</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Paper Unit - EnumValue Millimeters - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 669761542 - NamedType 2182510485" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more about our Privacy Statement.</source>
-          <target state="translated">Lue lisätietoja tietosuojatiedoista.</target>
+        <trans-unit id="Page 2804880794 - Action 709640958 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens new Universal Print printer card.</source>
+          <target state="translated">Avaa uuden Yleistulostus-tulostimen kortin.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType PrivacyStatementTxt</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Action NewPrinter - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 669761542 - NamedType 3362432993" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Wizard step out of range.</source>
-          <target state="translated">Alueen ulkopuolinen ohjatun toiminnon vaihe.</target>
+        <trans-unit id="Page 2804880794 - Action 709640958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add another Universal Print printer</source>
+          <target state="translated">Lisää toinen Yleistulostus-tulostin</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType StepOutOfRangeErr</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 631782546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Adding Universal Print Printers</source>
-          <target state="translated">Yleistulostus-tulostimien lisääminen</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control AutoAdd - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 3363685081 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.1 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 2339249964 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You don't seem to have access to Universal Print. Make sure you have a Universal Print subscription, and that your account has been assigned a Universal Print license.</source>
-          <target state="translated">Sinulla ei näytä olevan Yleistulostus-palvelun käyttöoikeuksia. Varmista, että sinulla on Yleistulostus-tilaus ja että tilillesi on määritetty Yleistulostus-käyttöoikeus.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.1.1 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 2725988464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 1650093445 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control EmptySpace2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 4208574773 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The next step will add all of the printers that are shared with you through Universal Print into Business Central.</source>
-          <target state="translated">Seuraava vaihe lisää kaikki kanssasi Yleistulostuksen kautta jaetut tulostimet Business Centraliin.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.2.1 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 3570878156 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You'll first need to manage and share printers in Universal Print portal.</source>
-          <target state="translated">Sinun on ensin hallittava ja jaettava tulostimia Yleistulostus-portaalista.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.2.2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 2295484922 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This action may take several minutes to complete. Choose Next to continue.</source>
-          <target state="translated">Tämän toiminnon valmistuminen voi kestää useita minuutteja. Jatka valitsemalla Seuraava.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.2.4 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 1178809860 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Done</source>
-          <target state="translated">Valmis</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Done - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 637564162 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>That's it!</source>
-          <target state="translated">Valmis!</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 2287790062 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control EmptySpace3 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 2418044131 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Printers that are shared with you through Universal Print have been added to Business Central.</source>
-          <target state="translated">Tulostimet, jotka on jaettu kanssasi Yleistulostus-palvelun kautta, on lisätty Business Centraliin.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1.1 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 36166686 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Now you are ready to use Universal Print printers inside Business Central.</source>
-          <target state="translated">Nyt olet valmis käyttämään Yleistulostus-tulostimia Business Centralissa.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1.2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 3693437365 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Choose Finish to close this setup.</source>
-          <target state="translated">Sulje tämä asennus valitsemalla Valmis.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1.3 - Property InstructionalText</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 3693437365 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1.3 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 3019441607 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>That's it!</source>
-          <target state="translated">Valmis!</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 2118881039 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control EmptySpace4 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 2779717438 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The operation completed, but we could not find any new printer shared with you through Universal Print.</source>
-          <target state="translated">Toiminto on valmis, mutta emme löytäneet uutta tulostinta, joka on jaettu kanssasi Yleistulostus-ominaisuuden avulla.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2.1 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 866627587 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Choose Finish to close this setup.</source>
-          <target state="translated">Sulje tämä asennus valitsemalla Valmis.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2.2 - Property InstructionalText</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 866627587 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2.2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 3111431394 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Intro</source>
-          <target state="translated">Esittely</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Intro - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 2155394695 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Welcome to Universal Print Setup</source>
-          <target state="translated">Tervetuloa Yleistulostus-asetuksiin</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.1 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 1012396828 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control EmptySpace1 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 128523262 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Universal Print is a Microsoft 365 subscription-based cloud printing solution. This setup helps you to add your registered cloud printers from Universal Print into Business Central.</source>
-          <target state="translated">Yleistulostus on Microsoft 365 -tilaukseen perustuva pilvitulostusratkaisu. Tämän asennusohjelman avulla voit lisätä rekisteröityjä pilvitulostimia Yleistulostuksesta Business Centraliin.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.1.1 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 2510400707 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Note that a Universal Print subscription is required and Universal Print needs to be available in your region.</source>
-          <target state="translated">Huomaa, että Yleistulostus-tilaus vaaditaan ja että yleistulostuksen on oltava saatavilla alueellasi.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.1.2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 3142569618 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Opens a privacy help article.</source>
-          <target state="translated">Avaa tietosuojan ohjeartikkelin.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Privacy - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 3142569618 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Click here to understand how the data is handled.</source>
-          <target state="translated">Napsauttamalla tätä voit selvittää, miten tietoja käsitellään.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Privacy - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 4068484546 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Choose Next to get started.</source>
-          <target state="translated">Aloita valitsemalla Seuraava.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.2 - Property InstructionalText</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 4068484546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Let's go!</source>
-          <target state="translated">Aloitetaan!</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 142461748 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Connect your Azure AD application</source>
-          <target state="translated">Yhdistä Azure AD -sovellus</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control OnPremAadSetup - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 3724241072 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Connect with Azure</source>
-          <target state="translated">Yhdistä Azureen</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para1.1 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 21734773 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>To add Universal Print printers to Business Central on-premises, you'll first need a registered application for Business Central in Azure Active Directory (Azure AD).</source>
-          <target state="translated">Jos haluat lisätä Yleistulostus-tulostimia paikalliseen Business Centraliin, sinun on ensin rekisteröitävä sovellus Business Centralille Azure Active Directoryssa (Azure AD).</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para1.1.1 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 3679005452 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Once an Azure AD application has been registered, you're ready to continue with this setup. During setup, you'll provide information about Azure AD application. Choose Next to continue.</source>
-          <target state="translated">Kun Azure AD -sovellus on rekisteröity, voit jatkaa tätä asennusta. Asennuksen aikana annat tietoja Azure AD -sovelluksesta. Jatka valitsemalla Seuraava.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para1.1.2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 3145364638 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Your privacy is important to us</source>
-          <target state="translated">Tietosuoja on meille tärkeää</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control PrivacyNoticeInner - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 3950012862 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This feature utilizes Microsoft Universal Print. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Universal Print may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Universal Print to learn more.</source>
-          <target state="translated">Tämä ominaisuus hyödyntää Microsoftin yleistulostusta. Jatkamalla vahvistat ymmärtäneesi, että Microsoftin yleistulostuksen tietojenkäsittely- ja vaatimustenmukaisuusstandardit eivät ehkä ole samat kuin Microsoft Dynamics 365 Business Centralin. Lisätietoja on Yleistulostuksen ohjeissa.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control PrivacyNoticeLabel - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 4119205609 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies an image to be shown on top of the wizard page when the wizard is in progress.</source>
-          <target state="translated">Määrittää kuvan, joka näytetään ohjatun toiminnon sivun yläosassa, kun ohjattu toiminto on käynnissä.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control &lt;MediaRepositoryStandard&gt; - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 4119205609 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control &lt;MediaRepositoryStandard&gt; - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 1582028080 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies an image to be shown on top of the wizard page when the wizard is finished.</source>
-          <target state="translated">Määrittää kuvan, joka näytetään ohjatun toiminnon sivun yläosassa, kun ohjattu toiminto on valmis.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control &lt;MediaRepositoryDone&gt; - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 669761542 - Control 1582028080 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source></source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control &lt;MediaRepositoryDone&gt; - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Action NewPrinter - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 669761542 - Action 2438272767 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Back</source>
@@ -491,11 +153,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Action ActionNext - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 102847796 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Print Shares</source>
-          <target state="translated">Tulostusresurssit</target>
+        <trans-unit id="Page 102847796 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the print share.</source>
+          <target state="translated">Määrittää tulostusresurssin nimen.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Print Shares List - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Print Shares List - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 102847796 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Print Share Name</source>
+          <target state="translated">Tulosta jaetun resurssin nimi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Print Shares List - Control Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 102847796 - Control 3641927271 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the id of the printer.</source>
@@ -509,113 +177,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Print Shares List - Control ID - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 102847796 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the print share.</source>
-          <target state="translated">Määrittää tulostusresurssin nimen.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Print Shares List - Control Name - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 102847796 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Print Share Name</source>
-          <target state="translated">Tulosta jaetun resurssin nimi</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Print Shares List - Control Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Universal Printer Settings</source>
-          <target state="translated">Yleistulostimen asetukset</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - NamedType 2182510485" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Your privacy is important to us. To learn more read our Privacy Statement.</source>
-          <target state="translated">Tietosuoja on meille tärkeää. Saat lisätietoja lukemalla tietosuojatiedot.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - NamedType PrivacyStatementTxt</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 3154152211 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the height of the paper.</source>
-          <target state="translated">Määrittää paperin korkeuden.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PaperHeight - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 2457731676 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the unit of measurement for the width and height of the paper.</source>
-          <target state="translated">Määrittää paperin leveyden ja korkeuden mittayksikön.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PaperUnit - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 2457731676 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paper Units</source>
-          <target state="translated">Paperiyksiköt</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PaperUnit - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Page 2804880794 - Control 119355084 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the width of the paper.</source>
           <target state="translated">Määrittää paperin leveyden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PaperWidth - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the description of the printer.</source>
-          <target state="translated">Määrittää tulostimen kuvauksen.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Description - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Description</source>
-          <target state="translated">Kuvaus</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Description - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 2259985461 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies whether the paper is in Landscape orientation.</source>
-          <target state="translated">Määrittää, onko paperi vaakasuunnassa.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Landscape - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 3142569618 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Opens a privacy help article.</source>
-          <target state="translated">Avaa tietosuojan ohjeartikkelin.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Privacy - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 3142569618 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more about how the data is handled.</source>
-          <target state="translated">Lisätietoja tietojen käsittelystä.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Privacy - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 3950012862 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This feature utilizes Microsoft Universal Print. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Universal Print may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Universal Print to learn more.</source>
-          <target state="translated">Tämä ominaisuus hyödyntää Microsoftin yleistulostusta. Jatkamalla vahvistat ymmärtäneesi, että Microsoftin yleistulostuksen tietojenkäsittely- ja vaatimustenmukaisuusstandardit eivät ehkä ole samat kuin Microsoft Dynamics 365 Business Centralin. Lisätietoja on Yleistulostuksen ohjeissa.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PrivacyNoticeLabel - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the unique name of the printer settings.</source>
-          <target state="translated">Määrittää tulostimen asetusten yksilöllisen nimen.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Name - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <target state="translated">Nimi</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 3991567098 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the printer's selected paper size.</source>
-          <target state="translated">Määrittää tulostimen valitun paperikoon.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PaperKind - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 2804880794 - Control 3991567098 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paper Size</source>
-          <target state="translated">Paperikoko</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PaperKind - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2804880794 - Control 2223169580 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the printer's output paper tray.</source>
@@ -629,6 +195,66 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PaperTray - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2804880794 - Control 2259985461 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the paper is in Landscape orientation.</source>
+          <target state="translated">Määrittää, onko paperi vaakasuunnassa.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Landscape - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - Control 2457731676 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the unit of measurement for the width and height of the paper.</source>
+          <target state="translated">Määrittää paperin leveyden ja korkeuden mittayksikön.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PaperUnit - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - Control 2457731676 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Paper Units</source>
+          <target state="translated">Paperiyksiköt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PaperUnit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the unique name of the printer settings.</source>
+          <target state="translated">Määrittää tulostimen asetusten yksilöllisen nimen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Nimi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - Control 3142569618 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens a privacy help article.</source>
+          <target state="translated">Avaa tietosuojan ohjeartikkelin.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Privacy - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - Control 3142569618 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about how the data is handled.</source>
+          <target state="translated">Lisätietoja tietojen käsittelystä.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Privacy - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - Control 3154152211 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the height of the paper.</source>
+          <target state="translated">Määrittää paperin korkeuden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PaperHeight - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the description of the printer.</source>
+          <target state="translated">Määrittää tulostimen kuvauksen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - Control 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Kuvaus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control Description - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2804880794 - Control 3632481733 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the print share associated with the printer settings.</source>
           <target state="translated">Määrittää tulostimen asetuksiin liitetyn tulostusresurssin nimen.</target>
@@ -641,23 +267,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PrintShareName - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 2804880794 - Action 709640958 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Opens new Universal Print printer card.</source>
-          <target state="translated">Avaa uuden Yleistulostus-tulostimen kortin.</target>
+        <trans-unit id="Page 2804880794 - Control 3950012862 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This feature utilizes Microsoft Universal Print. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Universal Print may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Universal Print to learn more.</source>
+          <target state="translated">Tämä ominaisuus hyödyntää Microsoftin yleistulostusta. Jatkamalla vahvistat ymmärtäneesi, että Microsoftin yleistulostuksen tietojenkäsittely- ja vaatimustenmukaisuusstandardit eivät ehkä ole samat kuin Microsoft Dynamics 365 Business Centralin. Lisätietoja on Yleistulostuksen ohjeissa.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Action NewPrinter - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PrivacyNoticeLabel - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 2804880794 - Action 709640958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Add another Universal Print printer</source>
-          <target state="translated">Lisää toinen Yleistulostus-tulostin</target>
+        <trans-unit id="Page 2804880794 - Control 3991567098 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the printer's selected paper size.</source>
+          <target state="translated">Määrittää tulostimen valitun paperikoon.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Action NewPrinter - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PaperKind - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 3991539297 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Universal Printer Trays</source>
-          <target state="translated">Yleistulostimen lokerot</target>
+        <trans-unit id="Page 2804880794 - Control 3991567098 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Paper Size</source>
+          <target state="translated">Paperikoko</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Tray List - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Control PaperKind - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3991539297 - Control 2223169580 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the paper tray.</source>
@@ -671,33 +297,319 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Tray List - Control PaperTray - Property Caption</note>
         </trans-unit>
-        <trans-unit id="PageExtension 2333910860 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New, Process, Report, Manage, Email Print, Universal Print</source>
-          <target state="translated">Uusi, Käsittely, Raportti, Hallinta, Sähköpostitulostus, Yleistulostus</target>
+        <trans-unit id="Page 669761542 - Control 1012396828 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control EmptySpace1 - Property Caption</note>
         </trans-unit>
-        <trans-unit id="PageExtension 2333910860 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>universal printers,universalprint</source>
-          <target state="translated">yleistulostimet,yleistulostus</target>
+        <trans-unit id="Page 669761542 - Control 1178809860 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Done</source>
+          <target state="translated">Valmis</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Done - Property Caption</note>
         </trans-unit>
-        <trans-unit id="PageExtension 2333910860 - Action 571354942 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Add a selected Universal Print printers that is shared with you, into Business Central.</source>
-          <target state="translated">Lisää kanssasi jaettu valittu Yleistulostus-tulostin Business Centraliin.</target>
+        <trans-unit id="Page 669761542 - Control 128523262 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Universal Print is a Microsoft 365 subscription-based cloud printing solution. This setup helps you to add your registered cloud printers from Universal Print into Business Central.</source>
+          <target state="translated">Yleistulostus on Microsoft 365 -tilaukseen perustuva pilvitulostusratkaisu. Tämän asennusohjelman avulla voit lisätä rekisteröityjä pilvitulostimia Yleistulostuksesta Business Centraliin.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.1.1 - Property Caption</note>
         </trans-unit>
-        <trans-unit id="PageExtension 2333910860 - Action 571354942 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Add a Universal Print printer</source>
-          <target state="translated">Lisää Yleistulostus-tulostin</target>
+        <trans-unit id="Page 669761542 - Control 142461748 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Connect your Azure AD application</source>
+          <target state="translated">Yhdistä Azure AD -sovellus</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control OnPremAadSetup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 1582028080 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies an image to be shown on top of the wizard page when the wizard is finished.</source>
+          <target state="translated">Määrittää kuvan, joka näytetään ohjatun toiminnon sivun yläosassa, kun ohjattu toiminto on valmis.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control &lt;MediaRepositoryDone&gt; - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 1582028080 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control &lt;MediaRepositoryDone&gt; - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 1650093445 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control EmptySpace2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 2118881039 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control EmptySpace4 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 2155394695 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Welcome to Universal Print Setup</source>
+          <target state="translated">Tervetuloa Yleistulostus-asetuksiin</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 21734773 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To add Universal Print printers to Business Central on-premises, you'll first need a registered application for Business Central in Azure Active Directory (Azure AD).</source>
+          <target state="translated">Jos haluat lisätä Yleistulostus-tulostimia paikalliseen Business Centraliin, sinun on ensin rekisteröitävä sovellus Business Centralille Azure Active Directoryssa (Azure AD).</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para1.1.1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 2287790062 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control EmptySpace3 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 2295484922 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This action may take several minutes to complete. Choose Next to continue.</source>
+          <target state="translated">Tämän toiminnon valmistuminen voi kestää useita minuutteja. Jatka valitsemalla Seuraava.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.2.4 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 2339249964 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You don't seem to have access to Universal Print. Make sure you have a Universal Print subscription, and that your account has been assigned a Universal Print license.</source>
+          <target state="translated">Sinulla ei näytä olevan Yleistulostus-palvelun käyttöoikeuksia. Varmista, että sinulla on Yleistulostus-tilaus ja että tilillesi on määritetty Yleistulostus-käyttöoikeus.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.1.1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 2418044131 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printers that are shared with you through Universal Print have been added to Business Central.</source>
+          <target state="translated">Tulostimet, jotka on jaettu kanssasi Yleistulostus-palvelun kautta, on lisätty Business Centraliin.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1.1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 2510400707 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Note that a Universal Print subscription is required and Universal Print needs to be available in your region.</source>
+          <target state="translated">Huomaa, että Yleistulostus-tilaus vaaditaan ja että yleistulostuksen on oltava saatavilla alueellasi.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.1.2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 2725988464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 2779717438 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The operation completed, but we could not find any new printer shared with you through Universal Print.</source>
+          <target state="translated">Toiminto on valmis, mutta emme löytäneet uutta tulostinta, joka on jaettu kanssasi Yleistulostus-ominaisuuden avulla.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2.1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3019441607 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>That's it!</source>
+          <target state="translated">Valmis!</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3111431394 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Intro</source>
+          <target state="translated">Esittely</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Intro - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3142569618 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens a privacy help article.</source>
+          <target state="translated">Avaa tietosuojan ohjeartikkelin.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Privacy - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3142569618 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Click here to understand how the data is handled.</source>
+          <target state="translated">Napsauttamalla tätä voit selvittää, miten tietoja käsitellään.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Privacy - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3145364638 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your privacy is important to us</source>
+          <target state="translated">Tietosuoja on meille tärkeää</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control PrivacyNoticeInner - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3363685081 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3570878156 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You'll first need to manage and share printers in Universal Print portal.</source>
+          <target state="translated">Sinun on ensin hallittava ja jaettava tulostimia Yleistulostus-portaalista.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.2.2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 36166686 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Now you are ready to use Universal Print printers inside Business Central.</source>
+          <target state="translated">Nyt olet valmis käyttämään Yleistulostus-tulostimia Business Centralissa.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1.2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3679005452 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Once an Azure AD application has been registered, you're ready to continue with this setup. During setup, you'll provide information about Azure AD application. Choose Next to continue.</source>
+          <target state="translated">Kun Azure AD -sovellus on rekisteröity, voit jatkaa tätä asennusta. Asennuksen aikana annat tietoja Azure AD -sovelluksesta. Jatka valitsemalla Seuraava.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para1.1.2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3693437365 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose Finish to close this setup.</source>
+          <target state="translated">Sulje tämä asennus valitsemalla Valmis.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1.3 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3693437365 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1.3 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3724241072 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Connect with Azure</source>
+          <target state="translated">Yhdistä Azureen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para1.1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 3950012862 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This feature utilizes Microsoft Universal Print. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Universal Print may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Universal Print to learn more.</source>
+          <target state="translated">Tämä ominaisuus hyödyntää Microsoftin yleistulostusta. Jatkamalla vahvistat ymmärtäneesi, että Microsoftin yleistulostuksen tietojenkäsittely- ja vaatimustenmukaisuusstandardit eivät ehkä ole samat kuin Microsoft Dynamics 365 Business Centralin. Lisätietoja on Yleistulostuksen ohjeissa.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control PrivacyNoticeLabel - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 4068484546 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose Next to get started.</source>
+          <target state="translated">Aloita valitsemalla Seuraava.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.2 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 4068484546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Let's go!</source>
+          <target state="translated">Aloitetaan!</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para0.2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 4119205609 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies an image to be shown on top of the wizard page when the wizard is in progress.</source>
+          <target state="translated">Määrittää kuvan, joka näytetään ohjatun toiminnon sivun yläosassa, kun ohjattu toiminto on käynnissä.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control &lt;MediaRepositoryStandard&gt; - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 4119205609 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control &lt;MediaRepositoryStandard&gt; - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 4208574773 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The next step will add all of the printers that are shared with you through Universal Print into Business Central.</source>
+          <target state="translated">Seuraava vaihe lisää kaikki kanssasi Yleistulostuksen kautta jaetut tulostimet Business Centraliin.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para2.2.1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 631782546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Adding Universal Print Printers</source>
+          <target state="translated">Yleistulostus-tulostimien lisääminen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control AutoAdd - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 637564162 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>That's it!</source>
+          <target state="translated">Valmis!</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.1 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 866627587 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Choose Finish to close this setup.</source>
+          <target state="translated">Sulje tämä asennus valitsemalla Valmis.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2.2 - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Control 866627587 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Control Para3.2.2 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - NamedType 2182510485" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your privacy is important to us. To learn more read our Privacy Statement.</source>
+          <target state="translated">Tietosuoja on meille tärkeää. Saat lisätietoja lukemalla tietosuojatiedot.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - NamedType PrivacyStatementTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 209090251" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Universal Print portal</source>
+          <target state="translated">Yleistulostus-portaali</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType LearnMoreUniversalPrintPortalTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 2182510485" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about our Privacy Statement.</source>
+          <target state="translated">Lue lisätietoja tietosuojatiedoista.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType PrivacyStatementTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 2402058382" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have the necessary table permissions to access Universal Print printers. Ask your system administrator for permissions, then run this page again.</source>
+          <target state="translated">Sinulla ei ole Yleistulostus-tulostimien käyttämiseen tarvittavia taulukon käyttöoikeuksia. Pyydä järjestelmänvalvojalta käyttöoikeudet ja suorita tämä sivu uudelleen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType NoTablePermissionsErr</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 2724577049" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We couldn't connect to Universal Print using your Azure AD application registration. Run the Set Up Azure Active Directory assisted setup again, and make sure all the values are set correctly.</source>
+          <target state="translated">Yleistulostus-yhteyttä ei voitu muodostaa Azure AD -sovellusrekisteröinnin avulla. Suorita Azure Active Directory -asetusten ohjattu määritys uudelleen ja varmista, että kaikki arvot on määritetty oikein.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType NoTokenForOnPremErr</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 3334639707" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about Universal Print.</source>
+          <target state="translated">Lisätietoja Yleistulostuksesta.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType LearnMoreTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 3362432993" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Wizard step out of range.</source>
+          <target state="translated">Alueen ulkopuolinen ohjatun toiminnon vaihe.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType StepOutOfRangeErr</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 4042170785" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more and sign up!</source>
+          <target state="translated">Lue lisää ja rekisteröidy!</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType LearnMoreSignupTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 4264832025" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of printers added: %1.</source>
+          <target state="translated">Lisättyjen tulostimien määrä: %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1: a number.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType NumberOfPrintersAddedTemplateTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 757360088" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about how the data is handled.</source>
+          <target state="translated">Lisätietoja tietojen käsittelystä.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType PrivacyLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - NamedType 807771867" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more about registering an Azure AD application</source>
+          <target state="translated">Lisätietoja Azure AD -sovelluksen rekisteröimisestä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - NamedType LearnMoreAzureAppTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 102847796 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Print Shares</source>
+          <target state="translated">Tulostusresurssit</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Print Shares List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2804880794 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Universal Printer Settings</source>
+          <target state="translated">Yleistulostimen asetukset</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Settings - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3991539297 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Universal Printer Trays</source>
+          <target state="translated">Yleistulostimen lokerot</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Universal Printer Tray List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 669761542 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add Universal Print Printers</source>
+          <target state="translated">Lisää Yleistulostus-tulostimet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Add Universal Printers Wizard - Property Caption</note>
         </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Action 1626578475 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Add all the registered Universal Print printers that are shared with you, into Business Central.</source>
@@ -727,6 +639,20 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
+        <trans-unit id="PageExtension 2333910860 - Action 571354942 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add a selected Universal Print printers that is shared with you, into Business Central.</source>
+          <target state="translated">Lisää kanssasi jaettu valittu Yleistulostus-tulostin Business Centraliin.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2333910860 - Action 571354942 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add a Universal Print printer</source>
+          <target state="translated">Lisää Yleistulostus-tulostin</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+        </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Change 1587086413 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> Manage</source>
           <target state="translated"> Hallinta</target>
@@ -741,10 +667,10 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
-        <trans-unit id="PageExtension 2333910860 - Change 311693179 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> Universal Print</source>
-          <target state="translated"> Yleistulostus</target>
-          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 5.</note>
+        <trans-unit id="PageExtension 2333910860 - Change 2234406979 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> Report</source>
+          <target state="translated"> Raportti</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 2.</note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
@@ -755,6 +681,13 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
+        <trans-unit id="PageExtension 2333910860 - Change 311693179 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> Universal Print</source>
+          <target state="translated"> Yleistulostus</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 5.</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+        </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Change 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> Process</source>
           <target state="translated"> Käsittely</target>
@@ -762,48 +695,25 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
-        <trans-unit id="PageExtension 2333910860 - Change 2234406979 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> Report</source>
-          <target state="translated"> Raportti</target>
-          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 2.</note>
+        <trans-unit id="PageExtension 2333910860 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New, Process, Report, Manage, Email Print, Universal Print</source>
+          <target state="translated">Uusi, Käsittely, Raportti, Hallinta, Sähköpostitulostus, Yleistulostus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
-        <trans-unit id="Enum 1159317063 - EnumValue 110278997 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>landscape</source>
-          <target state="translated">vaakasuunta</target>
+        <trans-unit id="PageExtension 2333910860 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>universal printers,universalprint</source>
+          <target state="translated">yleistulostimet,yleistulostus</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Orientation - EnumValue landscape - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
-        <trans-unit id="Enum 1159317063 - EnumValue 1661607393 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>portrait</source>
-          <target state="translated">pystysuunta</target>
+        <trans-unit id="PermissionSet 2226491525 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Microsoft Universal Print - Read</source>
+          <target state="translated">Microsoftin yleistulostus – Luku</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Orientation - EnumValue portrait - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 1159317063 - EnumValue 3509585829 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>reverseLandscape</source>
-          <target state="translated">reverseLandscape</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Orientation - EnumValue reverseLandscape - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 1159317063 - EnumValue 2096888721 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>reversePortrait</source>
-          <target state="translated">reversePortrait</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Orientation - EnumValue reversePortrait - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 1794915805 - EnumValue 2441939078 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Inches (in)</source>
-          <target state="translated">Tuumaa (in)</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Paper Unit - EnumValue Inches - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 1794915805 - EnumValue 2986160639 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Millimeters (mm)</source>
-          <target state="translated">Millimetriä (mm)</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Universal Printer Paper Unit - EnumValue Millimeters - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet UniversalPrint - Read - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 3156248255 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>MicrosoftUniversalPrint - Edit</source>
@@ -817,11 +727,101 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet UniversalPrint - Objects - Property Caption</note>
         </trans-unit>
-        <trans-unit id="PermissionSet 2226491525 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Microsoft Universal Print - Read</source>
-          <target state="translated">Microsoftin yleistulostus – Luku</target>
+        <trans-unit id="Table 2804880794 - Field 1345097150 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Allow all users</source>
+          <target state="translated">Salli kaikille käyttäjille</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet UniversalPrint - Read - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field AllowAllUsers - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Field 1993365940 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Paper Tray</source>
+          <target state="translated">Paperilokero</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Paper Tray - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Field 2022138324 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer Paper Units</source>
+          <target state="translated">Tulostimen paperiyksiköt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Paper Unit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Field 2259985461 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Landscape</source>
+          <target state="translated">Vaakasuunta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Landscape - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Field 2319021892 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer Paper Width</source>
+          <target state="translated">Tulostimen paperin leveys</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Paper Width - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Field 2470318573 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Print Share Name</source>
+          <target state="translated">Tulosta jaetun resurssin nimi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Print Share Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Nimi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Kuvaus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Field 36730115 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Print Share ID</source>
+          <target state="translated">Tulosta jaetun resurssin tunnus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Print Share ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Field 4189842715 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer Paper Height</source>
+          <target state="translated">Tulostimen paperin korkeus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Paper Height - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Field 975863445 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Paper Size</source>
+          <target state="translated">Paperikoko</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field Paper Size - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Field 982017318 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Output Bin</source>
+          <target state="translated">Tulostuslokero</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Field outputBin - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4244855267 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Print Share Name</source>
+          <target state="translated">Tulosta jaetun resurssin nimi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Print Share Buffer - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4244855267 - Field 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Print Share ID</source>
+          <target state="translated">Tulosta jaetun resurssin tunnus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Print Share Buffer - Field ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2804880794 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Universal Printer Settings</source>
+          <target state="translated">Yleistulostimen asetukset</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Printer Settings - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4244855267 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Universal Print Share Buffer</source>
+          <target state="translated">Yleistulostusresurssin puskuri</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Universal Print Share Buffer - Property Caption</note>
         </trans-unit>
       </group>
     </body>

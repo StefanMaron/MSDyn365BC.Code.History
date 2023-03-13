@@ -16,6 +16,7 @@ codeunit 371 "Bank Acc. Recon. Post (Yes/No)"
     procedure BankAccReconPostYesNo(var BankAccReconciliation: Record "Bank Acc. Reconciliation") Result: Boolean
     var
         BankAccRecon: Record "Bank Acc. Reconciliation";
+        ReversePaymentRecJournal: Codeunit "Reverse Payment Rec. Journal";
         Question: Text;
         IsHandled: Boolean;
     begin
@@ -26,11 +27,13 @@ codeunit 371 "Bank Acc. Recon. Post (Yes/No)"
 
         BankAccRecon.Copy(BankAccReconciliation);
 
-        if BankAccRecon."Statement Type" = BankAccRecon."Statement Type"::"Payment Application" then
+        if BankAccRecon."Statement Type" = BankAccRecon."Statement Type"::"Payment Application" then begin
             if BankAccRecon."Post Payments Only" then
                 Question := PostPaymentsOnlyQst
             else
-                Question := PostPaymentsAndReconcileQst
+                Question := PostPaymentsAndReconcileQst;
+            BindSubscription(ReversePaymentRecJournal);
+        end
         else
             Question := PostReconciliationQst;
 
@@ -40,6 +43,7 @@ codeunit 371 "Bank Acc. Recon. Post (Yes/No)"
         CODEUNIT.Run(CODEUNIT::"Bank Acc. Reconciliation Post", BankAccRecon);
         BankAccReconciliation := BankAccRecon;
 
+        ReversePaymentRecJournal.SetGLRegisterNo(BankAccRecon);
         ShowPostedConfirmationMessage(BankAccRecon);
         exit(true);
     end;

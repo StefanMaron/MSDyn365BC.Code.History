@@ -6347,7 +6347,7 @@
         </trans-unit>
         <trans-unit id="Page 1420007888 - Control 3656808776 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shipment Date</source>
-          <target state="translated">Lieferdatum</target>
+          <target state="translated">Lieferungsdatum</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - Control shipmentDate - Property Caption</note>
         </trans-unit>
@@ -7019,7 +7019,7 @@
         </trans-unit>
         <trans-unit id="Page 2529413663 - Control 3656808776 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shipment Date</source>
-          <target state="translated">Lieferdatum</target>
+          <target state="translated">Lieferungsdatum</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - Control shipmentDate - Property Caption</note>
         </trans-unit>
@@ -7751,7 +7751,7 @@
         </trans-unit>
         <trans-unit id="Page 957521806 - Control 3656808776 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shipment Date</source>
-          <target state="translated">Lieferdatum</target>
+          <target state="translated">Lieferungsdatum</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - Control shipmentDate - Property Caption</note>
         </trans-unit>
@@ -8957,7 +8957,7 @@
         </trans-unit>
         <trans-unit id="Page 2511651920 - Control 3656808776 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shipment Date</source>
-          <target state="translated">Lieferdatum</target>
+          <target state="translated">Lieferungsdatum</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipment Lines - Control shipmentDate - Property Caption</note>
         </trans-unit>

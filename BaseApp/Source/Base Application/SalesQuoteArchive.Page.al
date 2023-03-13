@@ -179,10 +179,16 @@ page 5162 "Sales Quote Archive"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the contact person at the customer''s billing address.';
                 }
+                field("Bill-to Customer Templ. Code"; Rec."Bill-to Customer Templ. Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies information about sales quotes, purchase quotes, or orders in earlier versions of the document.';
+                }
                 field("Bill-to Customer Template Code"; Rec."Bill-to Customer Template Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies information about sales quotes, purchase quotes, or orders in earlier versions of the document.';
+                    Visible = false;
                 }
                 group("Bill-to")
                 {

@@ -427,7 +427,7 @@ page 7001 "Price List Lines"
         else
             Rec.SetFilter("Amount Type", '%1|%2', ViewAmountType, ViewAmountType::Any);
         Rec.FilterGroup(0);
-		UpdateSourceType();
+        UpdateSourceType();
         UpdateColumnVisibility();
         CurrPage.Update(false);
     end;
@@ -466,7 +466,7 @@ page 7001 "Price List Lines"
         CurrPage.Update(true);
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnUpdateSourceTypeOnCaseElse(PriceListHeader: Record "Price List Header"; var SourceType: Enum "Sales Price Source Type"; var IsJobGroup: Boolean)
     begin
     end;

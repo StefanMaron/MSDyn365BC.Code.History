@@ -81,6 +81,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType SendEmailExternalUserErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 571534387 - NamedType 2078957562" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to send email. Error:\\%1</source>
+          <target state="translated">Impossibile inviare il messaggio e-mail. Errore:\\%1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Error message</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType SendEmailMessageErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 571534387 - NamedType 2164095947" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The mailbox is not valid.\\A likely cause is that the user does not have a valid license for Office 365. To read about other potential causes, visit https://go.microsoft.com/fwlink/?linkid=2206177</source>
           <target state="translated">La cassetta postale non è valida.\\La causa probabile di questo errore è che l'utente non dispone di una licenza valida per Office 365. Per ulteriori informazioni sulle cause potenziali, visitare https://go.microsoft.com/fwlink/?linkid=2206177</target>

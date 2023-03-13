@@ -63,7 +63,7 @@
     procedure IsDiscountAllowed() Result: Boolean;
     begin
         Result := SalesLine."Allow Line Disc." or not PriceCalculated;
-        OnAfterIsDiscountAllowed(SalesLine, PriceCalculated, Result);
+        OnAfterIsDiscountAllowed(SalesLine, PriceCalculated, Result, SalesHeader);
     end;
 
     procedure Verify()
@@ -243,7 +243,7 @@
             AmountType::Discount:
                 SalesLine."Line Discount %" := PriceListLine."Line Discount %";
         end;
-        OnAfterSetPrice(SalesLine, PriceListLine, AmountType);
+        OnAfterSetPrice(SalesLine, PriceListLine, AmountType, SalesHeader);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
@@ -263,7 +263,7 @@
                 end;
         end;
 
-        OnAfterValidatePrice(SalesLine, CurrPriceType, AmountType);
+        OnAfterValidatePrice(SalesLine, CurrPriceType, AmountType, SalesHeader);
     end;
 
     procedure Update(AmountType: enum "Price Amount Type")
@@ -271,7 +271,7 @@
         if not SalesLine."Allow Line Disc." then
             SalesLine."Line Discount %" := 0;
 
-        OnAfterUpdate(SalesLine, CurrPriceType, AmountType);
+        OnAfterUpdate(SalesLine, CurrPriceType, AmountType, SalesHeader);
     end;
 
     procedure AddActivatedCampaignsAsSource()
@@ -346,12 +346,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetPrice(var SalesLine: Record "Sales Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    local procedure OnAfterSetPrice(var SalesLine: Record "Sales Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var SalesHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdate(var SalesLine: Record "Sales Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    local procedure OnAfterUpdate(var SalesLine: Record "Sales Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -371,12 +371,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterIsDiscountAllowed(SalesLine: Record "Sales Line"; PriceCalculated: Boolean; var Result: Boolean)
+    local procedure OnAfterIsDiscountAllowed(SalesLine: Record "Sales Line"; PriceCalculated: Boolean; var Result: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterValidatePrice(var SalesLine: Record "Sales Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type")
+    local procedure OnAfterValidatePrice(var SalesLine: Record "Sales Line"; CurrPriceType: Enum "Price Type"; AmountType: Enum "Price Amount Type"; var SalesHeader: Record "Sales Header")
     begin
     end;
 

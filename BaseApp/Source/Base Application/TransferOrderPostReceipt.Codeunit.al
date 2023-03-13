@@ -21,6 +21,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
         DeleteOne: Boolean;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, HideValidationDialog, SuppressCommit, IsHandled);
+        if IsHandled then
+            exit;
+
         ReleaseDocument(Rec);
         TransHeader := Rec;
         TransHeader.SetHideValidationDialog(HideValidationDialog);
@@ -538,7 +543,14 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     local procedure CheckLines(TransHeader: Record "Transfer Header"; var TransLine: Record "Transfer Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckLines(TransHeader, TransLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with TransHeader do begin
             TransLine.Reset();
             TransLine.SetRange("Document No.", "No.");
@@ -751,6 +763,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLines(TransHeader: Record "Transfer Header"; var TransLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDimValuePosting(TransferHeader: Record "Transfer Header"; TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
@@ -762,6 +779,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePostedRcptLineFromWhseRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; var WhseRcptLine: Record "Warehouse Receipt Line"; var PostedWhseRcptHeader: Record "Posted Whse. Receipt Header"; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var TempWhseSplitSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean; var WhsePostReceipt: Codeunit "Whse.-Post Receipt"; var TempItemEntryRelation2: Record "Item Entry Relation" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var TransferHeader2: Record "Transfer Header"; HideValidationDialog: Boolean; SuppressCommit: Boolean; var IsHandled: Boolean)
     begin
     end;
 

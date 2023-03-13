@@ -635,7 +635,7 @@ table 472 "Job Queue Entry"
                 "Error Message Register Id" := ErrorMessageRegisterId;
                 ErrorMessage.SetRange("Register ID", ErrorMessageRegisterId);
                 if ErrorMessage.FindFirst() then
-                    "Error Message" := ErrorMessage.Description
+                    "Error Message" := ErrorMessage."Message"
                 else
                     "Error Message" := GetLastErrorText();
             end else

@@ -56,7 +56,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst();
-        TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
+        TempErrorMessage.TestField("Message", PostingDateNotAllowedErr);
         // [THEN] Call Stack contains '"Sales-Post"(CodeUnit 80).CheckAndUpdate '
         Assert.ExpectedMessage('"Sales-Post"(CodeUnit 80).CheckAndUpdate ', TempErrorMessage.GetErrorCallStack());
         // [THEN] "Context" is 'Sales Header: Invoice, 1001', "Field Name" is 'Posting Date',
@@ -111,7 +111,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst();
-        TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
+        TempErrorMessage.TestField("Message", PostingDateNotAllowedErr);
         // [THEN] Call Stack contains '"Sales-Post"(CodeUnit 80).CheckAndUpdate '
         Assert.ExpectedMessage('"Sales-Post"(CodeUnit 80).CheckAndUpdate ', TempErrorMessage.GetErrorCallStack());
         // [THEN] "Context" is 'Sales Header: Invoice, 1001', "Field Name" is 'Posting Date',
@@ -169,7 +169,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst();
-        TempErrorMessage.TestField(Description,
+        TempErrorMessage.TestField("Message",
             StrSubstNo(
                 SetupBlockedErr, GeneralPostingSetup.TableCaption(),
                 GeneralPostingSetup.FieldCaption("Gen. Bus. Posting Group"), GeneralPostingSetup."Gen. Bus. Posting Group",
@@ -219,7 +219,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst();
-        TempErrorMessage.TestField(Description,
+        TempErrorMessage.TestField("Message",
             StrSubstNo(
                 SetupBlockedErr, VATPostingSetup.TableCaption(),
                 VATPostingSetup.FieldCaption("VAT Bus. Posting Group"), VATPostingSetup."VAT Bus. Posting Group",
@@ -350,7 +350,7 @@ codeunit 132501 "Sales Document Posting Errors"
         Assert.RecordCount(TempErrorMessage, 2);
         // [THEN] Second line, where Description is 'There is nothing to post', Context is 'Sales Header: Order, 1002'
         TempErrorMessage.FindLast();
-        TempErrorMessage.TestField(Description, DocumentErrorsMgt.GetNothingToPostErrorMsg());
+        TempErrorMessage.TestField("Message", DocumentErrorsMgt.GetNothingToPostErrorMsg());
         TempErrorMessage.TestField("Context Record ID", SalesHeader.RecordId);
     end;
 
@@ -393,15 +393,15 @@ codeunit 132501 "Sales Document Posting Errors"
         // [THEN] The first error for Order '1002' is 'Posting Date is not within your range of allowed posting dates.'
 
         TempErrorMessage.Get(1);
-        Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage.Description);
+        Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage."Message");
         Assert.AreEqual(SalesHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 1st error');
         // [THEN] The second error for Order '1002' is 'There is nothing to post'
         TempErrorMessage.Get(2);
-        Assert.ExpectedMessage(DocumentErrorsMgt.GetNothingToPostErrorMsg(), TempErrorMessage.Description);
+        Assert.ExpectedMessage(DocumentErrorsMgt.GetNothingToPostErrorMsg(), TempErrorMessage."Message");
         Assert.AreEqual(SalesHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 2nd error');
         // [THEN] The Error for Invoice '1003' is 'Posting Date is not within your range of allowed posting dates.'
         TempErrorMessage.Get(3);
-        Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage.Description);
+        Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage."Message");
         Assert.AreEqual(SalesHeader[2].RecordId, TempErrorMessage."Context Record ID", 'Context for 3rd error');
     end;
 
@@ -458,16 +458,16 @@ codeunit 132501 "Sales Document Posting Errors"
         ErrorMessage.SetRange("Context Record ID", SalesHeader[1].RecordId);
         Assert.RecordCount(ErrorMessage, 2);
         ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage.Description);
+        Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage."Message");
         // [THEN] The second error for Invoice '1002' is 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.'
         ErrorMessage.Next();
-        Assert.ExpectedMessage(StrSubstNo(DefaultDimErr, DefaultDimension."Dimension Code", CustomerNo), ErrorMessage.Description);
+        Assert.ExpectedMessage(StrSubstNo(DefaultDimErr, DefaultDimension."Dimension Code", CustomerNo), ErrorMessage."Message");
 
         // [THEN] The Error for Invoice '1003' is 'Posting Date is not within your range of allowed posting dates.'
         ErrorMessage.SetRange("Context Record ID", SalesHeader[2].RecordId);
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage.Description);
+        Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage."Message");
     end;
 
     [Test]
@@ -576,7 +576,7 @@ codeunit 132501 "Sales Document Posting Errors"
         ErrorMessage.SetRange("Context Record ID", SalesHeader.RecordId);
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
-        ErrorMessage.TestField(Description, StrSubstNo(SalesReturnRcptHeaderConflictErr, IncStr(LastNoUsed)));
+        ErrorMessage.TestField("Message", StrSubstNo(SalesReturnRcptHeaderConflictErr, IncStr(LastNoUsed)));
 
         // [THEN] The Sales Header field Return Receipt No. is blank.
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
@@ -637,7 +637,7 @@ codeunit 132501 "Sales Document Posting Errors"
         ErrorMessage.SetRange("Context Record ID", SalesHeader.RecordId);
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
-        ErrorMessage.TestField(Description, StrSubstNo(SalesShptHeaderConflictErr, IncStr(LastNoUsed)));
+        ErrorMessage.TestField("Message", StrSubstNo(SalesShptHeaderConflictErr, IncStr(LastNoUsed)));
 
         // [THEN] The Sales Header field Return Shipping No. is blank.
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
@@ -698,7 +698,7 @@ codeunit 132501 "Sales Document Posting Errors"
         ErrorMessage.SetRange("Context Record ID", SalesHeader.RecordId);
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
-        ErrorMessage.TestField(Description, StrSubstNo(SalesInvHeaderConflictErr, IncStr(LastNoUsed)));
+        ErrorMessage.TestField("Message", StrSubstNo(SalesInvHeaderConflictErr, IncStr(LastNoUsed)));
 
         // [THEN] The Sales Header field Return Posting No. is blank.
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");

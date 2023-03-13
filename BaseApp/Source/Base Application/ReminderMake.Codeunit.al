@@ -198,7 +198,7 @@ codeunit 392 "Reminder-Make"
                                 ReminderLine.Type := ReminderLine.Type::"Customer Ledger Entry";
                                 ReminderLine.Validate("Entry No.", CustLedgEntry."Entry No.");
                                 SetReminderLevel(ReminderHeader, ReminderLine, ReminderLevel."No.");
-                                OnBeforeReminderLineInsert(ReminderLine, ReminderHeader, ReminderLevel, CustLedgEntry);
+                                OnBeforeReminderLineInsert(ReminderLine, ReminderHeader, ReminderLevel, CustLedgEntry, ReminderHeaderReq);
                                 ReminderLine.Insert();
                                 StartLineInserted := true;
 
@@ -206,7 +206,7 @@ codeunit 392 "Reminder-Make"
                             end;
                         until CustLedgEntry.Next() = 0;
 
-                    OnMakeReminderOnAfterReminderLevelLoop(ReminderLevel, NextLineNo, StartLineInserted);
+                    OnMakeReminderOnAfterReminderLevelLoop(ReminderLevel, NextLineNo, StartLineInserted, ReminderHeaderReq, ReminderHeader, Cust);
                 until ReminderLevel.Next(-1) = 0;
                 ReminderHeader."Reminder Level" := MaxReminderLevel;
                 ReminderHeader.Validate("Reminder Level");
@@ -465,7 +465,7 @@ codeunit 392 "Reminder-Make"
             ReminderLevel.SetRange("Reminder Terms Code", ReminderTerms.Code);
         end;
 
-        OnAfterFilterCustLedgEntryReminderLevel(CustLedgEntry, ReminderLevel, ReminderTerms, Cust);
+        OnAfterFilterCustLedgEntryReminderLevel(CustLedgEntry, ReminderLevel, ReminderTerms, Cust, ReminderHeaderReq, ReminderHeader);
     end;
 
     procedure SetReminderLine(var LineLevel2: Integer; var ReminderDueDate2: Date)
@@ -616,7 +616,7 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFilterCustLedgEntryReminderLevel(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderLevel: Record "Reminder Level"; ReminderTerms: Record "Reminder Terms"; Customer: Record Customer)
+    local procedure OnAfterFilterCustLedgEntryReminderLevel(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderLevel: Record "Reminder Level"; ReminderTerms: Record "Reminder Terms"; Customer: Record Customer; ReminderHeaderReq: Record "Reminder Header"; ReminderHeader: Record "Reminder Header")
     begin
     end;
 
@@ -706,7 +706,7 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReminderLineInsert(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header"; ReminderLevel: Record "Reminder Level"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnBeforeReminderLineInsert(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header"; ReminderLevel: Record "Reminder Level"; CustLedgerEntry: Record "Cust. Ledger Entry"; ReminderHeaderReq: Record "Reminder Header")
     begin
     end;
 
@@ -721,7 +721,7 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMakeReminderOnAfterReminderLevelLoop(var ReminderLevel: Record "Reminder Level"; var NextLineNo: Integer; StartLineInserted: Boolean)
+    local procedure OnMakeReminderOnAfterReminderLevelLoop(var ReminderLevel: Record "Reminder Level"; var NextLineNo: Integer; StartLineInserted: Boolean; ReminderHeaderReq: Record "Reminder Header"; ReminderHeader: Record "Reminder Header"; Customer: Record Customer)
     begin
     end;
 

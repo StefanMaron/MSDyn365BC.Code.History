@@ -130,7 +130,7 @@ codeunit 5360 "CDS Int. Table Couple"
                     end;
                     LocalRecordSystemId := LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value();
                     // re-check that the record is uncoupled as it could just be coupled by another job
-                    if CRMIntegrationRecord.IsIntegrationIdCoupled(LocalRecordSystemId) then begin
+                    if CRMIntegrationRecord.IsIntegrationIdCoupled(LocalRecordSystemId, LocalRecordRef.Number) then begin
                         Session.LogMessage('0000F7F', GetSingleMatchAlreadyCoupledTelemetryErrorMessage(LocalRecordRef, TempMatchingIntegrationFieldMapping), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                         CoupledSystemIds.Add(LocalRecordSystemId)
                     end else begin

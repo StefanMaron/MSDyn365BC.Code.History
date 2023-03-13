@@ -533,15 +533,17 @@ table 7302 "Bin Content"
         if IsHandled then
             exit;
 
-        xRec.CalcFields(
-          "Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)",
-          "Negative Adjmt. Qty. (Base)", "Pick Quantity (Base)");
-        if xRec."Quantity (Base)" <> 0 then
-            Error(Text007, CaptionField, TableCaption);
-        if (xRec."Positive Adjmt. Qty. (Base)" <> 0) or (xRec."Put-away Quantity (Base)" <> 0) or
-           (xRec."Negative Adjmt. Qty. (Base)" <> 0) or (xRec."Pick Quantity (Base)" <> 0)
-        then
-            Error(Text008, CaptionField, TableCaption);
+        if not IsNullGuid(xRec.SystemId) then begin // if xRec exist
+            xRec.CalcFields(
+                "Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)",
+                "Negative Adjmt. Qty. (Base)", "Pick Quantity (Base)");
+            if xRec."Quantity (Base)" <> 0 then
+                Error(Text007, CaptionField, TableCaption);
+            if (xRec."Positive Adjmt. Qty. (Base)" <> 0) or (xRec."Put-away Quantity (Base)" <> 0) or
+                (xRec."Negative Adjmt. Qty. (Base)" <> 0) or (xRec."Pick Quantity (Base)" <> 0)
+            then
+                Error(Text008, CaptionField, TableCaption);
+        end;
     end;
 
     procedure CalcQtyAvailToTake(ExcludeQtyBase: Decimal): Decimal

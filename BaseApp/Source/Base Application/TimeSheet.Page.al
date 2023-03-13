@@ -574,6 +574,7 @@ page 950 "Time Sheet"
             CurrTimeSheetNo := "Time Sheet No."
         else
             CurrTimeSheetNo := TimeSheetHeader.FindLastTimeSheetNo(TimeSheetHeader.FieldNo("Owner User ID"));
+        OnOpenPageOnAfterSetCurrTimeSheetNo(TimeSheetHeader, Rec);
 
         TimeSheetMgt.SetTimeSheetNo(CurrTimeSheetNo, Rec);
         UpdateControls();
@@ -852,6 +853,11 @@ page 950 "Time Sheet"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSubmitLines(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnAfterSetCurrTimeSheetNo(var TimeSheetHeader: Record "Time Sheet Header"; var TimeSheetLine: Record "Time Sheet Line")
     begin
     end;
 }

@@ -45,6 +45,7 @@ codeunit 137150 "SCM Warehouse UOM"
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERM: Codeunit "Library - ERM";
         isInitialized: Boolean;
         ExceedsAvailableCapacity: Label '%1 to place (%2) exceeds the available capacity (%3) on %4 %5.', Comment = '%1= Field Caption,%2= Current capacity value,%3= Available Capacity,%4= Table Caption, %5= Field value.';
         BinContentMustBeDeleted: Label 'Bin Content must be deleted.';
@@ -4425,6 +4426,108 @@ codeunit 137150 "SCM Warehouse UOM"
         Assert.AreEqual(QtyPerBox * BoxesToPutAway, WhseItemTrackingLine."Quantity Handled (Base)", ItemTrackingQtyHandledErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ChangeUOMRequestPageHandler')]
+    procedure VerifyRegisterWarehouseMovementForAdditionalUnitOfMeasureOnPlaceLine()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        BoxUnitOfMeasure: Record "Item Unit of Measure";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [SCENARIO 456130] Verify Register Warehouse Movement for additional Unit of Measure on place line
+        Initialize();
+
+        // [GIVEN] Create Location Setup with Warehouse Employee on default White Location
+        CreateLocationSetup();
+
+        // [GIVEN] Item with Base Unit of Measure = "PCS" and additional Unit of Measure = "BOX"
+        LibraryInventory.CreateItem(Item);
+        CreateItemUnitOfMeasure(BoxUnitOfMeasure, Item."No.", 6500);
+        LibraryVariableStorage.Enqueue(BoxUnitOfMeasure.Code);
+
+        // [GIVEN] Find Bin
+        FindBin(Bin, LocationWhite.Code);
+
+        // [GIVEN] Create and Register Warehouse Journal Line        
+        CreateAndRegisterWarehouseJournalLine(Bin, Item, 8000, Item."Base Unit of Measure");
+
+        // [GIVEN] Calculate Warehouse Adjustment and Post Item Journal Line
+        CalculateWarehouseAdjustmentAndPostItemJournalLine(Item);
+
+        // [GIVEN] Create Warehouse Movement
+        CreateMovementWorksheetLine(Bin, Item."No.", 8000);
+        CreateMovement(WhseWorksheetLine, Item."No.", ItemTrackingMode::" ", false);
+
+        // [WHEN] Change Unit of Measure on Place Line        
+        FindPlaceWhseActivityLine(WarehouseActivityLine, Item."No.");
+        LibraryWarehouse.ChangeUnitOfMeasure(WarehouseActivityLine);
+
+        // [THEN] Verify Warehouse Movement can be register
+        RegisterWarehouseMovement(Item."No.", '');
+    end;
+
+    local procedure FindBin(var Bin: Record Bin; LocationCode: Code[10])
+    var
+        Zone: Record Zone;
+    begin
+        FindZone(Zone, LocationCode, LibraryWarehouse.SelectBinType(false, false, true, true));
+        LibraryWarehouse.CreateBin(Bin, Zone."Location Code", LibraryUtility.GenerateGUID, Zone.Code, Zone."Bin Type Code");
+    end;
+
+    local procedure FindPlaceWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemNo: Code[20])
+    begin
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        WarehouseActivityLine.FindFirst();
+    end;
+
+    local procedure CreateAndRegisterWarehouseJournalLine(Bin: Record Bin; Item: Record Item; Quantity: Decimal; UnitOfMeasureCode: Code[10])
+    var
+        WhseJnlBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+    begin
+        LibraryWarehouse.CreateWarehouseJournalBatch(WhseJnlBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WhseJnlBatch."Journal Template Name", WhseJnlBatch.Name, Bin."Location Code",
+          Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
+        WarehouseJournalLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        WarehouseJournalLine.Modify(true);
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WhseJnlBatch."Journal Template Name", WhseJnlBatch.Name, Bin."Location Code", true);
+    end;
+
+    local procedure CalculateWarehouseAdjustmentAndPostItemJournalLine(var Item: Record Item)
+    begin
+        CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item, true);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Enum "Item Journal Template Type"; NoSeries: Boolean)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, Type);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        if NoSeries then begin
+            ItemJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+            ItemJournalBatch.Modify(true);
+        end;
+    end;
+
+    local procedure CreateWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; Bin: Record Bin; WarehouseJournalTemplateType: Enum "Warehouse Journal Template Type"; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+    begin
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplateType, Bin."Location Code");
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
+          Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+    end;
+
     local procedure CreateAndPostWarehouseReceiptFromTransferOrder(var TransferHeader: Record "Transfer Header")
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
@@ -5389,7 +5492,7 @@ codeunit 137150 "SCM Warehouse UOM"
         BinContent.SetRange("Item No.", ItemNo);
         WhseInternalPutAwayHeader.Init();
         LibraryWarehouse.WhseGetBinContent(
-		    BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
+            BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
     end;
 
     local procedure GetWarehouseDocumentOnPickWorksheet(ItemNo: Code[20]; LocationCode: Code[10]; PerWhseDoc: Boolean)
@@ -6446,6 +6549,13 @@ codeunit 137150 "SCM Warehouse UOM"
     procedure ItemUOMHandler(var ItemUnitsofMeasure: TestPage "Item Units of Measure")
     begin
         ItemUnitsofMeasure.Code.AssertEquals(LibraryVariableStorage.DequeueText);
+    end;
+
+    [RequestPageHandler]
+    procedure ChangeUOMRequestPageHandler(var WhseChangeUnitOfMeasure: TestRequestPage "Whse. Change Unit of Measure")
+    begin
+        WhseChangeUnitOfMeasure.UnitOfMeasureCode.SetValue(LibraryVariableStorage.DequeueText);
+        WhseChangeUnitOfMeasure.OK.Invoke;
     end;
 }
 

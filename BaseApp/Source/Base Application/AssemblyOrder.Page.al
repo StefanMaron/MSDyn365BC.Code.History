@@ -959,6 +959,7 @@ page 900 "Assembly Order"
     var
         AssemblyHeaderReserve: Codeunit "Assembly Header-Reserve";
     begin
+        OnBeforeDeleteRecord(Rec);
         TestField("Assemble to Order", false);
         if (Quantity <> 0) and ItemExists("Item No.") then begin
             Commit();
@@ -984,5 +985,10 @@ page 900 "Assembly Order"
         IsUnitCostEditable: Boolean;
         [InDataSet]
         IsAsmToOrderEditable: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteRecord(var AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
 }
 

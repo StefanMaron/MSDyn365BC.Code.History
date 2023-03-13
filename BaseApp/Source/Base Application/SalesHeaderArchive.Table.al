@@ -747,7 +747,7 @@ table 5107 "Sales Header Archive"
         }
         field(5054; "Bill-to Customer Template Code"; Code[10])
         {
-            Caption = 'Bill-to Customer Template Code';
+            Caption = 'Bill-to Customer Template Code (obsoleted)';
         }
         field(5055; "Opportunity No."; Code[20])
         {
@@ -758,6 +758,11 @@ table 5107 "Sales Header Archive"
         field(5056; "Sell-to Customer Templ. Code"; Code[20])
         {
             Caption = 'Sell-to Customer Template Code';
+            TableRelation = "Customer Templ.";
+        }
+        field(5057; "Bill-to Customer Templ. Code"; Code[20])
+        {
+            Caption = 'Bill-to Customer Template Code';
             TableRelation = "Customer Templ.";
         }
         field(5700; "Responsibility Center"; Code[10])

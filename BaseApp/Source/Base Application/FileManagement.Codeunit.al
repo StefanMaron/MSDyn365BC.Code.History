@@ -94,10 +94,16 @@ codeunit 419 "File Management"
         exit('');
     end;
 
-    procedure BLOBExportWithEncoding(var TempBlob: Codeunit "Temp Blob"; Name: Text; CommonDialog: Boolean; Encoding: TextEncoding): Text
+    procedure BLOBExportWithEncoding(var TempBlob: Codeunit "Temp Blob"; Name: Text; CommonDialog: Boolean; Encoding: TextEncoding) Result: Text
     var
         NVInStream: InStream;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBlobExportWithEncoding(TempBlob, Name, CommonDialog, Encoding, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         TempBlob.CreateInStream(NVInStream, Encoding);
         exit(BLOBExportLocal(NVInStream, Name, CommonDialog));
     end;
@@ -697,6 +703,11 @@ codeunit 419 "File Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBlobExport(var TempBlob: Codeunit "Temp Blob"; Name: Text; CommonDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBlobExportWithEncoding(var TempBlob: Codeunit "Temp Blob"; Name: Text; CommonDialog: Boolean; Encoding: TextEncoding; var Result: Text; var IsHandled: Boolean)
     begin
     end;
 

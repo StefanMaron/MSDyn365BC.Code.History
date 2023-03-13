@@ -19,6 +19,7 @@ codeunit 136403 "Resource Journal"
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        Assert: Codeunit Assert;
         IsInitialized: Boolean;
         TemplateName: Code[20];
         UnitPriceError: Label 'Unit Price must be equal.';
@@ -420,6 +421,34 @@ codeunit 136403 "Resource Journal"
           ResLedgerEntry, TempResJournalLine."Document No.", TempResJournalLine."Journal Batch Name", ResourceUnitOfMeasure."Resource No.");
         ResLedgerEntry.TestField("Qty. per Unit of Measure", ResourceUnitOfMeasure."Qty. per Unit of Measure");
         ResLedgerEntry.TestField("Quantity (Base)", TempResJournalLine.Quantity * ResourceUnitOfMeasure."Qty. per Unit of Measure");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
+    procedure RecordLinkDeletedAfterPostingResJnlLine()
+    var
+        ResJournalBatch: Record "Res. Journal Batch";
+        ResJournalLine: Record "Res. Journal Line";
+        RecordLink: Record "Record Link";
+    begin
+        // [FEATURE] [Journal] [Record Link]
+        // [SCENARIO] Record links are deleted after posting a resource journal line
+
+        Initialize();
+
+        // [GIVEN] Resource journal line
+        FindResourceJournalBatch(ResJournalBatch);
+        CreateResourceJournalLine(ResJournalLine, ResJournalBatch."Journal Template Name", ResJournalBatch.Name, CreateResource());
+
+        // [GIVEN] Assign a record link to the journal line
+        LibraryUtility.CreateRecordLink(ResJournalLine);
+
+        // [WHEN] Post the journal
+        LibraryResource.PostResourceJournalLine(ResJournalLine);
+
+        // [THEN] The record link is deleted
+        RecordLink.SetRange("Record ID", ResJournalLine.RecordId);
+        Assert.RecordIsEmpty(RecordLink);
     end;
 
     local procedure ClearResourceJournalLines(var ResJournalBatch: Record "Res. Journal Batch")

@@ -253,12 +253,18 @@ codeunit 99000834 "Purch. Line-Reserve"
             ReservEntry.ModifyAll("Planning Flexibility", PurchLine."Planning Flexibility");
     end;
 
-    procedure TransferPurchLineToItemJnlLine(var PurchLine: Record "Purchase Line"; var ItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal; var CheckApplToItemEntry: Boolean): Decimal
+    procedure TransferPurchLineToItemJnlLine(var PurchLine: Record "Purchase Line"; var ItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal; var CheckApplToItemEntry: Boolean) Result: Decimal
     var
         OldReservEntry: Record "Reservation Entry";
         OppositeReservEntry: Record "Reservation Entry";
         NotFullyReserved: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferPurchLineToItemJnlLine(PurchLine, ItemJnlLine, TransferQty, CheckApplToItemEntry, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if not FindReservEntry(PurchLine, OldReservEntry) then
             exit(TransferQty);
 
@@ -430,7 +436,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         then
             ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Combined Ship/Rcpt");
         ShouldProcessDropShipment := PurchLine."Drop Shipment";
-        OnCallItemTrackingOnAfterCalcShouldProcessDropShipment(PurchLine, ShouldProcessDropShipment);
+        OnCallItemTrackingOnAfterCalcShouldProcessDropShipment(PurchLine, ShouldProcessDropShipment, ItemTrackingLines);
         if ShouldProcessDropShipment then begin
             ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Drop Shipment");
             if PurchLine."Sales Order No." <> '' then
@@ -821,6 +827,11 @@ codeunit 99000834 "Purch. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferPurchLineToItemJnlLine(var PurchaseLine: Record "Purchase Line"; var ItemJournalLine: Record "Item Journal Line"; TransferQty: Decimal; var CheckApplToItemEntry: Boolean; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferPurchLineToItemJnlLineReservEntry(var OldReservEntry: Record "Reservation Entry"; PurchLine: Record "Purchase Line"; ItemJnlLine: Record "Item Journal Line"; var TransferQty: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -886,7 +897,7 @@ codeunit 99000834 "Purch. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCallItemTrackingOnAfterCalcShouldProcessDropShipment(var PurchLine: Record "Purchase Line"; var ShouldProcessDropShipment: Boolean)
+    local procedure OnCallItemTrackingOnAfterCalcShouldProcessDropShipment(var PurchLine: Record "Purchase Line"; var ShouldProcessDropShipment: Boolean; var ItemTrackingLinesPage: Page "Item Tracking Lines")
     begin
     end;
 

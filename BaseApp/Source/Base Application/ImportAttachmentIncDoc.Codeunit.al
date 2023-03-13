@@ -44,53 +44,71 @@ codeunit 134 "Import Attachment - Inc. Doc."
         IncomingDocument: Record "Incoming Document";
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
-        RecordRef: RecordRef;
     begin
         if FileName = '' then
             Error('');
 
-        with IncomingDocumentAttachment do begin
-            FindOrCreateIncomingDocument(IncomingDocumentAttachment, IncomingDocument);
-            if IncomingDocument.Status in [IncomingDocument.Status::"Pending Approval", IncomingDocument.Status::Failed] then
-                IncomingDocument.TestField(Status, IncomingDocument.Status::New);
-            "Incoming Document Entry No." := IncomingDocument."Entry No.";
-            "Line No." := GetIncomingDocumentNextLineNo(IncomingDocument);
+        FindOrCreateIncomingDocument(IncomingDocumentAttachment, IncomingDocument);
 
-            if not Content.HasValue() then begin
-                if FileManagement.ServerFileExists(FileName) then
-                    FileManagement.BLOBImportFromServerFile(TempBlob, FileName)
-                else
-                    FileManagement.BLOBImportFromServerFile(TempBlob, FileManagement.UploadFile(ChooseFileTitleMsg, FileName));
+        if not IncomingDocumentAttachment.Content.HasValue() then
+            if FileManagement.ServerFileExists(FileName) then
+                FileManagement.BLOBImportFromServerFile(TempBlob, FileName)
+            else
+                FileManagement.BLOBImportFromServerFile(TempBlob, FileManagement.UploadFile(ChooseFileTitleMsg, FileName));
 
-                RecordRef.GetTable(IncomingDocumentAttachment);
-                TempBlob.ToRecordRef(RecordRef, FieldNo(Content));
-                RecordRef.SetTable(IncomingDocumentAttachment);
-            end;
+        exit(SaveDocumentAttachment(IncomingDocument, IncomingDocumentAttachment, FileName, TempBlob, not IncomingDocumentAttachment.Content.HasValue()));
+    end;
 
-            if not Content.HasValue() then begin
-                Message(EmptyFileMsg);
-                if not IsTestMode then
-                    Delete();
-                exit(false);
-            end;
+    procedure ImportAttachment(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; FileName: Text[250]; var TempBlob: Codeunit "Temp Blob"): Boolean
+    var
+        IncomingDocument: Record "Incoming Document";
+        EmptyFileNameErr: Label 'A file name must be provided.';
+    begin
+        if FileName = '' then
+            Error(EmptyFileNameErr);
 
-            Validate("File Extension", LowerCase(CopyStr(FileManagement.GetExtension(FileName), 1, MaxStrLen("File Extension"))));
-            if Name = '' then
-                Name := CopyStr(FileManagement.GetFileNameWithoutExtension(FileName), 1, MaxStrLen(Name));
+        FindOrCreateIncomingDocument(IncomingDocumentAttachment, IncomingDocument);
+        exit(SaveDocumentAttachment(IncomingDocument, IncomingDocumentAttachment, FileName, TempBlob, true));
+    end;
 
-            "Document No." := IncomingDocument."Document No.";
-            "Posting Date" := IncomingDocument."Posting Date";
-            if IncomingDocument.Description = '' then begin
-                IncomingDocument.Description := CopyStr(Name, 1, MaxStrLen(IncomingDocument.Description));
-                IncomingDocument.Modify();
-            end;
+    local procedure SaveDocumentAttachment(var IncomingDocument: Record "Incoming Document"; var IncomingDocumentAttachment: Record "Incoming Document Attachment"; FileName: Text; var TempBlob: Codeunit "Temp Blob"; ReplaceContent: Boolean): Boolean
+    var
+        FileManagement: Codeunit "File Management";
+        RecordRef: RecordRef;
+    begin
+        if IncomingDocument.Status in [IncomingDocument.Status::"Pending Approval", IncomingDocument.Status::Failed] then
+            IncomingDocument.TestField(Status, IncomingDocument.Status::New);
+        IncomingDocumentAttachment."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        IncomingDocumentAttachment."Line No." := GetIncomingDocumentNextLineNo(IncomingDocument);
 
-            Insert(true);
-
-            if Type in [Type::Image, Type::PDF] then
-                OnAttachBinaryFile();
+        if ReplaceContent then begin
+            RecordRef.GetTable(IncomingDocumentAttachment);
+            TempBlob.ToRecordRef(RecordRef, IncomingDocumentAttachment.FieldNo(IncomingDocumentAttachment.Content));
+            RecordRef.SetTable(IncomingDocumentAttachment);
         end;
 
+        if not IncomingDocumentAttachment.Content.HasValue() then begin
+            Message(EmptyFileMsg);
+            if not IsTestMode then
+                IncomingDocumentAttachment.Delete();
+            exit(false);
+        end;
+
+        IncomingDocumentAttachment.Validate("File Extension", LowerCase(CopyStr(FileManagement.GetExtension(FileName), 1, MaxStrLen(IncomingDocumentAttachment."File Extension"))));
+        if IncomingDocumentAttachment.Name = '' then
+            IncomingDocumentAttachment.Name := CopyStr(FileManagement.GetFileNameWithoutExtension(FileName), 1, MaxStrLen(IncomingDocumentAttachment.Name));
+
+        IncomingDocumentAttachment."Document No." := IncomingDocument."Document No.";
+        IncomingDocumentAttachment."Posting Date" := IncomingDocument."Posting Date";
+        if IncomingDocument.Description = '' then begin
+            IncomingDocument.Description := CopyStr(IncomingDocumentAttachment.Name, 1, MaxStrLen(IncomingDocument.Description));
+            IncomingDocument.Modify();
+        end;
+
+        if IncomingDocumentAttachment.Type in [IncomingDocumentAttachment.Type::Image, IncomingDocumentAttachment.Type::PDF] then
+            IncomingDocumentAttachment.OnAttachBinaryFile();
+
+        IncomingDocumentAttachment.Insert(true);
         OnAfterImportAttachment(IncomingDocumentAttachment);
         exit(true);
     end;

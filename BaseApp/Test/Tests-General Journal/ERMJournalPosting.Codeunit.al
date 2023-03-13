@@ -17,6 +17,7 @@ codeunit 134420 "ERM Journal Posting"
         LibraryRandom: Codeunit "Library - Random";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryUtility: Codeunit "Library - Utility";
         isInitialized: Boolean;
         MinRange: Decimal;
         MiddleRange: Decimal;
@@ -221,6 +222,36 @@ codeunit 134420 "ERM Journal Posting"
         ASSERTERROR GeneralLedgerSetup.Validate("Report Output Type", GeneralLedgerSetup."Report Output Type"::Print);
         // [THEN] Error, "Report Output Type" must be PDF
         Assert.ExpectedError('Report Output Type must be equal to ''PDF''  in General Ledger Setup');
+    end;
+
+    [Test]
+    procedure RecordLinkDeletedAfterPostingGenJnlLine()
+    var
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        RecordLink: Record "Record Link";
+    begin
+        // [FEATURE] [Record Link] 
+        // [SCENARIO] Record links are deleted after posting a general journal line
+
+        Initialize();
+
+        // [GIVEN] General journal line
+        LibraryJournals.CreateGenJournalBatch(GenJnlBatch);
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::" ",
+            GenJnlLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+            GenJnlLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(1000, 2));
+
+        // [GIVEN] Assign a record link to the journal line
+        LibraryUtility.CreateRecordLink(GenJnlLine);
+
+        // [WHEN] Post the journal
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+
+        // [THEN] The record link is deleted
+        RecordLink.SetRange("Record ID", GenJnlLine.RecordId);
+        Assert.RecordIsEmpty(RecordLink);
     end;
 
     local procedure Initialize()

@@ -230,7 +230,7 @@ table 560 "VAT Clause"
         until TempExtendedTextLine.Next() = 0;
     end;
 
-    local procedure GetDocumentTypeAndLanguageCode(RecRelatedVariant: Variant; var DocumentType: Enum "VAT Clause Document Type"; var LanguageCode: Code[10]): Boolean
+    local procedure GetDocumentTypeAndLanguageCode(RecRelatedVariant: Variant; var DocumentType: Enum "VAT Clause Document Type"; var LanguageCode: Code[10]) Result: Boolean
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -253,42 +253,43 @@ table 560 "VAT Clause"
                     else
                         DocumentType := DocumentType::Invoice;
                     LanguageCode := SalesHeader."Language Code";
-                    exit(true);
+                    Result := true;
                 end;
             database::"Sales Invoice Header":
                 begin
                     RecRef.SetTable(SalesInvoiceHeader);
                     DocumentType := DocumentType::Invoice;
                     LanguageCode := SalesInvoiceHeader."Language Code";
-                    exit(true);
+                    Result := true;
                 end;
             database::"Sales Cr.Memo Header":
                 begin
                     RecRef.SetTable(SalesCrMemoHeader);
                     DocumentType := DocumentType::"Credit Memo";
                     LanguageCode := SalesCrMemoHeader."Language Code";
-                    exit(true);
+                    Result := true;
                 end;
             database::"Issued Fin. Charge Memo Header":
                 begin
                     RecRef.SetTable(IssuedFinChargeMemoHeader);
                     DocumentType := DocumentType::"Finance Charge Memo";
                     LanguageCode := IssuedFinChargeMemoHeader."Language Code";
-                    exit(true);
+                    Result := true;
                 end;
             database::"Issued Reminder Header":
                 begin
                     RecRef.SetTable(IssuedReminderHeader);
                     DocumentType := DocumentType::Reminder;
                     LanguageCode := IssuedReminderHeader."Language Code";
-                    exit(true);
+                    Result := true;
                 end;
             else begin
                 IsHandled := false;
                 OnGetDocumentTypeAndLanguageCode(Rec, RecRelatedVariant, DocumentType, LanguageCode, IsHandled);
-                exit(IsHandled);
+                Result := IsHandled;
             end;
         end;
+        OnAfterGetDocumentTypeAndLanguageCode(Rec, RecRelatedVariant, RecRef, DocumentType, LanguageCode, Result);
     end;
 
     local procedure FillDescriptions(NewDescription: Text[250]; NewDescription2: Text[250])
@@ -301,6 +302,11 @@ table 560 "VAT Clause"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDescription(var VATClause: Record "VAT Clause"; DocumentType: Enum "VAT Clause Document Type"; LanguageCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDocumentTypeAndLanguageCode(VATClause: Record "VAT Clause"; RecRelatedVariant: Variant; RecRef: RecordRef; var DocumentType: Enum "VAT Clause Document Type"; var LanguageCode: Code[10]; var Result: Boolean)
     begin
     end;
 

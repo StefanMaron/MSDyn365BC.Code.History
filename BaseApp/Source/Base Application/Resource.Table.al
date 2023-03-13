@@ -108,19 +108,21 @@ table 156 Resource
             TableRelation = "Resource Group";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if "Resource Group No." = xRec."Resource Group No." then
                     exit;
 
-                if xRec."Resource Group No." <> '' then
-                    if not
-                       Confirm(
-                         Text001, false,
-                         FieldCaption("Resource Group No."))
-                    then begin
-                        "Resource Group No." := xRec."Resource Group No.";
-                        exit;
-                    end;
+                if xRec."Resource Group No." <> '' then begin
+                    IsHandled := false;
+                    OnValidateResourceGroupNoOnBeforeConfirm(Rec, xRec, IsHandled);
+                    if not IsHandled then
+                        if not Confirm(Text001, false, FieldCaption("Resource Group No.")) then begin
+                            "Resource Group No." := xRec."Resource Group No.";
+                            exit;
+                        end;
+                end;
 
                 if xRec.GetFilter("Resource Group No.") <> '' then
                     SetFilter("Resource Group No.", "Resource Group No.");
@@ -463,7 +465,9 @@ table 156 Resource
                 IsHandled := false;
                 OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
                 if not IsHandled then
-                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+
+                OnAfterValidatePostCode(Rec, xRec);
             end;
         }
         field(54; County; Text[30])
@@ -1014,6 +1018,16 @@ table 156 Resource
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostCode(var Resource: Record Resource; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidatePostCode(var Resource: Record Resource; xResource: Record Resource)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateResourceGroupNoOnBeforeConfirm(var Resource: Record "Resource"; xResource: Record "Resource"; var IsHandled: Boolean)
     begin
     end;
 }

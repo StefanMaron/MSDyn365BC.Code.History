@@ -119,7 +119,7 @@ codeunit 9081 "Check Gen. Jnl. Line. Backgr."
 
     local procedure DocumentBalanceErrorExists(Description: Text; var TempErrorMessage: Record "Error Message" temporary): Boolean
     begin
-        TempErrorMessage.SetRange(Description, Description);
+        TempErrorMessage.SetRange("Message", Description);
         exit(not TempErrorMessage.IsEmpty());
     end;
 
@@ -131,7 +131,7 @@ codeunit 9081 "Check Gen. Jnl. Line. Backgr."
         TempLineErrorMessage."Context Record ID" := ContextRecordId;
         TempLineErrorMessage."Context Field Number" := ContextFieldNo;
         TempLineErrorMessage."Context Table Number" := Database::"Gen. Journal Line";
-        TempLineErrorMessage.Description := CopyStr(Description, 1, MaxStrLen(TempLineErrorMessage.Description));
+        TempLineErrorMessage."Message" := CopyStr(Description, 1, MaxStrLen(TempLineErrorMessage."Message"));
         TempLineErrorMessage.Duplicate := Duplicate;
         TempLineErrorMessage.Insert();
     end;

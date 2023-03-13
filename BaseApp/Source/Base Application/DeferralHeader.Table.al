@@ -81,7 +81,7 @@ table 1701 "Deferral Header"
             begin
                 if GenJnlBatch.Get("Gen. Jnl. Template Name", "Gen. Jnl. Batch Name") then
                     GenJnlCheckLine.SetGenJnlBatch(GenJnlBatch);
-                if GenJnlCheckLine.DateNotAllowed("Start Date") then
+                if GenJnlCheckLine.DeferralPostingDateNotAllowed("Start Date") then
                     Error(InvalidPostingDateErr, "Start Date");
 
                 if AccountingPeriod.IsEmpty() then

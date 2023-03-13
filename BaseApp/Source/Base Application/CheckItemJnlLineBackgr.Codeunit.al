@@ -81,10 +81,10 @@ codeunit 9078 "Check Item Jnl. Line. Backgr."
             foreach ErrInfo in ErrorList do begin
                 TempLineErrorMessage.Init();
                 TempLineErrorMessage.ID := TempLineErrorMessage.ID + 1;
-                TempLineErrorMessage.Description := copystr(ErrInfo.Message, 1, MaxStrLen(TempLineErrorMessage.Description));
+                TempLineErrorMessage."Message" := copystr(ErrInfo.Message, 1, MaxStrLen(TempLineErrorMessage."Message"));
                 TempLineErrorMessage."Context Table Number" := Database::"Item Journal Line";
                 TempLineErrorMessage.Validate("Context Record ID", ItemJnlLine.RecordId);
-                if ErrInfo.RecordId = ItemJnlLine.RecordId then 
+                if ErrInfo.RecordId = ItemJnlLine.RecordId then
                     TempLineErrorMessage."Context Field Number" := ErrInfo.FieldNo
                 else begin
                     TempLineErrorMessage."Table Number" := ErrInfo.TableId;
@@ -106,7 +106,7 @@ codeunit 9078 "Check Item Jnl. Line. Backgr."
         TempLineErrorMessage."Context Record ID" := ContextRecordId;
         TempLineErrorMessage."Context Field Number" := ContextFieldNo;
         TempLineErrorMessage."Context Table Number" := Database::"Item Journal Line";
-        TempLineErrorMessage.Description := CopyStr(Description, 1, MaxStrLen(TempLineErrorMessage.Description));
+        TempLineErrorMessage."Message" := CopyStr(Description, 1, MaxStrLen(TempLineErrorMessage."Message"));
         TempLineErrorMessage.Duplicate := Duplicate;
         TempLineErrorMessage.Insert();
     end;

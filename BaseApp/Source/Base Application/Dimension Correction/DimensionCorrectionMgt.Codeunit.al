@@ -1236,7 +1236,7 @@ codeunit 2580 "Dimension Correction Mgt"
         if not IsNullGuid(JobQueueEntry."Error Message Register Id") then begin
             ErrorMessage.SetRange("Register ID", DimensionCorrection."Validation Errors Register ID");
             if ErrorMessage.FindLast() then
-                LastErrorMessage := ErrorMessage.Description
+                LastErrorMessage := ErrorMessage."Message"
             else
                 LastErrorMessage := JobQueueEntry."Error Message";
         end;

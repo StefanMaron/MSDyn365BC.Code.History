@@ -3,83 +3,11 @@
   <file datatype="xml" source-language="en-US" target-language="fr-BE" original="Recommended Apps">
     <body>
       <group id="body">
-        <trans-unit id="Table 670315561 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Recommended Apps</source>
-          <target state="translated">Applications recommandées</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 670315561 - Field 4068929720 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>AId</source>
-          <target state="translated">AId</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field AId - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 670315561 - Field 415504711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Id</source>
-          <target state="translated">ID</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Id - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 670315561 - Field 2273653569 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Language Code</source>
-          <target state="translated">Code langue</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Language Code - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 670315561 - Field 1123305005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Logo</source>
-          <target state="translated">Logo</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Logo - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 670315561 - Field 1795693192 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Long Description</source>
-          <target state="translated">Description longue</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Long Description - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 670315561 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <target state="translated">Nom</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Name - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 670315561 - Field 2825250752 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>PAppId</source>
-          <target state="translated">PAppId</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field PAppId - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 670315561 - Field 2705250118 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>PubId</source>
-          <target state="translated">PubId</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field PubId - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 670315561 - Field 1772640682 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Publisher</source>
-          <target state="translated">Éditeur</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Publisher - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 670315561 - Field 2974866898 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Recommended By</source>
-          <target state="translated">Recommandées par</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Recommended By - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 670315561 - Field 514743000 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Short Description</source>
-          <target state="translated">Brève description</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Short Description - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 670315561 - Field 357109057 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Id</source>
-          <target state="translated">ID</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field SortingId - Property Caption</note>
+        <trans-unit id="Codeunit 4114294211 - NamedType 1228344041" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot add the recommended app with ID %1. The logo image cannot be downloaded, and the HTTP status code is %2.</source>
+          <target state="translated">Impossible d’ajouter l’application recommandée avec l’ID %1. L’image du logo ne peut pas être téléchargée et le code statut HTTP est %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = App Id; %2 = Http StatusCode</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recommended Apps Impl. - NamedType LogoDoesNotExistErrLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 4114294211 - NamedType 1778008885" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot get the AppSource URL.</source>
@@ -87,11 +15,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recommended Apps Impl. - NamedType AppSourceURLNotFoundErrLbl</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4114294211 - NamedType 1228344041" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cannot add the recommended app with ID %1. The logo image cannot be downloaded, and the HTTP status code is %2.</source>
-          <target state="translated">Impossible d’ajouter l’application recommandée avec l’ID %1. L’image du logo ne peut pas être téléchargée et le code statut HTTP est %2.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = App Id; %2 = Http StatusCode</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recommended Apps Impl. - NamedType LogoDoesNotExistErrLbl</note>
+        <trans-unit id="Codeunit 4114294211 - NamedType 2804436831" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot add the recommended app with ID %1. The URL %2 is not formatted correctly. Are you sure that the information about the app is correct?</source>
+          <target state="translated">Impossible d’ajouter l’application recommandée avec l’ID %1. L’URL %2 n’est pas formatée correctement. Les informations sur l’application sont-elles vraiment correctes ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = App Id; %2 = App Source URL created with app info provided by the partner</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recommended Apps Impl. - NamedType URLNotWellFormattedErrLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 4114294211 - NamedType 3430929266" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Cannot add the recommended app with ID %1. The URL %2 cannot be reached, and the HTTP status code is %3. Are you sure that the information about the app is correct?</source>
@@ -99,41 +27,53 @@
           <note from="Developer" annotates="general" priority="2">%1 = App Id; %2 = App Source URL created with app info provided by the partner; %3 = Http StatusCode</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recommended Apps Impl. - NamedType URLNotReachableErrLbl</note>
         </trans-unit>
-        <trans-unit id="Codeunit 4114294211 - NamedType 2804436831" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Cannot add the recommended app with ID %1. The URL %2 is not formatted correctly. Are you sure that the information about the app is correct?</source>
-          <target state="translated">Impossible d’ajouter l’application recommandée avec l’ID %1. L’URL %2 n’est pas formatée correctement. Les informations sur l’application sont-elles vraiment correctes ?</target>
-          <note from="Developer" annotates="general" priority="2">%1 = App Id; %2 = App Source URL created with app info provided by the partner</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Recommended Apps Impl. - NamedType URLNotWellFormattedErrLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 4105953020 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Recommended App Card</source>
-          <target state="translated">Carte d’application recommandée</target>
+        <trans-unit id="Enum 329656081 - EnumValue 435169421 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your Microsoft Reseller</source>
+          <target state="translated">Votre revendeur Microsoft</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended App Card - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum App Recommended By - EnumValue Your Microsoft Reseller - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 4105953020 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Description</source>
-          <target state="translated">Description</target>
+        <trans-unit id="Page 216317471 - Control 1772640682 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>App publisher</source>
+          <target state="translated">Éditeur de l’application</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended App Card - Control Description - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended Apps List - Control Publisher - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 4105953020 - Control 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Description</source>
-          <target state="translated">Description</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended App Card - Control Description - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 4105953020 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Page 216317471 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Name</source>
           <target state="translated">Nom</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended App Card - Control Name - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended Apps List - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 216317471 - Control 514743000 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Short Description</source>
+          <target state="translated">Brève description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended Apps List - Control Short Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 216317471 - Control 909780402 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommended by</source>
+          <target state="translated">Recommandées par</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended Apps List - Control Recommended by - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 216317471 - Control 909780402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommended by</source>
+          <target state="translated">Recommandées par</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended Apps List - Control Recommended by - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4105953020 - Control 1772640682 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Publisher</source>
           <target state="translated">Éditeur</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Recommended App Card - Control Publisher - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4105953020 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Nom</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended App Card - Control Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4105953020 - Control 2974866898 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Recommended By</source>
@@ -146,6 +86,18 @@
           <target state="translated">Recommandées par</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Recommended App Card - Control Recommended By - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4105953020 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended App Card - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4105953020 - Control 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended App Card - Control Description - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4105953020 - Control 37728636 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View app on Microsoft Business Central AppSource</source>
@@ -165,35 +117,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Recommended Apps List - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 216317471 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <target state="translated">Nom</target>
+        <trans-unit id="Page 4105953020 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommended App Card</source>
+          <target state="translated">Carte d’application recommandée</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended Apps List - Control Name - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 216317471 - Control 1772640682 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>App publisher</source>
-          <target state="translated">Éditeur de l’application</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended Apps List - Control Publisher - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 216317471 - Control 909780402 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Recommended by</source>
-          <target state="translated">Recommandées par</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended Apps List - Control Recommended by - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 216317471 - Control 909780402 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Recommended by</source>
-          <target state="translated">Recommandées par</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended Apps List - Control Recommended by - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 216317471 - Control 514743000 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Short Description</source>
-          <target state="translated">Brève description</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended Apps List - Control Short Description - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Recommended App Card - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 216317471 - View 435169421 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your Microsoft Reseller</source>
@@ -201,11 +129,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Recommended Apps List - View Your Microsoft Reseller - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Enum 329656081 - EnumValue 435169421 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Your Microsoft Reseller</source>
-          <target state="translated">Votre revendeur Microsoft</target>
+        <trans-unit id="PermissionSet 2505057798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RecommendedApps - Objects</source>
+          <target state="translated">RecommendedApps - Objets</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum App Recommended By - EnumValue Your Microsoft Reseller - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RecommApps - Objects - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 2717034780 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>RecommendedApps - Edit</source>
@@ -213,17 +141,89 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RecommApps - Edit - Property Caption</note>
         </trans-unit>
-        <trans-unit id="PermissionSet 2505057798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>RecommendedApps - Objects</source>
-          <target state="translated">RecommendedApps - Objets</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RecommApps - Objects - Property Caption</note>
-        </trans-unit>
         <trans-unit id="PermissionSet 3677553818 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>RecommendedApps - Read</source>
           <target state="translated">RecommendedApps - Lecture</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet RecommApps - Read - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Field 1123305005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Logo</source>
+          <target state="translated">Logo</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Logo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Field 1772640682 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Publisher</source>
+          <target state="translated">Éditeur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Publisher - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Field 1795693192 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Long Description</source>
+          <target state="translated">Description longue</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Long Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Field 2273653569 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Language Code</source>
+          <target state="translated">Code langue</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Language Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Field 2705250118 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PubId</source>
+          <target state="translated">PubId</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field PubId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Field 2825250752 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PAppId</source>
+          <target state="translated">PAppId</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field PAppId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Nom</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Field 2974866898 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommended By</source>
+          <target state="translated">Recommandées par</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Recommended By - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Field 357109057 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field SortingId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Field 4068929720 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>AId</source>
+          <target state="translated">AId</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field AId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Field 415504711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Field 514743000 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Short Description</source>
+          <target state="translated">Brève description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Field Short Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 670315561 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommended Apps</source>
+          <target state="translated">Applications recommandées</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Recommended Apps - Property Caption</note>
         </trans-unit>
       </group>
     </body>

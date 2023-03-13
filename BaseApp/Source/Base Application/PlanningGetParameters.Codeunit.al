@@ -120,6 +120,24 @@ codeunit 99000855 "Planning-Get Parameters"
         PlanningParameters."Dampener Quantity Enabled" := DampenerQuantityEnabled;
         PlanningParameters."Overflow Level Enabled" := OverflowLevelEnabled;
 
+        SetPlanningParameters(PlanningParameters);
+
+        TimeBucketEnabled := PlanningParameters."Time Bucket Enabled";
+        SafetyLeadTimeEnabled := PlanningParameters."Safety Lead Time Enabled";
+        SafetyStockQtyEnabled := PlanningParameters."Safety Stock Qty Enabled";
+        ReorderPointEnabled := PlanningParameters."Reorder Point Enabled";
+        ReorderQuantityEnabled := PlanningParameters."Reorder Quantity Enabled";
+        MaximumInventoryEnabled := PlanningParameters."Maximum Inventory Enabled";
+        MinimumOrderQtyEnabled := PlanningParameters."Minimum Order Qty Enabled";
+        MaximumOrderQtyEnabled := PlanningParameters."Maximum Order Qty Enabled";
+        OrderMultipleEnabled := PlanningParameters."Order Multiple Enabled";
+        IncludeInventoryEnabled := PlanningParameters."Include Inventory Enabled";
+        ReschedulingPeriodEnabled := PlanningParameters."Rescheduling Period Enabled";
+        LotAccumulationPeriodEnabled := PlanningParameters."Lot Accum. Period Enabled";
+        DampenerPeriodEnabled := PlanningParameters."Dampener Period Enabled";
+        DampenerQuantityEnabled := PlanningParameters."Dampener Quantity Enabled";
+        OverflowLevelEnabled := PlanningParameters."Overflow Level Enabled";
+
         OnAfterSetUpPlanningControls(
             ReorderingPolicy, IncludeInventory, TimebucketEnabled, SafetyLeadTimeEnabled, SafetyStockQtyEnabled,
             ReorderPointEnabled, ReorderQuantityEnabled, MaximumInventoryEnabled,

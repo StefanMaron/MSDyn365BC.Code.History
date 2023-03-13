@@ -3,71 +3,47 @@
   <file datatype="xml" source-language="en-US" target-language="it-CH" original="Send To Email Printer">
     <body>
       <group id="body">
-        <trans-unit id="Table 3508446305 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email Printer Settings</source>
-          <target state="translated">Impostazioni stampante con indirizzo e-mail</target>
+        <trans-unit id="Codeunit 1148211046 - NamedType 1051200959" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The value in the Paper Width field must be greater than 0.</source>
+          <target state="translated">Il valore nel campo Larghezza foglio deve essere maggiore di 0.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType WidthInputErr</note>
         </trans-unit>
-        <trans-unit id="Table 3508446305 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Printer Description</source>
-          <target state="translated">Descrizione stampante</target>
+        <trans-unit id="Codeunit 1148211046 - NamedType 137853743" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sends print jobs to the printer's email address</source>
+          <target state="translated">Inviare i processi di stampa all'indirizzo e-mail della stampante</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Description - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType DefaultDescriptionTxt</note>
         </trans-unit>
-        <trans-unit id="Table 3508446305 - Field 90141998 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Printer Email Address</source>
-          <target state="translated">Indirizzo e-mail della stampante</target>
+        <trans-unit id="Codeunit 1148211046 - NamedType 2244223965" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The email address is not valid. Do you want to exit?</source>
+          <target state="translated">L'indirizzo e-mail non è valido. Uscire?</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Email Address - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType ClosePageQst</note>
         </trans-unit>
-        <trans-unit id="Table 3508446305 - Field 264318664 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email Body</source>
-          <target state="translated">Corpo e-mail</target>
+        <trans-unit id="Codeunit 1148211046 - NamedType 3264744853" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printed Copy</source>
+          <target state="translated">Copia stampata</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Email Body - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType DefaultEmailSubjectTxt</note>
         </trans-unit>
-        <trans-unit id="Table 3508446305 - Field 172738764 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email Subject</source>
-          <target state="translated">Oggetto del messaggio e-mail</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Email Subject - Property Caption</note>
+        <trans-unit id="Codeunit 1148211046 - NamedType 3319436045" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You cannot delete printer %1. It is used on the Printer Selections page.</source>
+          <target state="translated">Impossibile eliminare la stampante %1. Viene utilizzata nella pagina Selezioni stampante.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Printer ID</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType UsedInPrinterSelectionErr</note>
         </trans-unit>
-        <trans-unit id="Table 3508446305 - Field 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Printer ID</source>
-          <target state="translated">ID stampante</target>
+        <trans-unit id="Codeunit 1148211046 - NamedType 4159406584" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The value in the Paper Height field must be greater than 0.</source>
+          <target state="translated">Il valore nel campo Altezza foglio deve essere maggiore di 0.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field ID - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType HeightInputErr</note>
         </trans-unit>
-        <trans-unit id="Table 3508446305 - Field 2259985461 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Landscape</source>
-          <target state="translated">Orizzontale</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Landscape - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3508446305 - Field 4189842715 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Printer Paper Height</source>
-          <target state="translated">Altezza foglio della stampante</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Paper Height - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3508446305 - Field 975863445 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paper Size</source>
-          <target state="translated">Dimensioni foglio</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Paper Size - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3508446305 - Field 2022138324 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Printer Paper Units</source>
-          <target state="translated">Unità foglio della stampante</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Paper Unit - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Table 3508446305 - Field 2319021892 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Printer Paper Width</source>
-          <target state="translated">Larghezza foglio della stampante</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Paper Width - Property Caption</note>
+        <trans-unit id="Codeunit 2195109935 - NamedType 1404742739" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The email couldn't be sent. %1</source>
+          <target state="translated">Impossibile inviare il messaggio e-mail. %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = a more detailed error message</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType SendErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2195109935 - NamedType 3036052668" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email is not set up for the action you are trying to take. Ask your administrator to either add the %1 scenario to your email account, or to specify a default account for email scenarios.</source>
@@ -81,101 +57,60 @@
           <note from="Developer" annotates="general" priority="2">%1 = Printer name.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType PrinterEmailNotSetupErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2195109935 - NamedType 1404742739" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The email couldn't be sent. %1</source>
-          <target state="translated">Impossibile inviare il messaggio e-mail. %1</target>
-          <note from="Developer" annotates="general" priority="2">%1 = a more detailed error message</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Document Print Ready - NamedType SendErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - NamedType 2244223965" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The email address is not valid. Do you want to exit?</source>
-          <target state="translated">L'indirizzo e-mail non è valido. Uscire?</target>
+        <trans-unit id="Enum 1169259286 - EnumValue 2441939078 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inches (in)</source>
+          <target state="translated">Pollici (in)</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType ClosePageQst</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Email Printer Paper Unit - EnumValue Inches - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - NamedType 137853743" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sends print jobs to the printer's email address</source>
-          <target state="translated">Inviare i processi di stampa all'indirizzo e-mail della stampante</target>
+        <trans-unit id="Enum 1169259286 - EnumValue 2986160639 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Millimeters (mm)</source>
+          <target state="translated">Millimetri (mm)</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType DefaultDescriptionTxt</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Email Printer Paper Unit - EnumValue Millimeters - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - NamedType 3264744853" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Printed Copy</source>
-          <target state="translated">Copia stampata</target>
+        <trans-unit id="EnumExtension 453304344 - EnumValue 1622442990 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Printer</source>
+          <target state="translated">Stampante con indirizzo e-mail</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType DefaultEmailSubjectTxt</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 2593693414</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - NamedType 4159406584" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The value in the Paper Height field must be greater than 0.</source>
-          <target state="translated">Il valore nel campo Altezza foglio deve essere maggiore di 0.</target>
+        <trans-unit id="Page 3508446305 - Action 709640958 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens new email printer card page.</source>
+          <target state="translated">Apre la nuova pagina della scheda stampante e-mail.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType HeightInputErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Action NewPrinter - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - NamedType 3319436045" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You cannot delete printer %1. It is used on the Printer Selections page.</source>
-          <target state="translated">Impossibile eliminare la stampante %1. Viene utilizzata nella pagina Selezioni stampante.</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Printer ID</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType UsedInPrinterSelectionErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 1148211046 - NamedType 1051200959" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The value in the Paper Width field must be greater than 0.</source>
-          <target state="translated">Il valore nel campo Larghezza foglio deve essere maggiore di 0.</target>
+        <trans-unit id="Page 3508446305 - Action 709640958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add another email printer</source>
+          <target state="translated">Aggiungi un'altra stampante e-mail</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Setup Printers - NamedType WidthInputErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Action NewPrinter - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 3508446305 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email Printer Settings</source>
-          <target state="translated">Impostazioni stampante con indirizzo e-mail</target>
+        <trans-unit id="Page 3508446305 - Control 119355084 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the width of the paper.</source>
+          <target state="translated">Specifica la larghezza del foglio.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control PaperWidth - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 3508446305 - NamedType 2891017306" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>For this printer to work, a user with respective permissions needs to set up an email account in Business Central.</source>
-          <target state="translated">Per il corretto funzionamento della stampante, è necessario che un utente con le relative autorizzazioni configuri un account e-mail in Business Central.</target>
+        <trans-unit id="Page 3508446305 - Control 184311439 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open SMTP mail setup page.</source>
+          <target state="translated">Aprire la pagina Setup posta SMTP.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType EmailAccountPermissionsRequiredLbl</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SetupSMTP - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Page 3508446305 - NamedType 2619791218" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>For this printer to work, set up an email account in Business Central to use for sending print jobs to the email printers.</source>
-          <target state="translated">Per il corretto funzionamento della stampante, configurare un account e-mail in Business Central da utilizzare per l'invio dei processi di stampa alle stampanti con indirizzo e-mail.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType EmailAccountRequiredLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - NamedType 284576615" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Learn more</source>
-          <target state="translated">Ulteriori informazioni</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType LearnMoreActionLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - NamedType 3399143437" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Print jobs will be sent to the specified email address. Please take privacy precautions.</source>
-          <target state="translated">I processi di stampa saranno inviati all'indirizzo e-mail specificato. Prendere le dovute precauzioni per la privacy.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType PrintPrivacyNotificationMsg</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - NamedType 2257926908" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Set up email account</source>
-          <target state="translated">Imposta account e-mail</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType SetupEmailAccountLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - NamedType 1555763889" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Page 3508446305 - Control 184311439 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up SMTP</source>
           <target state="translated">Imposta SMTP</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType SetupSMTPLbl</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SetupSMTP - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 3508446305 - NamedType 3212133970" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This printer requires SMTP mail setup to print the jobs.</source>
-          <target state="translated">Questa stampante richiede il setup della posta SMTP per stampare.</target>
+        <trans-unit id="Page 3508446305 - Control 2259985461 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the paper is in Landscape orientation.</source>
+          <target state="translated">Specifica se il foglio è in orientamento orizzontale.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType SMTPSetupRequiredLbl</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 3154152211 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the height of the paper.</source>
-          <target state="translated">Specifica l'altezza del foglio.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control PaperHeight - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control Landscape - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3508446305 - Control 2457731676 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the unit of measurement for the width and height of the paper.</source>
@@ -189,11 +124,59 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control PaperUnit - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 119355084 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the width of the paper.</source>
-          <target state="translated">Specifica la larghezza del foglio.</target>
+        <trans-unit id="Page 3508446305 - Control 2639240192 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the requirement for the printer.</source>
+          <target state="translated">Specifica il requisito della stampante.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control PaperWidth - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control EmailAccountPermissionsRequired - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 2639240192 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>For this printer to work, a user with respective permissions needs to set up an email account in Business Central.</source>
+          <target state="translated">Per il corretto funzionamento della stampante, è necessario che un utente con le relative autorizzazioni configuri un account e-mail in Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control EmailAccountPermissionsRequired - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 2665397048 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the requirement for the printer.</source>
+          <target state="translated">Specifica il requisito della stampante.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SMTPSetupRequired - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 2665397048 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This printer requires SMTP mail setup to print the jobs.</source>
+          <target state="translated">Questa stampante richiede il setup della posta SMTP per stampare.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SMTPSetupRequired - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the email address of the printer.</source>
+          <target state="translated">Specifica l'indirizzo e-mail della stampante.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control EmailAddress - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 2984523798 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open Email Accounts page.</source>
+          <target state="translated">Aprire la pagina Account e-mail.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SetupEmailAccount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 2984523798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up email account</source>
+          <target state="translated">Imposta account e-mail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SetupEmailAccount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 3154152211 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the height of the paper.</source>
+          <target state="translated">Specifica l'altezza del foglio.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control PaperHeight - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 3292692308 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the subject of the sent email.</source>
+          <target state="translated">Specifica l'oggetto del messaggio e-mail inviato.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control EmailSubject - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3508446305 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the description of the printer.</source>
@@ -207,11 +190,29 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control Description - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 2814033574 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the email address of the printer.</source>
-          <target state="translated">Specifica l'indirizzo e-mail della stampante.</target>
+        <trans-unit id="Page 3508446305 - Control 3641927271 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ID of the printer.</source>
+          <target state="translated">Specifica l'ID della stampante.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control EmailAddress - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer ID</source>
+          <target state="translated">ID stampante</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 3991567098 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the printer's selected paper size.</source>
+          <target state="translated">Specifica la dimensione del foglio selezionata della stampante.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control PaperKind - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - Control 3991567098 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Paper Size</source>
+          <target state="translated">Dimensioni foglio</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control PaperKind - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3508446305 - Control 586428704 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the body of the sent email. Some printers may print the body of the email along with the attachment(s).</source>
@@ -237,115 +238,53 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control EmailAccountRequired - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 2984523798 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open Email Accounts page.</source>
-          <target state="translated">Aprire la pagina Account e-mail.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SetupEmailAccount - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 2984523798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Set up email account</source>
-          <target state="translated">Imposta account e-mail</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SetupEmailAccount - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 2639240192 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the requirement for the printer.</source>
-          <target state="translated">Specifica il requisito della stampante.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control EmailAccountPermissionsRequired - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 2639240192 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>For this printer to work, a user with respective permissions needs to set up an email account in Business Central.</source>
-          <target state="translated">Per il corretto funzionamento della stampante, è necessario che un utente con le relative autorizzazioni configuri un account e-mail in Business Central.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control EmailAccountPermissionsRequired - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 3292692308 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the subject of the sent email.</source>
-          <target state="translated">Specifica l'oggetto del messaggio e-mail inviato.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control EmailSubject - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 3641927271 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the ID of the printer.</source>
-          <target state="translated">Specifica l'ID della stampante.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control ID - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Printer ID</source>
-          <target state="translated">ID stampante</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control ID - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 2259985461 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies whether the paper is in Landscape orientation.</source>
-          <target state="translated">Specifica se il foglio è in orientamento orizzontale.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control Landscape - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 3991567098 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the printer's selected paper size.</source>
-          <target state="translated">Specifica la dimensione del foglio selezionata della stampante.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control PaperKind - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 3991567098 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Paper Size</source>
-          <target state="translated">Dimensioni foglio</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control PaperKind - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 184311439 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Open SMTP mail setup page.</source>
-          <target state="translated">Aprire la pagina Setup posta SMTP.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SetupSMTP - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 184311439 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Page 3508446305 - NamedType 1555763889" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up SMTP</source>
           <target state="translated">Imposta SMTP</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SetupSMTP - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType SetupSMTPLbl</note>
         </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 2665397048 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the requirement for the printer.</source>
-          <target state="translated">Specifica il requisito della stampante.</target>
+        <trans-unit id="Page 3508446305 - NamedType 2257926908" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up email account</source>
+          <target state="translated">Imposta account e-mail</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SMTPSetupRequired - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType SetupEmailAccountLbl</note>
         </trans-unit>
-        <trans-unit id="Page 3508446305 - Control 2665397048 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Page 3508446305 - NamedType 2619791218" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>For this printer to work, set up an email account in Business Central to use for sending print jobs to the email printers.</source>
+          <target state="translated">Per il corretto funzionamento della stampante, configurare un account e-mail in Business Central da utilizzare per l'invio dei processi di stampa alle stampanti con indirizzo e-mail.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType EmailAccountRequiredLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - NamedType 284576615" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Learn more</source>
+          <target state="translated">Ulteriori informazioni</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType LearnMoreActionLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - NamedType 2891017306" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>For this printer to work, a user with respective permissions needs to set up an email account in Business Central.</source>
+          <target state="translated">Per il corretto funzionamento della stampante, è necessario che un utente con le relative autorizzazioni configuri un account e-mail in Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType EmailAccountPermissionsRequiredLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3508446305 - NamedType 3212133970" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This printer requires SMTP mail setup to print the jobs.</source>
           <target state="translated">Questa stampante richiede il setup della posta SMTP per stampare.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Control SMTPSetupRequired - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType SMTPSetupRequiredLbl</note>
         </trans-unit>
-        <trans-unit id="Page 3508446305 - Action 709640958 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Opens new email printer card page.</source>
-          <target state="translated">Apre la nuova pagina della scheda stampante e-mail.</target>
+        <trans-unit id="Page 3508446305 - NamedType 3399143437" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Print jobs will be sent to the specified email address. Please take privacy precautions.</source>
+          <target state="translated">I processi di stampa saranno inviati all'indirizzo e-mail specificato. Prendere le dovute precauzioni per la privacy.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Action NewPrinter - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - NamedType PrintPrivacyNotificationMsg</note>
         </trans-unit>
-        <trans-unit id="Page 3508446305 - Action 709640958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Add another email printer</source>
-          <target state="translated">Aggiungi un'altra stampante e-mail</target>
+        <trans-unit id="Page 3508446305 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Printer Settings</source>
+          <target state="translated">Impostazioni stampante con indirizzo e-mail</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Action NewPrinter - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="PageExtension 2148701171 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>New, Process, Report, Manage, Email Print, Universal Print</source>
-          <target state="translated">Nuovo, Processo, Report, Gestisci, Stampa e-mail, Stampa universale</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
-        </trans-unit>
-        <trans-unit id="PageExtension 2148701171 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>email printers,emailprint</source>
-          <target state="translated">stampanti e-mail,emailprint</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Printer Settings - Property Caption</note>
         </trans-unit>
         <trans-unit id="PageExtension 2148701171 - Action 709640958 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create a new email printer.</source>
@@ -375,10 +314,10 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
-        <trans-unit id="PageExtension 2148701171 - Change 311693179 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> Universal Print</source>
-          <target state="translated"> Stampa universale</target>
-          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 5.</note>
+        <trans-unit id="PageExtension 2148701171 - Change 2234406979 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> Report</source>
+          <target state="translated"> Report</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 2.</note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
@@ -389,6 +328,13 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
+        <trans-unit id="PageExtension 2148701171 - Change 311693179 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> Universal Print</source>
+          <target state="translated"> Stampa universale</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 5.</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+        </trans-unit>
         <trans-unit id="PageExtension 2148701171 - Change 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> Process</source>
           <target state="translated"> Processo</target>
@@ -396,31 +342,25 @@
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
-        <trans-unit id="PageExtension 2148701171 - Change 2234406979 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> Report</source>
-          <target state="translated"> Report</target>
-          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 2.</note>
+        <trans-unit id="PageExtension 2148701171 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New, Process, Report, Manage, Email Print, Universal Print</source>
+          <target state="translated">Nuovo, Processo, Report, Gestisci, Stampa e-mail, Stampa universale</target>
+          <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
         </trans-unit>
-        <trans-unit id="Enum 1169259286 - EnumValue 2441939078 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Inches (in)</source>
-          <target state="translated">Pollici (in)</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Email Printer Paper Unit - EnumValue Inches - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Enum 1169259286 - EnumValue 2986160639 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Millimeters (mm)</source>
-          <target state="translated">Millimetri (mm)</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Email Printer Paper Unit - EnumValue Millimeters - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="EnumExtension 453304344 - EnumValue 1622442990 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Email Printer</source>
-          <target state="translated">Stampante con indirizzo e-mail</target>
+        <trans-unit id="PageExtension 2148701171 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>email printers,emailprint</source>
+          <target state="translated">stampanti e-mail,emailprint</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
-          <note from="ObjectTarget" annotates="general" priority="5">Enum 2593693414</note>
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 488051654 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SendToEmailPrinter - Read</source>
+          <target state="translated">SendToEmailPrinter-leggi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SendToEmailPrinter - Read - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 514516880 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>SendToEmailPrinter - Edit</source>
@@ -434,11 +374,71 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SendToEmailPrinter - Objects - Property Caption</note>
         </trans-unit>
-        <trans-unit id="PermissionSet 488051654 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>SendToEmailPrinter - Read</source>
-          <target state="translated">SendToEmailPrinter-leggi</target>
+        <trans-unit id="Table 3508446305 - Field 172738764 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Subject</source>
+          <target state="translated">Oggetto del messaggio e-mail</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet SendToEmailPrinter - Read - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Email Subject - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3508446305 - Field 2022138324 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer Paper Units</source>
+          <target state="translated">Unità foglio della stampante</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Paper Unit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3508446305 - Field 2259985461 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Landscape</source>
+          <target state="translated">Orizzontale</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Landscape - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3508446305 - Field 2319021892 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer Paper Width</source>
+          <target state="translated">Larghezza foglio della stampante</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Paper Width - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3508446305 - Field 264318664 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Body</source>
+          <target state="translated">Corpo e-mail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Email Body - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3508446305 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer Description</source>
+          <target state="translated">Descrizione stampante</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3508446305 - Field 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer ID</source>
+          <target state="translated">ID stampante</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3508446305 - Field 4189842715 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer Paper Height</source>
+          <target state="translated">Altezza foglio della stampante</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Paper Height - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3508446305 - Field 90141998 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Printer Email Address</source>
+          <target state="translated">Indirizzo e-mail della stampante</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Email Address - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3508446305 - Field 975863445 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Paper Size</source>
+          <target state="translated">Dimensioni foglio</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Field Paper Size - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3508446305 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Email Printer Settings</source>
+          <target state="translated">Impostazioni stampante con indirizzo e-mail</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Email Printer Settings - Property Caption</note>
         </trans-unit>
       </group>
     </body>

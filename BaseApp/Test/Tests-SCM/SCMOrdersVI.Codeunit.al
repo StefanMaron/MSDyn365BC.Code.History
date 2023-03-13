@@ -34,6 +34,7 @@
         LibraryERM: Codeunit "Library - ERM";
         LibraryCosting: Codeunit "Library - Costing";
         LibraryPlanning: Codeunit "Library - Planning";
+        LibraryResource: Codeunit "Library - Resource";
         isInitialized: Boolean;
         ReserveItemsManuallyConfirmQst: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
         UndoReceiptMsg: Label 'Do you really want to undo the selected Receipt lines?';
@@ -3113,6 +3114,60 @@
 
         WarehouseActivityLine.SetRange("Item No.", Item[2]."No.");
         Assert.RecordIsNotEmpty(WarehouseActivityLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S461213_PostAssemblyOrderWithOutputItemVariantAndResourceConsumption()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ParentItem: Record Item;
+        ParentItemVariant: Record "Item Variant";
+        ChildItem: Record Item;
+        ChildResource: Record Resource;
+        ItemJournalLine: Record "Item Journal Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: array[2] of Record "Assembly Line";
+    begin
+        // [FEATURE] [Assembly Order] [Item Variant] [Resource]
+        // [SCENARIO 461213] Assembly Order can be posted with Output Item Variant in Header. Child Item and Resource are consumed.
+        Initialize(false);
+
+        // [GIVEN] Create "Unit of Measure"
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create "Parent Item" and "Parent Item Variant" with "Variant Mandatory if Exists" = true
+        CreateMandatoryVariant(ParentItem, ParentItemVariant);
+        ParentItem.Validate("Base Unit of Measure", UnitOfMeasure.Code);
+        ParentItem.Modify();
+
+        // [GIVEN] Create "Child Item"
+        LibraryAssembly.SetupAssemblyItem(ChildItem, ChildItem."Costing Method"::Standard, ChildItem."Costing Method"::Standard, ChildItem."Replenishment System"::Assembly, '', false, 5, 5, 5, 5);
+        ChildItem.Validate("Base Unit of Measure", UnitOfMeasure.Code);
+        ChildItem.Modify();
+
+        // [GIVEN] Put "Child Item" on Inventory
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, '', ItemJournalLine."Entry Type"::"Positive Adjmt.", ChildItem."No.", 10);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create "Child Resource"
+        LibraryResource.CreateResourceNew(ChildResource);
+
+        // [GIVEN] Create Assembly Order Header for "Parent Item" and "Parent Item Variant"
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, AddDays(WorkDate(), 10), ParentItem."No.", '', 1, '');
+        AssemblyHeader.Validate("Variant Code", ParentItemVariant.Code);
+        AssemblyHeader.Modify();
+
+        // [GIVEN] Create Assembly Order Line for "Child Item"
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine[1], "BOM Component Type"::Item, ChildItem."No.", ChildItem."Base Unit of Measure", 1, 1, '');
+
+        // [GIVEN] Create Assembly Order Line for "Child Resource"
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine[2], "BOM Component Type"::Resource, ChildResource."No.", ChildResource."Base Unit of Measure", 1, 1, '');
+
+        // [WHEN] Assembly Order is posted
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [THEN] No error is thrown
     end;
 
     local procedure Initialize(Enable: Boolean)

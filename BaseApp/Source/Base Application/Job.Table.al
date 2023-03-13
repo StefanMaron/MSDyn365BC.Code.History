@@ -105,13 +105,16 @@ table 167 Job
                 if xRec.Status <> Status then begin
                     if Status = Status::Completed then
                         Validate(Complete, true);
-                    if xRec.Status = xRec.Status::Completed then
-                        if DIALOG.Confirm(StatusChangeQst) then begin
-                            Validate(Complete, false);
+                    if xRec.Status = xRec.Status::Completed then begin
+                        IsHandled := false;
+                        OnValidateStatusOnBeforeConfirm(Rec, xRec, UndidCompleteStatus, IsHandled);
+                        if not IsHandled then begin
+                            if Dialog.Confirm(StatusChangeQst) then
+                                Validate(Complete, false);
                             UndidCompleteStatus := true;
-                        end
-                        else
+                        end else
                             Status := xRec.Status;
+                    end;
                     Modify();
                     JobPlanningLine.SetCurrentKey("Job No.");
                     JobPlanningLine.SetRange("Job No.", "No.");
@@ -1069,8 +1072,7 @@ table 167 Job
             Validate("Allow Schedule/Contract Lines", JobsSetup."Allow Sched/Contract Lines Def");
         if "WIP Method" = '' then
             Validate("WIP Method", JobsSetup."Default WIP Method");
-        if "Job Posting Group" = '' then
-            Validate("Job Posting Group", JobsSetup."Default Job Posting Group");
+        InitDefaultJobPostingGroup();
         Validate("WIP Posting Method", JobsSetup."Default WIP Posting Method");
 
         InitGlobalDimFromDefalutDim();
@@ -2463,6 +2465,19 @@ table 167 Job
         CreatePickFromWhseSource.GetResultMessage("Warehouse Activity Type"::Pick.AsInteger());
     end;
 
+    local procedure InitDefaultJobPostingGroup()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitDefaultJobPostingGroup(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Job Posting Group" = '' then
+            Validate("Job Posting Group", JobsSetup."Default Job Posting Group");
+    end;
+
 #if not CLEAN20
     [Obsolete('Pending removal, replaced with BillToCustomerNoUpdated and SellToCustomerNoUpdated.', '20.0')]
     [IntegrationEvent(false, false)]
@@ -2724,6 +2739,16 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateSellToCustomerNoOnBeforeCheckBlockedCustOnDocs(var Job: Record Job; var Cust: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitDefaultJobPostingGroup(var Job: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStatusOnBeforeConfirm(var Job: Record "Job"; xJob: Record "Job"; var UndidCompleteStatus: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

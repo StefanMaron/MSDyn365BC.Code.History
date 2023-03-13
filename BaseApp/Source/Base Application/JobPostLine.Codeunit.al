@@ -18,7 +18,7 @@ codeunit 1001 "Job Post-Line"
         Text004: Label ' %1: %2= %3, %4= %5.';
         Text005: Label 'You must post more usage or credit the sale of %1 %2 in %3 %4 before you can post purchase credit memo %5 %6 = %7.';
 
-    procedure InsertPlLineFromLedgEntry(JobLedgEntry: Record "Job Ledger Entry")
+    procedure InsertPlLineFromLedgEntry(var JobLedgEntry: Record "Job Ledger Entry")
     var
         JobPlanningLine: Record "Job Planning Line";
         IsHandled: Boolean;
@@ -43,7 +43,7 @@ codeunit 1001 "Job Post-Line"
         PostPlanningLine(JobPlanningLine);
     end;
 
-    procedure PostPlanningLine(JobPlanningLine: Record "Job Planning Line")
+    procedure PostPlanningLine(var JobPlanningLine: Record "Job Planning Line")
     var
         Job: Record Job;
     begin
@@ -264,7 +264,7 @@ codeunit 1001 "Job Post-Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostGenJnlLine(JobJnlLine, GenJnlLine, GLEntry, IsHandled);
+        OnBeforePostGenJnlLine(JobJnlLine, GenJnlLine, GLEntry, IsHandled, JobJnlPostLine);
         if IsHandled then
             exit;
 
@@ -463,6 +463,7 @@ codeunit 1001 "Job Post-Line"
                 OnPostJobPurchaseLinesOnBeforeJobJnlPostLine(TempJobJournalLine, TempPurchaseLineJob, IsHandled);
                 if not IsHandled then
                     JobJnlPostLine.RunWithCheck(TempJobJournalLine);
+                OnPostJobPurchaseLinesOnAfterJobJnlPostLine(TempJobJournalLine, TempPurchaseLineJob);
             until TempPurchaseLineJob.Next() = 0;
             TempPurchaseLineJob.DeleteAll();
         end;
@@ -609,7 +610,7 @@ codeunit 1001 "Job Post-Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostGenJnlLine(var JobJournalLine: Record "Job Journal Line"; GenJournalLine: Record "Gen. Journal Line"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
+    local procedure OnBeforePostGenJnlLine(var JobJournalLine: Record "Job Journal Line"; GenJournalLine: Record "Gen. Journal Line"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean; var JobJnlPostLine: Codeunit "Job Jnl.-Post Line")
     begin
     end;
 
@@ -676,6 +677,11 @@ codeunit 1001 "Job Post-Line"
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostJobPurchaseLinesOnAfterJobJnlPostLine(var TempJobJournalLine: Record "Job Journal Line" temporary; TempJobPurchaseLine: Record "Purchase Line" temporary)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPostJobPurchaseLinesOnBeforeJobJnlPostLine(var TempJobJournalLine: Record "Job Journal Line" temporary; TempJobPurchaseLine: Record "Purchase Line" temporary; var IsHandled: Boolean)

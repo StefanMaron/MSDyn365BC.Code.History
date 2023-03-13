@@ -2285,6 +2285,8 @@ table 5965 "Service Contract Header"
                 "Contact Name" := Cust.Contact;
             end;
         end;
+
+        OnAfterUpdateCont(Rec, CustomerNo);
     end;
 
     local procedure UpdateBillToCont(CustomerNo: Code[20])
@@ -2831,6 +2833,11 @@ table 5965 "Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDim(var ServiceContractHeader: Record "Service Contract Header"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCont(var ServiceContractHeader: Record "Service Contract Header"; CustomerNo: Code[20])
     begin
     end;
 }

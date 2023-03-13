@@ -804,6 +804,7 @@ table 5092 Opportunity
         SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
         OnCreateQuoteOnBeforeSalesHeaderInsert(SalesHeader, Rec);
         SalesHeader.Insert(true);
+        OnCreateQuoteOnAfterSalesHeaderInsert(SalesHeader, Rec);
         SalesHeader.Validate("Salesperson Code", "Salesperson Code");
         SalesHeader.Validate("Campaign No.", "Campaign No.");
         SalesHeader."Opportunity No." := "No.";
@@ -817,8 +818,7 @@ table 5092 Opportunity
         Modify();
 
         OnCreateQuoteOnBeforePageRun(SalesHeader, Rec);
-
-        PAGE.Run(PAGE::"Sales Quote", SalesHeader);
+        RunQuotePage(SalesHeader, false);
     end;
 
     local procedure GetNewCustomerTemplateCode(Cont: Record Contact) CustTemplateCode: Code[20]
@@ -859,7 +859,7 @@ table 5092 Opportunity
         SalesHeader: Record "Sales Header";
     begin
         if SalesHeader.Get(SalesHeader."Document Type"::Quote, "Sales Document No.") then
-            PAGE.RunModal(PAGE::"Sales Quote", SalesHeader);
+            RunQuotePage(SalesHeader, true);
     end;
 
     local procedure CreateCommentLines(var TempRlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line"; OppNo: Code[20])
@@ -1011,7 +1011,7 @@ table 5092 Opportunity
 
         if not SalesHeader.Get(SalesHeader."Document Type"::Quote, "Sales Document No.") then
             Error(Text004, "Sales Document No.");
-        PAGE.Run(PAGE::"Sales Quote", SalesHeader);
+        RunQuotePage(SalesHeader, false);
     end;
 
     procedure SetSegmentFromFilter()
@@ -1102,6 +1102,21 @@ table 5092 Opportunity
 
         if UserSetup."Salespers./Purch. Code" <> '' then
             Validate("Salesperson Code", UserSetup."Salespers./Purch. Code");
+    end;
+
+    local procedure RunQuotePage(var SalesHeader: Record "Sales Header"; Modal: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunQuotePage(SalesHeader, Modal, IsHandled);
+        if IsHandled then
+           exit;
+
+        if Modal then
+            PAGE.RunModal(PAGE::"Sales Quote", SalesHeader)
+        else
+            PAGE.Run(PAGE::"Sales Quote", SalesHeader);
     end;
 
     local procedure LookupCampaigns()
@@ -1243,6 +1258,11 @@ table 5092 Opportunity
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateQuoteOnAfterSalesHeaderInsert(var SalesHeader: Record "Sales Header"; Opportunity: Record Opportunity)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateQuoteOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; Opportunity: Record Opportunity)
     begin
     end;
@@ -1269,6 +1289,11 @@ table 5092 Opportunity
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateFromSegmentLineOnBeforeInsert(var Opportunity: Record Opportunity; SegmentLine: Record "Segment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunQuotePage(var SalesHeader: Record "Sales Header"; Modal: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

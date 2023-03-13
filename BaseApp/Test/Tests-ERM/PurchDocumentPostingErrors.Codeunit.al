@@ -61,7 +61,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst();
-        TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
+        TempErrorMessage.TestField("Message", PostingDateNotAllowedErr);
         // [THEN] Call Stack contains '"Purch.-Post"(CodeUnit 90).CheckAndUpdate '
         Assert.ExpectedMessage('"Purch.-Post"(CodeUnit 90).CheckAndUpdate ', TempErrorMessage.GetErrorCallStack());
         // [THEN] "Context" is 'Purchase Header: Invoice, 1001', "Field Name" is 'Posting Date',
@@ -116,7 +116,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst();
-        TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
+        TempErrorMessage.TestField("Message", PostingDateNotAllowedErr);
         // [THEN] Call Stack contains '"Purch.-Post"(CodeUnit 90).CheckAndUpdate '
         Assert.ExpectedMessage('"Purch.-Post"(CodeUnit 90).CheckAndUpdate ', TempErrorMessage.GetErrorCallStack());
         // [THEN] "Context" is 'Purchase Header: Invoice, 1001', "Field Name" is 'Posting Date',
@@ -174,7 +174,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst();
-        TempErrorMessage.TestField(Description,
+        TempErrorMessage.TestField("Message",
             StrSubstNo(
                 SetupBlockedErr, GeneralPostingSetup.TableCaption(),
                 GeneralPostingSetup.FieldCaption("Gen. Bus. Posting Group"), GeneralPostingSetup."Gen. Bus. Posting Group",
@@ -224,7 +224,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.FindFirst();
-        TempErrorMessage.TestField(Description,
+        TempErrorMessage.TestField("Message",
             StrSubstNo(
                 SetupBlockedErr, VATPostingSetup.TableCaption(),
                 VATPostingSetup.FieldCaption("VAT Bus. Posting Group"), VATPostingSetup."VAT Bus. Posting Group",
@@ -355,7 +355,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         Assert.RecordCount(TempErrorMessage, 2);
         // [THEN] Second line, where Description is 'There is nothing to post', Context is 'Purchase Header: Order, 1002'
         TempErrorMessage.FindLast();
-        TempErrorMessage.TestField(Description, DocumentErrorsMgt.GetNothingToPostErrorMsg());
+        TempErrorMessage.TestField("Message", DocumentErrorsMgt.GetNothingToPostErrorMsg());
         TempErrorMessage.TestField("Context Record ID", PurchHeader.RecordId);
     end;
 
@@ -395,15 +395,15 @@ codeunit 132502 "Purch. Document Posting Errors"
         // [THEN] The first error for Order '1002' is 'Posting Date is not within your range of allowed posting dates.'
         Clear(RegisterID);
         TempErrorMessage.Get(1);
-        Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage.Description);
+        Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage."Message");
         Assert.AreEqual(PurchHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 1st error');
         // [THEN] The second error for Order '1002' is 'There is nothing to post'
         TempErrorMessage.Get(2);
-        Assert.ExpectedMessage(DocumentErrorsMgt.GetNothingToPostErrorMsg(), TempErrorMessage.Description);
+        Assert.ExpectedMessage(DocumentErrorsMgt.GetNothingToPostErrorMsg(), TempErrorMessage."Message");
         Assert.AreEqual(PurchHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 2nd error');
         // [THEN] The Error for Invoice '1003' is 'Posting Date is not within your range of allowed posting dates.'
         TempErrorMessage.Get(3);
-        Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage.Description);
+        Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage."Message");
         Assert.AreEqual(PurchHeader[2].RecordId, TempErrorMessage."Context Record ID", 'Context for 3rd error');
     end;
 
@@ -460,16 +460,16 @@ codeunit 132502 "Purch. Document Posting Errors"
         ErrorMessage.SetRange("Context Record ID", PurchHeader[1].RecordId);
         Assert.RecordCount(ErrorMessage, 2);
         ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage.Description);
+        Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage."Message");
         // [THEN] The second error for Invoice '1002' is 'Select a Dimension Value Code for the Dimension Code %1 for Customer %2.'
         ErrorMessage.Next();
-        Assert.ExpectedMessage(StrSubstNo(DefaultDimErr, DefaultDimension."Dimension Code", VendorNo), ErrorMessage.Description);
+        Assert.ExpectedMessage(StrSubstNo(DefaultDimErr, DefaultDimension."Dimension Code", VendorNo), ErrorMessage."Message");
 
         // [THEN] The Error for Invoice '1003' is 'Posting Date is not within your range of allowed posting dates.'
         ErrorMessage.SetRange("Context Record ID", PurchHeader[2].RecordId);
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
-        Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage.Description);
+        Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage."Message");
     end;
 
     [Test]
@@ -524,7 +524,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         ErrorMessage.SetRange("Context Record ID", PurchHeader.RecordId);
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
-        ErrorMessage.TestField(Description, StrSubstNo(PurchRcptHeaderConflictErr, IncStr(LastNoUsed)));
+        ErrorMessage.TestField("Message", StrSubstNo(PurchRcptHeaderConflictErr, IncStr(LastNoUsed)));
 
         // [THEN] The Purchase Header field Receiving No. is blank.
         PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
@@ -586,7 +586,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         ErrorMessage.SetRange("Context Record ID", PurchHeader.RecordId);
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
-        ErrorMessage.TestField(Description, StrSubstNo(ReturnShptHeaderConflictErr, IncStr(LastNoUsed)));
+        ErrorMessage.TestField("Message", StrSubstNo(ReturnShptHeaderConflictErr, IncStr(LastNoUsed)));
 
         // [THEN] The Purchase Header field Return Shipment No. is blank.
         PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
@@ -648,7 +648,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         ErrorMessage.SetRange("Context Record ID", PurchHeader.RecordId);
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
-        ErrorMessage.TestField(Description, StrSubstNo(PurchInvHeaderConflictErr, IncStr(LastNoUsed)));
+        ErrorMessage.TestField("Message", StrSubstNo(PurchInvHeaderConflictErr, IncStr(LastNoUsed)));
 
         // [THEN] The Purchase Header field Posting No. is blank.
         PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");

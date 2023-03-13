@@ -898,6 +898,8 @@ table 121 "Purch. Rcpt. Line"
             if ShouldProcessAsRegularLine then begin
                 IsHandled := false;
                 OnInsertInvLineFromRcptLineOnBeforeValidateQuantity(Rec, PurchLine, IsHandled, PurchInvHeader);
+                if PurchLine."Deferral Code" <> '' then
+                    PurchLine.Validate("Deferral Code");
                 if not IsHandled then
                     PurchLine.Validate(Quantity, Quantity - "Quantity Invoiced");
                 CalcBaseQuantities(PurchLine, "Quantity (Base)" / Quantity);
@@ -1288,7 +1290,7 @@ table 121 "Purch. Rcpt. Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertInvLineFromRcptLine(var PurchLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line"; NextLineNo: Integer; PurchRcptLine: Record "Purch. Rcpt. Line")
+    local procedure OnAfterInsertInvLineFromRcptLine(var PurchLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line"; var NextLineNo: Integer; PurchRcptLine: Record "Purch. Rcpt. Line")
     begin
     end;
 

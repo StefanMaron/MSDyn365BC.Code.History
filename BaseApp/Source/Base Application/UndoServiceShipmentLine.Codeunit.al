@@ -259,6 +259,7 @@ codeunit 5818 "Undo Service Shipment Line"
 
             if "Item Shpt. Entry No." <> 0 then begin
                 ItemJnlPostLine.Run(ItemJnlLine);
+                OnItemJnlPostLineOnAfterItemShptEntryNoOnBeforeExit(ItemJnlLine, ServShptLine);
                 exit(ItemJnlLine."Item Shpt. Entry No.");
             end;
             UndoPostingMgt.CollectItemLedgEntries(TempApplyToEntryList, DATABASE::"Service Shipment Line",
@@ -267,6 +268,7 @@ codeunit 5818 "Undo Service Shipment Line"
             UndoPostingMgt.PostItemJnlLineAppliedToList(ItemJnlLine, TempApplyToEntryList,
               Quantity, "Quantity (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation);
 
+            OnAfterPostItemJnlLine(ItemJnlLine, ServShptLine);
             exit(0); // "Item Shpt. Entry No."
         end;
     end;
@@ -333,6 +335,7 @@ codeunit 5818 "Undo Service Shipment Line"
         ServiceShptHeader: Record "Service Shipment Header";
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
         TimeSheetMgt: Codeunit "Time Sheet Management";
+        IsHandled: Boolean;
     begin
         ResJnlLine.Init();
         SrcCodeSetup.Get();
@@ -363,8 +366,10 @@ codeunit 5818 "Undo Service Shipment Line"
             "Source Type" := "Source Type"::Customer;
             "Source No." := ServiceShptLine."Bill-to Customer No.";
             "Qty. per Unit of Measure" := ServiceShptLine."Qty. per Unit of Measure";
-            OnBeforePostResJnlLine(ResJnlLine, ServiceShptLine);
-            ResJnlPostLine.RunWithCheck(ResJnlLine);
+            IsHandled := false;
+            OnBeforePostResJnlLine(ResJnlLine, ServiceShptLine, IsHandled);
+            if not IsHandled then
+                ResJnlPostLine.RunWithCheck(ResJnlLine);
         end;
 
         TimeSheetMgt.CreateTSLineFromServiceShptLine(ServiceShptLine);
@@ -433,7 +438,7 @@ codeunit 5818 "Undo Service Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostResJnlLine(var ResJournalLine: Record "Res. Journal Line"; var ServiceShptLine: Record "Service Shipment Line")
+    local procedure OnBeforePostResJnlLine(var ResJournalLine: Record "Res. Journal Line"; var ServiceShptLine: Record "Service Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -454,6 +459,16 @@ codeunit 5818 "Undo Service Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckComponentsAdjustedOnAfterLocalServShptLineSetFilters(var ServiceShptLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var ServiceShipmentLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemJnlPostLineOnAfterItemShptEntryNoOnBeforeExit(var ItemJournalLine: Record "Item Journal Line"; var ServiceShipmentLine: Record "Service Shipment Line")
     begin
     end;
 }

@@ -901,6 +901,7 @@ codeunit 900 "Assembly-Post"
             ItemJnlLine."Unit Cost" := "Unit Cost";
             ItemJnlLine."Qty. per Cap. Unit of Measure" := "Qty. per Unit of Measure";
             ItemJnlLine."Cap. Unit of Measure Code" := "Unit of Measure Code";
+            ItemJnlLine."Variant Code" := AssemblyHeader."Variant Code";
             ItemJnlLine.Description := Description;
             ItemJnlLine.Quantity := QtyToConsume;
             ItemJnlLine."Quantity (Base)" := QtyToConsumeBase;

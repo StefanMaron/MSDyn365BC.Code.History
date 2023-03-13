@@ -2013,7 +2013,7 @@ codeunit 6500 "Item Tracking Management"
                 OnSynchronizeWhseItemTrackingOnAfterTempTrackingSpecificationLoop(TempTrackingSpecification, RegPickNo, Deletion);
             until TempTrackingSpecification.Next() = 0;
 
-        RegisterNewItemTrackingLines(TempTrackingSpecification);
+        RegisterNewItemTrackingLines(TempTrackingSpecification, true);
     end;
 
     local procedure CheckWhseItemTrkg(var TempWhseItemTrkgLine: Record "Whse. Item Tracking Line"; WhseWkshLine: Record "Whse. Worksheet Line")
@@ -2853,10 +2853,10 @@ codeunit 6500 "Item Tracking Management"
                 TempTrackingSpec.Modify();
             until TempTrackingSpec.Next() = 0;
 
-        RegisterNewItemTrackingLines(TempTrackingSpec);
+        RegisterNewItemTrackingLines(TempTrackingSpec, false);
     end;
 
-    local procedure RegisterNewItemTrackingLines(var TempTrackingSpec: Record "Tracking Specification" temporary)
+    local procedure RegisterNewItemTrackingLines(var TempTrackingSpec: Record "Tracking Specification" temporary; ItemTrackingLinesBlockCommit: Boolean)
     var
         TrackingSpec: Record "Tracking Specification";
         ReservEntry: Record "Reservation Entry";
@@ -2899,6 +2899,7 @@ codeunit 6500 "Item Tracking Management"
                 Clear(ItemTrackingLines);
                 OnRegisterNewItemTrackingLinesOnAfterClearItemTrackingLines(ItemTrackingLines);
                 ItemTrackingLines.SetCalledFromSynchWhseItemTrkg(true);
+                ItemTrackingLines.SetBlockCommit(ItemTrackingLinesBlockCommit);
                 OnRegisterNewItemTrackingLinesOnBeforeRegisterItemTrackingLines(TempTrackingSpecification, ItemTrackingLines);
                 ItemTrackingLines.RegisterItemTrackingLines(TrackingSpec, TrackingSpec."Creation Date", TempTrackingSpec);
                 TempTrackingSpec.ClearSourceFilter();

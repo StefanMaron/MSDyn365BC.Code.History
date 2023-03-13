@@ -1,4 +1,4 @@
-page 5740 "Transfer Order"
+﻿page 5740 "Transfer Order"
 {
     Caption = 'Transfer Order';
     PageType = Document;
@@ -70,6 +70,12 @@ page 5740 "Transfer Order"
                     Editable = EnableTransferFields;
                     Enabled = (NOT "Direct Transfer") AND (Status = Status::Open);
                     ToolTip = 'Specifies the in-transit code for the transfer order, such as a shipping agent.';
+
+                    trigger OnValidate()
+                    begin
+                        IsTransferLinesEditable := Rec.TransferLinesEditable();
+                        CurrPage.Update();
+                    end;
                 }
                 field("Posting Date"; Rec."Posting Date")
                 {

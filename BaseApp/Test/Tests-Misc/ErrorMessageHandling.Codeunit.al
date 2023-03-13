@@ -257,11 +257,11 @@ codeunit 132500 "Error Message Handling"
         Assert.RecordCount(TempActualErrorMessage, 2);
         // [THEN] Handled error 'A', where "Additional Info" is 'Local Context'
         TempActualErrorMessage.FindSet();
-        TempActualErrorMessage.TestField(Description, StrSubstNo(HandledErr, 1));
+        TempActualErrorMessage.TestField("Message", StrSubstNo(HandledErr, 1));
         Assert.AreEqual('Local Context', TempActualErrorMessage."Additional Information", 'Additional info in the handled error');
         // [THEN] Unhandled error 'B', where "Additional Info" is 'Global Context'
         TempActualErrorMessage.Next();
-        TempActualErrorMessage.TestField(Description, UnhandledErr);
+        TempActualErrorMessage.TestField("Message", UnhandledErr);
         Assert.AreEqual('Global Context', TempActualErrorMessage."Additional Information", 'Additional info in the unhandled error');
     end;
 
@@ -467,7 +467,7 @@ codeunit 132500 "Error Message Handling"
 
         // [THEN] Two errors in the list
         Assert.RecordCount(TempActualErrorMessage, 2);
-        TempActualErrorMessage.TestField(Description, UnhandledErr);
+        TempActualErrorMessage.TestField("Message", UnhandledErr);
     end;
 
     [Test]
@@ -689,7 +689,7 @@ codeunit 132500 "Error Message Handling"
         Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
         ErrorMessageMgt.GetErrorsInContext(15, TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
-        TempErrorMessage.TestField(Description, 'Error17');
+        TempErrorMessage.TestField("Message", 'Error17');
     end;
 
     [Test]
@@ -715,7 +715,7 @@ codeunit 132500 "Error Message Handling"
         Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
         ErrorMessageMgt.GetErrorsInContext(4, TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
-        TempErrorMessage.TestField(Description, 'Error17');
+        TempErrorMessage.TestField("Message", 'Error17');
     end;
 
     [Test]
@@ -951,7 +951,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageRegister.ID := CreateGuid();
         ErrorMessageRegister."Created On" := CurrentDateTime;
         ErrorMessageRegister."User ID" := UserId;
-        ErrorMessageRegister.Description := LibraryUtility.GenerateGUID();
+        ErrorMessageRegister."Message" := LibraryUtility.GenerateGUID();
         ErrorMessageRegister.Insert();
         // [GIVEN] 1 Error Message, where "Message Type" is 'Error'
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '1');
@@ -971,7 +971,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageRegisterPage.OpenView;
 
         // [THEN] One record in the page, where "Description" is 'A', "Created On" is '01.10.19 13:23', "User ID" is 'X',
-        ErrorMessageRegisterPage.Description.AssertEquals(ErrorMessageRegister.Description);
+        ErrorMessageRegisterPage.Description.AssertEquals(ErrorMessageRegister."Message");
         ErrorMessageRegisterPage."User ID".AssertEquals(ErrorMessageRegister."User ID");
         ErrorMessageRegisterPage."Created On".AssertEquals(ErrorMessageRegister."Created On");
         // [THEN] "Errors" is 1, "Warnings" is 2, "Information" is 3
@@ -1113,7 +1113,7 @@ codeunit 132500 "Error Message Handling"
         // [THEN] Register is inserted, "ID" is filled automatically, "User ID" and "Created On" are filled with current values.
         ErrorMessageRegister.Find();
         ErrorMessageRegister.TestField(ID);
-        ErrorMessageRegister.TestField(Description, Description);
+        ErrorMessageRegister.TestField("Message", Description);
         Assert.AreNearlyEqual(0, CurrentDateTime - ErrorMessageRegister."Created On", 1000, 'Created On');
         ErrorMessageRegister.TestField("User ID", UserId);
     end;
@@ -1178,9 +1178,9 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageRegister.TestField(Errors, 2);
         ErrorMessage.SetRange("Register ID", ErrorMessageRegister.ID);
         Assert.IsTrue(ErrorMessage.Find('-'), '1st error not found');
-        ErrorMessage.TestField(Description, StrSubstNo(HandledErr, 2));
+        ErrorMessage.TestField("Message", StrSubstNo(HandledErr, 2));
         Assert.IsTrue(ErrorMessage.Next() <> 0, '2nd error not found');
-        ErrorMessage.TestField(Description, UnhandledErr);
+        ErrorMessage.TestField("Message", UnhandledErr);
     end;
 
     [Test]
@@ -1213,9 +1213,9 @@ codeunit 132500 "Error Message Handling"
         Assert.IsTrue(ErrorMessageRegister.Next() <> 0, '2nd register not found');
         ErrorMessage.SetRange("Register ID", ErrorMessageRegister.ID);
         Assert.IsTrue(ErrorMessage.Find('-'), '1st error not found');
-        ErrorMessage.TestField(Description, StrSubstNo(HandledErr, 2));
+        ErrorMessage.TestField("Message", StrSubstNo(HandledErr, 2));
         Assert.IsTrue(ErrorMessage.Next() <> 0, '2nd error not found');
-        ErrorMessage.TestField(Description, UnhandledErr);
+        ErrorMessage.TestField("Message", UnhandledErr);
     end;
 
     [Test]

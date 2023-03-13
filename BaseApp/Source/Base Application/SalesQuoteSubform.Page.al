@@ -68,6 +68,8 @@
 
                         if "Variant Code" = '' then
                             VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+
+                        CurrPage.Update();
                     end;
                 }
                 field("Item Reference No."; Rec."Item Reference No.")

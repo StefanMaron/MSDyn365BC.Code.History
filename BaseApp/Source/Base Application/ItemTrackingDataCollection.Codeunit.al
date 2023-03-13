@@ -826,7 +826,17 @@ codeunit 6501 "Item Tracking Data Collection"
         end;
     end;
 
+    internal procedure GetFullGlobalDataSetExists(): Boolean
+    begin
+        exit(FullGlobalDataSetExists);
+    end;
+
     procedure RefreshTrackingAvailability(var TempTrackingSpecification: Record "Tracking Specification" temporary; ShowMessage: Boolean) AvailabilityOK: Boolean
+    begin
+        AvailabilityOK := RefreshTrackingAvailability(TempTrackingSpecification, true, ShowMessage);
+    end;
+
+    internal procedure RefreshTrackingAvailability(var TempTrackingSpecification: Record "Tracking Specification" temporary; RecreateGlobalDataSet: Boolean; ShowMessage: Boolean) AvailabilityOK: Boolean
     var
         TrackingSpecification2: Record "Tracking Specification";
         LookupMode: Enum "Item Tracking Type";
@@ -843,9 +853,11 @@ codeunit 6501 "Item Tracking Data Collection"
             exit;
         end;
 
-        FullGlobalDataSetExists := false;
-        PartialGlobalDataSetExists := false;
-        RetrieveLookupData(TempTrackingSpecification, false);
+        if RecreateGlobalDataSet then begin
+            FullGlobalDataSetExists := false;
+            PartialGlobalDataSetExists := false;
+            RetrieveLookupData(TempTrackingSpecification, false);
+        end;
 
         TempTrackingSpecification.SetTrackingKey();
         TempTrackingSpecification.Find('-');

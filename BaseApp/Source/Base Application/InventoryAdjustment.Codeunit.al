@@ -176,7 +176,13 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     local procedure MakeSingleLevelAdjmt(var TheItem: Record Item; var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary)
     var
         IsFirstTime: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMakeSingleLevelAdjmt(TheItem, TempAvgCostAdjmtEntryPoint, IsHandled);
+        if IsHandled then
+            exit;
+
         LevelNo[1] := LevelNo[1] + 1;
 
         UpDateWindow(LevelNo[1], WindowItem, WindowAdjust, WindowFWLevel, WindowEntry, 0);
@@ -193,6 +199,8 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
                     Item := TheItem;
                     GetItem("No.");
                     UpDateWindow(WindowAdjmtLevel, "No.", WindowAdjust, WindowFWLevel, WindowEntry, 0);
+
+                    OnMakeSingleLevelAdjmtOnBeforeCollectAvgCostAdjmtEntryPointToUpdate(TheItem);
                     CollectAvgCostAdjmtEntryPointToUpdate(TempAvgCostAdjmtEntryPoint, TheItem."No.");
                     IsFirstTime := not AppliedEntryToAdjustBufExists(TheItem."No.");
 
@@ -204,7 +212,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
                     AdjustItemAvgCost();
                     PostAdjmtBuf(TempAvgCostAdjmtEntryPoint);
                     UpdateItemUnitCost(TempAvgCostAdjmtEntryPoint, IsFirstTime);
-                    OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(TheItem, TempAvgCostAdjmtEntryPoint, LevelExceeded, IsOnlineAdjmt);
+                    OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(TheItem, TempAvgCostAdjmtEntryPoint, LevelExceeded, IsOnlineAdjmt, ItemJnlPostLine);
                 until (TheItem.Next() = 0) or LevelExceeded;
     end;
 
@@ -1075,6 +1083,8 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
                     ModifyAll("Cost Is Adjusted", true);
                     Reset();
 
+                    OnAdjustItemAvgCostOnBeforeAdjustValueEntries();
+
                     while not Restart and AvgValueEntriesToAdjustExist(
                             TempOutbndValueEntry, TempExcludedValueEntry, AvgCostAdjmtEntryPoint) and not EndOfValuationDateReached
                     do begin
@@ -1199,6 +1209,8 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
                         FindNextRange := false;
                     end;
 
+
+                    OnAvgValueEntriesToAdjustExistOnBeforeIsNotAdjustment(ValueEntry, OutbndValueEntry);
                     if not Adjustment then
                         if IsAvgCostException(IsAvgCostCalcTypeItem) then begin
                             TempAvgCostExceptionBuf.Number := "Entry No.";
@@ -2968,7 +2980,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(var TheItem: Record Item; var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var LevelExceeded: Boolean; IsOnlineAdjmt: Boolean)
+    local procedure OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(var TheItem: Record Item; var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var LevelExceeded: Boolean; IsOnlineAdjmt: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line")
     begin
     end;
 
@@ -3014,6 +3026,26 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnWIPToAdjustExistOnAfterInventoryAdjmtEntryOrderSetFilters(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeSingleLevelAdjmt(var TheItem: Record Item; var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustItemAvgCostOnBeforeAdjustValueEntries()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAvgValueEntriesToAdjustExistOnBeforeIsNotAdjustment(var ValueEntry: Record "Value Entry"; var OutbndValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeSingleLevelAdjmtOnBeforeCollectAvgCostAdjmtEntryPointToUpdate(var TheItem: Record Item)
     begin
     end;
 }

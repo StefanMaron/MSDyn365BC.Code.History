@@ -67,10 +67,10 @@ codeunit 135203 "CF Frcst. Azure AI"
 
         // [THEN] 1st error message: 'Azure AI Must Be Enabled'
         ErrorMessage.Find('-');
-        Assert.AreEqual(AzureAIMustBeEnabledErr, ErrorMessage.Description, '1st error message');
+        Assert.AreEqual(AzureAIMustBeEnabledErr, ErrorMessage."Message", '1st error message');
         // [THEN] 2nd error message: 'You must specify API URL and API Key'
         Assert.IsTrue(ErrorMessage.Next() <> 0, '2nd error message not found');
-        Assert.AreEqual(APIURLAPIKeyErr, ErrorMessage.Description, '2nd error message');
+        Assert.AreEqual(APIURLAPIKeyErr, ErrorMessage."Message", '2nd error message');
     end;
 
     [Test]
@@ -97,7 +97,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         // [THEN] Error message is shown
         ErrorMessage.FindFirst();
         Assert.AreEqual(StrSubstNo(AzureAIAPIURLEmptyErr, CashFlowSetup.FieldCaption("API URL"),
-            CashFlowSetup.FieldCaption("API Key"), CashFlowSetup.TableCaption()), ErrorMessage.Description, '');
+            CashFlowSetup.FieldCaption("API Key"), CashFlowSetup.TableCaption()), ErrorMessage."Message", '');
     end;
 
     [Test]
@@ -124,7 +124,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         // [THEN] Error message is shown
         ErrorMessage.FindFirst();
         Assert.AreEqual(StrSubstNo(AzureAIAPIURLEmptyErr, CashFlowSetup.FieldCaption("API URL"),
-            CashFlowSetup.FieldCaption("API Key"), CashFlowSetup.TableCaption()), ErrorMessage.Description, '');
+            CashFlowSetup.FieldCaption("API Key"), CashFlowSetup.TableCaption()), ErrorMessage."Message", '');
     end;
 
     [Test]
@@ -152,7 +152,7 @@ codeunit 135203 "CF Frcst. Azure AI"
 
         // [THEN] Error message is shown
         ErrorMessage.FindFirst();
-        Assert.AreEqual(MinimumHistoricalDataErr, ErrorMessage.Description, '');
+        Assert.AreEqual(MinimumHistoricalDataErr, ErrorMessage."Message", '');
     end;
 
     [Test]
@@ -963,7 +963,7 @@ codeunit 135203 "CF Frcst. Azure AI"
 
         // [THEN] Error message is shown
         ErrorMessage.FindFirst();
-        Assert.AreEqual(MinimumHistoricalDataErr, ErrorMessage.Description, '');
+        Assert.AreEqual(MinimumHistoricalDataErr, ErrorMessage."Message", '');
     end;
 
     [Test]

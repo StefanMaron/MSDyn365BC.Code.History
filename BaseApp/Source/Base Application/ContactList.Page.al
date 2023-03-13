@@ -646,10 +646,10 @@ page 5052 "Contact List"
                     Caption = 'T&asks';
                     Image = TaskList;
                     RunObject = Page "Task List";
-                    RunPageLink = "Contact Company No." = FIELD("Company No."),
-                                  "Contact No." = FIELD(FILTER("Lookup Contact No.")),
-                                  "System To-do Type" = FILTER("Contact Attendee");
-                    RunPageView = SORTING("Contact Company No.", "Contact No.");
+                    RunPageLink = "Contact Company No." = field("Company No."),
+                                  "Contact No." = field(filter("Lookup Contact No.")),
+                                  "System To-do Type" = filter(Organizer | "Contact Attendee");
+                    RunPageView = sorting("Contact Company No.", Date, "Contact No.", Closed);
                     ToolTip = 'View all marketing tasks that involve the contact person.';
                 }
                 action("Open Oppo&rtunities")

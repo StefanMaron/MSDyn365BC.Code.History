@@ -307,6 +307,7 @@ codeunit 99000752 "Check Routing Lines"
         ScrapFactorThis: Decimal;
         ScrapQtyThis: Decimal;
     begin
+        OnBeforeCalculate(RtngHeader, VersionCode);
         RtngLine.SetCurrentKey("Routing No.", "Version Code", "Sequence No. (Backward)");
         RtngLine.SetRange("Routing No.", RtngHeader."No.");
         RtngLine.SetRange("Version Code", VersionCode);
@@ -488,6 +489,11 @@ codeunit 99000752 "Check Routing Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPreviousOperations(var RoutingHeader: Record "Routing Header"; VersionCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculate(RoutingHeader: Record "Routing Header"; VersionCode: Code[20])
     begin
     end;
 

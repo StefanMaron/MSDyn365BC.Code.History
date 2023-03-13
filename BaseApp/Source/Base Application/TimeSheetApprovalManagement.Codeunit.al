@@ -205,7 +205,13 @@ codeunit 951 "Time Sheet Approval Management"
         Employee: Record Employee;
         EmployeeAbsence: Record "Employee Absence";
         TimeSheetMgt: Codeunit "Time Sheet Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostAbsence(TimeSheetLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TimeSheetHeader.Get(TimeSheetLine."Time Sheet No.");
         Resource.Get(TimeSheetHeader."Resource No.");
         Employee.SetRange("Resource No.", TimeSheetHeader."Resource No.");
@@ -396,6 +402,11 @@ codeunit 951 "Time Sheet Approval Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertEmployeeAbsence(var EmployeeAbsence: Record "Employee Absence"; TimeSheetLine: Record "Time Sheet Line"; var TimeSheetDetail: Record "Time Sheet Detail")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostAbsence(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
     begin
     end;
 

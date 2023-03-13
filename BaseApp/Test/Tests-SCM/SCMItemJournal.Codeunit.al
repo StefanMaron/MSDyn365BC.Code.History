@@ -1968,6 +1968,37 @@ codeunit 137033 "SCM Item Journal"
         // [THEN] An error is thrown.
     end;
 
+    [Test]
+    procedure RecordLinkDeletedAfterPostingItemJnlLine()
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        RecordLink: Record "Record Link";
+    begin
+        // [FEATURE] [Record Link]
+        // [SCENARIO] Record links are deleted after posting an item journal line
+
+        Initialize();
+
+        // [GIVEN] Item journal line
+        LibraryInventory.FindItemJournalTemplate(ItemJournalTemplate);
+        LibraryInventory.FindItemJournalBatch(ItemJournalBatch, ItemJournalTemplate);
+        LibraryInventory.CreateItemJournalLine(
+            ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
+            LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Assign a record link to the journal line
+        LibraryUtility.CreateRecordLink(ItemJournalLine);
+
+        // [WHEN] Post the journal
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+
+        // [THEN] The record link is deleted
+        RecordLink.SetRange("Record ID", ItemJournalLine.RecordId);
+        Assert.RecordIsEmpty(RecordLink);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

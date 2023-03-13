@@ -73,7 +73,7 @@ codeunit 5337 "CDS Int. Table Uncouple"
         IntegrationTableMapping.SetRecordRefFilter(LocalRecordRef);
         if LocalRecordRef.FindSet() then
             repeat
-                if TempCRMIntegrationRecord.IsIntegrationIdCoupled(LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value()) then begin
+                if TempCRMIntegrationRecord.IsIntegrationIdCoupled(LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value(), LocalRecordRef.Number) then begin
                     Clear(IntegrationRecordRef);
                     IntegrationTableSynch.Uncouple(LocalRecordRef, IntegrationRecordRef);
                 end;
