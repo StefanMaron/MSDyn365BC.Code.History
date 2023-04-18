@@ -46,7 +46,7 @@ page 7603 "Customized Calendar Changes"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the day of the week associated with this entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of this entry.';

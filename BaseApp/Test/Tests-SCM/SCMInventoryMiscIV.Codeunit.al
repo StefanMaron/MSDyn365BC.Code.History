@@ -504,7 +504,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Assert.AreEqual(20200214D, NextCountingEndDate, WrongNextCountingEndDateErr);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure DirectUnitCostOnPurchLineFromPurchPrice()
@@ -1509,7 +1509,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Item.TestField("Trans. Ord. Receipt (Qty.)", 0);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure PurchaseVariantZeroLineDiscount()
@@ -1923,7 +1923,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         JobJournalLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateZeroForVariantPurchaseLineDiscount(ItemVariant: Record "Item Variant"; VendorNo: Code[20])
     var
         ItemBlankVariantPurchaseLineDiscount: Record "Purchase Line Discount";
@@ -2204,7 +2204,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         GeneralPostingSetup.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreatePurchaseLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount")
     begin
         LibraryERM.CreateLineDiscForVendor(
@@ -2474,7 +2474,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         Item.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure UpdateLineDiscOnPurchLineDisc(PurchaseLineDiscount: Record "Purchase Line Discount"): Decimal
     begin
         PurchaseLineDiscount.Validate("Line Discount %", PurchaseLineDiscount."Line Discount %" + LibraryRandom.RandDec(10, 2));  // Take random to update Line Discount Pct.
@@ -2499,7 +2499,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure UpdateUnitCostOnPurchasePrice(PurchasePrice: Record "Purchase Price"): Decimal
     begin
         PurchasePrice.Validate("Direct Unit Cost", PurchasePrice."Direct Unit Cost" + LibraryRandom.RandDec(10, 2));  // Take random value to update Direct Unit Cost.

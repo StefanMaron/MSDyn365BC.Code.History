@@ -869,19 +869,6 @@ codeunit 134172 "WF Demo Sales Quote Approvals"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
     end;
 
-#if not CLEAN19
-    [Obsolete('Replaced by CreateSalesHeaderWithContact2()', '19.0')]
-    [Scope('OnPrem')]
-    procedure CreateSalesHeaderWithContact(var SalesHeader: Record "Sales Header"; SellToContactNo: Code[20]; SellToCustomerTemplateCode: Code[10])
-    begin
-        SalesHeader.Init();
-        SalesHeader.Insert(true);
-        SalesHeader.Validate("Sell-to Customer Templ. Code", SellToCustomerTemplateCode);
-        SalesHeader.Validate("Sell-to Contact No.", SellToContactNo);
-        SalesHeader.Modify(true);
-    end;
-#endif
-
     local procedure CreateSalesHeaderWithContact2(var SalesHeader: Record "Sales Header"; SellToContactNo: Code[20]; SellToCustomerTemplateCode: Code[20])
     begin
         SalesHeader.Init();

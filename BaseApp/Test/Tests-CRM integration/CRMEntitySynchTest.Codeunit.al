@@ -17,6 +17,7 @@ codeunit 139180 "CRM Entity Synch Test"
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryUtility: Codeunit "Library - Utility";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        IntegrationRecordSynch: Codeunit "Integration Record Synch.";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         IntTableSynchSubscriber: Codeunit "Int. Table Synch. Subscriber";
         CRMProductName: Codeunit "CRM Product Name";
@@ -179,24 +180,35 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
         Customer: Record Customer;
         CRMAccount: Record "CRM Account";
+        ShippingAgent: Record "Shipping Agent";
+        CRMOptionMapping: Record "CRM Option Mapping";
+        asd: Text;
     begin
         // [FEATURE] [Customer] [Shipping Agent]
         // [SCENARIO] Sync should update the CRM Option field if the chosen record is mapped to an option value.
         Init();
 
-        // [GIVEN] The customer, where "Shipping Agent" is 'DHL', is synced with the CRM account
-        CreateCoupledCustomerWithShippingAgent(IntegrationTableMapping, Customer, CRMAccount, CRMAccount.Address1_ShippingMethodCodeEnum::DHL);
+        // [GIVEN] The customer and coupled option
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        IntegrationTableMapping.FindMapping(Database::Customer, Database::"CRM Account");
+        ShippingAgent.Code := 'WILLCALL';
+        if ShippingAgent.Insert() then;
+        CoupleOption(ShippingAgent.RecordId, CRMAccount.Address1_ShippingMethodCodeEnum::WillCall.AsInteger(), ShippingAgent.Code, Database::"Shipping Agent", Database::"CRM Account", CRMAccount.FieldNo(CRMAccount.Address1_ShippingMethodCodeEnum));
+        CRMOptionMapping.FindSet();
+        repeat
+            asd := CRMOptionMapping."Option Value Caption";
+        until CRMOptionMapping.Next() = 0;
 
-        // [GIVEN] "Shipping Agent" is changed from 'DHL' to 'WILLCALL' (a record mapped to the CRM option)
+        // [GIVEN] "Shipping Agent" is changed to 'WillCall' (a record mapped to the CRM option)
         Customer.Validate("Shipping Agent Code", 'WILLCALL');
         Customer.Modify();
 
         // [WHEN] Synchronizing the customer
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
 
-        // [THEN] CRM Account, where "Address1_ShippingMethodCodeEnum" = 'WILL CALL'
+        // [THEN] CRM Account, where "Address1_ShippingMethodCodeEnum" = 'WILLCALL'
         CRMAccount.Find();
-        CRMAccount.TestField(Address1_ShippingMethodCodeEnum, CRMAccount.Address1_ShippingMethodCodeEnum::WillCall);
+        CRMAccount.TestField(Address1_ShippingMethodCodeEnum, CRMAccount.Address1_ShippingMethodCodeEnum::WILLCALL);
     end;
 
     [Test]
@@ -206,51 +218,29 @@ codeunit 139180 "CRM Entity Synch Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
         Customer: Record Customer;
         CRMAccount: Record "CRM Account";
+        ShippingAgent: Record "Shipping Agent";
     begin
         // [FEATURE] [Customer] [Shipping Agent]
         // [SCENARIO] Sync should update the option field if the chosen record is mapped to an option value.
         Init();
 
-        // [GIVEN] The CRM account, where "Shipping Agent" is 'DHL', is synced with the customer
-        CreateCoupledCustomerWithShippingAgent(IntegrationTableMapping, Customer, CRMAccount, CRMAccount.Address1_ShippingMethodCodeEnum::DHL);
+        // [GIVEN] The CRM account and coupled option
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+        IntegrationTableMapping.FindMapping(Database::Customer, Database::"CRM Account");
+        ShippingAgent.Code := 'TEST';
+        if ShippingAgent.Insert() then;
+        CoupleOption(ShippingAgent.RecordId, 1000, ShippingAgent.Code, Database::"Shipping Agent", Database::"CRM Account", CRMAccount.FieldNo(CRMAccount.Address1_ShippingMethodCodeEnum));
 
-        // [GIVEN] "Shipping Method" is changed from 'DHL' to 'WILLCALL' (a record mapped to the CRM option)
-        CRMAccount.Validate("Address1_ShippingMethodCodeEnum", CRMAccount.Address1_ShippingMethodCodeEnum::WillCall);
+        // [GIVEN] "Shipping Method" is changed to 'TEST' (a record mapped to the CRM option)
+        CRMAccount.Validate("Address1_ShippingMethodCodeEnum", 1000);
         CRMAccount.Modify();
 
         // [WHEN] Synchronizing the account
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMAccount.AccountId, true, false);
 
-        // [THEN] Customer where "Shipping Agent Code" = 'WILLCALL'
+        // [THEN] Customer where "Shipping Agent Code" = 'TEST'
         Customer.Find();
-        Customer.TestField("Shipping Agent Code", 'WILLCALL');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SyncSingleCustomerCRMOptionFieldNotMapped()
-    var
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        Customer: Record Customer;
-        CRMAccount: Record "CRM Account";
-    begin
-        // [FEATURE] [Customer] [Shipping Agent]
-        // [SCENARIO] Sync should blank the CRM Option field if the chosen record is NOT mapped to any CRM option value.
-        Init();
-
-        // [GIVEN] The customer, where "Shipping Agent" is 'DHL', is synced with the CRM account
-        CreateCoupledCustomerWithShippingAgent(IntegrationTableMapping, Customer, CRMAccount, CRMAccount.Address1_ShippingMethodCodeEnum::DHL);
-
-        // [GIVEN] "Shipping Agent" is changed from 'DHL' to 'OWN LOG.' (a record is not mapped to the CRM option)
-        Customer.Validate("Shipping Agent Code", 'OWN LOG.');
-        Customer.Modify();
-
-        // [WHEN] Synchronizing the customer
-        CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
-
-        // [THEN] CRM Account, where "Address1_ShippingMethodCodeEnum" = ''
-        CRMAccount.Find();
-        CRMAccount.TestField(Address1_ShippingMethodCodeEnum, CRMAccount.Address1_ShippingMethodCodeEnum::" ");
+        Customer.TestField("Shipping Agent Code", 'TEST');
     end;
 
     [Test]
@@ -659,85 +649,6 @@ codeunit 139180 "CRM Entity Synch Test"
     begin
         Assert.ExpectedMessage('synchronization has never been performed', Question);
         Reply := ConfirmReply;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SyncOptionToPaymentTerms()
-    var
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        PaymentTerms: Record "Payment Terms";
-        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
-        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
-    begin
-        // [FEATURE] [Payment Terms]
-        Init();
-        // [GIVEN] "Payment Terms" is empty
-        PaymentTerms.DeleteAll();
-        // [GIVEN] A default Table Mapping for "Payment Terms"
-        GetIntegrationTableMapping(Database::"Payment Terms", IntegrationTableMapping);
-        // [WHEN] Sync the table
-        CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
-
-        // [THEN] "Payment Terms" contains records according to CRM option PaymentTermsCode
-        FillCodeBufferFromOption(IntegrationTableMapping, TempNameValueBuffer);
-        TempNameValueBuffer.FindSet();
-        repeat
-            PaymentTerms.Get(TempNameValueBuffer.Name);
-        until TempNameValueBuffer.Next() = 0;
-        Assert.AreEqual(TempNameValueBuffer.Count, PaymentTerms.Count, 'Wrong Payment Terms count.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SyncOptionToShipmentMethod()
-    var
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        ShipmentMethod: Record "Shipment Method";
-        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
-    begin
-        // [FEATURE] [Shipment Method]
-        Init();
-        // [GIVEN] "Shipment Method" is empty
-        ShipmentMethod.DeleteAll();
-        // [GIVEN] A default Table Mapping for "Shipment Method"
-        GetIntegrationTableMapping(Database::"Shipment Method", IntegrationTableMapping);
-        // [WHEN] Sync the table
-        CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
-
-        // [THEN] "Shipment Method" contains records according to CRM option FreightTermsCode
-        FillCodeBufferFromOption(IntegrationTableMapping, TempNameValueBuffer);
-        TempNameValueBuffer.FindSet();
-        repeat
-            ShipmentMethod.Get(TempNameValueBuffer.Name);
-        until TempNameValueBuffer.Next() = 0;
-        Assert.AreEqual(TempNameValueBuffer.Count, ShipmentMethod.Count, 'Wrong Shipment Method count.');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SyncOptionToShippingAgent()
-    var
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        ShippingAgent: Record "Shipping Agent";
-        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
-    begin
-        // [FEATURE] [Shipping Agent]
-        Init();
-        // [GIVEN] "Shipping Agent" is empty
-        ShippingAgent.DeleteAll();
-        // [GIVEN] A default Table Mapping for "Shipping Agent"
-        GetIntegrationTableMapping(Database::"Shipping Agent", IntegrationTableMapping);
-        // [WHEN] Sync the table
-        CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
-
-        // [THEN] "Shipping Agent" contains records according to CRM option ShippingMethodCode
-        FillCodeBufferFromOption(IntegrationTableMapping, TempNameValueBuffer);
-        TempNameValueBuffer.FindSet();
-        repeat
-            ShippingAgent.Get(TempNameValueBuffer.Name);
-        until TempNameValueBuffer.Next() = 0;
-        Assert.AreEqual(TempNameValueBuffer.Count, ShippingAgent.Count, 'Wrong Shipping Agent count.');
     end;
 
     [Test]
@@ -2473,7 +2384,7 @@ codeunit 139180 "CRM Entity Synch Test"
         TableFilterList: List of [Text];
     begin
         FieldNo := TempItem.FieldNo(SystemId);
-        Assert.IsFalse(CRMIntegrationTableSynch.SplitTableFilter(Database::Item, FieldNo,
+        Assert.IsFalse(IntegrationRecordSynch.SplitTableFilter(Database::Item, FieldNo,
             'VERSION(1) SORTING(Field1) WHERE(Field' + Format(FieldNo) + '=FILTER(' + CreateGuid() + '&' + CreateGuid() + '))',
             TableFilterList), 'SplitTableFilter should return false.');
     end;
@@ -2489,12 +2400,12 @@ codeunit 139180 "CRM Entity Synch Test"
         I: Integer;
         N: Integer;
     begin
-        N := CRMIntegrationTableSynch.GetMaxNumberOfConditions();
+        N := IntegrationRecordSynch.GetMaxNumberOfConditions();
         for I := 1 to N do
             FieldFilter += '|' + Format(CreateGuid());
         FieldFilter := FieldFilter.TrimStart('|');
         FieldNo := TempItem.FieldNo(SystemId);
-        Assert.IsTrue(CRMIntegrationTableSynch.SplitTableFilter(Database::Item, FieldNo,
+        Assert.IsTrue(IntegrationRecordSynch.SplitTableFilter(Database::Item, FieldNo,
             'VERSION(1) SORTING(Field1) WHERE(Field' + Format(FieldNo) + '=FILTER(' + FieldFilter + '))', TableFilterList),
             'SplitTableFilter should return true.');
         Assert.AreEqual(1, TableFilterList.Count(), 'SplitTableFilter should return 1 filter in the list.');
@@ -2511,12 +2422,12 @@ codeunit 139180 "CRM Entity Synch Test"
         I: Integer;
         N: Integer;
     begin
-        N := 3 * CRMIntegrationTableSynch.GetMaxNumberOfConditions();
+        N := 3 * IntegrationRecordSynch.GetMaxNumberOfConditions();
         for I := 1 to N do
             FieldFilter += '|' + Format(CreateGuid());
         FieldFilter := FieldFilter.TrimStart('|');
         FieldNo := TempItem.FieldNo(SystemId);
-        Assert.IsTrue(CRMIntegrationTableSynch.SplitTableFilter(Database::Item, FieldNo,
+        Assert.IsTrue(IntegrationRecordSynch.SplitTableFilter(Database::Item, FieldNo,
             'VERSION(1) SORTING(Field1) WHERE(Field' + Format(FieldNo) + '=FILTER(' + FieldFilter + '))', TableFilterList),
             'SplitTableFilter should return true.');
         Assert.AreEqual(3, TableFilterList.Count(), 'SplitTableFilter should return 3 filters in the list.');
@@ -2550,22 +2461,6 @@ codeunit 139180 "CRM Entity Synch Test"
         LibraryTemplates.EnableTemplatesFeature();
 
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
-    end;
-
-    local procedure CreateCoupledCustomerWithShippingAgent(var IntegrationTableMapping: Record "Integration Table Mapping"; var Customer: Record Customer; var CRMAccount: Record "CRM Account"; AgentCodeOption: Enum "CDS Shipping Agent Code")
-    var
-        DummyCRMAccount: Record "CRM Account";
-    begin
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
-        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
-        DummyCRMAccount.Address1_ShippingMethodCodeEnum := AgentCodeOption;
-        Customer.Validate("Shipping Agent Code", Format(DummyCRMAccount.Address1_ShippingMethodCodeEnum));
-        Customer.Modify();
-
-        CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, Customer.RecordId, true, false);
-        // Verify the value is synched
-        CRMAccount.Find();
-        CRMAccount.TestField(Address1_ShippingMethodCodeEnum, AgentCodeOption);
     end;
 
     local procedure CreateCoupledContactsWithParentCustomerAndAccount(var Contact: Record Contact; var CRMContact: Record "CRM Contact"; var Customer: Record Customer; var CRMAccount: Record "CRM Account")
@@ -2819,6 +2714,19 @@ codeunit 139180 "CRM Entity Synch Test"
         JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
         JobQueueEntry.FindFirst();
         Codeunit.Run(Codeunit::"Integration Synch. Job Runner", JobQueueEntry);
+    end;
+
+    local procedure CoupleOption(RecId: RecordId; OptionValue: Integer; OptionValueCaption: Text[250]; TableId: Integer; IntegrationTableId: Integer; IntegrationFieldId: Integer)
+    var
+        CRMOptionMapping: Record "CRM Option Mapping";
+    begin
+        CRMOptionMapping."Record ID" := RecId;
+        CRMOptionMapping."Option Value" := OptionValue;
+        CRMOptionMapping."Option Value Caption" := OptionValueCaption;
+        CRMOptionMapping."Table ID" := TableId;
+        CRMOptionMapping."Integration Table ID" := IntegrationTableId;
+        CRMOptionMapping."Integration Field ID" := IntegrationFieldId;
+        if CRMOptionMapping.Insert() then;
     end;
 
     [SendNotificationHandler]

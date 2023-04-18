@@ -233,6 +233,7 @@
         </trans-unit>
         <trans-unit id="Page 3270520675 - Control 1405163793 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>State</source>
+          <target state="translated">Stát</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Customer - Control state - Property Caption</note>
         </trans-unit>
@@ -670,6 +671,7 @@
         </trans-unit>
         <trans-unit id="Page 1622772827 - Control 1405163793 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>State</source>
+          <target state="translated">Stát</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page API Finance - Vendor - Control state - Property Caption</note>
         </trans-unit>
@@ -804,6 +806,12 @@
           <target state="translated">Filtr data</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn postingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 1246474670 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your Reference</source>
+          <target state="translated">Vaše reference</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn yourReference - Property Caption</note>
         </trans-unit>
         <trans-unit id="Query 389033821 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>API Fin - Dtld Cust Ledg Entry</source>

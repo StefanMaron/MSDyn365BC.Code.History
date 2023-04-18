@@ -513,7 +513,7 @@ codeunit 137402 "SCM Costing Batch"
           GetNumberOfStandardCostWorksheetLines(StandardCostWorksheetName) > CountRowsBeforeRollup, StandardCostWorksheetMustExist);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure SuggestItemPriceOnWorksheetWithSalesTypeCustomer()
@@ -747,7 +747,7 @@ codeunit 137402 "SCM Costing Batch"
         VerifyCopyStandardCostWorkSheet(StandardCostWorksheetName2, StandardCostWorksheet.Type::"Machine Center", MachineCenter."No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure SuggestSalesPriceOnWorksheetWithSalesTypeCustomer()
@@ -1216,7 +1216,7 @@ codeunit 137402 "SCM Costing Batch"
         RoutingHeader.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateSalesPrice(Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20])
     var
         SalesPrice: Record "Sales Price";
@@ -1579,7 +1579,7 @@ codeunit 137402 "SCM Costing Batch"
           StrSubstNo(ValidationError, Item.FieldCaption("Sales (LCY)"), SalesLCY));
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure VerifySalesPriceWorksheet(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CurrencyCode: Code[10]; ItemNo: Code[20])
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";

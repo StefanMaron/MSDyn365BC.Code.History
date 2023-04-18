@@ -473,7 +473,7 @@ codeunit 2801 "Native - EDM Types"
     local procedure WriteFieldToJSON(JsonObject: DotNet JObject; propertyName: Text; TargetFieldNumber: Integer; var TargetRecordRef: RecordRef): Boolean
     var
         JSONManagement: Codeunit "JSON Management";
-        IntegrationManagement: Codeunit "Integration Management";
+        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         ValueVariant: Variant;
         TargetFieldRef: FieldRef;
         GuidValue: Guid;
@@ -488,7 +488,7 @@ codeunit 2801 "Native - EDM Types"
             FieldType::Guid:
                 begin
                     GuidValue := TargetFieldRef.Value;
-                    ValueVariant := LowerCase(IntegrationManagement.GetIdWithoutBrackets(GuidValue));
+                    ValueVariant := LowerCase(GraphMgtGeneralTools.GetIdWithoutBrackets(GuidValue));
                 end;
             FieldType::Option:
                 begin

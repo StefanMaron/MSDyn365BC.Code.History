@@ -21,15 +21,6 @@ codeunit 132476 "API Mock Events"
         IsAPIEnabled := MockIsAPIEnabled;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Management", 'OnGetIntegrationEnabledOnSystem', '', false, false)]
-    local procedure HandleIsIntegrationManagemntEnabled(var IsEnabled: Boolean)
-    begin
-        if IsEnabled then
-            Error(MultipleTestHandlersOnEventErr);
-
-        IsEnabled := MockIntegrationManagementEnabled;
-    end;
-
     procedure SetIsAPIEnabled(NewIsAPIEnabled: Boolean)
     begin
         MockIsAPIEnabled := NewIsAPIEnabled;

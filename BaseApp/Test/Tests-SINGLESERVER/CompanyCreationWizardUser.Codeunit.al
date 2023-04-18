@@ -18,8 +18,11 @@ codeunit 139318 "Company Creation Wizard - User"
     [Scope('OnPrem')]
     procedure CreateCompanyWithoutUsersTest()
     var
+#if not CLEAN22
         UserGroupMember: Record "User Group Member";
+#endif
         Company: Record Company;
+        User: Record User;
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         CompanyCreationWizard: TestPage "Company Creation Wizard";
         NewCompanyData: Option "ENU=Evaluation - Sample Data","Production - Setup Data Only","No Data","Advanced Evaluation - Complete Sample Data","Create New - No Data";
@@ -47,8 +50,11 @@ codeunit 139318 "Company Creation Wizard - User"
         CompanyCreationWizard.ActionFinish.Invoke();
 
         // [THEN] Company is created without any users
+        Assert.RecordIsEmpty(User);
+#if not CLEAN22
         UserGroupMember.SetRange("Company Name", NewCompanyName);
         Assert.RecordIsEmpty(UserGroupMember);
+#endif
     end;
 
     [Test]
@@ -58,11 +64,13 @@ codeunit 139318 "Company Creation Wizard - User"
     var
         User1: Record User;
         User2: Record User;
-        User3: Record User;
+#if not CLEAN22
         UserGroup1: Record "User Group";
         UserGroup2: Record "User Group";
         UserGroup3: Record "User Group";
         UserGroupMember: Record "User Group Member";
+#endif
+        AccessControl: Record "Access Control";
         Company: Record Company;
         AzureADPlan: Codeunit "Azure AD Plan";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
@@ -74,7 +82,7 @@ codeunit 139318 "Company Creation Wizard - User"
         PlanBID: Guid;
     begin
         // [SCENARIO] Not choosing any user in the Company Creation Wizard creates company with users
-        // [GIVEN] User, Plan, UserPlan and UserGroupPlan is setup
+        // [GIVEN] User, Plan and UserPlan are setup
         NewCompanyName := LibraryUtility.GenerateRandomCode(Company.FieldNo(Name), DATABASE::Company);
 
         // Add current as admin
@@ -87,36 +95,38 @@ codeunit 139318 "Company Creation Wizard - User"
         // Add User2
         LibraryPermissions.CreateUser(User2, '', false);
 
-        // Add User3
-        LibraryPermissions.CreateUser(User3, '', false);
-
         // Add PlanA
         PlanAID := AzureADPlanTestLibrary.CreatePlan('PlanA');
         Assert.AreEqual(true, AzureADPlan.DoesPlanExist(PlanAID), 'test requirement not passed');
 
-        // Add UG1 -> to PlanA
+#if not CLEAN22
+        // Add UG1 and UG2 -> to PlanA
         LibraryPermissions.CreateUserGroup(UserGroup1, '');
+        LibraryPermissions.CreateUserGroup(UserGroup2, '');
         LibraryPermissions.AddUserGroupToPlan(UserGroup1.Code, PlanAID);
+        LibraryPermissions.AddUserGroupToPlan(UserGroup2.Code, PlanAID);
+#endif
+        // Add PS1 and PS2 to PlanA
+        LibraryPermissions.CreatePermissionSetInPlan('PS1', PlanAID);
+        LibraryPermissions.CreatePermissionSetInPlan('PS2', PlanAID);
 
         // Add PlanB
         PlanBID := AzureADPlanTestLibrary.CreatePlan('PlanB');
         Assert.AreEqual(true, AzureADPlan.DoesPlanExist(PlanBID), 'test requirement not passed');
 
-        // Add UG2 -> to PlanB
+#if not CLEAN22
         // Add UG3 -> to PlanB
-        LibraryPermissions.CreateUserGroup(UserGroup2, '');
         LibraryPermissions.CreateUserGroup(UserGroup3, '');
-        LibraryPermissions.AddUserGroupToPlan(UserGroup2.Code, PlanBID);
         LibraryPermissions.AddUserGroupToPlan(UserGroup3.Code, PlanBID);
+#endif
+        // Add PS3 to PlanB
+        LibraryPermissions.CreatePermissionSetInPlan('PS3', PlanBID);
 
         // Add User1 to PlanA
         LibraryPermissions.AddUserToPlan(User1."User Security ID", PlanAID);
 
         // Add User2 to PlanB
         LibraryPermissions.AddUserToPlan(User2."User Security ID", PlanBID);
-
-        // Add User3 to PlanB
-        LibraryPermissions.AddUserToPlan(User3."User Security ID", PlanBID);
 
         // [WHEN] Company Creation Wizard run and users are added
         CompanyCreationWizard.Trap;
@@ -130,7 +140,7 @@ codeunit 139318 "Company Creation Wizard - User"
         CompanyCreationWizard.ActionNext.Invoke; // Manage Users page
         Commit();
 
-        // Add User1 and User2
+        // Add User1 UserLookupModalPageHandler
         LibraryVariableStorage.Enqueue(User1);
         CompanyCreationWizard.ManageUserLabel.DrillDown;
 
@@ -141,18 +151,42 @@ codeunit 139318 "Company Creation Wizard - User"
         CompanyCreationWizard.ActionNext.Invoke; // That's it page
         CompanyCreationWizard.ActionFinish.Invoke;
 
+#if not CLEAN22
         // [THEN] Users are added to the newly added company
         UserGroupMember.SetRange("User Security ID", User1."User Security ID");
         UserGroupMember.SetRange("Company Name", NewCompanyName);
+        UserGroupMember.SetRange("User Group Code", UserGroup1.Code);
+        Assert.RecordCount(UserGroupMember, 1);
+
+        UserGroupMember.SetRange("User Security ID", User1."User Security ID");
+        UserGroupMember.SetRange("Company Name", NewCompanyName);
+        UserGroupMember.SetRange("User Group Code", UserGroup2.Code);
         Assert.RecordCount(UserGroupMember, 1);
 
         UserGroupMember.SetRange("User Security ID", User2."User Security ID");
         UserGroupMember.SetRange("Company Name", NewCompanyName);
         Assert.RecordIsEmpty(UserGroupMember);
+#endif
+        // [THEN] Users have the expected permissions associated with their plans
+        AccessControl.SetRange("Company Name", NewCompanyName);
 
-        UserGroupMember.SetRange("User Security ID", User3."User Security ID");
-        UserGroupMember.SetRange("Company Name", NewCompanyName);
-        Assert.RecordIsEmpty(UserGroupMember);
+        // User 1 gets PS1 and PS2
+        AccessControl.SetRange("User Security ID", User1."User Security ID");
+        Assert.RecordCount(AccessControl, 2);
+
+        AccessControl.SetRange("Role ID", 'PS1');
+        Assert.RecordCount(AccessControl, 1);
+        AccessControl.FindFirst();
+        Assert.AreEqual(AccessControl."Role ID", 'PS1', 'Expected to have the permission set associated with the plan assigned.');
+
+        AccessControl.SetRange("Role ID", 'PS2');
+        Assert.RecordCount(AccessControl, 1);
+        AccessControl.FindFirst();
+        Assert.AreEqual(AccessControl."Role ID", 'PS2', 'Expected to have the permission set associated with the plan assigned.');
+
+        // User 2 was not selected on the "Manage users" page, so they get no permissions
+        AccessControl.SetRange("User Security ID", User2."User Security ID");
+        Assert.RecordCount(AccessControl, 0);
     end;
 
     [ModalPageHandler]

@@ -1,6 +1,10 @@
+#if not CLEAN22
 codeunit 134149 "ERM Intrastat Propagation"
 {
     Subtype = Test;
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -241,4 +245,4 @@ codeunit 134149 "ERM Intrastat Propagation"
         exit(IntrastatSetup."Default Trans. Spec. Ret. Code");
     end;
 }
-
+#endif

@@ -213,12 +213,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmptyEmailAddressErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2120671752 - NamedType 33623699" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The Email Logging Using the Microsoft Graph API feature is not enabled.</source>
-          <target state="translated">E-postloggningen som använder funktionen Microsoft Graph API är inte aktiverad.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType FeatureDisabledErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2120671752 - NamedType 1164843116" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your license does not allow you to schedule the email logging task or register interaction log entries. To view details about your permissions, see the Effective Permissions page.</source>
           <target state="translated">Med din licens kan du inte schemalägga e-postloggningsuppgifter eller registrera interaktionsloggtransaktioner. På sidan Gällande behörigheter finns mer information om dina behörigheter.</target>
@@ -285,11 +279,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType ClearSetupTxt</note>
         </trans-unit>
-        <trans-unit id="Page 3925836548 - NamedType 1063437616" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This setup page can only be used when the Email Logging Using the Microsoft Graph API feature is enabled. You can enable the feature on the Feature Management page.</source>
-          <target state="translated">Den här konfigurationssidan kan bara användas när funktionen E-postloggning med Microsoft Graph API har aktiverats. Du kan aktivera funktionen på sidan Funktionshantering.</target>
+        <trans-unit id="Page 3925836548 - NamedType 685980417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This feature requires that you are using Microsoft Exchange Online. By enabling this feature, you consent to sharing some of your organization's data in Office 365 with Business Central. Business Central will access details about email messages in the shared mailbox that your administrator created for email logging. The details include the message’s IDs, whether it is a draft, the dates and times it was sent and received, the text from the Subject line, a link to the message in Exchange Online, and the email addresses of the sender and the recipients on the To and Cc lines.\\Business Central will store only the IDs, dates, subject, and weblink. We do not store the content of the messages, but there is a link that will open the email message in Outlook Online.\\Do you want to continue?</source>
+          <target state="translated">Den här funktionen kräver att du använder Microsoft Exchange Online. Genom att aktivera den här funktionen accepterar du att en del av organisationens data i Office 365 delas med Business Central. Business Central får då tillgång till information om e-postmeddelanden i den delade postlåda som administratören har skapat för e-postloggning. Detaljerna omfattar meddelandets ID, om det är ett utkast, datum och tidpunkt då det skickades och togs emot, text på ämnesraden, en länk till meddelandet i Exchange Online och e-postadresserna till avsändaren och mottagarna på raderna Till och Kopia.\\Business Central lagrar endast ID:n, datum, ämne och webblänk. Vi lagrar inte innehållet i meddelandena, men det finns en länk som öppnar e-postmeddelandet i Outlook Online.\\Vill du fortsätta?</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType FeautureNotEnabledErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType DataHandlingConsentQst</note>
         </trans-unit>
         <trans-unit id="Page 3925836548 - NamedType 3536538717" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must sign in with an administrator account for Exchange Online and give consent to the application that will be used to connect to the shared mailbox. Do you want to continue?</source>

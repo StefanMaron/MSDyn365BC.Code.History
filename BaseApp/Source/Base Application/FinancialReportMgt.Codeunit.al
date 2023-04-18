@@ -9,9 +9,9 @@ codeunit 18 "Financial Report Mgt."
         PackageNameTxt: Label 'Financial Report - %1', MaxLength = 40, Comment = '%1 - financial report name';
         PackageImportErr: Label 'The financial report could not be imported.';
         RowsEditWarningNotificationMsg: Label 'Changes to this row definition will affect all financial reports using it.';
-        RowsNotificationIdTok: Label 'e6374e6b-dba0-43a0-9099-0ae20ee77f4b', Locked = True;
+        RowsNotificationIdTok: Label 'e6374e6b-dba0-43a0-9099-0ae20ee77f4b', Locked = true;
         ColumnsEditWarningNotificationMsg: Label 'Changes to this column definition will affect all financial reports using it.';
-        ColumnsNotificationIdTok: Label '883e213e-08bd-4154-b929-87f689848f10', Locked = True;
+        ColumnsNotificationIdTok: Label '883e213e-08bd-4154-b929-87f689848f10', Locked = true;
         DontShowAgainMsg: Label 'Don''t show again';
 
     internal procedure LaunchEditRowsWarningNotification()
@@ -111,7 +111,7 @@ codeunit 18 "Financial Report Mgt."
         end;
     end;
 
-    local procedure ApplyPackage(PackageCode: Code[20])
+    procedure ApplyPackage(PackageCode: Code[20])
     var
         ConfigPackage: Record "Config. Package";
         ConfigPackageTable: Record "Config. Package Table";
@@ -299,7 +299,13 @@ codeunit 18 "Financial Report Mgt."
     procedure Print(FinancialReport: Record "Financial Report")
     var
         AccountSchedule: Report "Account Schedule";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrint(FinancialReport, IsHandled);
+        if IsHandled then
+            exit;
+
         AccountSchedule.SetFinancialReportName(FinancialReport.Name);
         AccountSchedule.Run();
     end;
@@ -344,4 +350,8 @@ codeunit 18 "Financial Report Mgt."
         FinancialReport.Insert();
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrint(var FinancialReport: Record "Financial Report"; var IsHandled: Boolean)
+    begin
+    end;
 }

@@ -143,36 +143,6 @@ codeunit 134900 "ERM Batch Job"
         Assert.RecordIsEmpty(PurchaseHeader);
     end;
 
-#if not CLEAN19
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure DeleteArchivedPurchaseOrder()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchaseHeaderArchive: Record "Purchase Header Archive";
-        DocumentNo: Code[20];
-    begin
-        // [FEATURE] [Delete Documents] [Order] [Archive] [Purchase]
-        // [SCENARIO] Test Batch Report for Delete Purchase Order Version.
-
-        // [GIVEN] Create Blanket Purchase Order, Make Purchase Order from Blanket Order and Post as Receive and Invoice.
-        Initialize();
-        LibraryPurchase.SetArchiveOrders(true);
-        CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [WHEN] Delete Purchase Order Version.
-        DeletePurchaseOrderArchive(PurchaseHeader);
-
-        // [THEN] Verify Archived Purchase Order Version deleted.
-        PurchaseHeaderArchive.Init();
-        PurchaseHeaderArchive.SetRange("No.", DocumentNo);
-        Assert.RecordIsEmpty(PurchaseHeaderArchive);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure CreateInvoiceAndReminder()
@@ -3429,20 +3399,6 @@ codeunit 134900 "ERM Batch Job"
         GetSalesOrderForSpecialOrderOnReqWksh(RequisitionLine, SalesHeader2, SalesLine2, RequisitionWkshName.Name, ReqWkshTemplate.Name);
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
-
-#if not CLEAN19
-    local procedure DeletePurchaseOrderArchive(PurchaseHeader: Record "Purchase Header")
-    var
-        PurchaseHeaderArchive: Record "Purchase Header Archive";
-        DeletePurchaseOrderVersions: Report "Delete Purchase Order Versions";
-    begin
-        PurchaseHeaderArchive.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseHeaderArchive.SetRange("No.", PurchaseHeader."No.");
-        DeletePurchaseOrderVersions.SetTableView(PurchaseHeaderArchive);
-        DeletePurchaseOrderVersions.UseRequestPage(false);
-        DeletePurchaseOrderVersions.Run();
-    end;
-#endif
 
     local procedure DeleteBlanketPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
     var

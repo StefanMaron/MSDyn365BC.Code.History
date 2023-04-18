@@ -3899,6 +3899,70 @@
     end;
 
     [Test]
+    procedure FastDeletionOfAllLinesInWorksheet()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        RequisitionLine: Record "Requisition Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        StartTime: Time;
+        DurationBefore: Duration;
+        DurationAfter: Duration;
+        i: Integer;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 451265] Fast deletion of all lines with dependencies in planning or requisition worksheet.
+        Initialize();
+
+        // [GIVEN] Manufacturing item "I" with 20 components.
+        // [GIVEN] Set up the item for planning.
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        for i := 1 to 20 do
+            LibraryManufacturing.CreateProductionBOMLine(
+              ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item,
+              LibraryInventory.CreateItemNo(), 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Modify(true);
+
+        // [GIVEN] Create sales order with 50 lines, each for item "I", different shipment dates.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        for i := 1 to 50 do begin
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 50);
+            SalesLine.Validate("Shipment Date", WorkDate() + 5 * i);
+            SalesLine.Modify(true);
+        end;
+
+        Item.SetRecFilter();
+
+        // [WHEN] Calculate regenerative plan for the item "I" twice and delete all lines in the planning worksheet with two different methods.
+        // Use DeleteAll(true) to delete all requisition lines on the first run. Deletion time = "T1".
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY', WorkDate()), CalcDate('<CY>', WorkDate()));
+        RequisitionLine.SetRange("No.", Item."No.");
+        Assert.RecordCount(RequisitionLine, 50);
+        StartTime := Time;
+        RequisitionLine.DeleteAll(true);
+        DurationBefore := Time - StartTime;
+
+        // Use ClearPlanningWorksheet() function to delete all requisition lines on the second run. Deletion time = "T2".
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY', WorkDate()), CalcDate('<CY>', WorkDate()));
+        RequisitionLine.SetRange("No.", Item."No.");
+        Assert.RecordCount(RequisitionLine, 50);
+        RequisitionLine.FindFirst();
+        StartTime := Time;
+        RequisitionLine.ClearPlanningWorksheet(true);
+        DurationAfter := Time - StartTime;
+
+        // [THEN] "T2" is at least 50% less than "T1".
+        Assert.IsTrue(DurationAfter * 1.5 < DurationBefore, '');
+    end;
+
+    [Test]
     [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler')]
     procedure VerifyQuantityOnReqLineForCompItemWithLotToLotAndMakeToOrderSetupWhenInventoryIsAvailable()
     var

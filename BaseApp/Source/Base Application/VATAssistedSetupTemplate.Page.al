@@ -12,7 +12,7 @@ page 1880 "VAT Assisted Setup Template"
         {
             repeater(Group)
             {
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

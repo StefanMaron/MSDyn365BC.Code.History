@@ -30,7 +30,7 @@ page 9656 "Report Layout Update Log"
                     Caption = 'Layout Type';
                     ToolTip = 'Specifies the file type of the report layout. The following table includes the types that are available:';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Status';

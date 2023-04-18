@@ -858,6 +858,76 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Scheduled Jobs - Control status - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3219534704 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Sec. Gr. Members</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Sec. Gr. Members - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3219534704 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Group Member</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Sec. Gr. Members - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3219534704 - Property 631549417" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Group Members</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Sec. Gr. Members - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3219534704 - Control 256364600 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Group Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Sec. Gr. Members - Control securityGroupCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3219534704 - Control 2311277794 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Group Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Sec. Gr. Members - Control securityGroupName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3219534704 - Control 2920517718 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Security Id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Sec. Gr. Members - Control userSecurityId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Security Groups</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Group</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Property 631549417" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Groups</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Control 707985127 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Code</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Control code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Control 4013682468 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Control groupName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Control 2686962215 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Control 3827759206 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Group Member</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Control securityGroupMembers - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Control 2544131419 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Group Permissions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Control securityGroupPermissions - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2129153706 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>APIV2 - Aut. User Gr. Members</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1117,6 +1187,11 @@
           <source>Scheduled Jobs</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Users - Control scheduledJobs - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1243228631 - Control 2876203579 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Group Member</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Users - Control securityGroupMember - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1243228631 - Control 1405163793 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>State</source>
@@ -1412,11 +1487,6 @@
           <source>Address Line 2</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Control addressLine2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 79567422 - Control 2321560956 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Business Relation</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Control businessRelation - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 79567422 - Control 2754366897 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>City</source>
@@ -2053,6 +2123,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control displayName - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1278155290 - Control 750067815 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control documentAttachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1278155290 - Control 3163706192 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2368,6 +2443,76 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimensions - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3008374136 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Property 3446740159" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachment</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Property 631549417" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - NamedType 58801611" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You cannot change the value of the key field %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Field name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - NamedType CannotModifyKeyFieldErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 2895166340 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Content</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control attachmentContent - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 412330025 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Byte Size</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control byteSize - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 1536349666 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Flow to Purchase Transactions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control documentFlowPurchase - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 2817525071 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Flow to Sales Transactions</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control documentFlowSales - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 4179522451 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Name</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control fileName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 2686962215 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 2245436958 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Modified Date</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 928535615 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line No.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control lineNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 2178989011 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Parent Id</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control parentId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 2234676128 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Parent Type</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control parentType - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 950291140 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>APIV2 - Employees</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -2417,6 +2562,11 @@
           <source>Display Name</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control displayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 950291140 - Control 750067815 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control documentAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 950291140 - Control 3163706192 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email</source>
@@ -2978,6 +3128,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control displayName - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1180930185 - Control 750067815 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control documentAttachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1180930185 - Control 2481309022 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>General Product Posting Group</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3097,6 +3252,11 @@
           <source>Projects</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Jobs - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3345245471 - Control 750067815 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Jobs - Control documentAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3345245471 - Control 460507951 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Display Name</source>
@@ -4143,6 +4303,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4099491740 - Control 750067815 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control documentAttachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2763176388 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Due Date</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -4697,6 +4862,11 @@
           <source>Discount Applied Before Tax</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control discountAppliedBeforeTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 750067815 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control documentAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 73969887 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Fully Received</source>
@@ -5548,6 +5718,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3006414751 - Control 750067815 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control documentAttachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3006414751 - Control 2763176388 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Due Date</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -6097,6 +6272,11 @@
           <source>Discount Applied Before Tax</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control discountAppliedBeforeTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3783002405 - Control 750067815 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control documentAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2763176388 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Due Date</source>
@@ -6678,6 +6858,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 48856144 - Control 750067815 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control documentAttachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 48856144 - Control 3163706192 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -7212,6 +7397,11 @@
           <source>Discount Amount</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control discountAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 617149860 - Control 750067815 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control documentAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 515850677 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Document Date</source>
@@ -8367,6 +8557,11 @@
           <source>Display Name</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control displayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2680707570 - Control 750067815 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control documentAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2680707570 - Control 3163706192 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email</source>

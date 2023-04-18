@@ -25,11 +25,12 @@ page 9852 "Effective Permissions"
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
+                        UserSelection: Codeunit "User Selection";
                         ChosenUser: Record User;
                         User: Record User;
                         Users: Page Users;
                     begin
-                        User.SetFilter("License Type", '<>%1', User."License Type"::"External User");
+                        UserSelection.FilterSystemUserAndGroupUsers(User);
                         Users.SetTableView(User);
                         ChosenUser.SetRange("User Name", Text);
                         if ChosenUser.FindFirst() then

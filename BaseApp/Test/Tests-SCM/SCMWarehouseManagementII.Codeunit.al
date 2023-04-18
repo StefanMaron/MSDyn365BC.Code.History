@@ -55,7 +55,8 @@ codeunit 137154 "SCM Warehouse Management II"
         LotNumberRequiredForItem: Label 'You must assign a lot number for item %1', Comment = '%1 - Item No.';
         UndoConfirmMessage: Label 'Do you really want to undo the selected ';
         PickedConfirmMessage: Label 'The items have been picked.';
-        UndoErrorMessage: Label 'You cannot undo line %1 because warehouse activity lines have already been posted.';
+        UndoErrorMessage: Label 'You cannot undo line %1 because warehouse activity lines have already been created.';
+        UndoErrorMessage_Shipment: Label 'You cannot undo line %1 because warehouse shipment lines have already been created.';
         ReservedQuantityError: Label 'Reserved Quantity must be equal to ''0''  in Item Ledger Entry: Entry No.=%1. Current value is ''%2''.', Comment = '%1 = Entry No., %2 = Quantity';
         CancelReservationConfirmMessage: Label 'Do you want to cancel all reservations in the %1?';
         GetSourceDocErr: Label '%1 source documents were not included because the customer is blocked.';
@@ -1683,6 +1684,285 @@ codeunit 137154 "SCM Warehouse Management II"
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
+    procedure UndoTransferShipmentWhseShipment()
+    var
+        Item: Record Item;
+        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TransferShipmentLine: Record "Transfer Shipment Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        ItemJnlLine: Record "Item Journal Line";
+        Quantity: Decimal;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Undo Transfer Shipment shipped as Warehouse Shipment
+        Initialize();
+        Quantity := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Create and release Transfer Order.
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJournalLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", Item."No.", Quantity, LocationBlue.Code, LocationBlue."Default Bin Code");
+        CreateAndReleaseTransferOrder(
+            TransferHeader, TransferLine, LocationBlue.Code, LocationRed.Code, Item."No.", Quantity);
+
+        // [GIVEN] Create and post Warehouse Shipment.
+        CreateAndReleaseWarehouseShipmentFromTransferOrder(WarehouseShipmentHeader, TransferHeader);
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);  // Post as Ship.
+        LibraryVariableStorage.Enqueue(UndoConfirmMessage);  // Enqueue for ConfirmHandler.
+        LibraryVariableStorage.Enqueue(PickedConfirmMessage);  // Enqueue for ConfirmHandler.
+
+        // [WHEN] The Transfer Shipment is undone.
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] Verify The Posted Warehouse Shipment Line after Undo Transfer Shipment.
+        VerifyPostedWarehouseShipmentLine(
+          PostedWhseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.", Item."No.", TransferLine.Quantity, false);
+        VerifyPostedWarehouseShipmentLine(
+          PostedWhseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.", Item."No.", -TransferLine.Quantity, true);  // Use MoveNext as True.
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoTransferShipmentWhseShipmentUsingPick()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        TransferHeader: Record "Transfer Header";
+        TransferShipmentLine: Record "Transfer Shipment Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
+        ItemJnlLine: Record "Item Journal Line";
+        Quantity: Decimal;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Undo Transfer Shipment shipped as Warehouse Shipment with Pick
+        Initialize();
+        Quantity := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Item with available inventory in Location Yellow
+        LibraryInventory.CreateItem(Item);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(PurchaseHeader, Item."No.", LocationYellow.Code, Quantity);
+
+        // [GIVEN] Create and register Pick from Warehouse Shipment using Transfer Order. 
+        // FromLocation (Yellow) has "Require Shipment" = true, "Require Pick" = true, "Directed Pick/Put-away" = false, "Bin Mandatory" = false,  
+        CreateAndRegisterPickFromWarehouseShipmentUsingTransferOrder(
+          WarehouseShipmentHeader, TransferHeader, Item."No.", LocationYellow.Code, LocationRed.Code, Quantity);
+
+        // [GIVEN] The Warehouse Shipment is posted.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);  // Post as Ship.
+        LibraryVariableStorage.Enqueue(UndoConfirmMessage);  // Enqueue for ConfirmHandler.
+        LibraryVariableStorage.Enqueue(PickedConfirmMessage);  // Enqueue for ConfirmHandler.
+
+        // [WHEN] The Transfer Shipment is undone.
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] Verify The Posted Warehouse Shipment Line after Undo Transfer Shipment.
+        VerifyPostedWarehouseShipmentLine(
+          PostedWhseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.", Item."No.", Quantity, false);
+        VerifyPostedWarehouseShipmentLine(
+          PostedWhseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.", Item."No.", -Quantity, true);  // Use MoveNext as True.
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure UndoTransferShipmentWhseShipment_FullWMS()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        TransferHeader: Record "Transfer Header";
+        TransferShipmentLine: Record "Transfer Shipment Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
+        ItemJnlLine: Record "Item Journal Line";
+        BinPick: Record Bin;
+        Quantity: Decimal;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Undo Transfer Shipment shipped as WarehouseSshipment from full WMS Location
+        Initialize();
+        Quantity := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Item with available inventory in Bin on Location White
+        LibraryInventory.CreateItem(Item);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(PurchaseHeader, Item."No.", LocationWhite.Code, Quantity);
+
+        // [GIVEN] Create and register Pick from Warehouse Shipment using Transfer Order. 
+        // FromLocation (White) has "Require Shipment" = true, "Require Pick" = true, "Directed Pick/Put-away" = true, "Bin Mandatory" = true,  
+        CreateAndRegisterPickFromWarehouseShipmentUsingTransferOrder(
+          WarehouseShipmentHeader, TransferHeader, Item."No.", LocationWhite.Code, LocationRed.Code, Quantity);
+
+        // [GIVEN] The Warehouse Shipment is posted.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);  // Post as Ship.
+        LibraryVariableStorage.Enqueue(UndoConfirmMessage);  // Enqueue for ConfirmHandler.
+        LibraryVariableStorage.Enqueue(PickedConfirmMessage);  // Enqueue for ConfirmHandler.
+
+        // [WHEN] The Transfer Shipment line is undone.
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] Verify The Posted Warehouse Shipment Line after Undo Transfer Shipment.
+        VerifyPostedWarehouseShipmentLine(
+          PostedWhseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.", Item."No.", Quantity, false);
+        VerifyPostedWarehouseShipmentLine(
+          PostedWhseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.", Item."No.", -Quantity, true);  // Use MoveNext as True.
+
+        // [THEN] The sum of quantities of this item is equal to Quantity on both Whse Entry and Item Ledger Entry 
+        Assert.AreEqual(Quantity, SumQtyOnItemLedgerEntries(Item."No."), 'Incorrect sum of quantities Item Ledger Entries after Undo Transfer Shipment');
+        Assert.AreEqual(Quantity, SumQtyOnWhseEntries(Item."No."), 'Incorrect sum of quantities Warehouse Entries after Undo Transfer Shipment');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure UndoTransferShipmentWhseShipment_FullWMS_LotTracking()
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Undo Transfer Shipment shipped as Warehouse Shipment from full WMS Location with Lot Tracking
+        Initialize();
+        UndoTransferShipmentWhseShipment_FullWMS_Tracking(true, LibraryRandom.RandDec(100, 2));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure UndoTransferShipmentWhseShipment_FullWMS_SNTracking()
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Undo Transfer Shipment shipped as Warehouse Shipment from full WMS Location with Serial No. Tracking
+        Initialize();
+        UndoTransferShipmentWhseShipment_FullWMS_Tracking(false, LibraryRandom.RandInt(10) + 2);
+    end;
+
+    local procedure UndoTransferShipmentWhseShipment_FullWMS_Tracking(LotTracking: Boolean; Quantity: Decimal)
+    var
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemTrackingCode: Record "Item Tracking Code";
+        LotNoInformation: Record "Lot No. Information";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        TransferShipmentLine: Record "Transfer Shipment Line";
+        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
+        LotNo: Code[50];
+    begin
+        Initialize();
+
+        // [GIVEN] Create Item with Item Tracking. Create and release Purchase Order. Create and post Warehouse Receipt from Purchase Order.
+        if LotTracking then begin
+            CreateItemTrackingCodeWithLotInformation(ItemTrackingCode);
+            LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+            LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Lot No.");  // Enqueue ItemTrackingMode for ItemTrackingLinesPageHandler.
+        end else begin
+            CreateItemTrackingCode(ItemTrackingCode, true, false, false);
+            LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode, ItemTrackingCode.Code);
+            LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Serial No.");  // Enqueue ItemTrackingMode for ItemTrackingLinesPageHandler.
+        end;
+        CreateAndReleasePurchaseOrder(
+          PurchaseHeader, PurchaseLine, Item."No.", '', '', LocationWhite.Code, '', Quantity, WorkDate(), true);  // Tracking as True.
+        if LotTracking Then begin
+            GetLotNoFromItemTrackingLinesPageHandler(LotNo);
+            LibraryItemTracking.CreateLotNoInformation(LotNoInformation, Item."No.", '', LotNo);
+        end;
+        CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader, false);  // Tracking as False.
+
+        // [GIVEN] Put-away is registered, so we now have inventory of the tracked Item in LocationWhite
+        RegisterWarehouseActivity(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Put-away");
+
+        // [GIVEN] A Transfer Order with the tracked item is created from LocationWhite
+        CreateAndReleaseTransferOrder(TransferHeader, TransferLine, LocationWhite.Code, LocationRed.Code, Item."No.", Quantity);
+        UpdateItemTrackingOnTransferLine(TransferLine, ItemTrackingMode::"Select Entries", "Transfer Direction"::Outbound);
+        CreatePickFromWarehouseShipment(WarehouseShipmentHeader, TransferHeader);
+        RegisterWarehouseActivity(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Outbound Transfer", TransferHeader."No.",
+          WarehouseActivityLine."Activity Type"::Pick);
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);  // Post as Ship.
+        LibraryVariableStorage.Enqueue(UndoConfirmMessage);  // Enqueue for ConfirmHandler.
+        LibraryVariableStorage.Enqueue(PickedConfirmMessage);  // Enqueue for ConfirmHandler.
+
+        // [WHEN] The Transfer Shipment Line is undone.
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] Verify The Posted Warehouse Shipment Line after Undo Transfer Shipment.
+        VerifyPostedWarehouseShipmentLine(
+          PostedWhseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.", Item."No.", Quantity, false);
+        VerifyPostedWarehouseShipmentLine(
+          PostedWhseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.", Item."No.", -Quantity, true);  // Use MoveNext as True.
+
+        // [THEN] The sum of quantities of this item is equal to Quantity on both Whse Entry and Item Ledger Entry 
+        Assert.AreEqual(Quantity, SumQtyOnItemLedgerEntries(Item."No."), 'Incorrect sum of quantities Item Ledger Entries after Undo Transfer Shipment');
+        Assert.AreEqual(Quantity, SumQtyOnWhseEntries(Item."No."), 'Incorrect sum of quantities Warehouse Entries after Undo Transfer Shipment');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CannotUndoTransferShipmentWithOpenWarehousePick()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TransferShipmentLine: Record "Transfer Shipment Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemJnlLine: Record "Item Journal Line";
+        Quantity: Decimal;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Cannot undo Transfer Shipment if the Transfer Line has an open Warehouse Pick
+        Initialize();
+        Quantity := LibraryRandom.RandDec(100, 2) + 10.0;
+
+        // [GIVEN] Create and register Put Away from Warehouse Receipt using Purchase Order. 
+        LibraryInventory.CreateItem(Item);
+        CreateAndRegisterPutAwayFromWarehouseReceiptUsingPurchaseOrder(PurchaseHeader, Item."No.", LocationYellow.Code, Quantity);
+
+        // [GIVEN] Create Transfer Order with Pick for a Warehouse Shipment
+        CreateAndReleaseTransferOrder(TransferHeader, TransferLine, LocationYellow.Code, LocationRed.Code, Item."No.", Quantity);
+        CreatePickFromWarehouseShipment(WarehouseShipmentHeader, TransferHeader);
+
+        // [GIVEN] Change pick quantity to subquantity and post it
+        FindWarehouseActivityLine(
+            WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Outbound Transfer", TransferHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.Validate("Qty. to Handle", Quantity / 2);
+        WarehouseActivityLine.Validate("Qty. Outstanding", Quantity / 2);
+        WarehouseActivityLine.Modify();
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] The Warehouse Shipment is posted.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);  // Post as Ship.
+        LibraryVariableStorage.Enqueue(UndoConfirmMessage);  // Enqueue for ConfirmHandler.
+        LibraryVariableStorage.Enqueue(PickedConfirmMessage);  // Enqueue for ConfirmHandler.
+
+        // [GIVEN] Another pick is created and registered
+        CreatePickForOutboundTransfer(WarehouseShipmentHeader, TransferHeader."No.");
+        RegisterWarehouseActivity(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Outbound Transfer", TransferHeader."No.",
+          WarehouseActivityLine."Activity Type"::Pick);
+
+        // [WHEN] We attempt to undo the Transfer Shipment Line
+        TransferShipmentLine.SetFilter("Transfer Order No.", TransferHeader."No.");
+        TransferShipmentLine.FindFirst();
+        asserterror LibraryInventory.UndoTransferShipmentLinesInFilter(TransferShipmentLine);
+
+        // [THEN] We get an error because the Warehouse Shipment has posted Activitiy Lines 
+        Assert.ExpectedError(StrSubstNo(UndoErrorMessage_Shipment, TransferShipmentLine."Line No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
     procedure UndoReturnShipmentAfterPostWarehouseShipmentFromPurchaseReturnOrder()
     var
         Item: Record Item;
@@ -2262,6 +2542,7 @@ codeunit 137154 "SCM Warehouse Management II"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure WarehouseShipmentFromSalesOrderWithBlankLocation()
     var
@@ -2311,6 +2592,7 @@ codeunit 137154 "SCM Warehouse Management II"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure WarehouseReceiptFromPurchaseOrderWithBlankLocation()
     var
@@ -2515,6 +2797,333 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure WhseShipmentBinFieldsDynamicVisibilty_OnValidate()
+    var
+        WhseShipment: TestPage "Warehouse Shipment";
+        WhseShipmentNo: Code[20];
+    begin
+        // [BUG 454137] Visiblity of Bin Code on Warehouse Shipment Lines is set dynamically from Location Code
+        Initialize();
+        Assert.IsTrue(LocationWhite."Bin Mandatory", 'White Location should have Bin Mandatory = true for this test.');
+        Assert.IsFalse(LocationYellow."Bin Mandatory", 'Yellow Location should have Bin Mandatory = false for this test.');
+
+        // [GIVEN] An empty Warehouse Receipt is opened
+        WhseShipment.OpenNew();
+
+        // [WHEN] Location Code is set to YELLOW, which has Bin Mandatory = false
+        WhseShipment."Location Code".SetValue(LocationYellow.Code);
+
+        // [THEN] Bin fields are NOT visible on the page
+        Assert.IsFalse(WhseShipment.WhseShptLines."Bin Code".Visible(), 'Bin Code should not be visible by default on Warehouse Shipments with Bin Code NOT Mandatory');
+        Assert.IsFalse(WhseShipment."Bin Code".Visible(), 'Bin Code should not be visible by default on Warehouse Shipments with Bin Code NOT Mandatory');
+        Assert.IsFalse(WhseShipment."Zone Code".Visible(), 'Zone Code should not be visible by default on Warehouse Shipments with Bin Code NOT Mandatory');
+
+        // [WHEN] Location Code is set to WHITE, which has Bin Mandatory = true
+        WhseShipment."Location Code".SetValue(LocationWhite.Code);
+
+        // [THEN] Bin Fields are visible on the page
+        Assert.IsTrue(WhseShipment.WhseShptLines."Bin Code".Visible(), 'Bin Code should be visible by default on Warehouse Shipments with Bin Code Mandatory');
+        Assert.IsTrue(WhseShipment."Bin Code".Visible(), 'Bin Code should be visible by default on Warehouse Shipments with Bin Code Mandatory');
+        Assert.IsTrue(WhseShipment."Zone Code".Visible(), 'Zone Code should be visible by default on Warehouse Shipments with Bin Code Mandatory');
+    end;
+
+    [Test]
+    procedure WhseReceiptBinFieldsCodeDynamicVisibilty_OnValidate()
+    var
+        WhseReceipt: TestPage "Warehouse Receipt";
+        WhseReceiptNo: Code[20];
+    begin
+        // [BUG 454137] Visiblity of Bin Code on Warehouse Shipment Lines is set dynamically from Location Code
+        Initialize();
+        Assert.IsTrue(LocationWhite."Bin Mandatory", 'White Location should have Bin Mandatory = true for this test.');
+        Assert.IsFalse(LocationYellow."Bin Mandatory", 'Yellow Location should have Bin Mandatory = false for this test.');
+
+        // [GIVEN] An empty Warehouse Receipt is opened
+        WhseReceipt.OpenNew();
+
+        // [WHEN] Location Code is set to YELLOW, which has Bin Mandatory = false
+        WhseReceipt."Location Code".SetValue(LocationYellow.Code);
+
+        // [THEN] Bin fields are NOT visible on the page
+        Assert.IsFalse(WhseReceipt.WhseReceiptLines."Bin Code".Visible(), 'Bin Code should not be visible by default on Warehouse Receipts with Bin Code NOT Mandatory');
+        Assert.IsFalse(WhseReceipt."Bin Code".Visible(), 'Bin Code should not be visible by default on Warehouse Receipts with Bin Code NOT Mandatory');
+        Assert.IsFalse(WhseReceipt."Zone Code".Visible(), 'Zone Code should not be visible by default on Warehouse Receipts with Bin Code NOT Mandatory');
+
+        // [WHEN] Location Code is set to WHITE, which has Bin Mandatory = true
+        WhseReceipt."Location Code".SetValue(LocationWhite.Code);
+
+        // [THEN] Bin Fields are visible on the page
+        Assert.IsTrue(WhseReceipt.WhseReceiptLines."Bin Code".Visible(), 'Bin Code should be visible by default on Warehouse Receipts with Bin Code Mandatory');
+        Assert.IsTrue(WhseReceipt."Bin Code".Visible(), 'Bin Code should be visible by default on Warehouse Receipts with Bin Code Mandatory');
+        Assert.IsTrue(WhseReceipt."Zone Code".Visible(), 'Zone Code should be visible by default on Warehouse Receipts with Bin Code Mandatory');
+    end;
+
+    [Test]
+    procedure WhseDocumentsBinFieldsDynamicVisibilty_BinMandatory()
+    begin
+        // [BUG 454137] Bin Code and Activity Type in Whse Documents are visible when Location uses Bins.
+        Initialize();
+        Assert.IsTrue(LocationWhite."Bin Mandatory", 'White Location should have Bin Mandatory = false for this test.');
+
+        WhseDocumentsBinFieldsDynamicVisibilty(LocationWhite);
+    end;
+
+    [Test]
+    procedure WhseDocumentsBinFieldsDynamicVisibilty_BinNotMandatory()
+    begin
+        // [BUG 454137] Bin Code and Activity Type in Whse Documents are not visible when Location does not use Bins.
+        Initialize();
+        Assert.IsFalse(LocationYellow."Bin Mandatory", 'Yellow Location should have Bin Mandatory = false for this test.');
+
+        WhseDocumentsBinFieldsDynamicVisibilty(LocationYellow);
+    end;
+
+    local procedure WhseDocumentsBinFieldsDynamicVisibilty(Location: Record Location)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
+        WhseActivityHeader: Record "Warehouse Activity Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        WhseReceipt: TestPage "Warehouse Receipt";
+        WhseReceiptList: TestPage "Warehouse Receipts";
+        WhsePutaway: TestPage "Warehouse Put-away";
+        WhsePutawayList: TestPage "Warehouse Put-aways";
+        WhseShipment: TestPage "Warehouse Shipment";
+        WhseShipmentList: TestPage "Warehouse Shipment List";
+        WhsePick: TestPage "Warehouse Pick";
+        WhsePickList: TestPage "Warehouse Picks";
+        WhseReceiptNo: Code[20];
+        WhseShipmentNo: Code[20];
+    begin
+        // PART 1: Warehouse Receipt
+        // [GIVEN] A Warehouse Receipt for Location
+        WhseReceiptNo := CreateWhseReceiptForLocation(PurchaseHeader, PurchaseLine, Location.Code);
+        WhseReceiptHeader.SetFilter("No.", WhseReceiptNo);
+        WhseReceiptHeader.FindFirst();
+
+        // [WHEN] The Receipt Page is opened (Has to be done through the list page to set the record before opening)
+        WhseReceiptList.OpenView();
+        WhseReceiptList.GoToRecord(WhseReceiptHeader);
+        WhseReceipt.Trap();
+        WhseReceiptList.Edit().Invoke();
+
+        // [THEN] Bin fields are visible on the page IF Location."Bin Mandatory"
+        Assert.AreEqual(Location."Bin Mandatory", WhseReceipt.WhseReceiptLines."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Receipts only when Bin Mandatory is true');
+        Assert.AreEqual(Location."Bin Mandatory", WhseReceipt."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Receipts only when Bin Mandatory is true');
+        Assert.AreEqual(Location."Bin Mandatory", WhseReceipt."Zone Code".Visible(), 'Zone Code should by default be visible on Warehouse Receipts only when Bin Mandatory is true');
+        WhseReceipt.Close();
+
+
+        // PART 2: Warehouse Put-away
+        // [GIVEN] the Receipt is posted and a Put-away created
+        LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
+
+        // Find the put-away
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WhseActivityHeader, DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", PurchaseLine."Line No.");
+
+        // [WHEN] The Put-away Page is opened (same way as before)
+        WhsePutawayList.OpenView();
+        WhsePutawayList.GoToRecord(WhseActivityHeader);
+        WhsePutaway.Trap();
+        WhsePutawayList.Edit().Invoke();
+
+        // [THEN] Bin fields are visible on the page IF Location."Bin Mandatory"
+        Assert.AreEqual(Location."Bin Mandatory", WhsePutaway.WhseActivityLines."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Put-away only when Bin Mandatory is true');
+        Assert.AreEqual(Location."Bin Mandatory", WhsePutaway.WhseActivityLines."Action Type".Visible(), 'Action Type should by default be visible on Warehouse Put-away only when Bin Mandatory is true');
+        WhsePutaway.Close();
+
+        // Register the Put-away so the Bin has content for next parts
+        LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
+
+
+        // PART 3: Warehouse Shipment
+        // [GIVEN] A Warehouse Shipment for Location is created
+        WhseShipmentNo := CreateWhseShipmentForLocation(SalesHeader, SalesLine, Location.Code, PurchaseLine."No.");
+        WhseShipmentHeader.Get(WhseShipmentNo);
+
+        // [WHEN] The Shipment Page is opened (same way as before)
+        WhseShipmentList.OpenView();
+        WhseShipmentList.GoToKey(WhseShipmentNo);
+        WhseShipment.Trap();
+        WhseShipmentList.Edit().Invoke();
+
+        // [THEN] Bin fields are visible on the page IF Location."Bin Mandatory"
+        Assert.AreEqual(Location."Bin Mandatory", WhseShipment.WhseShptLines."Bin Code".Visible(), 'Bin Code should be visible by default on Warehouse Shipment only when Bin Code Mandatory is true');
+        Assert.AreEqual(Location."Bin Mandatory", WhseShipment."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Shipment only when Bin Mandatory is true');
+        Assert.AreEqual(Location."Bin Mandatory", WhseShipment."Zone Code".Visible(), 'Zone Code should by default be visible on Warehouse Shipment only when Bin Mandatory is true');
+        WhseShipment.Close();
+
+
+        // PART 4: Warehouse Pick
+        // [GIVEN] A Pick is created from the Shipment
+        CreatePick(WhseShipmentHeader, SalesHeader."No.");
+
+        // Find the created Pick
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WhseActivityHeader, DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", SalesLine."Line No.");
+
+        // [WHEN] The Pick Page is opened (same way as before)
+        WhsePickList.OpenView();
+        WhsePickList.GoToRecord(WhseActivityHeader);
+        WhsePick.Trap();
+        WhsePickList.Edit().Invoke();
+
+        // [THEN] Bin fields are visible on the page IF Location."Bin Mandatory"
+        Assert.AreEqual(Location."Bin Mandatory", WhsePick.WhseActivityLines."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Put-away only when Bin Mandatory is true');
+        Assert.AreEqual(Location."Bin Mandatory", WhsePick.WhseActivityLines."Action Type".Visible(), 'Action Type should by default be visible on Warehouse Put-away only when Bin Mandatory is true');
+        WhsePick.Close();
+    end;
+
+    [Test]
+    procedure WhseDocumentsBinFieldsDynamicVisibilty_SwitchBetweenRecords()
+    var
+        YellowPurchaseHeader: Record "Purchase Header";
+        WhitePurchaseHeader: Record "Purchase Header";
+        YellowPurchaseLine: Record "Purchase Line";
+        WhitePurchaseLine: Record "Purchase Line";
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
+        YellowWhseActivityHeader: Record "Warehouse Activity Header";
+        WhiteWhseActivityHeader: Record "Warehouse Activity Header";
+        YellowSalesHeader: Record "Sales Header";
+        WhiteSalesHeader: Record "Sales Header";
+        YellowSalesLine: Record "Sales Line";
+        WhiteSalesLine: Record "Sales Line";
+        YellowWhseShipmentHeader: Record "Warehouse Shipment Header";
+        WhiteWhseShipmentHeader: Record "Warehouse Shipment Header";
+        WhsePutaway: TestPage "Warehouse Put-away";
+        WhseReceipt: TestPage "Warehouse Receipt";
+        WhseShipment: TestPage "Warehouse Shipment";
+        WhsePick: TestPage "Warehouse Pick";
+        YellowWhseReceiptNo: Code[20];
+        WhiteWhseReceiptNo: Code[20];
+        YellowWhseShipmentNo: Code[20];
+        WhiteWhseShipmentNo: Code[20];
+    begin
+        // [BUG 457309] Visibility of Bin fields is updated when switching using "<" and ">" buttons to switch between records on warehouse document pages.
+        Initialize();
+        Assert.IsFalse(LocationYellow."Bin Mandatory", 'Yellow Location should have Bin Mandatory = false for this test.');
+        Assert.IsTrue(LocationWhite."Bin Mandatory", 'White Location should have Bin Mandatory = true for this test.');
+
+
+        // PART 1: Warehouse Receipt
+        // [GIVEN] Two warehouse receipts for Location Yellow and White respectively
+        YellowWhseReceiptNo := CreateWhseReceiptForLocation(YellowPurchaseHeader, YellowPurchaseLine, LocationYellow.Code);
+        WhiteWhseReceiptNo := CreateWhseReceiptForLocation(WhitePurchaseHeader, WhitePurchaseLine, LocationWhite.Code);
+
+        WhseReceipt.OpenEdit();
+        WhseReceipt.GoToKey(WhiteWhseReceiptNo);
+
+        // [WHEN] We simulate using the "<" button to move from the White WhseReceipt to the Yellow (Triggering OnAfterGetRecord but not OnOpenPage)
+        WhseReceipt.GoToKey(YellowWhseReceiptNo);
+
+        // [THEN] The visibility is set according to the Yellow location
+        Assert.AreEqual(LocationYellow."Bin Mandatory", WhseReceipt.WhseReceiptLines."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Receipts only when Bin Mandatory is true');
+        Assert.AreEqual(LocationYellow."Bin Mandatory", WhseReceipt."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Receipts only when Bin Mandatory is true');
+        Assert.AreEqual(LocationYellow."Bin Mandatory", WhseReceipt."Zone Code".Visible(), 'Zone Code should by default be visible on Warehouse Receipts only when Bin Mandatory is true');
+
+        // [WHEN] We simulate using the ">" button to move from the Yellow WhseReceipt to the White
+        WhseReceipt.GoToKey(WhiteWhseReceiptNo);
+
+        // [THEN] The visibility is set according to the White location
+        Assert.AreEqual(LocationWhite."Bin Mandatory", WhseReceipt.WhseReceiptLines."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Receipts only when Bin Mandatory is true');
+        Assert.AreEqual(LocationWhite."Bin Mandatory", WhseReceipt."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Receipts only when Bin Mandatory is true');
+        Assert.AreEqual(LocationWhite."Bin Mandatory", WhseReceipt."Zone Code".Visible(), 'Zone Code should by default be visible on Warehouse Receipts only when Bin Mandatory is true');
+        WhseReceipt.Close();
+
+
+        // PART 2: Warehouse Put-away
+        // [GIVEN] The Receipts are posted and Put-aways created
+        WhseReceiptHeader.Get(YellowWhseReceiptNo);
+        LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
+        LibraryWarehouse.FindWhseActivityBySourceDoc(YellowWhseActivityHeader, DATABASE::"Purchase Line", YellowPurchaseHeader."Document Type".AsInteger(), YellowPurchaseHeader."No.", WhitePurchaseLine."Line No.");
+
+        WhseReceiptHeader.Get(WhiteWhseReceiptNo);
+        LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WhiteWhseActivityHeader, DATABASE::"Purchase Line", WhitePurchaseHeader."Document Type".AsInteger(), WhitePurchaseHeader."No.", WhitePurchaseLine."Line No.");
+
+        // [GIVEN] The Put-away page is opened
+        WhsePutaway.OpenEdit();
+        WhsePutaway.GoToRecord(WhiteWhseActivityHeader);
+
+        // [WHEN] We simulate using the "<" button to move from the White Put-away to the Yellow (Triggering OnAfterGetRecord but not OnOpenPage)
+        WhsePutaway.GoToRecord(YellowWhseActivityHeader);
+
+        // [THEN] The visibility is set according to the Yellow location
+        Assert.AreEqual(LocationYellow."Bin Mandatory", WhsePutaway.WhseActivityLines."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Put-away only when Bin Mandatory is true');
+        Assert.AreEqual(LocationYellow."Bin Mandatory", WhsePutaway.WhseActivityLines."Action Type".Visible(), 'Action Type should by default be visible on Warehouse Put-away only when Bin Mandatory is true');
+
+        // [WHEN] We simulate using the ">" button to move from the Yellow Put-away to the White
+        WhsePutaway.GoToRecord(WhiteWhseActivityHeader);
+
+        // [THEN] The visibility is set according to the White location
+        Assert.AreEqual(LocationWhite."Bin Mandatory", WhsePutaway.WhseActivityLines."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Put-away only when Bin Mandatory is true');
+        Assert.AreEqual(LocationWhite."Bin Mandatory", WhsePutaway.WhseActivityLines."Action Type".Visible(), 'Action Type should by default be visible on Warehouse Put-away only when Bin Mandatory is true');
+        WhsePutaway.Close();
+
+        // Register the Put-away so the Bin has content for next parts
+        LibraryWarehouse.RegisterWhseActivity(WhiteWhseActivityHeader);
+        LibraryWarehouse.RegisterWhseActivity(YellowWhseActivityHeader);
+
+
+        // PART 3: Warehouse Shipment
+        // [GIVEN] Warehouse Shipments are created
+        YellowWhseShipmentNo := CreateWhseShipmentForLocation(YellowSalesHeader, YellowSalesLine, LocationYellow.Code, YellowPurchaseLine."No.");
+        WhiteWhseShipmentNo := CreateWhseShipmentForLocation(WhiteSalesHeader, WhiteSalesLine, LocationWhite.Code, WhitePurchaseLine."No.");
+
+        // [WHEN] The Shipment Page is opened
+        WhseShipment.OpenEdit();
+        WhseShipment.GoToKey(WhiteWhseShipmentNo);
+
+        // [WHEN] We simulate using the "<" button to move from the White WhseShipment to the Yellow
+        WhseShipment.GoToKey(YellowWhseShipmentNo);
+
+        // [THEN] The visibility is set according to the Yellow location
+        Assert.AreEqual(LocationYellow."Bin Mandatory", WhseShipment.WhseShptLines."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Shipments only when Bin Mandatory is true');
+        Assert.AreEqual(LocationYellow."Bin Mandatory", WhseShipment."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Shipments only when Bin Mandatory is true');
+        Assert.AreEqual(LocationYellow."Bin Mandatory", WhseShipment."Zone Code".Visible(), 'Zone Code should by default be visible on Warehouse Shipments only when Bin Mandatory is true');
+
+        // [WHEN] We simulate using the ">" button to move from the Yellow WhseReceipt to the White
+        WhseShipment.GoToKey(WhiteWhseShipmentNo);
+
+        // [THEN] The visibility is set according to the White location
+        Assert.AreEqual(LocationWhite."Bin Mandatory", WhseShipment.WhseShptLines."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Shipments only when Bin Mandatory is true');
+        Assert.AreEqual(LocationWhite."Bin Mandatory", WhseShipment."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Shipments only when Bin Mandatory is true');
+        Assert.AreEqual(LocationWhite."Bin Mandatory", WhseShipment."Zone Code".Visible(), 'Zone Code should by default be visible on Warehouse Shipments only when Bin Mandatory is true');
+        WhseShipment.Close();
+
+
+        // PART 4: Warehouse Pick
+        // [GIVEN] Picks are created from the Shipments
+        YellowWhseShipmentHeader.Get(YellowWhseShipmentNo);
+        CreatePick(YellowWhseShipmentHeader, YellowSalesHeader."No.");
+        LibraryWarehouse.FindWhseActivityBySourceDoc(YellowWhseActivityHeader, DATABASE::"Sales Line", YellowSalesHeader."Document Type".AsInteger(), YellowSalesHeader."No.", YellowSalesLine."Line No.");
+        WhiteWhseShipmentHeader.Get(WhiteWhseShipmentNo);
+        CreatePick(WhiteWhseShipmentHeader, WhiteSalesHeader."No.");
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WhiteWhseActivityHeader, DATABASE::"Sales Line", WhiteSalesHeader."Document Type".AsInteger(), WhiteSalesHeader."No.", WhiteSalesLine."Line No.");
+
+        // [WHEN] The Pick Page is opened
+        WhsePick.OpenEdit();
+        WhsePick.GoToRecord(WhiteWhseActivityHeader);
+
+        // [WHEN] We simulate using the "<" button to move from the White Pick to the Yellow
+        WhsePick.GoToRecord(YellowWhseActivityHeader);
+
+        // [THEN] The visibility is set according to the Yellow location
+        Assert.AreEqual(LocationYellow."Bin Mandatory", WhsePick.WhseActivityLines."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Pick only when Bin Mandatory is true');
+        Assert.AreEqual(LocationYellow."Bin Mandatory", WhsePick.WhseActivityLines."Action Type".Visible(), 'Action Type should by default be visible on Warehouse Pick only when Bin Mandatory is true');
+
+        // [WHEN] We simulate using the ">" button to move from the Yellow Put-away to the White
+        WhsePick.GoToRecord(WhiteWhseActivityHeader);
+
+        // [THEN] The visibility is set according to the White location
+        Assert.AreEqual(LocationWhite."Bin Mandatory", WhsePick.WhseActivityLines."Bin Code".Visible(), 'Bin Code should by default be visible on Warehouse Pick only when Bin Mandatory is true');
+        Assert.AreEqual(LocationWhite."Bin Mandatory", WhsePick.WhseActivityLines."Action Type".Visible(), 'Action Type should by default be visible on Warehouse Pick only when Bin Mandatory is true');
+        WhsePick.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2546,6 +3155,46 @@ codeunit 137154 "SCM Warehouse Management II"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Warehouse Management II");
+    end;
+
+    local procedure CreateWhseReceiptForLocation(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; LocationCode: Code[20]) WhseReceiptNo: Code[20]
+    var
+        Vendor: Record Vendor;
+        GetSourceDocInbound: Codeunit "Get Source Doc. Inbound";
+    begin
+        // Create and release a Purchase Order
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Modify();
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        //Create a warehouse Receipt 
+        GetSourceDocInbound.CreateFromPurchOrderHideDialog(PurchaseHeader);
+
+        //Find and return the Receipt No
+        exit(LibraryWarehouse.FindWhseReceiptNoBySourceDoc(DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
+    end;
+
+    local procedure CreateWhseShipmentForLocation(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; LocationCode: Code[20]; ItemNo: Code[20]) WhseShipmentNo: Code[20]
+    var
+        Customer: Record Customer;
+        GetSourceDocOutbound: Codeunit "Get Source Doc. Outbound";
+    begin
+        // Create and release a Sales Order
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, 1);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify();
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        //Create a warehouse Shipment 
+        GetSourceDocOutbound.CreateFromSalesOrderHideDialog(SalesHeader);
+
+        //Find and return the Shipment No
+        exit(LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
     end;
 
     local procedure PageSourceDocFilterCardReceipt(Positive: Boolean)
@@ -2784,6 +3433,24 @@ codeunit 137154 "SCM Warehouse Management II"
         PostWarehouseReceipt(WarehouseReceiptLine."No.");
     end;
 
+    local procedure SumQtyOnItemLedgerEntries(ItemNo: Code[20]): Decimal
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetFilter("Item No.", ItemNo);
+        ItemLedgerEntry.CalcSums(Quantity);
+        exit(ItemLedgerEntry.Quantity);
+    end;
+
+    local procedure SumQtyOnWhseEntries(ItemNo: Code[20]): Decimal
+    var
+        WhseEntry: Record "Warehouse Entry";
+    begin
+        WhseEntry.SetFilter("Item No.", ItemNo);
+        WhseEntry.CalcSums(Quantity);
+        exit(WhseEntry.Quantity);
+    end;
+
     local procedure CreateAndPostWarehouseReceiptFromSalesReturnOrder(SalesHeader: Record "Sales Header")
     var
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
@@ -2839,6 +3506,18 @@ codeunit 137154 "SCM Warehouse Management II"
         CreatePickFromWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
         RegisterWarehouseActivity(
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::Pick);
+    end;
+
+    local procedure CreateAndRegisterPickFromWarehouseShipmentUsingTransferOrder(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var TransferHeader: Record "Transfer Header"; ItemNo: Code[20]; FromLocationCode: Code[10]; ToLocationCode: Code[10]; Quantity: Decimal)
+    var
+        TransferLine: Record "Transfer Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        CreateAndReleaseTransferOrder(TransferHeader, TransferLine, FromLocationCode, ToLocationCode, ItemNo, Quantity);
+        CreatePickFromWarehouseShipment(WarehouseShipmentHeader, TransferHeader);
+        RegisterWarehouseActivity(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Outbound Transfer", TransferHeader."No.",
           WarehouseActivityLine."Activity Type"::Pick);
     end;
 
@@ -2952,6 +3631,16 @@ codeunit 137154 "SCM Warehouse Management II"
     begin
         CreateWarehouseShipment(SalesHeader);
         FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+    end;
+
+    local procedure CreateAndReleaseWarehouseShipmentFromTransferOrder(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; TransferHeader: Record "Transfer Header")
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        CreateWarehouseShipment(TransferHeader);
+        FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Outbound Transfer", TransferHeader."No.");
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
         LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
     end;
@@ -3101,6 +3790,15 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
     end;
 
+    local procedure CreatePickForOutboundTransfer(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20])
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Outbound Transfer", SourceNo);
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+    end;
+
     local procedure CreatePickFromPickWorksheetLine(WhseWorksheetName: Record "Whse. Worksheet Name"; WarehouseDocumentNo: Code[20]; ItemNo: Code[20])
     var
         WhseWorksheetLine: Record "Whse. Worksheet Line";
@@ -3128,6 +3826,12 @@ codeunit 137154 "SCM Warehouse Management II"
     begin
         CreateWarehouseShipment(SalesHeader);
         CreatePick(WarehouseShipmentHeader, SalesHeader."No.");
+    end;
+
+    local procedure CreatePickFromWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; TransferHeader: Record "Transfer Header")
+    begin
+        CreateWarehouseShipment(TransferHeader);
+        CreatePickForOutboundTransfer(WarehouseShipmentHeader, TransferHeader."No.");
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
@@ -3224,6 +3928,11 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
     end;
 
+    local procedure CreateWarehouseShipment(TransferHeader: Record "Transfer Header")
+    begin
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+    end;
+
     local procedure CreateWarehouseShipmentHeaderWithLocation(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10])
     begin
         LibraryWarehouse.CreateWarehouseShipmentHeader(WarehouseShipmentHeader);
@@ -3296,7 +4005,7 @@ codeunit 137154 "SCM Warehouse Management II"
         BinContent.SetRange("Item No.", ItemNo);
         WhseInternalPutAwayHeader.Init();
         LibraryWarehouse.WhseGetBinContent(
-		    BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
+            BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
     end;
 
     local procedure GetLotNoFromItemTrackingLinesPageHandler(var LotNo: Code[50])
@@ -4212,6 +4921,13 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryVariableStorage.Dequeue(DequeueVariable);
         LocalMessage := DequeueVariable;
         Assert.IsTrue(StrPos(ConfirmMessage, LocalMessage) > 0, ConfirmMessage);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
         Reply := true;
     end;
 }

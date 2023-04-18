@@ -50,7 +50,7 @@ page 9816 "Permission Set by User"
                     Caption = 'Permission Set';
                     ToolTip = 'Specifies the permission set.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the record.';
@@ -378,7 +378,7 @@ page 9816 "Permission Set by User"
     begin
         SelectedCompany := CompanyName();
         UpdateCompany();
-        HideExternalUsers(User);
+        UserSelection.FilterSystemUserAndGroupUsers(User);
         NoOfRecords := User.Count();
         PermissionPagesMgt.Init(NoOfRecords, ArrayLen(UserNameCode));
     end;
@@ -386,6 +386,7 @@ page 9816 "Permission Set by User"
     var
         Company: Record Company;
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+        UserSelection: Codeunit "User Selection";
         UserSecurityIDArr: array[10] of Guid;
         AllUsersHavePermission: Boolean;
         CanManageUsersOnTenant: Boolean;
@@ -405,7 +406,7 @@ page 9816 "Permission Set by User"
         Clear(UserHasPermissionSet);
         User.SetCurrentKey("User Name");
         AllUsersHavePermission := true;
-        HideExternalUsers(User);
+        UserSelection.FilterSystemUserAndGroupUsers(User);
         if User.FindSet() then
             repeat
                 i += 1;
@@ -446,7 +447,7 @@ page 9816 "Permission Set by User"
             SetUserPermission(UserSecurityIDArr[ColumnNo], UserHasPermission);
             AllUsersHavePermission := AllUsersHavePermission and UserHasPermission;
         end else begin
-            HideExternalUsers(User);
+            UserSelection.FilterSystemUserAndGroupUsers(User);
             if User.FindSet() then
                 repeat
                     SetUserPermission(User."User Security ID", UserHasPermission);
@@ -485,13 +486,4 @@ page 9816 "Permission Set by User"
         end;
         CurrPage.Update(false);
     end;
-
-    local procedure HideExternalUsers(var User: Record User)
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
-    begin
-        if EnvironmentInfo.IsSaaS() then
-            User.SetFilter("License Type", '<>%1', User."License Type"::"External User");
-    end;
 }
-

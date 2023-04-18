@@ -841,40 +841,6 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ApplyPackageNotCreateIntRecIfAPIServicesDisabled()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        IntegrationRecord: Record "Integration Record";
-        Customer: Record Customer;
-        ConfigPackageError: Record "Config. Package Error";
-    begin
-        // [FEATURE] [API Setup] [Integration Record]
-        // [SCENARIO 269852] RS engine taking into account API setup configuration "enabled" setting
-        Initialize();
-        LibrarySales.CreateCustomer(Customer);
-        LibraryRapidStart.CreatePackageDataForField(
-          ConfigPackage, ConfigPackageTable, DATABASE::Customer, Customer.FieldNo("No."), Customer."No.", 1);
-        LibraryRapidStart.CreatePackageDataForField(
-          ConfigPackage, ConfigPackageTable, DATABASE::Customer, Customer.FieldNo(Address), LibraryUtility.GenerateGUID, 1);
-
-        // [GIVEN] API Services are not enabled, Integration Records do not exist.
-        InsertODataEdmTypeEntry;
-        Customer.Delete();
-        IntegrationRecord.DeleteAll();
-        LibraryRapidStart.SetAPIServicesEnabled(false);
-        Commit();
-        // [WHEN] Data is applied
-        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
-
-        // [THEN] No Integration Records created
-        Assert.RecordIsEmpty(IntegrationRecord);
-        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
-        Assert.RecordIsEmpty(ConfigPackageError);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ApplyPackageValidationEnumField()
     var
         ConfigPackage: Record "Config. Package";

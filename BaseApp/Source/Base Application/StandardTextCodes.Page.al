@@ -18,7 +18,7 @@ page 8 "Standard Text Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to identify the standard text.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a standard text.';

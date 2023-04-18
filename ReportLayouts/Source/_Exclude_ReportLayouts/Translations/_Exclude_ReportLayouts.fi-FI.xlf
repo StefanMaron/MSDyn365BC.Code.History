@@ -98,6 +98,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout Edit Dialog - NamedType LayoutNameEmptyErr</note>
         </trans-unit>
+        <trans-unit id="Page 3127504812 - Control 2254898066 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the layout should be available in all companies or just the current company.</source>
+          <target state="translated">Määrittää, onko asettelun oltava käytettävissä kaikissa yrityksissä vai vain nykyisessä yrityksessä.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout Edit Dialog - Control AvailableInAllCompanies - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3127504812 - Control 2254898066 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Available in All Companies</source>
+          <target state="translated">Käytettävissä kaikissa yrityksissä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Report Layout Edit Dialog - Control AvailableInAllCompanies - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3127504812 - Control 1787817219 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create a copy of the selected layout with the specified changes.</source>
           <target state="translated">Luo kopio valitusta asettelusta määritetyillä muutoksilla.</target>

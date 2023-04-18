@@ -35,7 +35,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         AssignSerialNoStatus: Label 'Assign Serial No must be TRUE.';
         ExistingSalesLnITError: Label 'Item tracking is defined for item %1 in the Sales Line.';
         WrongSerialNoErr: Label 'Serial No is wrong.';
-        TrackingOption: Option AssignSerialNo,AssignLotNo,VerifyLotNo,EditValue,SelectEntries,UpdateQtyToInvoice,AssignLotNo2,AssignQty,ReSelectEntries,AssignMoreThanPurchasedQty,SetNewLotNo,EditSNValue,SetNewSN,SetLotAndSerial,CheckExpDateControls,CreateCustomizedSN,AssignPackageNo,SetNewPackageNo;
+        TrackingOption: Option AssignSerialNo,AssignLotNo,VerifyLotNo,EditValue,SelectEntries,UpdateQtyToInvoice,AssignLotNo2,AssignQty,ReSelectEntries,AssignMoreThanPurchasedQty,SetNewLotNo,EditSNValue,SetNewSN,SetLotAndSerial,CheckExpDateControls,CreateCustomizedSN,AssignPackageNo,SetNewPackageNo,AssignTwoLotNos;
         TheLotNoInfoDoesNotExistErr: Label 'The Lot No. Information does not exist. Identification fields and values:';
         TheSerialNoInfoDoesNotExistErr: Label 'The Serial No. Information does not exist. Identification fields and values:';
         LotNoBySNNotFoundErr: Label 'A lot number could not be found for serial number';
@@ -1238,7 +1238,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LotNo := CreateLotNoInformation(Item."No.");
 
         // [GIVEN] Positive adjustment of Item with Lot Tracking. Work Date = 05.01.2017
-        PostItemJournalWithTracking(Item."No.", LotNo);
+        PostItemJournalWithTracking(Item."No.", LotNo, LibraryRandom.RandInt(10));
 
         // [WHEN] Open "Lot No. Information List" page for Item with "Lot No." tracking
         LotNoInformationList.OpenEdit;
@@ -1269,7 +1269,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         SerialNo := CreateSNInformation(Item."No.");
 
         // [GIVEN] Positive adjustment of Item with Serial No. Tracking. Work Date = 05.01.2017
-        PostItemJournalWithTracking(Item."No.", SerialNo);
+        PostItemJournalWithTracking(Item."No.", SerialNo, 1);
 
         // [WHEN] Open "Serial No. Information List" page for Item with "Serial No." tracking
         SerialNoInformationList.OpenEdit;
@@ -1300,7 +1300,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LotNo := CreateLotNoInformation(Item."No.");
 
         // [GIVEN] Positive adjustment of Item with Lot Tracking. Work Date = 05.01.2017
-        PostItemJournalWithTracking(Item."No.", LotNo);
+        PostItemJournalWithTracking(Item."No.", LotNo, LibraryRandom.RandInt(10));
 
         // [WHEN] Open "Lot No. Information Card" page for Item with "Lot No." tracking
         LotNoInformationCard.OpenEdit;
@@ -1331,7 +1331,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         SerialNo := CreateSNInformation(Item."No.");
 
         // [GIVEN] Positive adjustment of Item with Serial No. Tracking. Work Date = 05.01.2017
-        PostItemJournalWithTracking(Item."No.", SerialNo);
+        PostItemJournalWithTracking(Item."No.", SerialNo, 1);
 
         // [WHEN] Open "Serial No. Information Card" page for Item with "Serial No." tracking
         SerialNoInformationCard.OpenEdit;
@@ -1519,6 +1519,475 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure CannotCreateItemTrackingFromItemJnlLineForNonTrackedItem()
+    var
+        NotTrackedItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Cannot create item tracking from item journal line for non-tracked item.
+        Initialize();
+
+        LibraryInventory.CreateItem(NotTrackedItem);
+
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, NotTrackedItem."No.", LibraryRandom.RandInt(10));
+        ItemJournalLine."Lot No." := LibraryUtility.GenerateGUID();
+        ItemJournalLine.Modify();
+
+        ItemJnlLineReserve.CreateItemTracking(ItemJournalLine);
+
+        Assert.IsFalse(ItemJnlLineReserve.ReservEntryExist(ItemJournalLine), '');
+    end;
+
+    [Test]
+    procedure CannotCreateItemTrackingFromItemJnlLineIfTrackingExists()
+    var
+        LotTrackedItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
+        LotNo: Code[50];
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Cannot create item tracking from item journal line if tracking already exists.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        LibraryItemTracking.CreateLotItem(LotTrackedItem);
+
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, LotTrackedItem."No.", LibraryRandom.RandInt(10));
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+          ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine.Quantity);
+
+        ItemJournalLine."Lot No." := LibraryUtility.GenerateGUID();
+        ItemJournalLine.Modify();
+
+        ItemJnlLineReserve.CreateItemTracking(ItemJournalLine);
+
+        ReservationEntry.Reset();
+        ItemJournalLine.SetReservationFilters(ReservationEntry);
+        ReservationEntry.ClearTrackingFilter();
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Lot No.", LotNo);
+        Assert.RecordCount(ReservationEntry, 1);
+    end;
+
+    [Test]
+    procedure CreateItemTrackingLinesFromItemJournalLine()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        LotTrackedItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Create item tracking from item journal line.
+        Initialize();
+
+        LibraryItemTracking.CreateItemTrackingCodeWithExpirationDate(ItemTrackingCode, false, true);
+        LibraryInventory.CreateTrackedItem(LotTrackedItem, '', '', ItemTrackingCode.Code);
+
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, LotTrackedItem."No.", LibraryRandom.RandInt(10));
+        ItemJournalLine."Lot No." := LibraryUtility.GenerateGUID();
+        ItemJournalLine."Expiration Date" := LibraryRandom.RandDate(30);
+        ItemJournalLine.Modify();
+
+        ItemJnlLineReserve.CreateItemTracking(ItemJournalLine);
+
+        ItemJnlLineReserve.FindReservEntry(ItemJournalLine, ReservationEntry);
+        ReservationEntry.TestField("Lot No.", ItemJournalLine."Lot No.");
+        ReservationEntry.TestField("Expiration Date", ItemJournalLine."Expiration Date");
+    end;
+
+    [Test]
+    procedure CannotCreateIncorrectItemTrackingLinesFromItemJnl()
+    var
+        SerialTrackedItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Cannot create item tracking from item journal line for serial number with abs(Quantity) > 1.
+        Initialize();
+
+        LibraryItemTracking.CreateSerialItem(SerialTrackedItem);
+
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, SerialTrackedItem."No.", LibraryRandom.RandIntInRange(2, 10));
+        ItemJournalLine."Serial No." := LibraryUtility.GenerateGUID();
+        ItemJournalLine.Modify();
+
+        asserterror ItemJnlLineReserve.CreateItemTracking(ItemJournalLine);
+
+        Assert.ExpectedError('-1');
+    end;
+
+    [Test]
+    procedure PostItemJnlWithItemTrackingDefinedOnlyOnLine()
+    var
+        Item: array[3] of Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        SerialNo: array[3] of Code[50];
+        LotNo: array[3] of Code[50];
+        i: Integer;
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Post item journal with item tracking defined on the line but not in Item Tracking Lines page.
+        Initialize();
+
+        LibraryItemTracking.CreateLotItem(Item[1]);
+        LibraryItemTracking.CreateSerialItem(Item[2]);
+        LibraryInventory.CreateItem(Item[3]);
+
+        SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+        ItemJournalBatch."Item Tracking on Lines" := true;
+        ItemJournalBatch.Modify();
+        for i := 1 to ArrayLen(Item) do begin
+            SerialNo[i] := LibraryUtility.GenerateGUID();
+            LotNo[i] := LibraryUtility.GenerateGUID();
+            LibraryInventory.CreateItemJournalLine(
+              ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+              ItemJournalLine."Entry Type"::"Positive Adjmt.", Item[i]."No.", 1);
+            ItemJournalLine."Serial No." := SerialNo[i];
+            ItemJournalLine."Lot No." := LotNo[i];
+            ItemJournalLine.Modify();
+        end;
+
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        VerifyTrackingOnItemLedgerEntry(Item[1]."No.", SerialNo[1], LotNo[1]);
+        VerifyTrackingOnItemLedgerEntry(Item[2]."No.", SerialNo[2], LotNo[2]);
+        VerifyTrackingOnItemLedgerEntry(Item[3]."No.", '', '');
+    end;
+
+    [Test]
+    procedure PostItemJnlWithItemTrackingDefinedOnLineAndOnITLPage()
+    var
+        SerialTrackedItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Post item journal with item tracking defined on the line and in Item Tracking Lines page.
+        Initialize();
+
+        LibraryItemTracking.CreateSerialItem(SerialTrackedItem);
+
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, SerialTrackedItem."No.", 1);
+        ItemJournalLine."Serial No." := LibraryUtility.GenerateGUID();
+        ItemJournalLine.Modify();
+
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+          ReservationEntry, ItemJournalLine, LibraryUtility.GenerateGUID(), '', ItemJournalLine.Quantity);
+
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        VerifyTrackingOnItemLedgerEntry(SerialTrackedItem."No.", ReservationEntry."Serial No.", '');
+    end;
+
+    [Test]
+    procedure CannotPostItemJnlWithTrackingOnLineIfTrackingDisabledOnBatch()
+    var
+        SerialTrackedItem: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Cannot post item journal with item tracking defined on the line if item tracking is disabled on the batch.
+        Initialize();
+
+        LibraryItemTracking.CreateSerialItem(SerialTrackedItem);
+
+        SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+        ItemJournalBatch."Item Tracking on Lines" := false;
+        ItemJournalBatch.Modify();
+
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", SerialTrackedItem."No.", 1);
+        ItemJournalLine."Serial No." := LibraryUtility.GenerateGUID();
+        ItemJournalLine.Modify();
+
+        asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        Assert.ExpectedError('You must assign a serial number');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingSummaryModalPageHandler')]
+    procedure SelectItemTrackingOnItemJnlLineUsingAssistEdit()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        SerialTrackedItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SerialNo: Code[50];
+        ExpirationDate: Date;
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Select item tracking on item journal line using Assist Edit.
+        Initialize();
+        SerialNo := LibraryUtility.GenerateGUID();
+        ExpirationDate := LibraryRandom.RandDate(60);
+
+        LibraryItemTracking.CreateItemTrackingCodeWithExpirationDate(ItemTrackingCode, true, false);
+        LibraryInventory.CreateTrackedItem(SerialTrackedItem, '', '', ItemTrackingCode.Code);
+
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, SerialTrackedItem."No.", 1);
+        ItemJournalLine."Serial No." := SerialNo;
+        ItemJournalLine."Expiration Date" := ExpirationDate;
+        ItemJournalLine.Modify();
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, SerialTrackedItem."No.", -1);
+
+        ItemJournalLine.LookUpTrackingSummary("Item Tracking Type"::"Serial No.");
+
+        ItemJournalLine.TestField("Serial No.", SerialNo);
+        ItemJournalLine.TestField("Expiration Date", ExpirationDate);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler')]
+    procedure SyncItemTrackingOnItemJnlLineWithITLPage()
+    var
+        LotTrackedItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournal: TestPage "Item Journal";
+        LotNo: Code[50];
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Synchronize item tracking on item journal line with Item Tracking Lines page.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        LibraryItemTracking.CreateLotItem(LotTrackedItem);
+
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, LotTrackedItem."No.", LibraryRandom.RandInt(10));
+        ItemJournalLine."Lot No." := LotNo;
+        ItemJournalLine.Modify();
+
+        LibraryVariableStorage.Enqueue(LotNo);
+        ItemJournal.OpenEdit();
+        ItemJournal.GoToRecord(ItemJournalLine);
+        ItemJournal.ItemTrackingLines.Invoke();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    procedure UpdateItemTrackingOnItemJnlLineFromITLPage()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        LotTrackedItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournal: TestPage "Item Journal";
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Update item tracking on item journal line after you define tracking on Item Tracking Lines page.
+        Initialize();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        LibraryInventory.CreateTrackedItem(LotTrackedItem, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
+
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, LotTrackedItem."No.", LibraryRandom.RandInt(10));
+
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo);
+        ItemJournal.OpenEdit();
+        ItemJournal.GoToRecord(ItemJournalLine);
+        ItemJournal.ItemTrackingLines.Invoke();
+
+        ItemJournalLine.Find();
+        ItemJournalLine.TestField("Lot No.", LibraryVariableStorage.DequeueText());
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure UseUpdateItemTrackingLinesFunctionInItemJnl()
+    var
+        Item: array[3] of Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
+        ItemJournal: TestPage "Item Journal";
+        SerialNo: array[3] of Code[50];
+        LotNo: array[3] of Code[50];
+        i: Integer;
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Use Update Item Tracking Lines function to automatically fill in Item Tracking Lines from item journal line.
+        Initialize();
+
+        LibraryItemTracking.CreateLotItem(Item[1]);
+        LibraryItemTracking.CreateSerialItem(Item[2]);
+        LibraryInventory.CreateItem(Item[3]);
+
+        SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+        ItemJournalBatch."Item Tracking on Lines" := true;
+        ItemJournalBatch.Modify();
+        for i := 1 to ArrayLen(Item) do begin
+            SerialNo[i] := LibraryUtility.GenerateGUID();
+            LotNo[i] := LibraryUtility.GenerateGUID();
+            LibraryInventory.CreateItemJournalLine(
+              ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+              ItemJournalLine."Entry Type"::"Positive Adjmt.", Item[i]."No.", 1);
+            ItemJournalLine."Serial No." := SerialNo[i];
+            ItemJournalLine."Lot No." := LotNo[i];
+            ItemJournalLine.Modify();
+        end;
+
+        ItemJournal.OpenEdit();
+        ItemJournal."Update Item Tracking Lines".Invoke();
+
+        FindItemJournalLine(ItemJournalLine, Item[1]."No.");
+        Assert.IsTrue(ItemJnlLineReserve.FindReservEntry(ItemJournalLine, ReservationEntry), '');
+
+        FindItemJournalLine(ItemJournalLine, Item[2]."No.");
+        Assert.IsTrue(ItemJnlLineReserve.FindReservEntry(ItemJournalLine, ReservationEntry), '');
+
+        FindItemJournalLine(ItemJournalLine, Item[3]."No.");
+        Assert.IsFalse(ItemJnlLineReserve.FindReservEntry(ItemJournalLine, ReservationEntry), '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    procedure ResetItemTrackingOnItemJnlLineForMultipleLots()
+    var
+        LotTrackedItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournal: TestPage "Item Journal";
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Reset item tracking on item journal line if Item Tracking Lines page contains more than one line.
+        Initialize();
+
+        LibraryItemTracking.CreateLotItem(LotTrackedItem);
+
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, LotTrackedItem."No.", LibraryRandom.RandIntInRange(10, 20));
+        ItemJournalLine."Lot No." := LibraryUtility.GenerateGUID();
+        ItemJournalLine.Modify();
+
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignTwoLotNos);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(ItemJournalLine."Quantity (Base)" / 2);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(ItemJournalLine."Quantity (Base)" / 2);
+
+        ItemJournal.OpenEdit();
+        ItemJournal.GoToRecord(ItemJournalLine);
+        ItemJournal.ItemTrackingLines.Invoke();
+
+        ItemJournalLine.Find();
+        ItemJournalLine.TestField("Lot No.", '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    procedure UpdateItemTrackingOnItemJnlLineFromITLPageEditedTwice()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        LotTrackedItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournal: TestPage "Item Journal";
+        LotNo: Code[50];
+        i: Integer;
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 348246] Update item tracking on item journal line after you define tracking in two iterations on Item Tracking Lines page.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        LibraryInventory.CreateTrackedItem(LotTrackedItem, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
+
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, LotTrackedItem."No.", 2 * LibraryRandom.RandInt(10));
+
+        ItemJournal.OpenEdit();
+        for i := 1 to 2 do begin
+            LibraryVariableStorage.Enqueue(TrackingOption::SetLotAndSerial);
+            LibraryVariableStorage.Enqueue(LotNo);
+            LibraryVariableStorage.Enqueue('');
+            LibraryVariableStorage.Enqueue(ItemJournalLine.Quantity / 2);
+            ItemJournal.GoToRecord(ItemJournalLine);
+            ItemJournal.ItemTrackingLines.Invoke();
+        end;
+        ItemJournal.Close();
+
+        ItemJournalLine.Find();
+        ItemJournalLine.TestField("Lot No.", LotNo);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandler')]
+    procedure OpeningItemTrackingLinesForItemJnlLineUpdatesTracking()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        LotTrackedItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournal: TestPage "Item Journal";
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 462571] Update item tracking for item journal line on opening Item Tracking Lines page.
+        Initialize();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        LibraryInventory.CreateTrackedItem(LotTrackedItem, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
+
+        CreateItemJournalLine(ItemJournalLine, LotTrackedItem."No.", '', '', LibraryRandom.RandInt(10));
+        ItemJournalLine."Lot No." := LibraryUtility.GenerateGUID();
+        ItemJournalLine.Modify();
+
+        LibraryVariableStorage.Enqueue(ItemJournalLine."Lot No.");
+        ItemJournal.OpenEdit();
+        ItemJournal.GoToRecord(ItemJournalLine);
+        ItemJournal.ItemTrackingLines.Invoke();
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    procedure ResetItemTrackingOnItemJnlLineForEmptyLot()
+    var
+        LotTrackedItem: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournal: TestPage "Item Journal";
+    begin
+        // [FEATURE] [Item Journal]
+        // [SCENARIO 464291] Reset item tracking on item journal line if Item Tracking Lines page contains no lines.
+        Initialize();
+
+        LibraryItemTracking.CreateLotItem(LotTrackedItem);
+
+        CreateItemJournalLineItemTrackingEnabled(ItemJournalLine, LotTrackedItem."No.", LibraryRandom.RandIntInRange(10, 20));
+        ItemJournalLine."Lot No." := LibraryUtility.GenerateGUID();
+        ItemJournalLine.Modify();
+
+        LibraryVariableStorage.Enqueue(TrackingOption::SetLotAndSerial);
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue(0);
+
+        ItemJournal.OpenEdit();
+        ItemJournal.GoToRecord(ItemJournalLine);
+        ItemJournal.ItemTrackingLines.Invoke();
+
+        ItemJournalLine.Find();
+        ItemJournalLine.TestField("Lot No.", '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -1642,7 +2111,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         Location: Record Location;
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        CreateItemJournalLine(ItemJournalLine, ItemNo, Location.Code, '', LibraryRandom.RandInt(10));  // Take random Quantity.
+        CreateItemJournalLine(ItemJournalLine, ItemNo, Location.Code, '', 1);
         SetItemJournalLineTrackingAttribute(ItemJournalLine, TrackingOptionPar, AttributeValue);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -1817,6 +2286,19 @@ codeunit 137261 "SCM Inventory Item Tracking II"
           ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Validate("Bin Code", BinCode);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure CreateItemJournalLineItemTrackingEnabled(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Item);
+        ItemJournalBatch."Item Tracking on Lines" := true;
+        ItemJournalBatch.Modify();
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
         ItemJournalLine.Modify(true);
     end;
 
@@ -2157,6 +2639,12 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.Enqueue(CurrentPendingQuantity);
     end;
 
+    local procedure FindItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20])
+    begin
+        ItemJournalLine.SetRange("Item No.", ItemNo);
+        ItemJournalLine.FindFirst();
+    end;
+
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
@@ -2300,11 +2788,11 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
-    local procedure PostItemJournalWithTracking(ItemNo: Code[20]; TrackingNo: Code[20])
+    local procedure PostItemJournalWithTracking(ItemNo: Code[20]; TrackingNo: Code[20]; Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        CreateItemJournalLine(ItemJournalLine, ItemNo, '', '', LibraryRandom.RandInt(10));
+        CreateItemJournalLine(ItemJournalLine, ItemNo, '', '', Qty);
         LibraryVariableStorage.Enqueue(TrackingNo);
         ItemJournalLine.OpenItemTrackingLines(false);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -2397,6 +2885,15 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         GeneralPostingSetup.Validate("Sales Account", AccountNo);
         GeneralPostingSetup.Validate("Purch. Account", AccountNo);
         GeneralPostingSetup.Modify(true);
+    end;
+
+    local procedure VerifyTrackingOnItemLedgerEntry(ItemNo: Code[20]; SerialNo: Code[50]; LotNo: Code[50])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        FindItemLedgerEntry(ItemLedgerEntry, ItemNo);
+        ItemLedgerEntry.TestField("Serial No.", SerialNo);
+        ItemLedgerEntry.TestField("Lot No.", LotNo);
     end;
 
     local procedure VerifyExpirationDateOnItemLedgerEntry(ItemNo: Code[20]; ExpirationDate: Date)
@@ -2640,6 +3137,14 @@ codeunit 137261 "SCM Inventory Item Tracking II"
                     LibraryVariableStorage.Enqueue(ItemTrackingLines.Quantity3.AsInteger());
                     ItemTrackingLines."Create Customized SN".Invoke;
                 end;
+            TrackingOption::AssignTwoLotNos:
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines.Next();
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                end;
         end;
         ItemTrackingLines.OK.Invoke;
     end;
@@ -2658,6 +3163,13 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     begin
         ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText);
         ItemTrackingLines."Quantity (Base)".SetValue(ItemTrackingLines.Quantity3.AsInteger);
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Lot No.".AssertEquals(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2702,6 +3214,12 @@ codeunit 137261 "SCM Inventory Item Tracking II"
                     ItemTrackingSummary."Current Pending Quantity".AssertEquals(CurrentPendingQuantity);
                 end;
         end;
+        ItemTrackingSummary.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
         ItemTrackingSummary.OK.Invoke;
     end;
 

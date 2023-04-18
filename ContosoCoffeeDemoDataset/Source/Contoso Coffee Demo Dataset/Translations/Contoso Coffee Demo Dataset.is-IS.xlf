@@ -129,6 +129,204 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Manufacturing Demo Data Setup - Field Working Date - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1613625135 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Whse Demo Data Setup</source>
+          <target state="translated">Uppsetning sýnigagna vöruhúss</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 3928393419 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Adjust for Payment Discount</source>
+          <target state="translated">Leiðr. v. greiðsluafsláttar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Adjust for Payment Discount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 332174833 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Type</source>
+          <target state="translated">Tegund fyrirtækis</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Company Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 332174833 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT,Sales Tax</source>
+          <target state="translated">VSK,Söluskattur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Company Type - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 3904550660 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cust. Gen. Bus. Posting Group</source>
+          <target state="translated">Alm. viðskbókunarflokkur viðskm.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Cust. Gen. Bus. Posting Group - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 3399117948 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cust. Posting Group</source>
+          <target state="translated">Bókunarflokkur viðskm.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Cust. Posting Group - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 4190130733 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer No.</source>
+          <target state="translated">Nr. viðskiptamanns</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Customer No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 864024380 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customer - VAT Business Posting Group</source>
+          <target state="translated">Viðskiptamaður - VSK-viðskiptabókunarflokkur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Customer VAT Bus. Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 3381089669 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Domestic - VAT Posting Group</source>
+          <target state="translated">Innlent – VSK-bókunarflokkur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Domestic Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 1722058077 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Is DemoData Populated</source>
+          <target state="translated">Eru sýnigögn útfyllt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Is DemoData Populated - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 2204127981 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item 1 No.</source>
+          <target state="translated">Vörunr. 1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Item 1 No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 1513630372 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item 2 No.</source>
+          <target state="translated">Vörunr. 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Item 2 No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 2704025915 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item 3 No.</source>
+          <target state="translated">Vörunr. 3</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Item 3 No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 2007280983 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location Advanced</source>
+          <target state="translated">Ítarleg staðsetning</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Location Adv Logistics - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 4258090820 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location Bin</source>
+          <target state="translated">Staðsetningarhólf</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Location Bin - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 350630476 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location Directed Pick and Put-away</source>
+          <target state="translated">Staðsetning með beina tínslu og frágang</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Location Directed Pick - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 1445487580 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Location In-Transit</source>
+          <target state="translated">Staðsetning í flutningi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Location In-Transit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 2604280068 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Price Factor</source>
+          <target state="translated">Verðstuðull</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Price Factor - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <target state="translated">Aðallykill</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 2770666435 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Resale - Inventory Posting Group</source>
+          <target state="translated">Endursala – Birgðabókunarflokkur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Resale Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 4242196510 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Retail - Gen. Prod. Posting Group</source>
+          <target state="translated">Smásala – Alm. vörubókunarflokkur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Retail Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 2556434784 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rounding Precision</source>
+          <target state="translated">Sléttunarnákvæmni</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Rounding Precision - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 34877017 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starting Year</source>
+          <target state="translated">Upphafsár</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Starting Year - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 995605442 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Prod. Posting Group Code</source>
+          <target state="translated">Kóði VSK-vörubókunarflokks</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field VAT Prod. Posting Group Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 3075942428 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vend.  Gen. Bus. Posting Group</source>
+          <target state="translated">Alm. viðskbókunarflokkur lánardr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Vend. Gen. Bus. Posting Group - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 1527594213 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor No.</source>
+          <target state="translated">Nr. lánardrottins</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Vendor No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 3194161445 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Posting Group</source>
+          <target state="translated">Bókunarflokkur lánardrottins</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Vendor Posting Group - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 1780456772 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor - VAT Business Posting Group</source>
+          <target state="translated">Lánardrottinn - VSK-viðskiptabókunarflokkur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Vendor VAT Bus. Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1613625135 - Field 2099156127 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Working Date</source>
+          <target state="translated">Dagsetning verks</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse Demo Data Setup - Field Working Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3224447407 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Whse. Demo Account</source>
+          <target state="translated">Sýnireikningur vöruhúss</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse. Demo Account - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3224447407 - Field 3844419201 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Description</source>
+          <target state="translated">Lýsing á reikningi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse. Demo Account - Field Account Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3224447407 - Field 2180938866 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Key</source>
+          <target state="translated">Lykill reiknings</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse. Demo Account - Field Account Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3224447407 - Field 14865046 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Value</source>
+          <target state="translated">Virði reiknings</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Whse. Demo Account - Field Account Value - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Codeunit 549124993 - NamedType 4239967506" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
           <source>DOMESTIC</source>
           <target state="translated">INNANLANDS</target>
@@ -141,17 +339,17 @@
           <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Manufacturing DemoData - NamedType XFINISHEDTok</note>
         </trans-unit>
+        <trans-unit id="Codeunit 549124993 - NamedType 1186213549" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>MAIN</source>
+          <target state="translated">AÐAL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Manufacturing DemoData - NamedType XMAINTok</note>
+        </trans-unit>
         <trans-unit id="Codeunit 549124993 - NamedType 2326689169" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
           <source>MANUFACT</source>
           <target state="translated">FRAML</target>
           <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Manufacturing DemoData - NamedType XMANUFACTTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 549124993 - NamedType 2432616601" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
-          <source>North</source>
-          <target state="translated">Norður</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Manufacturing DemoData - NamedType XNorthTok</note>
         </trans-unit>
         <trans-unit id="Codeunit 549124993 - NamedType 1091556328" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
           <source>RAW MAT</source>
@@ -699,17 +897,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Template - NamedType XOUTPUTTok</note>
         </trans-unit>
-        <trans-unit id="Codeunit 87617727 - NamedType 517193696" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
-          <source>North Street, 2</source>
-          <target state="translated">North Street, 2</target>
+        <trans-unit id="Codeunit 87617727 - NamedType 2868334986" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Main Warehouse</source>
+          <target state="translated">Aðalvöruhús</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Location - NamedType XNorthStreet2Tok</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Location - NamedType XMainWarehouseTok</note>
         </trans-unit>
-        <trans-unit id="Codeunit 87617727 - NamedType 420762174" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
-          <source>North Warehouse</source>
-          <target state="translated">Vöruhús í norðri</target>
+        <trans-unit id="Codeunit 87617727 - NamedType 139589265" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>UK Campus Bldg 5</source>
+          <target state="translated">UK Campus Bldg 5</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Location - NamedType XNorthWarehouseTok</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Location - NamedType XUKCampusBldg5Tok</note>
         </trans-unit>
         <trans-unit id="Codeunit 3891720912 - NamedType 994084425" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
           <source>O-PROM</source>
@@ -1371,6 +1569,852 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Work Center - NamedType XTwoshiftsTok</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 2489708282" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DOMESTIC</source>
+          <target state="translated">INNLENT</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType CUSTGENBUSPGTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 686498386" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DOMESTIC</source>
+          <target state="translated">INNLENT</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType CUSTPOSTINGGROUPTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 1155924594" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DOMESTIC</source>
+          <target state="translated">INNLENT</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType DOMESTICTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 2460051184" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WRB-1000</source>
+          <target state="translated">WRB-1000</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType ITEM1Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 2971036721" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WRB-1001</source>
+          <target state="translated">WRB-1001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType ITEM2Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 3294328242" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WRB-1002</source>
+          <target state="translated">WRB-1002</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType ITEM3Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 3144919978" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WHITE</source>
+          <target state="translated">HVÍTUR</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType LOCADVANCEDTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 1569318038" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SILVER</source>
+          <target state="translated">SILFUR</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType LOCBASICTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 51189738" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>YELLOW</source>
+          <target state="translated">GULUR</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType LOCSIMPLETok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 3075918577" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OWN LOG.</source>
+          <target state="translated">EIG VSTJ.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType LOCTRANSITTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 2148111344" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RESALE</source>
+          <target state="translated">ENDURSALA</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType RESALETok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 2366727897" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RETAIL</source>
+          <target state="translated">SMÁSALA</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType RETAILTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 2645100772" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT25</source>
+          <target state="translated">VSK25</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType VATPRODUCTTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 261150882" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DOMESTIC</source>
+          <target state="translated">INNLENT</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType VENDORGBPGTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2415750281 - NamedType 3356163613" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DOMESTIC</source>
+          <target state="translated">INNLENT</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Warehousing Demo Data - NamedType VENDORPGTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 547862270 - NamedType 1912137039" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Fabrikam, Inc.</source>
+          <target state="translated">Fabrikam, Inc.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Cust/Vend - NamedType BeansSupplierLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 547862270 - NamedType 76061626" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Adatum Corporation</source>
+          <target state="translated">Adatum Corporation</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Cust/Vend - NamedType CustomerLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 259305880 - NamedType 608943361" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Customers Domestic</source>
+          <target state="translated">Viðskiptamenn, innlendir</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Demo Accounts - NamedType CustDomesticTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 259305880 - NamedType 3778052316" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchase VAT 25 %</source>
+          <target state="translated">VSK-innsk. 25 %</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Demo Accounts - NamedType PurchaseVATTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 259305880 - NamedType 3500111030" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purch., Retail - Dom.</source>
+          <target state="translated">Innk, smás. - Innl.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Demo Accounts - NamedType PurchDomesticTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 259305880 - NamedType 2722154168" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Resale (Interim)</source>
+          <target state="translated">Endursala (bráðabirgða)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Demo Accounts - NamedType ResaleInterimTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 259305880 - NamedType 1105234384" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Resale</source>
+          <target state="translated">Endursala</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Demo Accounts - NamedType ResaleTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 259305880 - NamedType 2249514146" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales, Retail - Dom.</source>
+          <target state="translated">Sala, smásala- Innl.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Demo Accounts - NamedType SalesDomesticTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 259305880 - NamedType 3131392821" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales VAT 25 %</source>
+          <target state="translated">VSK-útsk. 25 %</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Demo Accounts - NamedType SalesVATTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 259305880 - NamedType 3056923081" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendors, Domestic</source>
+          <target state="translated">Lánardr., innlendir</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Demo Accounts - NamedType VendDomesticTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1755822452 - NamedType 153863671" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bag</source>
+          <target state="translated">Poki</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Item - NamedType BAGDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1755822452 - NamedType 2302492768" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BAG</source>
+          <target state="translated">POKI</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Item - NamedType BAGTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1755822452 - NamedType 3005490637" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Whole Roasted Beans, Columbia</source>
+          <target state="translated">Heilar, ristaðar baunir, Kólumbía</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Item - NamedType BeansDesc1Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1755822452 - NamedType 3599525708" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Whole Roasted Beans, Brazil</source>
+          <target state="translated">Heilar, ristaðar baunir, Brasilía</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Item - NamedType BeansDesc2Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1755822452 - NamedType 2202588619" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Whole Roasted Beans, Indonesia</source>
+          <target state="translated">Heilar, ristaðar baunir, Indónesía</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Item - NamedType BeansDesc3Tok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1755822452 - NamedType 2485984349" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BEANS</source>
+          <target state="translated">BAUNIR</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Item - NamedType BEANSTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1755822452 - NamedType 4239955252" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Lot specific tracking for warehouse</source>
+          <target state="translated">Rakning bundin við lotunr. fyrir vöruhús</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Item - NamedType LOTWMSpecifictrackingLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1755822452 - NamedType 4226349938" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>LOTALLEXP</source>
+          <target state="translated">LOTALLGILD</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Item - NamedType LOTWMSTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1755822452 - NamedType 976432267" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Piece</source>
+          <target state="translated">Stykki</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Item - NamedType PCSDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1755822452 - NamedType 3242506772" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PCS</source>
+          <target state="translated">STYKKI</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Item - NamedType PCSTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3619231197 - NamedType 3474196376" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>White Warehouse</source>
+          <target state="translated">Hvít vörugeymsla</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Locations - NamedType ADVLOCNAMETok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3619231197 - NamedType 3144792151" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Silver Warehouse</source>
+          <target state="translated">Silfruð vörugeymsla</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Locations - NamedType BASICLOCNAMETok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3619231197 - NamedType 4124380755" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Yellow Warehouse</source>
+          <target state="translated">Gul birgðageymsla</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Locations - NamedType SIMPLELOCNAMETok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3619231197 - NamedType 1205971892" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Own Logistics</source>
+          <target state="translated">Eigin vörustjórnun</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Locations - NamedType TRANSITLOCNAMETok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 276769620 - NamedType 2302492768" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BAG</source>
+          <target state="translated">POKI</target>
+          <note from="Developer" annotates="general" priority="2">Must be the same as in CreateWhseItem codeunit</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Orders - NamedType BAGTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 332578434" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Domestic customers and vendors</source>
+          <target state="translated">Innlendir viðskiptamenn og lánardrottnar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType DomesticTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1829707712" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Resale Items</source>
+          <target state="translated">Endursöluvörur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType ResaleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 964041241" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Retail Items</source>
+          <target state="translated">Smásöluvörur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType RetailTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1605279859" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory Movement</source>
+          <target state="translated">Birgðahreyfing</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesInventoryMovementNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2414184713" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IM999999</source>
+          <target state="translated">IM999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesInventoryMovementNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2012632228" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IM000001</source>
+          <target state="translated">IM000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesInventoryMovementNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1479834172" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>I-MOVE</source>
+          <target state="translated">B-FLUTN</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesInventoryMovementNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2728683165" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory Pick</source>
+          <target state="translated">Birgðatínsla</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesInventoryPickNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 4258237167" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IPI999999</source>
+          <target state="translated">IPI999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesInventoryPickNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2535097278" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IPI000001</source>
+          <target state="translated">IPI000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesInventoryPickNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 7234822" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>I-PICK</source>
+          <target state="translated">B-TÍNSL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesInventoryPickNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2119150895" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inventory Put-Away</source>
+          <target state="translated">Birgðafrágangur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesInventoryPutAwayNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1902472173" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IPU999999</source>
+          <target state="translated">IPU999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesInventoryPutAwayNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1123475840" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>IPI000001</source>
+          <target state="translated">IPI000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesInventoryPutAwayNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 4040371832" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>I-PUT</source>
+          <target state="translated">B-FRG</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesInventoryPutAwayNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 460361615" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Items</source>
+          <target state="translated">Vörur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesItemNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1113657997" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>9999</source>
+          <target state="translated">9999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesItemNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1117779744" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>1000</source>
+          <target state="translated">1000</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesItemNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3463779096" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ITEM1</source>
+          <target state="translated">VARA1</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesItemNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 987166935" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posted Invt. Pick</source>
+          <target state="translated">Bókuð birgðatínsla</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedInvtPickNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2049295973" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PPI999999</source>
+          <target state="translated">PPI999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedInvtPickNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 709770760" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PPI000001</source>
+          <target state="translated">PPI000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedInvtPickNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2173411584" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>I-PICK+</source>
+          <target state="translated">B-TÍNSL+</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedInvtPickNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2725927621" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posted Invt. Put-Away</source>
+          <target state="translated">Bókaður birgðafrág.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedInvtPutAwayNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1251158887" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PPI999999</source>
+          <target state="translated">PPI999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedInvtPutAwayNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 282508070" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PPU000001</source>
+          <target state="translated">PPU000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedInvtPutAwayNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3296926702" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>I-PUT+</source>
+          <target state="translated">B-FRG+</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedInvtPutAwayNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3366525897" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Transfer Receipt</source>
+          <target state="translated">Flutningskvittun</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedTransferRcptNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3794423459" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>109999</source>
+          <target state="translated">109999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedTransferRcptNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 937252266" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>109000</source>
+          <target state="translated">109000</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedTransferRcptNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 765732242" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>T-RCPT</source>
+          <target state="translated">M-KVIT</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedTransferRcptNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1313494663" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Transfer Shipment</source>
+          <target state="translated">Millifærsluafhending</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedTransferShptNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3063137525" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>108999</source>
+          <target state="translated">108999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedTransferShptNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3629817624" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>108001</source>
+          <target state="translated">108001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedTransferShptNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2189079696" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>T-SHIP</source>
+          <target state="translated">FL-AFHENDA</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesPostedTransferShptNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3679540106" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reg. Inventory Movement</source>
+          <target state="translated">Regluleg birgðahreyfing</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesRegisteredInvtMovementNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3843248156" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RIM999999</source>
+          <target state="translated">RIM999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesRegisteredInvtMovementNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3783118609" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RIM000001</source>
+          <target state="translated">RIM000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesRegisteredInvtMovementNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2685970529" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>I-MOVE+</source>
+          <target state="translated">B-FLUTN+</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesRegisteredInvtMovementNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3370855271" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Transfer Order</source>
+          <target state="translated">Millifærslupöntun</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesTransferOrderNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1308376213" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>9999</source>
+          <target state="translated">9999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesTransferOrderNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 4273708088" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>1001</source>
+          <target state="translated">1001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesTransferOrderNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 634714800" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>T-ORD</source>
+          <target state="translated">M-PÖNT</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesTransferOrderNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2002000854" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Whse. Movement</source>
+          <target state="translated">Vöruh.hreyfing</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseMovementNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2876336976" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WM999999</source>
+          <target state="translated">WM999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseMovementNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 126026557" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WM000001</source>
+          <target state="translated">WM000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseMovementNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 4187822669" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WMS-MOV</source>
+          <target state="translated">WMS-MOV</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseMovementNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1664271356" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Whse. Pick</source>
+          <target state="translated">Vöruhús - Tína</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePickNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 819194650" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PI999999</source>
+          <target state="translated">PI999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePickNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3680520307" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PI000001</source>
+          <target state="translated">PI000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePickNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 4252195507" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WMS-PICK</source>
+          <target state="translated">WMS-PICK</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePickNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2089149856" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posted Whse. Receipt</source>
+          <target state="translated">Bókuð vöruhúsamóttaka</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePostedReceiptNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1147148214" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>R_999999</source>
+          <target state="translated">R_999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePostedReceiptNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 498583671" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>R_000001</source>
+          <target state="translated">R_000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePostedReceiptNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3525357239" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WMS-RCPT+</source>
+          <target state="translated">WMS-RCPT+</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePostedReceiptNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 839310030" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posted Whse. Shpt.</source>
+          <target state="translated">Bókuð vöruh.móttaka</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePostedShipNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 4243860024" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>S_999999</source>
+          <target state="translated">S_999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePostedShipNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 4228230453" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>S_000001</source>
+          <target state="translated">S_000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePostedShipNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 586658341" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WMS-SHIP+</source>
+          <target state="translated">WMS-SHIP+</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePostedShipNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 949070906" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Whse. Put-away</source>
+          <target state="translated">Vöruhús - Frágangur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePutAwayNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1973475372" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PU999999</source>
+          <target state="translated">PU999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePutAwayNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2650661217" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PU000001</source>
+          <target state="translated">PU000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePutAwayNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3740674353" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WMS-PUT</source>
+          <target state="translated">WMS-PUT</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhsePutAwayNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1512806503" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Whse. Receipt</source>
+          <target state="translated">Vöruh.móttaka</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseReceiptNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2091491733" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RE999999</source>
+          <target state="translated">RE999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseReceiptNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 538595640" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>RE000001</source>
+          <target state="translated">RE000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseReceiptNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3129526192" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WMS-RCPT</source>
+          <target state="translated">WMS-RCPT</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseReceiptNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 154945158" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Registered Whse. Movement</source>
+          <target state="translated">Skr. vöruhúsaflutningur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseRegMovementNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3029015200" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WM_999999</source>
+          <target state="translated">WM_999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseRegMovementNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 348095629" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WM_000001</source>
+          <target state="translated">WM_000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseRegMovementNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 867293597" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WMS-MOVE+</source>
+          <target state="translated">WMS-MOVE+</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseRegMovementNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3555258316" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Registered Whse. Put-away</source>
+          <target state="translated">Skráður vöruhúsafrágangur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseRegPickNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1901739786" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>P_999999</source>
+          <target state="translated">P_999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseRegPickNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1159317731" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>P_000001</source>
+          <target state="translated">P_000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseRegPickNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1109256803" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WMS-PICK+</source>
+          <target state="translated">WMS-PICK+</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseRegPickNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1847349322" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Registered Whse. Put-away</source>
+          <target state="translated">Skráður vöruhúsafrágangur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseRegPutAwayNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 831537500" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PU_999999</source>
+          <target state="translated">PU_999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseRegPutAwayNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 461461329" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PU_000001</source>
+          <target state="translated">PU_000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseRegPutAwayNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 395044897" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WMS-PUT-+</source>
+          <target state="translated">WMS-PUT-+</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseRegPutAwayNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 339415981" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Whse. Ship</source>
+          <target state="translated">Vöruh.sending</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseShipNosDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 2116064287" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SH999999</source>
+          <target state="translated">SH999999</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseShipNosEndTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 230127022" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SH000001</source>
+          <target state="translated">SH000001</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseShipNosStartTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3218969526" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>WMS-SHIP</source>
+          <target state="translated">WMS-SHIP</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType SeriesWhseShipNosTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 607876979" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard VAT (25%)</source>
+          <target state="translated">Hefðb. VSK (25%)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType VATIdentifierDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 1165586748" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT25</source>
+          <target state="translated">VSK25</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType VATIdentifierTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3088086342 - NamedType 3148546775" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Setup for %1 / %2</source>
+          <target state="translated">Uppsetning fyrir %1 / %2</target>
+          <note from="Developer" annotates="general" priority="2">%1 is the VAT Bus. Posting Group Code, %2 is the VAT Prod. Posting Group Code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Posting Setup - NamedType VATSetupDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3196539198 - NamedType 3804448518" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Template</source>
+          <target state="translated">Staðlað sniðmát</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Put Away Template - NamedType STDDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3196539198 - NamedType 3736510152" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Variable Template</source>
+          <target state="translated">Breytusniðmát</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Put Away Template - NamedType VARDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 1544099002" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Virtual for Adjustment</source>
+          <target state="translated">Sýndar f. leiðréttingu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType ADJUSTMENTDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 1724427899" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bulk Storage</source>
+          <target state="translated">Geymsla fyrir mörg atriði</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType BULKDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 1882782623" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>2 degrees Celsius</source>
+          <target state="translated">2 gráður Celsíus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType COLDDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 1721844056" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cross-Dock</source>
+          <target state="translated">Hjáskipun</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType CROSSDOCKDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 1950113477" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>-8 degrees Celsius</source>
+          <target state="translated">-8 gráður Celsíus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType FROZENDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 2140114148" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No type</source>
+          <target state="translated">Engin gerð</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType NoTypeDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 4148237011" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Operations</source>
+          <target state="translated">Rekstur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType OPERDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 3919664868" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pick</source>
+          <target state="translated">Taka til</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType PICKDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 3772502754" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Put Away</source>
+          <target state="translated">Frágangur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType PUTAWAYDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 3204979619" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Put Away and Pick</source>
+          <target state="translated">Ganga frá og tína</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType PUTPICKDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 4139051045" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Quality Control</source>
+          <target state="translated">Gæðastjórnun</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType QCDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 1054862910" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Receiving</source>
+          <target state="translated">Móttekur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType RECEIVEDescTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4108089322 - NamedType 1250610701" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shipping</source>
+          <target state="translated">Afhending</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse ZonesBinsClasses - NamedType SHIPDescTok</note>
+        </trans-unit>
         <trans-unit id="Page 53112230 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Contoso Coffee Demo Data</source>
           <target state="translated">Sýnigögn Contoso Coffee</target>
@@ -1520,6 +2564,180 @@
           <target state="translated">Búa til sýnigögn</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Demo Data - Action Create Demo Data - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contoso Coffee Whse Demo Data</source>
+          <target state="translated">Sýnigögn Contoso Coffee-vöruhúss</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - NamedType 2664013840" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Contoso Coffee demo data is now available in the current company.</source>
+          <target state="translated">Nú eru sýnigögn Contoso Coffee aðgengileg í núverandi fyrirtæki.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - NamedType DemoDataInsertedMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 332174833 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the company type.</source>
+          <target state="translated">Tilgreinir tegund fyrirtækis.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Company Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 34877017 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the first year that you you want to use for the Contoso demonstration data.</source>
+          <target state="translated">Tilgreinir fyrsta árið sem á að nota fyrir sýnigögn Contoso.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Starting Year - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 2007280983 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code of the location for the Simple Logistics scenarios.</source>
+          <target state="translated">Tilgreinir kóða staðsetningar fyrir einfaldar birgðastjórnunarsviðsmyndir.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Location Adv Logistics - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 4258090820 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code of the location for the Basic Location scenarios.</source>
+          <target state="translated">Tilgreinir kóða staðsetningar fyrir grunnbirgðageymslusviðsmyndir.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Location Bin - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 350630476 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code of the location for the Advanced Logistics scenarios.</source>
+          <target state="translated">Tilgreinir kóða staðsetningar fyrir ítarlegar birgðastjórnunarsviðsmyndir.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Location Directed Pick - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 1445487580 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code of the location for the Advanced Logistics scenarios.</source>
+          <target state="translated">Tilgreinir kóða staðsetningar fyrir ítarlegar birgðastjórnunarsviðsmyndir.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Location In-Transit - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 4190130733 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the customer number to use for the scenarios.</source>
+          <target state="translated">Tilgreinir númer viðskiptamanns sem á að nota fyrir sviðsmyndir.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Customer No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 2204127981 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the main number to use for the scenarios.</source>
+          <target state="translated">Tilgreinir aðalnúmerið sem á að nota fyrir sviðsmyndir.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Item 1 No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 1513630372 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies extra item number to use for the scenarios.</source>
+          <target state="translated">Tilgreinir viðbótarvörunúmer til að nota fyrir sviðsmyndir.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Item 2 No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 2704025915 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies extra item number to use for the scenarios with item tracking.</source>
+          <target state="translated">Tilgreinir viðbótarvörunúmer til að nota fyrir sviðsmyndir með vörurakningu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Item 3 No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 1527594213 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies vendor number to use for the scenarios.</source>
+          <target state="translated">Tilgreinir númer lánardrottins sem á að nota fyrir sviðsmyndir.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Vendor No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 4067159089 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posting Setup</source>
+          <target state="translated">Bókunargrunnur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Posting Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 3904550660 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the general business posting group for the customer for all scenarios.</source>
+          <target state="translated">Tilgreinir almennan viðskiptabókunarflokk fyrir viðskiptamann í öllum sviðsmyndum.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Cust. Gen. Bus. Posting Group - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 3399117948 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the customer posting group for the customer for the all scenarios.</source>
+          <target state="translated">Tilgreinir bókunarflokk viðskiptamanns fyrir viðskiptamanninn í öllum sviðsmyndum.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Cust. Posting Group - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 3381089669 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the VAT business posting group field used by new customers and new vendors for all scenarios.</source>
+          <target state="translated">Tilgreinir gildið í reit VSK-viðskiptabókunarflokks sem nýir viðskiptamenn og nýir lánardrottnar nota í öllum aðstæðum.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Domestic Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 2770666435 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the inventory posting group used for items for all scenarios.</source>
+          <target state="translated">Tilgreinir birgðabókunarflokkinn sem er notaður fyrir vörur í öllum sviðsmyndum.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Resale Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 4242196510 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the general product posting group for items for all scenarios.</source>
+          <target state="translated">Tilgreinir gildi fyrir almennan vörubókunarflokk fyrir vörur í öllum sviðsmyndum.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Retail Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 995605442 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the value of the VAT product posting group code used on items if VAT is used.</source>
+          <target state="translated">Tilgreinir gildi VSK-kóða vörubókunarflokks sem er notaður fyrir vörur ef VSK er notaður.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control VAT Prod. Posting Group Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 3075942428 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the general business posting group for the vendor for all scenarios.</source>
+          <target state="translated">Tilgreinir almennan viðskiptabókunarflokk fyrir sniðmát lánardrottins.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Vend. Gen. Bus. Posting Group - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 3194161445 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the vendor posting group for the vendor for all scenarios.</source>
+          <target state="translated">Tilgreinir almennan bókunarflokk lánardrottins fyrir sniðmát lánardrottins.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Vendor Posting Group - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 2770449500 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Price/cost factor and rounding</source>
+          <target state="translated">Verð-/kostnaðarstuðull og sléttun</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Pricing - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 2604280068 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a factor to convert a price from USD/EUR to your local currency. 1 means that the price is 149 in any currency. A higher number will be used to get the price in your local currency.</source>
+          <target state="translated">Tilgreinir þátt til að breyta verði úr USD/EUR í staðbundinn gjaldmiðil. 1 þýðir að verðið er 149 í hvaða gjaldmiðli sem er. Hærri tala verður notuð til að fá verð í staðbundnum gjaldmiðli.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Price Factor - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 2604280068 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Price Factor</source>
+          <target state="translated">Verðstuðull</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Price Factor - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 2556434784 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the rounding precision for prices on items.</source>
+          <target state="translated">Tilgreinir sléttunarnákvæmni fyrir verð á vörum.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Rounding Precision - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Control 2556434784 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Rounding Precision</source>
+          <target state="translated">Sléttunarnákvæmni</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Control Rounding Precision - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Action 1056858697 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Adds new demonstration data for the Warehousing capabilities in Business Central.</source>
+          <target state="translated">Bætir við nýjum sýnigögnum fyrir vöruhúsaeiginleika í Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Action Create Demo Data - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1605501397 - Action 1056858697 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create Demo Data</source>
+          <target state="translated">Búa til sýnigögn</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Create Contoso Whse Demo Data - Action Create Demo Data - Property Caption</note>
         </trans-unit>
         <trans-unit id="TableExtension 258902614 - Field 3700672413 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>InstallAdditionalDemoData</source>

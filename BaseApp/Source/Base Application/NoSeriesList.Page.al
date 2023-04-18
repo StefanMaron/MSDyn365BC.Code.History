@@ -23,7 +23,7 @@ page 571 "No. Series List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number series code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the number series.';

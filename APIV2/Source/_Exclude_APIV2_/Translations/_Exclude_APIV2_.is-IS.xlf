@@ -1029,6 +1029,90 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Scheduled Jobs - Control status - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3219534704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Sec. Gr. Members</source>
+          <target state="translated">APIV2 – Sannvottun meðlima í öryggishópi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Sec. Gr. Members - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3219534704 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Group Member</source>
+          <target state="translated">Meðlimur öryggishóps</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Sec. Gr. Members - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3219534704 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Group Members</source>
+          <target state="translated">Meðlimir öryggishóps</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Sec. Gr. Members - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3219534704 - Control 256364600 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Group Code</source>
+          <target state="translated">Kóði öryggishóps</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Sec. Gr. Members - Control securityGroupCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3219534704 - Control 2311277794 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Group Name</source>
+          <target state="translated">Heiti öryggishóps</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Sec. Gr. Members - Control securityGroupName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3219534704 - Control 2920517718 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Security Id</source>
+          <target state="translated">Öryggiskenni notanda</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Sec. Gr. Members - Control userSecurityId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Aut. Security Groups</source>
+          <target state="translated">APIV2 – Sannvottun öryggishópa</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Group</source>
+          <target state="translated">Öryggishópur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Groups</source>
+          <target state="translated">Öryggishópar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Control 707985127 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Code</source>
+          <target state="translated">Kóði</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Control code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Control 4013682468 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group Name</source>
+          <target state="translated">Heiti hóps</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Control groupName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Kenni</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Control 3827759206 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Group Member</source>
+          <target state="translated">Meðlimur í notendaflokki</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Control securityGroupMembers - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2038174231 - Control 2544131419 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Security Group Permissions</source>
+          <target state="translated">Heimildir öryggishóps</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Security Groups - Control securityGroupPermissions - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2129153706 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>APIV2 - Aut. User Gr. Members</source>
           <target state="translated">APIV2 – Heimil. not. hóps</target>
@@ -1340,6 +1424,12 @@
           <target state="translated">Tímasett verk</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Users - Control scheduledJobs - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1243228631 - Control 2876203579 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User Group Member</source>
+          <target state="translated">Meðlimur í notendaflokki</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Aut. Users - Control securityGroupMember - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1243228631 - Control 1405163793 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>State</source>
@@ -1694,12 +1784,6 @@
           <target state="translated">Heimilisfang, lína 2</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Control addressLine2 - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 79567422 - Control 2321560956 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Business Relation</source>
-          <target state="translated">Viðskiptatengsl</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Control businessRelation - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 79567422 - Control 2754366897 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>City</source>
@@ -2463,6 +2547,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control displayName - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1278155290 - Control 750067815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <target state="translated">Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Customers - Control documentAttachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1278155290 - Control 3163706192 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email</source>
           <target state="translated">Netfang</target>
@@ -2841,6 +2931,90 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Dimensions - Control lastModifiedDateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3008374136 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>APIV2 - Document Attachments</source>
+          <target state="translated">APIV2 - Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Property 3446740159" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachment</source>
+          <target state="translated">Skjal í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Property EntityCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <target state="translated">Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - NamedType 58801611" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You cannot change the value of the key field %1.</source>
+          <target state="translated">Ekki er hægt að breyta gildi lykilreitsins %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Field name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - NamedType CannotModifyKeyFieldErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 2895166340 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Content</source>
+          <target state="translated">Efni</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control attachmentContent - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 412330025 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Byte Size</source>
+          <target state="translated">Bætastærð</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control byteSize - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 1536349666 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Flow to Purchase Transactions</source>
+          <target state="translated">Flæði til innkaupafærslna</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control documentFlowPurchase - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 2817525071 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Flow to Sales Transactions</source>
+          <target state="translated">Flæði til sölufærslna</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control documentFlowSales - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 4179522451 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Name</source>
+          <target state="translated">Skráarheiti</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control fileName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 2686962215 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Id</source>
+          <target state="translated">Kenni</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 2245436958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Modified Date</source>
+          <target state="translated">Dagsetning síðustu breytinga</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control lastModifiedDateTime - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 928535615 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line No.</source>
+          <target state="translated">Línunr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control lineNumber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 2178989011 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Parent Id</source>
+          <target state="translated">Kenni yfireiningar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control parentId - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3008374136 - Control 2234676128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Parent Type</source>
+          <target state="translated">Gerð yfireiningar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Document Attachments - Control parentType - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 950291140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>APIV2 - Employees</source>
           <target state="translated">APIV2 – Starfsmenn</target>
@@ -2900,6 +3074,12 @@
           <target state="translated">Birtingarheiti</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control displayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 950291140 - Control 750067815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <target state="translated">Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Employees - Control documentAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 950291140 - Control 3163706192 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email</source>
@@ -3573,6 +3753,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control displayName - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1180930185 - Control 750067815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <target state="translated">Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control documentAttachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1180930185 - Control 2481309022 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General Product Posting Group</source>
           <target state="translated">Almennur vörubókunarflokkur</target>
@@ -3716,6 +3902,12 @@
           <target state="translated">Verkefni</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Jobs - Property EntitySetCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 3345245471 - Control 750067815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <target state="translated">Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Jobs - Control documentAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3345245471 - Control 460507951 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Display Name</source>
@@ -4971,6 +5163,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4099491740 - Control 750067815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <target state="translated">Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoices - Control documentAttachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4099491740 - Control 2763176388 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Due Date</source>
           <target state="translated">Gjalddagi</target>
@@ -5636,6 +5834,12 @@
           <target state="translated">Afsláttur dreginn frá fyrir skatta</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control discountAppliedBeforeTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 825103897 - Control 750067815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <target state="translated">Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Orders - Control documentAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 825103897 - Control 73969887 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Fully Received</source>
@@ -6657,6 +6861,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3006414751 - Control 750067815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <target state="translated">Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Memos - Control documentAttachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3006414751 - Control 2763176388 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Due Date</source>
           <target state="translated">Gjalddagi</target>
@@ -7316,6 +7526,12 @@
           <target state="translated">Afsláttur dreginn frá fyrir skatta</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control discountAppliedBeforeTax - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3783002405 - Control 750067815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <target state="translated">Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoices - Control documentAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3783002405 - Control 2763176388 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Due Date</source>
@@ -8013,6 +8229,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control discountAppliedBeforeTax - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 48856144 - Control 750067815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <target state="translated">Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Orders - Control documentAttachments - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 48856144 - Control 3163706192 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email</source>
           <target state="translated">Netfang</target>
@@ -8654,6 +8876,12 @@
           <target state="translated">Afsláttarupphæð</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control discountAmount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 617149860 - Control 750067815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <target state="translated">Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quotes - Control documentAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 617149860 - Control 515850677 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Document Date</source>
@@ -10040,6 +10268,12 @@
           <target state="translated">Birtingarheiti</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control displayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2680707570 - Control 750067815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document Attachments</source>
+          <target state="translated">Skjöl í viðhengi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Vendors - Control documentAttachments - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2680707570 - Control 3163706192 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email</source>

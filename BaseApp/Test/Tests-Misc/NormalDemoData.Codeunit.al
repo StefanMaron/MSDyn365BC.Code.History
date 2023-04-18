@@ -343,6 +343,7 @@ codeunit 138200 "Normal DemoData"
         Assert.RecordIsNotEmpty(DefaultDimension);
     end;
 
+#if not CLEAN22
     [Test]
     procedure AdvancedIntrastatChecklist()
     var
@@ -359,6 +360,7 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklistField(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
     end;
+#endif
 
     [Test]
     procedure AccountScheduleHideCurrencySymbol()
@@ -399,6 +401,7 @@ codeunit 138200 "Normal DemoData"
         ColumnLayout.TestField("Hide Currency Symbol", true);
     end;
 
+#if not CLEAN22
     local procedure AdvancedIntrastatChecklistCommonFields(ReportId: Integer)
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -422,6 +425,7 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklist.SetRange("Filter Expression", FilterExpr);
         Assert.IsFalse(AdvancedIntrastatChecklist.IsEmpty(), 'Advanced Intrastat Checklist Setup');
     end;
+#endif
 
     [Test]
     procedure GBIsExcludedFromEUCountry()

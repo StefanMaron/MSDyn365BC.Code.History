@@ -108,6 +108,7 @@ codeunit 139182 "CRM Coupling Test"
         // [GIVEN] A Customer and a CRM Account with different data
         LibrarySales.CreateCustomer(Customer);
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
+        LibraryCRMIntegration.CouplePaymentTerms(Customer);
         OriginalCustomerName := Customer.Name;
 
         // [GIVEN] The Mini Customer Card page
@@ -1674,35 +1675,6 @@ codeunit 139182 "CRM Coupling Test"
         CRMSystemuserList.GotoKey(CRMSystemuser2.SystemUserId);
         CRMSystemuserList.Coupled.AssertEquals(Coupled::Yes);
         CRMSystemuserList.SalespersonPurchaserCode.AssertEquals(SalespersonPurchaser.Code);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CoupleUnsupportedRecordIDToCRMIDWithNoIntegrationRecord()
-    var
-        CRMIntegrationRecord: Record "CRM Integration Record";
-        CRMSystemuser: Record "CRM Systemuser";
-        FixedAsset: Record "Fixed Asset";
-        IntegrationRecord: Record "Integration Record";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 210901] Coupling of unsupported Integration record to CRM record
-        TestInit;
-
-        // [GIVEN] Fixed Asset "FA" and CRM User "CU"
-        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser);
-
-        // [GIVEN] No Integration Record exist for Salesperson "SP"
-        IntegrationRecord.SetRange("Record ID", FixedAsset.RecordId);
-        Assert.RecordIsEmpty(IntegrationRecord);
-
-        // [WHEN] Fixed Asset "FA" is coupled to CRM User "CU"
-        CRMIntegrationRecord.CoupleRecordIdToCRMID(FixedAsset.RecordId, CRMSystemuser.SystemUserId);
-
-        // [THEN] Integration Record is not created
-        IntegrationRecord.SetRange("Record ID", FixedAsset.RecordId);
-        Assert.RecordIsEmpty(IntegrationRecord);
     end;
 
     [Test]

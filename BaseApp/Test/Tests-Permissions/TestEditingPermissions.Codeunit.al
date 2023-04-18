@@ -30,7 +30,7 @@ codeunit 134612 "Test Editing Permissions"
         SecurityFilterExistsErr: Label 'Security filter should not exit.';
         UnsupportedDataTypeErr: Label 'Cannot define a field filter for field %1 whose type is %2.', Comment = 'Cannot define a field filter for field App ID whose type is GUID.';
         CannotEditPermissionSetMsg: Label 'Permission sets of type System and Extension cannot be changed. Only permission sets of type User-Defined can be changed.';
-        CannotRenameTenantPermissionSetHavingUsageErr: Label 'You cannot rename a tenant permission set until it is used elsewhere, for example, in permission settings for a user or user group.';
+        CannotRenameTenantPermissionSetHavingUsageErr: Label 'You cannot rename a tenant permission set while it is used elsewhere, for example, in permission settings for a user or security group.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1374,7 +1374,7 @@ codeunit 134612 "Test Editing Permissions"
         // [WHEN] Rename permission set "A" to "B" on the page "Permission Sets"
         asserterror PermissionSets.PermissionSet.SetValue(NewRoleID);
 
-        // [THEN] Error has been thrown with message "You cannot rename a tenant permission set until it is used elsewhere, for example, in permission settings for a user or user group."
+        // [THEN] Error has been thrown with message "You cannot rename a tenant permission set while it is used elsewhere, for example, in permission settings for a user or security group."
         Assert.ExpectedError(Format(CannotRenameTenantPermissionSetHavingUsageErr));
     end;
 
@@ -1470,9 +1470,9 @@ codeunit 134612 "Test Editing Permissions"
     local procedure CreateNewPermissionSet(PermissionSetRoleID: Code[20])
     var
         Permission: Record Permission;
-        PermissionSet: Record "Permission Set";
+        TenantPermissionSet: Record "Tenant Permission Set";
     begin
-        LibraryPermissions.CreatePermissionSet(PermissionSet, PermissionSetRoleID);
+        LibraryPermissions.CreatePermissionSet(TenantPermissionSet, PermissionSetRoleID);
 
         LibraryPermissions.AddPermission(PermissionSetRoleID, Permission."Object Type"::"Table Data", DATABASE::Customer);
         LibraryPermissions.AddPermission(PermissionSetRoleID, Permission."Object Type"::"Table Data", DATABASE::Vendor);

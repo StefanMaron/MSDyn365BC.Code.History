@@ -28,6 +28,7 @@ codeunit 137038 "SCM Transfers"
         DummyTransferOrderPage: TestPage "Transfer Order";
         LocationCode: array[5] of Code[10];
         SourceDocument: Option ,"S. Order","S. Invoice","S. Credit Memo","S. Return Order","P. Order","P. Invoice","P. Credit Memo","P. Return Order","Inb. Transfer","Outb. Transfer","Prod. Consumption","Item Jnl.","Phys. Invt. Jnl.","Reclass. Jnl.","Consumption Jnl.","Output Jnl.","BOM Jnl.","Serv. Order","Job Jnl.","Assembly Consumption","Assembly Order";
+        TrackingOption: Option AssignLotNo,AssignSerialNo,SelectEntries,ShowEntries,VerifyEntries;
         isInitialized: Boolean;
         ErrNoOfLinesMustBeEqual: Label 'No. of Line Must Be Equal.';
         TransferOrderCountErr: Label 'Wrong Transfer Order''s count';
@@ -39,6 +40,14 @@ codeunit 137038 "SCM Transfers"
         RoundingTo0Err: Label 'Rounding of the field';
         RoundingErr: Label 'is of lesser precision than expected';
         RoundingBalanceErr: Label 'This will cause the quantity and base quantity fields to be out of balance.';
+        ILECorrectedAndNotErr: Label 'Expected same number of corrected and not corrected Item Ledger Entries for undone Transfer Shipment';
+        ILEIncorrectSumErr: Label 'Expected sum of quantities to be 0 for Item Ledger Entries after undone Transfer Shipment';
+        TransShptIncorrectSumErr: Label 'Expected sum of quantities to be 0 for Transfer Shipment Lines of undone Transfer Shipment';
+        TransShptLineNotCorrectionErr: Label 'Expected Line of undone Transfer Shipment to have "Correction Line"=true, but it din''t';
+        UndoneTransLineQtyToShipErr: Label 'Expected Qty. to Ship to be reset after Transfer Shipment was undone';
+        UndoneTransLineQtyErr: Label 'Expected Quantity to be 0 after Transfer Shipment was undone';
+        DerivedTransLineErr: Label 'Expected no Derived Transfer Line i.e. line with "Derived From Line No." equal to original transfer line.';
+        IncorrectSNUndoneErr: Label 'The Serial No. of the item on the transfer shipment line that was undone was different from the SN on the corresponding transfer line.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -103,6 +112,426 @@ codeunit 137038 "SCM Transfers"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UndoTransferShipmentLine()
+    var
+        TransferHeader: Record "Transfer Header";
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Undo Transfer Shipment Line
+        Initialize();
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+
+        // [GIVEN] A shipped transfer order with one line
+        CreateAndShipTransferOrder(TransferHeader, QtyToShip, false, false);
+
+        // [WHEN] The posted transfer shipment line is undone
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] The Transfer Order has been completely unshipped
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader, QtyToShip);
+
+        // [THEN] The order can be fully shipped and received with no error
+        ShipAndReceiveTransOrderFully(TransferHeader, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UndoTransferShipmentLineTwice()
+    var
+        TransferHeader: Record "Transfer Header";
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Check that Transfer Shipment Line can be posted and undone multiple times
+        Initialize();
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+
+        // [GIVEN] A shipped Transfer Order with one line
+        CreateAndShipTransferOrder(TransferHeader, QtyToShip, false, false);
+
+        // [GIVEN] The Transfer Shipment Line is undone and posted again
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [WHEN] The posted Transfer Shipment is undone again
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] The Transfer Order has been completely unshipped
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader, QtyToShip);
+
+        // [THEN] The order can be fully shipped and received with no error
+        ShipAndReceiveTransOrderFully(TransferHeader, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UndoPartiallyPostedTransShpt()
+    var
+        TransferHeader: Record "Transfer Header";
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Check that Transfer Shipment Line of partially shipped Transfer Order can be undone
+        Initialize();
+        QtyToShip := LibraryRandom.RandInt(10) + 5;
+
+        // [GIVEN] A Transfer Order with one line fully shipped, one line partly shipped and one line not shipped.
+        CreateAndShipTransferOrder(TransferHeader, QtyToShip, true, true);
+
+        // [WHEN] All posted Transfer Shipment Lines are undone
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] The Transfer Order has been completely unshipped
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader, QtyToShip);
+
+        // [THEN] The order can be fully shipped and received with no error
+        ShipAndReceiveTransOrderFully(TransferHeader, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure CannotReceiveTransOrderAfterUndoShpt()
+    var
+        TransferHeader: Record "Transfer Header";
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Check that Transfer Shipment cannot be received after it has been undone
+        Initialize();
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+
+        /// [GIVEN] A shipped Transfer Order with one line
+        CreateAndShipTransferOrder(TransferHeader, QtyToShip, false, false);
+
+        // [GIVEN] The posted Transfer Shipment Line is undone
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] The order can't be received
+        asserterror ReceiveTransOrderFully(TransferHeader);
+        Assert.ExpectedError('nothing to post');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure CannotUndoShipmentOfReceivedLine()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLineA: Record "Transfer Line";
+        TransferLineB: Record "Transfer Line";
+        TransferShipmentLine: Record "Transfer Shipment Line";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        TransitLocation: Record Location;
+        Item: Record Item;
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Check that Transfer Shipments cannot be undone if the Transfer Line they came from is already partially received
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+
+        /// [GIVEN] A Transfer Order with two lines
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+        LibraryWarehouse.CreateInTransitLocation(TransitLocation);
+        LibraryInventory.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, TransitLocation.Code);
+        CreateItemWithPositiveInventory(Item, FromLocation.code, 2 * QtyToShip);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLineA, Item."No.", QtyToShip);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLineB, Item."No.", QtyToShip);
+
+        // [GIVEN] Line A is shipped and received
+        TransferLineB.Validate("Qty. to Ship", 0);
+        TransferLineB.Modify();
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+
+        // [GIVEN] Line B is shipped
+        TransferLineB.Get(TransferHeader."No.", TransferLineB."Line No.");
+        TransferLineB.Validate("Qty. to Ship", QtyToShip);
+        TransferLineB.Modify();
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [WHEN] We attempt to undo Shipment A
+        TransferShipmentLine.SetFilter("Transfer Order No.", TransferHeader."No.");
+        TransferShipmentLine.SetRange("Trans. Order Line No.", TransferLineA."Line No.");
+        asserterror LibraryInventory.UndoTransferShipmentLinesInFilter(TransferShipmentLine);
+
+        // [THEN] It is not possible, because that line has been received
+        Assert.ExpectedError('already been received');
+
+        // [WHEN] We attempt to undo Shipment B
+        TransferShipmentLine.SetRange("Trans. Order Line No.", TransferLineB."Line No.");
+        LibraryInventory.UndoTransferShipmentLinesInFilter(TransferShipmentLine);
+
+        // [THEN] Then no errors occur
+
+        // [THEN] The order can be fully shipped and received with no error
+        ShipAndReceiveTransOrderFully(TransferHeader, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ItemTrackingLinesModalPageHandlerGeneric,QuantityToCreatePageHandler,ItemTrackingSummaryPageHandler,PostedItemTrackingLinesHandler')]
+    [Scope('OnPrem')]
+    procedure UndoTransShpt_SNTracking()
+    var
+        TransferHeader: Record "Transfer Header";
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Check that Transfer Shipments with Serial No. Item Tracking can be undone 
+        Initialize();
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+
+        // [GIVEN] A shipped Transfer Order with one line tracked with SN and QtyToShip is full Qty
+        CreateAndShipTransferOrderWithTracking(TransferHeader, QtyToShip, false, true, false);
+
+        // [WHEN] The posted Transfer Shipment Line is undone
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] The Transfer Order has been completely unshipped
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader, QtyToShip);
+
+        // [THEN] The item tracking information on the order is reset to a pre-posting state
+        VerifyTrackingNotShippedOnTransferOrder(TransferHeader, QtyToShip);
+
+        // [THEN] The order can be fully shipped and received with no error
+        ShipAndReceiveTransOrderFully(TransferHeader, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ItemTrackingLinesModalPageHandlerGeneric,ItemTrackingSummaryPageHandler,PostedItemTrackingLinesHandler')]
+    [Scope('OnPrem')]
+    procedure UndoTransShpt_LotTracking()
+    var
+        TransferHeader: Record "Transfer Header";
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Check that Transfer Shipments with Lot No. Item Tracking can be undone 
+        Initialize();
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+
+        // [GIVEN] A shipped Transfer Order with one line tracked with Lot No. and QtyToShip is full Qty
+        CreateAndShipTransferOrderWithTracking(TransferHeader, QtyToShip, true, true, false);
+
+        // [WHEN] The posted Transfer Shipment Lines are undone
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] The Transfer Order has been completely unshipped
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader, QtyToShip);
+
+        // [THEN] The item tracking information on the order is reset to a pre-posting state
+        VerifyTrackingNotShippedOnTransferOrder(TransferHeader, QtyToShip);
+
+        // [THEN] The order can be fully shipped and received with no error
+        ShipAndReceiveTransOrderFully(TransferHeader, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ItemTrackingLinesModalPageHandlerGeneric,ItemTrackingSummaryPageHandler,PostedItemTrackingLinesHandler')]
+    [Scope('OnPrem')]
+    procedure UndoTransShpt_LotTracking_PartialPosting()
+    var
+        TransferHeader: Record "Transfer Header";
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Check that Transfer Shipments with Lot No., multiple lines and partial Qty. shipped can be undone 
+        Initialize();
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+
+        // [GIVEN] A shipped Transfer Order with two lines tracked with Lot No. and partial qty is shipped
+        CreateAndShipTransferOrderWithTracking(TransferHeader, QtyToShip, true, false, true);
+
+        // [WHEN] The posted Transfer Shipment Line is undone
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] The Transfer Order has been completely unshipped
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader, QtyToShip);
+
+        // [THEN] The item tracking information on the order is reset to a pre-posting state
+        VerifyTrackingNotShippedOnTransferOrder(TransferHeader, QtyToShip);
+
+        // [THEN] The order can be fully shipped and received with no error
+        ShipAndReceiveTransOrderFully(TransferHeader, true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ItemTrackingLinesModalPageHandlerGeneric,QuantityToCreatePageHandler,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure UndoTransShptLineFindsCorrectTrackingInfo()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Array[3] of Record "Transfer Line";
+        TransferShipmentLine: Record "Transfer Shipment Line";
+        ItemJournalLine: Record "Item Journal Line";
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Check that UndoTransferShipment moves the correct Tracking Info back to the Order
+        // when there are multiple identical Transfer Shipments 
+        Initialize();
+
+        // [GIVEN] A Transfer Order and an Item with Serial No. tracking
+        CreateTransferOrderHeader(TransferHeader);
+        LibraryItemTracking.CreateSerialItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", TransferHeader."Transfer-from Code", '', 3);
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Three almost identical lines - only Serial Nos are different
+        CreateTransferOrderLineAndAssignTracking(TransferHeader, TransferLine[1], Item."No.", 1, 0);
+        CreateTransferOrderLineAndAssignTracking(TransferHeader, TransferLine[2], Item."No.", 1, 0);
+        CreateTransferOrderLineAndAssignTracking(TransferHeader, TransferLine[3], Item."No.", 1, 0);
+
+        // [GIVEN] The lines are each shipped individually
+        ShipSingleTransferLine(TransferLine[1], 1);
+        ShipSingleTransferLine(TransferLine[2], 1);
+        ShipSingleTransferLine(TransferLine[3], 1);
+
+        // [WHEN] The "middle" Shipment Line is undone
+        TransferShipmentLine.SetFilter("Transfer Order No.", TransferHeader."No.");
+        TransferShipmentLine.SetRange("Trans. Order Line No.", TransferLine[2]."Line No.");
+        TransferShipmentLine.FindFirst();
+        LibraryInventory.UndoTransferShipmentLinesInFilter(TransferShipmentLine);
+
+        // [THEN] The Serial No. on the undone Shipment Line matches the one that has been moved back to the Order
+        // Find the Reservation Entry on the Order Line
+        ReservationEntry.SetRange("Source Type", Database::"Transfer Line");
+        ReservationEntry.SetRange("Source Subtype", "Transfer Direction"::Outbound.AsInteger());
+        ReservationEntry.SetFilter("Source ID", TransferHeader."No.");
+        ReservationEntry.SetRange("Source Ref. No.", TransferLine[2]."Line No.");
+        ReservationEntry.FindFirst();
+
+        // Find the Item Ledger Entry for the undone shipment line
+        ItemLedgerEntry.SetRange("Entry Type", "Item Ledger Entry Type"::Transfer);
+        ItemLedgerEntry.SetFilter("Document No.", TransferShipmentLine."Document No.");
+        ItemLedgerEntry.SetRange("Order Line No.", TransferLine[2]."Line No.");
+        ItemLedgerEntry.FindFirst(); // There are multiple of these, but the SN is the same for all
+
+        // Assert that they are equal
+        Assert.AreEqual(ItemLedgerEntry."Serial No.", ReservationEntry."Serial No.", IncorrectSNUndoneErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,ItemTrackingLinesModalPageHandlerGeneric,QuantityToCreatePageHandler,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure UndoTransShptLineFailsIfReservEntryStatusChanged()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ReservationEntry: Record "Reservation Entry";
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] A Transfer Shipment with Item Tracking is posted and has Reservation Entries on the To-Location. 
+        //If the status if these change from Surplus, the Shipment cannot be undone.
+        Initialize();
+
+        Initialize();
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+
+        // [GIVEN] A shipped Transfer Order with one line tracked with SN and QtyToShip is full Qty
+        CreateAndShipTransferOrderWithTracking(TransferHeader, QtyToShip, false, true, false);
+
+        // Find the transfer line (Not the derived line)
+        TransferLine.SetFilter("Document No.", TransferHeader."No.");
+        TransferLine.SetRange("Derived From Line No.", 0);
+        TransferLine.FindFirst();
+
+        // [GIVEN] A Reservation Entry on the receiving end of the order changes status to "Reservation" (any other status than Surplus)
+        FindFirstReservEntryOnDerivedLine(TransferLine, ReservationEntry);
+        ReservationEntry."Reservation Status" := "Reservation Status"::Reservation;
+        ReservationEntry.Modify();
+
+        // [WHEN] We attempt to undo the posted Transfer Shipment Line 
+        asserterror LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] An error occurs, explaining that the line is reserved
+        Assert.ExpectedError('this line is Reserved');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UndoTransferShipmentLineWithUOM()
+    var
+        ItemUOM: Record "Item Unit of Measure";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        TransitLocation: Record Location;
+        Item: Record Item;
+        QtyToShip: Integer;
+        QtyPerUOM: Integer;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Undo Transfer Shipment Line that has a Unit of Measure different from the Base UOM
+        Initialize();
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+        QtyPerUOM := LibraryRandom.RandInt(10) + 1;
+
+        // [GIVEN] locations
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+        LibraryWarehouse.CreateInTransitLocation(TransitLocation);
+
+        // [GIVEN] Item with positive inventory on From-location
+        CreateItemWithPositiveInventory(Item, FromLocation.Code, QtyPerUOM * QtyToShip);
+
+        // [GIVEN] Unit of measure "BOX" containing "QtyPerUOM" of the base UOM
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUOM, Item."No.", QtyPerUOM);
+
+        // [GIVEN] A Transfer Order with one line using UOM = BOX is created and posted
+        LibraryInventory.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, TransitLocation.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", QtyToShip);
+        TransferLine.Validate("Unit of Measure Code", ItemUOM.Code);
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [WHEN] The Posted Transfer Shipment Line is undone
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] The sum of the Item Ledger Entries on the From-location is QtyToShip*QtyPerUom again
+        Assert.AreEqual(QtyToShip * QtyPerUOM, SumILEForItemOnLocation(Item."No.", FromLocation.Code), 'Wrong quantity on Transfer From-location after Undo Transfer Shipment with UOM conversion');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UndoTransferShipmentForShipmentLinesWithQuantityZero()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferShipmentLine: Record "Transfer Shipment Line";
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 332164] [Transfer] [Order] [Undo Shipment]
+        // [SCENARIO] Undo Transfer Shipment Line
+        Initialize();
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+
+        // [GIVEN] A shipped Transfer Order with one shipped line and one not shipped line
+        CreateAndShipTransferOrder(TransferHeader, QtyToShip, false, true);
+
+        // [WHEN] The posted Transfer Shipment Line is undone
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+
+        // [THEN] The Transfer Shipment Line with 0 quantity was not undone (So it doesn't have a correction line)
+        TransferShipmentLine.SetRange("Transfer Order No.", TransferHeader."No.");
+        TransferShipmentLine.SetRange(Quantity, 0);
+        Assert.AreEqual(1, TransferShipmentLine.Count, 'Transfer Shipment Line with quantity 0 should not have been undone');
+        TransferShipmentLine.FindFirst();
+        Assert.IsFalse(TransferShipmentLine."Correction Line", 'Transfer Shipment Line with quantity 0 should not have been undone.');
+    end;
+
     [HandlerFunctions('MessageHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestTransferOrderNotifications()
@@ -2070,7 +2499,7 @@ codeunit 137038 "SCM Transfers"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationFrom.Code, false);
 
         // [GIVEN] Lot-tracked item.
-        LibraryItemTracking.CreateLotItem(Item);
+        CreateLotTrackedItem(Item, false);
 
         // [GIVEN] Post 20 pcs of the item to inventory, assign lot no. "L1".
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationFrom.Code, '', Qty);
@@ -2788,6 +3217,62 @@ codeunit 137038 "SCM Transfers"
         VerifyPostedTransferReceipt(TransferHeader."No.", 2);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TransferOrderAddMultipleItems()
+    var
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemsFilter: Text;
+        NoOfLines: Integer;
+    begin
+        // [SCENARIO] Add multiple items using action Add Items
+        Initialize();
+
+        // [GIVEN] Transfer Order exists
+        CreateTransferOrder(TransferHeader, TransferLine);
+
+        // [GIVEN] Items exist
+        NoOfLines := GetItemsFilter(ItemsFilter);
+
+        // [WHEN] Multiple items should be added to the transfer order
+        TransferLine.AddItems(ItemsFilter);
+
+        // [THEN] All items were added
+        TransferLine.SetRange("Document No.", TransferLine."Document No.");
+        TransferLine.SetFilter("Line No.", '>%1', TransferLine."Line No.");
+        Assert.RecordCount(TransferLine, NoOfLines);
+
+        Item.SetFilter("No.", ItemsFilter);
+        Item.FindSet();
+        repeat
+            TransferLine.SetRange("Item No.", Item."No.");
+            Assert.RecordCount(TransferLine, 1);
+        until Item.Next() = 0;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ItemListModalPageHandler')]
+    procedure SelectActiveItemsForTransfer()
+    var
+        Item: Record Item;
+        ItemList: Page "Item List";
+    begin
+        // [SCENARIO] Only Inventory Items are available for add multiple items in transfers
+        Initialize();
+
+        // [GIVEN] Non-inventory and service items exist
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+        LibraryInventory.CreateServiceTypeItem(Item);
+
+        // [WHEN] Item Selection page for adding multiple items is run
+        ItemList.SelectActiveItemsForTransfer();
+
+        // [THEN] ItemListModalPageHandler is called & checks within ItemListModalPageHandler are run
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2811,6 +3296,18 @@ codeunit 137038 "SCM Transfers"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Transfers");
+    end;
+
+    local procedure CreateLotTrackedItem(var Item: Record Item; WMSSpecific: Boolean)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryItemTracking.CreateLotItem(Item);
+        if not WMSSpecific then begin
+            ItemTrackingCode.Get(Item."Item Tracking Code");
+            ItemTrackingCode.Validate("Lot Warehouse Tracking", false);
+            ItemTrackingCode.Modify(true);
+        end;
     end;
 
     local procedure PlanningCombineTransfers(var LocationCode: array[3] of Code[10]; Combine: Boolean)
@@ -3204,6 +3701,38 @@ codeunit 137038 "SCM Transfers"
         TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
         TransferOrder.TransferLines.New;
         TransferOrder.TransferLines."Item No.".SetValue(LibraryInventory.CreateItemNo);
+    end;
+
+    local procedure CreateTransferOrder(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"): Code[20]
+    var
+        Item: Record Item;
+        Location: Record Location;
+    begin
+        CreateTransferOrderNoRoute(
+                TransferHeader,
+                TransferLine,
+                LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location),
+                LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location),
+                LibraryInventory.CreateItem(Item),
+                '',
+                LibraryRandom.RandDecInRange(1, 5, 2)
+            );
+        exit(TransferHeader."No.");
+    end;
+
+    local procedure GetItemsFilter(var ItemFilter: Text): Integer
+    var
+        Item: Record Item;
+        ItemFilterTextBuilder: TextBuilder;
+        Counter: Integer;
+    begin
+        for Counter := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
+            if Counter <> 1 then
+                ItemFilterTextBuilder.Append('|');
+            ItemFilterTextBuilder.Append(LibraryInventory.CreateItem(Item));
+        end;
+        ItemFilter := ItemFilterTextBuilder.ToText();
+        exit(Counter);
     end;
 
     local procedure CreateTransferOrder(var TransferLine: Record "Transfer Line"; TransferfromCode: Code[10]; TransfertoCode: Code[10]; ItemNo: Code[20]; ReceiptDate: Date; Quantity: Decimal): Code[20]
@@ -3840,6 +4369,309 @@ codeunit 137038 "SCM Transfers"
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
+    local procedure CreateAndShipTransferOrder(var TransferHeader: Record "Transfer Header"; QtyToShip: Integer; PartlyShippedLine: Boolean; NotShippedLine: Boolean)
+    var
+        Item: Record Item;
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        TransferLine: Array[3] of Record "Transfer Line";
+    begin
+        // Create two locations with simple setup (no bins etc.)
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(FromLocation);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(ToLocation);
+
+        // Create Transfer Order
+        CreateItemWithPositiveInventory(Item, FromLocation.code, QtyToShip);
+        CreateTransferOrderNoRoute(TransferHeader, TransferLine[1], FromLocation.Code, ToLocation.Code, Item."No.", '', QtyToShip);
+
+        if PartlyShippedLine then begin
+            CreateItemWithPositiveInventory(Item, FromLocation.code, QtyToShip);
+            LibraryInventory.CreateTransferLine(TransferHeader, TransferLine[2], Item."No.", QtyToShip / 2);
+        end;
+
+        if NotShippedLine then begin
+            CreateItemWithPositiveInventory(Item, FromLocation.code, QtyToShip);
+            LibraryInventory.CreateTransferLine(TransferHeader, TransferLine[3], Item."No.", 0);
+        end;
+
+        // Ship the Transfer Order
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+    end;
+
+    local procedure CreateAndShipTransferOrderWithTracking(var TransferHeader: Record "Transfer Header"; Quanitity: Integer; LotTracking: Boolean; ShipFullQty: Boolean; AdditionalLine: Boolean)
+    var
+        TransferLine: Array[3] of Record "Transfer Line";
+        QtyToShip: Decimal;
+    begin
+        CreateTransferOrderHeader(TransferHeader);
+
+        if ShipFullQty then
+            QtyToShip := Quanitity
+        else
+            QtyToShip := Quanitity / 2;
+
+        CreateTrackedTransferOrderLineWithItem(TransferHeader, Quanitity, QtyToShip, LotTracking);
+
+        if AdditionalLine then
+            CreateTrackedTransferOrderLineWithItem(TransferHeader, Quanitity, QtyToShip, LotTracking);
+
+        // Ship the Transfer Order
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+    end;
+
+    local procedure CreateTrackedTransferOrderLineWithItem(var TransferHeader: Record "Transfer Header"; Quantity: Decimal; QtyToShip: Decimal; LotTracking: Boolean)
+    var
+        TransferLine: Record "Transfer Line";
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // Create tracked item with inventory
+        if LotTracking then begin
+            LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNo);
+            LibraryItemTracking.CreateLotItem(Item);
+        end else begin
+            LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);
+            LibraryItemTracking.CreateSerialItem(Item);
+        end;
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", TransferHeader."Transfer-from Code", '', Quantity);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        CreateTransferOrderLineAndAssignTracking(TransferHeader, TransferLine, Item."No.", Quantity, QtyToShip);
+    end;
+
+    local procedure ShipSingleTransferLine(TransferLine: Record "Transfer Line"; QtyToShip: Decimal)
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine2: record "Transfer Line";
+    begin
+        TransferLine2.SetFilter("Document No.", TransferLine."Document No.");
+        TransferLine2.SetRange("Derived From Line No.", 0);
+        TransferLine2.SetFilter("Line No.", StrSubstNo('<>%1', TransferLine."Line No."));
+        TransferLine2.ModifyAll("Qty. to Ship", 0, true);
+
+        TransferLine.Validate("Qty. to Ship", QtyToShip);
+        TransferLine.Modify();
+
+        TransferHeader.SetFilter("No.", TransferLine."Document No.");
+        TransferHeader.FindFirst();
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+    end;
+
+    local procedure CreateTransferOrderLineAndAssignTracking(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; ItemNo: Code[20]; Quantity: Decimal; QtyToShip: Decimal)
+    begin
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
+        TransferLine.Validate("Qty. to Ship", QtyToShip);
+        TransferLine.Modify();
+        LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
+    end;
+
+    local procedure VerifyTrackingNotShippedOnTransferOrder(var TransferHeader: Record "Transfer Header"; QtyToShipPerLine: Decimal)
+    var
+        TransferLine: Record "Transfer Line";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+    begin
+        // For each Transfer line
+        TransferLine.SetFilter("Document No.", TransferHeader."No.");
+        if TransferLine.FindSet() then
+            repeat
+                // Tracking page on transfer line is in unshipped state
+                VerifyTrackingOnTransferLineAfterUndo(TransferLine, TransferLine.Quantity, TransferLine.Quantity);
+            until TransferLine.Next() = 0;
+
+        // For each Transfer Shipment related to the Transfer Order
+        TransferShipmentHeader.SetFilter("Transfer Order No.", TransferHeader."No.");
+        if TransferShipmentHeader.FindSet() then
+            repeat
+                VerifyPostedTransShptTrackingCancelsOut(TransferShipmentHeader."No.");
+            until TransferShipmentHeader.Next() = 0;
+    end;
+
+    local procedure VerifyPostedTransShptTrackingCancelsOut(TransShptHeaderNo: Code[20])
+    var
+        TransShptLine: Record "Transfer Shipment Line";
+        TrackedQty: Decimal;
+    begin
+        TrackedQty := 0;
+        TransShptLine.SetFilter("Document No.", TransShptHeaderNo);
+        if TransShptLine.FindSet() then
+            repeat
+                TransShptLine.ShowItemTrackingLines();
+                TrackedQty := TrackedQty + LibraryVariableStorage.DequeueDecimal();
+            until TransShptLine.Next() = 0;
+
+        Assert.AreEqual(0, TrackedQty, 'Expected posted tracking lines qty to be 0 for undone Transfer Shipment, but i wasn''t');
+    end;
+
+    local procedure VerifyTrackingOnTransferLineAfterUndo(TransferLine: Record "Transfer Line"; TrackingQty: Decimal; TrackingQtyToHandle: Decimal)
+    var
+        TrackingOption: Option AssignLotNo,AssignSerialNo,SelectEntries,ShowEntries,VerifyEntries;
+    begin
+        // Verification done in ItemTrackingLinesModalPageHandlerGeneric. Enqueue values for ItemTrackingLinesModalPageHandlerGeneric.
+        LibraryVariableStorage.Enqueue(TrackingOption::ShowEntries);
+        LibraryVariableStorage.Enqueue(TrackingQty);
+        LibraryVariableStorage.Enqueue(TrackingQtyToHandle);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
+    end;
+
+    local procedure SumILEForItemOnLocation(ItemNo: Code[20]; LocationCode: Code[10]): Decimal
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Location Code", LocationCode);
+        ItemLedgerEntry.CalcSums(Quantity);
+        exit(ItemLedgerEntry.Quantity);
+    end;
+
+    local procedure VerifyTransferOrderCompletelyUnshipped(var TransferHeader: Record "Transfer Header"; QtyToShipPerLine: Decimal)
+    var
+        TransferLine: Record "Transfer Line";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+    begin
+        //For each Transfer Line on the order
+        TransferLine.SetRange("Document No.", TransferHeader."No.");
+        TransferLine.SetRange("Derived From Line No.", 0);
+        if TransferLine.FindSet() then
+            repeat
+                // The Transfer Line has been updated correctly to the state it was in before posting
+                VerifyTransLineUnshipped(TransferLine, QtyToShipPerLine);
+
+                // No derived transfer lines exists (Derived From original line - was added on posting)
+                VerifyNoDerivedTransferLine(TransferHeader."No.", TransferLine."Line No.");
+            until TransferLine.Next() = 0;
+
+        // Every Transfer Shipment related to the Transfer Order has been undone
+        TransferShipmentHeader.SetFilter("Transfer Order No.", TransferHeader."No.");
+        if TransferShipmentHeader.FindSet() then
+            repeat
+                VerifyTransferShipmentUndone(TransferShipmentHeader);
+            until TransferShipmentHeader.Next() = 0;
+    end;
+
+    local procedure VerifyTransferShipmentUndone(var TransferShipmentHeader: Record "Transfer Shipment Header")
+    begin
+        // A transfer shipment line has been added to cancel out the original
+        VerifyTransShptLinesCancelOut(TransferShipmentHeader."No.");
+
+        // Item ledger entries have been added to cancel out the original ones
+        VerifyItemLedgerEntriesCancelOut(TransferShipmentHeader."No.", TransferShipmentHeader."Transfer-from Code");
+        VerifyItemLedgerEntriesCancelOut(TransferShipmentHeader."No.", TransferShipmentHeader."In-Transit Code");
+    end;
+
+    local procedure ShipAndReceiveTransOrderFully(var TransferHeader: Record "Transfer Header"; WithTracking: Boolean)
+    begin
+        ShipTransOrderFully(TransferHeader, WithTracking);
+        ReceiveTransOrderFully(TransferHeader);
+    end;
+
+    local procedure ShipTransOrderFully(var TransferHeader: Record "Transfer Header"; WithTracking: Boolean)
+    var
+        TransferLine: Record "Transfer Line";
+        TrackingOption: Option AssignLotNo,AssignSerialNo,SelectEntries,ShowEntries,VerifyEntries;
+    begin
+        TransferLine.SetFilter("Document No.", TransferHeader."No.");
+        if TransferLine.FindSet() then
+            repeat
+                TransferLine.InitQtyToShip();
+                TransferLine.Modify();
+                if WithTracking then begin
+                    LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);
+                    TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
+                end;
+            until TransferLine.Next() = 0;
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+    end;
+
+    local procedure ReceiveTransOrderFully(var TransferHeader: Record "Transfer Header")
+    var
+        TransferLine: Record "Transfer Line";
+    begin
+        if TransferLine.FindSet() then
+            repeat
+                TransferLine.InitQtyToReceive();
+                TransferLine.Modify();
+            until TransferLine.Next() = 0;
+        LibraryInventory.PostTransferHeader(TransferHeader, false, true);
+    end;
+
+    local procedure VerifyNoDerivedTransferLine(TransOrderDocumentNo: Code[20]; OriginalTransLineNo: Integer)
+    var
+        DerivedTransferLine: Record "Transfer Line";
+    begin
+        DerivedTransferLine.SetFilter("Document No.", TransOrderDocumentNo);
+        DerivedTransferLine.SetRange("Derived From Line No.", OriginalTransLineNo);
+        Assert.AreEqual(0, DerivedTransferLine.Count, DerivedTransLineErr);
+    end;
+
+    local procedure FindFirstReservEntryOnDerivedLine(TransferLine: Record "Transfer Line"; var ReservationEntry: Record "Reservation Entry")
+    var
+        DerivedTransferLine: Record "Transfer Line";
+    begin
+        // Find the derived line
+        DerivedTransferLine.SetFilter("Document No.", TransferLine."Document No.");
+        DerivedTransferLine.SetRange("Derived From Line No.", TransferLine."Line No.");
+        DerivedTransferLine.FindFirst();
+
+        // Find a Reservation Entry on that line
+        ReservationEntry.SetRange("Source Type", Database::"Transfer Line");
+        ReservationEntry.SetRange("Source Subtype", "Transfer Direction"::Inbound.AsInteger());
+        ReservationEntry.SetRange("Source ID", TransferLine."Document No.");
+        ReservationEntry.SetRange("Source Prod. Order Line", TransferLine."Line No.");
+        ReservationEntry.SetRange("Source Ref. No.", DerivedTransferLine."Line No.");
+        ReservationEntry.FindFirst();
+    end;
+
+    local procedure VerifyTransLineUnshipped(TransferLine: Record "Transfer Line"; QtyToShip: Decimal)
+    begin
+        TransferLine.Get(TransferLine."Document No.", TransferLine."Line No.");
+        Assert.AreEqual(0, TransferLine."Quantity Shipped", UndoneTransLineQtyErr);
+        Assert.AreEqual(0, TransferLine."Qty. Shipped (Base)", UndoneTransLineQtyErr);
+        Assert.AreEqual(0, TransferLine."Qty. in Transit", UndoneTransLineQtyErr);
+        Assert.AreEqual(0, TransferLine."Qty. in Transit (Base)", UndoneTransLineQtyErr);
+    end;
+
+    local procedure VerifyTransShptLinesCancelOut(TransferShptNo: Code[20])
+    var
+        TransferShipmentLine: Record "Transfer Shipment Line";
+        QtySum: Decimal;
+    begin
+        QtySum := 0;
+        TransferShipmentLine.SetRange("Document No.", TransferShptNo);
+        TransferShipmentLine.SetFilter(Quantity, '<>0');
+        Assert.AreEqual(0, TransferShipmentLine.Count mod 2, 'Expected an even no. of Transfer Shipment Lines for undone Transfer Shipment');
+        TransferShipmentLine.FindFirst();
+        repeat
+            QtySum := QtySum + TransferShipmentLine."Quantity (Base)";
+            Assert.IsTrue(TransferShipmentLine."Correction Line", TransShptLineNotCorrectionErr);
+        until TransferShipmentLine.Next() = 0;
+        Assert.AreEqual(0, QtySum, TransShptIncorrectSumErr);
+    end;
+
+    local procedure VerifyItemLedgerEntriesCancelOut(TransShptNo: Code[20]; LocationCode: Code[10])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        QtySum: Decimal;
+        NoOfCorrections: Integer;
+        NoOfNonCorrections: Integer;
+        InvoicedQtySum: Decimal;
+    begin
+        ItemLedgerEntry.SetFilter("Document No.", TransShptNo);
+        ItemLedgerEntry.SetFilter("Location Code", LocationCode);
+        ItemLedgerEntry.FindFirst();
+        QtySum := 0;
+        repeat
+            QtySum := QtySum + ItemLedgerEntry."Quantity";
+            if ItemLedgerEntry.Correction then
+                NoOfCorrections := NoOfCorrections + 1
+            else
+                NoOfNonCorrections := NoOfNonCorrections + 1;
+        until ItemLedgerEntry.Next() = 0;
+        Assert.AreEqual(0, QtySum, ILEIncorrectSumErr);
+        Assert.AreEqual(NoOfCorrections, NoOfNonCorrections, ILECorrectedAndNotErr);
+    end;
+
     local procedure CreateCommentTransferLine(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; Description: Text[100])
     var
         RecRef: RecordRef;
@@ -3977,6 +4809,68 @@ codeunit 137038 "SCM Transfers"
         ItemTrackingLines.OK.Invoke();
     end;
 
+    [ModalPageHandler]
+    procedure ItemTrackingLinesModalPageHandlerGeneric(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        OptionString: Option AssignLotNo,AssignSerialNo,SelectEntries,ShowEntries,VerifyEntries;
+        TrackingOption: Option;
+        OptionValue: Variant;
+        QtyVar: Variant;
+        TrackingQtyToHandle: Decimal;
+        TrackingQty: Decimal;
+    begin
+        LibraryVariableStorage.Dequeue(OptionValue);  // Dequeue variable.
+        TrackingOption := OptionValue;  // To convert Variant into Option.
+        case TrackingOption of
+            OptionString::AssignLotNo:
+                ItemTrackingLines."Assign Lot No.".Invoke;
+            OptionString::AssignSerialNo:
+                ItemTrackingLines."Assign Serial No.".Invoke;
+            OptionString::SelectEntries:
+                ItemTrackingLines."Select Entries".Invoke;
+            OptionString::ShowEntries:
+                begin
+                    //Verify qty that has tracking
+                    LibraryVariableStorage.Dequeue(QtyVar);  // Dequeue variable.
+                    TrackingQtyToHandle := QtyVar;  // To convert Variant into Integer.
+                    Assert.AreEqual(TrackingQtyToHandle, ItemTrackingLines.Handle1.AsDecimal(), 'Wrong quantity to handle on Item Tracking Lines page');
+
+                    //Verify qty that should have tracking
+                    LibraryVariableStorage.Dequeue(QtyVar);
+                    TrackingQty := QtyVar;
+                    Assert.AreEqual(TrackingQty, ItemTrackingLines.Quantity_ItemTracking.AsDecimal(), 'Wrong quantity using tracking on Item Tracking Lines page');
+                end;
+        end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedItemTrackingLinesHandler(var PostedItemTrackingLines: TestPage "Posted Item Tracking Lines")
+    var
+        QtySum: Decimal;
+    begin
+        QtySum := 0;
+        repeat
+            QtySum := QtySum + PostedItemTrackingLines.Quantity.AsDecimal();
+        until not PostedItemTrackingLines.Next();
+        LibraryVariableStorage.Enqueue(QtySum);
+    end;
+
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityToCreate.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.OK.Invoke;
+    end;
+
     [RecallNotificationHandler]
     [Scope('OnPrem')]
     procedure RecallNotificationHandler(var Notification: Notification): Boolean
@@ -4025,6 +4919,16 @@ codeunit 137038 "SCM Transfers"
     procedure StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
         Choice := 1; // Ship
+    end;
+
+    [ModalPageHandler]
+    procedure ItemListModalPageHandler(var ItemList: TestPage "Item List")
+    var
+        Item: Record Item;
+        Counter: Integer;
+    begin
+        // 0 = Item.Type::Inventory
+        Assert.AreEqual('0', ItemList.Filter.GetFilter("Type"), 'Item List contains non-inventory items.');
     end;
 }
 

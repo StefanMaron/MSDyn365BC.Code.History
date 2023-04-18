@@ -21,7 +21,7 @@ page 1809 "Data Migrators"
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the record.';

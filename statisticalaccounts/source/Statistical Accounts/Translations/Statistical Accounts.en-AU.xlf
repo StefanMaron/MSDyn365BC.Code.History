@@ -1,0 +1,1745 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-AU" original="Statistical Accounts">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 1392926021 - NamedType 3936419527" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical account %1 is blocked. Journal line %2.</source>
+          <target state="translated">Statistical account %1 is blocked. Journal line %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 number of statistical account. %2 number of journal line</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Jnl Check Line - NamedType StatisticalAccountIsBlockedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2485622022 - NamedType 3291926596" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There is no statistical account named %1.</source>
+          <target state="translated">There is no statistical account named %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 name of the statistical account.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Fin Reporting Mgt - NamedType StatisticalAccountDoesNotExistMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 1031476272" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>PERIODS</source>
+          <target state="translated">PERIODS</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType PeriodsLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 1157549009" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DEPARTMENT</source>
+          <target state="translated">DEPARTMENT</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType OfficeDimensionCodeLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 1195497851" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Hired for %1.</source>
+          <target state="translated">Hired for %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 the value of the dimension, e.g. PROD, ADM...</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType EmployeesHiredLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 1421536496" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The setup was completed successfully.</source>
+          <target state="translated">The setup was completed successfully.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType DemoDataSetupCompleteMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 1684268115" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Office/prod space in m2</source>
+          <target state="translated">Office/prod space in m2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType OfficeSpaceNameLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 2120969243" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of Employees</source>
+          <target state="translated">Number of Employees</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType NumberOfEmployeesLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 2307979595" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There is no demonstrational data available. Would you like to create the demonstrational data?</source>
+          <target state="translated">There is no demonstrational data available. Would you like to create the demonstrational data?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType ShowSetupNotificationTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 2587722034" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To delete the data you must be in a company that has Demo Company set in the Company Information table.</source>
+          <target state="translated">To delete the data you must be in a company that has Demo Company set in the Company Information table.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType CompanyMustBeDemoCompanyErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 2590886134" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>REV_EMPL</source>
+          <target state="translated">REV_EMPL</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType RevenuePerEmployeeNameLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 2648855758" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Headcount reduction for %1.</source>
+          <target state="translated">Headcount reduction for %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 the value of the dimension, e.g. PROD, ADM...</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType EmployeesReductionLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 3287583520" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create demonstrational data.</source>
+          <target state="translated">Create demonstrational data.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType SetupDemoDataTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 333660954" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>OFFICESPACE</source>
+          <target state="translated">OFFICESPACE</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType OfficeSpaceLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 3498676828" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Closed of %1, added to %2.</source>
+          <target state="translated">Closed of %1, added to %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 and %2 the value of the dimension, e.g. PROD, ADM...</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType OfficesClosedAddedToLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 3791247424" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of Employees</source>
+          <target state="translated">Number of Employees</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType EmployeesNameLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 3915264212" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Expansion of %1.</source>
+          <target state="translated">Expansion of %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 the value of the dimension, e.g. PROD, ADM...</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType OfficesExpansionLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 3972835936" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Main building offices - %1.</source>
+          <target state="translated">Main building offices - %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 the value of the dimension, e.g. PROD, ADM...</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType OfficesMainBuildingLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 416802569" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>REVENUE</source>
+          <target state="translated">REVENUE</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType RevenueNameLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 67452029" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>EMPLOYEES</source>
+          <target state="translated">EMPLOYEES</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType EmployeesLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 743861890" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Initial headcount of %1.</source>
+          <target state="translated">Initial headcount of %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 the value of the dimension, e.g. PROD, ADM...</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType EmployeesInitialCountLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 841449599" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This action will delete all setup data. Do you want to continue?</source>
+          <target state="translated">This action will delete all setup data. Do you want to continue?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType CleanupDemoDataQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3354410436 - NamedType 876503741" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Revenue per Employee</source>
+          <target state="translated">Revenue per Employee</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Demo Data - NamedType RevenuePerEmployeeDescriptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3479884081 - NamedType 186911711" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Register type is not supported for statistical accounts</source>
+          <target state="translated">Register type is not supported for statistical accounts</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Reverse Entry - NamedType RegisterTypeIsNotSupportedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3479884081 - NamedType 4073389107" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The transaction cannot be reversed because %1 has been deleted.</source>
+          <target state="translated">The transaction cannot be reversed because %1 has been deleted.</target>
+          <note from="Developer" annotates="general" priority="2">%1 table caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Reverse Entry - NamedType CannotReverseDeletedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3825015776 - NamedType 2251879158" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Changing the setup values will delete the existing entries.\\You will have to update again.\\Do you want to continue?</source>
+          <target state="translated">Changing the setup values will delete the existing entries.\\You will have to update again.\\Do you want to continue?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Analysis View Mgt. - NamedType UpdateOfAnalysisViewNeededQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 839727883 - NamedType 2310760446" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The journal lines were successfully registered.</source>
+          <target state="translated">The journal lines were successfully registered.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Post. Batch - NamedType JournalLinesWereSuccesfullyRegisteredMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 839727883 - NamedType 2867144877" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There is nothing to register.</source>
+          <target state="translated">There is nothing to register.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Post. Batch - NamedType NotingToPostErr</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 227151148 - EnumValue 3703212798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account</source>
+          <target state="translated">Statistical Account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 1037990914</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 397478488 - EnumValue 3703212798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account</source>
+          <target state="translated">Statistical Account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 644018579</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 4011872828 - EnumValue 3703212798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account</source>
+          <target state="translated">Statistical Account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 2626761488</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 965766073 - EnumValue 3703212798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account</source>
+          <target state="translated">Statistical Account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 4087461738</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Action 1008043521 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the statistical ledger entries for the selected account.</source>
+          <target state="translated">View the statistical ledger entries for the selected account.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Action LedgerEntries - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Action 1008043521 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ledger Entries</source>
+          <target state="translated">Ledger Entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Action LedgerEntries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Action 1892509601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A&amp;ccount</source>
+          <target state="translated">A&amp;ccount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Action A&amp;ccount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Action 2173385693 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.</source>
+          <target state="translated">View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyse transaction history.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Action Dimensions - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Action 2173385693 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimensions</source>
+          <target state="translated">Dimensions</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Action Dimensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Action 2694828564 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the statistical accounts journal, for example, to record or post an update to non-transactional data.</source>
+          <target state="translated">Open the statistical accounts journal, for example, to record or post an update to non-transactional data.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Action Statistical Accounts Journal - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Action 2694828564 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Accounts Journal</source>
+          <target state="translated">Statistical Accounts Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Action Statistical Accounts Journal - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Action 2925889640 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View a summary of the balances for different time periods for the account.</source>
+          <target state="translated">View a summary of the balances for different time periods for the account.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Action StatisticalAccountBalance - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Action 2925889640 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical &amp;Account Balance</source>
+          <target state="translated">Statistical &amp;Account Balance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Action StatisticalAccountBalance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <target state="translated">Process</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 1.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Action 98347600 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Periodic Activities</source>
+          <target state="translated">Periodic Activities</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Action Periodic Activities - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Action 1008043521 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the statistical ledger entries for selected account.</source>
+          <target state="translated">View the statistical ledger entries for selected account.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Action LedgerEntries - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Action 1008043521 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ledger Entries</source>
+          <target state="translated">Ledger Entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Action LedgerEntries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Action 1892509601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A&amp;ccount</source>
+          <target state="translated">A&amp;ccount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Action A&amp;ccount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Action 2173385693 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.</source>
+          <target state="translated">View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyse transaction history.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Action Dimensions - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Action 2173385693 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimensions</source>
+          <target state="translated">Dimensions</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Action Dimensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Action 2694828564 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the statistical accounts journal, for example, to record or post an update to non-transactional data.</source>
+          <target state="translated">Open the statistical accounts journal, for example, to record or post an update to non-transactional data.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Action Statistical Accounts Journal - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Action 2694828564 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Accounts Journal</source>
+          <target state="translated">Statistical Accounts Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Action Statistical Accounts Journal - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <target state="translated">Process</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 1.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Action 98347600 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Periodic Activities</source>
+          <target state="translated">Periodic Activities</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Action Periodic Activities - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Action 1892509601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A&amp;ccount</source>
+          <target state="translated">A&amp;ccount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Action A&amp;ccount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Action 2173385693 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.</source>
+          <target state="translated">View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyse transaction history.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Action Dimensions - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Action 2173385693 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimensions</source>
+          <target state="translated">Dimensions</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Action Dimensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Action 2694828564 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the statistical accounts journal, for example, to record or post an update to non-transactional data.</source>
+          <target state="translated">Open the statistical accounts journal, for example, to record or post an update to non-transactional data.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Action Statistical Accounts Journal - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Action 2694828564 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Accounts Journal</source>
+          <target state="translated">Statistical Accounts Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Action Statistical Accounts Journal - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Action 3106002577 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>F&amp;unctions</source>
+          <target state="translated">F&amp;unctions</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Action F&amp;unctions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <target state="translated">Process</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 1.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Action 3507967928 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reverse a posted statistical ledger entry.</source>
+          <target state="translated">Reverse a posted statistical ledger entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Action ReverseTransaction - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Action 3507967928 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reverse Transaction</source>
+          <target state="translated">Reverse Transaction</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Action ReverseTransaction - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Action 98347600 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Periodic Activities</source>
+          <target state="translated">Periodic Activities</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Action Periodic Activities - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Action 1008043521 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the statistical ledger entries for the selected account.</source>
+          <target state="translated">View the statistical ledger entries for the selected account.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Action LedgerEntries - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Action 1008043521 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ledger Entries</source>
+          <target state="translated">Ledger Entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Action LedgerEntries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Action 1402615620 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>&amp;Line</source>
+          <target state="translated">&amp;Line</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Action &amp;Line - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Action 2173385693 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.</source>
+          <target state="translated">View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyse transaction history.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Action Dimensions - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Action 2173385693 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimensions</source>
+          <target state="translated">Dimensions</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Action Dimensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Action 2675496269 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <target state="translated">Process</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Action Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <target state="translated">Process</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 1.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Action 4149417275 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finalize the document or journal by registering the amounts and quantities to the related accounts in your company books.</source>
+          <target state="translated">Finalise the document or journal by registering the amounts and quantities to the related accounts in your company books.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Action Register - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Action 4149417275 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Register</source>
+          <target state="translated">Register</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Action Register - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2740809939 - Action 210935239 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Modify an existing statistical account journal.</source>
+          <target state="translated">Modify an existing statistical account journal.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Acc. Journal Batch - Action EditJournal - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2740809939 - Action 210935239 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Edit Journal</source>
+          <target state="translated">Edit Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Acc. Journal Batch - Action EditJournal - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2740809939 - Action 2675496269 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <target state="translated">Process</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Acc. Journal Batch - Action Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2740809939 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <target state="translated">Process</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 1.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Acc. Journal Batch - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 1008043521 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the statistical ledger entries for the selected account.</source>
+          <target state="translated">View the statistical ledger entries for the selected account.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action LedgerEntries - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 1008043521 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ledger Entries</source>
+          <target state="translated">Ledger Entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action LedgerEntries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 1892509601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A&amp;ccount</source>
+          <target state="translated">A&amp;ccount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action A&amp;ccount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 2173385693 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.</source>
+          <target state="translated">View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyse transaction history.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action Dimensions - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 2173385693 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimensions</source>
+          <target state="translated">Dimensions</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action Dimensions - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 2641415901 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Runs the action to cleanup the demonstrational data. It can only be used in a non-productional company.</source>
+          <target state="translated">Runs the action to cleanup the demonstrational data. It can only be used in a non-productional company.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action CleanupDemoData - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 2641415901 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cleanup demonstrational Data</source>
+          <target state="translated">Cleanup demonstrational Data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action CleanupDemoData - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 2694828564 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the statistical accounts journal, for example, to record or post an update to non-transactional data.</source>
+          <target state="translated">Open the statistical accounts journal, for example, to record or post an update to non-transactional data.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action Statistical Accounts Journal - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 2694828564 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Accounts Journal</source>
+          <target state="translated">Statistical Accounts Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action Statistical Accounts Journal - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 2925889640 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View a summary of the balances for different time periods for the account.</source>
+          <target state="translated">View a summary of the balances for different time periods for the account.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action StatisticalAccountBalance - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 2925889640 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical &amp;Account Balance</source>
+          <target state="translated">Statistical &amp;Account Balance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action StatisticalAccountBalance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <target state="translated">Process</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 1.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 3686380064 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Runs the action to setup the demonstrational data. It can only be used in a non-productional company.</source>
+          <target state="translated">Runs the action to setup the demonstrational data. It can only be used in a non-productional company.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action SetupDemoData - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 3686380064 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Setup demonstrational data</source>
+          <target state="translated">Setup demonstrational data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action SetupDemoData - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 4012215381 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Demo data</source>
+          <target state="translated">Demo data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action DemoData - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Action 98347600 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Periodic Activities</source>
+          <target state="translated">Periodic Activities</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Action Periodic Activities - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Action 1583656231 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the postings you have made in the statistical account ledger.</source>
+          <target state="translated">View the postings you have made in the statistical account ledger.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Action StatisticalAccountLedgerEntries - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Action 1583656231 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Ledger</source>
+          <target state="translated">Statistical Account Ledger</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Action StatisticalAccountLedgerEntries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Action 2256583518 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ent&amp;ry</source>
+          <target state="translated">Ent&amp;ry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Action Ent&amp;ry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Action 2281426861 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Re&amp;versing</source>
+          <target state="translated">Re&amp;versing</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Action Re&amp;versing - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <target state="translated">Process</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 1.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Action 505149012 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reverse selected entries.</source>
+          <target state="translated">Reverse selected entries.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Action Reverse - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Action 505149012 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reverse</source>
+          <target state="translated">Reverse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Action Reverse - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Control 2445482498 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>General</source>
+          <target state="translated">General</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Control General - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Control 25700210 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the balance</source>
+          <target state="translated">Specifies the balance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Control Balance - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Control 25700210 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balance</source>
+          <target state="translated">Balance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Control Balance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the statistical account name.</source>
+          <target state="translated">Specifies the statistical account name.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Control Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Control 3543129988 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies that the statistical account cannot be used.</source>
+          <target state="translated">Specifies that the statistical account cannot be used.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Control Blocked - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Control 3543129988 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Blocked</source>
+          <target state="translated">Blocked</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Control Blocked - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the statistical account number.</source>
+          <target state="translated">Specifies the statistical account number.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Control No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Control 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No.</source>
+          <target state="translated">No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Control No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Control 1611443185 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the balance shown will include closing entries. If you want to see the amounts on income statement accounts in closed years, you must exclude closing entries.</source>
+          <target state="translated">Specifies whether the balance shown will include closing entries. If you want to see the amounts on income statement accounts in closed years, you must exclude closing entries.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Control ClosingEntryFilter - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Control 1611443185 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Closing Entries</source>
+          <target state="translated">Closing Entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Control ClosingEntryFilter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Control 1611443185 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include,Exclude</source>
+          <target state="translated">Include,Exclude</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Control ClosingEntryFilter - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Control 2346885236 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Options</source>
+          <target state="translated">Options</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Control Options - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Control 2495610112 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.</source>
+          <target state="translated">Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Control AmountType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Control 2495610112 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View as</source>
+          <target state="translated">View as</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Control AmountType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Control 43593927 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies by which period amounts are displayed.</source>
+          <target state="translated">Specifies by which period amounts are displayed.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Control PeriodType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Control 43593927 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View by</source>
+          <target state="translated">View by</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Control PeriodType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 1027046424 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the correcting entry. If this field shows a number the entry has already been reversed, and it cannot be reversed again.</source>
+          <target state="translated">Specifies the number of the correcting entry. If this field shows a number the entry has already been reversed, and it cannot be reversed again.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Reversed by Entry No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 1303377601 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for Global Dimension 1, which is one of dimension codes that you set up in the General Ledger Setup window.</source>
+          <target state="translated">Specifies the code for Global Dimension 1, which is one of dimension codes that you set up in the General Ledger Setup window.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Global Dimension 1 Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 1337243520 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for Global Dimension 2, which is one of dimension codes that you set up in the General Ledger Setup window.</source>
+          <target state="translated">Specifies the code for Global Dimension 2, which is one of dimension codes that you set up in the General Ledger Setup window.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Global Dimension 2 Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 230351473 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the original entry that was undone by the reverse transaction.</source>
+          <target state="translated">Specifies the number of the original entry that was undone by the reverse transaction.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Reversed Entry No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 2708250016 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ID of the user who posted the entry. The ID is used, for example, in the change log.</source>
+          <target state="translated">Specifies the ID of the user who posted the entry. The ID is used, for example, in the change log.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control User ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 2711388939 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.</source>
+          <target state="translated">Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Shortcut Dimension 4 Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 2765633070 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.</source>
+          <target state="translated">Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Shortcut Dimension 7 Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 3037438984 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the posting date of the ledger entry.</source>
+          <target state="translated">Specifies the posting date of the ledger entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control PostingDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 3037438984 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posting date</source>
+          <target state="translated">Posting date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control PostingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 3322554545 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.</source>
+          <target state="translated">Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Dimension Set ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the description of the ledger entry.</source>
+          <target state="translated">Specifies the description of the ledger entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 3744289816 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the entry has been part of a reverse transaction (correction) made by the Reverse action.</source>
+          <target state="translated">Specifies whether the entry has been part of a reverse transaction (correction) made by the Reverse action.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Reversed - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 405681708 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.</source>
+          <target state="translated">Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Shortcut Dimension 5 Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 4126842061 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.</source>
+          <target state="translated">Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Shortcut Dimension 6 Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the statistical account number of the ledger entry.</source>
+          <target state="translated">Specifies the statistical account number of the ledger entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account No.</source>
+          <target state="translated">Statistical Account No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the amount of the ledger entry.</source>
+          <target state="translated">Specifies the amount of the ledger entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 781257514 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.</source>
+          <target state="translated">Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Shortcut Dimension 3 Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 785667711 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for Shortcut Dimension 8, which is one of dimension codes that you set up in the General Ledger Setup window.</source>
+          <target state="translated">Specifies the code for Shortcut Dimension 8, which is one of dimension codes that you set up in the General Ledger Setup window.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Shortcut Dimension 8 Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 883711285 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the entry number of the ledger entry.</source>
+          <target state="translated">Specifies the entry number of the ledger entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Entry No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Control 883711285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <target state="translated">Entry No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Control Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 1003760969 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup page.</source>
+          <target state="translated">Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup page.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control Shortcut Dimension 2 Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 1359677335 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the dimension value code linked to the journal line.</source>
+          <target state="translated">Specifies the dimension value code linked to the journal line.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control ShortcutDimCode8 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 1577567912 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup page.</source>
+          <target state="translated">Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup page.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control Shortcut Dimension 1 Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 1975045594 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the account.</source>
+          <target state="translated">Specifies the name of the account.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control AccName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 1993866289 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of Lines</source>
+          <target state="translated">Number of Lines</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control Number of Lines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 2193149077 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the account number that the entry on the journal line will be posted to.</source>
+          <target state="translated">Specifies the account number that the entry on the journal line will be posted to.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control StatisticalAccountNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 2193149077 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account No.</source>
+          <target state="translated">Statistical Account No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control StatisticalAccountNo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 2430362275 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balance</source>
+          <target state="translated">Balance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control BalanceGroup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 2466161546 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the dimension value code linked to the journal line.</source>
+          <target state="translated">Specifies the dimension value code linked to the journal line.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control ShortcutDimCode3 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 25700210 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the balance that has accumulated in the journal on the selected line.</source>
+          <target state="translated">Specifies the balance that has accumulated in the journal on the selected line.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control Balance - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 25700210 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balance</source>
+          <target state="translated">Balance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control Balance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 2588032914 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Name</source>
+          <target state="translated">Account Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control Account Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 3103858163 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the dimension value code linked to the journal line.</source>
+          <target state="translated">Specifies the dimension value code linked to the journal line.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control ShortcutDimCode4 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a description of the entry.</source>
+          <target state="translated">Specifies a description of the entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 3710982960 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date of the transaction in the statistical ledger, and thereby the fiscal year and period.</source>
+          <target state="translated">Specifies the date of the transaction in the statistical ledger, and thereby the fiscal year and period.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control Posting Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 3710982960 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posting date</source>
+          <target state="translated">Posting date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control Posting Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 3741554780 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the dimension value code linked to the journal line.</source>
+          <target state="translated">Specifies the dimension value code linked to the journal line.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control ShortcutDimCode5 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 3831965527 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balance after posting</source>
+          <target state="translated">Balance after posting</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control BalanceAfterPostingGroup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 402089063 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of lines in the current journal batch.</source>
+          <target state="translated">Specifies the number of lines in the current journal batch.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control NumberOfJournalRecords - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 486908828 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the related document.</source>
+          <target state="translated">Specifies the number of the related document.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control Document No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 486908828 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document No.</source>
+          <target state="translated">Document No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control Document No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the amount of the entry.</source>
+          <target state="translated">Specifies the amount of the entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 721980718 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the dimension value code linked to the journal line.</source>
+          <target state="translated">Specifies the dimension value code linked to the journal line.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control ShortcutDimCode7 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 84284101 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the dimension value code linked to the journal line.</source>
+          <target state="translated">Specifies the dimension value code linked to the journal line.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control ShortcutDimCode6 - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 874212758 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the journal batch.</source>
+          <target state="translated">Specifies the name of the journal batch.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control CurrentJnlBatchName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 874212758 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Batch Name</source>
+          <target state="translated">Batch Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control CurrentJnlBatchName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 9410270 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the balance that has accumulated in the journal selected on the line.</source>
+          <target state="translated">Specifies the balance that has accumulated in the journal selected on the line.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control BalanceAfterPosting - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Control 9410270 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BalanceAfterPosting</source>
+          <target state="translated">BalanceAfterPosting</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Control BalanceAfterPosting - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2740809939 - Control 2193149077 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the account number that the entry on the journal line will be posted to.</source>
+          <target state="translated">Specifies the account number that the entry on the journal line will be posted to.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Acc. Journal Batch - Control StatisticalAccountNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2740809939 - Control 2193149077 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account No.</source>
+          <target state="translated">Statistical Account No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Acc. Journal Batch - Control StatisticalAccountNo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2740809939 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the journal.</source>
+          <target state="translated">Specifies the name of the journal.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Acc. Journal Batch - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2740809939 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a brief description of the journal batch you are creating.</source>
+          <target state="translated">Specifies a brief description of the journal batch you are creating.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Acc. Journal Batch - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2740809939 - Control 422618514 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the account name that the entry on the journal line will be posted to.</source>
+          <target state="translated">Specifies the account name that the entry on the journal line will be posted to.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Acc. Journal Batch - Control AccountName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2740809939 - Control 422618514 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Name</source>
+          <target state="translated">Statistical Account Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Acc. Journal Batch - Control AccountName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Control 25700210 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the balance of the entries in the statistical account.</source>
+          <target state="translated">Specifies the balance of the entries in the statistical account.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Control Balance - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Control 25700210 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balance</source>
+          <target state="translated">Balance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Control Balance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the statistical account name.</source>
+          <target state="translated">Specifies the statistical account name.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Control Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Control 3543129988 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the statistical account can be used.</source>
+          <target state="translated">Specifies whether the statistical account can be used.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Control Blocked - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Control 3543129988 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Blocked</source>
+          <target state="translated">Blocked</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Control Blocked - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the statistical account number.</source>
+          <target state="translated">Specifies the statistical account number.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Control No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Control 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No.</source>
+          <target state="translated">No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Control No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3774659090 - Control 3394896907 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies changes in the actual general ledger amount.</source>
+          <target state="translated">Specifies changes in the actual general ledger amount.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance Lines - Control NetChange - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3774659090 - Control 3394896907 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Net Change</source>
+          <target state="translated">Net Change</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance Lines - Control NetChange - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3774659090 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the amount for the period on the line.</source>
+          <target state="translated">Specifies the amount for the period on the line.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance Lines - Control Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3774659090 - Control 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance Lines - Control Amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3774659090 - Control 827478726 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the period shown in the line.</source>
+          <target state="translated">Specifies the name of the period shown in the line.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance Lines - Control Period Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3774659090 - Control 827478726 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Period Name</source>
+          <target state="translated">Period Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance Lines - Control Period Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3774659090 - Control 864109087 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the start date of the period defined on the line for the statistical account balance.</source>
+          <target state="translated">Specifies the start date of the period defined on the line for the statistical account balance.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance Lines - Control Period Start - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3774659090 - Control 864109087 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Period Start</source>
+          <target state="translated">Period Start</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance Lines - Control Period Start - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Control 1622979514 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the account number that the reversal was posted to.</source>
+          <target state="translated">Specifies the account number that the reversal was posted to.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Control Account No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Control 2588032914 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies erroneous postings that you want to undo by using the Reverse function.</source>
+          <target state="translated">Specifies erroneous postings that you want to undo by using the Reverse function.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Control Account Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Control 2704330142 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the journal batch, a personalized journal layout, that the entries were posted from.</source>
+          <target state="translated">Specifies the name of the journal batch, a personalised journal layout, that the entries were posted from.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Control Journal Batch Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Control 3319631365 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the transaction that was reversed.</source>
+          <target state="translated">Specifies the number of the transaction that was reversed.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Control Transaction No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a description of the record.</source>
+          <target state="translated">Specifies a description of the record.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Control 3710982960 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the posting date for the entry.</source>
+          <target state="translated">Specifies the posting date for the entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Control Posting Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Control 486908828 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the document number of the transaction that created the entry.</source>
+          <target state="translated">Specifies the document number of the transaction that created the entry.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Control Document No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the amount on the entry to be reversed.</source>
+          <target state="translated">Specifies the amount on the entry to be reversed.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Control Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Control 883711285 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the entry, as assigned from the specified number series when the entry was created.</source>
+          <target state="translated">Specifies the number of the entry, as assigned from the specified number series when the entry was created.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Control Entry No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - NamedType 1294969821" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to register the journal lines?</source>
+          <target state="translated">Do you want to register the journal lines?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - NamedType RegisterBatchQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - NamedType 1413683262" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The batch name does not exist</source>
+          <target state="translated">The batch name does not exist</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - NamedType BatchDoesNotExistErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - NamedType 2660029518" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The entries were successfully reversed.</source>
+          <target state="translated">The entries were successfully reversed.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - NamedType ReversalSuccesfullMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - NamedType 3687286704" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reverse Transaction Entries</source>
+          <target state="translated">Reverse Transaction Entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - NamedType ReverseTransactionEntriesLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - NamedType 3860967315" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reverse Register Entries</source>
+          <target state="translated">Reverse Register Entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - NamedType ReverseRegisterEntriesLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 1103004858 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical account</source>
+          <target state="translated">Statistical account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account Card - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1291030389 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Balance</source>
+          <target state="translated">Statistical Account Balance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Ledger Entries</source>
+          <target state="translated">Statistical Account Ledger Entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1472770300 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical account ledger entries, Unit account ledger entries, Non-posting account ledger entries</source>
+          <target state="translated">Statistical account ledger entries, Unit account ledger entries, Non-posting account ledger entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Property AdditionalSearchTerms</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Journal</source>
+          <target state="translated">Statistical Account Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2694828564 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>statistical accounts journals,unit account journals,statistical account posting</source>
+          <target state="translated">statistical accounts journals,unit account journals,statistical account posting</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Property AdditionalSearchTerms</note>
+        </trans-unit>
+        <trans-unit id="Page 2740809939 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Journal Batch</source>
+          <target state="translated">Statistical Account Journal Batch</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Acc. Journal Batch - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Accounts</source>
+          <target state="translated">Statistical Accounts</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3735526716 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical accounts, Unit accounts, Non-posting accounts</source>
+          <target state="translated">Statistical accounts, Unit accounts, Non-posting accounts</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Account List - Property AdditionalSearchTerms</note>
+        </trans-unit>
+        <trans-unit id="Page 3774659090 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Lines</source>
+          <target state="translated">Lines</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Account Balance Lines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3787656683 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reverse Entries</source>
+          <target state="translated">Reverse Entries</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Stat. Acc. Reverse Entries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1938842319 - Action 1520112955 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Define statistical accounts for tracking non-transactional data.</source>
+          <target state="translated">Define statistical accounts for tracking non-transactional data.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2458191494</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1938842319 - Action 1520112955 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical account</source>
+          <target state="translated">Statistical account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2458191494</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 15885222 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Accounts - Objects</source>
+          <target state="translated">Statistical Accounts - Objects</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Statistical Accounts - Objects - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 560783484 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Accounts - View</source>
+          <target state="translated">Statistical Accounts - View</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Statistical Accounts - Edit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PermissionSet 737395194 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Accounts - Read</source>
+          <target state="translated">Statistical Accounts - Read</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Statistical Accounts - Read - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2740809939 - Field 1601644559 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account No.</source>
+          <target state="translated">Statistical Account No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Batch - Field Statistical Account No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2740809939 - Field 1634768719 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Name</source>
+          <target state="translated">Statistical Account Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Batch - Field Statistical Account Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2740809939 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Batch - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2740809939 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Batch - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2740809939 - Field 3684440170 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Journal Template Name</source>
+          <target state="translated">Journal Template Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Batch - Field Journal Template Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 1003760969 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shortcut Dimension 2 Code</source>
+          <target state="translated">Shortcut Dimension 2 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Shortcut Dimension 2 Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 1577567912 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shortcut Dimension 1 Code</source>
+          <target state="translated">Shortcut Dimension 1 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Shortcut Dimension 1 Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 1601644559 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account No.</source>
+          <target state="translated">Statistical Account No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Statistical Account No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 1634768719 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Name</source>
+          <target state="translated">Statistical Account Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Statistical Account Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 2366654718 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Allocated Amt. (LCY)</source>
+          <target state="translated">Allocated Amt. (LCY)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Amount Change - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 2704330142 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Journal batch name</source>
+          <target state="translated">Journal batch name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Journal Batch Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 3320823955 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line No.</source>
+          <target state="translated">Line No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Line No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 3322554545 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set ID</source>
+          <target state="translated">Dimension Set ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Dimension Set ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 3684440170 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Journal Template Name</source>
+          <target state="translated">Journal Template Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Journal Template Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 3710982960 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posting Date</source>
+          <target state="translated">Posting Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Posting Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 486908828 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document No.</source>
+          <target state="translated">Document No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Document No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Field 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Field Amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3691299527 - Field 2304016699 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Net Change</source>
+          <target state="translated">Net Change</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Stat. Acc. Balance Buffer - Field Net Change - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3691299527 - Field 459019446 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Period End</source>
+          <target state="translated">Period End</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Stat. Acc. Balance Buffer - Field Period End - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3691299527 - Field 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Stat. Acc. Balance Buffer - Field Amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3691299527 - Field 827478726 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Period Name</source>
+          <target state="translated">Period Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Stat. Acc. Balance Buffer - Field Period Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3691299527 - Field 864109087 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Period Start</source>
+          <target state="translated">Period Start</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Stat. Acc. Balance Buffer - Field Period Start - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3691299527 - Field 95864743 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Period Type</source>
+          <target state="translated">Period Type</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Stat. Acc. Balance Buffer - Field Period Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3691299527 - Field 95864743 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Day,Week,Month,Quarter,Year,Period</source>
+          <target state="translated">Day,Week,Month,Quarter,Year,Period</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Stat. Acc. Balance Buffer - Field Period Type - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Field 1303377601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Global Dimension 1 Code</source>
+          <target state="translated">Global Dimension 1 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Field Global Dimension 1 Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Field 1337243520 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Global Dimension 2 Code</source>
+          <target state="translated">Global Dimension 2 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Field Global Dimension 2 Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Field 1861213814 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Global Dimension 1 Filter</source>
+          <target state="translated">Global Dimension 1 Filter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Field Global Dimension 1 Filter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Field 2304016699 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Net Change</source>
+          <target state="translated">Net Change</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Field Net Change - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Field 2310296825 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set ID Filter</source>
+          <target state="translated">Dimension Set ID Filter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Field Dimension Set ID Filter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Field 25700210 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balance</source>
+          <target state="translated">Balance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Field Balance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Field 3543129988 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Blocked</source>
+          <target state="translated">Blocked</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Field Blocked - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Field 3730000841 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balance at Date</source>
+          <target state="translated">Balance at Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Field Balance at Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Field 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No.</source>
+          <target state="translated">No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Field No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Field 588326355 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Global Dimension 2 Filter</source>
+          <target state="translated">Global Dimension 2 Filter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Field Global Dimension 2 Filter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Field 995090288 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date Filter</source>
+          <target state="translated">Date Filter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Field Date Filter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 1027046424 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reversed by Entry No.</source>
+          <target state="translated">Reversed by Entry No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Reversed by Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 1303377601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Global Dimension 1 Code</source>
+          <target state="translated">Global Dimension 1 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Global Dimension 1 Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 1337243520 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Global Dimension 2 Code</source>
+          <target state="translated">Global Dimension 2 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Global Dimension 2 Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 1601644559 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account No.</source>
+          <target state="translated">Statistical Account No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Statistical Account No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 230351473 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reversed Entry No.</source>
+          <target state="translated">Reversed Entry No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Reversed Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 2704330142 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Journal Batch Name</source>
+          <target state="translated">Journal Batch Name</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Journal Batch Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 2708250016 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>User ID</source>
+          <target state="translated">User ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field User ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 2711388939 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shortcut Dimension 4 Code</source>
+          <target state="translated">Shortcut Dimension 4 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Shortcut Dimension 4 Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 2765633070 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shortcut Dimension 7 Code</source>
+          <target state="translated">Shortcut Dimension 7 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Shortcut Dimension 7 Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 3319631365 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Transaction No.</source>
+          <target state="translated">Transaction No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Transaction No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 3322554545 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension Set ID</source>
+          <target state="translated">Dimension Set ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Dimension Set ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Description</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 3710982960 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Posting Date</source>
+          <target state="translated">Posting Date</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Posting Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 3744289816 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reversed</source>
+          <target state="translated">Reversed</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Reversed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 405681708 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shortcut Dimension 5 Code</source>
+          <target state="translated">Shortcut Dimension 5 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Shortcut Dimension 5 Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 4126842061 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shortcut Dimension 6 Code</source>
+          <target state="translated">Shortcut Dimension 6 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Shortcut Dimension 6 Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 486908828 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Document No.</source>
+          <target state="translated">Document No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Document No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 636392376 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Amount</source>
+          <target state="translated">Amount</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 781257514 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shortcut Dimension 3 Code</source>
+          <target state="translated">Shortcut Dimension 3 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Shortcut Dimension 3 Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 785667711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shortcut Dimension 8 Code</source>
+          <target state="translated">Shortcut Dimension 8 Code</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Shortcut Dimension 8 Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Field 883711285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry No.</source>
+          <target state="translated">Entry No.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Field Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2740809939 - NamedType 1067105188" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DEFAULT</source>
+          <target state="translated">DEFAULT</target>
+          <note from="Developer" annotates="general" priority="2">Maximum length of this string is 10 characters.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Batch - NamedType DefaultBatchNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Table 2740809939 - NamedType 1470022715" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Default Batch</source>
+          <target state="translated">Default Batch</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Batch - NamedType DefaultBatchDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - NamedType 3936419527" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical account %1 is blocked. Journal line %2.</source>
+          <target state="translated">Statistical account %1 is blocked. Journal line %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 number of statistical account. %2 number of journal line</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - NamedType StatisticalAccountIsBlockedErr</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - NamedType 2066119360" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There are ledger entries connected with this account. Deleting the account will permanently delete the ledger entries.\\Do you want to continue?</source>
+          <target state="translated">There are ledger entries connected with this account. Deleting the account will permanently delete the ledger entries.\\Do you want to continue?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - NamedType DeleteStatAccQst</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - NamedType 4047636432" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You will not be able to restore the ledger entries.\\Do you want to cancel the operation?</source>
+          <target state="translated">You will not be able to restore the ledger entries.\\Do you want to cancel the operation?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - NamedType DeleteStatAccSecondQst</note>
+        </trans-unit>
+        <trans-unit id="Table 2740809939 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Journal Batch</source>
+          <target state="translated">Statistical Account Journal Batch</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Batch - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3299409349 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Journal</source>
+          <target state="translated">Statistical Account Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Acc. Journal Line - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3691299527 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Stat. Acc. Balance Buffer</source>
+          <target state="translated">Stat. Acc. Balance Buffer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Stat. Acc. Balance Buffer - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3703212798 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account</source>
+          <target state="translated">Statistical Account</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Account - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 420906942 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Ledger Entry</source>
+          <target state="translated">Statistical Ledger Entry</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 1082028096 - Field 2218020965 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Journal</source>
+          <target state="translated">Statistical Account Journal</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 1642199961</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 1082028096 - NamedType 1747359951" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>STATACC</source>
+          <target state="translated">STATACC</target>
+          <note from="Developer" annotates="general" priority="2">Statistical Account Journal Code</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">TableExtension 1082028096</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

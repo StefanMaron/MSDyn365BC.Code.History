@@ -25,9 +25,6 @@ permissionset 9921 "D365 VENDOR, EDIT"
                   tabledata "Item Analysis View Budg. Entry" = r,
                   tabledata "Item Analysis View Entry" = rid,
                   tabledata "Item Budget Entry" = r,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = IMD,
-#endif
                   tabledata "Item Reference" = IMD,
                   tabledata "Item Vendor" = Rid,
                   tabledata "Nonstock Item" = rm,

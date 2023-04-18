@@ -18,7 +18,7 @@ page 259 "Reason Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a reason code to attach to the entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of what the code stands for.';

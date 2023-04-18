@@ -879,6 +879,448 @@ codeunit 136318 "Whse. Pick On Job Planning"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerTrue,JobTransferFromJobPlanLineHandler')]
+    [Scope('OnPrem')]
+    procedure CannotCreatePickWhenJobPlanningLineIsFullyPosted()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Location: Record Location;
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
+        // [SCENARIO] Cannot create pick when job planning line is fully posted.
+        // [GIVEN] Location L, resource R and item I with sufficient quantity in the inventory.
+        // [GIVEN] A Job.
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := 1000;
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create 1 Job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] 1 Job Planning Line
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", Location.Code, '', LibraryRandom.RandInt(100));
+
+        // [GIVEN] Job Journal Line is created and posted from the Job Planning Line.
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+        OpenRelatedJournalAndPost(JobPlanningLine);
+
+        // [WHEN] Create Warehouse Pick for the Job
+        asserterror OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] Error: All of the items on the job planning lines are completely picked.
+        Assert.ExpectedError(WhseCompletelyPickedErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler,ConfirmHandlerTrue,JobTransferFromJobPlanLineHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePickCreatesPickForRemainingQtyOnJobPlanningLine()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLinePick: Record "Warehouse Activity Line";
+        Location: Record Location;
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] 315267 [WMS] Support Inventory Pick and Warehouse Pick for Job Planning Lines
+        // [SCENARIO] Create pick creates pick for remaining qty on job planning line.
+        // [GIVEN] Location L, resource R and item I with sufficient quantity in the inventory.
+        // [GIVEN] A Job.
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := 1000;
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create 1 Job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] 1 Job Planning Line
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", Location.Code, '', LibraryRandom.RandInt(100));
+
+        // [GIVEN] Job Journal Line is created from the Job Planning Line and partially posted.
+        JobPlanningLine."Qty. to Transfer to Journal" := JobPlanningLine.Quantity - 1;
+        JobPlanningLine.Modify();
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+        OpenRelatedJournalAndPost(JobPlanningLine);
+        JobPlanningLine.Find();
+
+        // [WHEN] Create Warehouse Pick for the Job
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] Number of warehouse pick activity header created for the job is 1
+        WarehouseActivityLinePick.SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        WarehouseActivityLinePick.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLinePick."No.");
+        WarehouseActivityHeader.TestField("Location Code", Location.Code);
+
+        // [THEN] Pick quantity is equal to the remaining quantity on the planning line
+        VerifyWarehousePickActivityLine(JobPlanningLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler,ConfirmHandlerTrue,JobTransferFromJobPlanLineHandler')]
+    [Scope('OnPrem')]
+    procedure CreateWhsePickForJobOnLocationWithPickOptional()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLinePick: Record "Warehouse Activity Line";
+        Location: Record Location;
+        QtyInventory: Integer;
+    begin
+        // [BUG 459828]  WhsePick/Jobs- system calculates Qty To Pick wrong
+        // [SCENARIO] Create pick calculates Qty to Pick while considering what was consumed (with and without picks)
+        Initialize();
+
+        // [GIVEN] Location L with Picking not required, resource R and item I with sufficient quantity in the inventory.
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := 1000;
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] A Job.
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create 1 Job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] 1 Job Planning Line with qty. of 2
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", Location.Code, '', 2);
+
+        // [WHEN] Job Journal Line with qty 1 is created and partially posted.
+        JobPlanningLine."Qty. to Transfer to Journal" := 1;
+        JobPlanningLine.Modify();
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+        OpenRelatedJournalAndPost(JobPlanningLine);
+
+        // [THEN] Qty. Picked is updated to 1 as Qty. Picked (0) < Qty. Posted (1)
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.TestField("Qty. Posted", 1);
+        JobPlanningLine.TestField("Qty. Picked", 1);
+
+        // [WHEN] Create Warehouse Pick for the Job
+        OpenJobAndCreateWarehousePick(Job);
+        WarehouseActivityLinePick.SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        WarehouseActivityLinePick.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLinePick."No.");
+
+        // [THEN] Pick quantity is 1
+        Assert.AreEqual(1, WarehouseActivityLinePick.Quantity, 'Expected Qty To Pick to be 1 after using item 1 without pick out of 2');
+
+        // [GIVEN] The pick is registered
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] The quantity on the Job Planning Line is changed to 3
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.Validate(Quantity, 3);
+        JobPlanningLine.Modify();
+
+        // [WHEN] Job Journal Line with qty 1 is created and partially posted.
+        JobPlanningLine."Qty. to Transfer to Journal" := 1;
+        JobPlanningLine.Modify();
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+        OpenRelatedJournalAndPost(JobPlanningLine);
+
+        // [THEN] Qty. Picked is updated to 2 as Qty. Picked (1) < Qty. Posted (2)
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.TestField("Qty. Posted", 2);
+        JobPlanningLine.TestField("Qty. Picked", 2);
+
+        // [WHEN] Create Warehouse Pick for the Job
+        OpenJobAndCreateWarehousePick(Job);
+        WarehouseActivityLinePick.SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        WarehouseActivityLinePick.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLinePick."No.");
+
+        // [THEN] The quantity of the pick is 1 (One was used w.o. pick. One was used with pick. One is left to pick)
+        Assert.AreEqual(1, WarehouseActivityLinePick.Quantity, 'Expected Qty to pick to be 1, since only 1 item is left to be used.');
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler,ConfirmHandlerTrue,JobTransferFromJobPlanLineHandler')]
+    [Scope('OnPrem')]
+    procedure CreateWhsePickForJobOnLocationWithPickOptionalPartialPosting()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLinePick: Record "Warehouse Activity Line";
+        Location: Record Location;
+        QtyInventory: Integer;
+    begin
+        // [BUG 459828]  WhsePick/Jobs- system calculates Qty To Pick wrong
+        // [SCENARIO] Create pick is allowed only for quantity not yet picked or consumed. Register Pick, Partially post job planning line and update job planning line quantity and create pick.
+        Initialize();
+
+        // [GIVEN] Location L with Picking not required, resource R and item I with sufficient quantity in the inventory.
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := 100;
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] A Job.
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create 1 Job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] 1 Job Planning Line with qty. of 2
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", Location.Code, '', 2);
+
+        // [WHEN] Register Pick for 2 Quantity
+        OpenJobAndCreateWarehousePick(Job);
+        WarehouseActivityLinePick.SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        WarehouseActivityLinePick.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLinePick."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Qty. Picked is updated to 2
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.TestField("Qty. Posted", 0);
+        JobPlanningLine.TestField("Qty. Picked", 2);
+
+        // [GIVEN] Update the Job Planning Line Quantity to 10
+        JobPlanningLine.Validate(Quantity, 10);
+
+        // [WHEN] Transfer and Partially Post 4 quantities for the planning line
+        JobPlanningLine.Validate("Qty. to Transfer to Journal", 4);
+        JobPlanningLine.Modify();
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+        OpenRelatedJournalAndPost(JobPlanningLine);
+
+        // [THEN] Qty. Picked is updated to 4 as Qty. Picked (2) < Qty. Posted (4)
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.TestField("Qty. Posted", 4);
+        JobPlanningLine.TestField("Qty. Picked", 4);
+
+        // [WHEN] Create warehouse pick
+        OpenJobAndCreateWarehousePick(Job);
+        WarehouseActivityLinePick.SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        WarehouseActivityLinePick.FindFirst();
+
+        // [THEN] The max available quantity for picking is total quantity (10) - Qty. Picked (4) - Pick Qty. (0) = 6
+        Assert.AreEqual(6, WarehouseActivityLinePick.Quantity, 'Expected Qty to pick to be 6, since 6 quantity is left to be picked.');
+
+        // [GIVEN] Delete the warehouse pick document without registering.
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLinePick."No.");
+        WarehouseActivityHeader.Delete(true);
+
+        // [WHEN] Transfer and Partially Post 3 more quantities for the planning line
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.Validate("Qty. to Transfer to Journal", 3);
+        JobPlanningLine.Modify();
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+        OpenRelatedJournalAndPost(JobPlanningLine);
+
+        // [THEN] Qty. Picked is updated to 7 as Qty. Picked (4) < Qty. Posted (7)
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.TestField("Qty. Posted", 7);
+        JobPlanningLine.TestField("Qty. Picked", 7);
+
+        // [WHEN] Create warehouse pick
+        OpenJobAndCreateWarehousePick(Job);
+        WarehouseActivityLinePick.SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        WarehouseActivityLinePick.FindFirst();
+
+        // [THEN] The max available quantity for picking is total quantity (10) - Qty. Picked (7) - Pick Qty. (0) = 3
+        Assert.AreEqual(3, WarehouseActivityLinePick.Quantity, 'Expected Qty to pick to be 3, since 3 quantity is left to be picked.');
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler,ConfirmHandlerTrue,JobTransferFromJobPlanLineHandler')]
+    [Scope('OnPrem')]
+    procedure CreateWhsePickNotAllowedForConsumedItemOnJobPlanningLine()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLinePick: Record "Warehouse Activity Line";
+        Location: Record Location;
+        QtyInventory: Integer;
+    begin
+        // [BUG 459828]  WhsePick/Jobs- system calculates Qty To Pick wrong
+        // [SCENARIO] Create pick is allowed only for quantity not yet picked or consumed. It is not possible to register pick for consumed items. Register Partial Pick, Completely post job planning line and try creating pick.
+        Initialize();
+
+        // [GIVEN] Location L with Picking not required, resource R and item I with sufficient quantity in the inventory.
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := 100;
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] A Job.
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create 1 Job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] 1 Job Planning Line with qty. of 10
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", Location.Code, '', 10);
+
+        // [WHEN] Register Pick for 7 Quantity
+        OpenJobAndCreateWarehousePick(Job);
+        WarehouseActivityLinePick.SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        WarehouseActivityLinePick.FindFirst();
+        WarehouseActivityLinePick.Validate("Qty. to Handle", 7);
+        WarehouseActivityLinePick.Modify();
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLinePick."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Qty. Picked is updated to 7
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.TestField("Qty. Posted", 0);
+        JobPlanningLine.TestField("Qty. Picked", 7);
+
+        // [WHEN] Transfer and Post all the quantity on the planning line
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+        OpenRelatedJournalAndPost(JobPlanningLine);
+
+        // [THEN] Qty. Picked is updated to 10 as Qty. Picked (7) < Qty. Posted (10)
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.TestField("Qty. Posted", 10);
+        JobPlanningLine.TestField("Qty. Picked", 10);
+
+        // [WHEN] Create new warehouse pick
+        asserterror OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] Error: All of the items on the job planning lines are completely picked.
+        Assert.ExpectedError(WhseCompletelyPickedErr);
+
+        // [WHEN] Register warehouse pick from existing pick document
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLinePick."No.");
+        asserterror LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Registering pick for the consumed document is not allowed.
+        Assert.ExpectedError('is partially or completely consumed');
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler,ConfirmHandlerTrue,JobTransferFromJobPlanLineHandler')]
+    [Scope('OnPrem')]
+    procedure CreateWhsePickForJobOnLocationWithPickOptionalAndPickQty()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLinePick: Record "Warehouse Activity Line";
+        Location: Record Location;
+        QtyInventory: Integer;
+    begin
+        // [BUG 459828]  WhsePick/Jobs- system calculates Qty To Pick wrong
+        // [SCENARIO] Create pick is allowed only for quantity not yet picked or consumed. Partially Register Pick, Partially post job planning line and update job planning line quantity and create pick.
+        Initialize();
+
+        // [GIVEN] Location L with Picking not required, resource R and item I with sufficient quantity in the inventory.
+        LibraryInventory.CreateItem(Item);
+        QtyInventory := 100;
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] A Job.
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+
+        // [GIVEN] Create 1 Job task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] 1 Job Planning Line with qty. of 10
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", Location.Code, '', 10);
+
+        // [GIVEN] Register Pick for 2 Quantity
+        OpenJobAndCreateWarehousePick(Job);
+        WarehouseActivityLinePick.SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        WarehouseActivityLinePick.FindFirst();
+        WarehouseActivityLinePick.Validate("Qty. to Handle", 2);
+        WarehouseActivityLinePick.Modify();
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLinePick."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Qty. Picked is updated to 2
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.TestField("Qty. Posted", 0);
+        JobPlanningLine.TestField("Qty. Picked", 2);
+
+        // [WHEN] Transfer and Partially Post 7 quantities for the planning line
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.Validate("Qty. to Transfer to Journal", 7);
+        JobPlanningLine.Modify();
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+        OpenRelatedJournalAndPost(JobPlanningLine);
+        JobPlanningLine.FindFirst();
+
+        // [THEN] Outstanding Pick Quantity is 8
+        JobPlanningLine.CalcFields("Pick Qty. (Base)");
+        Assert.AreEqual(8, JobPlanningLine."Pick Qty. (Base)", 'Expected "Pick Qty. (Base)" to be 8.');
+
+        // [THEN] Qty. Picked is updated to 7 as Qty. Picked (2) < Qty. Posted (7)
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.TestField("Qty. Posted", 7);
+        JobPlanningLine.TestField("Qty. Picked", 7);
+
+        // [WHEN] Create warehouse pick
+        asserterror OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] There is nothing more to pick.
+        Assert.ExpectedError('Nothing');
+
+        // [WHEN] Update the Job Planning Line Quantity to 15
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        asserterror JobPlanningLine.Validate(Quantity, 15);
+
+        // [THEN] Error: Quantity must not be changed when active Warehouse Activity Line exists.
+        Assert.ExpectedError('Quantity must not be changed');
+
+        // [GIVEN] Delete the warehouse pick document without registering.
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLinePick."No.");
+        WarehouseActivityHeader.Delete(true);
+
+        // [WHEN] Post the remaining 3 quantities for the planning line
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+        OpenRelatedJournalAndPost(JobPlanningLine);
+        JobPlanningLine.FindFirst();
+
+        // [THEN] Qty. Picked is updated to 10 as Qty. Picked (7) < Qty. Posted (10)
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.TestField("Qty. Posted", 10);
+        JobPlanningLine.TestField("Qty. Picked", 10);
+
+        // [WHEN] Update the Job Planning Line Quantity to 15
+        JobPlanningLine.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No.");
+        JobPlanningLine.Validate(Quantity, 15);
+        JobPlanningLine.Modify();
+
+        // [WHEN] Create warehouse pick
+        OpenJobAndCreateWarehousePick(Job);
+        WarehouseActivityLinePick.SetRange("Source Line No.", JobPlanningLine."Job Contract Entry No.");
+        WarehouseActivityLinePick.FindFirst();
+
+        // [THEN] The max available quantity for picking is total quantity (15) - Qty. Picked (10) - Pick Qty. (0) = 5
+        Assert.AreEqual(5, WarehouseActivityLinePick.Quantity, 'Expected Qty to pick to be 5, since 5 quantity is left to be picked.');
+    end;
+
+    [Test]
     [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler,ConfirmHandlerTrue,JobTransferFromJobPlanLineHandler')]
     [Scope('OnPrem')]
     procedure PicksCanBeRegisteredForLocWithoutRequirePickAndShip()
@@ -2468,11 +2910,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         InventorySetup: Record "Inventory Setup";
         WarehouseSetup: Record "Warehouse Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-#if not CLEAN20
-        FeatureKey: Record "Feature Key";
-        FeatureDataUpdateStatus: Record "Feature Data Update Status";
-        PicksForJobsFeatureIdLbl: Label 'PicksForJobs', Locked = true;
-#endif
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Whse. Pick On Job Planning");
         LibrarySetupStorage.Restore();
@@ -2511,17 +2948,6 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibrarySetupStorage.Save(Database::"Purchases & Payables Setup");
 
         IsInitialized := true;
-#if not CLEAN20
-        FeatureKey.Get(PicksForJobsFeatureIdLbl);
-        if FeatureKey.Enabled <> FeatureKey.Enabled::"All Users" then begin
-            FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
-            FeatureKey.Modify();
-        end;
-        if (FeatureDataUpdateStatus.Get(PicksForJobsFeatureIdLbl, CompanyName())) and (FeatureDataUpdateStatus."Feature Status" <> FeatureDataUpdateStatus."Feature Status"::Enabled) then begin
-            FeatureDataUpdateStatus."Feature Status" := FeatureDataUpdateStatus."Feature Status"::Enabled;
-            FeatureDataUpdateStatus.Modify();
-        end;
-#endif
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Whse. Pick On Job Planning");
     end;
 

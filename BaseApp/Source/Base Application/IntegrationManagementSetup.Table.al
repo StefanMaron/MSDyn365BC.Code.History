@@ -1,9 +1,9 @@
 table 5515 "Integration Management Setup"
 {
     Caption = 'Integration Management Setup';
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
     ObsoleteReason = 'The table will be removed with Integration Management. Refactor to use systemID, systemLastModifiedAt and other system fields.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '22.0';
 
     fields
     {
@@ -47,28 +47,5 @@ table 5515 "Integration Management Setup"
         {
         }
     }
-
-    var
-        RecordIsNotIntegrationRecordErr: Label 'The table %1 is not enabled for integraiton', Comment = '%1 Table name';
-
-    trigger OnInsert()
-    begin
-        SetDefaultValeus(Rec);
-    end;
-
-    local procedure SetDefaultValeus(var IntegrationManagementSetup: Record "Integration Management Setup")
-    var
-        AllObjWithCaption: Record AllObjWithCaption;
-        IntegrationManagement: Codeunit "Integration Management";
-        IntegrationManagementSetupCodeunit: Codeunit "Integration Management Setup";
-    begin
-        AllObjWithCaption.Get(AllObjWithCaption."Object Type"::TableData, IntegrationManagementSetup."Table ID");
-
-        if not IntegrationManagement.IsIntegrationRecord(AllObjWithCaption."Object ID") then
-            Error(RecordIsNotIntegrationRecordErr, AllObjWithCaption."Object Caption");
-        IntegrationManagementSetup."Table ID" := AllObjWithCaption."Object ID";
-        IntegrationManagementSetup."Table Caption" := AllObjWithCaption."Object Caption";
-        IntegrationManagementSetup."Batch Size" := IntegrationManagementSetupCodeunit.GetDefaultBatchSize();
-    end;
 }
 

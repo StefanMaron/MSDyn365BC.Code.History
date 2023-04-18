@@ -530,7 +530,7 @@ codeunit 137008 "SCM Planning Options"
         PurchPayablesSetup.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure RequisitionLineValidateDueDateUpdatesUnitCost()
@@ -996,7 +996,7 @@ codeunit 137008 "SCM Planning Options"
         SKU.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateItemPurchasePrice(ItemNo: Code[20]; VendorNo: Code[20]; StartingDate: Date; EndingDate: Date; UnitCost: Decimal)
     var
         PurchPrice: Record "Purchase Price";

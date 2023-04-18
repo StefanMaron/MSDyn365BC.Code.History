@@ -46,7 +46,7 @@ page 9193 "Thirty Day Trial Dialog"
                 group("We're ready, let's get started")
                 {
                     Caption = 'We''re ready, let''s get started';
-                    InstructionalText = 'You can keep using the Cronus demo company for evaluation, also when the trial ends. Just go to My Settings and choose the Cronus company.';
+                    InstructionalText = 'When the trial ends, you can keep using the Cronus company demo data for evaluation purposes.';
                 }
                 field(Content4Lbl; Content4Lbl)
                 {

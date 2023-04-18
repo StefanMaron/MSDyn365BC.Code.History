@@ -269,6 +269,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TearDown;
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -303,6 +304,7 @@ codeunit 136501 "UT Time Sheets Approval"
         LibraryTimeSheetLocal.GetTimeSheetLineBuffer(TempTimeSheetLine);
         VerifyTimeSheetLineBuffer(TempTimeSheetLine, TimeSheetHeader."No.");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('StrMenuHandler')]
@@ -534,11 +536,13 @@ codeunit 136501 "UT Time Sheets Approval"
         until TimeSheetLine.Next() = 0;
     end;
 
+#if not CLEAN22
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Time Sheet Management", 'OnAfterTimeSheetV2Enabled', '', false, false)]
     local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
     begin
         Result := false;
     end;
+#endif
 
     [StrMenuHandler]
     [Scope('OnPrem')]

@@ -113,6 +113,11 @@
           <note from="Developer" annotates="general" priority="2">%1 is the item name, %2 is the quantity sold</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType MostPopularItemPayloadTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - NamedType 967194017" size-unit="char" translate="yes" xml:space="preserve">
+          <source>&lt;-%1D&gt;</source>
+          <note from="Developer" annotates="general" priority="2">%1 = Number of days</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType NoDaysAgoFilterTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 2645967220" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your VAT return is due %1 (in %2 days)</source>
           <note from="Developer" annotates="general" priority="2">%1 - date; %2 - days count</note>
@@ -172,6 +177,26 @@
           <source>Amount</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - NamedType AmountCaptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3615731784 - Control 592951229 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the amount in local currency.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - Control Amount (LCY) - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3615731784 - Control 2961552353 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3615731784 - Control 2704404533 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the quantity.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - Control Quantity - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3615731784 - Control 1920046521 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the unit of measure.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - Control Unit of Measure - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Query 3009275761 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Best Sold Item Headline</source>

@@ -325,9 +325,12 @@ codeunit 419 "File Management"
 
     procedure GetFileNameMimeType(FileName: Text): Text
     var
-        MimeMapping: DotNet MimeMapping;
+        FileExtensionContentTypeProvider: DotNet FileExtensionContentTypeProvider;
+        ContentType: Text;
     begin
-        exit(MimeMapping.GetMimeMapping(FileName));
+        FileExtensionContentTypeProvider := FileExtensionContentTypeProvider.FileExtensionContentTypeProvider();
+        FileExtensionContentTypeProvider.TryGetContentType(FileName, ContentType);
+        exit(ContentType);
     end;
 
     procedure GetDirectoryName(FileName: Text): Text
@@ -574,7 +577,7 @@ codeunit 419 "File Management"
         Encoding: DotNet Encoding;
         EncodedTxt: Text;
     begin
-        StreamReader := StreamReader.StreamReader(Source, Encoding.Default, true);
+        StreamReader := StreamReader.StreamReader(Source, Encoding.GetEncoding(0), true);
         EncodedTxt := StreamReader.ReadToEnd();
         Destination.WriteText(EncodedTxt);
     end;
@@ -584,7 +587,7 @@ codeunit 419 "File Management"
         StreamWriter: DotNet StreamWriter;
         Encoding: DotNet Encoding;
     begin
-        StreamWriter := StreamWriter.StreamWriter(Destination, Encoding.Default);
+        StreamWriter := StreamWriter.StreamWriter(Destination, Encoding.GetEncoding(0));
         StreamWriter.Write(Source);
         StreamWriter.Close();
     end;

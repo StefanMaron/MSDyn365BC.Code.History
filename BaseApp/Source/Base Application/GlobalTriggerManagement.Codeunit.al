@@ -39,12 +39,10 @@ codeunit 49 GlobalTriggerManagement
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'GetDatabaseTableTriggerSetup', '', false, false)]
     local procedure GetDatabaseTableTriggerSetup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
     var
-        IntegrationManagement: Codeunit "Integration Management";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ChangeLogMgt: Codeunit "Change Log Management";
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
     begin
-        IntegrationManagement.GetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
         CRMIntegrationManagement.GetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
         APIWebhookNotificationMgt.GetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
         OnAfterGetDatabaseTableTriggerSetup(TableId, OnDatabaseInsert, OnDatabaseModify, OnDatabaseDelete, OnDatabaseRename);
@@ -57,7 +55,6 @@ codeunit 49 GlobalTriggerManagement
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnDatabaseInsert', '', false, false)]
     local procedure OnDatabaseInsert(RecRef: RecordRef)
     var
-        IntegrationManagement: Codeunit "Integration Management";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ChangeLogMgt: Codeunit "Change Log Management";
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
@@ -70,7 +67,6 @@ codeunit 49 GlobalTriggerManagement
         IsHandled := false;
         OnBeforeOnDatabaseInsert(RecRef, IsHandled);
         if not IsHandled then begin
-            IntegrationManagement.OnDatabaseInsert(RecRef);
             CRMIntegrationManagement.OnDatabaseInsert(RecRef);
             APIWebhookNotificationMgt.OnDatabaseInsert(RecRef);
         end;
@@ -80,7 +76,6 @@ codeunit 49 GlobalTriggerManagement
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnDatabaseModify', '', false, false)]
     local procedure OnDatabaseModify(RecRef: RecordRef)
     var
-        IntegrationManagement: Codeunit "Integration Management";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ChangeLogMgt: Codeunit "Change Log Management";
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
@@ -93,7 +88,6 @@ codeunit 49 GlobalTriggerManagement
         IsHandled := false;
         OnBeforeOnDatabaseModify(RecRef, IsHandled);
         if not IsHandled then begin
-            IntegrationManagement.OnDatabaseModify(RecRef);
             CRMIntegrationManagement.OnDatabaseModify(RecRef);
             APIWebhookNotificationMgt.OnDatabaseModify(RecRef);
         end;
@@ -103,7 +97,6 @@ codeunit 49 GlobalTriggerManagement
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnDatabaseDelete', '', false, false)]
     local procedure OnDatabaseDelete(RecRef: RecordRef)
     var
-        IntegrationManagement: Codeunit "Integration Management";
         ChangeLogMgt: Codeunit "Change Log Management";
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
         IsHandled: Boolean;
@@ -114,17 +107,14 @@ codeunit 49 GlobalTriggerManagement
 
         IsHandled := false;
         OnBeforeOnDatabaseDelete(RecRef, IsHandled);
-        if not IsHandled then begin
-            IntegrationManagement.OnDatabaseDelete(RecRef);
+        if not IsHandled then
             APIWebhookNotificationMgt.OnDatabaseDelete(RecRef);
-        end;
         OnAfterOnDatabaseDelete(RecRef);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Global Triggers", 'OnDatabaseRename', '', false, false)]
     local procedure OnDatabaseRename(RecRef: RecordRef; xRecRef: RecordRef)
     var
-        IntegrationManagement: Codeunit "Integration Management";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ChangeLogMgt: Codeunit "Change Log Management";
         APIWebhookNotificationMgt: Codeunit "API Webhook Notification Mgt.";
@@ -137,7 +127,6 @@ codeunit 49 GlobalTriggerManagement
         IsHandled := false;
         OnBeforeOnDatabaseRename(RecRef, xRecRef, IsHandled);
         if not IsHandled then begin
-            IntegrationManagement.OnDatabaseRename(RecRef, xRecRef);
             CRMIntegrationManagement.OnDatabaseRename(RecRef, xRecRef);
             APIWebhookNotificationMgt.OnDatabaseRename(RecRef, xRecRef);
         end;

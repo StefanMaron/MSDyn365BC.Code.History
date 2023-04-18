@@ -51,6 +51,7 @@ page 9818 "User Security Status List"
                     ToolTip = 'Specifies that the user is covered by a subscription plan.';
                     Visible = SoftwareAsAService;
                 }
+#if not CLEAN22
                 field("Belongs to User Group"; Rec."Belongs to User Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -58,7 +59,12 @@ page 9818 "User Security Status List"
                     Style = Attention;
                     StyleExpr = NOT "Belongs to User Group";
                     ToolTip = 'Specifies that the user is assigned to a user group.';
+                    Visible = LegacyUserGroupsVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'User group membership cannot be calculated via a flow field in the new user group system.';
+                    ObsoleteTag = '22.0';
                 }
+#endif
             }
         }
         area(factboxes)
@@ -70,10 +76,24 @@ page 9818 "User Security Status List"
                 SubPageLink = "User Security ID" = FIELD("User Security ID");
                 Visible = SoftwareAsAService;
             }
+#if not CLEAN22
             part("User Groups"; "User Groups User SubPage")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Groups';
+                Editable = false;
+                ShowFilter = false;
+                SubPageLink = "User Security ID" = FIELD("User Security ID");
+                Visible = LegacyUserGroupsVisible;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the Security Groups part.';
+                ObsoleteTag = '22.0';
+            }
+#endif
+            part("Security Groups"; "User Security Groups Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Security Groups';
                 Editable = false;
                 ShowFilter = false;
                 SubPageLink = "User Security ID" = FIELD("User Security ID");
@@ -125,6 +145,7 @@ page 9818 "User Security Status List"
                     ToggleReviewStatus(false);
                 end;
             }
+#if not CLEAN22
             action("User Group Members")
             {
                 ApplicationArea = Basic, Suite;
@@ -133,6 +154,20 @@ page 9818 "User Security Status List"
                 RunObject = Page "User Group Members";
                 RunPageMode = View;
                 ToolTip = 'View or edit the members of the user group.';
+                Visible = LegacyUserGroupsVisible;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the Security Group Members action.';
+                ObsoleteTag = '22.0';
+            }
+#endif
+            action("Security Group Members")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Security Group Members';
+                Image = Users;
+                RunObject = Page "Security Group Members";
+                RunPageMode = View;
+                ToolTip = 'View the members of the security group.';
             }
             action("Manage plan assignments")
             {
@@ -165,9 +200,17 @@ page 9818 "User Security Status List"
                 actionref("Set as not reviewed_Promoted"; "Set as not reviewed")
                 {
                 }
-                actionref("User Group Members_Promoted"; "User Group Members")
+                actionref("Security Group Members_Promoted"; "Security Group Members")
                 {
                 }
+#if not CLEAN22
+                actionref("User Group Members_Promoted"; "User Group Members")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'User groups functionality is deprecated.';
+                    ObsoleteTag = '22.0';
+                }
+#endif
                 actionref("Manage plan assignments_Promoted"; "Manage plan assignments")
                 {
                 }
@@ -178,8 +221,14 @@ page 9818 "User Security Status List"
     trigger OnInit()
     var
         EnvironmentInfo: Codeunit "Environment Information";
+#if not CLEAN22
+        LegacyUserGroups: Codeunit "Legacy User Groups";
+#endif
     begin
         SoftwareAsAService := EnvironmentInfo.IsSaaS();
+#if not CLEAN22
+        LegacyUserGroupsVisible := LegacyUserGroups.UiElementsVisible();
+#endif
     end;
 
     trigger OnAfterGetRecord()
@@ -188,10 +237,6 @@ page 9818 "User Security Status List"
     begin
         BelongsToSubscriptionPlan := AzureADPlan.DoesUserHavePlans("User Security ID");
     end;
-
-    var
-        SoftwareAsAService: Boolean;
-        BelongsToSubscriptionPlan: Boolean;
 
     local procedure ToggleReviewStatus(ReviewStatus: Boolean)
     var
@@ -207,4 +252,11 @@ page 9818 "User Security Status List"
         until UserSecurityStatus.Next() = 0;
         CurrPage.Update();
     end;
+
+    var
+        SoftwareAsAService: Boolean;
+        BelongsToSubscriptionPlan: Boolean;
+#if not CLEAN22
+        LegacyUserGroupsVisible: Boolean;
+#endif
 }

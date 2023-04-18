@@ -514,8 +514,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report List - Control Amounts in Add. Currency - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 1566601818 - Control 970646220 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Depending on your country, enter either the month first and then the year, or vice versa. For example, enter either 1706 or 0617 for June, 2017.</source>
-          <target state="translated">Especifica el mes para el que se van a notificar los datos. Indique el período como un número de cuatro dígitos, sin espacios ni símbolos. En función de su país, escriba primero el mes y después el año o viceversa. Por ejemplo, escriba 1706 o 0617 para junio de 2017.</target>
+          <source>Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Enter the year first and then the month, for example, enter 1706 for June, 2017.</source>
+          <target state="translated">Especifica el mes para el que se notificarán los datos. Especifique el período como un número de cuatro dígitos, sin espacios ni símbolos. Escriba primero el año y después el mes, por ejemplo, escriba 1706 para junio de 2017.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report List - Control Statistics Period - Property ToolTip</note>
         </trans-unit>
@@ -740,6 +740,204 @@
           <target state="translated">Especifica el importe total del movimiento, sin IVA.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Subform - Control Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 1212385681 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a code for the country/region where the item was produced or processed.</source>
+          <target state="translated">Especifica el código del país o la región donde se fabricó o elaboró el producto.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Country/Region of Origin Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 1267997203 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a specification of the document's transaction, for the purpose of reporting to INTRASTAT.</source>
+          <target state="translated">Especifica una especificación de transacción del documento de venta con el fin de notificarla a INTRASTAT.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Transaction Specification - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 1624434300 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the counter party's VAT number.</source>
+          <target state="translated">Especifica el número de IVA de la parte del contador.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Partner VAT ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 1753214751 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the entry type.</source>
+          <target state="translated">Especifica el tipo de movimiento.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Source Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 1878130204 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the item was received or shipped by the company.</source>
+          <target state="translated">Especifica si la empresa ha recibido o enviado el producto.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 2102199635 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies an amount that represents the costs for freight and insurance.</source>
+          <target state="translated">Especifica el importe correspondiente a costes por flete y por seguro.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Indirect Cost - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 2161516449 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a reference number used by the customs and tax authorities.</source>
+          <target state="translated">Especifica el número de referencia que utilizan las autoridades aduaneras y fiscales.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Internal Ref. No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 2161572060 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code for the location that the entry is linked to.</source>
+          <target state="translated">Especifica el código de almacén vinculado al movimiento.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Location Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 2242438606 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies any indirect costs, as a percentage.</source>
+          <target state="translated">Especifica los costes indirectos, expresados en forma de porcentaje.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Cost Regulation % - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 2259420277 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the item's shipment method.</source>
+          <target state="translated">Especifica el método de envío del producto.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Shpt. Method Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 2275026644 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the entry's statistical value, which must be reported to the statistics authorities.</source>
+          <target state="translated">Especifica el valor estadístico del movimiento, que deberá declararse a las autoridades estadísticas.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Statistical Value - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 2704404533 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of units of the item in the entry.</source>
+          <target state="translated">Especifica el número de unidades del producto en el movimiento.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Quantity - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 2842094365 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the tariff no. that is associated with the item.</source>
+          <target state="translated">Especifica el nombre del cód. arancelario asociado al producto.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Item Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 2842094365 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Tariff No. Description</source>
+          <target state="translated">Descripción cód. arancelario</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Item Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 284764054 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the country/region of the address.</source>
+          <target state="translated">Especifica el país o la región de la dirección.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Country/Region Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 2959979021 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the unit of measure code for the tariff number on this line.</source>
+          <target state="translated">Especifica el código de unidad de medida del código arancelario de esta línea.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Suppl. Unit of Measure - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the item.</source>
+          <target state="translated">Especifica el nombre del producto.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item Name</source>
+          <target state="translated">Nombre del producto</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 3088522385 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the net weight of one unit of the item.</source>
+          <target state="translated">Especifica el peso neto de una unidad del producto.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Net Weight - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 3165222728 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the quantity of supplementary units on the Intrastat line.</source>
+          <target state="translated">Especifica la cantidad de unidades suplementarias de la línea de Intrastat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Supplementary Quantity - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 3192175264 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date the item entry was posted.</source>
+          <target state="translated">Especifica la fecha en que se registró el movimiento de producto.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 3193866272 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the transport method, for the purpose of reporting to INTRASTAT.</source>
+          <target state="translated">Especifica el modo de transporte con el fin de informar a INTRASTAT.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Transport Method - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 3532935625 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.</source>
+          <target state="translated">Especifica el área del cliente o proveedor con el fin de informar a INTRASTAT.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Area - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 3627141058 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number that the item entry had in the table it came from.</source>
+          <target state="translated">Especifica el número que tenía el movimiento de producto en la tabla de procedencia.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Source Entry No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 3678710499 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the conversion factor of the item on this Intrastat report line.</source>
+          <target state="translated">Especifica el factor de conversión del producto en esta línea del informe Intrastat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Suppl. Conversion Factor - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 3701472611 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the item's tariff number.</source>
+          <target state="translated">Especifica el código arancelario del producto.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Tariff No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 3773776616 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.</source>
+          <target state="translated">Especifica el tipo de transacción que representa el documento con el fin de notificarlo a INTRASTAT.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Transaction Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 3814925297 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code of either the port of entry where the items passed into your country/region or the port of exit.</source>
+          <target state="translated">Especifica el código del puerto de entrada por el que entraron los productos al país o la región, o el puerto de salida.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Entry/Exit Point - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 3998061958 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if you must report information about quantity and units of measure for this item.</source>
+          <target state="translated">Especifica si está obligado a presentar información sobre la cantidad y las unidades de medida de este producto.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Supplementary Units - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 486908828 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the document number on the entry.</source>
+          <target state="translated">Especifica el número de documento del movimiento.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Document No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 568743302 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the item.</source>
+          <target state="translated">Especifica el número del producto.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Item No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 582094086 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the total weight for the items in the item entry.</source>
+          <target state="translated">Especifica el peso total de los productos incluidos en el movimiento de producto.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Total Weight - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2323374715 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the total amount of the entry, excluding VAT.</source>
+          <target state="translated">Especifica el importe total del movimiento, sin IVA.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Control Amount - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2405959708 - Control 2523111426 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies that the check for fields is run only on those lines that do not match the filter expression. If the line is not filtered, this field is ignored.</source>
@@ -1249,6 +1447,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Subform - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2323374715 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Intrastat Report Lines</source>
+          <target state="translated">Líneas de informe Intrastat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Intrastat Report Lines - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2405959708 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Intrastat Report Checklist</source>
           <target state="translated">Lista de comprobación de informe Intrastat</target>
@@ -1588,6 +1792,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Report Intrastat Report Get Lines - Control StartingDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Report 3076093313 - NamedType 2595295012" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The existing lines for Intrastat report %1 will be deleted. Do you want to continue?</source>
+          <target state="translated">Se eliminarán las líneas existentes para el informe Intrastat %1. ¿Desea continuar?</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Intrastat Report number</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Intrastat Report Get Lines - NamedType LinesDeletionConfirmationQst</note>
+        </trans-unit>
         <trans-unit id="Report 3076093313 - NamedType 653000579" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Prices including VAT cannot be calculated when %1 is %2.</source>
           <target state="translated">No se pueden calcular precios IVA incluido cuando %1 es %2.</target>
@@ -1673,6 +1883,12 @@
           <target state="translated">Tipo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Line - Field Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2113709934 - Field 1879772105 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Corrected Document No.</source>
+          <target state="translated">N.º documento corregido</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Line - Field Corrected Document No. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2113709934 - Field 2102199635 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Indirect Cost</source>
@@ -2220,6 +2436,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Default Trans. Spec. Code - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 2113709934 - NamedType 20955984" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There is no %1 %2 with in the filter.\\Filters: %3</source>
+          <target state="translated">No hay ningún %1 %2 en el filtro.\\Filtros: %3</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Document No. caption, %2 - Document No., %3 - Filters</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Line - NamedType NoDocumentNumberWithinTheFilterErr</note>
+        </trans-unit>
         <trans-unit id="Table 2113709934 - NamedType 2226598662" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Date %1 is not within the reporting period.</source>
           <target state="translated">La fecha %1 no está dentro del periodo de informe.</target>
@@ -2232,17 +2454,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Checklist - NamedType FilterStringParseErr</note>
         </trans-unit>
-        <trans-unit id="Table 2491010837 - NamedType 2202232134" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1 must be 4 characters, for example, 9410 for October, 1994.</source>
-          <target state="translated">%1 debe tener 4 dígitos. Por ejemplo: 9410 para Octubre 1994</target>
-          <note from="Developer" annotates="general" priority="2">%1 - Statistics Period</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Header - NamedType StatistiscPeriodFormetErr</note>
-        </trans-unit>
         <trans-unit id="Table 2491010837 - NamedType 2236746637" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You cannot change %1 when Intrastat Report Lines for report %2 exists.</source>
           <target state="translated">No se puede cambiar %1 cuando existen líneas de informe de Intrastat para el informe %2.</target>
           <note from="Developer" annotates="general" priority="2">%1 - Changed Field Name, %2 - Intrastat Report No.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Header - NamedType LinesExistErr</note>
+        </trans-unit>
+        <trans-unit id="Table 2491010837 - NamedType 2734741858" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 must be 4 characters, for example, 9410 for October, 1994.</source>
+          <target state="translated">%1 debe tener 4 dígitos. Por ejemplo: 9410 para Octubre 1994</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Statistics Period</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Header - NamedType StatistiscPeriodFormatErr</note>
         </trans-unit>
         <trans-unit id="Table 2491010837 - NamedType 3109245163" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please check the month number.</source>

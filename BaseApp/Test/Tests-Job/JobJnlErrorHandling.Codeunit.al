@@ -17,13 +17,15 @@ codeunit 136316 "Job Jnl. Error Handling"
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryERM: Codeunit "Library - ERM";
+        LibrarySales: Codeunit "Library - Sales";
         Assert: Codeunit Assert;
 #if not CLEAN20
         FeatureManagement: Codeunit "Feature Management Facade";
 #endif
         TestFieldMustHaveValueErr: Label '%1 must have a value', Comment = '%1 - field caption';
-        BackgroundErrorCheckFeatureEnabled: Boolean;
-        DisabledFeatureErr: Label 'Enabled must be equal to ''All Users''  in Feature Key: ID=DocumentJournalBackgroundCheck';
+        SkipCheckText: Label 'SkipCheckCustomerAssosEntriesExist';
         IsInitialized: Boolean;
 
     [Test]
@@ -234,6 +236,61 @@ codeunit 136316 "Job Jnl. Error Handling"
             StrSubstNo(TestFieldMustHaveValueErr, JobJournalLine[2].FieldCaption("Quantity")));
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure CustomerNoCantBeChangedWithAssosEntries()
+    var
+        Job: Record Job;
+        JobCard: TestPage "Job Card";
+        NewCustomerNo: Code[20];
+    begin
+        // [BUG 457148] Changing Customer No. on Job Card throws error
+        Initialize();
+
+        // [GIVEN] We open the Job Card of a Job in progress with Planning Lines and Tasks
+        CreateElaborateJob(Job, SkipCheckText);
+        JobCard.OpenEdit();
+        JobCard.Filter.SetFilter("No.", Job."No.");
+
+        // [WHEN] We try to change the Customer No.
+        NewCustomerNo := LibrarySales.CreateCustomerNo();
+        asserterror JobCard."Sell-to Customer No.".SetValue(NewCustomerNo);
+
+        // [THEN] We get an error, saying that there are associated entries
+        Assert.ExpectedError('one or more entries are associated');
+        JobCard.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure CustomerNoCanBeChangedWhenSkippingAssosEntriesValidation()
+    var
+        Job: Record Job;
+        JobCard: TestPage "Job Card";
+        JobJnlErrorHandling: codeunit "Job Jnl. Error Handling";
+        NewCustomerNo: Code[20];
+    begin
+        // [BUG 457148] Changing Customer No. on Job Card throws error
+        Initialize();
+
+        // [GIVEN] We open the Job Card of a Job in progress with Planning Lines and Tasks
+        // Set the Job description to SkipCheckText as a flag for the EventSubscriber (LibraryVariableStorage doesn't work with EventSubscribers)
+        CreateElaborateJob(Job, SkipCheckText);
+        JobCard.OpenEdit();
+        JobCard.Filter.SetFilter("No.", Job."No.");
+
+        // [GIVEN] We skip checking for Associated Job Ledger Entries and Job Planning Lines when changing the Customer No.
+        BindSubscription(JobJnlErrorHandling);
+
+        // [WHEN] We try to change the Customer No.
+        NewCustomerNo := LibrarySales.CreateCustomerNo();
+        JobCard."Sell-to Customer No.".SetValue(NewCustomerNo);
+
+        // [THEN] No error occurs because the validation was skipped
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Job Jnl. Error Handling");
@@ -241,15 +298,58 @@ codeunit 136316 "Job Jnl. Error Handling"
         if IsInitialized then
             exit;
 
-#if not CLEAN20
-        FeatureManagement.IsEnabled('PicksForJobs');
-#endif
         SetEnableDataCheck(true);
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Job Jnl. Error Handling");
         Commit();
         IsInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Job Jnl. Error Handling");
+    end;
+
+    local procedure CreateElaborateJob(var Job: Record Job; Description: Text)
+    var
+        JobTaskA: Record "Job Task";
+        JobTaskB: Record "Job Task";
+        JobPlanningLineA: Record "Job Planning Line";
+        JobPlanningLineB: Record "Job Planning Line";
+        JobDefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        JobJournalLine: Record "Job Journal Line";
+        Resource: Record Resource;
+    begin
+        LibraryJob.CreateJob(Job);
+
+        Job.Description := Description;
+        Job.Modify();
+
+        // Create Default Dimension
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDefaultDimension(
+          JobDefaultDimension, DATABASE::Job, Job."No.", DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // Create Job Task
+        LibraryJob.CreateJobTask(Job, JobTaskA);
+        LibraryJob.CreateJobTask(Job, JobTaskB);
+
+        // Create Planning Line
+        LibraryJob.CreateJobPlanningLine("Job Planning Line Line Type"::Budget, "Job Planning Line Type"::Item, JobTaskA, JobPlanningLineA);
+        LibraryJob.CreateJobPlanningLine("Job Planning Line Line Type"::Budget, "Job Planning Line Type"::Item, JobTaskB, JobPlanningLineB);
+
+        // Post a Job Journal Line
+        JobJournalLine.Init();
+        LibraryJob.CreateJobJournalLineForType("Job Line Type"::Budget, "Job Planning Line Type"::Item, JobTaskA, JobJournalLine);
+        JobJournalLine.Validate(Quantity, 1);
+        JobJournalLine.Validate("Unit Cost", 1);
+        JobJournalLine.Modify();
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // Post another Job Journal Line 
+        JobJournalLine.Init();
+        LibraryJob.CreateJobJournalLineForType("Job Line Type"::Budget, "Job Planning Line Type"::Item, JobTaskB, JobJournalLine);
+        JobJournalLine.Validate(Quantity, 1);
+        JobJournalLine.Validate("Unit Cost", 100000);
+        JobJournalLine.Modify();
+        LibraryJob.PostJobJournal(JobJournalLine);
     end;
 
     local procedure SetEnableDataCheck(Enabled: Boolean)
@@ -368,25 +468,35 @@ codeunit 136316 "Job Jnl. Error Handling"
         ErrorHandlingParameters."Previous Line No." := PreviosLineNo;
     end;
 
-    procedure EnableFeature()
-    begin
-        BackgroundErrorCheckFeatureEnabled := true;
-    end;
-
-    local procedure EnableFeature(var JobJnlErrorHandling: codeunit "Job Jnl. Error Handling")
-    begin
-        BindSubscription(JobJnlErrorHandling);
-        JobJnlErrorHandling.EnableFeature();
-    end;
-
     local procedure VerifyErrorMessageText(ActualText: Text; ExpectedText: Text)
     begin
         Assert.IsSubstring(ActualText, ExpectedText);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Background Error Handling Mgt.", 'OnAfterIsEnabled', '', false, false)]
-    local procedure OnAfterIsEnabled(var Result: Boolean);
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
     begin
-        Result := BackgroundErrorCheckFeatureEnabled;
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Job, 'OnBeforeCheckBillToCustomerAssosEntriesExist', '', false, false)]
+    procedure OnBeforeCheckBillToCustomerAssosEntriesExist(var Job: Record Job; var xJob: Record Job; var IsHandled: Boolean)
+    begin
+        if Job.Description = SkipCheckText then
+            IsHandled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Job, 'OnBeforeCheckSellToCustomerAssosEntriesExist', '', false, false)]
+    procedure OnBeforeCheckSellToCustomerAssosEntriesExist(var Job: Record Job; var xJob: Record Job; var IsHandled: Boolean)
+    begin
+        if Job.Description = SkipCheckText then
+            IsHandled := true;
     end;
 }

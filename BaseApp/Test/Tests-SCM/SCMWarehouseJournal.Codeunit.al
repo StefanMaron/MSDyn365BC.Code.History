@@ -2618,6 +2618,82 @@ codeunit 137153 "SCM Warehouse - Journal"
 
     [Test]
     [Scope('OnPrem')]
+    procedure BinCreationWorksheetUsesSpecialEquipmentCodeFromZone()
+    var
+        Location: array[3] of Record Location;
+        Zone: array[3] of Record Zone;
+        SpecialEquipment: Record "Special Equipment";
+        WhseEmployee: Record "Warehouse Employee";
+        BinCreationWkshTemplate: Record "Bin Creation Wksh. Template";
+        BinCreationWkshName: array[3] of Record "Bin Creation Wksh. Name";
+        BinCreationWorksheetLine: Record "Bin Creation Worksheet Line";
+    begin
+        // [FEATURE] [Warehouse Employee] [Bin Creation Worksheet] [Special Equipment] [UT]
+        // [SCENARIO ] Bin Creation Worksheet copies the 'Special Equipment Code' from the Zone.
+        Initialize();
+
+        // [GIVEN] Special equipment 
+        if not SpecialEquipment.FindFirst() then begin
+            SpecialEquipment.Init();
+            SpecialEquipment.Code := LibraryUtility.GenerateRandomCode(SpecialEquipment.FieldNo(Code), Database::"Special Equipment");
+            SpecialEquipment.Description := LibraryUtility.GenerateRandomText(MaxStrLen(SpecialEquipment.Description));
+            SpecialEquipment.Insert(true);
+        end;
+
+        // [GIVEN] 3 Locations -  basic "Blue", "Silver" with mandatory bin, "White" with directed put-away and pick.
+        // [GIVEN] Current user is set as warehouse employee at "Blue", "Silver" and "White".
+        CreateLocationsArray(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WhseEmployee, Location[1].Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WhseEmployee, Location[2].Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WhseEmployee, Location[3].Code, false);
+
+        // [GIVEN] Each location has a zone defined with the special equipment code
+        LibraryWarehouse.CreateZone(Zone[1], '', Location[1].Code, '', '', SpecialEquipment.Code, 0, false);
+        LibraryWarehouse.CreateZone(Zone[2], '', Location[2].Code, '', '', SpecialEquipment.Code, 0, false);
+        LibraryWarehouse.CreateZone(Zone[3], '', Location[3].Code, '', '', SpecialEquipment.Code, 0, false);
+
+        // [WHEN] Bin Creation Worksheet Name for location "Blue".
+        CreateBinCreationWkshTemplate(BinCreationWkshTemplate);
+        commit();
+
+        // [THEN] Error is thrown
+        asserterror CreateBinCreationWkshName(BinCreationWkshName[1], BinCreationWkshTemplate.Name, Location[1].Code);
+        Assert.ExpectedError('Bin Mandatory must be equal to ');
+
+        // [GIVEN] WorksheetNames for template and location combination
+        CreateBinCreationWkshName(BinCreationWkshName[2], BinCreationWkshTemplate.Name, Location[2].Code);
+        CreateBinCreationWkshName(BinCreationWkshName[3], BinCreationWkshTemplate.Name, Location[3].Code);
+
+        // [GIVEN] Open Bin Creation Worksheet at "Silver".
+        BinCreationWorksheetLine.SetRange("Worksheet Template Name", BinCreationWkshTemplate.Name);
+        BinCreationWorksheetLine.OpenWksh(BinCreationWkshName[2].Name, Location[2].Code, BinCreationWorksheetLine);
+
+        // [WHEN] Zone is selected on the Bin Cretion Worksheet Line
+        BinCreationWorksheetLine.Validate(Type, BinCreationWorksheetLine.Type::Bin);
+        BinCreationWorksheetLine.Validate("Bin Code", LibraryUtility.GenerateRandomCode(BinCreationWorksheetLine.FieldNo("Bin Code"), Database::"Bin Creation Worksheet Line"));
+        BinCreationWorksheetLine.Validate("Location Code", Location[2].Code);
+        BinCreationWorksheetLine.Validate("Zone Code", Zone[2].Code);
+
+        // [THEN] Special equipment code is copied from zone
+        BinCreationWorksheetLine.TestField("Special Equipment Code", SpecialEquipment.Code);
+
+        // [GIVEN] Open Bin Creation Worksheet at "White".
+        Clear(BinCreationWorksheetLine);
+        BinCreationWorksheetLine.SetRange("Worksheet Template Name", BinCreationWkshTemplate.Name);
+        BinCreationWorksheetLine.OpenWksh(BinCreationWkshName[3].Name, Location[3].Code, BinCreationWorksheetLine);
+
+        // [WHEN] Zone is selected on the Bin Cretion Worksheet Line
+        BinCreationWorksheetLine.Validate(Type, BinCreationWorksheetLine.Type::Bin);
+        BinCreationWorksheetLine.Validate("Bin Code", LibraryUtility.GenerateRandomCode(BinCreationWorksheetLine.FieldNo("Bin Code"), Database::"Bin Creation Worksheet Line"));
+        BinCreationWorksheetLine.Validate("Location Code", Location[3].Code);
+        BinCreationWorksheetLine.Validate("Zone Code", Zone[3].Code);
+
+        // [THEN] Special equipment code is copied from zone
+        BinCreationWorksheetLine.TestField("Special Equipment Code", SpecialEquipment.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure AdjustmentBinValidatedAsFromBinCodeForPositiveAdjustment()
     var
         Bin: Record Bin;

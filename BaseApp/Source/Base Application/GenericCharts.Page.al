@@ -21,7 +21,7 @@ page 9182 "Generic Charts"
                     Caption = 'ID';
                     ToolTip = 'Specifies the unique ID of the chart.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';

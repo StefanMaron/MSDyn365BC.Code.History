@@ -213,7 +213,7 @@ page 7004 "Sales Line Discounts"
                     Editable = SalesCodeEditable;
                     ToolTip = 'Specifies one of the following values, depending on the value in the Sales Type field.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of item that the sales discount line is valid for. That is, either an item or an item discount group.';

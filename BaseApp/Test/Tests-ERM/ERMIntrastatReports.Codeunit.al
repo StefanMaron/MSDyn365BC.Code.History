@@ -1,7 +1,11 @@
+#if not CLEAN22
 codeunit 134063 "ERM Intrastat Reports"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -484,7 +488,6 @@ codeunit 134063 "ERM Intrastat Reports"
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
         SalesHeader.Validate("Transaction Type", TransactionType);
         SalesHeader.Validate("Transport Method", TransportMethod);
-        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(100, 2) * 100);
     end;
@@ -769,4 +772,4 @@ codeunit 134063 "ERM Intrastat Reports"
         GetItemLedgEntries.OK.Invoke;
     end;
 }
-
+#endif

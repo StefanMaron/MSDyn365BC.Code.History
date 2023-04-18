@@ -71,7 +71,7 @@ codeunit 137156 "SCM Orders IV"
         PurchInvLineQuantityErr: label 'Expected quantity of 1 on purchase invoice line but found %1';
         PurchInvLineVendorNoErr: label 'Expected "Buy-from Vendor No." to be %1 on purchase invoice line but found %2';
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure CheckValueOfSalesTypeOnSalesPricesPage()
@@ -499,7 +499,7 @@ codeunit 137156 "SCM Orders IV"
         Assert.ExpectedError(StrSubstNo(BlockedItemErrorMsg, Item."No."));
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure SalesLineDiscountDeletedAfterDeletingCustomerDiscountGroup()
@@ -630,7 +630,7 @@ codeunit 137156 "SCM Orders IV"
         UpdateCreditWarningOnSalesAndReceivablesSetup(OldCreditWarning);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceNegativeQuantityError()
@@ -946,7 +946,7 @@ codeunit 137156 "SCM Orders IV"
         UpdateCreditWarningOnSalesAndReceivablesSetup(OldCreditWarning);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure CreateSalesLineDiscountForTypeItem()
@@ -1446,7 +1446,7 @@ codeunit 137156 "SCM Orders IV"
         VerifyQuantityOnWarehouseActivityLine(SalesHeaderNo, QtyToHandle + (QtyOnSalesLine - QtyOnPurchLine));
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('MoveNegativeSalesLinesHandler,YesConfirmHandler,SalesOrderHandler')]
     [Scope('OnPrem')]
@@ -2541,7 +2541,7 @@ codeunit 137156 "SCM Orders IV"
         SalesLine.TestField("Line Discount %", LineDiscPercent);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure LineDiscountPercIsZeroWhenAllowLineDiscDisabledOnCustomer()
@@ -3365,7 +3365,7 @@ codeunit 137156 "SCM Orders IV"
         Item.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateCustomerAndOpenSalesLineDiscountsPageFromCustomerCard(var SalesLineDiscounts: TestPage "Sales Line Discounts")
     var
         Customer: Record Customer;
@@ -3524,7 +3524,7 @@ codeunit 137156 "SCM Orders IV"
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Type, VendorNo, ItemNo, Quantity);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreatePurchaseLineDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount"; Item: Record Item; Quantity: Decimal)
     begin
         LibraryERM.CreateLineDiscForVendor(PurchaseLineDiscount, Item."No.", Item."Vendor No.", 0D, '', '', '', Quantity);
@@ -3549,7 +3549,7 @@ codeunit 137156 "SCM Orders IV"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreatePurchasePriceForVendor(var PurchasePrice: Record "Purchase Price"; Item: Record Item; Quantity: Decimal)
     begin
         LibraryCosting.CreatePurchasePrice(PurchasePrice, Item."Vendor No.", Item."No.", 0D, '', '', '', Quantity);
@@ -3779,7 +3779,7 @@ codeunit 137156 "SCM Orders IV"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; Item: Record Item; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; Quantity: Decimal)
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -3978,7 +3978,7 @@ codeunit 137156 "SCM Orders IV"
         VerifyPurchaseOrdContainsTwoLines(SalesHeader, false);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CarryOutActionMessageOnRequisitionWorksheet(SpecialOrder: Boolean)
     var
         Item: Record Item;
@@ -4155,7 +4155,7 @@ codeunit 137156 "SCM Orders IV"
         SalesLine.SetRange("No.", '');
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure FilterSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerDiscountGroupCode: Code[20])
     begin
         SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::"Customer Disc. Group");
@@ -4966,7 +4966,7 @@ codeunit 137156 "SCM Orders IV"
         RegisteredWhseActivityLine.TestField(Quantity, Quantity);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure VerifySalesLineDiscount(SalesLineDiscount: Record "Sales Line Discount")
     var
         SalesLineDiscount2: Record "Sales Line Discount";

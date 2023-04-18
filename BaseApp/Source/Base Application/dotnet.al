@@ -83,7 +83,7 @@ dotnet
         type("Microsoft.Dynamics.Nav.Runtime.DesignedQuery.AL.DqExporter"; "DqExporter")
         {
         }
-        
+
         type("Microsoft.Dynamics.Nav.Runtime.AL.ALCloudMigration"; "ALCloudMigration")
         {
         }
@@ -104,5 +104,9 @@ dotnet
         type(Microsoft.Dynamics.QRCode.ErrorCorrectionLevel; "QRCode Error Correction Level") { }
         type(Microsoft.Dynamics.Nav.MX.BarcodeProviders.IBarcodeProvider; "IBarcode Provider") { }
         type(Microsoft.Dynamics.Nav.MX.BarcodeProviders.QRCodeProvider; "QRCode Provider") { }
+    }
+    assembly(Microsoft.AspNetCore.StaticFiles)
+    {
+        type(Microsoft.AspNetCore.StaticFiles.FileExtensionContentTypeProvider; FileExtensionContentTypeProvider) { }
     }
 }

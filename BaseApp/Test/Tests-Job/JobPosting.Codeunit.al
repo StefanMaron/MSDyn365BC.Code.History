@@ -53,6 +53,7 @@ codeunit 136309 "Job Posting"
         TrackingOption: Option SelectSerialNo,AssignManualSN;
         PostJournaLinesQst: Label 'Do you want to post the journal lines?';
         UsageWillNotBeLinkedQst: Label 'Usage will not be linked to the job planning line because the Line Type field is empty.';
+        WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
 
     [Test]
     [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
@@ -2211,6 +2212,45 @@ codeunit 136309 "Job Posting"
         JobPlanningLine.TestField("Unit of Measure Code", Item."Base Unit of Measure");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPreviewJobJournal()
+    var
+        JobJournalLine: Record "Job Journal Line";
+        JobTask: Record "Job Task";
+        JobLedgerEntry: Record "Job Ledger Entry";
+        ResLegerEntry: Record "Res. Ledger Entry";
+        JobJournalPost: Codeunit "Job Jnl.-Post";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        RandomInput: Decimal;
+    begin
+        // Check value of Job Ledger Entries and Job Planning Line exist or not after posting Job Journal Line.
+
+        // 1. Setup: Create Job with Job Task, Resource and Job Journal Line.
+        Initialize();
+        RandomInput := LibraryRandom.RandDec(10, 2);  // Using Random Value for Quantity,Unit Cost and Unit Price.
+        CreateJobWithJobTask(JobTask);
+        CreateJobJournalLine(
+          LibraryJob.UsageLineTypeBoth, JobJournalLine.Type::Resource, JobJournalLine, JobTask, LibraryResource.CreateResourceNo,
+          RandomInput, RandomInput, RandomInput);  // Using Random because value is not important.
+        Commit();
+
+        // [WHEN] Preview is invoked
+        GLPostingPreview.Trap;
+        asserterror JobJournalPost.Preview(JobJournalLine);
+        Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
+
+        // [THEN] Preview creates the entries that will be created when the journal is posted
+        GLPostingPreview.First;
+        VerifyGLPostingPreviewLine(GLPostingPreview, JobLedgerEntry.TableCaption(), 1);
+
+        GLPostingPreview.Next();
+        VerifyGLPostingPreviewLine(GLPostingPreview, ResLegerEntry.TableCaption(), 1);
+
+        Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
+        GLPostingPreview.OK.Invoke;
+    end;
+
     local procedure Initialize()
     var
         NoSeries: Record "No. Series";
@@ -2245,6 +2285,13 @@ codeunit 136309 "Job Posting"
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Posting");
+    end;
+
+    local procedure VerifyGLPostingPreviewLine(GLPostingPreview: TestPage "G/L Posting Preview"; TableName: Text; ExpectedEntryCount: Integer)
+    begin
+        Assert.AreEqual(TableName, GLPostingPreview."Table Name".Value, StrSubstNo('A record for Table Name %1 was not found.', TableName));
+        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger,
+          StrSubstNo('Table Name %1 Unexpected number of records.', TableName));
     end;
 
     local procedure AssignGlobalVariables(LineAmountLCY: Decimal; TotalCostLCY: Decimal; LineAmount: Decimal; TotalCost: Decimal)

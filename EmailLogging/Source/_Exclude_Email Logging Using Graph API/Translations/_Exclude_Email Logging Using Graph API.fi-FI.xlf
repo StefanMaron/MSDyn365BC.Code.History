@@ -213,12 +213,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmptyEmailAddressErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2120671752 - NamedType 33623699" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The Email Logging Using the Microsoft Graph API feature is not enabled.</source>
-          <target state="translated">Sähköpostin lokiinkirjaus Microsoft Graph API -ominaisuuden avulla ei ole käytössä.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType FeatureDisabledErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2120671752 - NamedType 1164843116" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your license does not allow you to schedule the email logging task or register interaction log entries. To view details about your permissions, see the Effective Permissions page.</source>
           <target state="translated">Käyttöoikeutesi ei salli sähköpostin lokiinkirjaustehtävän ajoittamista tai vuorovaikutuslokin tapahtumien rekisteröimistä. Voit katsoa käyttöoikeuksiasi koskevat tiedot Voimassa olevat käyttöoikeudet -sivulta.</target>
@@ -285,11 +279,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType ClearSetupTxt</note>
         </trans-unit>
-        <trans-unit id="Page 3925836548 - NamedType 1063437616" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This setup page can only be used when the Email Logging Using the Microsoft Graph API feature is enabled. You can enable the feature on the Feature Management page.</source>
-          <target state="translated">Tätä asetussivua voidaan käyttää vain silloin, jos Sähköpostin lokiinkirjaus Microsoft Graph API:n avulla -ominaisuus on käytössä. Voit hallita tätä ominaisuutta Ominaisuuksien hallinta -sivulla.</target>
+        <trans-unit id="Page 3925836548 - NamedType 685980417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This feature requires that you are using Microsoft Exchange Online. By enabling this feature, you consent to sharing some of your organization's data in Office 365 with Business Central. Business Central will access details about email messages in the shared mailbox that your administrator created for email logging. The details include the message’s IDs, whether it is a draft, the dates and times it was sent and received, the text from the Subject line, a link to the message in Exchange Online, and the email addresses of the sender and the recipients on the To and Cc lines.\\Business Central will store only the IDs, dates, subject, and weblink. We do not store the content of the messages, but there is a link that will open the email message in Outlook Online.\\Do you want to continue?</source>
+          <target state="translated">Tämä ominaisuus edellyttää, että käytät Microsoft Exchange Onlinea. Ottamalla tämän ominaisuuden käyttöön hyväksyt, että joitakin organisaatiosi Office 365:ssä olevia tietoja jaetaan Business Centralille. Business Central käyttää siinä jaetussa postilaatikossa oleviin sähköpostiviesteihin liittyviä tietoja, jonka järjestelmänvalvoja on luonut sähköpostin lokiinkirjausta varten. Näitä tietoja ovat viestin tunnus, tieto siitä, onko kyseessä luonnos, sähköpostiviestin lähetysaika ja -päivä sekä vastanottoaika ja -päivä, Aihe-rivin teksti, linkki viestiin Exchange Onlinessa sekä lähettäjän ja Vastaanottaja- ja Piilokopio-riveillä olevien vastaanottajien sähköpostiosoitteet.\\Business Central tallentaa vain tunnukset, päivämäärät, aiheen ja verkkolinkin. Viestien sisältöä ei tallenneta, mutta on olemassa linkki, joka avaa sähköpostiviestin Outlook Onlinessa.\\Haluatko jatkaa?</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType FeautureNotEnabledErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType DataHandlingConsentQst</note>
         </trans-unit>
         <trans-unit id="Page 3925836548 - NamedType 3536538717" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must sign in with an administrator account for Exchange Online and give consent to the application that will be used to connect to the shared mailbox. Do you want to continue?</source>

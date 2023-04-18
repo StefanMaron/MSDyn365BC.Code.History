@@ -39,7 +39,7 @@ codeunit 139031 "Change Log"
     var
         CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer";
     begin
-        ChangeLogInit;
+        ChangeLogInit();
         NoSeriesSetup();
 
         // Lazy Setup.
@@ -55,7 +55,7 @@ codeunit 139031 "Change Log"
         GlobalExtraFieldNo[2] := CVLedgerEntryBuffer.FieldNo(Amount);
         GlobalExtraFieldNo[3] := CVLedgerEntryBuffer.FieldNo(Description);
         GlobalExtraFieldNo[4] := CVLedgerEntryBuffer.FieldNo("CV No.");
-        DummyLog;
+        DummyLog();
 
         isInitialized := true;
         Commit();
@@ -72,7 +72,6 @@ codeunit 139031 "Change Log"
     local procedure NoSeriesSetup()
     var
         InventorySetup: Record "Inventory Setup";
-        LibraryInventory: Codeunit "Library - Inventory";
     begin
         LibraryInventory.NoSeriesSetup(InventorySetup);
     end;
@@ -93,7 +92,7 @@ codeunit 139031 "Change Log"
         ChangeLogEntry.DeleteAll();
 
         OldChangeLogActivated := SetChangeLogSetup(true);
-        ChangeLogManagement.InitChangeLog;
+        ChangeLogManagement.InitChangeLog();
     end;
 
     local procedure SetChangeLogSetup(ChangeLogActivated: Boolean): Boolean
@@ -129,7 +128,7 @@ codeunit 139031 "Change Log"
         SetChangeLogSetup(false);
 
         // Exercise
-        ChangeLogSetupPage.OpenEdit;
+        ChangeLogSetupPage.OpenEdit();
         ChangeLogSetupPage."Change Log Activated".SetValue(true);
         ChangeLogSetupPage.Close();
 
@@ -138,7 +137,7 @@ codeunit 139031 "Change Log"
         Assert.IsTrue(ChangeLogSetup."Change Log Activated", 'Change Log was not activated.');
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -155,7 +154,7 @@ codeunit 139031 "Change Log"
         SetChangeLogSetup(false);
 
         // Exercise
-        ChangeLogSetupPage.OpenEdit;
+        ChangeLogSetupPage.OpenEdit();
         ChangeLogSetupPage."Change Log Activated".SetValue(true);
         ChangeLogSetupPage.Close();
 
@@ -164,7 +163,7 @@ codeunit 139031 "Change Log"
         Assert.IsFalse(ChangeLogSetup."Change Log Activated", 'Change Log was activated.');
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -184,7 +183,7 @@ codeunit 139031 "Change Log"
         AssertAllFields(RecRef, TypeOfChangeOption::Insertion);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -207,7 +206,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -227,7 +226,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -253,7 +252,7 @@ codeunit 139031 "Change Log"
         AssertEntry(RecRef, RecRef, GlobalFieldNo[3], TypeOfChangeOption::Insertion);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -276,7 +275,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -299,7 +298,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -359,7 +358,7 @@ codeunit 139031 "Change Log"
         AssertAllFields(RecRef, TypeOfChangeOption::Deletion);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -383,7 +382,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Deletion, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -403,7 +402,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Deletion, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -429,7 +428,7 @@ codeunit 139031 "Change Log"
         AssertEntry(RecRef, RecRef, GlobalFieldNo[3], TypeOfChangeOption::Deletion);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -455,7 +454,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Deletion, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -478,7 +477,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Deletion, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -501,7 +500,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Deletion, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -527,7 +526,7 @@ codeunit 139031 "Change Log"
         AssertEntry(RecRef, xRecRef, GlobalExtraFieldNo[3], TypeOfChangeOption::Modification);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -553,7 +552,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Modification, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -574,7 +573,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Modification, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -602,7 +601,7 @@ codeunit 139031 "Change Log"
         AssertEntry(RecRef, xRecRef, GlobalExtraFieldNo[1], TypeOfChangeOption::Modification);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -625,7 +624,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Modification, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -649,7 +648,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Modification, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -673,7 +672,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Modification, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -695,7 +694,7 @@ codeunit 139031 "Change Log"
         AssertEntry(RecRef, xRecRef, GlobalFieldNo[1], TypeOfChangeOption::Modification);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -720,7 +719,7 @@ codeunit 139031 "Change Log"
         AssertEntry(RecRef, xRecRef, GlobalFieldNo[1], TypeOfChangeOption::Modification);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -729,7 +728,6 @@ codeunit 139031 "Change Log"
     var
         TempItem: Record Item temporary;
         RecRef: RecordRef;
-        xRecRef: RecordRef;
         NewNo: Code[20];
         OldNo: Code[20];
     begin
@@ -751,7 +749,7 @@ codeunit 139031 "Change Log"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Modification, 0);
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -776,10 +774,10 @@ codeunit 139031 "Change Log"
 
         // [WHEN] Read Change Log Entry: TAB 405 "Change Log Entry".GetLocalNewValue()
         // [THEN] Returned value = 'TEST'
-        Assert.AreEqual(NewValue, ChangeLogEntry.GetLocalNewValue, ChangeLogEntry.FieldCaption("New Value"));
+        Assert.AreEqual(NewValue, ChangeLogEntry.GetLocalNewValue(), ChangeLogEntry.FieldCaption("New Value"));
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -804,10 +802,10 @@ codeunit 139031 "Change Log"
 
         // [WHEN] Read Change Log Entry: TAB 405 "Change Log Entry".GetLocalNewValue()
         // [THEN] Returned value = 'TEST'
-        Assert.AreEqual(NewValue, ChangeLogEntry.GetLocalNewValue, ChangeLogEntry.FieldCaption("New Value"));
+        Assert.AreEqual(NewValue, ChangeLogEntry.GetLocalNewValue(), ChangeLogEntry.FieldCaption("New Value"));
 
         // Tear down
-        TearDown;
+        TearDown();
     end;
 
     [Normal]
@@ -858,7 +856,7 @@ codeunit 139031 "Change Log"
         if not ChangeLogEntry.FindFirst() then
             exit;
 
-        Assert.AreNotEqual('', ChangeLogEntry.GetFullPrimaryKeyFriendlyName, 'PrimaryKeyFriendlyName should not be blank.');
+        Assert.AreNotEqual('', ChangeLogEntry.GetFullPrimaryKeyFriendlyName(), 'PrimaryKeyFriendlyName should not be blank.');
 
         ChangeLogEntry.TestField("Record ID");
         case TypeOfChange of
@@ -984,7 +982,7 @@ codeunit 139031 "Change Log"
         RecRef: RecordRef;
     begin
         // initialize change log
-        ChangeLogInit;
+        ChangeLogInit();
 
         // This function is to set the change log - due to design first time it logs double for the record in "subject" - use as blank dummy log in beggining
         SetTableForChangeLog(GlobalTableNo, LogOption::" ", LogOption::" ", LogOption::" ");
@@ -1003,12 +1001,12 @@ codeunit 139031 "Change Log"
         CVLedgerEntryBuffer.Delete();
 
         // re-initialize change log
-        ChangeLogInit;
+        ChangeLogInit();
     end;
 
     local procedure HasValue(FieldRef: FieldRef): Boolean
     var
-        HasValue: Boolean;
+        FieldHasValue: Boolean;
         Int: Integer;
         Dec: Decimal;
         D: Date;
@@ -1016,36 +1014,36 @@ codeunit 139031 "Change Log"
     begin
         case FieldRef.Type of
             FieldType::Boolean:
-                HasValue := FieldRef.Value;
+                FieldHasValue := FieldRef.Value;
             FieldType::Option:
-                HasValue := true;
+                FieldHasValue := true;
             FieldType::Integer:
                 begin
                     Int := FieldRef.Value;
-                    HasValue := Int <> 0;
+                    FieldHasValue := Int <> 0;
                 end;
             FieldType::Decimal:
                 begin
                     Dec := FieldRef.Value;
-                    HasValue := Dec <> 0;
+                    FieldHasValue := Dec <> 0;
                 end;
             FieldType::Date:
                 begin
                     D := FieldRef.Value;
-                    HasValue := D <> 0D;
+                    FieldHasValue := D <> 0D;
                 end;
             FieldType::Time:
                 begin
                     T := FieldRef.Value;
-                    HasValue := T <> 0T;
+                    FieldHasValue := T <> 0T;
                 end;
             FieldType::BLOB:
-                HasValue := false;
+                FieldHasValue := false;
             else
-                HasValue := Format(FieldRef.Value) <> '';
+                FieldHasValue := Format(FieldRef.Value) <> '';
         end;
 
-        exit(HasValue);
+        exit(FieldHasValue);
     end;
 
     local procedure IsNormalField(FieldRef: FieldRef): Boolean
@@ -1118,11 +1116,11 @@ codeunit 139031 "Change Log"
     procedure FormatValueDateTime()
     var
         TempJobLedgerEntry: Record "Job Ledger Entry" temporary;
-        DateTimeOffset: DotNet DateTimeOffset;
         RecRef: RecordRef;
+        DateTimeOffset: DotNet DateTimeOffset;
         OffsetFromUtc: Duration;
     begin
-        OffsetFromUtc := DateTimeOffset.Parse('2032-12-31T23:59:00Z').ToLocalTime.Offset;
+        OffsetFromUtc := DateTimeOffset.Parse('2032-12-31T23:59:00Z').ToLocalTime().Offset;
 
         TempJobLedgerEntry.Init();
         TempJobLedgerEntry."DateTime Adjusted" := CreateDateTime(19321231D, 235900T) + OffsetFromUtc;
@@ -1332,30 +1330,30 @@ codeunit 139031 "Change Log"
     procedure EvaluateTextToFieldRefDateTime()
     var
         ChangeLogEntry: Record "Change Log Entry";
-        DateTimeOffset: DotNet DateTimeOffset;
-        FieldRef: FieldRef;
         RecRef: RecordRef;
+        FieldRef: FieldRef;
+        DateTimeOffset: DotNet DateTimeOffset;
         TmpDateTime: DateTime;
         OffsetFromUtc: Duration;
     begin
         RecRef.Open(DATABASE::"Change Log Entry");
         FieldRef := RecRef.Field(ChangeLogEntry.FieldNo("Date and Time"));
 
-        OffsetFromUtc := DateTimeOffset.Parse('2032-12-31T23:59:00Z').ToLocalTime.Offset;
+        OffsetFromUtc := DateTimeOffset.Parse('2032-12-31T23:59:00Z').ToLocalTime().Offset;
         Assert.IsTrue(ChangeLogManagement.EvaluateTextToFieldRef('2032-12-31T23:59:00Z', FieldRef), ParseShouldSucceedErr);
         TmpDateTime := FieldRef.Value;
         TmpDateTime := TmpDateTime - OffsetFromUtc;
         Assert.AreEqual(235900T, DT2Time(TmpDateTime), BadParsedValueErr);
         Assert.AreEqual(20321231D, DT2Date(TmpDateTime), BadParsedValueErr);
 
-        OffsetFromUtc := DateTimeOffset.Parse('2032-12-31T23:59:00').ToLocalTime.Offset;
+        OffsetFromUtc := DateTimeOffset.Parse('2032-12-31T23:59:00').ToLocalTime().Offset;
         Assert.IsTrue(ChangeLogManagement.EvaluateTextToFieldRef('2032-12-31T23:59:00', FieldRef), ParseShouldSucceedErr);
         TmpDateTime := FieldRef.Value;
         TmpDateTime := TmpDateTime - OffsetFromUtc;
         Assert.AreEqual(235900T, DT2Time(TmpDateTime), BadParsedValueErr);
         Assert.AreEqual(20321231D, DT2Date(TmpDateTime), BadParsedValueErr);
 
-        OffsetFromUtc := DateTimeOffset.Parse('2032-06-30T23:59:00Z').ToLocalTime.Offset;
+        OffsetFromUtc := DateTimeOffset.Parse('2032-06-30T23:59:00Z').ToLocalTime().Offset;
         Assert.IsTrue(ChangeLogManagement.EvaluateTextToFieldRef('2032-06-30T23:59:00Z', FieldRef), ParseShouldSucceedErr);
         TmpDateTime := FieldRef.Value;
         TmpDateTime := TmpDateTime - OffsetFromUtc;
@@ -1534,9 +1532,9 @@ codeunit 139031 "Change Log"
     procedure CommentsActionOnLotNoInformationCardDoesNotCreateOnInsertLogEntries()
     var
         LotNoInformation: Record "Lot No. Information";
+        RecRef: RecordRef;
         LotNoInformationCard: TestPage "Lot No. Information Card";
         ItemTrackingComments: TestPage "Item Tracking Comments";
-        RecRef: RecordRef;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from Lot No. Information Card
@@ -1546,21 +1544,21 @@ codeunit 139031 "Change Log"
         SetTableForChangeLog(DATABASE::"Lot No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // [GIVEN] Lot No. Information with Item = "X" and 3 entries in Change Log
-        LibraryInventory.CreateLotNoInformation(LotNoInformation, LibraryInventory.CreateItemNo, '', LibraryUtility.GenerateGUID());
+        LibraryInventory.CreateLotNoInformation(LotNoInformation, LibraryInventory.CreateItemNo(), '', LibraryUtility.GenerateGUID());
         RecRef.GetTable(LotNoInformation);
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
 
         // [WHEN] Open Item Tracking Comments from Lot No. Information Card for Item "X"
-        LotNoInformationCard.OpenView;
+        LotNoInformationCard.OpenView();
         LotNoInformationCard.GotoRecord(LotNoInformation);
-        ItemTrackingComments.Trap;
-        LotNoInformationCard.Comment.Invoke;
+        ItemTrackingComments.Trap();
+        LotNoInformationCard.Comment.Invoke();
         ItemTrackingComments.Close();
 
         // [THEN] No additional entries records created in Change Log Entries for Lot No. Information with Item = "X"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1568,9 +1566,9 @@ codeunit 139031 "Change Log"
     procedure CommentsActionOnLotNoInformationListDoesNotCreateOnInsertLogEntries()
     var
         LotNoInformation: Record "Lot No. Information";
+        RecRef: RecordRef;
         LotNoInformationList: TestPage "Lot No. Information List";
         ItemTrackingComments: TestPage "Item Tracking Comments";
-        RecRef: RecordRef;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from Lot No. Information List
@@ -1580,21 +1578,21 @@ codeunit 139031 "Change Log"
         SetTableForChangeLog(DATABASE::"Lot No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // [GIVEN] Lot No. Information with Item = "X" and 3 entries in Change Log
-        LibraryInventory.CreateLotNoInformation(LotNoInformation, LibraryInventory.CreateItemNo, '', LibraryUtility.GenerateGUID());
+        LibraryInventory.CreateLotNoInformation(LotNoInformation, LibraryInventory.CreateItemNo(), '', LibraryUtility.GenerateGUID());
         RecRef.GetTable(LotNoInformation);
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
 
         // [WHEN] Open Item Tracking Comments from Lot No. Information List for Item "X"
-        LotNoInformationList.OpenView;
+        LotNoInformationList.OpenView();
         LotNoInformationList.GotoRecord(LotNoInformation);
-        ItemTrackingComments.Trap;
-        LotNoInformationList.Comment.Invoke;
+        ItemTrackingComments.Trap();
+        LotNoInformationList.Comment.Invoke();
         ItemTrackingComments.Close();
 
         // [THEN] No additional entries records created in Change Log Entries for Lot No. Information with Item = "X"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 3);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1602,9 +1600,9 @@ codeunit 139031 "Change Log"
     procedure CommentsActionOnSerialNoInformationCardDoesNotCreateOnInsertLogEntries()
     var
         SerialNoInformation: Record "Serial No. Information";
+        RecRef: RecordRef;
         SerialNoInformationCard: TestPage "Serial No. Information Card";
         ItemTrackingComments: TestPage "Item Tracking Comments";
-        RecRef: RecordRef;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from Serial No. Information Card
@@ -1614,21 +1612,21 @@ codeunit 139031 "Change Log"
         SetTableForChangeLog(DATABASE::"Serial No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // [GIVEN] Serial No. Information with Item = "X" and 2 entries in Change Log
-        LibraryInventory.CreateSerialNoInformation(SerialNoInformation, LibraryInventory.CreateItemNo, '', LibraryUtility.GenerateGUID());
+        LibraryInventory.CreateSerialNoInformation(SerialNoInformation, LibraryInventory.CreateItemNo(), '', LibraryUtility.GenerateGUID());
         RecRef.GetTable(SerialNoInformation);
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 2);
 
         // [WHEN] Open Item Tracking Comments from Serial No. Information Card for Item "X"
-        SerialNoInformationCard.OpenView;
+        SerialNoInformationCard.OpenView();
         SerialNoInformationCard.GotoRecord(SerialNoInformation);
-        ItemTrackingComments.Trap;
-        SerialNoInformationCard.Comment.Invoke;
+        ItemTrackingComments.Trap();
+        SerialNoInformationCard.Comment.Invoke();
         ItemTrackingComments.Close();
 
         // [THEN] No additional entries records created in Change Log Entries for Serial No. Information with Item = "X"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 2);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -1636,9 +1634,9 @@ codeunit 139031 "Change Log"
     procedure CommentsActionOnSerialNoInformationListDoesNotCreateOnInsertLogEntries()
     var
         SerialNoInformation: Record "Serial No. Information";
+        RecRef: RecordRef;
         SerialNoInformationList: TestPage "Serial No. Information List";
         ItemTrackingComments: TestPage "Item Tracking Comments";
-        RecRef: RecordRef;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381315] Entries should not be added to Change Log when Item Tracking Comments is opened from Serial No. Information List
@@ -1648,21 +1646,21 @@ codeunit 139031 "Change Log"
         SetTableForChangeLog(DATABASE::"Serial No. Information", LogOption::"All Fields", LogOption::" ", LogOption::" ");
 
         // [GIVEN] Serial No. Information with Item = "X" and 2 entries in Change Log
-        LibraryInventory.CreateSerialNoInformation(SerialNoInformation, LibraryInventory.CreateItemNo, '', LibraryUtility.GenerateGUID());
+        LibraryInventory.CreateSerialNoInformation(SerialNoInformation, LibraryInventory.CreateItemNo(), '', LibraryUtility.GenerateGUID());
         RecRef.GetTable(SerialNoInformation);
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 2);
 
         // [WHEN] Open Item Tracking Comments from Serial No. Information List for Item "X"
-        SerialNoInformationList.OpenView;
+        SerialNoInformationList.OpenView();
         SerialNoInformationList.GotoRecord(SerialNoInformation);
-        ItemTrackingComments.Trap;
-        SerialNoInformationList.Comment.Invoke;
+        ItemTrackingComments.Trap();
+        SerialNoInformationList.Comment.Invoke();
         ItemTrackingComments.Close();
 
         // [THEN] No additional entries records created in Change Log Entries for Serial No. Information with Item = "X"
         AssertNoOfEntriesForPK(RecRef, TypeOfChangeOption::Insertion, 2);
 
-        TearDown;
+        TearDown();
     end;
 
 #if not CLEAN22
@@ -1675,8 +1673,8 @@ codeunit 139031 "Change Log"
     begin
         // [SCENARIO] User wants to delete log entries (REP510). Date filter should be preset
         // [GIVEN] The user has admin rights
-        DeleteAllLogEntries;
-        LibraryLowerPermissions.SetO365BusFull;
+        DeleteAllLogEntries();
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] User Starts Delete Change Log Entries
         REPORT.RunModal(REPORT::"Change Log - Delete");
@@ -1693,8 +1691,8 @@ codeunit 139031 "Change Log"
     begin
         // [SCENARIO] User wants to delete log entries (REP510). Warning should be shown if no date filter is shown
         // [GIVEN] The user has admin rights
-        DeleteAllLogEntries;
-        LibraryLowerPermissions.SetO365BusFull;
+        DeleteAllLogEntries();
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] User Starts Delete Change Log Entries and removes the date filter
         REPORT.RunModal(REPORT::"Change Log - Delete");
@@ -1711,8 +1709,8 @@ codeunit 139031 "Change Log"
     begin
         // [SCENARIO] User wants to delete log entries (REP510). Error that no entries exist
         // [GIVEN] The user has admin rights
-        DeleteAllLogEntries;
-        LibraryLowerPermissions.SetO365BusFull;
+        DeleteAllLogEntries();
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] User Starts Delete Change Log Entries
         REPORT.RunModal(REPORT::"Change Log - Delete");
@@ -1731,10 +1729,10 @@ codeunit 139031 "Change Log"
     begin
         // [SCENARIO] User wants to delete log entries (REP510). Verify that old entries are deleted
         // [GIVEN] The user has admin rights and a changelogentry exists
-        DeleteAllLogEntries;
+        DeleteAllLogEntries();
         CreateChangeLogEntry(CalcDate('<-2Y>', Today));
         Commit();
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         Assert.AreNotEqual(0, ChangeLogEntry.Count, 'No entries created');
 
         // [WHEN] User Starts Delete Change Log Entries
@@ -1766,8 +1764,8 @@ codeunit 139031 "Change Log"
         ChangeLogSetup.Modify();
 
         // [GIVEN] Two tenant Permission Set.
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSetA, LibraryUtility.GenerateGUID, ZeroGuid);
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSetB, LibraryUtility.GenerateGUID, ZeroGuid);
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSetA, LibraryUtility.GenerateGUID(), ZeroGuid);
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSetB, LibraryUtility.GenerateGUID(), ZeroGuid);
 
         // [WHEN] A relation between the two is created
         TenantPermissionSetRel.Init();
@@ -1802,7 +1800,7 @@ codeunit 139031 "Change Log"
         ChangeLogSetup.Modify();
 
         // [WHEN] Insert new Tenant Permission Set.
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID, ZeroGuid);
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID(), ZeroGuid);
 
         // [THEN] Change Log Entry is created for Tenant Permission Set.
         ChangeLogEntry.SetRange("Table No.", DATABASE::"Tenant Permission Set");
@@ -1829,8 +1827,8 @@ codeunit 139031 "Change Log"
         ChangeLogSetup.Modify();
 
         // [WHEN] Insert new Tenant Permission.
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID, ZeroGuid);
-        CreateTenantPermission(TenantPermission, ZeroGuid, GenerateRandomTenantPermissionRoleID,
+        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID(), ZeroGuid);
+        CreateTenantPermission(TenantPermission, ZeroGuid, GenerateRandomTenantPermissionRoleID(),
           TenantPermission."Object Type"::Table, 0);
 
         // [THEN] Change Log Entry is created for Tenant Permission.
@@ -1890,34 +1888,82 @@ codeunit 139031 "Change Log"
     procedure ChangeLogEntryGetPrimaryKeyFriendlyNameForLongPrimaryKey()
     var
         ChangeLogEntry: Record "Change Log Entry";
-        UserGroupAccessControl: Record "User Group Access Control";
+        CustomReportSelection: Record "Custom Report Selection";
+        TableNo: Integer;
     begin
         // [FEATURE] [UT]
         // [SCENARIO 384259] Change Log Entry function GetPrimaryKeyFriendlyName doesn't throw error on records with long Primary Key.
         Initialize();
 
-        MockUserGroupAccessControl(UserGroupAccessControl);
-        ChangeLogEntry."Table No." := DATABASE::"User Group Access Control";
-        ChangeLogEntry."Primary Key" := CopyStr(UserGroupAccessControl.GetPosition(false), 1, MaxStrLen(ChangeLogEntry."Primary Key"));
+        // Mock table insert
+        TableNo := DATABASE::"Custom Report Selection";
+        CustomReportSelection."Source Type" := 1;
+        CustomReportSelection."Source No." := LibraryUtility.GenerateRandomCode20(CustomReportSelection.FieldNo("Source No."), TableNo);
+        CustomReportSelection.Usage := CustomReportSelection.Usage::JQ;
+        CustomReportSelection.Sequence := 1000;
+        CustomReportSelection.Insert();
+
+        ChangeLogEntry."Table No." := TableNo;
+        ChangeLogEntry."Primary Key" := CopyStr(CustomReportSelection.GetPosition(false), 1, MaxStrLen(ChangeLogEntry."Primary Key"));
 
         ChangeLogEntry.GetFullPrimaryKeyFriendlyName();
+        CustomReportSelection.Delete();
     end;
 
-    local procedure MockUserGroupAccessControl(var UserGroupAccessControl: Record "User Group Access Control")
+    [Test]
+    procedure ChangeLogEntryIncludedInLoggingNoError()
     var
-        TableNo: Integer;
+        Item: Record Item;
+        ChangeLogEntry: Record "Change Log Entry";
+        RecRef: RecordRef;
     begin
-        TableNo := DATABASE::"User Group Access Control";
-        with UserGroupAccessControl do begin
-            Init();
-            "User Group Code" := LibraryUtility.GenerateRandomCode20(FieldNo("User Group Code"), TableNo);
-            "User Security ID" := CreateGuid();
-            "Role ID" := LibraryUtility.GenerateRandomCode20(FieldNo("Role ID"), TableNo);
-            "Company Name" := CopyStr(LibraryRandom.RandText(MaxStrLen("Company Name")), 1, MaxStrLen("Company Name"));
-            Scope := Scope::System;
-            "App ID" := CreateGuid();
-            Insert();
-        end;
+        // [SCENARIO] Table "Change Log Entry" should not be monitored in the change log
+
+        Initialize();
+
+        // [GIVEN] Enable change log monitoring for tables Item and Change Log Entry
+        SetTableForChangeLog(Database::Item, LogOption::"All Fields", LogOption::" ", LogOption::" ");
+        SetTableForChangeLog(Database::"Change Log Entry", LogOption::"All Fields", LogOption::" ", LogOption::" ");
+
+        // [GIVEN] Restart the session
+        // InitChangeLog simulates the session restart clearing global buffers in the Change Log Management
+        // By this time Change Log Entry is already saved in the TempChangeLogSetupTable as non-logged
+        ChangeLogManagement.InitChangeLog();
+
+        // [GIVEN] Insert a record in the Item table
+        Item.Insert(true);
+
+        // [THEN] Insertion of the Item record is logged
+        RecRef.GetTable(Item);
+        AssertEntry(RecRef, RecRef, Item.FieldNo("No."), TypeOfChangeOption::Insertion);
+
+        // [THEN] Insertion of a record in the Change Log Entry is not logged
+        ChangeLogEntry.SetRange("Table No.", Database::"Change Log Entry");
+        Assert.RecordIsEmpty(ChangeLogEntry);
+
+        TearDown();
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeLogSetupTableListHandler')]
+    procedure UsersCannotEnableLoggingOnChangeLogEntry()
+    var
+        ChangeLogEntry: Record "Change Log Entry";
+        ChangeLogSetup: TestPage "Change Log Setup";
+        CannotEnableChangeLogErr: Label 'Change log cannot be enabled for the table %1', Comment = '%1: Table caption';
+    begin
+        // [SCENARIO] Changelog cannot be enabled for the table "Change Log Entry"
+
+        Initialize();
+
+        // [GIVEN] Open the "Changelog Setup Tables List"
+        // [WHEN] Select the table "Change Log Entry" and try to change the Insertion logging to "All Fields"
+        // Test action is called in the page handler
+        ChangeLogSetup.OpenEdit();
+        ChangeLogSetup.Tables.Invoke();
+
+        // [THEN] Modification fails with an error informing that the change log cannot be enabled for the Change Log Entry table
+        Assert.ExpectedError(StrSubstNo(CannotEnableChangeLogErr, ChangeLogEntry.TableCaption));
     end;
 
     [ConfirmHandler]
@@ -1967,7 +2013,7 @@ codeunit 139031 "Change Log"
     procedure REP510RequestPageHandlerFilterSet(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         Assert.AreNotEqual('', ChangeLogDelete."Change Log Entry".GetFilter("Date and Time"), '');
-        ChangeLogDelete.Cancel.Invoke;
+        ChangeLogDelete.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1976,9 +2022,9 @@ codeunit 139031 "Change Log"
     procedure REP510RequestPageHandlerNoFilterSet(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
         ChangeLogDelete."Change Log Entry".SetFilter("Date and Time", '');
-        ChangeLogDelete.OK.Invoke;
+        ChangeLogDelete.OK().Invoke();
         // Raises a confirm dialog ConfirmHandlerREP510Cancel that should return 'no'
-        ChangeLogDelete.Cancel.Invoke;
+        ChangeLogDelete.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1986,8 +2032,8 @@ codeunit 139031 "Change Log"
     [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     procedure REP510RequestPageHandlerNothingToDelete(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
-        ChangeLogDelete.OK.Invoke;
-        ChangeLogDelete.Cancel.Invoke;
+        ChangeLogDelete.OK().Invoke();
+        ChangeLogDelete.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1995,7 +2041,7 @@ codeunit 139031 "Change Log"
     [Obsolete('The functionality has been replaced with the retention policy module in system application.', '17.0')]
     procedure REP510RequestPageHandlerRunDeletion(var ChangeLogDelete: TestRequestPage "Change Log - Delete")
     begin
-        ChangeLogDelete.OK.Invoke;
+        ChangeLogDelete.OK().Invoke();
     end;
 #endif
 
@@ -2080,7 +2126,16 @@ codeunit 139031 "Change Log"
           'Primary key only contains the first max length allowed characters of the original value.');
 
         // Tear down
-        TearDown;
+        TearDown();
+    end;
+
+    [ModalPageHandler]
+    procedure ChangeLogSetupTableListHandler(var ChangeLogSetupTableList: TestPage "Change Log Setup (Table) List")
+    var
+        AllObjWithCaption: Record AllObjWithCaption;
+        ChangeLogSetupTable: Record "Change Log Setup (Table)";
+    begin
+        ChangeLogSetupTableList.GoToKey(AllObjWithCaption."Object Type"::Table, Database::"Change Log Entry");
+        asserterror ChangeLogSetupTableList.LogInsertion.SetValue(ChangeLogSetupTable."Log Insertion"::"All Fields");
     end;
 }
-

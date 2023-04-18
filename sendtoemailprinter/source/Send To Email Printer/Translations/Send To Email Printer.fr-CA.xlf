@@ -344,7 +344,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 2148701171 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New, Process, Report, Manage, Email Print, Universal Print</source>
-          <target state="translated">Nouveau, Traiter, Déclarer, Gérer, Impression par courriel, Impression universelle</target>
+          <target state="translated">Nouveau, Processus, Rapport, Gérer, Impression par courriel, Impression universelle</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>

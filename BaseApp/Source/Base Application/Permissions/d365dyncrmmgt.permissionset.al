@@ -7,11 +7,15 @@ permissionset 617 "D365 DYN CRM MGT"
                   tabledata "CDS Connection Setup" = RIMD,
                   tabledata "CDS Coupled Business Unit" = RIMD,
                   tabledata "CDS Environment" = RIMD,
+#if not CLEAN22
                   tabledata "CDS Failed Option Mapping" = RIMD,
+#endif
                   tabledata "CDS Solution" = RIMD,
                   tabledata "CDS Teammembership" = RIMD,
                   tabledata "CDS Teamroles" = RIMD,
+#if not CLEAN22
                   tabledata "Coupling Field Buffer" = RIMD,
+#endif
                   tabledata "Coupling Record Buffer" = RIMD,
                   tabledata "Dataverse Entity Change" = RID,
                   tabledata "CRM Account" = RIMD,
@@ -62,9 +66,6 @@ permissionset 617 "D365 DYN CRM MGT"
                   tabledata "CRM Uom" = RIMD,
                   tabledata "CRM Uomschedule" = RIMD,
                   tabledata "Customer Templ." = Rimd,
-#if not CLEAN19
-                  tabledata "Customer Template" = Rimd,
-#endif
                   tabledata "Integration Field Mapping" = RIMD,
                   tabledata "Integration Synch. Job" = RIMD,
                   tabledata "Integration Synch. Job Errors" = RIMD,

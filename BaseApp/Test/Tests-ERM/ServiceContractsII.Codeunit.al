@@ -973,8 +973,8 @@ codeunit 136145 "Service Contracts II"
         // [THEN] The first line - "Discount %" = 100
         VerifyPostedServiceInvoiceDiscount(ServiceContractHeader."Customer No.", ServiceItemNo[1], 100);
 
-        // [THEN] The second line - "Discount %" = 50
-        VerifyPostedServiceInvoiceDiscount(ServiceContractHeader."Customer No.", ServiceItemNo[2], 50);
+        // [THEN] The second line - "Discount %" = 50.00001
+        VerifyPostedServiceInvoiceDiscount(ServiceContractHeader."Customer No.", ServiceItemNo[2], 50.00001);
 
         // [THEN] The third line - "Discount %" = 0
         VerifyPostedServiceInvoiceDiscount(ServiceContractHeader."Customer No.", ServiceItemNo[3], 0);

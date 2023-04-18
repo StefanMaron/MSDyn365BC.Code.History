@@ -1,11 +1,13 @@
 page 391 "Extended Text List"
 {
+    ApplicationArea = Basic, Suite;
     Caption = 'Extended Text List';
     CardPageID = "Extended Text";
     DataCaptionFields = "No.";
     Editable = false;
     PageType = List;
     SourceTable = "Extended Text Header";
+    UsageCategory = Lists;
 
     layout
     {
@@ -14,7 +16,7 @@ page 391 "Extended Text List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the content of the extended item description.';

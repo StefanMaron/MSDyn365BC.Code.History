@@ -12,7 +12,7 @@ page 9802 "Permission Sets"
     UsageCategory = Lists;
 
     AboutTitle = 'About permissions';
-    AboutText = 'You manage permissions by assigning permission sets to individual users and to user groups. You can only modify permission sets that you created, not the predefined ones.';
+    AboutText = 'You manage permissions by assigning permission sets to individual users and to security groups. You can only modify permission sets that you created, not the predefined ones.';
 
     layout
     {
@@ -44,7 +44,7 @@ page 9802 "Permission Sets"
                         PermisssionSetRelation.OpenPermissionSetPage(Rec.Name, Rec."Role ID", Rec."App ID", Rec.Scope);
                     end;
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     Caption = 'Name';
                     ApplicationArea = Basic, Suite;
@@ -58,7 +58,7 @@ page 9802 "Permission Sets"
                         PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
                     end;
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -115,6 +115,14 @@ page 9802 "Permission Sets"
                 Caption = 'Included Permission Sets';
                 Editable = false;
             }
+            part("Permission Set Assignments"; "Perm. Set Assignments Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Users';
+                SubPageLink = "Role ID" = field("Role ID"), "App ID" = field("App ID"), Scope = field(Scope);
+                AboutTitle = 'Permission set assignments';
+                AboutText = 'View or edit the list of users who are assigned a permission set.';
+            }
         }
     }
 
@@ -160,9 +168,9 @@ page 9802 "Permission Sets"
 
                     trigger OnAction()
                     var
-                        PermisssionSetRelation: Codeunit "Permission Set Relation";
+                        PermissionSetRelation: Codeunit "Permission Set Relation";
                     begin
-                        PermisssionSetRelation.OpenPermissionSetPage(Rec.Name, Rec."Role ID", Rec."App ID", Rec.Scope);
+                        PermissionSetRelation.OpenPermissionSetPage(Rec.Name, Rec."Role ID", Rec."App ID", Rec.Scope);
                     end;
                 }
                 action("Permission Set by User")
@@ -173,6 +181,7 @@ page 9802 "Permission Sets"
                     RunObject = Page "Permission Set by User";
                     ToolTip = 'View or edit the available permission sets and apply permission sets to existing users.';
                 }
+#if not CLEAN22
                 action("Permission Set by User Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -180,6 +189,19 @@ page 9802 "Permission Sets"
                     Image = Permission;
                     RunObject = Page "Permission Set by User Group";
                     ToolTip = 'View or edit the available permission sets and apply permission sets to existing user groups.';
+                    Visible = LegacyUserGroupsVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the Permission Set By Security Group action.';
+                    ObsoleteTag = '22.0';
+                }
+#endif
+                action("Permission Set By Security Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Permission Set by Security Group';
+                    Image = Permission;
+                    RunObject = Page "Permission Set By Sec. Group";
+                    ToolTip = 'View or edit the available permission sets and apply permission sets to existing security groups.';
                 }
                 action("Show Permission Conflicts Overview")
                 {
@@ -209,8 +231,9 @@ page 9802 "Permission Sets"
             }
             group("User Groups")
             {
-                Caption = 'User Groups';
+                Caption = 'Security Groups';
                 Image = Users;
+#if not CLEAN22
                 action("User by User Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -218,6 +241,10 @@ page 9802 "Permission Sets"
                     Image = User;
                     RunObject = Page "User by User Group";
                     ToolTip = 'View and assign user groups to users.';
+                    Visible = LegacyUserGroupsVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Adding users to user groups is done in M365 admin center in the new user group system.';
+                    ObsoleteTag = '22.0';
                 }
                 action(UserGroups)
                 {
@@ -226,6 +253,19 @@ page 9802 "Permission Sets"
                     Image = Users;
                     RunObject = Page "User Groups";
                     ToolTip = 'Set up or modify user groups as a fast way of giving users access to the functionality that is relevant to their work.';
+                    Visible = LegacyUserGroupsVisible;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the SecurityGroups action.';
+                    ObsoleteTag = '22.0';
+                }
+#endif
+                action(SecurityGroups)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Security Groups';
+                    Image = Users;
+                    RunObject = Page "Security Groups";
+                    ToolTip = 'Set up or modify security groups as a fast way of giving users access to the functionality that is relevant to their work.';
                 }
             }
         }
@@ -367,7 +407,6 @@ page 9802 "Permission Sets"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Remove Obsolete Permissions';
-                    Visible = not UsePermissionSetsFromExtensions;
                     Enabled = CanManageUsersOnTenant;
                     Image = Delete;
                     ToolTip = 'Remove all permissions related to the objects which are obsolete or removed.';
@@ -466,7 +505,9 @@ page 9802 "Permission Sets"
     var
         PermissionSetLink: Record "Permission Set Link";
         TenantPermissionSet: Record "Tenant Permission Set";
+#if not CLEAN22
         UserGroupPermissionSet: Record "User Group Permission Set";
+#endif
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
     begin
         PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
@@ -477,8 +518,10 @@ page 9802 "Permission Sets"
         PermissionSetLink.SetRange("Linked Permission Set ID", "Role ID");
         PermissionSetLink.DeleteAll();
 
+#if not CLEAN22
         UserGroupPermissionSet.SetRange("Role ID", "Role ID");
         UserGroupPermissionSet.DeleteAll();
+#endif
 
         TenantPermissionSet.Get("App ID", "Role ID");
         TenantPermissionSet.Delete();
@@ -490,9 +533,7 @@ page 9802 "Permission Sets"
     trigger OnInit()
     var
         UserPermissions: Codeunit "User Permissions";
-        ServerSettings: Codeunit "Server Setting";
     begin
-        UsePermissionSetsFromExtensions := ServerSettings.GetUsePermissionSetsFromExtensions();
         CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
     end;
 
@@ -549,7 +590,13 @@ page 9802 "Permission Sets"
     var
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
         EnvironmentInfo: Codeunit "Environment Information";
+#if not CLEAN22
+        LegacyUserGroups: Codeunit "Legacy User Groups";
+#endif
     begin
+#if not CLEAN22
+        LegacyUserGroupsVisible := LegacyUserGroups.UiElementsVisible();
+#endif
         IsSaas := EnvironmentInfo.IsSaaS();
 
         PermissionPagesMgt.CheckAndRaiseNotificationIfAppDBPermissionSetsChanged();
@@ -646,7 +693,6 @@ page 9802 "Permission Sets"
 
     var
         PermissionManager: Codeunit "Permission Manager";
-        UsePermissionSetsFromExtensions: Boolean;
         CanManageUsersOnTenant: Boolean;
         [InDataSet]
         IsPermissionSetEditable: Boolean;
@@ -657,5 +703,8 @@ page 9802 "Permission Sets"
         ObsoletePermissionsMsg: Label '%1 obsolete permissions were removed.', Comment = '%1 = number of deleted records.';
         NothingToRemoveMsg: Label 'There is nothing to remove.';
         UpdateExistingPermissionsLbl: Label 'Update existing permissions and permission sets';
+#if not CLEAN22
+        LegacyUserGroupsVisible: Boolean;
+#endif
 }
 

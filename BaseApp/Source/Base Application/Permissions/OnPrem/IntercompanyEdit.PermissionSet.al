@@ -16,6 +16,7 @@ permissionset 3922 "Intercompany - Edit"
                   tabledata "Handled IC Outbox Sales Header" = RIMD,
                   tabledata "Handled IC Outbox Sales Line" = RIMD,
                   tabledata "Handled IC Outbox Trans." = RIMD,
+                  tabledata "IC Bank Account" = R,
                   tabledata "IC Comment Line" = RIMD,
                   tabledata "IC Document Dimension" = RIMD,
                   tabledata "IC Inbox Jnl. Line" = RIMD,

@@ -34,7 +34,7 @@ codeunit 136218 "Marketing Log Interact. Perm."
         // [GIVEN] Basic ISV permission set
         LibraryLowerPermissions.SetO365BasicISV();
         // [WHEN] Find Interaction Template Setup Code for "Sales Invoice" document
-        InteractionTemplateCode := SegManagement.FindInteractTmplCode(4);
+        InteractionTemplateCode := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Inv.");
         // [THEN] Empty template code is returned
         Assert.AreEqual('', InteractionTemplateCode, InteractionTemplateErr);
     end;
@@ -56,7 +56,7 @@ codeunit 136218 "Marketing Log Interact. Perm."
         // [GIVEN] Basic permission set
         LibraryLowerPermissions.SetO365Basic();
         // [WHEN] Find Interaction Template Setup Code for "Sales Invoice" document
-        InteractionTemplateCode := SegManagement.FindInteractTmplCode(4);
+        InteractionTemplateCode := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Inv.");
         // [THEN] SalesInvoicesInteractionTemplateCode is returned
         Assert.AreEqual(InteractionTemplateCode, SalesInvoicesInteractionTemplateCode, InteractionTemplateErr);
     end;

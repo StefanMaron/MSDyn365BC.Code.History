@@ -1,0 +1,103 @@
+report 801 "Assembly BOMs"
+{
+    DefaultLayout = RDLC;
+    RDLCLayout = './Manufacturing/Assembly/AssemblyBOMs.rdlc';
+    AdditionalSearchTerms = 'bill of material';
+    ApplicationArea = Assembly;
+    Caption = 'BOMs';
+    UsageCategory = ReportsAndAnalysis;
+
+    dataset
+    {
+        dataitem(Item; Item)
+        {
+            PrintOnlyIfDetail = true;
+            RequestFilterFields = "No.", "Search Description";
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
+            {
+            }
+            column(ItemTableCaptionItemFilter; TableCaption + ': ' + ItemFilter)
+            {
+            }
+            column(ItemFilter; ItemFilter)
+            {
+            }
+            column(No_Item; "No.")
+            {
+            }
+            column(Description_Item; Description)
+            {
+            }
+            column(BOMsCaption; BOMsCaptionLbl)
+            {
+            }
+            column(CurrReportPageNoCaption; CurrReportPageNoCaptionLbl)
+            {
+            }
+            column(BOMCompAssemblyBOMCaption; BOMCompAssemblyBOMCaptionLbl)
+            {
+            }
+            dataitem("BOM Component"; "BOM Component")
+            {
+                CalcFields = "Assembly BOM";
+                DataItemLink = "Parent Item No." = FIELD("No.");
+                DataItemTableView = SORTING("Parent Item No.", "Line No.");
+                column(Position_BOMComp; Position)
+                {
+                    IncludeCaption = true;
+                }
+                column(Type_BOMComp; Type)
+                {
+                    IncludeCaption = true;
+                }
+                column(No_BOMComp; "No.")
+                {
+                    IncludeCaption = true;
+                }
+                column(Description_BOMComp; Description)
+                {
+                    IncludeCaption = true;
+                }
+                column(AssemblyBOM_BOMComp; Format("Assembly BOM"))
+                {
+                }
+                column(Quantityper_BOMComp; "Quantity per")
+                {
+                    IncludeCaption = true;
+                }
+                column(UnitofMeasureCode_BOMComp; "Unit of Measure Code")
+                {
+                    IncludeCaption = true;
+                }
+            }
+        }
+    }
+
+    requestpage
+    {
+
+        layout
+        {
+        }
+
+        actions
+        {
+        }
+    }
+
+    labels
+    {
+    }
+
+    trigger OnPreReport()
+    begin
+        ItemFilter := Item.GetFilters();
+    end;
+
+    var
+        ItemFilter: Text;
+        BOMsCaptionLbl: Label 'BOMs';
+        CurrReportPageNoCaptionLbl: Label 'Page';
+        BOMCompAssemblyBOMCaptionLbl: Label 'BOM';
+}
+

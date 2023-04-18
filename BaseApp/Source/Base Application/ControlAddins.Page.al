@@ -37,7 +37,7 @@ page 9820 "Control Add-ins"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the category of the add-in. There are four categories: DotNet Control Add-in, DotNet Interoperability, Javascript Control Add-in and Language Resource.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the Client Control Add-in.';

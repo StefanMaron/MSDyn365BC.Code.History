@@ -7,7 +7,7 @@ dotnet
 {
     assembly("Microsoft.Dynamics.Nav.PermissionTestHelper")
     {
-        Version = '21.0.0.0';
+        Version = '22.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -28,41 +28,6 @@ dotnet
         {
         }
 
-    }
-
-    assembly("System.Management.Automation")
-    {
-        Version = '3.0.0.0';
-        Culture = 'neutral';
-        PublicKeyToken = '31bf3856ad364e35';
-
-        type("System.Management.Automation.PSCommand"; "System.Management.Automation.PSCommand")
-        {
-        }
-
-        type("System.Management.Automation.PowerShell"; "System.Management.Automation.PowerShell")
-        {
-        }
-
-        type("System.Management.Automation.Runspaces.Runspace"; "System.Management.Automation.RunSpaces.Runspace")
-        {
-        }
-
-        type("System.Management.Automation.Runspaces.Pipeline"; "System.Management.Automation.Runspaces.Pipeline")
-        {
-        }
-
-        type("System.Management.Automation.Runspaces.InitialSessionState"; "System.Management.Automation.Runspaces.InitialSessionState")
-        {
-        }
-
-        type("System.Management.Automation.Runspaces.CommandCollection"; "System.Management.Automation.Runspaces.CommandCollection")
-        {
-        }
-
-        type("System.Management.Automation.Runspaces.Command"; "System.Management.Automation.Runspaces.Command")
-        {
-        }
     }
 
     assembly("netstandard")

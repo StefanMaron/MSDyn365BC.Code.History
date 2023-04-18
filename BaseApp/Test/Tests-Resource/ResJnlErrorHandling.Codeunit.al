@@ -16,10 +16,7 @@ codeunit 136613 "Res. Jnl. Error Handling"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         TestFieldMustHaveValueErr: Label '%1 must have a value', Comment = '%1 - field caption';
-        BackgroundErrorCheckFeatureEnabled: Boolean;
-        DisabledFeatureErr: Label 'Enabled must be equal to ''All Users''  in Feature Key: ID=DocumentJournalBackgroundCheck';
         IsInitialized: Boolean;
-
 
     [Test]
     [Scope('OnPrem')]
@@ -154,7 +151,7 @@ codeunit 136613 "Res. Jnl. Error Handling"
         ResJournalBatch: Record "Res. Journal Batch";
         ErrorHandlingParameters: Record "Error Handling Parameters";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
-        TemJournalErrorsMgt: Codeunit "Res. Journal Errors Mgt.";
+        ResJournalErrorsMgt: Codeunit "Res. Journal Errors Mgt.";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 411162] Updated line checked after moving focus to another line and fixed error deleted
@@ -177,7 +174,7 @@ codeunit 136613 "Res. Jnl. Error Handling"
         // [GIVEN] Set Gen. Prod. Posting Group = 'XXX' for Line 2 and mock it is modified
         ResJournalLine[2]."Gen. Prod. Posting Group" := ResJournalLine[1]."Gen. Prod. Posting Group";
         ResJournalLine[2].Modify();
-        TemJournalErrorsMgt.SetResJnlLineOnModify(ResJournalLine[2]);
+        ResJournalErrorsMgt.SetResJnlLineOnModify(ResJournalLine[2]);
 
         // [WHEN] Run CleanTempErrorMessages
         SetErrorHandlingParameters(ErrorHandlingParameters, ResJournalLine[1], ResJournalLine[2]."Line No.");
@@ -352,25 +349,8 @@ codeunit 136613 "Res. Jnl. Error Handling"
         ErrorHandlingParameters."Previous Line No." := PreviosLineNo;
     end;
 
-    procedure EnableFeature()
-    begin
-        BackgroundErrorCheckFeatureEnabled := true;
-    end;
-
-    local procedure EnableFeature(var ResJnlErrorHandling: codeunit "Res. Jnl. Error Handling")
-    begin
-        BindSubscription(ResJnlErrorHandling);
-        ResJnlErrorHandling.EnableFeature();
-    end;
-
     local procedure VerifyErrorMessageText(ActualText: Text; ExpectedText: Text)
     begin
         Assert.IsSubstring(ActualText, ExpectedText);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Background Error Handling Mgt.", 'OnAfterIsEnabled', '', false, false)]
-    local procedure OnAfterIsEnabled(var Result: Boolean);
-    begin
-        Result := BackgroundErrorCheckFeatureEnabled;
     end;
 }

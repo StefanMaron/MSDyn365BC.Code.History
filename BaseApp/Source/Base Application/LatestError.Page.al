@@ -41,25 +41,6 @@ page 9180 "Latest Error"
                             ShowCaption = false;
                         }
                     }
-#if not CLEAN19
-                    group(ErrorObjectLabel)
-                    {
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'The field might contain sensitive data.';
-                        Visible = false;
-                        Caption = 'Error Object';
-                        ObsoleteTag = '16.0';
-
-                        field(ErrorObject; '')
-                        {
-                            ApplicationArea = All;
-                            ShowCaption = false;
-                            ObsoleteState = Pending;
-                            ObsoleteReason = 'The field is always empty.';
-                            ObsoleteTag = '19.0';
-                        }
-                    }
-#endif
                 }
                 group(Control12)
                 {

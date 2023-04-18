@@ -95,7 +95,6 @@ codeunit 132900 UserRoleTest
         AddAndTestUserWithLicenseType(2, Format(UserTable."License Type"::"Full User"));
         AddAndTestUserWithLicenseType(3, Format(UserTable."License Type"::"Limited User"));
         AddAndTestUserWithLicenseType(4, Format(UserTable."License Type"::"Device Only User"));
-        AddAndTestUserWithLicenseType(5, Format(UserTable."License Type"::"Windows Group"));
         AddAndTestUserWithLicenseType(6, Format(UserTable."License Type"::"External User"));
     end;
 

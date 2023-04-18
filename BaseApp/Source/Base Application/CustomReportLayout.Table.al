@@ -525,7 +525,7 @@ table 9650 "Custom Report Layout"
             exit(FileMgt.BLOBExport(TempBlob, DefaultFileName, ShowFileDialog));
     end;
 
-    local procedure GetFileExtension() FileExt: Text[4]
+    procedure GetFileExtension() FileExt: Text[4]
     begin
         case Type of
             Type::Word:

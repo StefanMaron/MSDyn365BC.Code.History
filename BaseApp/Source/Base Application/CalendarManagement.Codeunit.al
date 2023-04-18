@@ -1,5 +1,6 @@
 codeunit 7600 "Calendar Management"
 {
+    Permissions = tabledata "Base Calendar Change" = r;
 
     trigger OnRun()
     begin

@@ -11,8 +11,6 @@ permissionset 6423 "Relationship Mgt - Admin"
                   tabledata "Close Opportunity Code" = RIMD,
                   tabledata "Duplicate Search String Setup" = RIMD,
                   tabledata "Industry Group" = RIMD,
-                  tabledata "Integration Record" = RIMD,
-                  tabledata "Integration Record Archive" = RIMD,
                   tabledata "Interaction Group" = RIMD,
                   tabledata "Interaction Template" = RIMD,
                   tabledata "Interaction Template Setup" = RIMD,

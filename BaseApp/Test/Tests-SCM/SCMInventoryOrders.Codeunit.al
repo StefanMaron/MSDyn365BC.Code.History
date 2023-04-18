@@ -1125,7 +1125,7 @@ codeunit 137400 "SCM Inventory - Orders"
         VerifyPostedReturnReceipt(SalesLine);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure SalesUnitPriceFromItemUnitPrice()
@@ -2899,7 +2899,7 @@ codeunit 137400 "SCM Inventory - Orders"
         end;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; UnitOfMeasureCode: Code[10]; MinimumQuantity: Decimal; StartingDate: Date)
     begin
         // Create Sales Price with random Unit Price.
@@ -3121,7 +3121,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibrarySales.GetShipmentLines(SalesLine);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure GetSalesPrice(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
@@ -3806,7 +3806,7 @@ codeunit 137400 "SCM Inventory - Orders"
         SalesList.OK.Invoke;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPriceHandler(var GetSalesPrice: TestPage "Get Sales Price") // V15

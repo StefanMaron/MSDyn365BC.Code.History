@@ -27,6 +27,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryRandom: Codeunit "Library - Random";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+        LibraryTimeSheet: Codeunit "Library - Time Sheet";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         NumberofLineErr: Label 'Number of Line must be same.';
         QuantityErr: Label 'Quantity must be same.';
@@ -49,6 +50,12 @@ codeunit 137062 "SCM Sales & Receivables"
         UndoShipmentQst: Label 'Do you really want to undo the selected Shipment lines?';
         DeletesEntriesMsg: Label 'This batch job deletes entries';
         UpdateAnalysisViewsQst: Label 'Do you wish to update these analysis views?';
+        PostDocConfirmQst: Label 'Do you want to post the %1?', Comment = '%1 = Document Type';
+        ShipConfirmQst: Label 'Do you want to post the shipment?';
+        ShipInvoiceConfirmQst: Label 'Do you want to post the shipment and invoice?';
+        ReceiveConfirmQst: Label 'Do you want to post the receipt?';
+        ReceiveInvoiceConfirmQst: Label 'Do you want to post the receipt and invoice?';
+        CannotPostInvoiceErr: Label 'You cannot post the invoice';
 
     [Test]
     [Scope('OnPrem')]
@@ -123,7 +130,7 @@ codeunit 137062 "SCM Sales & Receivables"
         Assert.AreEqual(Quantity, SalesLine.Quantity, QuantityErr);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('RetrieveDimStrMenuHandler')]
     [Scope('OnPrem')]
@@ -936,6 +943,219 @@ codeunit 137062 "SCM Sales & Receivables"
         VerifySalesLinesAfterExplodeBOMWithAutoExtTexts(SalesLine, ParentItem, ChildItem, ParentItemExtText, ChildItemExtText);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTRUE')]
+    procedure ShippingInvoicingSalesOrderWithPostingPolicy()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Posting Selection] [Order]
+        // [SCENARIO 461826] Shipping and invoicing sales order with "Prohibited" and "Mandatory" settings of invoice posting policy.
+        Initialize(false);
+        Qty := LibraryRandom.RandInt(10);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), Qty, '', WorkDate());
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+
+        LibraryVariableStorage.Enqueue(ShipConfirmQst);
+        PostSalesDocument(SalesHeader);
+
+        VerifyQtyOnSalesOrderLine(SalesLine, Qty, 0);
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Mandatory);
+
+        LibraryVariableStorage.Enqueue(ShipInvoiceConfirmQst);
+        PostSalesDocument(SalesHeader);
+
+        Assert.IsFalse(SalesLine.Find(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTRUE')]
+    procedure ShippingInvoicingSalesReturnOrderWithPostingPolicy()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Posting Selection] [Return Order]
+        // [SCENARIO 461826] Receiving and invoicing sales return order with "Prohibited" and "Mandatory" settings of invoice posting policy.
+        Initialize(false);
+        Qty := LibraryRandom.RandInt(10);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '',
+          LibraryInventory.CreateItemNo(), Qty, '', WorkDate());
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+
+        LibraryVariableStorage.Enqueue(ReceiveConfirmQst);
+        PostSalesDocument(SalesHeader);
+
+        VerifyQtyOnSalesReturnOrderLine(SalesLine, Qty, 0);
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Mandatory);
+
+        LibraryVariableStorage.Enqueue(ReceiveInvoiceConfirmQst);
+        PostSalesDocument(SalesHeader);
+
+        Assert.IsFalse(SalesLine.Find(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTRUE,MessageHandler')]
+    procedure ShippingInvoicingInventoryPickWithPostingPolicy()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Posting Selection] [Order] [Inventory Pick]
+        // [SCENARIO 461826] Shipping and invoicing inventory pick with "Prohibited" and "Mandatory" settings of invoice posting policy.
+        Initialize(false);
+        Qty := 2 * LibraryRandom.RandInt(10);
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, Location.Code, WorkDate());
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Qty. to Handle", Qty / 2);
+        WarehouseActivityLine.Modify(true);
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+        LibraryVariableStorage.Enqueue(ShipConfirmQst);
+        CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Post (Yes/No)", WarehouseActivityLine);
+
+        VerifyQtyOnSalesOrderLine(SalesLine, Qty / 2, 0);
+
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Qty. to Handle", Qty / 2);
+        WarehouseActivityLine.Modify(true);
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Mandatory);
+        LibraryVariableStorage.Enqueue(ShipInvoiceConfirmQst);
+        CODEUNIT.Run(CODEUNIT::"Whse.-Act.-Post (Yes/No)", WarehouseActivityLine);
+
+        VerifyQtyOnSalesOrderLine(SalesLine, Qty, Qty / 2);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTRUE')]
+    procedure CannotPostSalesInvoiceWithProhibitedPostingPolicy()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Posting Selection] [Invoice]
+        // [SCENARIO 461826] Cannot post sales invoice with "Prohibited" invoice posting policy.
+        Initialize(false);
+        Qty := LibraryRandom.RandInt(10);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, '',
+          LibraryInventory.CreateItemNo(), Qty, '', WorkDate());
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+
+        Commit();
+
+        asserterror PostSalesDocument(SalesHeader);
+        Assert.ExpectedError(CannotPostInvoiceErr);
+
+        VerifyQtyOnSalesOrderLine(SalesLine, 0, 0);
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Mandatory);
+
+        LibraryVariableStorage.Enqueue(StrSubstNo(PostDocConfirmQst, LowerCase(Format(SalesHeader."Document Type"))));
+        PostSalesDocument(SalesHeader);
+
+        Assert.IsFalse(SalesLine.Find(), '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostAndSendHandlerYes,ConfirmHandlerFALSE')]
+    procedure InterruptPostAndSendOfSalesOrderWithShipFalse()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Posting Selection] [Order] [Post and Send]
+        // [SCENARIO 464594] Sales order with "Ship" = False is not shipped if user does not confirm posting shipment in "Post and Send" action.
+        Initialize(false);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        SalesHeader.Ship := false;
+        SalesHeader.Modify();
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+
+        LibraryVariableStorage.Enqueue(ShipConfirmQst);
+        PostAndSendSalesDocument(SalesHeader);
+
+        VerifyQtyOnSalesOrderLine(SalesLine, 0, 0);
+        SalesHeader.TestField(Ship, false);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('PostAndSendHandlerYes,ConfirmHandlerFALSE')]
+    procedure InterruptPostAndSendOfSalesOrderWithShipTrue()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Posting Selection] [Order] [Post and Send]
+        // [SCENARIO 464594] Sales order with "Ship" = True is not shipped if user does not confirm posting shipment in "Post and Send" action.
+        Initialize(false);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
+        SalesHeader.Ship := true;
+        SalesHeader.Modify();
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+
+        LibraryVariableStorage.Enqueue(ShipConfirmQst);
+        PostAndSendSalesDocument(SalesHeader);
+
+        VerifyQtyOnSalesOrderLine(SalesLine, 0, 0);
+        SalesHeader.TestField(Ship, false);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -944,6 +1164,8 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryItemReference.EnableFeature(Enable);
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Allowed);
+
         if Initialized then
             exit;
 
@@ -1321,6 +1543,27 @@ codeunit 137062 "SCM Sales & Receivables"
         Item.Modify(true);
     end;
 
+    local procedure CreateUserSetupWithPostingPolicy(InvoicePostingPolicy: Enum "Invoice Posting Policy")
+    var
+        UserSetup: Record "User Setup";
+    begin
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+        UserSetup.Validate("Sales Invoice Posting Policy", InvoicePostingPolicy);
+        UserSetup.Modify(true);
+    end;
+
+    local procedure PostSalesDocument(var SalesHeader: Record "Sales Header")
+    begin
+        SalesHeader.Find();
+        Codeunit.Run(Codeunit::"Sales-Post (Yes/No)", SalesHeader);
+    end;
+
+    local procedure PostAndSendSalesDocument(var SalesHeader: Record "Sales Header")
+    begin
+        SalesHeader.Find();
+        Codeunit.Run(Codeunit::"Sales-Post and Send", SalesHeader);
+    end;
+
     local procedure TransferSalesLineExtendedText(SalesLine: Record "Sales Line")
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
@@ -1375,7 +1618,7 @@ codeunit 137062 "SCM Sales & Receivables"
         until ItemBudgetEntry.Next() = 0;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure VerifyPurchUnitPrice(ItemNo: Text[30]; QtyOfUOMPerUOM2: Decimal; UnitCostOnItemCard: Decimal; UnitPurchPrice: Decimal; UnitOfMeasureCode: Code[10]; UnitOfMeasureCode2: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
@@ -1415,7 +1658,7 @@ codeunit 137062 "SCM Sales & Receivables"
         until DateComprRegister.Next() = 0;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure VerifySalesUnitPrice(ItemNo: Text[30]; QtyOfUOMPerUOM2: Decimal; UnitPriceOnItemCard: Decimal; UnitSalesPrice: Decimal; UnitOfMeasureCode: Code[10]; UnitOfMeasureCode2: Code[10])
     var
         SalesLine: Record "Sales Line";
@@ -1535,6 +1778,26 @@ codeunit 137062 "SCM Sales & Receivables"
         VerifySalesLineDetails(SalesLine, SalesLine.Type::" ", '', '', ChildItemExtText);
     end;
 
+    local procedure VerifyQtyOnSalesOrderLine(SalesLine: Record "Sales Line"; QtyShipped: Decimal; QtyInvoiced: Decimal)
+    begin
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", QtyShipped);
+        SalesLine.TestField("Quantity Invoiced", QtyInvoiced);
+    end;
+
+    local procedure VerifyQtyOnSalesReturnOrderLine(SalesLine: Record "Sales Line"; QtyReturned: Decimal; QtyInvoiced: Decimal)
+    begin
+        SalesLine.Find();
+        SalesLine.TestField("Return Qty. Received", QtyReturned);
+        SalesLine.TestField("Quantity Invoiced", QtyInvoiced);
+    end;
+
+    [ModalPageHandler]
+    procedure PostAndSendHandlerYes(var PostandSendConfirm: TestPage "Post and Send Confirmation")
+    begin
+        PostandSendConfirm.Yes.Invoke();
+    end;
+
     [StrMenuHandler]
     [Scope('OnPrem')]
     procedure RetrieveDimStrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
@@ -1569,6 +1832,11 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryVariableStorage.Dequeue(ExpectedMessage);  // Dequeue variable.
         Assert.IsTrue(StrPos(Question, ExpectedMessage) > 0, Question);
         Reply := true;
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 
     [SendNotificationHandler]

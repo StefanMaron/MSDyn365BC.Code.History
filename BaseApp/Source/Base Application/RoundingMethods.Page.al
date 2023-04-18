@@ -28,7 +28,7 @@ page 65 "Rounding Methods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an amount to add before it is rounded.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how to round.';

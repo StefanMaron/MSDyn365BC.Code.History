@@ -1184,43 +1184,6 @@ codeunit 139020 "Test Job Queue SNAP"
 
     [Test]
     [Scope('OnPrem')]
-    procedure T170_JobQueueDispatcherCanRunIfCodeunitRun()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-        MarketingSetup: Record "Marketing Setup";
-    begin
-        // [SCENARIO 194949] Job Queue Dispatcher should be able to execute a target codeunit, that calls 'IF CODEUNIT.RUN() THEN'
-        // [GIVEN] Email Logging is enabled
-        BindSubscription(LibraryJobQueue);
-        If not MarketingSetup.Get() then begin
-            MarketingSetup."Email Logging Enabled" := true;
-            MarketingSetup.Insert();
-        end else
-            if not MarketingSetup."Email Logging Enabled" then begin
-                MarketingSetup."Email Logging Enabled" := true;
-                MarketingSetup.Modify();
-            end;
-        // [GIVEN] Job Queue Entry, where Status::Ready, "Object ID to Run" = COD5065 (it calls COD5064 conditionally)
-        JobQueueEntry.Init();
-        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
-        JobQueueEntry."Object ID to Run" := CODEUNIT::"Email Logging Context Adapter";
-        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-        JobQueueEntry.Insert(true);
-
-        // [WHEN] Run Job Queue Dispatcher
-        asserterror LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
-        LibraryJobQueue.RunJobQueueErrorHandler(JobQueueEntry);
-
-        // [THEN] Job Queue Entry, where Status::Error, "Error message" = 'The queue or storage folder has not been initialized.'
-        // [THEN] instead of 'The following C/AL functions are limited during write transactions'
-        JobQueueEntry.Find();
-        JobQueueEntry.TestField(Status, JobQueueEntry.Status::Error);
-        Assert.ExpectedMessage('The queue or storage folder has not been initialized.', JobQueueEntry."Error Message");
-        UnbindSubscription(LibraryJobQueue);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure T180_CalcNextDailyRunTestStartingEndEndingTimeInDiffDays()
     var
         JobQueueEntry: Record "Job Queue Entry";

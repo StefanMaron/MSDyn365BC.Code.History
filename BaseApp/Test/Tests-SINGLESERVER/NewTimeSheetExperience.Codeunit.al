@@ -4,6 +4,7 @@ codeunit 136506 "New Time Sheet Experience"
     TestPermissions = Disabled;
     EventSubscriberInstance = Manual;
 
+
     trigger OnRun()
     begin
         // [FEATURE] [Time Sheet]
@@ -20,9 +21,7 @@ codeunit 136506 "New Time Sheet Experience"
         LibraryJob: Codeunit "Library - Job";
         LibraryResource: Codeunit "Library - Resource";
         Assert: Codeunit Assert;
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
-        TimeSheetV2Enabled: Boolean;
         DescriptionTxt: Label 'Week %1', Comment = '%1 - week number';
         PageDataCaptionTxt: Label '%1 (%2)', Comment = '%1 - start date, %2 - Description,';
         UserSetupStatusTxt: Label 'User Setup (%1 users in User Setup)', Comment = '%1 - number';
@@ -75,7 +74,6 @@ codeunit 136506 "New Time Sheet Experience"
     var
         Resource: Record Resource;
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         TeamMemberActivities: TestPage "Team Member Activities";
         TimeSheetCard: TestPage "Time Sheet Card";
     begin
@@ -83,9 +81,10 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 390634] Action "Open Active Time Sheet" opens time sheet for work date period
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
-
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
         // [GIVEN] Create 3 time sheets "1", "2" and "3"
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 3);
 
@@ -103,7 +102,6 @@ codeunit 136506 "New Time Sheet Experience"
         TimeSheetCard."No.".AssertEquals(TimeSheetHeader."No.");
 
         TimeSheetCard.Close();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
 
     [Test]
@@ -112,17 +110,16 @@ codeunit 136506 "New Time Sheet Experience"
     procedure TimeSheetCardSubmit()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Submit on Time Sheet Card page does submit lines
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
-
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
         // [GIVEN] Create time sheet with 5 open lines
         CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
         // [GIVEN] Open time sheet card
@@ -141,8 +138,6 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsTrue(TimeSheetCard.ReopenSubmitted.Enabled(), 'Reopen must be enabled');
         // [THEN] Action "Submit" is disabled
         Assert.IsFalse(TimeSheetCard.Submit.Enabled(), 'Submit must be disabled');
-
-        UnbindSubscription(NewTimeSheetExperience);
     end;
 
     [Test]
@@ -151,17 +146,16 @@ codeunit 136506 "New Time Sheet Experience"
     procedure TimeSheetCardSubmitAllFromSubform()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Submit on Time Sheet Subform page does submit lines
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
-
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
         // [GIVEN] Create time sheet with 5 open lines
         CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
         // [GIVEN] Open time sheet card
@@ -180,8 +174,6 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsTrue(TimeSheetCard.TimeSheetLines.ReopenSubmitted.Enabled(), 'Reopen must be enabled');
         // [THEN] Action "Submit" is disabled
         Assert.IsFalse(TimeSheetCard.TimeSheetLines.Submit.Enabled(), 'Submit must be disabled');
-
-        UnbindSubscription(NewTimeSheetExperience);
     end;
 
     [Test]
@@ -190,17 +182,16 @@ codeunit 136506 "New Time Sheet Experience"
     procedure TimeSheetCardReopen()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Submit on Time Sheet Card page does submit lines
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
-
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
         // [GIVEN] Create time sheet with 5 submitted lines
         CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
         // [GIVEN] Open time sheet card
@@ -219,8 +210,6 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsTrue(TimeSheetCard.Submit.Enabled(), 'Submit must be enabled');
         // [THEN] Action "Reopen" is disabled
         Assert.IsFalse(TimeSheetCard.ReopenSubmitted.Enabled(), 'Reopen must be disabled');
-
-        UnbindSubscription(NewTimeSheetExperience);
     end;
 
     [Test]
@@ -229,17 +218,16 @@ codeunit 136506 "New Time Sheet Experience"
     procedure TimeSheetCardReopenAllFromSubform()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Submit on Time Sheet Subform page does submit lines
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
-
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
         // [GIVEN] Create time sheet with 5 submitted lines
         CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
         // [GIVEN] Open time sheet card
@@ -258,27 +246,23 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsTrue(TimeSheetCard.TimeSheetLines.Submit.Enabled(), 'Submit must be enabled');
         // [THEN] Action "Reopen" is disabled
         Assert.IsFalse(TimeSheetCard.TimeSheetLines.ReopenSubmitted.Enabled(), 'Reopen must be disabled');
-
-        UnbindSubscription(NewTimeSheetExperience);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure ManagerTimeSheetCard()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Manager time sheet list page opens Time Sheet Card page with manager actions
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
-
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
         // [GIVEN] Create time sheet with 5 submitted lines
         CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
 
@@ -302,26 +286,25 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsFalse(TimeSheetCard.CopyLinesFromPrevTS.Visible(), 'CopyLinesFromPrevTS must be invisible');
 
         TimeSheetCard.Close();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure TimeSheetCardApprove()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Approve on Time Sheet Card page does approve lines
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
 
         // [GIVEN] Create time sheet with 5 submitted lines
         CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
@@ -346,26 +329,25 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsFalse(TimeSheetCard.Approve.Enabled(), 'Approve must be disabled');
 
         TimeSheetCard.Close();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
     procedure TimeSheetCardApproveAllFromSubform()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Approve on Time Sheet Subform page does approve lines
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
 
         // [GIVEN] Create time sheet with 5 submitted lines
         CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
@@ -390,26 +372,25 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsFalse(TimeSheetCard.TimeSheetLines.Approve.Enabled(), 'Approve must be disabled');
 
         TimeSheetCard.Close();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure TimeSheetCardReject()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Reject on Time Sheet Card page does reject lines
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
 
         // [GIVEN] Create time sheet with 5 submitted lines
         CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
@@ -432,26 +413,25 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsFalse(TimeSheetCard.Reject.Enabled(), 'Reject must be disabled');
 
         TimeSheetCard.Close();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
     procedure TimeSheetCardRejectAllFromSubform()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Reject on Time Sheet Subform page does reject lines
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
 
         // [GIVEN] Create time sheet with 5 submitted lines
         CreateTimeSheetWithLines(TimeSheetHeader, true, false, false);
@@ -474,26 +454,25 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsFalse(TimeSheetCard.TimeSheetLines.Reject.Enabled(), 'Reject must be disabled');
 
         TimeSheetCard.Close();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure TimeSheetCardReopenApproved()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Reopen for approved lines on Time Sheet Card page does reopen lines
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
 
         // [GIVEN] Create time sheet with 5 approved lines
         CreateTimeSheetWithLines(TimeSheetHeader, true, true, false);
@@ -511,26 +490,25 @@ codeunit 136506 "New Time Sheet Experience"
         VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Submitted);
 
         TimeSheetCard.Close();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
     procedure TimeSheetCardReopenApprovedAllFromSubform()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Reopen for approved lines on Time Sheet Subform page does reopen lines
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
 
         // [GIVEN] Create time sheet with 5 approved lines
         CreateTimeSheetWithLines(TimeSheetHeader, true, true, false);
@@ -548,26 +526,25 @@ codeunit 136506 "New Time Sheet Experience"
         VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Submitted);
 
         TimeSheetCard.Close();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure TimeSheetCardReopenRejected()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Reopen for approved lines on Time Sheet Card page does reopen lines
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
 
         // [GIVEN] Create time sheet with 5 rejected lines
         CreateTimeSheetWithLines(TimeSheetHeader, true, false, true);
@@ -585,28 +562,25 @@ codeunit 136506 "New Time Sheet Experience"
         VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Submitted);
 
         TimeSheetCard.Close();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
     procedure TimeSheetCardReopenRejectedAllFromSubform()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
         TimeSheetCard: TestPage "Time Sheet Card";
-        i: Integer;
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390634] Action Reopen for approved lines on Time Sheet Subform page does reopen lines
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
-
-        // [GIVEN] Create time sheet with 5 rejected lines
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
         CreateTimeSheetWithLines(TimeSheetHeader, true, false, true);
 
         // [GIVEN] Open manager time sheet 
@@ -622,15 +596,14 @@ codeunit 136506 "New Time Sheet Experience"
         VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Submitted);
 
         TimeSheetCard.Close();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
     procedure OpenTimeSheetArchiveCard()
     var
         TimeSheetHeaderArchive: Record "Time Sheet Header Archive";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         TimeSheetArchiveList: TestPage "Time Sheet Archive List";
         TimeSheetArchiveCard: TestPage "Time Sheet Archive Card";
     begin
@@ -638,9 +611,10 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 390634] Action "View Time Sheet" of "Time Sheet Archive List" page opens "Time Sheet Archive Card" page
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
-
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
         // [GIVEN] Create archived time sheet "TS01"
         MockArchivedTimeSheet(TimeSheetHeaderArchive);
 
@@ -656,7 +630,6 @@ codeunit 136506 "New Time Sheet Experience"
         TimeSheetArchiveCard."No.".AssertEquals(TimeSheetHeaderArchive."No.");
 
         TimeSheetArchiveCard.Close();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
 
     [Test]
@@ -664,7 +637,6 @@ codeunit 136506 "New Time Sheet Experience"
     procedure OpenTimeSheetArchiveManagerCard()
     var
         TimeSheetHeaderArchive: Record "Time Sheet Header Archive";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetArcList: TestPage "Manager Time Sheet Arc. List";
         TimeSheetArchiveCard: TestPage "Time Sheet Archive Card";
     begin
@@ -672,9 +644,10 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 390634] Action "View Time Sheet" of "Manager Time Sheet Arc. List" page opens "Time Sheet Archive Card" page
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
-
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
         // [GIVEN] Create archived time sheet "TS01"
         MockArchivedTimeSheet(TimeSheetHeaderArchive);
 
@@ -690,15 +663,14 @@ codeunit 136506 "New Time Sheet Experience"
         TimeSheetArchiveCard."No.".AssertEquals(TimeSheetHeaderArchive."No.");
 
         TimeSheetArchiveCard.Close();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimeSheetListAdminActions_V2NotTimeSheetAdmin()
     var
         UserSetup: Record "User Setup";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         TimeSheetList: TestPage "Time Sheet List";
     begin
         // [FEATURE] [UI]
@@ -706,7 +678,7 @@ codeunit 136506 "New Time Sheet Experience"
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
 
         // [GIVEN] Create user setup with Time Sheet Admin = Yes
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
@@ -724,15 +696,15 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsFalse(TimeSheetList.EditTimeSheet.Visible(), 'Edit Time Sheet must be invisible');
 
         UserSetup.Delete();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimeSheetListAdminActions_V2TimeSheetAdmin()
     var
         UserSetup: Record "User Setup";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         TimeSheetList: TestPage "Time Sheet List";
     begin
         // [FEATURE] [UI]
@@ -740,7 +712,7 @@ codeunit 136506 "New Time Sheet Experience"
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
 
         // [GIVEN] Create user setup with Time Sheet Admin = Yes
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
@@ -753,16 +725,15 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsTrue(TimeSheetList.MoveTimeSheetsToArchive.Visible(), 'Move Time Sheets to Archive must be visible');
         // [THEN] Action "Edit Time Sheet" is invisible
         Assert.IsFalse(TimeSheetList.EditTimeSheet.Visible(), 'Edit Time Sheet must be invisible');
-
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimeSheetListAdminActions_NotTimeSheetAdmin()
     var
         UserSetup: Record "User Setup";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         TimeSheetList: TestPage "Time Sheet List";
     begin
         // [FEATURE] [UI]
@@ -770,7 +741,7 @@ codeunit 136506 "New Time Sheet Experience"
         Initialize();
 
         // [GIVEN] Disable Time Sheet V2
-        DisableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(false);
 
         // [GIVEN] Create user setup with Time Sheet Admin = No
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
@@ -787,15 +758,15 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsTrue(TimeSheetList.EditTimeSheet.Visible(), 'Edit Time Sheet must be visible');
 
         UserSetup.Delete();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure ManagerTimeSheetListAdminActions_V2NotTimeSheetAdmin()
     var
         UserSetup: Record "User Setup";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
     begin
         // [FEATURE] [UI]
@@ -803,7 +774,7 @@ codeunit 136506 "New Time Sheet Experience"
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
 
         // [GIVEN] Create user setup with Time Sheet Admin = No
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
@@ -820,15 +791,15 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsFalse(ManagerTimeSheetList."&Edit Time Sheet".Visible(), 'Edit Time Sheet must be invisible');
 
         UserSetup.Delete();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure ManagerTimeSheetListAdminActions_V2TimeSheetAdmin()
     var
         UserSetup: Record "User Setup";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
     begin
         // [FEATURE] [UI]
@@ -836,7 +807,7 @@ codeunit 136506 "New Time Sheet Experience"
         Initialize();
 
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
 
         // [GIVEN] Create user setup with Time Sheet Admin = Yes
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
@@ -848,16 +819,15 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsTrue(ManagerTimeSheetList.MoveTimeSheetsToArchive.Visible(), 'Move Time Sheets to Archive must be visible');
         // [THEN] Action "Edit Time Sheet" is invisible
         Assert.IsFalse(ManagerTimeSheetList."&Edit Time Sheet".Visible(), 'Edit Time Sheet must be invisible');
-
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure ManagerTimeSheetListAdminActions_NotTimeSheetAdmin()
     var
         UserSetup: Record "User Setup";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         ManagerTimeSheetList: TestPage "Manager Time Sheet List";
     begin
         // [FEATURE] [UI]
@@ -865,7 +835,7 @@ codeunit 136506 "New Time Sheet Experience"
         Initialize();
 
         // [GIVEN] Disable Time Sheet V2
-        DisableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(false);
 
         // [GIVEN] Create user setup with Time Sheet Admin = No
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
@@ -881,8 +851,8 @@ codeunit 136506 "New Time Sheet Experience"
         Assert.IsTrue(ManagerTimeSheetList."&Edit Time Sheet".Visible(), 'Edit Time Sheet must be visible');
 
         UserSetup.Delete();
-        UnbindSubscription(NewTimeSheetExperience);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -890,7 +860,6 @@ codeunit 136506 "New Time Sheet Experience"
     var
         TimeSheetHeader: Record "Time Sheet Header";
         NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
-        TeamMemberActivities: TestPage "Team Member Activities";
         TimeSheetCard: TestPage "Time Sheet Card";
         DayQty: array[7] of Decimal;
         i: Integer;
@@ -899,9 +868,10 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 390634] Data entered into Day1 - Day7 fields recorded correctly
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
-
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
         // [GIVEN] Create time sheet
         CreateTimeSheet(TimeSheetHeader);
 
@@ -932,7 +902,7 @@ codeunit 136506 "New Time Sheet Experience"
     procedure TimeSheetGetDataCaptionFull()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetMgt: Codeunit "Time Sheet Management";
+        TimeSheetManagement: Codeunit "Time Sheet Management";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 390634] Function GetTimeSheetDataCaption returns "%1 - %2 (%3)" when time sheet description is not empty
@@ -948,7 +918,7 @@ codeunit 136506 "New Time Sheet Experience"
                 PageDataCaptionTxt,
                 Format(TimeSheetHeader."Starting Date", 0, 4),
                 TimeSheetHeader.Description),
-            TimeSheetMgt.GetTimeSheetDataCaption(TimeSheetHeader),
+            TimeSheetManagement.GetTimeSheetDataCaption(TimeSheetHeader),
             'Invalid DataCaption');
     end;
 
@@ -957,7 +927,7 @@ codeunit 136506 "New Time Sheet Experience"
     procedure TimeSheetGetDataCaptionShort()
     var
         TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetMgt: Codeunit "Time Sheet Management";
+        TimeSheetManagement: Codeunit "Time Sheet Management";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 390634] Function GetTimeSheetDataCaption returns "%1 - %2 (%3)" when time sheet description is empty
@@ -971,21 +941,8 @@ codeunit 136506 "New Time Sheet Experience"
         // [THEN] Function GetTimeSheetDataCaption returns 
         Assert.AreEqual(
                 Format(TimeSheetHeader."Starting Date", 0, 4),
-            TimeSheetMgt.GetTimeSheetDataCaption(TimeSheetHeader),
+            TimeSheetManagement.GetTimeSheetDataCaption(TimeSheetHeader),
             'Invalid DataCaption');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure FeatureKeyNewTimeSheetExperience()
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 390634] Feature key "NewTimeSheetExperience" exists
-        Initialize();
-
-        FeatureKey.Get('NewTimeSheetExperience');
     end;
 
     [Test]
@@ -1013,11 +970,11 @@ codeunit 136506 "New Time Sheet Experience"
     [Scope('OnPrem')]
     procedure TimeSheetWizardStep2Controls()
     var
-        TimeSheetSetupWizard: TestPage "Time Sheet Setup Wizard";
         UserSetup: Record "User Setup";
         Resource: Record Resource;
         Employee: Record Employee;
         CauseOfAbsence: Record "Cause of Absence";
+        TimeSheetSetupWizard: TestPage "Time Sheet Setup Wizard";
     begin
         // [FEATURE] [UI]
         // [SCENARIO 390633] Time Sheet Wizard step 2 actions
@@ -1361,7 +1318,7 @@ codeunit 136506 "New Time Sheet Experience"
         CreateTimeSheet(TimeSheetHeader);
         // [GIVEN] Set name = "NNN" for resource "R"
         Resource.Get(TimeSheetHeader."Resource No.");
-        Resource.Name := LibraryRandom.RandText(MaxStrLen(Resource.Name));
+        Resource.Name := CopyStr(LibraryRandom.RandText(MaxStrLen(Resource.Name)), 1, MaxStrLen(Resource.Name));
         Resource.Modify();
 
         // [THEN] Time sheet "Resource Name" = "NNN"
@@ -1457,8 +1414,8 @@ codeunit 136506 "New Time Sheet Experience"
         FromTimeSheetHeader: Record "Time Sheet Header";
         FromTimeSheetLine: Record "Time Sheet Line";
         ToTimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetMgt: Codeunit "Time Sheet Management";
-        TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
+        TimeSheetManagement: Codeunit "Time Sheet Management";
+        TimeSheetApprovalManagement: Codeunit "Time Sheet Approval Management";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 407324] "Copy lines from previous time sheet" copies time sheet details if TimeSheetV2Enabled
@@ -1468,14 +1425,14 @@ codeunit 136506 "New Time Sheet Experience"
         LibraryTimeSheet.CreateTimeSheet(FromTimeSheetHeader, true);
         CreateTimeSheetLineWithTimeAllocaiton(FromTimeSheetHeader, FromTimeSheetLine);
         // [GIVEN] Submit line
-        TimeSheetApprovalMgt.Submit(FromTimeSheetLine);
+        TimeSheetApprovalManagement.Submit(FromTimeSheetLine);
 
         // [GIVEN] Create time sheet "2" without data
         TimeSheetCreate(FromTimeSheetHeader."Ending Date" + 1, 1, FromTimeSheetHeader."Resource No.", ToTimeSheetHeader);
         ToTimeSheetHeader.FindLast();
 
         // [WHEN] Run function "Copy lines from previous time sheet" for time sheet "2"
-        TimeSheetMgt.CopyPrevTimeSheetLines(ToTimeSheetHeader);
+        TimeSheetManagement.CopyPrevTimeSheetLines(ToTimeSheetHeader);
 
         // [THEN] Time sheet details copied from "1" to "2"
         VerifyCopiedTimeSheetDetails(FromTimeSheetHeader, FromTimeSheetLine, ToTimeSheetHeader);
@@ -1488,8 +1445,7 @@ codeunit 136506 "New Time Sheet Experience"
         FromTimeSheetHeader: Record "Time Sheet Header";
         FromTimeSheetLine: Record "Time Sheet Line";
         ToTimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetMgt: Codeunit "Time Sheet Management";
-        TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
+        TimeSheetManagement: Codeunit "Time Sheet Management";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 454717] "Copy lines from previous time sheet" copies time sheet details if TimeSheetV2Enabled.
@@ -1520,7 +1476,7 @@ codeunit 136506 "New Time Sheet Experience"
         ToTimeSheetHeader.FindLast();
 
         // [WHEN] Run function "Copy lines from previous time sheet" for time sheet "4"
-        TimeSheetMgt.CopyPrevTimeSheetLines(ToTimeSheetHeader);
+        TimeSheetManagement.CopyPrevTimeSheetLines(ToTimeSheetHeader);
 
         // [THEN] Time sheet details copied from "1" to "4"
         VerifyCopiedTimeSheetDetails(FromTimeSheetHeader, FromTimeSheetLine, ToTimeSheetHeader);
@@ -1539,8 +1495,11 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 421062] Time Sheet Card page has defult filter by owner id if current user is not time sheet admin
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
+        BindSubscription(NewTimeSheetExperience);
 
         // [GIVEN] Create time sheet 
         CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
@@ -1572,8 +1531,11 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 421062] Time Sheet Card page has no defult filter by owner id if current user is time sheet admin
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
+        BindSubscription(NewTimeSheetExperience);
 
         // [GIVEN] Create time sheet 
         CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
@@ -1603,8 +1565,11 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 421062] Time Sheet Card page has defult filter by owner id if current user does not have user setup
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
+        BindSubscription(NewTimeSheetExperience);
 
         // [GIVEN] Create time sheet 
         CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
@@ -1634,8 +1599,11 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 421062] Time Sheet Archive Card page has defult filter by owner id if current user is not time sheet admin
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
+        BindSubscription(NewTimeSheetExperience);
 
         // [GIVEN] Mock time sheet archive
         MockArchivedTimeSheet(TimeSheetHeaderArchive);
@@ -1667,8 +1635,11 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 421062] Time Sheet Archive Card page has no defult filter by owner id if current user is time sheet admin
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
+        BindSubscription(NewTimeSheetExperience);
 
         // [GIVEN] Mock time sheet archive
         MockArchivedTimeSheet(TimeSheetHeaderArchive);
@@ -1698,8 +1669,11 @@ codeunit 136506 "New Time Sheet Experience"
         // [SCENARIO 421062] Time Sheet Archive Card page has defult filter by owner id if current user is not time sheet admin
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
+        BindSubscription(NewTimeSheetExperience);
 
         // [GIVEN] Mock time sheet archive
         MockArchivedTimeSheet(TimeSheetHeaderArchive);
@@ -1727,7 +1701,7 @@ codeunit 136506 "New Time Sheet Experience"
         JobJournalLine: Record "Job Journal Line";
         Job: Record Job;
         JobTask: Record "Job Task";
-        TimeSheetMgt: Codeunit "Time Sheet Management";
+        TimeSheetManagement: Codeunit "Time Sheet Management";
     begin
         // [SCENARIO 421957] "Copy lines from previous time sheet" for Time Sheet which lines were posted.
         Initialize();
@@ -1757,7 +1731,7 @@ codeunit 136506 "New Time Sheet Experience"
         ToTimeSheetHeader.FindLast();
 
         // [WHEN] Run function "Copy lines from previous time sheet" for Time Sheet "S2".
-        TimeSheetMgt.CopyPrevTimeSheetLines(ToTimeSheetHeader);
+        TimeSheetManagement.CopyPrevTimeSheetLines(ToTimeSheetHeader);
 
         // [THEN] Time Sheet Details were copied from "S1" to "S2" with Posted Quantity = 0.
         VerifyCopiedTimeSheetDetails(FromTimeSheetHeader, FromTimeSheetLine, ToTimeSheetHeader);
@@ -1769,6 +1743,7 @@ codeunit 136506 "New Time Sheet Experience"
     var
         Resource: Record Resource;
         TimeSheetHeader: Record "Time Sheet Header";
+        FromTimeSheetHeader: Record "Time Sheet Header";
         CreateTimeSheets: Report "Create Time Sheets";
         NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
         TeamMemberActivities: TestPage "Team Member Activities";
@@ -1776,7 +1751,10 @@ codeunit 136506 "New Time Sheet Experience"
     begin
         // [SCENARIO 447634] Open Current Time sheet' in the role center through error when timesheet exist for some other dates
         Initialize();
-        EnableTimeSheetV2(NewTimeSheetExperience);
+#if not CLEAN22
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
+        BindSubscription(NewTimeSheetExperience);
 
         // [THEN] Deleteall the records created by other test automation for current user. 
         TimeSheetHeader.DeleteAll();
@@ -1787,11 +1765,13 @@ codeunit 136506 "New Time Sheet Experience"
         Resource.Modify(true);
 
         // [WHEN] User tries to run Report Create Time Sheets
-        CreateTimeSheets.InitParameters(CalcDate('<1M>', WorkDate()), 1, Resource."No.", false, true);
+        LibraryTimeSheet.CreateTimeSheet(FromTimeSheetHeader, true);
+        CreateTimeSheets.InitParameters(FromTimeSheetHeader."Starting Date" + 1, 1, Resource."No.", false, true);
         CreateTimeSheets.UseRequestPage(false);
         CreateTimeSheets.Run();
 
         // [THEN] Filter creating timesheet.
+        WorkDate(FromTimeSheetHeader."Starting Date" - 1);
         TimeSheetHeader.SetFilter("Resource No.", Resource."No.");
         TimeSheetHeader.FindFirst();
 
@@ -1819,15 +1799,17 @@ codeunit 136506 "New Time Sheet Experience"
         JobTask: array[3] of Record "Job Task";
         JobPlanningLine: array[3] of Record "Job Planning Line";
         DateRecord: Record Date;
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
-        TimeSheetMgt: Codeunit "Time Sheet Management";
+        TimeSheetManagement: Codeunit "Time Sheet Management";
     begin
         // [FEATURE] [UT] [Create lines from job planning]
         // [SCENARIO 458927] "Create lines from job planning" skips "Job Planning Line" if Job.Blocked = All or Job.Status = Completed.
         // [SCENARIO 458927] Create 3 Jobs: J1 with Blocked = All, J2 with default Blocked and Status, J3 in Status = Completed.
         // [SCENARIO 458927] Verify that "Create lines from job planning" only processed J2.
         Initialize();
-        EnableTimeSheetV2(NewTimeSheetExperience);
+
+#if not CLEAN22
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
 
         // [GIVEN] Set "Time Sheet by Job Approval" in "Resources Setup"
         ResourcesSetup.Get();
@@ -1858,7 +1840,7 @@ codeunit 136506 "New Time Sheet Experience"
         Job[3].Modify();
 
         // [WHEN] Run action "Create lines from job planning"
-        TimeSheetMgt.CreateLinesFromJobPlanning(TimeSheetHeader);
+        TimeSheetManagement.CreateLinesFromJobPlanning(TimeSheetHeader);
 
         // [THEN] Verify that only 1 line has been created
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
@@ -1869,8 +1851,6 @@ codeunit 136506 "New Time Sheet Experience"
         TimeSheetLine.TestField(Type, TimeSheetLine.Type::Job);
         TimeSheetLine.TestField("Job No.", Job[2]."No.");
         TimeSheetLine.TestField("Job Task No.", JobTask[2]."Job Task No.");
-
-        UnbindSubscription(NewTimeSheetExperience);
     end;
 
     [Test]
@@ -1878,17 +1858,17 @@ codeunit 136506 "New Time Sheet Experience"
     [Scope('OnPrem')]
     procedure VerifyEmpoloymentDateWarningTimeSheet()
     var
-        TimeSheetHeader: Record "Time Sheet Header";
-        NewTimeSheetExperience: Codeunit "New Time Sheet Experience";
-        TimeSheetCard: TestPage "Time Sheet Card";
         Resource: Record Resource;
+        TimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetCard: TestPage "Time Sheet Card";
     begin
         // [SCENARIO 459803] Resources are able to enter time in time sheets prior to the date in their Employment Date field without error
         Initialize();
 
+#if not CLEAN22
         // [GIVEN] Enable Time Sheet V2
-        EnableTimeSheetV2(NewTimeSheetExperience);
-
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
         // [GIVEN] Create time sheet with 5 open lines
         CreateTimeSheetWithLines(TimeSheetHeader, false, false, false);
 
@@ -1903,28 +1883,31 @@ codeunit 136506 "New Time Sheet Experience"
 
         // [THEN] Action "Reopen" is disabled
         Assert.IsFalse(TimeSheetCard.ReopenSubmitted.Enabled(), ReopenDisabledTxt);
-       
+
         // [WHEN] Run action "Submit"
         // [THEN] Verify Employment Date warning message on handler page.
         TimeSheetCard.Submit.Invoke();
 
         // [VERIFY] All 5 lines are submitted
         VerifyTimeSheetLinesStatus(TimeSheetHeader."No.", "Time Sheet Status"::Submitted);
-
-        UnbindSubscription(NewTimeSheetExperience);
     end;
 
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"New Time Sheet Experience");
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
+
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"New Time Sheet Experience");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+#if not CLEAN22
+        LibraryTimeSheet.SetNewTimeSheetExperience(true);
+#endif
         LibrarySetupStorage.Save(DATABASE::"Resources Setup");
 
         IsInitialized := true;
@@ -1955,19 +1938,18 @@ codeunit 136506 "New Time Sheet Experience"
     var
         Resource: Record Resource;
         TimeSheetLine: Record "Time Sheet Line";
-        TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
+        TimeSheetApprovalManagement: Codeunit "Time Sheet Approval Management";
         i: Integer;
     begin
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 1);
         for i := 1 to LibraryRandom.RandIntInRange(3, 7) do begin
             CreateTimeSheetLineWithTimeAllocaiton(TimeSheetHeader, TimeSheetLine);
             if Submit then
-                TimeSheetApprovalMgt.Submit(TimeSheetLine);
+                TimeSheetApprovalManagement.Submit(TimeSheetLine);
             if Approve then
-                TimeSheetApprovalMgt.Approve(TimeSheetLine);
+                TimeSheetApprovalManagement.Approve(TimeSheetLine);
             if Reject then
-                TimeSheetApprovalMgt.Reject(TimeSheetLine);
-
+                TimeSheetApprovalManagement.Reject(TimeSheetLine);
         end;
     end;
 
@@ -1983,7 +1965,7 @@ codeunit 136506 "New Time Sheet Experience"
         TimeSheetHeader: Record "Time Sheet Header";
         TimeSheetLine: Record "Time Sheet Line";
         Resource: Record Resource;
-        TimeSheetMgt: Codeunit "Time Sheet Management";
+        TimeSheetManagement: Codeunit "Time Sheet Management";
     begin
         CreateMultipleTimeSheet(Resource, TimeSheetHeader, 1);
         CreateTimeSheetLineWithTimeAllocaiton(TimeSheetHeader, TimeSheetLine);
@@ -1991,7 +1973,7 @@ codeunit 136506 "New Time Sheet Experience"
         TimeSheetLine.Validate(Posted, true);
         TimeSheetLine.Modify(true);
 
-        TimeSheetMgt.MoveTimeSheetToArchive(TimeSheetHeader);
+        TimeSheetManagement.MoveTimeSheetToArchive(TimeSheetHeader);
         TimeSheetHeaderArchive.Get(TimeSheetHeader."No.");
     end;
 
@@ -2012,18 +1994,6 @@ codeunit 136506 "New Time Sheet Experience"
         TimeSheetCreate(Date."Period Start", NoOfTimeSheets, Resource."No.", TimeSheetHeader);
         TimeSheetHeader.Reset();
         TimeSheetHeader.SetRange("Resource No.", Resource."No.");
-    end;
-
-    local procedure EnableTimeSheetV2(var NewTimeSheetExperience: Codeunit "New Time Sheet Experience")
-    begin
-        BindSubscription(NewTimeSheetExperience);
-        NewTimeSheetExperience.SetTimeSheetV2Enabled(true);
-    end;
-
-    local procedure DisableTimeSheetV2(var NewTimeSheetExperience: Codeunit "New Time Sheet Experience")
-    begin
-        BindSubscription(NewTimeSheetExperience);
-        NewTimeSheetExperience.SetTimeSheetV2Enabled(false);
     end;
 
     local procedure InitJobJournalLine(var JobJournalLine: Record "Job Journal Line")
@@ -2049,11 +2019,6 @@ codeunit 136506 "New Time Sheet Experience"
         LibraryJob.PostJobJournal(JobJournalLine);
     end;
 
-    procedure SetTimeSheetV2Enabled(NewTimeSheetV2Enabled: Boolean)
-    begin
-        TimeSheetV2Enabled := NewTimeSheetV2Enabled;
-    end;
-
     local procedure TimeSheetCreate(Date: Date; NoOfPeriods: Integer; ResourceNo: Code[20]; var TimeSheetHeader: Record "Time Sheet Header")
     var
         CreateTimeSheets: Report "Create Time Sheets";
@@ -2074,11 +2039,11 @@ codeunit 136506 "New Time Sheet Experience"
         if not User.FindFirst() then begin
             User.Init();
             User."User Security ID" := CreateGuid();
-            User."User Name" := UserId();
-            User."Authentication Email" := navUserEmailTxt;
+            User."User Name" := CopyStr(UserId(), 1, MaxStrLen(User."User Name"));
+            User."Authentication Email" := AuthenticationEmail;
             User.Insert();
         end else begin
-            User."Authentication Email" := navUserEmailTxt;
+            User."Authentication Email" := AuthenticationEmail;
             User.Modify();
         end;
     end;
@@ -2196,8 +2161,6 @@ codeunit 136506 "New Time Sheet Experience"
     [Scope('OnPrem')]
     procedure ConfirmHandlerVerify(Question: Text; var Reply: Boolean)
     var
-        TimeSheetNo: Variant;
-        EmploymentDate: Variant;
         TimeSheetTxt: Label 'Time Sheet';
     begin
         Assert.IsTrue(StrPos(Question, TimeSheetTxt) > 0, UnexpectedTxt); // [VERIFY] Timesheet Employment Date message 
@@ -2243,19 +2206,13 @@ codeunit 136506 "New Time Sheet Experience"
     [Scope('OnPrem')]
     procedure CreateTimeSheetsHandler(var CreateTimeSheets: TestRequestPage "Create Time Sheets")
     begin
-        CreateTimeSheets.Cancel().Invoke;
+        CreateTimeSheets.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     procedure SuggestJobJnlLinesRequestPageHandler(var SuggestJobJnlLines: TestRequestPage "Suggest Job Jnl. Lines")
     begin
         SuggestJobJnlLines.OK().Invoke();
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Time Sheet Management", 'OnAfterTimeSheetV2Enabled', '', false, false)]
-    local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
-    begin
-        Result := TimeSheetV2Enabled;
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Time Sheet Card", 'OnAfterOnOpenPage', '', false, false)]

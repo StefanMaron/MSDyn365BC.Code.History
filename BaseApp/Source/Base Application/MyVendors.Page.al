@@ -30,7 +30,7 @@ page 9151 "My Vendors"
                     Lookup = false;
                     ToolTip = 'Specifies the vendor''s phone number.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';

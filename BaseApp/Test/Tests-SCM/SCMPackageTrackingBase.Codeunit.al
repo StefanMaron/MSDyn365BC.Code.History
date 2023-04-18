@@ -435,10 +435,10 @@ codeunit 137263 "SCM Tracking Package Base"
         Initialize();
 
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false, true);
-        Assert.IsFalse(ItemTrackingCode.IsWarehouseTracking(), '');
+        Assert.IsTrue(ItemTrackingCode.IsWarehouseTracking(), '');
 
-        ItemTrackingCode."Package Warehouse Tracking" := true;
-        Assert.IsTrue(ItemTrackingCode.IsWarehouseTracking(), '')
+        ItemTrackingCode."Package Warehouse Tracking" := false;
+        Assert.IsFalse(ItemTrackingCode.IsWarehouseTracking(), '')
     end;
 
     local procedure Initialize()

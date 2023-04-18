@@ -1928,6 +1928,7 @@ codeunit 134378 "ERM Sales Order"
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
+    [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure QtyToShipInSalesLineIsCorrectlyUpdatedWithChangeInQty()
     var

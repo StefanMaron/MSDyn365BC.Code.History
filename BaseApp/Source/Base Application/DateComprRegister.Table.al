@@ -144,7 +144,7 @@ table 87 "Date Compr. Register"
         Filter := EntryFilter;
         "Register No." := RelatedRegNo;
         "Source Code" := SourceCode;
-        "User ID" := UserId;
+        "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
     end;
 
     local procedure CheckLedgerEntryCompressed(PostingDate: Date; TableID: Integer; Caption: Text[50]; Type: Option Unapply,Reversal)

@@ -1,0 +1,57 @@
+table 5333 "Coupling Field Buffer"
+{
+    Caption = 'Coupling Field Buffer';
+    ReplicateData = false;
+#if not CLEAN22
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '25.0';
+#endif 
+    ObsoleteReason = 'This table is no longer used. Use Coupling Field Buffer table instead.';
+
+    fields
+    {
+        field(1; "Field Name"; Text[50])
+        {
+            Caption = 'Field Name';
+            DataClassification = SystemMetadata;
+        }
+        field(3; Value; Text[250])
+        {
+            Caption = 'Value';
+            DataClassification = SystemMetadata;
+        }
+        field(4; "Integration Value"; Text[250])
+        {
+            Caption = 'Integration Value';
+            DataClassification = SystemMetadata;
+        }
+        field(6; Direction; Option)
+        {
+            Caption = 'Direction';
+            DataClassification = SystemMetadata;
+            OptionCaption = 'Bidirectional,ToIntegrationTable,FromIntegrationTable';
+            OptionMembers = Bidirectional,ToIntegrationTable,FromIntegrationTable;
+        }
+        field(8; "Validate Field"; Boolean)
+        {
+            Caption = 'Validate Field';
+            DataClassification = SystemMetadata;
+        }
+    }
+
+    keys
+    {
+        key(Key1; "Field Name")
+        {
+            Clustered = true;
+        }
+    }
+
+    fieldgroups
+    {
+    }
+}
+

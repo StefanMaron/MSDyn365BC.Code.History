@@ -362,22 +362,6 @@ codeunit 1800 "Assisted Company Setup"
         exit(false);
     end;
 
-#if not CLEAN19
-    [Scope('OnPrem')]
-    [Obsolete('Replaced with GetAllowedCompaniesForCurrentUser.', '19.0')]
-    procedure GetAllowedCompaniesForCurrnetUser(var TempCompany: Record Company temporary)
-    begin
-        GetAllowedCompaniesForCurrentUser(TempCompany)
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Replaced with IsAllowedCompanyForCurrentUser.', '19.0')]
-    procedure HasCurrentUserAccessToCompany(CompanyName: Text[30]): Boolean
-    begin
-        exit(IsAllowedCompanyForCurrentUser(CompanyName));
-    end;
-#endif
-
     procedure AddAssistedCompanySetup()
     var
         GuidedExperience: Codeunit "Guided Experience";
@@ -436,14 +420,6 @@ codeunit 1800 "Assisted Company Setup"
         RunAssistedCompanySetup();
     end;
 
-#if not CLEAN19
-    [EventSubscriber(ObjectType::Page, Page::"Allowed Companies", 'OnBeforeActionEvent', 'Create New Company', false, false)]
-    local procedure OnBeforeCreateNewCompanyActionOpenCompanyCreationWizard(var Rec: Record Company)
-    begin
-        PAGE.RunModal(PAGE::"Company Creation Wizard");
-    end;
-#endif
-
     [EventSubscriber(ObjectType::Page, Page::"Accessible Companies", 'OnBeforeActionEvent', 'Create New Company', false, false)]
     local procedure OnBeforeCreateNewCompanyActionAccessibleCompanies(var Rec: Record Company)
     begin
@@ -474,32 +450,10 @@ codeunit 1800 "Assisted Company Setup"
         IsSetupInProgress := IsCompanySetupInProgress(NewCompanyName);
     end;
 
-#if not CLEAN19
-    [EventSubscriber(ObjectType::Table, Database::"Assisted Company Setup Status", 'OnGetCompanySetupStatus', '', false, false)]
-    local procedure OnGetIsCompanySetupInProgress(Name: Text[30]; var SetupStatus: Integer)
-    var
-        SetupStatusEnum: Enum "Company Setup Status";
-    begin
-        SetupStatusEnum := GetCompanySetupStatus(Name);
-        SetupStatus := SetupStatusEnum.AsInteger();
-    end;
-#endif
-
     [EventSubscriber(ObjectType::Table, Database::"Assisted Company Setup Status", 'OnGetCompanySetupStatusValue', '', false, false)]
     local procedure OnGetIsCompanySetupInProgressValue(Name: Text[30]; var SetupStatus: Enum "Company Setup Status")
-#if not CLEAN19
-    var
-        AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
-        SetupStatusInteger: Integer;
-#endif
     begin
-#if CLEAN19
         SetupStatus := GetCompanySetupStatus(Name);
-#else
-        SetupStatusInteger := SetupStatus.AsInteger();
-        AssistedCompanySetupStatus.OnGetCompanySetupStatus(Name, SetupStatusInteger);
-        SetupStatus := Enum::"Company Setup Status".FromInteger(SetupStatusInteger);
-#endif
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Assisted Company Setup Status", 'OnSetupStatusDrillDown', '', false, false)]

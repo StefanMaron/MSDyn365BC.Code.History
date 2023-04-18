@@ -107,6 +107,7 @@ codeunit 134562 "Object Selection"
           VATStatementTemplate.FieldNo("Page Caption"));
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure IntrastatJnlTemplate()
@@ -122,6 +123,7 @@ codeunit 134562 "Object Selection"
           IntrastatJnlTemplate.FieldNo("Page ID"),
           IntrastatJnlTemplate.FieldNo("Page Caption"));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -224,44 +226,6 @@ codeunit 134562 "Object Selection"
           SavedSegmentCriteriaLine.FieldNo("Table No."),
           SavedSegmentCriteriaLine.FieldNo("Table Caption"));
     end;
-
-#if not CLEAN19
-    [Test]
-    [Scope('OnPrem')]
-    procedure OutlookSynchEntity()
-    var
-        OutlookSynchEntity: Record "Outlook Synch. Entity";
-    begin
-        RunTableTest(
-          DATABASE::"Outlook Synch. Entity",
-          OutlookSynchEntity.FieldNo("Table No."),
-          OutlookSynchEntity.FieldNo("Table Caption"));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure OutlookSynchEntityElement()
-    var
-        OutlookSynchEntityElement: Record "Outlook Synch. Entity Element";
-    begin
-        RunTableTest(
-          DATABASE::"Outlook Synch. Entity Element",
-          OutlookSynchEntityElement.FieldNo("Table No."),
-          OutlookSynchEntityElement.FieldNo("Table Caption"));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure OutlookSynchField()
-    var
-        OutlookSynchField: Record "Outlook Synch. Field";
-    begin
-        RunTableTest(
-          DATABASE::"Outlook Synch. Field",
-          OutlookSynchField.FieldNo("Table No."),
-          OutlookSynchField.FieldNo("Table Caption"));
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]

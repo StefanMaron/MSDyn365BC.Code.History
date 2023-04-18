@@ -83,7 +83,7 @@ codeunit 138696 "Page Troubleshooting Test"
     procedure ScanValidUserPageCustomizations()
     var
         User: Record User;
-        UserPagePersonalizationList: TestPage "User Page Personalization List";
+        PersonalizedPages: TestPage "Personalized Pages";
     begin
         Init();
 
@@ -93,13 +93,13 @@ codeunit 138696 "Page Troubleshooting Test"
         AddValidPageCustomization(User);
         LibraryLowerPermissions.SetO365Full();
 
-        UserPagePersonalizationList.OpenEdit();
-        UserPagePersonalizationList.TroubleshootProblems.Invoke();
+        PersonalizedPages.OpenEdit();
+        PersonalizedPages.TroubleshootIssues.Invoke();
 
-        UserPagePersonalizationList.First();
+        PersonalizedPages.First();
         repeat
-            Assert.AreEqual(PageSuccessfullyValidatedTxt, UserPagePersonalizationList.Health.Value, 'Page ' + UserPagePersonalizationList.Description.Value + ' is not healthy.');
-        until UserPagePersonalizationList.Next() = false;
+            Assert.AreEqual(PageSuccessfullyValidatedTxt, PersonalizedPages.Health.Value, 'Page ' + PersonalizedPages.PageCaption.Value + ' is not healthy.');
+        until PersonalizedPages.Next() = false;
     end;
 
     [Test]
@@ -107,7 +107,7 @@ codeunit 138696 "Page Troubleshooting Test"
     procedure ScanInvalidUserPageCustomizations()
     var
         User: Record User;
-        UserPagePersonalizationList: TestPage "User Page Personalization List";
+        PersonalizedPages: TestPage "Personalized Pages";
     begin
         Init();
 
@@ -117,13 +117,13 @@ codeunit 138696 "Page Troubleshooting Test"
         AddInvalidPageCustomization(User);
         LibraryLowerPermissions.SetO365Full();
 
-        UserPagePersonalizationList.OpenEdit();
-        UserPagePersonalizationList.TroubleshootProblems.Invoke();
+        PersonalizedPages.OpenEdit();
+        PersonalizedPages.TroubleshootIssues.Invoke();
 
-        UserPagePersonalizationList.First();
+        PersonalizedPages.First();
         repeat
-            Assert.AreEqual(StrSubstNo(PageValidationFailedWithErrorsTxt, 1), UserPagePersonalizationList.Health.Value, 'Page ' + UserPagePersonalizationList.Description.Value + ' does not contain expected error.');
-        until UserPagePersonalizationList.Next() = false;
+            Assert.AreEqual(StrSubstNo(PageValidationFailedWithErrorsTxt, 1), PersonalizedPages.Health.Value, 'Page ' + PersonalizedPages.PageCaption.Value + ' does not contain expected error.');
+        until PersonalizedPages.Next() = false;
     end;
 
     local procedure CreateProfile(var AllProfile: Record "All Profile")

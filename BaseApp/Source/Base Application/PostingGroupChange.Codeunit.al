@@ -1,0 +1,152 @@
+codeunit 960 "Posting Group Change" implements "Posting Group Change Method"
+{
+    var
+        CannotChangePostingGroupErr: Label 'You cannot change the value %1 to %2 because %3 has not been filled in.', Comment = '%1 = old posting group; %2 = new posting group; %3 = tablecaption of Subst. Vendor/Customer Posting Group';
+
+    procedure ChangePostingGroup(NewPostingGroup: Code[20]; OldPostingGroup: Code[20]; SourceRecordVar: Variant)
+    var
+        SourceRecordRef: RecordRef;
+    begin
+        if OldPostingGroup = NewPostingGroup then
+            exit;
+
+        SourceRecordRef.GetTable(SourceRecordVar);
+        case SourceRecordRef.Number of
+            Database::"Sales Header":
+                CheckPostingGroupChangeInSalesHeader(NewPostingGroup, OldPostingGroup);
+            Database::"Purchase Header":
+                CheckPostingGroupChangeInPurchaseHeader(NewPostingGroup, OldPostingGroup);
+            Database::"Gen. Journal Line":
+                CheckPostingGroupChangeInGenJnlLine(NewPostingGroup, OldPostingGroup, SourceRecordVar);
+            Database::"Service Header":
+                CheckPostingGroupChangeInServiceHeader(NewPostingGroup, OldPostingGroup);
+            Database::"Finance Charge Memo Header":
+                CheckPostingGroupChangeInFinChrgMemoHeader(NewPostingGroup, OldPostingGroup);
+        end;
+    end;
+
+    local procedure CheckPostingGroupChangeInSalesHeader(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
+    begin
+        CheckCustomerPostingGroupChange(NewPostingGroup, OldPostingGroup);
+    end;
+
+    local procedure CheckPostingGroupChangeInPurchaseHeader(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
+    begin
+        CheckVendorPostingGroupChange(NewPostingGroup, OldPostingGroup);
+    end;
+
+    local procedure CheckPostingGroupChangeInGenJnlLine(NewPostingGroup: Code[20]; OldPostingGroup: Code[20]; GenJournalLine: Record "Gen. Journal Line")
+    begin
+        case GenJournalLine."Account Type" of
+            GenJournalLine."Account Type"::Customer:
+                CheckCustomerPostingGroupChangeAndCustomer(NewPostingGroup, OldPostingGroup, GenJournalLine."Account No.");
+            GenJournalLine."Account Type"::Vendor:
+                CheckVendorPostingGroupChangeAndVendor(NewPostingGroup, OldPostingGroup, GenJournalLine."Account No.");
+            else
+                GenJournalLine.FieldError(GenJournalLine."Account Type");
+        end;
+    end;
+
+    local procedure CheckPostingGroupChangeInFinChrgMemoHeader(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
+    begin
+        CheckCustomerPostingGroupChange(NewPostingGroup, OldPostingGroup);
+    end;
+
+    local procedure CheckPostingGroupChangeInServiceHeader(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
+    begin
+        CheckCustomerPostingGroupChangeAndCustomerInService(NewPostingGroup, OldPostingGroup, '');
+    end;
+
+    local procedure CheckCustomerPostingGroupChange(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
+    begin
+        CheckCustomerPostingGroupChangeAndCustomer(NewPostingGroup, OldPostingGroup, '');
+    end;
+
+    local procedure CheckVendorPostingGroupChange(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
+    begin
+        CheckVendorPostingGroupChangeAndVendor(NewPostingGroup, OldPostingGroup, '');
+    end;
+
+    local procedure CheckCustomerPostingGroupChangeAndCustomer(NewPostingGroup: Code[20]; OldPostingGroup: Code[20]; CustomerNo: Code[20])
+    begin
+        CheckAllowChangeSalesSetup();
+        if not HasCustomerSamePostingGroup(NewPostingGroup, CustomerNo) then
+            CheckCustomerPostingGroupSubstSetup(NewPostingGroup, OldPostingGroup);
+    end;
+
+    local procedure CheckCustomerPostingGroupChangeAndCustomerInService(NewPostingGroup: Code[20]; OldPostingGroup: Code[20]; CustomerNo: Code[20])
+    begin
+        CheckAllowChangeServiceSetup();
+        if not HasCustomerSamePostingGroup(NewPostingGroup, CustomerNo) then
+            CheckCustomerPostingGroupSubstSetup(NewPostingGroup, OldPostingGroup);
+    end;
+
+    local procedure CheckVendorPostingGroupChangeAndVendor(NewPostingGroup: Code[20]; OldPostingGroup: Code[20]; VendorNo: Code[20])
+    begin
+        CheckAllowChangePurchaseSetup();
+        if not HasVendorSamePostingGroup(NewPostingGroup, VendorNo) then
+            CheckVendorPostingGroupSubstSetup(NewPostingGroup, OldPostingGroup);
+    end;
+
+    local procedure CheckCustomerPostingGroupSubstSetup(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
+    var
+        AltCustomerPostingGroup: Record "Alt. Customer Posting Group";
+    begin
+        if not AltCustomerPostingGroup.Get(OldPostingGroup, NewPostingGroup) then
+            Error(CannotChangePostingGroupErr, OldPostingGroup, NewPostingGroup, AltCustomerPostingGroup.TableCaption());
+    end;
+
+    procedure CheckVendorPostingGroupSubstSetup(NewPostingGroup: Code[20]; OldPostingGroup: Code[20])
+    var
+        AltVendorPostingGroup: Record "Alt. Vendor Posting Group";
+    begin
+        if not AltVendorPostingGroup.Get(OldPostingGroup, NewPostingGroup) then
+            Error(CannotChangePostingGroupErr, OldPostingGroup, NewPostingGroup, AltVendorPostingGroup.TableCaption());
+    end;
+
+    procedure CheckAllowChangeSalesSetup()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.TestField("Allow Multiple Posting Groups");
+        SalesReceivablesSetup.TestField("Check Multiple Posting Groups", "Posting Group Change Method"::"Alternative Groups");
+    end;
+
+    procedure CheckAllowChangeServiceSetup()
+    var
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+    begin
+        ServiceMgtSetup.Get();
+        ServiceMgtSetup.TestField("Allow Multiple Posting Groups");
+        ServiceMgtSetup.TestField("Check Multiple Posting Groups", "Posting Group Change Method"::"Alternative Groups");
+    end;
+
+    procedure CheckAllowChangePurchaseSetup()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.TestField("Allow Multiple Posting Groups");
+        PurchasesPayablesSetup.TestField("Check Multiple Posting Groups", "Posting Group Change Method"::"Alternative Groups");
+    end;
+
+    procedure HasCustomerSamePostingGroup(NewPostingGroup: Code[20]; CustomerNo: Code[20]): Boolean
+    var
+        Customer: Record Customer;
+    begin
+        if Customer.Get(CustomerNo) then
+            exit(NewPostingGroup = Customer."Customer Posting Group");
+        exit(false);
+    end;
+
+    procedure HasVendorSamePostingGroup(NewPostingGroup: Code[20]; VendorNo: Code[20]): Boolean
+    var
+        Vendor: Record Vendor;
+    begin
+        if Vendor.Get(VendorNo) then
+            exit(NewPostingGroup = Vendor."Vendor Posting Group");
+        exit(false);
+    end;
+}
+

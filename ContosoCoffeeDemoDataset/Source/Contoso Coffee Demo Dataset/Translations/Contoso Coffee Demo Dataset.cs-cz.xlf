@@ -128,11 +128,6 @@
           <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Manufacturing DemoData - NamedType XMANUFACTTok</note>
         </trans-unit>
-        <trans-unit id="Codeunit 549124993 - NamedType 2432616601" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
-          <source>North</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Manufacturing DemoData - NamedType XNorthTok</note>
-        </trans-unit>
         <trans-unit id="Codeunit 549124993 - NamedType 1091556328" maxwidth="10" size-unit="char" translate="yes" xml:space="preserve">
           <source>RAW MAT</source>
           <note from="Developer" annotates="general" priority="2">Must be the same as Standard and Eval demodata</note>
@@ -565,16 +560,6 @@
           <source>OUTPUT</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item Jnl Template - NamedType XOUTPUTTok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 87617727 - NamedType 517193696" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
-          <source>North Street, 2</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Location - NamedType XNorthStreet2Tok</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 87617727 - NamedType 420762174" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
-          <source>North Warehouse</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Location - NamedType XNorthWarehouseTok</note>
         </trans-unit>
         <trans-unit id="Codeunit 3891720912 - NamedType 994084425" maxwidth="20" size-unit="char" translate="yes" xml:space="preserve">
           <source>O-PROM</source>

@@ -165,22 +165,6 @@ page 9803 Permissions
     {
         area(Processing)
         {
-#if not CLEAN19
-            action(FilterPermissionSet)
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by AssistEdit trigger on the Permission Set field';
-                ObsoleteTag = '19.0';
-                ApplicationArea = Basic, Suite;
-                Caption = 'Select Permission Set';
-                Image = Filter;
-                ToolTip = 'Specifies the filter of the permission sets that the object applies to.';
-                trigger OnAction()
-                begin
-                    SelectFilterSet();
-                end;
-            }
-#endif
             action(IncludeExclude)
             {
                 AccessByPermission = TableData "Tenant Permission" = ID;

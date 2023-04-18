@@ -1,6 +1,6 @@
 codeunit 112 "Empl. Entry-SetAppl.ID"
 {
-    Permissions = TableData "Employee Ledger Entry" = imd;
+    Permissions = TableData "Employee Ledger Entry" = rimd;
 
     trigger OnRun()
     begin
@@ -22,7 +22,7 @@ codeunit 112 "Empl. Entry-SetAppl.ID"
             else begin
                 EmplEntryApplID := AppliesToID;
                 if EmplEntryApplID = '' then begin
-                    EmplEntryApplID := UserId;
+                    EmplEntryApplID := CopyStr(UserId(), 1, 50);
                     if EmplEntryApplID = '' then
                         EmplEntryApplID := '***';
                 end;

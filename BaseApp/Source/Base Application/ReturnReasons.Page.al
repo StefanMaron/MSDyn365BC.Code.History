@@ -18,7 +18,7 @@ page 6635 "Return Reasons"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the code of the record.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the description of the return reason.';

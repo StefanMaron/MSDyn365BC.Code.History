@@ -58,7 +58,7 @@ page 7604 "Base Calendar Entries Subform"
                         UpdateBaseCalendarChanges();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Description';

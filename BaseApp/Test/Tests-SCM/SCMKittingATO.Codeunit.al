@@ -501,7 +501,7 @@ codeunit 137096 "SCM Kitting - ATO"
         exit(UnitCost);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure GetRollupPrice(AssemblyHeader: Record "Assembly Header") Price: Decimal
     var
         AssemblyLine: Record "Assembly Line";
@@ -3569,7 +3569,7 @@ codeunit 137096 "SCM Kitting - ATO"
           StrSubstNo(WrongUnitValueMsg, SalesLine.FieldCaption("Unit Cost")));
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -4907,7 +4907,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ChangeCostAndPriceOnCompList(Item."No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateSalesAndResourcePricesOnCompList(ItemNo: Code[20])
     var
         BOMComponent: Record "BOM Component";

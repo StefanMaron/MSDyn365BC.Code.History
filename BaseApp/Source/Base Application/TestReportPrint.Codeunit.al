@@ -10,11 +10,15 @@ codeunit 228 "Test Report-Print"
         GenJnlTemplate: Record "Gen. Journal Template";
         VATStmtTmpl: Record "VAT Statement Template";
         ItemJnlTemplate: Record "Item Journal Template";
+#if not CLEAN22
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
+#endif
         GenJnlLine: Record "Gen. Journal Line";
         VATStmtLine: Record "VAT Statement Line";
         ItemJnlLine: Record "Item Journal Line";
+#if not CLEAN22
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
+#endif
         ResJnlTemplate: Record "Res. Journal Template";
         ResJnlLine: Record "Res. Journal Line";
         JobJnlTemplate: Record "Job Journal Template";
@@ -93,7 +97,10 @@ codeunit 228 "Test Report-Print"
         REPORT.Run(ItemJnlTemplate."Test Report ID", true, false, ItemJnlLine);
     end;
 
+
+#if not CLEAN22
     [Scope('OnPrem')]
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure PrintIntrastatJnlLine(var NewIntrastatJnlLine: Record "Intrastat Jnl. Line")
     var
         FileManagement: Codeunit "File Management";
@@ -106,6 +113,7 @@ codeunit 228 "Test Report-Print"
         IntraJnlTemplate.TestField("Checklist Report ID");
         REPORT.SaveAsPdf(IntraJnlTemplate."Checklist Report ID", FileManagement.ServerTempFileName('tmp'), IntrastatJnlLine);
     end;
+#endif
 
     procedure PrintResJnlBatch(ResJnlBatch: Record "Res. Journal Batch")
     begin

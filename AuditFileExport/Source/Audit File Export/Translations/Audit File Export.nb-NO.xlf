@@ -1,0 +1,1755 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="nb-NO" original="Audit File Export">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 2528467593 - NamedType 1082578776" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit file was generated.</source>
+          <target state="translated">Revisjonsfilen ble generert.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType AuditFileGeneratedTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 1272624294" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The task for the line %1 was lost.</source>
+          <target state="translated">Oppgaven for linjen %1 ble brutt.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = number</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType SessionLostTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 1833972103" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No audit file export document lines were created.</source>
+          <target state="translated">Ingen eksportdokumentlinjer for revisjonsfil ble opprettet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType NoExportLinesCreatedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 1908741162" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Earliest Start Date/Time field is not filled in. Do you want to proceed and start the export immediately?</source>
+          <target state="translated">Feltet Tidligste startdato/-klokkeslett er ikke fylt ut. Vil du fortsette og starte eksporten umiddelbart?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType SetStartDateTimeAsCurrentQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 1969555425" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The generation of the audit file failed but no error message was logged.</source>
+          <target state="translated">Genereringen av revisjonsfilen mislyktes, men ingen feilmelding ble loggført.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType NoErrorMessageErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 2102356600" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starting audit file export with ID: %1, Parallel: %2, Split By Month: %3</source>
+          <target state="translated">Starter revisjonsfileksport med ID: %1, parallell: %2, delt på måned: %3</target>
+          <note from="Developer" annotates="general" priority="2">%1 - integer; %2, %3 - boolean</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType StartingExportTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 2326780297" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export</source>
+          <target state="translated">Revisjonsfileksport</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType AuditFileExportTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 2502530873" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You are not allowed to schedule the audit file generation</source>
+          <target state="translated">Det er ikke tillatt å planlegge revisjonsfilgenereringen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType NotPossibleToScheduleMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 251770367" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The export was completed. You can download the export result choosing the Download Audit File action.\</source>
+          <target state="translated">Eksporten er fullført. Du kan laste ned eksportresultatet ved å velge handlingen Last ned revisjonsfil.\</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType ExportIsCompletedQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 2582843447" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Schedule a task for the line %1.</source>
+          <target state="translated">Planlegg en oppgave for linjen %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = number</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType ScheduleTaskForLineTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 2836027419" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit file was not generated.</source>
+          <target state="translated">Revisjonsfilen ble ikke generert.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType AuditFileNotGeneratedTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 2929691879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No file was generated.</source>
+          <target state="translated">Ingen fil ble generert.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType NoFileGeneratedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 2948678666" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>It is not possible to schedule the task for line %1 because the Max. No. of Jobs is %2.</source>
+          <target state="translated">Det er ikke mulig å planlegge oppgaven for linjen %1 fordi feltet Maks antall prosjekter er %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1,%2 = numbers</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType NotPossibleToScheduleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 3230717189" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There are %1 jobs which are not started or failed</source>
+          <target state="translated">Det finnes %1 prosjekter som ikke er startet eller er mislykket</target>
+          <note from="Developer" annotates="general" priority="2">%1 = number</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType JobsStartedOrFailedTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 3281259537" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Export audit file</source>
+          <target state="translated">Eksporter revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType SaveFileDialogTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 3377795122" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Number of jobs in progress: %1</source>
+          <target state="translated">Antall prosjekter i arbeid: %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = number</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType NoOfJobsInProgressTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 3437776458" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One or more export document lines are in progress or completed.\</source>
+          <target state="translated">En eller flere eksportlinjer pågår eller er fullført.\</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType LinesInProgressOrCompletedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 3489821255" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The export is in progress. Starting a new job cancels the current progress.\</source>
+          <target state="translated">Eksporten pågår. Hvis du starter et nytt prosjekt, annulleres gjeldende fremgang.\</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType ExportIsInProgressMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 3679109522" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cancelling audit file export with ID: %1, Task ID: %2</source>
+          <target state="translated">Avbryter revisjonsfileksport med ID-en: %1, oppgave-ID: %2</target>
+          <note from="Developer" annotates="general" priority="2">%1 - integer; %2 - GUID</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType CancellingExportTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 3732164277" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to delete the export entry?</source>
+          <target state="translated">Vil du slette eksportposten?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType DeleteExportIsInProgressQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 3749558266" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Parallel audit file generation</source>
+          <target state="translated">Parallell revisjonsfilgenerering</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType ParallelAuditFileGenerationTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 3884700983" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to restart the export to get a new audit file?</source>
+          <target state="translated">Vil du starte eksporten på nytt for å få en ny revisjonsfil?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType RestartExportQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 4058060278" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1%2</source>
+          <target state="translated">%1%2</target>
+          <note from="Developer" annotates="general" priority="2">%1, %2 - two strings to concatenate</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType TwoStringsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 4069002805" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to restart the export for this line?</source>
+          <target state="translated">Vil du starte eksporten for denne linjen på nytt?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType RestartExportLineQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 4160512717" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The audit file already exists and is ready for downloading. Do you want to recreate the audit file?</source>
+          <target state="translated">Revisjonsfilen finnes allerede og er klar for nedlasting. Vil du opprette revisjonsfilen på nytt?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType AuditFileAlreadyExistsQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 547411560" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to cancel all export jobs and restart?</source>
+          <target state="translated">Vil du avbryte alle eksportprosjekter og starte på nytt?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType CancelExportIsInProgressQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2528467593 - NamedType 569400846" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Since you did not schedule the audit file generation, it will be generated immediately which can take a while. Do you want to continue?</source>
+          <target state="translated">Siden du ikke planla å bruke revisjonsfilgenerering, blir den generert umiddelbart, noe som kan ta litt tid. Vil du fortsette?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType GenerateAuditFileImmediatelyQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 112401566" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard accounts of type %1 do not exist.</source>
+          <target state="translated">Standardkontoer av typen %1 finnes ikke.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Standard Account Type</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType StandardAccountsNotExistErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 1484253947" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>DEFAULT</source>
+          <target state="translated">STANDARD</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType DefaultLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 1525031959" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must specify an ending date.</source>
+          <target state="translated">Du må angi en sluttdato.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType EndingDateNotFilledErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 1614519160" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>It is not possible to copy the mapping due to different standard account types.</source>
+          <target state="translated">Det er ikke mulig å kopiere tildelingen på grunn av ulike standard kontotyper.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType DifferentMappingTypeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 1823543024" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A chart of accounts must be empty to be created based on standard accounts.</source>
+          <target state="translated">En kontoplan må være tom for å opprettes basert på standardkontoer.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType ChartOfAccountsAlreadyExistsErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 2213276311" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to create a chart of accounts based on standard account codes?</source>
+          <target state="translated">Vil du opprette en kontoplan basert på standard kontokoder?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType CreateChartOfAccountsQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 2640558072" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Preparing the source for mapping...</source>
+          <target state="translated">Klargjør kilden for tildeling ...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType PreparingSourceForMappingLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 2981755771" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A mapping line for category %1 with standard G/L account code %2 already exists for mapping %3.</source>
+          <target state="translated">Det finnes allerede en tildelingslinje for kategori %1 med standard finanskontokode %2 for tildeling %3.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = category no., %2 = standard G/L account code, %3 = G/L Account Mapping Header Code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType MappingExistsErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 2992087918" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L account mapping %1 does not have any lines.</source>
+          <target state="translated">Det finnes ingen linjer for finanskontotildeling %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = G/L Account Mapping Header Code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType NoGLAccountMappingErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 3003812014" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 of %2 standard accounts have been automatically matched to the chart of accounts.</source>
+          <target state="translated">%1 av %2 standardkonti er automatisk samsvart med kontoplanen.</target>
+          <note from="Developer" annotates="general" priority="2">%1,%2 = both integer values</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType StandardAccountsMatchedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 3667637739" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One or more G/L accounts are already mapped. Create a new mapping with another standard account type.</source>
+          <target state="translated">En eller flere finanskontoer er allerede tildelt. Opprett en ny tildeling med en annen standard kontotype.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType MappingDoneErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 3683577878" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must specify a starting date.</source>
+          <target state="translated">Du må angi en startdato.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType StartingDateNotFilledErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 3959011560" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One or more G/L accounts do not have a mapping setup. Open the G/L Account Mapping page for the selected mapping and map each G/L account either to the standard account or the grouping code.</source>
+          <target state="translated">En eller flere finanskontoer har ikke et tildelingsoppsett. Åpne siden Finanskontotildeling for den valgte tildelingen, og tildel hver finanskonto til standardkontoen eller grupperingskoden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType MappingNotDoneErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 4058060278" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1/%2</source>
+          <target state="translated">%1/%2</target>
+          <note from="Developer" annotates="general" priority="2">%1, %2 - strings to concatenate</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType TwoStringsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 777588163" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A chart of accounts does not exist in the current company.</source>
+          <target state="translated">Det finnes ingen kontoplan i det gjeldende selskapet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType ChartOfAccountsDoesNotExistErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 922495134" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to match a chart of accounts with standard account codes?</source>
+          <target state="translated">Vil du samsvare en kontoplan med standard kontokoder?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType MatchChartOfAccountsQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3575212698 - NamedType 2326780297" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit file export</source>
+          <target state="translated">Revisjonsfileksport</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Error Handl. - NamedType AuditFileExportTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3575212698 - NamedType 4135272633" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to export data for the line with ID: %1, Task ID: %2</source>
+          <target state="translated">Kan ikke eksportere data for linjen med ID-en: %1, oppgave-ID: %2</target>
+          <note from="Developer" annotates="general" priority="2">%1 - integer; %2 - GUID</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Error Handl. - NamedType FailedExportTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097357492 - NamedType 1853557795" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Accounts</source>
+          <target state="translated">Standardkontoer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Import Audit Data Mgt. - NamedType StandardAccountsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097357492 - NamedType 895049908" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not possible to parse XML file with %1 for mapping</source>
+          <target state="translated">Ikke mulig å analysere XML-filen med %1 for tilordning</target>
+          <note from="Developer" annotates="general" priority="2">%1 = a standard account type</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Import Audit Data Mgt. - NamedType NotPossibleToParseMappingXMLFileErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4097357492 - NamedType 976475411" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Grouping Codes</source>
+          <target state="translated">Grupperingskoder</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Import Audit Data Mgt. - NamedType GroupingCodesTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 725404113 - NamedType 2773249335" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No file name was specified for the audit file export line.</source>
+          <target state="translated">Ingen filnavn er angitt for eksportlinjen for revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Line Export Runner - NamedType NoFileNameErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 725404113 - NamedType 3650720917" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No file content was generated for the audit file export line.</source>
+          <target state="translated">Det ble ikke generert noe filinnhold for eksportlinjen for revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Line Export Runner - NamedType NoFileContentErr</note>
+        </trans-unit>
+        <trans-unit id="Enum 1719650270 - EnumValue 2327360480 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Accounting Period</source>
+          <target state="translated">Regnskapsperiode</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum G/L Acc. Mapping Period Type - EnumValue Accounting Period - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1719650270 - EnumValue 31514389 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Date Range</source>
+          <target state="translated">Datoområde</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum G/L Acc. Mapping Period Type - EnumValue Date Range - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2425764697 - EnumValue 1353916356 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Passed</source>
+          <target state="translated">Bestått</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Audit Data Check Status - EnumValue Passed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2425764697 - EnumValue 1371923692 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <target state="translated"> </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Audit Data Check Status - EnumValue   - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2425764697 - EnumValue 3826689261 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed</source>
+          <target state="translated">Mislyktes</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Audit Data Check Status - EnumValue Failed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1894989714 - Action 1583998716 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recreate records in the Audit Export Data Type Setup.</source>
+          <target state="translated">Opprett poster på nytt i oppsettet av datatype for revisjonseksport.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Export Data Type Setup - Action RestoreDefaults - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1894989714 - Action 1583998716 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Restore Default Setup</source>
+          <target state="translated">Gjenopprett standardoppsett</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Export Data Type Setup - Action RestoreDefaults - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2053205652 - Action 2787516006 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download the generated audit file.</source>
+          <target state="translated">Last ned den genererte revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Files - Action DownloadFile - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2053205652 - Action 2787516006 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download File</source>
+          <target state="translated">Last ned fil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Files - Action DownloadFile - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2246936125 - Action 398213913 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select data types that will be written to the audit file.</source>
+          <target state="translated">Velg datatyper som skal skrives til revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Format Setup - Action SelectExportDataTypes - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2246936125 - Action 398213913 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select Data Types for Export</source>
+          <target state="translated">Velg datatyper for eksport</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Format Setup - Action SelectExportDataTypes - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2470509826 - Action 3734234140 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mark G/L accounts that have posted G/L entries in green. If option Include Incoming Balance enabled then all posted G/L entries are considered for calculation. Otherwise only G/L entries of the reporting period are considered.</source>
+          <target state="translated">Merk finanskonti som har bokførte finansposter i grønt. Hvis alternativet Inkluder inngående saldo aktivert, vurderes alle bokførte finansposter for beregning. Hvis ikke blir bare finansposter i rapporteringsperioden tatt hensyn til.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Subpage - Action UpdateGLEntriesExists - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2470509826 - Action 3734234140 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Update G/L Entry Availability</source>
+          <target state="translated">Oppdater tilgjengelighet for finanspost</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Subpage - Action UpdateGLEntriesExists - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Action 2056370978 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check that data is ready to be exported to the audit file.</source>
+          <target state="translated">Kontroller at dataene er klare for eksport til revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Action DataCheck - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Action 2056370978 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data check</source>
+          <target state="translated">Datakontroll</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Action DataCheck - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Action 2787516006 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download the generated audit files.</source>
+          <target state="translated">Last ned de genererte revisjonsfilene.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Action DownloadFile - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Action 2787516006 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download Files</source>
+          <target state="translated">Last ned filer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Action DownloadFile - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Action 3858870864 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recreate the files using the already collected audit data.</source>
+          <target state="translated">Opprett filene på nytt ved hjelp av revisjonsdataene som allerede er samlet inn.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Action CreateAuditFiles - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Action 3858870864 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recreate Audit Files</source>
+          <target state="translated">Opprett revisjonsfiler på nytt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Action CreateAuditFiles - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Action 620325036 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start the generation of the audit file.</source>
+          <target state="translated">Start genereringen av revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Action Start - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Action 620325036 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start</source>
+          <target state="translated">Start</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Action Start - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Action 3517601603 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Copy the G/L account mapping from another mapping code.</source>
+          <target state="translated">Kopier finanskontotildelingen fra en annen tildelingskode.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Action CopyMapping - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Action 3517601603 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Copy from Another Mapping</source>
+          <target state="translated">Kopier fra en annen tildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Action CopyMapping - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Action 972680765 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Generate lines on the G/L Account Mapping page based on an existing chart of accounts.</source>
+          <target state="translated">Generer linjer på siden Finanskontotilordning basert på en eksisterende kontoplan.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Action InitMappingSource - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Action 972680765 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Initialize Source for Mapping</source>
+          <target state="translated">Start kilde for tildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Action InitMappingSource - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4034594984 - Action 2499816184 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show the standard account codes that are linked to the selected category.</source>
+          <target state="translated">Vis standard kontokoder som er koblet til den valgte kategorien.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Standard Account Categories - Action StandardAccountCodes - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4034594984 - Action 2499816184 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Accounts</source>
+          <target state="translated">Standardkontoer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Standard Account Categories - Action StandardAccountCodes - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Action 2787516006 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download the generated audit file.</source>
+          <target state="translated">Last ned den genererte revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Action DownloadFile - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Action 2787516006 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download File</source>
+          <target state="translated">Last ned fil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Action DownloadFile - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Action 620325036 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start the generation of the audit file.</source>
+          <target state="translated">Start genereringen av revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Action Start - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Action 620325036 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start</source>
+          <target state="translated">Start</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Action Start - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Action 1700570109 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show the error that occurred during the generation the selected audit file.</source>
+          <target state="translated">Vis feilen som oppstod under genereringen av den valgte revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Action ShowError - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Action 1700570109 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show Error</source>
+          <target state="translated">Vis feil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Action ShowError - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Action 2316947810 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show the activity log for the generation of the selected audit file.</source>
+          <target state="translated">Vis aktivitetsloggen for genereringen av den valgte revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Action LogEntries - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Action 2316947810 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Activity Log</source>
+          <target state="translated">Aktivitetslogg</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Action LogEntries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Action 27446870 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Restart the generation of the selected audit file.</source>
+          <target state="translated">Start genereringen av den valgte revisjonsfilen på nytt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Action RestartTask - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Action 27446870 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Restart</source>
+          <target state="translated">Start på nytt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Action RestartTask - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Action 2787516006 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download the audit file for the selected line.</source>
+          <target state="translated">Last ned revisjonsfilen for den valgte linjen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Action DownloadFile - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Action 2787516006 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download as File</source>
+          <target state="translated">Last ned som fil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Action DownloadFile - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Action 3402369194 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh the page to see the export progress.</source>
+          <target state="translated">Oppdater siden for å vise eksportfremdriften.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Action RefreshPage - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Action 3402369194 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Refresh the page</source>
+          <target state="translated">Oppdater siden</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Action RefreshPage - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1032828427 - Control 2005121193 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the category of standard general ledger accounts that is used for mapping.</source>
+          <target state="translated">Angir kategorien for standard finanskontoer som brukes til tildeling.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Standard Accounts - Control Category No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1032828427 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the description of the standard account that is used for mapping.</source>
+          <target state="translated">Angir beskrivelsen av standardkontoen som brukes for tildeling.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Standard Accounts - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1032828427 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the standard account code that is used for mapping.</source>
+          <target state="translated">Angir standardkontokoden som brukes til tilordning.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Standard Accounts - Control No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1894989714 - Control 1049811062 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the data class.</source>
+          <target state="translated">Angir dataklassen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Export Data Type Setup - Control ExportDataClass - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1894989714 - Control 1481486544 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the data type that can be written to the audit file.</source>
+          <target state="translated">Angir datatypen som kan skrives til revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Export Data Type Setup - Control ExportDataType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1894989714 - Control 1876342979 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if the selected data type is written to the audit file.</source>
+          <target state="translated">Angir om den valgte datatypen skrives til revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Export Data Type Setup - Control ExportEnabled - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2053205652 - Control 2295014698 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the size of the file.</source>
+          <target state="translated">Angir størrelsen på filen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Files - Control AuditFileSize - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2053205652 - Control 4110364376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name with which the file will be downloaded.</source>
+          <target state="translated">Angir navnet filen blir lastet ned med.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Files - Control AuditFileName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2053205652 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the file.</source>
+          <target state="translated">Angir nummeret på filen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Files - Control No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2246936125 - Control 1203412368 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Format</source>
+          <target state="translated">Eksportformat for revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Format Setup - Control AuditFileExportFormat - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2246936125 - Control 4110364376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the default file name or the file name template for the audit file.</source>
+          <target state="translated">Angir standard filnavn eller filnavnmal for revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Format Setup - Control AuditFileName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2246936125 - Control 573914478 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Archive to Zip</source>
+          <target state="translated">Arkiver til ZIP</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Format Setup - Control ArchiveToZip - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2470509826 - Control 1260824717 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the account that is used to map the standard account or grouping code.</source>
+          <target state="translated">Angir nummeret for kontoen som brukes til å tildele standardkonto eller grupperingskode.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Subpage - Control GLAccountNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2470509826 - Control 2092126059 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the category of the standard account or grouping code that is used for mapping.</source>
+          <target state="translated">Angir kategorien for standardkonto eller grupperingskode som brukes til tildeling.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Subpage - Control CategoryNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2470509826 - Control 2623105247 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the account that is used to map the standard account or grouping code.</source>
+          <target state="translated">Angir navnet på kontoen som brukes til å tildele standardkonto eller grupperingskode.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Subpage - Control GLAccountName - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2470509826 - Control 2686885749 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code of the standard account or grouping code that is used for mapping.</source>
+          <target state="translated">Angir koden for standardkonto eller grupperingskode som brukes for tildeling.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Subpage - Control StandardAccountNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 1203412368 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the format which is used for exporting the audit file.</source>
+          <target state="translated">Angir formatet som brukes til å eksportere revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control AuditFileExportFormat - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 1347859192 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the comment that is exported to the header of the audit file</source>
+          <target state="translated">Angir kommentaren som eksporteres til overskriften for revisjonsfilen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control Header Comment - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 1369749204 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if the audit file generation will be processed by parallel background jobs.</source>
+          <target state="translated">Angir om revisjonsfilgenereringen blir behandlet av parallelle bakgrunnsprosjekter.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control ParallelProcessing - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 18210474 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the maximum number of background jobs that can be run at the same time.</source>
+          <target state="translated">Angir maksimalt antall bakgrunnsprosjekter som kan kjøres samtidig.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control Max No. Of Jobs - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 1862936795 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if multiple audit files will be generated per month.</source>
+          <target state="translated">Angir om flere revisjonsfiler blir generert per måned.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control SplitByMonth - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 2196498870 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies that multiple Zip files will be generated.</source>
+          <target state="translated">Angir at det blir generert flere ZIP-filer.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control CreateMultipleZipFiles - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 2286259903 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether multiple audit files will be generated for each day.</source>
+          <target state="translated">Angir om flere revisjonsfiler blir generert for hver dag.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control SplitByDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 2418865460 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the earliest date and time when the background job must be run.</source>
+          <target state="translated">Angir tidligste dato og klokkeslett når bakgrunnsprosjektet må kjøres.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control EarliestStartDateTime - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 2445482498 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>General</source>
+          <target state="translated">Generelt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control General - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 3075730021 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the G/L account mapping code that represents the reporting period.</source>
+          <target state="translated">Angir koden for finanskontotildeling som representerer rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control GLAccountMappingCode - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 3080159262 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the status of the most recent data check.</source>
+          <target state="translated">Angir statusen for den siste datakontrollen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control DataCheckStatus - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 3518803488 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date and time when the audit file generation was completed.</source>
+          <target state="translated">Angir datoen og klokkeslettet da revisjonsfilgenereringen ble fullført.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control ExecutionEndDateTime - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 3569484669 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies that all files will be packed into a Zip archive.</source>
+          <target state="translated">Angir at alle filer skal pakkes i et ZIP-arkiv.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control ZipFileGeneration - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 3592094765 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ending date of the reporting period.</source>
+          <target state="translated">Angir sluttdatoen for rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control EndingDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 3862845261 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Processing</source>
+          <target state="translated">Behandler</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control Processing - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 3993128796 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the contact that is exported to the header of the audit file</source>
+          <target state="translated">Angir kontakten som eksporteres til overskriften til revisjonsfilen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control Contact - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 4085528741 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date and time when the audit file generation was started.</source>
+          <target state="translated">Angir datoen og klokkeslettet da revisjonsfilgenereringen ble startet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control ExecutionStartDateTime - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 4292961824 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies when the most recent data check was run.</source>
+          <target state="translated">Angir når den siste datakontrollen ble kjørt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control LatestDataCheckDateTime - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 513339096 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the overall status of one or more audit files being generated.</source>
+          <target state="translated">Angir den generelle statusen for en eller flere revisjonsfiler som genereres.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control Status - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Control 543275552 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the starting date of the reporting period.</source>
+          <target state="translated">Angir startdatoen for rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Control StartingDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3665447164 - Control 1459662141 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if you want to be notified about the post code that has not been set up correctly.</source>
+          <target state="translated">Angir om du vil bli varslet om postnummeret som ikke er konfigurert riktig.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control CheckPostCode - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3665447164 - Control 147873798 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if you want to be notified about fields that have not been set up correctly for specific customers.</source>
+          <target state="translated">Angir om du vil bli varslet om felter som ikke er konfigurert riktig for bestemte kunder.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control CheckCustomer - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3665447164 - Control 1509787282 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the post code to use when no values specified in the customer or vendor card.</source>
+          <target state="translated">Angir postnummeret som skal brukes når det ikke er angitt noen verdier på kunde- eller leverandørkortet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control DefaultPostCode - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3665447164 - Control 1608686094 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if you want to be notified about fields that have not been set up correctly for specific vendors</source>
+          <target state="translated">Angir om du vil bli varslet om felter som ikke er konfigurert riktig for bestemte leverandører</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control CheckVendor - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3665447164 - Control 2051062043 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the default audit file export format code.</source>
+          <target state="translated">Angir standard eksportformatkode for revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control AuditFileExportFormatCode - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3665447164 - Control 2627088132 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if you want to be notified about the address that has not been set up correctly.</source>
+          <target state="translated">Angir om du vil bli varslet om adressen som ikke er konfigurert riktig.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control CheckAddress - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3665447164 - Control 2704216983 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if you want to be notified about fields that have not been set up correctly in the Company Information.</source>
+          <target state="translated">Angir om du vil bli varslet om felter som ikke er konfigurert riktig i selskapsopplysningene.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control CheckCompanyInformation - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3665447164 - Control 3829821075 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if you want to be notified about fields that have not been set up correctly for specific bank accounts.</source>
+          <target state="translated">Angir om du vil bli varslet om felter som ikke er konfigurert riktig for bestemte bankkontoer.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control CheckBankAccount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Control 1163052056 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if the incoming balance of G/L account of type "Balance Account" needs to be considered for mapping instead of the reporting period's net change.</source>
+          <target state="translated">Angir om den innkommende saldoen for finanskontoen av typen saldokonto må vurderes for tilordning i stedet for bevegelsen i rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Control IncludeIncomingBalance - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Control 1203412368 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the audit file export format to which the standard general ledger accounts are linked.</source>
+          <target state="translated">Angir eksportformatet for revisjonsfilen som standard finanskontoer er koblet til.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Control AuditFileExportFormat - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Control 1377863565 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code of the standard account or grouping code that is used for mapping.</source>
+          <target state="translated">Angir koden for standardkonto eller grupperingskode som brukes for tildeling.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Control StanadrdAccountNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Control 1597877536 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the starting date of the accounting period that will be used as reporting period.</source>
+          <target state="translated">Angir startdatoen for regnskapsperioden som skal brukes som rapporteringsperiode.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Control AccountingPeriod - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Control 3004954119 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the mapping code that represents the reporting period.</source>
+          <target state="translated">Angir tildelingskoden som representerer rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Control Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Control 3592094765 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ending date of the reporting period.</source>
+          <target state="translated">Angir sluttdatoen for rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Control EndingDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Control 43593927 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type for an accounting period or custom period with a flexible start date/time.</source>
+          <target state="translated">Angir typen for en regnskapsperiode eller egendefinert periode med en fleksibel startdato/-klokkeslett.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Control PeriodType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Control 543275552 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the starting date of the reporting period.</source>
+          <target state="translated">Angir startdatoen for rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Control StartingDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Control 668720920 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mapping</source>
+          <target state="translated">Tildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Control Mapping - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Control 705636630 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of the standard general ledger accounts.</source>
+          <target state="translated">Angir typen standard finanskontoer.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Control StandardAccountType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Control 772199925 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the category of the standard account or grouping code that is used for mapping.</source>
+          <target state="translated">Angir kategorien for standardkonto eller grupperingskode som brukes til tildeling.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Control StandardAccountCategoryNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4034594984 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the category of standard general ledger accounts that is used for mapping.</source>
+          <target state="translated">Angir kategorien for standard finanskontoer som brukes til tildeling.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Standard Account Categories - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4034594984 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the description of the standard account category that is used for mapping.</source>
+          <target state="translated">Angir beskrivelsen av standardkontokategorien som brukes for tilordning.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Standard Account Categories - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4034594984 - Control 705636630 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of standard general ledger accounts.</source>
+          <target state="translated">Angir typen standard finanskontoer.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Standard Account Categories - Control StandardAccountType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 1203412368 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the format which is used for exporting the audit file.</source>
+          <target state="translated">Angir formatet som brukes til å eksportere revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control AuditFileExportFormat - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 1369749204 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if the audit file generation will be processed by parallel background jobs.</source>
+          <target state="translated">Angir om revisjonsfilgenereringen blir behandlet av parallelle bakgrunnsprosjekter.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control ParallelProcessing - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 18210474 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the maximum number of background jobs that can be run at the same time.</source>
+          <target state="translated">Angir maksimalt antall bakgrunnsprosjekter som kan kjøres samtidig.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control Max No. Of Jobs - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 1862936795 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if multiple audit files will be generated per each month.</source>
+          <target state="translated">Angir om flere revisjonsfiler blir generert per måned.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control SplitByMonth - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 2286259903 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether multiple audit files will be generated for each day.</source>
+          <target state="translated">Angir om flere revisjonsfiler blir generert for hver dag.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control SplitByDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 2418865460 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the earliest date and time when the background job must be run.</source>
+          <target state="translated">Angir tidligste dato og klokkeslett når bakgrunnsprosjektet må kjøres.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control EarliestStartDateTime - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 3075730021 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the G/L account mapping code that represents the reporting period.</source>
+          <target state="translated">Angir koden for finanskontotildeling som representerer rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control GLAccountMappingCode - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 3518803488 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date and time when the audit file generation was completed.</source>
+          <target state="translated">Angir datoen og klokkeslettet da revisjonsfilgenereringen ble fullført.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control ExecutionEndDateTime - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 3592094765 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ending date of the reporting period.</source>
+          <target state="translated">Angir sluttdatoen for rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control EndingDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 4085528741 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date and time when the audit file generation was started.</source>
+          <target state="translated">Angir datoen og klokkeslettet da revisjonsfilgenereringen ble startet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control ExecutionStartDateTime - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 513339096 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the overall status of one or more audit files being generated.</source>
+          <target state="translated">Angir den generelle statusen for en eller flere revisjonsfiler som genereres.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control Status - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 543275552 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the starting date of the reporting period.</source>
+          <target state="translated">Angir startdatoen for rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control StartingDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 729295803 - Control 1597877536 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the starting date of the accounting period that will be used as reporting period.</source>
+          <target state="translated">Angir startdatoen for regnskapsperioden som skal brukes som rapporteringsperiode.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping - Control AccountingPeriod - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 729295803 - Control 3004954119 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the mapping code that represents the reporting period.</source>
+          <target state="translated">Angir tildelingskoden som representerer rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping - Control Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 729295803 - Control 3592094765 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ending date of the reporting period.</source>
+          <target state="translated">Angir sluttdatoen for rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping - Control EndingDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 729295803 - Control 43593927 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type for an accounting period or custom period with a flexible start date/time.</source>
+          <target state="translated">Angir typen for en regnskapsperiode eller egendefinert periode med en fleksibel startdato/-klokkeslett.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping - Control PeriodType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 729295803 - Control 543275552 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the starting date of the reporting period.</source>
+          <target state="translated">Angir startdatoen for rapporteringsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping - Control StartingDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 729295803 - Control 668720920 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Mapping</source>
+          <target state="translated">Tildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping - Control Mapping - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 729295803 - Control 705636630 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of the standard general ledger accounts.</source>
+          <target state="translated">Angir typen standard finanskontoer.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping - Control StandardAccountType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the description of the selected audit file.</source>
+          <target state="translated">Angir beskrivelsen av den valgte revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Control 4237402031 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the progress of the generation of the selected audit file.</source>
+          <target state="translated">Angir fremdriften for genereringen av den valgte revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Control Progress - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Control 513339096 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the status of the generation of the selected audit file.</source>
+          <target state="translated">Angir statusen for genereringen av den valgte revisjonsfilen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Control Status - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Control 892252506 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date and time when the generation of the selected audit file was completed.</source>
+          <target state="translated">Angir datoen og klokkeslettet da genereringen av den valgte revisjonsfilen ble fullført.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Control Created Date/Time - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1894989714 - NamedType 910818586" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All the existing records will be removed from the audit export data type setup table and new default records will be created. Do you want to continue?</source>
+          <target state="translated">Alle eksisterende poster blir fjernet fra oppsettstabellen for revisjonseksportdatatypen, og det opprettes nye standardposter. Vil du fortsette?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Export Data Type Setup - NamedType RestoreDefaultsQst</note>
+        </trans-unit>
+        <trans-unit id="Page 1032828427 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Accounts</source>
+          <target state="translated">Standardkontoer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Standard Accounts - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1894989714 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit Export Data Type Setup</source>
+          <target state="translated">Oppsett av datatype for revisjonseksport</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Export Data Type Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2053205652 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit Files</source>
+          <target state="translated">Revisjonsfiler</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit Files - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2246936125 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New,Process,Report,Details</source>
+          <target state="translated">Ny,Prosess,Rapport,Detaljer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Format Setup - Property PromotedActionCategories</note>
+        </trans-unit>
+        <trans-unit id="Page 2246936125 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Format Setup</source>
+          <target state="translated">Oppsett av eksportformat for revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Format Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2470509826 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Lines</source>
+          <target state="translated">Linjer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Subpage - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2635072399 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Document</source>
+          <target state="translated">Eksportdokument for revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Doc. Card - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3665447164 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Setup</source>
+          <target state="translated">Oppsett av revisjonsfileksport</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New, Process</source>
+          <target state="translated">Ny, Prosess</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Property PromotedActionCategories</note>
+        </trans-unit>
+        <trans-unit id="Page 3668181135 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Account Mapping</source>
+          <target state="translated">Finanskontotildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4034594984 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Account Categories</source>
+          <target state="translated">Standard kontokategorier</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Standard Account Categories - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Documents</source>
+          <target state="translated">Eksportdokumenter for revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 729295803 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Account Mapping</source>
+          <target state="translated">Finanskontotildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 977616444 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Lines</source>
+          <target state="translated">Linjer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Subpage - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Report 3152158736 - Control 363376037 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies that the existing mapping will be replaced by the mapping to copy.</source>
+          <target state="translated">Angir at den eksisterende tildelingen blir erstattet av tildelingen som skal kopieres.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Copy G/L Account Mapping - Control ReplaceControl - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Report 3152158736 - Control 363376037 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Replace Existing Mapping</source>
+          <target state="translated">Erstatt eksisterende tildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Copy G/L Account Mapping - Control ReplaceControl - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Report 3152158736 - Control 54877203 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the general ledger account mapping code to copy mapping from.</source>
+          <target state="translated">Angir tildelingskoden for finanskontoen som tildelingen skal kopieres fra.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Copy G/L Account Mapping - Control MappingCode - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Report 3152158736 - Control 54877203 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Account Mapping Code</source>
+          <target state="translated">Kode for finanskontotildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Copy G/L Account Mapping - Control MappingCode - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Report 3152158736 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Copy G/L Account Mapping</source>
+          <target state="translated">Kopier finanskontotildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Copy G/L Account Mapping - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 1045836580 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Parallel Processing</source>
+          <target state="translated">Parallell behandling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Parallel Processing - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 1217862704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Format</source>
+          <target state="translated">Eksportformat for revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Audit File Export Format - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 1347859192 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Header Comment</source>
+          <target state="translated">Hodemerknad</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Header Comment - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 1578191139 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Split By Month</source>
+          <target state="translated">Del etter måned</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Split By Month - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 1753067149 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Execution End Date/Time</source>
+          <target state="translated">Sluttdatoen og -klokkeslettet for kjøring</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Execution End Date/Time - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 18210474 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Max No. Of Jobs</source>
+          <target state="translated">Maks antall prosjekter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Max No. Of Jobs - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 2148955958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create Multiple Zip Files</source>
+          <target state="translated">Opprett flere ZIP-filer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Create Multiple Zip Files - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 2172196565 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Latest Data Check Date/Time</source>
+          <target state="translated">Siste dato/klokkeslett for datakontroll</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Latest Data Check Date/Time - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 2678142823 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Split By Date</source>
+          <target state="translated">Del etter dato</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Split By Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 3245894592 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Account Mapping Code</source>
+          <target state="translated">Kode for finanskontotildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field G/L Account Mapping Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 357413000 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Name</source>
+          <target state="translated">Navn på revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Audit File Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ID</source>
+          <target state="translated">ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 3993128796 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contact</source>
+          <target state="translated">Kontakt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Contact - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 458406397 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ending Date</source>
+          <target state="translated">Sluttdato</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Ending Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 460889064 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starting Date</source>
+          <target state="translated">Startdato</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Starting Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 513339096 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <target state="translated">Status</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 513339096 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not Started,In Progress,Failed,Completed</source>
+          <target state="translated">Ikke startet,I arbeid,Mislyktes,Ferdig</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Status - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 513618646 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Archive to Zip</source>
+          <target state="translated">Arkiver til ZIP</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Archive to Zip - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 6461729 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Earliest Start Date/Time</source>
+          <target state="translated">Tidligste startdato/-klokkeslett</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Earliest Start Date/Time - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 707229288 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Execution Start Date/Time</source>
+          <target state="translated">Startdato/-klokkeslett for kjøring</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Execution Start Date/Time - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Field 898403966 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data check status</source>
+          <target state="translated">Status for datakontroll</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Field Data check status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1894989714 - Field 1217862704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Format</source>
+          <target state="translated">Eksportformat for revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit Export Data Type Setup - Field Audit File Export Format - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1894989714 - Field 4286549888 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Export Data Type</source>
+          <target state="translated">Eksportdatatype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit Export Data Type Setup - Field Export Data Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1894989714 - Field 758798475 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Export Enabled</source>
+          <target state="translated">Eksport aktivert</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit Export Data Type Setup - Field Export Enabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1894989714 - Field 95900102 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Class</source>
+          <target state="translated">Dataklasse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit Export Data Type Setup - Field Export Data Class - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2246936125 - Field 1217862704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Format</source>
+          <target state="translated">Eksportformat for revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Format Setup - Field Audit File Export Format - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2246936125 - Field 357413000 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Name</source>
+          <target state="translated">Navn på revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Format Setup - Field Audit File Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2246936125 - Field 513618646 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Archive to Zip</source>
+          <target state="translated">Arkiver til ZIP</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Format Setup - Field Archive to Zip - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 304209558 - Field 2341503086 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Account Type</source>
+          <target state="translated">Standard kontotype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Standard Account Category - Field Standard Account Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 304209558 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beskrivelse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Standard Account Category - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 304209558 - Field 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No.</source>
+          <target state="translated">Nr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Standard Account Category - Field No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3115463729 - Field 2341503086 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Account Type</source>
+          <target state="translated">Standard kontotype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Line - Field Standard Account Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3115463729 - Field 2950552023 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Account Category No.</source>
+          <target state="translated">Standard kontokategorinr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Line - Field Standard Account Category No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3115463729 - Field 3245894592 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Account Mapping Code</source>
+          <target state="translated">Kode for finanskontotildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Line - Field G/L Account Mapping Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3115463729 - Field 3379764274 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Entries Exists</source>
+          <target state="translated">Finansposter finnes</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Line - Field G/L Entries Exists - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3115463729 - Field 3852983238 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Account No.</source>
+          <target state="translated">Finanskontonr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Line - Field G/L Account No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3115463729 - Field 4012433711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Account No.</source>
+          <target state="translated">Standard kontonr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Line - Field Standard Account No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3115463729 - Field 63418190 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Account Name</source>
+          <target state="translated">Finanskontonavn</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Line - Field G/L Account Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3321875550 - Field 1878130204 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Type</source>
+          <target state="translated">Kontotype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Standard Account - Field Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3321875550 - Field 2005121193 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Category No.</source>
+          <target state="translated">Kategorinummer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Standard Account - Field Category No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3321875550 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beskrivelse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Standard Account - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3321875550 - Field 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No.</source>
+          <target state="translated">Nr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Standard Account - Field No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3665447164 - Field 1217862704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Format Code</source>
+          <target state="translated">Eksportformatkode for revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Setup - Field Audit File Export Format - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3665447164 - Field 1387593085 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check Post Code</source>
+          <target state="translated">Kontroller postnummer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Setup - Field Check Post Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3665447164 - Field 1533897310 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check Customer</source>
+          <target state="translated">Kontroller kunde</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Setup - Field Check Customer - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3665447164 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <target state="translated">Primærnøkkel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Setup - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3665447164 - Field 1882811858 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Default Post Code</source>
+          <target state="translated">Standard postnummer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Setup - Field Default Post Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3665447164 - Field 2341503086 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Account Type</source>
+          <target state="translated">Standard kontotype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Setup - Field Standard Account Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3665447164 - Field 2998338620 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check Address</source>
+          <target state="translated">Kontroller adresse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Setup - Field Check Address - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3665447164 - Field 3187525439 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check Company Information</source>
+          <target state="translated">Kontroller selskapsopplysninger</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Setup - Field Check Company Information - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3665447164 - Field 3397053526 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Tax Code</source>
+          <target state="translated">Siste avgiftskode</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Setup - Field Last Tax Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3665447164 - Field 38781331 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check Bank Account</source>
+          <target state="translated">Kontroller bankkonto</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Setup - Field Check Bank Account - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3665447164 - Field 4166757670 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Check Vendor</source>
+          <target state="translated">Kontroller leverandør</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Setup - Field Check Vendor - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - Field 1217862704 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Format</source>
+          <target state="translated">Eksportformat for revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - Field Audit File Export Format - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - Field 2327360480 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Accounting Period</source>
+          <target state="translated">Regnskapsperiode</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - Field Accounting Period - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - Field 2341503086 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Account Type</source>
+          <target state="translated">Standard kontotype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - Field Standard Account Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - Field 2950552023 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Account Category No.</source>
+          <target state="translated">Standard kontokategorinr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - Field Standard Account Category No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - Field 3004954119 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Code</source>
+          <target state="translated">Kode</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - Field Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - Field 3376138136 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Include Incoming Balance</source>
+          <target state="translated">Ta med inngående saldo</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - Field Include Incoming Balance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - Field 4012433711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Account No.</source>
+          <target state="translated">Standard kontonr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - Field Standard Account No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - Field 458406397 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ending Date</source>
+          <target state="translated">Sluttdato</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - Field Ending Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - Field 460889064 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starting Date</source>
+          <target state="translated">Startdato</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - Field Starting Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - Field 95864743 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Period Type</source>
+          <target state="translated">Periodetype</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - Field Period Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 1357939756 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No. Of Retries</source>
+          <target state="translated">Antall poster</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field No. Of Attempts - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 1829104285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Session ID</source>
+          <target state="translated">Økt-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Session ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 2305931858 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Class</source>
+          <target state="translated">Dataklasse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Data Class - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 3320823955 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line No.</source>
+          <target state="translated">Linjenr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Line No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beskrivelse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 357413000 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Name</source>
+          <target state="translated">Navn på revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Audit File Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 3587329846 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Content</source>
+          <target state="translated">Revisjonsfilinnhold</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Audit File Content - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 3641927271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>ID</source>
+          <target state="translated">ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 3958072724 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Task ID</source>
+          <target state="translated">Oppgave-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Task ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 3975658731 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Server Instance ID</source>
+          <target state="translated">Serverforekomst-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Server Instance ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 4237402031 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Progress</source>
+          <target state="translated">Fremdrift</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Progress - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 458406397 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ending Date</source>
+          <target state="translated">Sluttdato</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Ending Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 460889064 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starting Date</source>
+          <target state="translated">Startdato</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Starting Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 513339096 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <target state="translated">Status</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 513339096 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not Started,In Progress,Failed,Completed</source>
+          <target state="translated">Ikke startet,I arbeid,Mislyktes,Ferdig</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Status - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Field 892252506 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Created Date/Time</source>
+          <target state="translated">Opprettelsesdato og -klokkeslett</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Field Created Date/Time - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 936908093 - Field 2022107547 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File No.</source>
+          <target state="translated">Filnr.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File - Field File No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 936908093 - Field 2166844813 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Size</source>
+          <target state="translated">Filstørrelse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File - Field File Size - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 936908093 - Field 2268965417 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Content</source>
+          <target state="translated">Filinnhold</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File - Field File Content - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 936908093 - Field 4250875323 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Export ID</source>
+          <target state="translated">Eksport-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File - Field Export ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 936908093 - Field 804481195 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Name</source>
+          <target state="translated">Filnavn</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File - Field File Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - NamedType 1427492155" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One or more G/L Account are already mapped. Do you want to remove the mapping?</source>
+          <target state="translated">En eller flere finanskontoer er allerede tildelt. Vil du fjerne tildelingen?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - NamedType MappingExistQst</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - NamedType 1954114571" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to change the already defined G/L account mapping to a new mapping?</source>
+          <target state="translated">Vil du endre den allerede definerte finanskontotildelingen til en ny tildeling?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - NamedType OverwriteMappingQst</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - NamedType 2029889790" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One or more audit file export documents exist for the mapping. Do you want to remove the mapping?</source>
+          <target state="translated">Det finnes en eller flere eksportdokumenter for revisjonsfil for tildelingen. Vil du fjerne tildelingen?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - NamedType AuditFileExportDocExistsErr</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - NamedType 2715514529" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The starting date is later than the ending date.</source>
+          <target state="translated">Startdatoen er senere enn sluttdatoen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - NamedType DatesAreNotCorrectErr</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - NamedType 2862659481" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You cannot select the accounting period that does not have the ending date.</source>
+          <target state="translated">Du kan ikke velge regnskapsperioden som ikke har sluttdatoen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - NamedType CannotSelectAccPeriodWithoutEndingDateErr</note>
+        </trans-unit>
+        <trans-unit id="Table 1532649924 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Header</source>
+          <target state="translated">Eksporttopptekst for revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Header - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1894989714 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit Export Data Type Setup</source>
+          <target state="translated">Oppsett av datatype for revisjonseksport</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit Export Data Type Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2246936125 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Format Setup</source>
+          <target state="translated">Oppsett av eksportformat for revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Format Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 304209558 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Account Category</source>
+          <target state="translated">Standard kontokategori</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Standard Account Category - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3115463729 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Account Mapping Line</source>
+          <target state="translated">Linje for finanskontotildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Line - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3321875550 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Account</source>
+          <target state="translated">Standardkonto</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Standard Account - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3665447164 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Setup</source>
+          <target state="translated">Oppsett av revisjonsfileksport</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 555467690 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Account Mapping</source>
+          <target state="translated">Finanskontotildeling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Account Mapping Header - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 746319915 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File Export Line</source>
+          <target state="translated">Eksportlinje for revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File Export Line - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 936908093 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Audit File</source>
+          <target state="translated">Revisjonsfil</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Audit File - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

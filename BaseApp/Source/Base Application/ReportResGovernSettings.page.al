@@ -1,9 +1,9 @@
 page 9882 "Report Res. Govern. Settings"
 {
-    Caption = 'Report Limits';
+    Caption = 'Report Limits and Settings';
     PageType = List;
     ApplicationArea = All;
-    AdditionalSearchTerms = 'Report Timeout, timeout';
+    AdditionalSearchTerms = 'Report Timeout, timeout, format region';
     UsageCategory = Administration;
     Permissions = Tabledata "Report Settings Override" = rimd;
     SourceTable = AllObjWithCaption;
@@ -17,21 +17,21 @@ page 9882 "Report Res. Govern. Settings"
         {
             repeater(Group)
             {
-                field(ObjID; "Object ID")
+                field(ObjID; Rec."Object ID")
                 {
                     ApplicationArea = All;
                     Caption = 'Report ID';
                     Tooltip = 'Specifies the Report number.';
                     Editable = false;
                 }
-                field(ObjName; "Object Name")
+                field(ObjName; Rec."Object Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Report Name';
                     Tooltip = 'Specifies the Report name.';
                     Editable = false;
                 }
-                field(ObjCaption; "Object Caption")
+                field(ObjCaption; Rec."Object Caption")
                 {
                     ApplicationArea = All;
                     Caption = 'Report Caption';
@@ -78,6 +78,58 @@ page 9882 "Report Res. Govern. Settings"
                         updateOverrideValues();
                     end;
                 }
+                field(FormatRegion; TempReportSettingsOverride."Format Language Tag")
+                {
+                    Caption = 'Format Region';
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the format region to be used for formatting values with regional dependencies.';
+                    TableRelation = "Language Selection"."Language Tag";
+
+                    trigger OnValidate()
+                    var
+                        WindowsCultures: Record "Windows Language";
+                        DotNet_CultureInfo: Codeunit DotNet_CultureInfo;
+                    begin
+
+                        if (TempReportSettingsOverride."Format Language Tag" <> '') then begin
+                            // The VT is case sensitive so make sure that the string entered by the user follows the casing defined by the
+                            // culture info object. Cannot use a lookup with table relation to the Language Tag field as there is an old 
+                            // requirement regarding PK membership.
+                            DotNet_CultureInfo.GetCultureInfoByName(TempReportSettingsOverride."Format Language Tag");
+                            TempReportSettingsOverride."Format Language Tag" := CopyStr(DotNet_CultureInfo.Name(), 1, MaxStrLen(TempReportSettingsOverride."Format Language Tag"));
+                            WindowsCultures.SetFilter(WindowsCultures."Language Tag", TempReportSettingsOverride."Format Language Tag");
+                            if (WindowsCultures.IsEmpty) then
+                                Error(LanguageTagNotFoundErrorMsg, TempReportSettingsOverride."Format Language Tag");
+                        end;
+                        updateOverrideValues();
+                    end;
+                }
+                field(ApplicationLanguage; TempReportSettingsOverride."Language ID")
+                {
+                    Caption = 'Language';
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the application language to be used for the specified report.';
+                    TableRelation = "Language Selection"."Language Id" where(Enabled = const(true));
+
+                    trigger OnValidate()
+                    var
+                        LanguageSelection: Record "Language Selection";
+                    begin
+
+                        if (TempReportSettingsOverride."Language ID" <> 0) then begin
+                            LanguageSelection.SetFilter(LanguageSelection."Language ID", format(TempReportSettingsOverride."Language ID"));
+
+                            if (LanguageSelection.IsEmpty) then
+                                Error(LanguageIdNotFoundErrorMsg, TempReportSettingsOverride."Language ID");
+
+                            if LanguageSelection.FindFirst() then
+                                if (not LanguageSelection.Enabled) then
+                                    Error(LanguageNotEnabledErrorMsg, TempReportSettingsOverride."Language ID");
+                        end;
+
+                        updateOverrideValues();
+                    end;
+                }
                 field(AppName; TempPublishedApplication.Name)
                 {
                     ApplicationArea = All;
@@ -102,11 +154,11 @@ page 9882 "Report Res. Govern. Settings"
 
                 trigger OnAction()
                 begin
-                    case "Object Type" of
-                        "Object Type"::Report:
-                            Report.RunModal("Object ID");
+                    case Rec."Object Type" of
+                        Rec."Object Type"::Report:
+                            Report.RunModal(Rec."Object ID");
                         else
-                            message(NotSupportedTypeMsg, "Object Type");
+                            message(NotSupportedTypeMsg, Rec."Object Type");
                     end;
                 end;
             }
@@ -154,12 +206,15 @@ page 9882 "Report Res. Govern. Settings"
         ExceedMinTimeOutMsg: Label 'The value %1 is lower than the minimum time allowed.', Comment = '%1 value as duration';
         ExceedMaxTimeOutMsg: Label 'The value %1 is higher than the maximum time allowed.', Comment = '%1 value as duration';
         ValueTooSmallErrorMsg: Label 'The value must be greater than or equal to %1.', Comment = '%1 value as duration';
+        LanguageTagNotFoundErrorMsg: Label 'The specified format region %1 does not exist.', Comment = '%1 language tag';
+        LanguageIdNotFoundErrorMsg: Label 'The specified language %1 does not exist.', Comment = '%1 language id';
+        LanguageNotEnabledErrorMsg: Label 'The specified language %1 is not enabled.', Comment = '%1 language id';
 
     trigger OnOpenPage()
     var
         PublishedApplication: Record "Published Application";
     begin
-        SetRange("Object Type", "Object Type"::Report);
+        Rec.SetRange(Rec."Object Type", Rec."Object Type"::Report);
         MinimumDocumentLimit := 0;
         MinimumRowLimit := 0;
         MinTimeOut := 0;
@@ -180,13 +235,13 @@ page 9882 "Report Res. Govern. Settings"
 
     trigger OnAfterGetRecord()
     begin
-        if not TempReportSettingsOverride.Get("Object ID") then begin
+        if not TempReportSettingsOverride.Get(Rec."Object ID") then begin
             Clear(TempReportSettingsOverride);
-            TempReportSettingsOverride."Object ID" := "Object ID";
+            TempReportSettingsOverride."Object ID" := Rec."Object ID";
         end;
         TempTimeOut := TempReportSettingsOverride.Timeout * 1000; //Convert seconds to milliseconds to support Duration
-        if "App Package ID" <> TempPublishedApplication."Package ID" then begin
-            TempPublishedApplication.SetRange("Package ID", "App Package ID");
+        if Rec."App Package ID" <> TempPublishedApplication."Package ID" then begin
+            TempPublishedApplication.SetRange("Package ID", Rec."App Package ID");
             TempPublishedApplication.SetRange("Tenant Visible", true);
             if not TempPublishedApplication.FindFirst() then
                 TempPublishedApplication.Init();

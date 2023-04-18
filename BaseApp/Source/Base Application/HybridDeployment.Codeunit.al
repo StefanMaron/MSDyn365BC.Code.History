@@ -136,7 +136,7 @@ codeunit 6060 "Hybrid Deployment"
         RetryGetStatus(InstanceId, FailedEnableReplicationErr, Output);
 
         EnableIntelligentCloud(true);
-        PermissionManager.ResetUsersToIntelligentCloudUserGroup();
+        PermissionManager.ResetUsersToIntelligentCloudPermissions();
     end;
 
     [Scope('OnPrem')]

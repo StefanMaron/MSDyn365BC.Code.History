@@ -11,37 +11,6 @@ codeunit 139313 "Test Sana Interface calls"
     var
         LibraryUtility: Codeunit "Library - Utility";
 
-#if not CLEAN19
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestSalesPriceCalcMgtInterfaces()
-    var
-        SalesLineDiscount: Record "Sales Line Discount";
-        TempSalesPrice: Record "Sales Price" temporary;
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
-        Code10: Code[10];
-        Code20: Code[20];
-        I: Integer;
-        Bool: Boolean;
-    begin
-        // Prepare
-        Initialize();
-        Code10 := CopyStr(Format(LibraryUtility.GenerateRandomText(10)), 1, MaxStrLen(Code10));
-        Code20 := CopyStr(Format(LibraryUtility.GenerateRandomText(20)), 1, MaxStrLen(Code20));
-        Bool := true;
-        SalesHeader.Init();
-        I := 0;
-        // Verify
-        SalesPriceCalcMgt.FindSalesPrice(TempSalesPrice, Code20, Code20, Code10, Code20, Code20, Code10, Code10, Code10, WorkDate(), Bool);
-        SalesPriceCalcMgt.FindSalesLineDisc(
-          SalesLineDiscount, Code20, Code20, Code20, Code20, Code20, Code20, Code10, Code10, Code10, WorkDate(), Bool);
-        SalesPriceCalcMgt.FindSalesLinePrice(SalesHeader, SalesLine, I);
-        SalesPriceCalcMgt.FindSalesLineLineDisc(SalesHeader, SalesLine);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure TestSalesPostInterface()
@@ -137,7 +106,6 @@ codeunit 139313 "Test Sana Interface calls"
     procedure TestGetDatabaseTableTriggerSetupInterface()
     var
         ChangeLogManagement: Codeunit "Change Log Management";
-        IntegrationManagement: Codeunit "Integration Management";
         I: Integer;
         Bool: Boolean;
     begin
@@ -146,7 +114,6 @@ codeunit 139313 "Test Sana Interface calls"
         I := 0;
         // Verify
         ChangeLogManagement.GetDatabaseTableTriggerSetup(I, Bool, Bool, Bool, Bool);
-        IntegrationManagement.GetDatabaseTableTriggerSetup(I, Bool, Bool, Bool, Bool);
     end;
 
     [Test]

@@ -28,13 +28,10 @@
                   tabledata "Duplicate Search String Setup" = R,
                   tabledata Employee = R,
                   tabledata "G/L Account" = R,
-                  tabledata "General Ledger Setup" = RIM,
+                  tabledata "General Ledger Setup" = R,
                   tabledata "Item Charge" = R,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = RIMD,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Reference" = RIMD,
                   tabledata "Item Tracing Buffer" = Rimd,

@@ -1,4 +1,4 @@
-﻿page 279 "Source Code Setup"
+page 279 "Source Code Setup"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Source Code Setup';
@@ -376,6 +376,11 @@
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the code that is linked to the entries that are posted from a production journal.';
+                }
+                field("Production Order"; Rec."Production Order")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the code that is used for def. dimension priorities on Prod. Order Components.';
                 }
             }
             group(Service)

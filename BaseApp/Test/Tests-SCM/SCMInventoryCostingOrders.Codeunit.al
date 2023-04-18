@@ -926,7 +926,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
           LibraryERM.GetAmountRoundingPrecision, ValueNotMatchedError);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('SuggestSalesPriceOnWkshRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1304,7 +1304,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         VerifyPairedItemLedgerEntriesAmount(Item."No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('SuggestSalesPriceOnWkshRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1449,7 +1449,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         CustomerPriceGroup.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure VerifyCustomerPriceGroupFieldsOnSalesPriceWorksheet(SalesPrice: Record "Sales Price"; StartingDate: Date; ItemNo: Code[20]; SalesCode: Code[20]; AllowInvDisc: Boolean; AllowLineDisc: Boolean; PriceInclVAT: Boolean; VATBusPostGroup: Code[20])
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -1484,7 +1484,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         Location.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateAndUpdateSalesPrice(var SalesPrice: Record "Sales Price"; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; ItemNo: Code[20]; BaseUnitOfMeasure: Code[10]; StartingDate: Date; EndingDate: Date; UnitPrice: Decimal; MinimumQuantity: Decimal)
     begin
         LibraryCosting.CreateSalesPrice(SalesPrice, SalesType, SalesCode, ItemNo, StartingDate, '', '', BaseUnitOfMeasure, MinimumQuantity);
@@ -1511,7 +1511,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         exit(Item."No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateAndUpdatePurchasePrice(var PurchasePrice: Record "Purchase Price"; VendorNo: Code[20]; ItemNo: Code[20])
     begin
         LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, ItemNo, WorkDate(), '', '', '', LibraryRandom.RandDec(10, 2));  // Use random for Minimum Quanity.
@@ -1558,7 +1558,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
           ItemJournalLine, JournalTemplateName, JournalBatchName, EntryType, ItemNo, LibraryRandom.RandInt(100));  // Taking Random Quantity.
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateLineDiscForCustomer(SalesPrice: Record "Sales Price"; LineDiscountPct: Decimal)
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -1792,7 +1792,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         exit(Vendor."No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure EnqueVariables(BaseUnitOfMeasure: Code[10]; CustomerPriceGroup: Code[10]; EndingDate: Date; NewPrices: Boolean)
     var
         SalesPrice: Record "Sales Price";
@@ -1983,7 +1983,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ReclassificationItemJournalLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure RunSuggestSalesPriceOnWkshReport(CustomerPriceGroup: Code[10]; StartingDate: Date; EndingDate: Date)
     var
         SalesPrice: Record "Sales Price";
@@ -2044,7 +2044,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         exit(Item."No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure SetupSuggestSalesPrice(var SalesPrice: Record "Sales Price"; CustomerPriceGroup: Code[10]; CustomerPriceGroup2: Code[10]; Range: Integer; ItemNo: Code[20]; StartingDate: Date; NewPrice: Boolean; UnitPrice: Decimal)
     var
         Item: Record Item;
@@ -2191,7 +2191,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         ItemApplicationEntry.TestField(Quantity, Quantity);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure VerifySalesPriceWorksheet(SalesPrice: Record "Sales Price"; StartingDate: Date; ItemNo: Code[20]; SalesCode: Code[20]; CurrentUnitPrice: Decimal; NewUnitPrice: Decimal)
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -2268,7 +2268,7 @@ codeunit 137292 "SCM Inventory Costing Orders"
         Reservation."Auto Reserve".Invoke;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestSalesPriceOnWkshRequestPageHandler(var SuggestSalesPriceOnWksh: TestRequestPage "Suggest Sales Price on Wksh.")

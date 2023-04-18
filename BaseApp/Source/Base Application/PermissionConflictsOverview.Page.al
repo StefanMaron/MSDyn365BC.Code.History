@@ -20,7 +20,7 @@ page 5555 "Permission Conflicts Overview"
                     Caption = 'Permission Set ID';
                     Tooltip = 'Specifies the identifier for the permission set.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = All;
                     Editable = false;

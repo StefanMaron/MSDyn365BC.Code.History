@@ -1608,11 +1608,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Control addressLine2 - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 79567422 - Control 2321560956 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Business Relation</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Contacts - Control businessRelation - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Page 79567422 - Control 2754366897 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>City</source>
           <note from="Developer" annotates="general" priority="2"></note>

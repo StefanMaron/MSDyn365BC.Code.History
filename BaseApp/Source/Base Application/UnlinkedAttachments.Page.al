@@ -16,7 +16,7 @@ page 199 "Unlinked Attachments"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the file type.';

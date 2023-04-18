@@ -222,32 +222,6 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         Assert.AreEqual(AdminPassword, TempOfficeAdminCredentials.GetPassword, 'Credential mismatch: Password');
     end;
 
-#if not CLEAN19
-    [Test]
-    [HandlerFunctions('O365CredentialsHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure GetO365Credentials()
-    var
-        TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;
-        TempOfficeAdminCredentials2: Record "Office Admin. Credentials" temporary;
-        ExchangePowerShellRunner: Codeunit "Exchange PowerShell Runner";
-    begin
-        // Call the add in credentials page, enter credentials, and verify that they make it into the table
-
-        // Setup
-        Initialize();
-        TempOfficeAdminCredentials.DeleteAll();
-        Commit();
-
-        // Exerise
-        GetOfficeAdminCredentials(TempOfficeAdminCredentials);
-
-        // Verify
-        ExchangePowerShellRunner.GetCredentials(TempOfficeAdminCredentials2);
-        Assert.AreEqual(TempOfficeAdminCredentials.Email, TempOfficeAdminCredentials2.Email, 'Credential mismatch: Email');
-        Assert.AreEqual(TempOfficeAdminCredentials.GetPassword, TempOfficeAdminCredentials2.GetPassword, 'Credential mismatch: Password');
-    end;
-#endif
     [Test]
     [HandlerFunctions('ExchangeCredentialsHandler,ConfirmHandler')]
     [Scope('OnPrem')]
@@ -603,36 +577,6 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         Assert.IsTrue(StrPos(ManifestText, NewResource) > 0, 'New resource could not be found in generated manifest.');
     end;
 
-#if not CLEAN19
-    [Test]
-    [HandlerFunctions('CloseAndReopenCredentialsHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure AddinMgmtCredentialPromptClose()
-    var
-        OfficeAddinManagement: TestPage "Office Add-in Management";
-        CloseHandlerRan: Boolean;
-        CredentialHandlerRan: Boolean;
-    begin
-        // Setup
-        Initialize();
-        OfficeAddinManagement.OpenView;
-        CloseHandlerRan := false;
-        CredentialHandlerRan := false;
-
-        // Exercise by opening the credentials prompt, closing it (seeing a credential error), and opening it again.
-        CloseReopenHandlerAction := CloseReopenHandlerAction::CloseImmediately;
-        OfficeAddinManagement."Deploy Add-in".Invoke;
-        CloseHandlerRan := LibraryVariableStorage.DequeueBoolean;
-
-        CloseReopenHandlerAction := CloseReopenHandlerAction::EnterCredentials;
-        asserterror OfficeAddinManagement."Deploy Add-in".Invoke;
-        CredentialHandlerRan := LibraryVariableStorage.DequeueBoolean;
-
-        // Verify
-        Assert.IsTrue(CloseHandlerRan, 'Handler for closing credential page did not run.');
-        Assert.IsTrue(CredentialHandlerRan, 'Handler for setting credentials did not run.');
-    end;
-#endif
     [Test]
     [Scope('OnPrem')]
     procedure TestGetOfficeAddin()

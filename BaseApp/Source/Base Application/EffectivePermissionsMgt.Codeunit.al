@@ -283,7 +283,7 @@ codeunit 9852 "Effective Permissions Mgt."
         ExpandedPermission.SetFilter("Object ID", '%1|%2', 0, PassedObjectId);
 
         // find permissions from all permission sets for this user
-        AccessControl.SetRange("User Security ID", PassedUserID);
+        AccessControl.SetFilter("User Security ID", GetAccessControlFilterForUser(PassedUserID));
         AccessControl.SetFilter("Company Name", '%1|%2', '', PassedCompanyName);
         if AccessControl.FindSet() then
             repeat
@@ -324,6 +324,27 @@ codeunit 9852 "Effective Permissions Mgt."
         PermissionBuffer."Delete Permission" := Delete;
         PermissionBuffer."Execute Permission" := Execute;
         PermissionBuffer.Insert();
+    end;
+
+    local procedure GetAccessControlFilterForUser(UserSecId: Guid): Text
+    var
+        SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
+        SecurityGroup: Codeunit "Security Group";
+        FilterTextBuilder: TextBuilder;
+    begin
+        // Consider permissions assigned to the user directly.
+        FilterTextBuilder.Append(UserSecId);
+
+        // Consider permissions assigned to the user through security groups.
+        SecurityGroup.GetMembers(SecurityGroupMemberBuffer);
+        SecurityGroupMemberBuffer.SetRange("User Security ID", UserSecId);
+        if SecurityGroupMemberBuffer.FindSet() then
+            repeat
+                FilterTextBuilder.Append('|');
+                FilterTextBuilder.Append(SecurityGroup.GetGroupUserSecurityId(SecurityGroupMemberBuffer."Security Group Code"));
+            until SecurityGroupMemberBuffer.Next() = 0;
+
+        exit(FilterTextBuilder.ToText());
     end;
 
     procedure PopulateEffectivePermissionsBuffer(var Permission: Record Permission; PassedUserID: Guid; PassedCompanyName: Text[50]; PassedObjectType: Integer; PassedObjectId: Integer; ShowAllObjects: Boolean)
@@ -376,7 +397,7 @@ codeunit 9852 "Effective Permissions Mgt."
     var
         AccessControl: Record "Access Control";
     begin
-        AccessControl.SetRange("User Security ID", PassedUserID);
+        AccessControl.SetFilter("User Security ID", GetAccessControlFilterForUser(PassedUserID));
         AccessControl.SetFilter("Company Name", '%1|%2', '', PassedCompanyName);
         if AccessControl.FindSet() then
             repeat
@@ -653,6 +674,10 @@ codeunit 9852 "Effective Permissions Mgt."
     local procedure MarkUsersWithAssignedPermissionSet(var User: Record User; PermissionSetID: Code[20])
     var
         AccessControl: Record "Access Control";
+        SecurityGroupBuffer: Record "Security Group Buffer";
+        SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
+        SecurityGroup: Codeunit "Security Group";
+        GroupUserSecId: Guid;
     begin
         AccessControl.SetRange("Role ID", PermissionSetID);
         if AccessControl.FindSet() then
@@ -660,6 +685,25 @@ codeunit 9852 "Effective Permissions Mgt."
                 if User.Get(AccessControl."User Security ID") then
                     User.Mark(true);
             until AccessControl.Next() = 0;
+
+        SecurityGroup.GetGroups(SecurityGroupBuffer);
+        SecurityGroup.GetMembers(SecurityGroupMemberBuffer);
+        if SecurityGroupBuffer.FindSet() then
+            repeat
+                GroupUserSecId := SecurityGroup.GetGroupUserSecurityId(SecurityGroupBuffer.Code);
+                AccessControl.SetRange("User Security ID", GroupUserSecId);
+                AccessControl.SetRange("Role ID", PermissionSetID);
+                // If the permission set is assigned to the security group
+                if not AccessControl.IsEmpty() then begin
+                    // Mark all the security group members
+                    SecurityGroupMemberBuffer.SetRange("Security Group Code", SecurityGroupBuffer.Code);
+                    if SecurityGroupMemberBuffer.FindSet() then
+                        repeat
+                            if User.Get(SecurityGroupMemberBuffer."User Security ID") then
+                                User.Mark(true);
+                        until SecurityGroupMemberBuffer.Next() = 0;
+                end;
+            until SecurityGroupBuffer.Next() = 0;
 
         User.MarkedOnly(true);
     end;

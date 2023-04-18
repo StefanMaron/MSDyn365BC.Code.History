@@ -40,19 +40,19 @@ report 5899 "Calculate Inventory Value"
                 OnItemAfterGetRecordOnAfterItemLedgEntrySetFilters(ItemLedgEntry, Item);
                 if ItemLedgEntry.Find('-') then
                     repeat
-                            if IncludeEntryInCalc(ItemLedgEntry, PostingDate, IncludeExpectedCost) then begin
-                                RemQty := ItemLedgEntry.CalculateRemQuantity(ItemLedgEntry."Entry No.", PostingDate);
-                                RemCost := CalcRemainingCost(ItemLedgEntry, RemQty, IncludeExpectedCost);
-                                case CalculatePer of
-                                    CalculatePer::"Item Ledger Entry":
-                                        InsertItemJnlLine(
-                                          ItemLedgEntry."Entry Type", ItemLedgEntry."Item No.",
-                                          ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", RemQty, RemCost, ItemLedgEntry."Entry No.", 0);
-                                    CalculatePer::Item:
-                                        InsertValJnlBuffer(
-                                          ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", RemQty, RemCost);
-                                end;
+                        if IncludeEntryInCalc(ItemLedgEntry, PostingDate, IncludeExpectedCost) then begin
+                            RemQty := ItemLedgEntry.CalculateRemQuantity(ItemLedgEntry."Entry No.", PostingDate);
+                            RemCost := CalcRemainingCost(ItemLedgEntry, RemQty, IncludeExpectedCost);
+                            case CalculatePer of
+                                CalculatePer::"Item Ledger Entry":
+                                    InsertItemJnlLine(
+                                      ItemLedgEntry."Entry Type", ItemLedgEntry."Item No.",
+                                      ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", RemQty, RemCost, ItemLedgEntry."Entry No.", 0);
+                                CalculatePer::Item:
+                                    InsertValJnlBuffer(
+                                      ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", ItemLedgEntry."Location Code", RemQty, RemCost);
                             end;
+                        end;
                     until ItemLedgEntry.Next() = 0;
 
                 if CalculatePer = CalculatePer::Item then
@@ -63,32 +63,32 @@ report 5899 "Calculate Inventory Value"
                             Clear(TempValJnlBuffer);
                             TempValJnlBuffer.SetCurrentKey("Item No.", "Location Code", "Variant Code");
                             TempValJnlBuffer.SetRange("Item No.", "No.");
-                                                       repeat
-                                                           TempValJnlBuffer.SetRange("Location Code", Location.Code);
-                                                           if (GetFilter("Variant Filter") <> '') or ByVariant then begin
-                                                               ByVariant2 := true;
-                                                               ItemVariant.SetRange("Item No.", "No.");
-                                                               CopyFilter("Variant Filter", ItemVariant.Code);
-                                                               if ItemVariant.Find('-') then
-                                                                       repeat
-                                                                           TempValJnlBuffer.SetRange("Variant Code", ItemVariant.Code);
-                                                                           Calculate(Item, ItemVariant.Code, Location.Code);
-                                                                       until ItemVariant.Next() = 0;
-                                                               TempValJnlBuffer.SetRange("Variant Code", '');
-                                                               Calculate(Item, '', Location.Code);
-                                                           end else
-                                                               Calculate(Item, '', Location.Code);
-                                                       until Location.Next() = 0;
+                            repeat
+                                TempValJnlBuffer.SetRange("Location Code", Location.Code);
+                                if (GetFilter("Variant Filter") <> '') or ByVariant then begin
+                                    ByVariant2 := true;
+                                    ItemVariant.SetRange("Item No.", "No.");
+                                    CopyFilter("Variant Filter", ItemVariant.Code);
+                                    if ItemVariant.Find('-') then
+                                        repeat
+                                            TempValJnlBuffer.SetRange("Variant Code", ItemVariant.Code);
+                                            Calculate(Item, ItemVariant.Code, Location.Code);
+                                        until ItemVariant.Next() = 0;
+                                    TempValJnlBuffer.SetRange("Variant Code", '');
+                                    Calculate(Item, '', Location.Code);
+                                end else
+                                    Calculate(Item, '', Location.Code);
+                            until Location.Next() = 0;
                         end;
                         TempValJnlBuffer.SetRange("Location Code", '');
                         if ByVariant then begin
                             ItemVariant.SetRange("Item No.", "No.");
                             CopyFilter("Variant Filter", ItemVariant.Code);
                             if ItemVariant.Find('-') then
-                                    repeat
-                                        TempValJnlBuffer.SetRange("Variant Code", ItemVariant.Code);
-                                        Calculate(Item, ItemVariant.Code, '');
-                                    until ItemVariant.Next() = 0;
+                                repeat
+                                    TempValJnlBuffer.SetRange("Variant Code", ItemVariant.Code);
+                                    Calculate(Item, ItemVariant.Code, '');
+                                until ItemVariant.Next() = 0;
                             TempValJnlBuffer.SetRange("Variant Code", '');
                             Calculate(Item, '', '');
                         end else
@@ -102,10 +102,10 @@ report 5899 "Calculate Inventory Value"
                                 TempValJnlBuffer.Reset();
                                 TempValJnlBuffer.SetCurrentKey("Item No.", "Variant Code");
                                 TempValJnlBuffer.SetRange("Item No.", "No.");
-                                                              repeat
-                                                                  TempValJnlBuffer.SetRange("Variant Code", ItemVariant.Code);
-                                                                  Calculate(Item, ItemVariant.Code, '');
-                                                              until ItemVariant.Next() = 0;
+                                repeat
+                                    TempValJnlBuffer.SetRange("Variant Code", ItemVariant.Code);
+                                    Calculate(Item, ItemVariant.Code, '');
+                                until ItemVariant.Next() = 0;
                             end;
                             TempValJnlBuffer.SetRange("Location Code");
                             TempValJnlBuffer.SetRange("Variant Code", '');
@@ -134,16 +134,16 @@ report 5899 "Calculate Inventory Value"
                 TempNewStdCostItem.CopyFilters(Item);
                 if TempNewStdCostItem.Find('-') then
                     repeat
-                            if not TempUpdatedStdCostSKU.Get('', TempNewStdCostItem."No.", '') then
-                                ItemCostMgt.UpdateStdCostShares(TempNewStdCostItem);
+                        if not TempUpdatedStdCostSKU.Get('', TempNewStdCostItem."No.", '') then
+                            ItemCostMgt.UpdateStdCostShares(TempNewStdCostItem);
 
                         SKU.SetRange("Item No.", TempNewStdCostItem."No.");
                         if SKU.Find('-') then
                             repeat
-                                    if not TempUpdatedStdCostSKU.Get(SKU."Location Code", TempNewStdCostItem."No.", SKU."Variant Code") then begin
-                                        SKU.Validate("Standard Cost", TempNewStdCostItem."Standard Cost");
-                                        SKU.Modify();
-                                    end;
+                                if not TempUpdatedStdCostSKU.Get(SKU."Location Code", TempNewStdCostItem."No.", SKU."Variant Code") then begin
+                                    SKU.Validate("Standard Cost", TempNewStdCostItem."Standard Cost");
+                                    SKU.Modify();
+                                end;
                             until SKU.Next() = 0;
                     until TempNewStdCostItem.Next() = 0;
             end;
@@ -312,7 +312,6 @@ report 5899 "Calculate Inventory Value"
         Window: Dialog;
         CalculatePer: Option "Item Ledger Entry",Item;
         CalcBase: Enum "Inventory Value Calc. Base";
-        PostingDate: Date;
         NextDocNo: Code[20];
         AverageUnitCostLCY: Decimal;
         RemQty: Decimal;
@@ -320,8 +319,6 @@ report 5899 "Calculate Inventory Value"
         NextLineNo2: Integer;
         ByLocation: Boolean;
         ByVariant: Boolean;
-        ByLocation2: Boolean;
-        ByVariant2: Boolean;
         UpdStdCost: Boolean;
         ShowDialog: Boolean;
         IncludeExpectedCost: Boolean;
@@ -339,6 +336,11 @@ report 5899 "Calculate Inventory Value"
         Text003: Label 'You must enter a document number.';
         Text010: Label 'Processing items #1##########';
         Text011: Label 'You cannot revalue by Calculate Per Item for item %1 using posting date %2. You can only use the posting date %3 for this period.';
+
+    protected var
+        ByLocation2: Boolean;
+        ByVariant2: Boolean;
+        PostingDate: Date;
 
     local procedure IncludeEntryInCalc(ItemLedgEntry: Record "Item Ledger Entry"; PostingDate: Date; IncludeExpectedCost: Boolean): Boolean
     begin
@@ -460,18 +462,18 @@ report 5899 "Calculate Inventory Value"
                 SetFilter("Location Code", TempValJnlBuffer.GetFilter("Location Code"));
                 SetFilter("Variant Code", TempValJnlBuffer.GetFilter("Variant Code"));
                 if Find('-') then
-                        repeat
-                            if (Quantity = "Invoiced Quantity") and
-                               not "Completely Invoiced" and
-                               ("Last Invoice Date" in [0D .. PostingDate]) and
-                               ("Invoiced Quantity" <> 0)
-                            then begin
-                                RemQty := Quantity;
-                                RemInvValue := CalculateRemInventoryValue("Entry No.", Quantity, Quantity, false, 0D, PostingDate);
-                                NotComplInvQty := NotComplInvQty + RemQty;
-                                NotComplInvValue := NotComplInvValue + RemInvValue;
-                            end;
-                        until Next() = 0;
+                    repeat
+                        if (Quantity = "Invoiced Quantity") and
+                           not "Completely Invoiced" and
+                           ("Last Invoice Date" in [0D .. PostingDate]) and
+                           ("Invoiced Quantity" <> 0)
+                        then begin
+                            RemQty := Quantity;
+                            RemInvValue := CalculateRemInventoryValue("Entry No.", Quantity, Quantity, false, 0D, PostingDate);
+                            NotComplInvQty := NotComplInvQty + RemQty;
+                            NotComplInvValue := NotComplInvValue + RemInvValue;
+                        end;
+                    until Next() = 0;
             end;
     end;
 
@@ -591,7 +593,7 @@ report 5899 "Calculate Inventory Value"
         ByLocation := NewByLocation;
         ByVariant := NewByVariant;
         UpdStdCost := NewUpdStdCost;
-        CalcBase := NewCalcBase;
+        CalcBase := "Inventory Value Calc. Base".FromInteger(NewCalcBase);
         ShowDialog := NewShowDialog;
         HideDuplWarning := NewHideDuplWarning;
     end;

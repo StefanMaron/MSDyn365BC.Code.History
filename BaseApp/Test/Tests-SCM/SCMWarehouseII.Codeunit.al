@@ -1382,7 +1382,7 @@ codeunit 137048 "SCM Warehouse II"
     end;
 
     [Test]
-    [HandlerFunctions('SourceDocumentsPageHandler')]
+    [HandlerFunctions('SourceDocumentsPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PickErrorMultipleLinesWithBlankLocation()
     var
@@ -1417,7 +1417,7 @@ codeunit 137048 "SCM Warehouse II"
     end;
 
     [Test]
-    [HandlerFunctions('SourceDocumentsPageHandler')]
+    [HandlerFunctions('SourceDocumentsPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PickErrorSingleLineWithBlankLocation()
     var
@@ -2164,7 +2164,7 @@ codeunit 137048 "SCM Warehouse II"
     procedure BinContentGetCaptionWithFilterOnBinCode()
     var
         BinContent: Record "Bin Content";
-        RegisteredInvtMovementLine: Record "Registered Invt. Movement Line";
+        Bin: Record Bin;
         LocationCode: Code[10];
         FirstCode: Code[20];
         SecondCode: Code[20];
@@ -2180,15 +2180,15 @@ codeunit 137048 "SCM Warehouse II"
 
         // Verify
         VerifyBinContentGetCaptionWithFilter(
-          '', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption());
+          '', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), Bin.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '@%1*', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption());
+          '@%1*', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), Bin.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '%1..%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption());
+          '%1..%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), Bin.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '..%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption());
+          '..%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), Bin.TableCaption());
         VerifyBinContentGetCaptionWithFilter(
-          '%1|%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), RegisteredInvtMovementLine.TableCaption());
+          '%1|%2', LocationCode, FirstCode, SecondCode, BinContent.FieldNo("Bin Code"), Bin.TableCaption());
     end;
 
     [Test]

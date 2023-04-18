@@ -39,7 +39,7 @@ table 1306 "User Preference"
     begin
         if not UserPreference.Get(UserId, InstrCode) then begin
             UserPreference.Init();
-            UserPreference."User ID" := UserId;
+            UserPreference."User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
             UserPreference."Instruction Code" := InstrCode;
             UserPreference.Insert();
         end;

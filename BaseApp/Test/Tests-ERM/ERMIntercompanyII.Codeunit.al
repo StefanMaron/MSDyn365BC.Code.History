@@ -537,13 +537,21 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
         CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::"IC Partner", CreateICPartner, -1);
+#if not CLEAN22
         BlockICGLAccount(GenJournalLine."IC Partner G/L Acc. No.");
+#else
+        BlockICGLAccount(GenJournalLine."IC Account No.");
+#endif
 
         // Exercise.
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify IC G/L Account Blocked error message.
+#if not CLEAN22
         Assert.ExpectedError(StrSubstNo(ICGLAccountBlockErr, GenJournalLine."IC Partner G/L Acc. No."));
+#else
+        Assert.ExpectedError(StrSubstNo(ICGLAccountBlockErr, GenJournalLine."IC Account No."));
+#endif
     end;
 
     [Test]
@@ -745,6 +753,7 @@ codeunit 134152 "ERM Intercompany II"
         GenJournalTemplate: Record "Gen. Journal Template";
         ICOutboxJnlLine: Record "IC Outbox Jnl. Line";
         ICPartnerCode: Code[20];
+        ICAccountNo: Code[20];
     begin
         // Verify IC Outbox Journal Entries after posting Multiple IC Journal Line with Account Type as IC Partner and GL Account with Document Type Invoice and blank respectively.
 
@@ -774,8 +783,13 @@ codeunit 134152 "ERM Intercompany II"
         VerifyICOutboxJournalLine(
           GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"IC Partner", GenJournalLine."IC Partner Code",
           GenJournalLine."Document No.", GenJournalLine.Amount);
+#if not CLEAN22
+        ICAccountNo := GenJournalLine."IC Partner G/L Acc. No.";
+#else
+        ICAccountNo := GenJournalLine."IC Account No.";
+#endif
         VerifyICOutboxJournalLine(
-          GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account", GenJournalLine."IC Partner G/L Acc. No.",
+          GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account", ICAccountNo,
           GenJournalLine."Document No.", -GenJournalLine.Amount);
     end;
 
@@ -2660,6 +2674,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         GenJournalLine: Record "Gen. Journal Line";
         ICOutboxJnlLine: Record "IC Outbox Jnl. Line";
+        ICAccountNo: Code[20];
     begin
         // [FEATURE] [Currency] [General Journal]
         // [SCENARIO 382323] Currency code is blank in IC Outbox General Journal Line if "LCY Code" in General Ledger Setup is defined
@@ -2669,7 +2684,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] LCY Code is 'X' in General Ledger Setup
         UpdateLCYCodeInGLSetup;
 
-        // [GIVEN] General Journal Line for IC Partner with "IC Partner G/L Acc. No." as Balance Account
+        // [GIVEN] General Journal Line for IC Partner with "IC Account No." ("IC Partner G/L Acc. No." for CLEAN22 and below) as Balance Account
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
         LibraryLowerPermissions.AddO365Setup();
         CreateICGeneralJournalLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CreateICCustomer(CreateICPartner), 1);
@@ -2685,10 +2700,15 @@ codeunit 134152 "ERM Intercompany II"
           GenJournalLine."Account No.", GenJournalLine."Document No.");
         ICOutboxJnlLine.TestField("Currency Code", '');
 
-        // [THEN] IC Outbox General Journal Line for "IC Partner G/L Acc. No." has blank "Currency Code"
+        // [THEN] IC Outbox General Journal Line for "IC Account No." ("IC Partner G/L Acc. No." for CLEAN22 and below) has blank "Currency Code"
+#if not CLEAN22
+        ICAccountNo := GenJournalLine."IC Partner G/L Acc. No.";
+#else
+        ICAccountNo := GenJournalLine."IC Account No.";
+#endif
         FindICOutboxJournalLine(
           ICOutboxJnlLine, GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account",
-          GenJournalLine."IC Partner G/L Acc. No.", GenJournalLine."Document No.");
+          ICAccountNo, GenJournalLine."Document No.");
         ICOutboxJnlLine.TestField("Currency Code", '');
     end;
 
@@ -4371,9 +4391,16 @@ codeunit 134152 "ERM Intercompany II"
 
     local procedure Initialize()
     var
+        ICSetup: Record "IC Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Intercompany II");
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
+        ICSetup."Auto. Send Transactions" := false;
+        ICSetup.Modify();
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
         Clear(ICInboxOutboxMgt);
@@ -4690,7 +4717,11 @@ codeunit 134152 "ERM Intercompany II"
           AccountType, AccountNo, SignFactor * LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+#if not CLEAN22
         GenJournalLine.Validate("IC Partner G/L Acc. No.", ICPartnerGLAccNo);
+#endif
+        GenJournalLine.Validate("IC Account Type", "IC Journal Account Type"::"G/L Account");
+        GenJournalLine.Validate("IC Account No.", ICPartnerGLAccNo);
         GenJournalLine.Modify(true);
     end;
 
@@ -5498,6 +5529,7 @@ codeunit 134152 "ERM Intercompany II"
     local procedure PostAndVerifyICGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; SignFactor: Integer)
     var
         ICOutboxJnlLine: Record "IC Outbox Jnl. Line";
+        ICAccountNo: Code[20];
     begin
         // Exercise: Post IC Journal Line.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -5506,8 +5538,13 @@ codeunit 134152 "ERM Intercompany II"
         VerifyICOutboxJournalLine(
           GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"IC Partner", GenJournalLine."IC Partner Code",
           GenJournalLine."Document No.", SignFactor * GenJournalLine.Amount);
+#if not CLEAN22
+        ICAccountNo := GenJournalLine."IC Partner G/L Acc. No.";
+#else
+        ICAccountNo := GenJournalLine."IC Account No.";
+#endif
         VerifyICOutboxJournalLine(
-          GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account", GenJournalLine."IC Partner G/L Acc. No.",
+          GenJournalLine."IC Partner Code", ICOutboxJnlLine."Account Type"::"G/L Account", ICAccountNo,
           GenJournalLine."Document No.", SignFactor * -GenJournalLine.Amount);
 
         // Tear Down: Delete newly created batch.

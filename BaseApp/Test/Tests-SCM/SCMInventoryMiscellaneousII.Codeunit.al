@@ -10,6 +10,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     end;
 
     var
+        WarehouseSourceFilter: Record "Warehouse Source Filter";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryCosting: Codeunit "Library - Costing";
@@ -1359,6 +1360,453 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     end;
 
     [Test]
+    [HandlerFunctions('CreateInvtPutawayRequestPageHandler,DummyMessageHandler')]
+    procedure InventoryPutawayForPurchaseOrderWithAdditionalFilters()
+    var
+        Location: Record Location;
+        Item: array[3] of Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReceiptDate: array[3] of Date;
+        i: Integer;
+    begin
+        // [FEATURE] [Inventory Put-away] [Partial] [Purchase Order]
+        // [SCENARIO 315268] Partial creation of inventory put-away for purchase order.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+
+        LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, '', Location.Code);
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            ReceiptDate[i] := WorkDate() + 30 * i;
+            CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item[i]."No.", ReceiptDate[i]);
+        end;
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
+        WarehouseSourceFilter.SetRange("Receipt Date Filter", ReceiptDate[2]);
+
+        Commit();
+        PurchaseHeader.CreateInvtPutAwayPick();
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Purchase Line", PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.TestField("Item No.", Item[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInvtPutawayRequestPageHandler,DummyMessageHandler')]
+    procedure InventoryPutawayForSalesReturnOrderWithAdditionalFilters()
+    var
+        Location: Record Location;
+        Item: array[3] of Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ShipmentDate: array[3] of Date;
+        i: Integer;
+    begin
+        // [FEATURE] [Inventory Put-away] [Partial] [Sales Return Order]
+        // [SCENARIO 315268] Partial creation of inventory put-away for sales return order.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+
+        LibrarySales.CreateSalesReturnOrderWithLocation(SalesHeader, '', Location.Code);
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            ShipmentDate[i] := WorkDate() + 30 * i;
+            CreateSalesLine(SalesLine, SalesHeader, Item[i]."No.", ShipmentDate[i]);
+        end;
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
+        WarehouseSourceFilter.SetRange("Receipt Date Filter", ShipmentDate[2]);
+
+        Commit();
+        SalesHeader.CreateInvtPutAwayPick();
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.TestField("Item No.", Item[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInvtPutawayRequestPageHandler,DummyMessageHandler')]
+    procedure InventoryPutawayForTransferReceiptWithAdditionalFilters()
+    var
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+        Item: array[3] of Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReceiptDate: array[3] of Date;
+        i: Integer;
+    begin
+        // [FEATURE] [Inventory Put-away] [Partial] [Transfer Order]
+        // [SCENARIO 315268] Partial creation of inventory put-away for transfer order.
+        Initialize();
+
+        LibraryWarehouse.CreateTransferLocations(LocationFrom, LocationTo, LocationInTransit);
+        LocationTo.Validate("Require Put-away", true);
+        LocationTo.Modify(true);
+
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            CreateAndPostItemJournalLine(
+              ItemJournalLine, Item[i]."No.", LocationFrom.Code, '', ItemJournalLine."Entry Type"::"Positive Adjmt.",
+              LibraryRandom.RandIntInRange(20, 40));
+            ReceiptDate[i] := WorkDate() + 30 * i;
+            CreateTransferLine(TransferLine, TransferHeader, Item[i]."No.", Workdate(), ReceiptDate[i]);
+        end;
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
+        WarehouseSourceFilter.SetRange("Receipt Date Filter", ReceiptDate[2]);
+
+        Commit();
+        TransferHeader.CreateInvtPutAwayPick();
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Transfer Line", TransferHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.TestField("Item No.", Item[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInvtPutawayRequestPageHandler,DummyMessageHandler')]
+    procedure InventoryPutawayForProductionOrderWithAdditionalFilters()
+    var
+        Location: Record Location;
+        Item: array[3] of Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: array[3] of Record "Prod. Order Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        i: Integer;
+    begin
+        // [FEATURE] [Inventory Put-away] [Partial] [Production Order]
+        // [SCENARIO 315268] Partial creation of inventory put-away for production order.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item,
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            CreateProdOrderLine(ProdOrderLine[i], ProductionOrder, Item[i]."No.");
+        end;
+        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+
+        WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
+        WarehouseSourceFilter.SetRange("Receipt Date Filter", ProdOrderLine[2]."Due Date");
+        WarehouseSourceFilter.SetFilter("Prod. Order No.", ProductionOrder."No.");
+        WarehouseSourceFilter.SetRange("Prod. Order Line No. Filter", FORMAT(ProdOrderLine[2]."Line No."));
+
+        Commit();
+        ProductionOrder.CreateInvtPutAwayPick();
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Prod. Order Line", ProductionOrder."No.", WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.TestField("Item No.", Item[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInvtPutawayRequestPageHandler,DummyMessageHandler')]
+    procedure InventoryPutawayForNegativeProdOrderCompWithAdditionalFilters()
+    var
+        Location: Record Location;
+        Item: array[3] of Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ReceiptDate: array[3] of Date;
+        i: Integer;
+    begin
+        // [FEATURE] [Inventory Put-away] [Partial] [Prod. Order Component]
+        // [SCENARIO 315268] Partial creation of inventory put-away for negative prod. order component.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, false, false);
+
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item,
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."Source No.", Location.Code);
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            ReceiptDate[i] := WorkDate() + 30 * i;
+            CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine, Item[i]."No.", -LibraryRandom.RandInt(10), ReceiptDate[i]);
+        end;
+        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+
+        WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
+        WarehouseSourceFilter.SetRange("Receipt Date Filter", ReceiptDate[2]);
+        WarehouseSourceFilter.SetFilter("Prod. Order No.", ProductionOrder."No.");
+        WarehouseSourceFilter.SetRange("Prod. Order Line No. Filter", FORMAT(ProdOrderLine."Line No."));
+
+        Commit();
+        ProductionOrder.CreateInvtPutAwayPick();
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Prod. Order Component", ProductionOrder."No.", WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.TestField("Item No.", Item[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInvtPickRequestPageHandler,DummyMessageHandler')]
+    procedure InventoryPickForSalesOrderWithAdditionalFilters()
+    var
+        Location: Record Location;
+        Item: array[3] of Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ShipmentDate: array[3] of Date;
+        i: Integer;
+    begin
+        // [FEATURE] [Inventory Pick] [Partial] [Sales Order]
+        // [SCENARIO 315268] Partial creation of inventory pick for sales order.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+
+        LibrarySales.CreateSalesOrderWithLocation(SalesHeader, '', Location.Code);
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            CreateAndPostItemJournalLine(
+              ItemJournalLine, Item[i]."No.", Location.Code, '', ItemJournalLine."Entry Type"::"Positive Adjmt.",
+              LibraryRandom.RandIntInRange(20, 40));
+            ShipmentDate[i] := WorkDate() + 30 * i;
+            CreateSalesLine(SalesLine, SalesHeader, Item[i]."No.", ShipmentDate[i]);
+        end;
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
+        WarehouseSourceFilter.SetRange("Shipment Date Filter", ShipmentDate[2]);
+
+        Commit();
+        SalesHeader.CreateInvtPutAwayPick();
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Pick");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.TestField("Item No.", Item[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInvtPickRequestPageHandler,DummyMessageHandler')]
+    procedure InventoryPickForPurchaseReturnOrderWithAdditionalFilters()
+    var
+        Location: Record Location;
+        Item: array[3] of Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ShipmentDate: array[3] of Date;
+        i: Integer;
+    begin
+        // [FEATURE] [Inventory Pick] [Partial] [Purchase Return Order]
+        // [SCENARIO 315268] Partial creation of inventory pick for purchase return order.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+
+        LibraryPurchase.CreatePurchaseReturnOrderWithLocation(PurchaseHeader, '', Location.Code);
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            CreateAndPostItemJournalLine(
+              ItemJournalLine, Item[i]."No.", Location.Code, '', ItemJournalLine."Entry Type"::"Positive Adjmt.",
+              LibraryRandom.RandIntInRange(20, 40));
+            ShipmentDate[i] := WorkDate() + 30 * i;
+            CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item[i]."No.", ShipmentDate[i]);
+        end;
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
+        WarehouseSourceFilter.SetRange("Shipment Date Filter", ShipmentDate[2]);
+
+        Commit();
+        PurchaseHeader.CreateInvtPutAwayPick();
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Purchase Line", PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Pick");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.TestField("Item No.", Item[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInvtPickRequestPageHandler,DummyMessageHandler')]
+    procedure InventoryPickForTransferShipmentWithAdditionalFilters()
+    var
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        LocationInTransit: Record Location;
+        Item: array[3] of Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ShipmentDate: array[3] of Date;
+        i: Integer;
+    begin
+        //avs
+        // [FEATURE] [Inventory Pick] [Partial] [Transfer Order]
+        // [SCENARIO 315268] Partial creation of inventory pick for transfer order.
+        Initialize();
+
+        LibraryWarehouse.CreateTransferLocations(LocationFrom, LocationTo, LocationInTransit);
+        LocationFrom.Validate("Require Pick", true);
+        LocationFrom.Modify(true);
+
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            CreateAndPostItemJournalLine(
+              ItemJournalLine, Item[i]."No.", LocationFrom.Code, '', ItemJournalLine."Entry Type"::"Positive Adjmt.",
+              LibraryRandom.RandIntInRange(20, 40));
+            ShipmentDate[i] := WorkDate() + 30 * i;
+            CreateTransferLine(TransferLine, TransferHeader, Item[i]."No.", ShipmentDate[i], ShipmentDate[i]);
+        end;
+        LibraryInventory.ReleaseTransferOrder(TransferHeader);
+
+        WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
+        WarehouseSourceFilter.SetRange("Shipment Date Filter", ShipmentDate[2]);
+
+        Commit();
+        TransferHeader.CreateInvtPutAwayPick();
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Transfer Line", TransferHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Pick");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.TestField("Item No.", Item[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInvtPickRequestPageHandler,DummyMessageHandler')]
+    procedure InventoryPickForProdOrderCompWithAdditionalFilters()
+    var
+        Location: Record Location;
+        Item: array[3] of Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ShipmentDate: array[3] of Date;
+        i: Integer;
+    begin
+        // [FEATURE] [Inventory Pick] [Partial] [Prod. Order Component]
+        // [SCENARIO 315268] Partial creation of inventory pick for prod. order component.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, false, false);
+
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item,
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."Source No.", Location.Code);
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            CreateAndPostItemJournalLine(
+              ItemJournalLine, Item[i]."No.", Location.Code, '', ItemJournalLine."Entry Type"::"Positive Adjmt.",
+              LibraryRandom.RandIntInRange(20, 40));
+            ShipmentDate[i] := WorkDate() + 30 * i;
+            CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine, Item[i]."No.", LibraryRandom.RandInt(10), ShipmentDate[i]);
+        end;
+        LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
+
+        WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
+        WarehouseSourceFilter.SetRange("Shipment Date Filter", ShipmentDate[2]);
+        WarehouseSourceFilter.SetRange("Prod. Order No.", ProductionOrder."No.");
+        WarehouseSourceFilter.SetRange("Prod. Order Line No. Filter", FORMAT(ProdOrderLine."Line No."));
+
+        Commit();
+        ProductionOrder.CreateInvtPutAwayPick();
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Prod. Order Component", ProductionOrder."No.", WarehouseActivityLine."Activity Type"::"Invt. Pick");
+        Assert.RecordCount(WarehouseActivityLine, 1);
+        WarehouseActivityLine.TestField("Item No.", Item[2]."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInvtMvmtRequestPageHandler,DummyMessageHandler')]
+    procedure InventoryPickForAssemblyLineWithAdditionalFilters()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: array[3] of Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ShipmentDate: array[3] of Date;
+        DummyInt: Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Inventory Pick] [Partial] [Assembly]
+        // [SCENARIO 315268] Partial creation of inventory pick for assembly line.
+        Initialize();
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, false, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("To-Assembly Bin Code", Bin.Code);
+        Location.Modify(true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        LibraryAssembly.CreateAssemblyHeader(
+          AssemblyHeader, LibraryRandom.RandDateFromInRange(WorkDate(), 150, 200), LibraryInventory.CreateItemNo(), Location.Code,
+          LibraryRandom.RandInt(10), '');
+        for i := 1 to ArrayLen(Item) do begin
+            LibraryInventory.CreateItem(Item[i]);
+            CreateAndPostItemJournalLine(
+              ItemJournalLine, Item[i]."No.", Location.Code, Bin.Code, ItemJournalLine."Entry Type"::"Positive Adjmt.",
+              LibraryRandom.RandIntInRange(20, 40));
+            ShipmentDate[i] := WorkDate() + 30 * i;
+            LibraryAssembly.CreateAssemblyLine(
+              AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item[i]."No.", Item[i]."Base Unit of Measure", 1, 1, '');
+            AssemblyLine.Validate("Due Date", ShipmentDate[i]);
+            AssemblyLine.Modify(true);
+        end;
+        LibraryAssembly.ReleaseAO(AssemblyHeader);
+
+        WarehouseSourceFilter.SetFilter("Item No. Filter", '%1..%2', Item[1]."No.", Item[2]."No.");
+        WarehouseSourceFilter.SetRange("Shipment Date Filter", ShipmentDate[2]);
+
+        Commit();
+        AssemblyHeader.CreateInvtMovement(false, false, false, DummyInt, DummyInt);
+
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Assembly Line", AssemblyHeader."No.", WarehouseActivityLine."Activity Type"::"Invt. Movement");
+        Assert.RecordCount(WarehouseActivityLine, 2);
+        WarehouseActivityLine.TestField("Item No.", Item[2]."No.");
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure PickQuantityBaseInBinContentsIsFilteredByUoM_WhenDirectedPutAwayAndPickIsEnabled()
     var
@@ -1474,6 +1922,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Miscellaneous II");
         LibraryVariableStorage.Clear();
+        Clear(WarehouseSourceFilter);
 
         // Lazy Setup.
         if isInitialized then
@@ -1972,6 +2421,45 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(20));  // Use Random for Quantity.
         PurchaseLine.Validate("Location Code", LocationCode);
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; ReceiptDate: Date)
+    begin
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Planned Receipt Date", ReceiptDate);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; ShipmentDate: Date)
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
+        SalesLine.Validate("Shipment Date", ShipmentDate);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateTransferLine(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; ItemNo: Code[20]; ShipmentDate: Date; ReceiptDate: Date)
+    begin
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, ItemNo, LibraryRandom.RandInt(10));
+        TransferLine.Validate("Shipment Date", ShipmentDate);
+        TransferLine.Validate("Receipt Date", ReceiptDate);
+        TransferLine.Modify(true);
+    end;
+
+    local procedure CreateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order"; ItemNo: Code[20])
+    begin
+        LibraryManufacturing.CreateProdOrderLine(
+          ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", ItemNo, '', ProductionOrder."Location Code", LibraryRandom.RandInt(10));
+    end;
+
+    local procedure CreateProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; QtyPer: Decimal; DueDate: Date)
+    begin
+        LibraryManufacturing.CreateProductionOrderComponent(
+          ProdOrderComponent, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", ItemNo);
+        ProdOrderComponent.Validate("Due Date", DueDate);
+        ProdOrderComponent.Validate("Quantity per", QtyPer);
+        ProdOrderComponent.Validate("Location Code", ProdOrderLine."Location Code");
+        ProdOrderComponent.Modify(true);
     end;
 
     local procedure CreateSalesOrder(var SalesLine: Record "Sales Line"; LocationCode: Code[10]; No: Code[20]; Quantity: Decimal)
@@ -2923,6 +3411,51 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     begin
         CreatePickReqPage.CreateInventorytPutAway.SetValue(true);
         CreatePickReqPage.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure CreateInvtPutawayRequestPageHandler(var CreateInvtPutawayPage: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreateInvtPutawayPage.CreateInventorytPutAway.SetValue(true);
+        CreateInvtPutawayPage."Warehouse Source Filter".SetFilter(
+          "Item No. Filter", WarehouseSourceFilter.GetFilter("Item No. Filter"));
+        CreateInvtPutawayPage."Warehouse Source Filter".SetFilter(
+          "Receipt Date Filter", WarehouseSourceFilter.GetFilter("Receipt Date Filter"));
+        CreateInvtPutawayPage."Warehouse Source Filter".SetFilter(
+          "Prod. Order No.", WarehouseSourceFilter.GetFilter("Prod. Order No."));
+        CreateInvtPutawayPage."Warehouse Source Filter".SetFilter(
+          "Prod. Order Line No. Filter", WarehouseSourceFilter.GetFilter("Prod. Order Line No. Filter"));
+        CreateInvtPutawayPage.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure CreateInvtPickRequestPageHandler(var CreateInvtPickPage: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreateInvtPickPage.CInvtPick.SetValue(true);
+        CreateInvtPickPage."Warehouse Source Filter".SetFilter(
+          "Item No. Filter", WarehouseSourceFilter.GetFilter("Item No. Filter"));
+        CreateInvtPickPage."Warehouse Source Filter".SetFilter(
+          "Shipment Date Filter", WarehouseSourceFilter.GetFilter("Shipment Date Filter"));
+        CreateInvtPickPage."Warehouse Source Filter".SetFilter(
+          "Prod. Order No.", WarehouseSourceFilter.GetFilter("Prod. Order No."));
+        CreateInvtPickPage."Warehouse Source Filter".SetFilter(
+          "Prod. Order Line No. Filter", WarehouseSourceFilter.GetFilter("Prod. Order Line No. Filter"));
+        CreateInvtPickPage."Warehouse Source Filter".SetFilter("Job No.", WarehouseSourceFilter.GetFilter("Job No."));
+        CreateInvtPickPage."Warehouse Source Filter".SetFilter(
+          "Job Task No. Filter", WarehouseSourceFilter.GetFilter("Job Task No. Filter"));
+        CreateInvtPickPage.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure CreateInvtMvmtRequestPageHandler(var CreateInvtMvmtPage: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreateInvtMvmtPage.CInvtPick.SetValue(false);
+        CreateInvtMvmtPage.CInvtMvmt.SetValue(true);
+        CreateInvtMvmtPage."Warehouse Source Filter".SetFilter(
+          "Item No. Filter", WarehouseSourceFilter.GetFilter("Item No. Filter"));
+        CreateInvtMvmtPage."Warehouse Source Filter".SetFilter(
+          "Shipment Date Filter", WarehouseSourceFilter.GetFilter("Shipment Date Filter"));
+        CreateInvtMvmtPage.OK().Invoke();
     end;
 
     local procedure VerifyInventoryPickLine(SalesOrderNo: Code[20]; LotNo: Code[50]; PickQty: Decimal)

@@ -19,7 +19,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         LibrarySales: Codeunit "Library - Sales";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
-        BackgroundErrorCheckFeatureEnabled: Boolean;
         DummyErr: Label 'Dummy error';
         TestFieldMustHaveValueErr: Label '%1 must have a value', Comment = '%1 - field caption';
         TestFieldEmptyValueErr: Label '%1 must not be empty.', Comment = '%1 - field caption';
@@ -35,7 +34,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         LogTestFieldOptionTxt: Label 'LogTestFieldOption', Locked = true;
         LogTestFieldOptionNewTxt: Label 'LogTestFieldOptionWithCollectError', Locked = true;
         DimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for G/L Account %2.', Comment = '%1 - dimension code, %2 - account number';
-        DisabledFeatureErr: Label 'Enabled must be equal to ''All Users''  in Feature Key: ID=JournalErrorBackgroundCheck';
         OnBeforeRunCheckTxt: Label 'OnBeforeRunCheck', Locked = true;
         ExpectedErrorTxt: Label 'Expected should be : %1', Comment = '%1 - Expected error message';
 
@@ -2404,14 +2402,6 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         if GenJournalLine.Description = OnBeforeRunCheckTxt then
             GenJournalLine.Validate(Amount, 0);
     end;
-
-#if not CLEAN20
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Journal Errors Mgt.", 'OnAfterIsEnabled', '', false, false)]
-    local procedure OnAfterIsEnabled(var Result: Boolean);
-    begin
-        Result := BackgroundErrorCheckFeatureEnabled;
-    end;
-#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

@@ -4,9 +4,9 @@ codeunit 6154 "API Webhook Notification Send"
     // 2. Generates notifications payload per notification URL
     // 3. Sends notifications
 
-    Permissions = TableData "API Webhook Subscription" = imd,
-                  TableData "API Webhook Notification" = imd,
-                  TableData "API Webhook Notification Aggr" = imd;
+    Permissions = TableData "API Webhook Subscription" = rimd,
+                  TableData "API Webhook Notification" = rimd,
+                  TableData "API Webhook Notification Aggr" = rimd;
 
     trigger OnRun()
     var

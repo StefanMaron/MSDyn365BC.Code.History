@@ -1,0 +1,1455 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="fr-FR" original="_Exclude_Master_Data_Management">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 1314070134 - NamedType 1411248960" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Coupling records...\\Processing record #1##########</source>
+          <target state="translated">Couplage d’enregistrements...\\Traitement de l’enregistrement #1##########</target>
+          <note from="Developer" annotates="general" priority="2">#1 place holder for record number</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Mgt. Table Couple - NamedType CouplingMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1314070134 - NamedType 2177934927" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must specify which fields on the table %1 should be used for match-based coupling.</source>
+          <target state="translated">Vous devez spécifier les champs de la table %1 qui doivent être utilisés pour le couplage par correspondance.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - integration table mapping name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Mgt. Table Couple - NamedType NoMatchingCriteriaDefinedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1314070134 - NamedType 2456259747" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to couple %2 record(s), because no unique uncoupled matching entity was found in %1 with the specified matching criteria.</source>
+          <target state="translated">Impossible de coupler %2 enregistrement(s), car aucune entité correspondante non couplée unique n’a été trouvée dans %1 avec les critères de correspondance spécifiés.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - comma-separated list of field names, %2 - A URL, %3 - an integer, number of records</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Mgt. Table Couple - NamedType NoMatchFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1314070134 - NamedType 3822677714" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company %1</source>
+          <target state="translated">Société %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 - company name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Mgt. Table Couple - NamedType IntegrationOrgCompanyNameLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 1022082886" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot couple %1 to this %3 record, because the %3 record is already coupled to %2.</source>
+          <target state="translated">Impossible de coupler %1 à cet enregistrement %3, car l'enregistrement %3 est déjà couplé à %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 ID of the record, %2 ID of the already mapped record, %3 = table caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType RecordRefAlreadyMappedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 1034339190" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Both %1 and the %4 %2 record have been changed since the last synchronization, or synchronization has never been performed. If you continue with synchronization, data in %3 will be overwritten with data from %4. Are you sure you want to synchronize?</source>
+          <target state="translated">L'enregistrement %1 et l'enregistrement %4 %2 ont tous deux été modifiés depuis la dernière synchronisation, ou la synchronisation n'a jamais été exécutée. Si vous poursuivez la synchronisation, les données dans %3 vont être remplacées par celles de %4. Êtes-vous certain de vouloir procéder à la synchronisation ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 is a formatted RecordID, such as 'Customer 1234'. %2 is the caption of a Business Central  table. %3 - product name, %4 = Business Central product name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType BothRecordsModifiedToNAVQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 1040937214" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The %2 record %1 contains newer data than the %3 record. Get data update from %3, overwriting data in %2?</source>
+          <target state="translated">L'enregistrement %2 %1 contient des données plus récentes que l'enregistrement %3. Voulez-vous recevoir une mise à jour des données de %3 pour remplacer les données dans %2 ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Table caption and value for the entity we want to synchronize now. %2 - product name, %3 = Business Central product name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UpdateOneNowFromOldIntegrationQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 11315597" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The %1 record is marked as skipped.</source>
+          <target state="translated">L’enregistrement %1 est marqué comme ignoré.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = table caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType RecordMarkedAsSkippedTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 1165506117" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The uncoupling has been scheduled.</source>
+          <target state="translated">Le découplage a été planifié.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UncoupleScheduledMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 1180448747" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All of selected %1 records are marked as skipped.</source>
+          <target state="translated">Tous les enregistrements %1 sélectionnés sont marqués comme ignorés.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = table caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType AllRecordsMarkedAsSkippedTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 1378066638" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Both the %1 record and the %3 %2 record have been changed since the last synchronization, or synchronization has never been performed. Bi-directional synchronization is forbidden as a changed bidirectional field was detected, but you can continue continue with uni-derictional synchronization. If you continue, data on one of the records will be lost and replaced with data from the other record.</source>
+          <target state="translated">L’enregistrement %1 et l’enregistrement %2 %3 ont tous deux été modifiés depuis la dernière synchronisation, ou la synchronisation n’a jamais été exécutée. La synchronisation bidirectionnelle n’est pas autorisée, car un champ bidirectionnel modifié a été détecté, mais vous pouvez poursuivre la synchronisation unidirectionnelle. Si vous poursuivez la synchronisation, les données de l’un des enregistrements seront perdues et remplacées par celles de l’autre enregistrement.</target>
+          <note from="Developer" annotates="general" priority="2">%1 and %2 area captions of tables such as Customer and CRM Account, %3 = Business Central product name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType BothRecordsModifiedBiDirectionalConflictMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 1401058103" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The integration record for entity %1 was not found.</source>
+          <target state="translated">L’enregistrement d’intégration de l’entité %1 est introuvable.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - entity name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType IntegrationRecordNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 1878632474" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The synchronization has been scheduled for %1 of %4 records. %2 records failed. %3 records were skipped.</source>
+          <target state="translated">La synchronisation a été planifiée pour %1 enregistrements sur %4. %2 enregistrements ont échoué. %3 enregistrements ont été ignorés.</target>
+          <note from="Developer" annotates="general" priority="2">%1,%2,%3,%4 are numbers of records</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType SyncMultipleMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 1986429370" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot couple the %2 record to %1, because %1 is already coupled to another %2 record.</source>
+          <target state="translated">Impossible de coupler l'enregistrement %2 à %1, car %1 est déjà couplé à un autre enregistrement %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 ID from the record, %2 ID of the already mapped record</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType RecordIdAlreadyMappedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 2047817834" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Send data update to source company.,Get data update from source company.</source>
+          <target state="translated">Envoyer la mise à jour des données à la société source,Obtenir une mise à jour des données de la société source.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UpdateNowUniDirectionQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 2083129699" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The %3 record coupled to %1 contains newer data than the %2 record. Do you want to overwrite the data in %3?</source>
+          <target state="translated">L'enregistrement %3 couplé à %1 contient des données plus récentes que l'enregistrement %2. Souhaitez-vous remplacer les données dans %3 ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Table caption and value for the entity we want to synchronize now. %2 - product name, %3 = Business Central product name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UpdateOneNowToModifiedIntegrationQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 2094593661" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronize data for %1?</source>
+          <target state="translated">Synchroniser les données pour %1 ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Table caption and value for the entity we want to synchronize now.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UpdateOneNowTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 2127158156" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Send data update to %2 for %1?</source>
+          <target state="translated">Envoyer une mise à jour des données à %2 pour %1 ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Table caption and value for the entity we want to synchronize now., %2 = Business Central product name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UpdateOneNowToIntegrationQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 217222318" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Details.</source>
+          <target state="translated">Détails.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType DetailsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 2181760471" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Both %1 and the %4 %2 record have been changed since the last synchronization, or synchronization has never been performed. If you continue with synchronization, data in %4 will be overwritten with data from %3. Are you sure you want to synchronize?</source>
+          <target state="translated">L'enregistrement %1 et l'enregistrement %4 %2 ont tous deux été modifiés depuis la dernière synchronisation, ou la synchronisation n'a jamais été exécutée. Si vous poursuivez la synchronisation, les données dans %4 vont être remplacées par celles de %3. Êtes-vous certain de vouloir procéder à la synchronisation ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 is a formatted RecordID, such as 'Customer 1234'. %2 is the caption of a Business Central table. %3 - product name, %4 = Business Central product name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType BothRecordsModifiedToIntegrationQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 2228020419" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get data update from %1 for the selected records?</source>
+          <target state="translated">Recevoir une mise à jour des données de %1 pour les enregistrements sélectionnés ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Business Central product name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UpdateMultipleNowFromIntegrationQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 2272930901" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The synchronization failed.</source>
+          <target state="translated">La synchronisation a échoué.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType SyncNowFailedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 2289319757" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Both the %1 record and the %3 %2 record have been changed since the last synchronization, or synchronization has never been performed. No one changed bidirectional field was detected, therefore you can continue continue with both bi- and uni-directional synchronization. If you continue, data will be updated in accordance with the chosen synchronization direction and fields mapping.</source>
+          <target state="translated">L’enregistrement %1 et l’enregistrement %3 %2 ont tous deux été modifiés depuis la dernière synchronisation, ou la synchronisation n’a jamais été exécutée. Aucun champ bidirectionnel modifié n’a été détecté, vous pouvez par conséquent poursuivre la synchronisation bidirectionnelle et la synchronisation unidirectionnelle. Si vous continuez, les données seront mises à jour conformément à la direction de synchronisation choisie et à la mise en correspondance des champs.</target>
+          <note from="Developer" annotates="general" priority="2">%1 and %2 area captions of tables such as Customer and CRM Account, %3 = Business Central product name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType BothRecordsModifiedBiDirectionalNoConflictMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 2411424718" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No %1 was found for table %2.</source>
+          <target state="translated">Aucune %1 n’a été trouvée pour la table %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Integration Table Mapping caption, %2 = Table caption for the table which is not mapped</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType IntegrationTableMappingNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 245488723" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Disable this notification.</source>
+          <target state="translated">Désactiver cette notification.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType DisableNotificationTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 2618068198" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One or more of the selected integration table mappings is custom.\\Restoring the default table mapping for a custom table mapping will restore all custom table mappings to their default.\\Do you want to continue?</source>
+          <target state="translated">Au moins un des mappages de table d’intégration sélectionnés est personnalisé.\\La restauration du mappage de table par défaut pour un mappage de table personnalisé va restaurer tous les mappages de table personnalisés sur leur valeur par défaut.\\Voulez-vous continuer ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType ResetAllCustomIntegrationTableMappingsLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 2675285327" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get data update from %2 for %1?</source>
+          <target state="translated">Recevoir une mise à jour des données de %2 pour %1 ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Table caption and value for the entity we want to synchronize now., %2 = Business Central product name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UpdateOneNowFromIntegrationQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 2788705922" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Turns the user's attention to the Integration Synchronization Jobs page.</source>
+          <target state="translated">Tourne l’attention de l’utilisateur vers la page des projets de synchronisation d’intégration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType CommonNotificationDescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 298896617" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronize data for the selected records?</source>
+          <target state="translated">Synchroniser les données pour les enregistrements sélectionnés ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UpdateMultipleNowTitleTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 3295349667" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The synchronization has been scheduled.</source>
+          <target state="translated">La synchronisation a été planifiée.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType SyncNowScheduledMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 3372014790" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The uncoupling has been skipped.</source>
+          <target state="translated">Le découplage a été ignoré.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UncoupleSkippedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 3415153568" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The coupling has been skipped.</source>
+          <target state="translated">Le couplage a été ignoré.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType CouplingSkippedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 3586624132" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The synchronization has been skipped.</source>
+          <target state="translated">La synchronisation a été ignorée.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType SyncNowSkippedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 371451318" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The uncoupling has been scheduled for %1 of %4 records. %2 records failed. %3 records were skipped.</source>
+          <target state="translated">Le découplage a été planifié pour %1 enregistrements sur %4. %2 enregistrements ont échoué. %3 enregistrements ont été ignorés.</target>
+          <note from="Developer" annotates="general" priority="2">%1,%2,%3,%4 are numbers of records</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UncoupleMultipleMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 3801598313" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Send data update to source company.,Get data update from source company.,Merge data.</source>
+          <target state="translated">Envoyer la mise à jour des données à la société source,Obtenir une mise à jour des données de la société source,Fusionner les données.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UpdateNowBiDirectionQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 3914242569" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The record is already coupled.</source>
+          <target state="translated">L’enregistrement est déjà couplé.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = table caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType RecordAlreadyCoupledTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 4049079201" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Notify the user about scheduled synchronization jobs.</source>
+          <target state="translated">Informer l’utilisateur des projets de synchronisation planifiés.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType CommonNotificationNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 4195699587" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The uncoupling failed.</source>
+          <target state="translated">Le découplage a échoué.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UncoupleFailedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 556842129" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The coupling failed.</source>
+          <target state="translated">Le couplage a échoué.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType CouplingFailedMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 610115256" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Send data update to %1 for the selected records?</source>
+          <target state="translated">Envoyer une mise à jour des données à %1 pour les enregistrements sélectionnés ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Business Central product name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType UpdateMultipleNowToIntegrationQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 644426423" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All of the selected records are already coupled.</source>
+          <target state="translated">Tous les enregistrements sélectionnés sont déjà couplés.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = table caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType AllRecordsAlreadyCoupledTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 66306976" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The coupling has been scheduled for %1 of %4 records. %2 records failed. %3 records were skipped.</source>
+          <target state="translated">Le couplage a été planifié pour %1 enregistrements sur %4. %2 enregistrements ont échoué. %3 enregistrements ont été ignorés.</target>
+          <note from="Developer" annotates="general" priority="2">%1,%2,%3,%4 are numbers of records</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType CouplingMultipleMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 930042175" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The coupling has been scheduled.</source>
+          <target state="translated">Le couplage a été planifié.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType CouplingScheduledMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2266395223 - NamedType 112073631" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The only supported direction for the data synchronization is %1.</source>
+          <target state="translated">La seule direction prise en charge pour la synchronisation des données est %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - a text: From Integration Table</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Mgt. Subscribers - NamedType MappingDoesNotAllowDirectionErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2266395223 - NamedType 256105069" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table %1 has a primary key that consists of %2 fields. Synchronization engine doesn't support renaming with primary key length of more than 5 fields.\\Before retrying, open Synchronization Tables, select %1, choose Synchronization Fields and disable the synchronization of its primary key fields.</source>
+          <target state="translated">La table %1 a une clé primaire constituée de %2 champs. Le moteur de synchronisation ne prend pas en charge le changement de nom avec une longueur de clé primaire de plus de 5 champs.\\Avant de réessayer, ouvrez Tables de synchronisation, sélectionnez %1, sélectionnez Champs de synchronisation et désactivez la synchronisation de ses champs de clé primaire.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - a table caption, %2 - an integer</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Mgt. Subscribers - NamedType UnsupportedKeyLengthErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2266395223 - NamedType 3182378746" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record %2 was modified locally since the last synchronization and a different value for field %1 (%3) is synchronizing from the source record.\\Before retrying, open Synchronization Tables, select %4, choose action Fields and either disable the synchronization of %1 or set it up to overwrite local changes. Alternatively, choose to overwrite local changes on synchronization table %4.</source>
+          <target state="translated">L’enregistrement %2 a été modifié localement depuis la dernière synchronisation et une valeur différente pour le champ %1 (%3) est en cours de synchronisation à partir de l’enregistrement source.\\Avant de réessayer, ouvrez les tables de synchronisation, sélectionnez %4, choisissez l’action Champs et désactivez la synchronisation de %1 ou définissez-la pour remplacer les changements locaux. Vous pouvez également choisir d’écraser les modifications locales dans la table de synchronisation %4.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - a field caption, %2 - a record identifier, %3 - a field value (any value), %4 - table caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Mgt. Subscribers - NamedType ValueWillBeOverwrittenErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3457626429 - NamedType 1777341635" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find the mapping %2 in table %1.</source>
+          <target state="translated">Impossible de trouver la correspondance %2 dans la table %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 Integration Table Mapping caption, %2 Integration Table Mapping Name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Integration Master Data Synch. - NamedType SourceRecordIsNotInMappingErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3457626429 - NamedType 2100988429" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find %1 record %2.</source>
+          <target state="translated">Impossible de trouver l’enregistrement %1 %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Source table caption, %2 = The lookup value when searching for the source record</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Integration Master Data Synch. - NamedType RecordNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3457626429 - NamedType 214721300" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot determine the source origin: %1.</source>
+          <target state="translated">Impossible de déterminer l’origine de la source : %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 the value of the source id</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Integration Master Data Synch. - NamedType CannotDetermineSourceOriginErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 402828404 - NamedType 1075509946" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> %1 uncouple job.</source>
+          <target state="translated"> Projet de découplage de %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Integration mapping description, for example, CUSTOMER &lt;-&gt; CUSTOMER</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Mgt. Setup Default - NamedType UncoupleJobQueueEntryNameTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 402828404 - NamedType 1325297073" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New vendors were created during synch.</source>
+          <target state="translated">De nouveaux fournisseurs ont été créés au cours de la synchronisation.</target>
+          <note from="Developer" annotates="general" priority="2">Max. length 50.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Mgt. Setup Default - NamedType VendorConfigTemplateDescTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 402828404 - NamedType 2165035145" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New customers were created during synch.</source>
+          <target state="translated">De nouveaux clients ont été créés au cours de la synchronisation.</target>
+          <note from="Developer" annotates="general" priority="2">Max. length 50.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Mgt. Setup Default - NamedType CustomerConfigTemplateDescTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 402828404 - NamedType 3595491119" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> %1 - %2 synchronization job.</source>
+          <target state="translated"> %1 : projet de synchronisation de %2.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = The Integration Table Name to synchronized (ex. CUSTOMER), %2 = Business Central product name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Mgt. Setup Default - NamedType JobQueueEntryNameTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 402828404 - NamedType 496304863" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> %1 coupling job.</source>
+          <target state="translated"> Projet de couplage de %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Integration mapping description, for example, CUSTOMER &lt;-&gt; CUSTOMER</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Mgt. Setup Default - NamedType CoupleJobQueueEntryNameTok</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 4272884949 - EnumValue 1724665409 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Master Data Management</source>
+          <target state="translated">Gestion des données de référence</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 3518374016</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 2346818080 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronize records that have been modified since the last time they were synchronized.</source>
+          <target state="translated">Synchroniser les enregistrements qui ont été modifiés depuis la dernière synchronisation.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action SynchronizeNow - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 2346818080 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronize Modified Records</source>
+          <target state="translated">Synchroniser les enregistrements modifiés</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action SynchronizeNow - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 2516736929 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start all the default synchronization jobs for synchronizing data from the source company. \\Data is synchronized according to the mappings defined on the Synchronization Tables page.</source>
+          <target state="translated">Démarrez tous les projets de synchronisation par défaut pour la synchronisation des données à partir de la société source. \\Les données sont synchronisées en fonction des mappages définis sur la page Tables de synchronisation.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action StartInitialSynchAction - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 2516736929 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start Initial Synchronization</source>
+          <target state="translated">Démarrer la synchronisation initiale</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action StartInitialSynchAction - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 264040975 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the job queue entries that manage the scheduled data synchronization.</source>
+          <target state="translated">Affichez les écritures file projets qui gèrent la synchronisation des données planifiée.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action Synch. Job Queue Entries - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 264040975 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synch. Job Queue Entries</source>
+          <target state="translated">Écritures file projets synch.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action Synch. Job Queue Entries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 3203970637 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Export the setup tables.</source>
+          <target state="translated">Exporter les tables de configuration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action ExportSetup - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 3203970637 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Export Setup</source>
+          <target state="translated">Configuration d’exportation</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action ExportSetup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization</source>
+          <target state="translated">Synchronisation</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 5.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 3430871846 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Import the setup tables.</source>
+          <target state="translated">Importer les tables de configuration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action ImportSetup - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 3430871846 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Import Setup</source>
+          <target state="translated">Configuration d’importation</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action ImportSetup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 3787407361 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the list of tables to synchronize.</source>
+          <target state="translated">Afficher la liste des tables à synchroniser.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action IntegrationTableMappings - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 3787407361 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Tables</source>
+          <target state="translated">Tables de synchronisation</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action IntegrationTableMappings - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 639242359 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Resets the integration table mappings and synchronization jobs to the default values for a connection with the source company. All current mappings are deleted and recreated.</source>
+          <target state="translated">Réinitialise les mappages de table d’intégration et les projets de synchronisation sur les valeurs par défaut pour une connexion avec la société source. Tous les mappages actuels sont supprimés et recréés.</target>
+          <note from="Developer" annotates="general" priority="2">Business Central is the name of a Microsoft Service and should not be translated.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action ResetConfiguration - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Action 639242359 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Use Default Synchronization Setup</source>
+          <target state="translated">Utiliser la configuration de synchronisation par défaut</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Action ResetConfiguration - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 1723776373 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete couplings for the selected Business Central record types.</source>
+          <target state="translated">Supprimer les couplages pour les types d’enregistrements Business Central sélectionnés.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action RemoveCoupling - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 1723776373 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delete Couplings</source>
+          <target state="translated">Supprimer les couplages</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action RemoveCoupling - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 1793113119 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the status of jobs for match-based coupling of records.</source>
+          <target state="translated">Afficher le statut des projets pour le couplage par correspondance des enregistrements.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action View Integration Coupling Job Log - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 1793113119 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Integration Coupling Job Log</source>
+          <target state="translated">Journal des projets de couplage d’intégration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action View Integration Coupling Job Log - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 2346818080 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronize records that have been modified since the last time they were synchronized.</source>
+          <target state="translated">Synchroniser les enregistrements qui ont été modifiés depuis la dernière synchronisation.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action SynchronizeNow - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 2346818080 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronize Modified Records</source>
+          <target state="translated">Synchroniser les enregistrements modifiés</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action SynchronizeNow - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 2573355370 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View fields that are synchronized.</source>
+          <target state="translated">Afficher les champs synchronisés.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action FieldMapping - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 2573355370 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Fields</source>
+          <target state="translated">Champs</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action FieldMapping - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 2653096382 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View or edit the job queue entry for the synchronization of this table.</source>
+          <target state="translated">Afficher ou modifier l’écriture file projets pour la synchronisation de cette table.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action JobQueueEntry - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 2653096382 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Job Queue Entry</source>
+          <target state="translated">Écriture file projets</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action JobQueueEntry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 269808213 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the status of jobs for uncoupling records. The jobs were run either from the job queue, or manually, in Business Central.</source>
+          <target state="translated">Afficher le statut des projets de découplage des enregistrements. Les projets ont été exécutés à partir de la file projets ou manuellement dans Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action View Integration Uncouple Job Log - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 269808213 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Integration Uncouple Job Log</source>
+          <target state="translated">Journal des projets de découplage d’intégration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action View Integration Uncouple Job Log - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 2976546385 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Make couplings between the selected Business Central record types based on matching criteria.</source>
+          <target state="translated">Créer des couplages entre les types d’enregistrement Business Central sélectionnés selon des critères de mise en correspondance.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action MatchBasedCoupling - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 2976546385 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Match-Based Coupling</source>
+          <target state="translated">Couplage par correspondance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action MatchBasedCoupling - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <target state="translated">Traitement</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 4.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 3483044347 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enables the synchronization of the selected tables.</source>
+          <target state="translated">Active la synchronisation des tables sélectionnées.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action Enable - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 3483044347 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="translated">Activer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action Enable - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 3601201259 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>View the status of the individual synchronization jobs that have been run for this table. This includes synchronization jobs that have been run from the job queue and manual synchronization jobs that were performed on records from the Business Central client.</source>
+          <target state="translated">Afficher le statut des projets de synchronisation individuels exécutés pour cette table. Cela inclut les projets de synchronisation exécutés à partir de la file projets et les projets de synchronisation manuelle effectués sur des enregistrements à partir du client Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action View Integration Synch. Job Log - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 3601201259 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Log</source>
+          <target state="translated">Journal de synchronisation</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action View Integration Synch. Job Log - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 4100860853 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start a job for full synchronization from records in the chosen source company for each of the selected tables.</source>
+          <target state="translated">Démarrez une tâche pour une synchronisation complète des enregistrements de la société source choisie pour chacune des tables sélectionnées.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action SynchronizeAll - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 4100860853 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Run Full Synchronization</source>
+          <target state="translated">Exécuter une synchronisation complète</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action SynchronizeAll - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 4283638840 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Disables the synchronization of the selected tables.</source>
+          <target state="translated">Désactive la synchronisation des tables sélectionnées.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action Disable - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 4283638840 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="translated">Désactiver</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action Disable - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 639242359 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Resets the tables and synchronization jobs to the default values for a connection with the source company. All current mappings are deleted.</source>
+          <target state="translated">Réinitialise les tables et les tâches de synchronisation sur les valeurs par défaut pour une connexion avec la société source. Tous les mappages actuels sont supprimés.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action ResetConfiguration - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Action 639242359 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Use Default Synchronization Setup</source>
+          <target state="translated">Utiliser la configuration de synchronisation par défaut</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Action ResetConfiguration - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Action 1303173321 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Restart the synchronization for the selected table.</source>
+          <target state="translated">Redémarrez la synchronisation pour la table sélectionnée.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Action Restart - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Action 1303173321 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Restart</source>
+          <target state="translated">Redémarrer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Action Restart - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Action 2226475731 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This will create new coupled records based on the records from source company.</source>
+          <target state="translated">Cette opération va créer des enregistrements couplés basés sur les enregistrements de la société source.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Action ScheduleFullSynch - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Action 2226475731 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Use Full Synchronization</source>
+          <target state="translated">Utiliser synchronisation complète</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Action ScheduleFullSynch - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Action 3250729196 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This will try to match the existing local records with the records from source company, based on the criteria that you define.</source>
+          <target state="translated">Cette opération essaiera de faire correspondre les enregistrements locaux existants avec les enregistrements de la société source, sur la base des critères que vous avez définis.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Action ScheduleMatchBasedCpl - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Action 3250729196 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Use Match-Based Coupling</source>
+          <target state="translated">Utiliser le couplage par correspondance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Action ScheduleMatchBasedCpl - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <target state="translated">Traitement</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Action 620325036 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start all the default integration jobs for synchronizing data from the chosen source company, as defined on the Synchronization Tables page. Tables with finished job status will be skipped.</source>
+          <target state="translated">Commencez tous les tâches d’intégration par défaut pour la synchronisation des données depuis la société source sélectionnée, comme défini sur la page Tables de synchronisation. Les tables avec le statut de tâche Terminé seront ignorées.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Action Start - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Action 620325036 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start All</source>
+          <target state="translated">Démarrer tout</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Action Start - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Action 685580383 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Removes all lines, readds all default tables and recalculates synchronization modes.</source>
+          <target state="translated">Supprime toutes les lignes, rajoute toutes les tables par défaut et recalcule les modes de synchronisation.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Action Reset - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Action 685580383 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reset</source>
+          <target state="translated">Réinitialiser</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Action Reset - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Action 2573355370 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Updates field mappings to match table schema. Use this action if the table schema was changed since the mappings were generated.</source>
+          <target state="translated">Met à jour des mappages de champ pour correspondre au schéma de table. Utilisez cette action si le schéma de table a été modifié depuis la génération des mappages.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Action FieldMapping - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Action 2573355370 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Update Fields</source>
+          <target state="translated">Mettre à jour les champs</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Action FieldMapping - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <target state="translated">Traitement</target>
+          <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 4.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Action 3483044347 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enables the synchronization of the selected fields.</source>
+          <target state="translated">Active la synchronisation des champs sélectionnés.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Action Enable - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Action 3483044347 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enable</source>
+          <target state="translated">Activer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Action Enable - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Action 4283638840 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Disables the synchronization of the selected fields.</source>
+          <target state="translated">Désactive la synchronisation des champs sélectionnés.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Action Disable - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Action 4283638840 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Disable</source>
+          <target state="translated">Désactiver</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Action Disable - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Control 1457822769 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether data synchronization with the chosen source company.</source>
+          <target state="translated">Spécifie la synchronisation de données avec la société source choisie.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Control Is Enabled - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Control 1457822769 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enable Data Synchronization</source>
+          <target state="translated">Activer la synchronisation des données</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Control Is Enabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Control 3997336476 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the cource company that you synchronize data from.</source>
+          <target state="translated">Spécifie le nom de la société source à partir de laquelle vous synchronisez les données.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Control Company Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 1439815520 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the action to take when a coupled record is updated in both of the connected applications.</source>
+          <target state="translated">Spécifie l’action à effectuer lorsqu’un enregistrement couplé est mis à jour dans les deux applications connectées.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control Update-Conflict Resolution - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 1694497541 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the business data table in Business Central to map to the integration table.</source>
+          <target state="translated">Spécifie le nom de la table de données métiers dans Business Central à mapper à la table d'intégration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control TableCaptionValue - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 1694497541 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table</source>
+          <target state="translated">Table</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control TableCaptionValue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the integration table mapping entry.</source>
+          <target state="translated">Spécifie le nom de l’écriture de correspondance de la table d’intégration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 2987383563 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the action to take when a coupled record is deleted in one of the connected applications.</source>
+          <target state="translated">Spécifie l’action à effectuer lorsqu’un enregistrement couplé est supprimé dans l’une des applications connectées.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control Deletion-Conflict Resolution - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 3064002603 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a configuration template to use when creating new records in the Dynamics 365 business table (specified by the Table ID field) during synchronization.</source>
+          <target state="translated">Spécifie un modèle de configuration à utiliser lors de la création d’enregistrements dans la table de données métiers Dynamics 365 (spécifiée par le champ ID de la table) au cours de la synchronisation.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control Table Config Template Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 3207106980 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a filter on the integration table to control which records can be synchronized with the corresponding records in the business data table that is specified by the Table field.</source>
+          <target state="translated">Spécifie un filtre de la table d'intégration pour contrôler les enregistrements pouvant être synchronisés avec les enregistrements correspondants dans la table de données métiers spécifiée par le champ Table.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control IntegrationTableFilter - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 3207106980 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Filter</source>
+          <target state="translated">Filtre table</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control IntegrationTableFilter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 3252819777 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies how to handle uncoupled records in Dynamics 365 Sales entities and Dynamics 365 tables when synchronization is performed by an integration synchronization job.</source>
+          <target state="translated">Spécifie comment traiter les enregistrements non couplés des entités Dynamics 365 Sales et des tables Dynamics 365 lorsque la synchronisation est exécutée par une tâche de synchronisation de l'intégration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control Synch. Only Coupled Records - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 3277867247 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ID of the integration table to map to the business table.</source>
+          <target state="translated">Spécifie l'ID de la table d'intégration à mapper à la table de données métiers.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control IntegrationTableCaptionValue - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 3277867247 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Integration Table</source>
+          <target state="translated">Table d’intégration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control IntegrationTableCaptionValue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 3696389755 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a date/time filter that uses the date on which records were modified to determine which records to synchronize from the chosen source company. The filter is based on the Modified On field on the integration table records.</source>
+          <target state="translated">Indique un filtre de date/heure qui utilise la date de modification des enregistrements afin de déterminer ceux qui doivent être synchronisés à partir de la société source sélectionnée. Le filtre est basé sur le champ « Modifié le » des enregistrements de la table d’intégration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control Synch. Modified On Filter - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 3696389755 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronize Changes Since</source>
+          <target state="translated">Synchroniser les modifications depuis</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control Synch. Modified On Filter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 4005701527 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a filter on the business data table in Dynamics 365 to control which records can be synchronized with the corresponding records in the integration table that is specified by the Integration Table ID field.</source>
+          <target state="translated">Spécifie un filtre de la table de données métiers dans Dynamics 365 pour contrôler les enregistrements pouvant être synchronisés avec les enregistrements correspondants dans la table d’intégration spécifiée par le champ ID table intégration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control TableFilterValue - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 4005701527 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Filter</source>
+          <target state="translated">Filtre table</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control TableFilterValue - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 4035570004 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if the synchronization engine should overwrite local changes that are done since last synchronization.</source>
+          <target state="translated">Indique si le moteur de synchronisation doit remplacer les modifications locales effectuées depuis la dernière synchronisation.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control Overwrite Local Change - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 4108847349 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a date/time filter that uses the date on which records were modified to determine which records to synchronize to the chosen source company. The filter is based on the SystemModifiedAt field on the Business Central table records.</source>
+          <target state="translated">Indique un filtre de date/heure qui utilise la date de modification des enregistrements afin de déterminer ceux qui doivent être synchronisés vers la société source sélectionnée. Le filtre est basé sur le champ « SystemModifiedAt » des enregistrements de la table Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control Synch. Int. Tbl. Mod. On Fltr. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 513339096 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if this mapping is enabled.</source>
+          <target state="translated">Indique si ce mappage est activé.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control Status - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Control 2149455310 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the session is active.</source>
+          <target state="translated">Spécifie si la session est active.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Control ActiveSession - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Control 2149455310 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Active Session</source>
+          <target state="translated">Session active</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Control ActiveSession - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Control 2498855570 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the status of the job queue entry.</source>
+          <target state="translated">Spécifie le statut de l’écriture file projets.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Control Job Queue Entry Status - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Control 2530336551 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the recommended action for the initial synchronization.</source>
+          <target state="translated">Spécifie l’action recommandée pour la synchronisation initiale.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Control Initial Synchronization Recommendation - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Control 2530336551 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Mode</source>
+          <target state="translated">Mode de synchronisation</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Control Initial Synchronization Recommendation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name.</source>
+          <target state="translated">Spécifie le nom.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table Name</source>
+          <target state="translated">Nom de la table</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Control Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Control 39585143 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the synchronization direction.</source>
+          <target state="translated">Spécifie la direction de synchronisation.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Control Direction - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Control 4075184121 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a dependency to the synchronization of another record, such as a customer that must be synchronized before a contact can be synchronized.</source>
+          <target state="translated">Spécifie une dépendance sur la synchronisation d'un autre enregistrement, par exemple un client qui doit être synchronisé avant qu'un contact puisse être synchronisé.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Control Dependency Filter - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Control 4125410309 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the status of jobs for data going to the integration table. </source>
+          <target state="translated">Spécifie le statut des projets pour les données transférées vers la table d'intégration. </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Control To Int. Table Job Status - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Control 4260367546 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the status of jobs for data coming from the integration table. </source>
+          <target state="translated">Spécifie le statut des projets pour les données provenant de la table d'intégration. </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Control From Int. Table Job Status - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Control 4260367546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Job Status</source>
+          <target state="translated">Statut du projet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Control From Int. Table Job Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Control 1420580905 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a rule for transforming imported text to a supported value before it can be mapped to a specified field in Microsoft Dynamics 365.</source>
+          <target state="translated">Spécifie une règle de transformation du texte importé en une valeur prise en charge avant sa mise en correspondance avec un champ spécifié dans Microsoft Dynamics 365.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Control Transformation Rule - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Control 2358106063 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the constant value that the mapped field will be set to.</source>
+          <target state="translated">Spécifie la valeur constante à laquelle le champ mappé sera défini.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Control Constant Value - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Control 3272773416 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if the field should be validated during assignment.</source>
+          <target state="translated">Spécifie si le champ doit être validé lors de l’affectation.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Control Validate Field - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Control 3531868071 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the field in the source company.</source>
+          <target state="translated">Indique le numéro du champ de la société source.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Control Field No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Control 3825093919 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the field in the source company.</source>
+          <target state="translated">Indique le numéro du champ de la société source.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Control Integration Table Field No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Control 39585143 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the direction of the synchronization.</source>
+          <target state="translated">Spécifie la direction de la synchronisation.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Control Direction - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Control 4035570004 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if the synchronization should overwrite the local change that was done after the last synchronization.</source>
+          <target state="translated">Indique si la synchronisation doit remplacer la modification locale qui a été effectuée après la dernière synchronisation.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Control Overwrite Local Change - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Control 513339096 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if field synchronization is enabled or disabled.</source>
+          <target state="translated">Spécifie si la synchronisation des champs est activée ou désactivée.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Control Status - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Control 802533008 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the direction of the transformation.</source>
+          <target state="translated">Spécifie la direction de la transformation.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Control Transformation Direction - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Control 823559016 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the caption of the field in Business Central.</source>
+          <target state="translated">Spécifie la légende du champ dans Business Central.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Control Field Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - NamedType 2276280537" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The synchronization setup is imported. \\To view or edit the synchronization table setup, choose action Synchronization Tables.\\To view or edit the synchronization field setup, select a synchronization table and choose action Synchronization Fields.</source>
+          <target state="translated">La configuration de la synchronisation est importée. \\Pour afficher ou modifier la configuration de la table de synchronisation, choisissez l’action Tables de synchronisation. \\Pour afficher ou modifier la configuration du champ de synchronisation, sélectionnez une table de synchronisation et choisissez Champs de synchronisation de l’action.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - NamedType SynchronizationImportedMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - NamedType 3035575630" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The %1 is not enabled. Are you sure you want to exit?</source>
+          <target state="translated">Le %1 n’est pas activé. Voulez-vous vraiment quitter ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = This Page Caption (Business Central Connection Setup)</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - NamedType EnableServiceQst</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - NamedType 3192074407" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This will restore the default synchronization table setup and synchronization jobs. \\All existing customizations to synchronization table setup and jobs will be overwritten.\\Do you want to continue?</source>
+          <target state="translated">Cette opération rétablira la configuration de la table de synchronisation et les tâches de synchronisation par défaut. \\Toutes les personnalisations existantes de la configuration de la table de synchronisation et des tâches seront remplacées.\\Souhaitez-vous continuer ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - NamedType ResetIntegrationTableMappingConfirmQst</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - NamedType 3295349667" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization of modified records is scheduled. \\You can view details on the %1 page.</source>
+          <target state="translated">La synchronisation des enregistrements modifiés est planifiée.\\Vous pouvez afficher les détails sur la page %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = The localized caption of page Integration Synch. Job List</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - NamedType SyncNowScheduledMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - NamedType 370030606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The default setup for Business Central synchronization has completed successfully.</source>
+          <target state="translated">La configuration par défaut de la synchronisation de Business Central s’est terminée avec succès.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - NamedType SetupSuccessfulMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - NamedType 38315870" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No records are currently coupled to records from the source company. \\Choose the action Start Initial Synchronization.</source>
+          <target state="translated">Aucun enregistrement n’est actuellement couplé à des enregistrements de la société source. \\Choisissez l’action Démarrer la synchronisation initiale.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - NamedType NoCoupledRecordsMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - NamedType 880956207" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This will import the synchronization table setup from a chosen file. \\Existing synchronization tables and fields will be overwritten with the version from the file.\\Existing synchronization job queue entries will not be overwritten. Do you want to continue?</source>
+          <target state="translated">Cette opération importera la configuration de la table de synchronisation à partir d’un fichier choisi. \\Les tables et les champs de synchronisation existants seront remplacés par la version du fichier. \\Les écritures existantes de la file projet de synchronisation ne seront pas remplacées. Souhaitez-vous continuer ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - NamedType ImportIntegrationTableMappingConfirmQst</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - NamedType 97595311" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This will synchronize all modified records in all integration table mappings. \\The synchronization will run in the background so you can continue with other tasks. \\Do you want to continue?</source>
+          <target state="translated">Cette opération va synchroniser tous les enregistrements modifiés dans tous les mappages de table d’intégration. \\La synchronisation dera exécutée en arrière-plan pour que vous puissiez continuer avec d’autres tâches. \\Souhaitez-vous vous continuer ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - NamedType SynchronizeModifiedQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 1360988555" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must choose at least one integration table mapping.</source>
+          <target state="translated">Vous devez choisir au moins une correspondance table intégration.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType NoRecSelectedErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 1624143781" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You are about to uncouple the selected mappings, which means data for the records will no longer synchronize. \\Do you want to continue?</source>
+          <target state="translated">Vous êtes sur le point de découpler les mappages sélectionnés, ce qui signifie que les données des enregistrements ne seront plus synchronisées. \\Souhaitez-vous continuer ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType StartUncouplingForegroundQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 2437364661" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization is scheduled for Modified Records. \\Details are available on the %1 page.</source>
+          <target state="translated">La synchronisation est planifiée pour les enregistrements modifiés.\\Les détails sont disponibles sur la page %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 caption from page Integration Synch. Job List</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType SynchronizeModifiedScheduledMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 2564837436" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You are about to uncouple the selected mappings, which means data for the records will no longer synchronize. \\The uncoupling will run in the background, so you can continue with other tasks.\\Do you want to continue?</source>
+          <target state="translated">Vous êtes sur le point de découpler les mappages sélectionnés, ce qui signifie que les données des enregistrements ne seront plus synchronisées.\\Le découplage va s’exécuter en arrière-plan afin que vous puissiez poursuivre d’autres tâches.\\Souhaitez-vous continuer ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType StartUncouplingQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 2700510275" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You are about to couple Business Central records to the source company records from the selected mapping, based on the matching criteria that you must define. \\The coupling will run in the background, so you can continue with other tasks.\\Do you want to continue?</source>
+          <target state="translated">Vous êtes sur le point de coupler des enregistrements Business Central aux enregistrements de la société source à partir du mappage sélectionné, en fonction de critères de correspondance que vous devez définir.\\Le couplage s’exécute en arrière-plan, ce qui vous permet de poursuivre d’autres tâches.\\Souhaitez-vous continuer ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType StartMatchBasedCouplingQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 2898210817" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You are about to synchronize all data within the mapping. \\The synchronization will run in the background, so you can continue with other tasks.\\Do you want to continue?</source>
+          <target state="translated">Vous êtes sur le point de synchroniser toutes les données dans le mappage.\\La synchronisation s’exécutera en arrière-plan afin que vous puissiez poursuivre d’autres tâches.\\Souhaitez-vous continuer ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType StartFullSynchronizationQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 3149269033" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Match-based coupling is scheduled. \\Details are available on the %1 page.</source>
+          <target state="translated">Couplage par correspondance planifié.\\Les détails sont disponibles sur la page %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - caption from page 5344</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType MatchBasedCouplingScheduledMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 3528713254" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 mappings are uncoupled.</source>
+          <target state="translated">%1 correspondances sont découplées.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - foreground uncoupling count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType RemoveCouplingsForegroundMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 3742348752" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A synchronization job queue entry has been created. \\Do you want to view the job queue entry?</source>
+          <target state="translated">Une écriture file projets de synchronisation a été créée.\\Voulez-vous afficher l’écriture file projets ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType JobQEntryCreatedQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 38315870" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No records of this table are currently coupled to records from the source company. \\Choose the action Run Full Synchronization.</source>
+          <target state="translated">Aucun enregistrement de cette table n’est actuellement couplé à des enregistrements de la société source. \\Choisissez l’action Exécuter une synchronisation complète.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType NoCoupledRecordsMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 682633368" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>&lt;Edit table filter&gt;</source>
+          <target state="translated">&lt;Modifier le filtre table&gt;</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType EditIntegrationTableFilterTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 719149627" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Full Synchronization is scheduled. \\Details are available on the %1 page.</source>
+          <target state="translated">Synchronisation complète planifiée. \\Les détails sont disponibles sur la page %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 caption from page Integration Synch. Job List</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType FullSynchronizationScheduledMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 780495550" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Uncoupling completed.</source>
+          <target state="translated">Découplage terminé.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType UncouplingCompletedMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 974748676" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Uncoupling is scheduled for %2 mappings. %3 \\Details are available on the %1 page.</source>
+          <target state="translated">Le découplage est planifié pour %2 mappages. %3 \\Les détails sont disponibles sur la page %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - caption from page 5344, %2 - scheduled job count, %3 - additional foreground job message</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType RemoveCouplingsScheduledMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - NamedType 1179548633" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select Coupling Criteria</source>
+          <target state="translated">Sélectionner les critères de couplage</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - NamedType MatchBasedCouplingTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - NamedType 2811781569" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Match-Based Coupling</source>
+          <target state="translated">Couplage par correspondance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - NamedType CouplingCriteriaSelectedTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - NamedType 3886923954" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This will synchronize all coupled and non-coupled records. \\Use this option only once - right after enabling the data synchronization with the source company. After this, scheduled synchronization jobs will keep running the synchronization and you can view the logs and manage the synchronization from Synchronization Tables page. \\The initial synchronization will run in the background, so you can continue with other tasks. \\To check the status, return to this page or refresh it. \\Do you want to continue?</source>
+          <target state="translated">Cette opération va synchroniser tous les enregistrements couplés et non couplés. \\Utilisez cette option une seule fois après avoir activé la synchronisation des données avec la société source. Après cela, les tâches de synchronisation planifiées continueront à exécuter la synchronisation et vous pourrez afficher les journaux et gérer la synchronisation à partir de la page Tables de synchronisation. \\La synchronisation initiale s’exécute en arrière-plan pour que vous puissiez continuer avec d’autres tâches. \\Pour vérifier le statut, revenez à cette page ou actualisez-la. \\Souhaitez-vous vous continuer ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - NamedType StartInitialSynchTeamOwnershipModelQst</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - NamedType 2060574300" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 fields added, %2 fields removed.</source>
+          <target state="translated">%1 champs ajoutés, %2 champs supprimés.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - an integer, %2 - an integer</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - NamedType FieldsAddedAndRemovedTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - NamedType 2717164741" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 fields removed.</source>
+          <target state="translated">%1 champs supprimés.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - an integer</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - NamedType FieldsRemovedTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - NamedType 2868991219" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 fields added.</source>
+          <target state="translated">%1 champs ajoutés.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - an integer</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - NamedType FieldsAddedTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Master Data Management Setup</source>
+          <target state="translated">Configuration de la gestion des données de référence</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1217273708 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>mdm,master data</source>
+          <target state="translated">gdp,données principales</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Property AdditionalSearchTerms</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Tables</source>
+          <target state="translated">Tables de synchronisation</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>mdm,master data management,master data</source>
+          <target state="translated">gdp,gestion des données principales,données principales</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Property AdditionalSearchTerms</note>
+        </trans-unit>
+        <trans-unit id="Page 3108456880 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Master Data Initial Synchronization</source>
+          <target state="translated">Synchronisation initiale des données de référence</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Full Synch. Review - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3185645072 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Fields</source>
+          <target state="translated">Champs de synchronisation</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Fields - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Field 1537362984 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Synch. Int. Job ID</source>
+          <target state="translated">ID projet dernière synch. int.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Field Last Synch. Int. Job ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Field 157948551 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Local System ID</source>
+          <target state="translated">ID système local</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Field Local System ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Field 162227101 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Synch. Modified On</source>
+          <target state="translated">Dernière synch. modifiée le</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Field Last Synch. Modified On - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Field 2112759387 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Synch. Job ID</source>
+          <target state="translated">ID projet dernière synch.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Field Last Synch. Job ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Field 2455862449 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Synch. Int. Result</source>
+          <target state="translated">Résultat dernière synch. int.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Field Last Synch. Int. Result - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Field 2455862449 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>,Success,Failure</source>
+          <target state="translated">,Succès,Échec</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Field Last Synch. Int. Result - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Field 2791901420 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Skipped</source>
+          <target state="translated">Ignoré</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Field Skipped - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Field 3135334477 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table ID</source>
+          <target state="translated">ID table</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Field Table ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Field 3136937746 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Synch. Int. Modified On</source>
+          <target state="translated">Dernière synch. int. modifiée le</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Field Last Synch. Int. Modified On - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Field 3186305702 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Last Synch. Result</source>
+          <target state="translated">Résultat dernière synch.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Field Last Synch. Result - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Field 3186305702 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>,Success,Failure</source>
+          <target state="translated">,Succès,Échec</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Field Last Synch. Result - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Field 823337762 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Integration System ID</source>
+          <target state="translated">ID système d’intégration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Field Integration System ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1217273708 - Field 1457822769 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Synchronization Enabled</source>
+          <target state="translated">Synchronisation activée</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Management Setup - Field Is Enabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1217273708 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <target state="translated">Clé primaire</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Management Setup - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1217273708 - Field 3997336476 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Company</source>
+          <target state="translated">Société source</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Management Setup - Field Company Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1716462826 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <target state="translated">Clé primaire</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Subscriber - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1716462826 - Field 3997336476 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Name</source>
+          <target state="translated">Nom de la société</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Subscriber - Field Company Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 1506077897 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>From Int. Table Job ID</source>
+          <target state="translated">ID projet À partir de la table int.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field From Int. Table Job ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 1829104285 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Session ID</source>
+          <target state="translated">ID session</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field Session ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 2498855570 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Job Queue Entry Status</source>
+          <target state="translated">Statut écriture file projets</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field Job Queue Entry Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 2498855570 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> ,Ready,In Process,Error,On Hold,Finished</source>
+          <target state="translated"> ,Prêt,En cours,Erreur,Suspendu,Terminé</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field Job Queue Entry Status - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Nom</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 3733367350 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To Int. Table Job ID</source>
+          <target state="translated">ID projet Vers la table int.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field To Int. Table Job ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 39585143 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Direction</source>
+          <target state="translated">Direction</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field Direction - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 39585143 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Bidirectional,To Integration Table,From Integration Table</source>
+          <target state="translated">Bidirectionnel,Vers la table d’intégration,À partir de la table d’intégration</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field Direction - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 3983787601 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Job Queue Entry ID</source>
+          <target state="translated">ID écriture file projets</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field Job Queue Entry ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 4075184121 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dependency Filter</source>
+          <target state="translated">Filtre de dépendance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field Dependency Filter - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 4125410309 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>To Int. Table Job Status</source>
+          <target state="translated">Statut projet Vers la table int.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field To Int. Table Job Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 4125410309 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> ,Success,In Process,Error</source>
+          <target state="translated"> ,Succès,En cours,Erreur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field To Int. Table Job Status - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 4155936988 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Initial Synch Recommendation</source>
+          <target state="translated">Recommandations relatives à la synchronisation initiale</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field Initial Synch Recommendation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 4155936988 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Full Synchronization,Couple Records,No Records Found</source>
+          <target state="translated">Synchronisation complète,Coupler des enregistrements,Aucun enregistrement trouvé</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field Initial Synch Recommendation - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 4260367546 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>From Int. Table Job Status</source>
+          <target state="translated">Statut projet À partir de la table int.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field From Int. Table Job Status - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Field 4260367546 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> ,Success,In Process,Error</source>
+          <target state="translated"> ,Succès,En cours,Erreur</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Field From Int. Table Job Status - Property OptionCaption</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - NamedType 1401058103" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The integration record for entity %1 was not found.</source>
+          <target state="translated">L’enregistrement d’intégration de l’entité %1 est introuvable.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - entity name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - NamedType IntegrationRecordNotFoundErr</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - NamedType 1968114504" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table ID must be specified.</source>
+          <target state="translated">L’ID table doit être spécifié.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - NamedType ZeroTableIdErr</note>
+        </trans-unit>
+        <trans-unit id="Table 1217273708 - NamedType 2297892348" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You are currently signed into this company. \\Choose a different company to synchronize data with.</source>
+          <target state="translated">Vous êtes actuellement connecté à cette société. \\Choisissez une autre société avec laquelle synchroniser les données.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Management Setup - NamedType MustNotPickCurrentCompanyErr</note>
+        </trans-unit>
+        <trans-unit id="Table 1217273708 - NamedType 2451012386" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The synchronization of data from company %1 is enabled. \\To review the tables and fields that will be synchronized, choose action Synchronization Tables. \\To perform the initial synchronization of data from %1, choose Start Initial Synchronization. \\After the initial synchronization is done, job queue entries will continue to synchronize modifications.</source>
+          <target state="translated">La synchronisation des données de la société %1 est activée. \\Pour passer en revue les tables et les champs qui seront synchronisés, choisissez l’action Tables de synchronisation. \\Pour effectuer la synchronisation initiale des données à partir de %1, choisissez Démarrer la synchronisation initiale. \\Une fois la synchronisation initiale terminée, les écritures file projets continueront à synchroniser les modifications.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - a company name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Management Setup - NamedType SynchronizationEnabledMsg</note>
+        </trans-unit>
+        <trans-unit id="Table 1217273708 - NamedType 3409020256" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All the couplings with records from previous source company %1 will be deleted. Do you want to continue?</source>
+          <target state="translated">Tous les couplages avec les enregistrements de la société source précédente %1 seront supprimés. Souhaitez-vous continuer ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 - a company name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Management Setup - NamedType CouplingsWillBeDeletedQst</note>
+        </trans-unit>
+        <trans-unit id="Table 1217273708 - NamedType 715662534" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data synchronization with company %1 is disabled. \\We recommend to keep the table setup and coupling information, especially if you intend to reenable the synchronization with the same company. \\Do you want to keep the table setup and coupling information?</source>
+          <target state="translated">La synchronisation des données avec la société %1 est désactivée. \\Nous vous recommandons de conserver la configuration de la table et les informations de couplage, surtout si vous avez l’intention de réactiver la synchronisation avec la même société. \\Souhaitez-vous conserver les informations relatives à la configuration de la table et au couplage ?</target>
+          <note from="Developer" annotates="general" priority="2">%1 - a company name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Management Setup - NamedType KeepTheCouplingsQst</note>
+        </trans-unit>
+        <trans-unit id="Table 1037947899 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Master Data Mgt. Coupling</source>
+          <target state="translated">Couplage gestion données de référence</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1217273708 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Master Data Management Setup</source>
+          <target state="translated">Configuration de la gestion des données de référence</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Management Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1716462826 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Master Data Mgt. Subscriber</source>
+          <target state="translated">Abonné de gestion des données de référence</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Subscriber - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1967760114 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Master Data Full Synch. Review Line</source>
+          <target state="translated">Ligne de révision de synch. complète des données de référence</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Full Synch. R. Ln. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3038540608 - Field 4035570004 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Overwrite Local Change</source>
+          <target state="translated">Remplacer modification locale</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 851793228</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3641795020 - Field 4035570004 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Overwrite Local Change</source>
+          <target state="translated">Remplacer modification locale</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3971427440</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3641795020 - Field 513339096 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <target state="translated">Statut</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3971427440</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3641795020 - Field 513339096 - Property 62802879" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enabled,Disabled</source>
+          <target state="translated">Activé,Désactivé</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3971427440</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3641795020 - NamedType 2897676911" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This will make the synchronization engine overwrite any local changes that are done on this table. \\To enable this setting only for chosen fields, choose the Synchronization Fields action. \\Do you want to continue and enable it for the table?</source>
+          <target state="translated">Cette opération fera en sorte que le moteur de synchronisation remplace toutes les modifications locales effectuées dans cette table. \\Pour activer ce paramètre uniquement pour les champs choisis, choisissez l’action Champs de synchronisation. \\Souhaitez-vous continuer et l’activer pour la table ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">TableExtension 3641795020</note>
+        </trans-unit>
+        <trans-unit id="XmlPort 2989888210 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Import Master Data Management Setup</source>
+          <target state="translated">Importer la configuration de la gestion des données de référence</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">XmlPort ImportMDMSetup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="XmlPort 65277681 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Export Master Data Management Setup</source>
+          <target state="translated">Exporter la configuration de la gestion des données de référence</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">XmlPort ExportMDMSetup - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

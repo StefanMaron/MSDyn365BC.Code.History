@@ -609,57 +609,6 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure MarkGenJournalBatchesWhenPostingErrors()
-    var
-        GenJournalBatchA: Record "Gen. Journal Batch";
-        GenJournalBatchB: Record "Gen. Journal Batch";
-        GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        GeneralJournalTemplates: TestPage "General Journal Templates";
-        GeneralJournalBatches: TestPage "General Journal Batches";
-        OldManualNos: Boolean;
-    begin
-        // [SCENARIO 377797] Marked Gen.Journal Batches are markedonly when posting error with the same Document No. in one No. Series used.
-        Initialize();
-
-        // [GIVEN] Two batches in Gen.Journal Template with the same No. Series "S" defined
-        CreateGeneralBatchWithNoSeries(GenJournalBatchA);
-        OldManualNos := UpdateManualNosOnNoSeries(GenJournalBatchA."No. Series", false);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatchB, GenJournalBatchA."Journal Template Name");
-        UpdateGeneralBatchNoSeriesAndBalAccount(GenJournalBatchB);
-
-        // [GIVEN] Gen.Journal Batch "A" has line with Document No. = "D001" from No. Series "S"
-        CreateGeneralJournalLineWithDocNo(
-          GenJournalLine, GenJournalBatchA, NoSeriesMgt.GetNextNo(GenJournalBatchA."No. Series", WorkDate(), false));
-
-        // [GIVEN] Gen.Journal Batch "B" has line with the same Document No. = "D001" from No. Series "S"
-        CreateGeneralJournalLineWithDocNo(GenJournalLine, GenJournalBatchB, GenJournalLine."Document No.");
-
-        Commit();
-
-        // [GIVEN] Only marked Gen.Jnl.Batch "B" is shown on page after posting with error
-        GeneralJournalTemplates.OpenView;
-        GeneralJournalTemplates.GotoKey(GenJournalBatchA."Journal Template Name");
-        GeneralJournalBatches.Trap;
-        GeneralJournalTemplates.Batches.Invoke;
-
-        GeneralJournalBatches."P&ost".Invoke;
-        VerifyGenJnlBatchNames(GeneralJournalBatches, GenJournalBatchB.Name, GenJournalBatchB.Name);
-
-        // [WHEN] Invoke "Marked On/Off" action
-        GeneralJournalBatches.MarkedOnOff.Invoke;
-
-        // [THEN] Both Gen.Jnl.Batches "A" and "B" are shown on the page
-        VerifyGenJnlBatchNames(GeneralJournalBatches, GenJournalBatchA.Name, GenJournalBatchB.Name);
-        GeneralJournalBatches.Close();
-
-        // teardown
-        UpdateManualNosOnNoSeries(GenJournalBatchA."No. Series", OldManualNos);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure SuggestBalAmountChangeFieldOnGenJnlBatch()
     var

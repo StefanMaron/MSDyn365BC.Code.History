@@ -48,7 +48,7 @@ codeunit 5152 "API - Update Referenced Fields"
     [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnBeforeModifyEvent', '', false, false)]
     local procedure UpdateReferencedIdsVendorOnModify(var Rec: Record Vendor; var xRec: Record Vendor; RunTrigger: Boolean)
     begin
-        if not Rec.IsTemporary() then
+        if Rec.IsTemporary() then
             exit;
         Rec.UpdateReferencedIds();
     end;

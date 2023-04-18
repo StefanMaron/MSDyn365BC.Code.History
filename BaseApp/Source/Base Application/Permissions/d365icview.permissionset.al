@@ -15,6 +15,7 @@ permissionset 3814 "D365 IC, VIEW"
                   tabledata "Handled IC Outbox Sales Header" = R,
                   tabledata "Handled IC Outbox Sales Line" = R,
                   tabledata "Handled IC Outbox Trans." = R,
+                  tabledata "IC Bank Account" = R,
                   tabledata "IC Comment Line" = R,
                   tabledata "IC Dimension" = R,
                   tabledata "IC Dimension Value" = R,

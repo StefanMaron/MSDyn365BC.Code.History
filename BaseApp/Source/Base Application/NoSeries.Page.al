@@ -20,7 +20,7 @@ page 456 "No. Series"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number series code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the number series.';
@@ -253,7 +253,7 @@ page 456 "No. Series"
         CurrPage.Update(false);
     end;
 
-    local procedure UpdateLineActionOnPage()
+    protected procedure UpdateLineActionOnPage()
     begin
         Rec.UpdateLine(StartDate, StartNo, EndNo, LastNoUsed, WarningNo, IncrementByNo, LastDateUsed, AllowGaps);
     end;

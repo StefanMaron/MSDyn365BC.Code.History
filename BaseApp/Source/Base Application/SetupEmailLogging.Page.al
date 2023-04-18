@@ -1,3 +1,4 @@
+#if not CLEAN22
 page 1811 "Setup Email Logging"
 {
     Caption = 'Email Logging Setup';
@@ -6,6 +7,9 @@ page 1811 "Setup Email Logging"
     LinksAllowed = false;
     PageType = NavigatePage;
     ShowFilter = false;
+    ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     layout
     {
@@ -1055,4 +1059,4 @@ page 1811 "Setup Email Logging"
     begin
     end;
 }
-
+#endif

@@ -1597,29 +1597,6 @@ codeunit 137908 "SCM Assembly Order"
     end;
 
     [Test]
-    procedure DoNotRefreshLinesWhenAssemblyOrderIsReleased()
-    var
-        AssemblyHeader: Record "Assembly Header";
-        AssemblyOrder: TestPage "Assembly Order";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 445426] Do not allow to refresh lines when the assembly order is released.
-        Initialize();
-
-        AssemblyHeader.Init();
-        AssemblyHeader."Document Type" := "Assembly Document Type"::Order;
-        AssemblyHeader."No." := LibraryUtility.GenerateGUID();
-        AssemblyHeader.Status := AssemblyHeader.Status::Released;
-        AssemblyHeader.Insert();
-
-        AssemblyOrder.OpenEdit();
-        AssemblyOrder.Filter.SetFilter("No.", AssemblyHeader."No.");
-        asserterror AssemblyOrder."Refresh Lines".Invoke();
-
-        Assert.ExpectedError('Status must be equal');
-    end;
-
-    [Test]
     procedure AssembleToOrderSetsLocationForNonInventoryItem()
     var
         AssemblyItem: Record Item;
@@ -1667,6 +1644,29 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyLine.FindFirst();
         Assert.AreEqual(AssemblyLine."Location Code", Location.Code, 'Expected location to be set.');
         Assert.AreEqual(AssemblyLine.Quantity, 1, 'Expected quantity to be 1.');
+    end;
+
+    [Test]
+    procedure DoNotRefreshLinesWhenAssemblyOrderIsReleased()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyOrder: TestPage "Assembly Order";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 445426] Do not allow to refresh lines when the assembly order is released.
+        Initialize();
+
+        AssemblyHeader.Init();
+        AssemblyHeader."Document Type" := "Assembly Document Type"::Order;
+        AssemblyHeader."No." := LibraryUtility.GenerateGUID();
+        AssemblyHeader.Status := AssemblyHeader.Status::Released;
+        AssemblyHeader.Insert();
+
+        AssemblyOrder.OpenEdit();
+        AssemblyOrder.Filter.SetFilter("No.", AssemblyHeader."No.");
+        asserterror AssemblyOrder."Refresh Lines".Invoke();
+
+        Assert.ExpectedError('Status must be equal');
     end;
 
     [Test]

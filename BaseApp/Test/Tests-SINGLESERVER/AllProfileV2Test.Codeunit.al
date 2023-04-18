@@ -22,17 +22,10 @@ codeunit 138698 "AllProfile V2 Test"
     [Scope('OnPrem')]
     procedure NoAppProfilesArePresent()
     var
-        "Profile": Record "Profile";
         AllProfile: Record "All Profile";
         TenantProfile: Record "Tenant Profile";
-        ProfileMetadata: Record "Profile Metadata";
-        ProfilePageMetadata: Record "Profile Page Metadata";
     begin
         // System profiles are now deprecated (moved to Tenant scope), and the metadata table that links to them
-        Assert.RecordIsEmpty(Profile);
-        Assert.RecordIsEmpty(ProfileMetadata);
-        Assert.RecordIsEmpty(ProfilePageMetadata);
-
         Assert.RecordIsNotEmpty(TenantProfile);
         Assert.RecordIsNotEmpty(AllProfile);
 

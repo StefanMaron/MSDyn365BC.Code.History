@@ -9,6 +9,8 @@ permissionset 9977 "D365 SALES DOC, POST"
     Permissions = tabledata "Analysis View" = rimd,
                   tabledata "Analysis View Entry" = rim,
                   tabledata "Analysis View Filter" = r,
+                  tabledata "Alt. Customer Posting Group" = RM,
+                  tabledata "Alt. Vendor Posting Group" = RM,
                   tabledata "Avg. Cost Adjmt. Entry Point" = RIM,
                   tabledata "Bank Account Ledger Entry" = rim,
                   tabledata "Batch Processing Parameter" = Rimd,
@@ -29,9 +31,6 @@ permissionset 9977 "D365 SALES DOC, POST"
                   tabledata "Item Charge" = R,
                   tabledata "Item Charge Assignment (Purch)" = RIMD,
                   tabledata "Item Charge Assignment (Sales)" = RIMD,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Entry Relation" = R,
                   tabledata "Item Ledger Entry" = Rimd,
                   tabledata "Item Register" = Rimd,

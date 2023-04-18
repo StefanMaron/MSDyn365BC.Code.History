@@ -2,7 +2,6 @@ codeunit 9079 "Background Error Handling Mgt."
 {
     trigger OnRun()
     begin
-
     end;
 
     var
@@ -18,41 +17,37 @@ codeunit 9079 "Background Error Handling Mgt."
         DocumentTypeTxt: Label 'Document Type', Locked = true;
         TelemetryFeatureNameTxt: Label 'Check documents and journals while you work', Locked = true;
 
+#if not CLEAN22
+    [Obsolete('Feature made enabled by default', '22.0')]
     procedure IsEnabled() Result: Boolean
-    var
-        FeatureKey: Record "Feature Key";
     begin
-        if FeatureKey.Get(GetFeatureKey()) then
-            Result := FeatureKey.Enabled = FeatureKey.Enabled::"All Users";
-
+        Result := true;
         OnAfterIsEnabled(Result);
     end;
+#endif
 
+#if not CLEAN22
+    [Obsolete('Feature made enabled by default', '22.0')]
     procedure GetFeatureKey(): Text[50]
     begin
         exit('DocumentJournalBackgroundCheck');
     end;
+#endif
 
     procedure BackgroundValidationFeatureEnabled(): Boolean
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        if not IsEnabled() then
-            exit(false);
-
         GLSetup.Get();
         exit(GLSetup."Enable Data Check");
     end;
 
+#if not CLEAN22
+    [Obsolete('Feature made enabled by default', '22.0')]
     procedure TestIsEnabled()
-    var
-        FeatureKey: Record "Feature Key";
     begin
-        if not IsEnabled() then begin
-            FeatureKey.ID := GetFeatureKey();
-            FeatureKey.TestField(Enabled, FeatureKey.Enabled::"All Users");
-        end;
     end;
+#endif
 
     procedure CleanTempErrorMessages(var TempErrorMessage: Record "Error Message" temporary; ErrorHandlingParameters: Record "Error Handling Parameters")
     begin
@@ -493,8 +488,11 @@ codeunit 9079 "Background Error Handling Mgt."
     end;
 #endif
 
+#if not CLEAN22
+    [Obsolete('Feature made enabled by default', '22.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
     begin
     end;
+#endif
 }

@@ -1766,64 +1766,53 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     end;
 
     [Test]
-    procedure VerifyOpenWhseRequestLinesIsRemovedOnReleasedSalesOrderLines()
+    procedure VerifyWhseRequestIsRemovedOnDeleteSalesOrderLines()
     var
         Item: Record Item;
-        Location, Location2 : Record Location;
+        Location: Record Location;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        // [SCENARIO 459402] Verify Open Warehouse Request lines are removed on Release Sales Line, after Sales Lines are removed and recreated
+        // [SCENARIO 459402] Verify Warehouse Request line is removed on delete Sales Line
         Initialize();
 
         // [GIVEN] Create Item
         LibraryInventory.CreateItem(Item);
 
-        // [GIVEN] Create Locations with Require Put Away and Pick
-        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, false, false);
-        LibraryWarehouse.CreateLocationWMS(Location2, false, true, true, false, false);
+        // [GIVEN] Create Location with Require Pick
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
 
         // [GIVEN] Create and Release Sales Order
-        CreateAndReleaseSalesOrderWithMultipleSalesLines(SalesHeader, '', Item."No.", Item."No.", 1, -1, Location.Code);
+        CreateAndReleaseSalesOrderWithMultipleSalesLines(SalesHeader, '', Item."No.", Item."No.", 1, 1, Location.Code);
 
         // [GIVEN] Reopen the Sales Order
         LibrarySales.ReopenSalesDocument(SalesHeader);
 
         // [THEN] Verify Warehouse Request rec exist
-        VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 2);
+        VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 1);
 
-        // [GIVEN] Remove Sales Lines
+        // [WHEN] Remove Sales Lines
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.DeleteAll(true);
 
-        // [WHEN] Update Location on Sales Order, create new Sales Line and Release Sales Order
-        SalesHeader.Validate("Location Code", Location2.Code);
-        SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
-        LibrarySales.ReleaseSalesDocument(SalesHeader);
-
-        // [THEN] Verify Warehouse Request lines are removed
+        // [THEN] Verify Warehouse Request removed
         VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 0);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure VerifyOpenWhseRequestLineIsRemovedOnReleasedPurchaseOrderLines()
+    procedure VerifyWhseRequestIsRemovedOnDeletePurchaseOrderLines()
     var
         Item: Record Item;
-        Location: Record Location;
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        // [SCENARIO 459402] Verify Open Warehouse Request lines are removed on delete Purchase Line, after Purchase Lines are removed and recreated
+        // [SCENARIO 459402] Verify Warehouse Request line is removed on delete Purchase Line
         Initialize();
 
         // [GIVEN] Create Item
         LibraryInventory.CreateItem(Item);
-
-        // [GIVEN] Create Locations with Require Put Away and Pick
-        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, false, false);
 
         // [GIVEN] Create and Release Purchase Order
         CreateAndReleasePurchaseOrderWithMultiplePurchaseLines(PurchaseHeader, '', Item."No.", Item."No.", 1, 1, LocationGreen.Code);
@@ -1834,19 +1823,453 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         // [THEN] Verify Warehouse Request rec exist
         VerifyWarehouseRequestRec(Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", 1);
 
-        // [GIVEN] Remove Purchase Lines
+        // [WHEN] Remove Purchase Lines
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.DeleteAll(true);
 
-        // [WHEN] Update Location on Purchase Order, create new Purchase Line and Release Purchase Order
-        PurchaseHeader.Validate("Location Code", Location.Code);
-        PurchaseHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
-        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-
-        // [THEN] Verify Warehouse Request lines are removed
+        // [THEN] Verify Warehouse Request removed
         VerifyWarehouseRequestRec(Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", 0);
+    end;
+
+    [Test]
+    procedure PostWarehouseShipmentForOrderOnlyAttachedNonInvtLines()
+    var
+        Item: array[2] of Record Item;
+        NonInvtItem: array[2] of Record Item;
+        ItemCharge: array[2] of Record "Item Charge";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        i: Integer;
+    begin
+        // [FEATURE] [Attached to Line No] [Non-Inventory Item] [Sales] [Order] [Shipment]
+        // [SCENARIO 456417] Automatic posting of attached non-inventory sales order lines using warehouse shipment.
+        Initialize();
+
+        // [GIVEN] Set "Non-Invt. Item Whse. Policy" in sales setup to "Attached/Assigned".
+        UpdateNonInvtPostingPolicyInSalesSetup("Non-Invt. Item Whse. Policy"::"Attached/Assigned");
+
+        // [GIVEN] Create two items, two non-inventory items, and two item charges.
+        for i := 1 to 2 do begin
+            LibraryInventory.CreateItem(Item[i]);
+            LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem[i]);
+            LibraryInventory.CreateItemCharge(ItemCharge[i]);
+        end;
+
+        // [GIVEN] Location set up for required shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+
+        // [GIVEN] Create sales order with the following lines:
+        // [GIVEN] Two item lines "I1" and "I2".
+        // [GIVEN] Two non-inventory item lines "NI1" and "NI2". Attach "NI1" to "I1" and "NI2" to "I2".
+        // [GIVEN] Two item charge lines "IC1" and "IC2". Assign each item charge equally to two item lines.
+        CreateSalesDocumentWithVariousLines(
+          SalesHeader, SalesHeader."Document Type"::Order, Item, NonInvtItem, ItemCharge, Location.Code);
+
+        // [GIVEN] Create warehouse shipment.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Set "Qty. to Ship" on warehouse shipment line for "I2" to zero.
+        FindWarehouseShipmentHeaderFromSalesOrder(WarehouseShipmentHeader, SalesHeader."No.", Location.Code);
+        UpdateQuantityOnWarehouseShipmentLineFromSalesOrder(SalesHeader."No.", Item[2]."No.", Location.Code, '', 0);
+
+        // [WHEN] Post the warehouse shipment.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] Item line "I1" is fully shipped.
+        // [THEN] Item line "I2" is not shipped.
+        FindSalesLine(SalesLine, SalesHeader, Item[1]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, Item[2]."No.");
+        SalesLine.TestField("Quantity Shipped", 0);
+
+        // [THEN] Non-inventory line "NI1" is fully shipped.
+        // [THEN] Non-inventory line "NI2" is not shipped.
+        FindSalesLine(SalesLine, SalesHeader, NonInvtItem[1]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, NonInvtItem[2]."No.");
+        SalesLine.TestField("Quantity Shipped", 0);
+
+        // [THEN] Item charge line "IC1" is shipped for half quantity.
+        // [THEN] Item charge line "IC2" is shipped for half quantity.
+        FindSalesLine(SalesLine, SalesHeader, ItemCharge[1]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity / 2);
+        FindSalesLine(SalesLine, SalesHeader, ItemCharge[2]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity / 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerSimple')]
+    procedure PostInventoryPickForOrderOnlyAttachedNonInvtLines()
+    var
+        Item: array[2] of Record Item;
+        NonInvtItem: array[2] of Record Item;
+        ItemCharge: array[2] of Record "Item Charge";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        i: Integer;
+    begin
+        // [FEATURE] [Attached to Line No] [Non-Inventory Item] [Sales] [Order] [Inventory Pick]
+        // [SCENARIO 456417] Automatic posting of attached non-inventory sales order lines using inventory pick.
+        Initialize();
+
+        // [GIVEN] Set "Non-Invt. Item Whse. Policy" in sales setup to "Attached/Assigned".        
+        UpdateNonInvtPostingPolicyInSalesSetup("Non-Invt. Item Whse. Policy"::"Attached/Assigned");
+
+        // [GIVEN] Create two items, two non-inventory items, and two item charges.
+        for i := 1 to 2 do begin
+            LibraryInventory.CreateItem(Item[i]);
+            LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem[i]);
+            LibraryInventory.CreateItemCharge(ItemCharge[i]);
+        end;
+
+        // [GIVEN] Location set up for required pick.        
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+
+        // [GIVEN] Post items to inventory.
+        for i := 1 to 2 do
+            CreateAndPostItemJournalLine(
+              Item[i]."No.", "Item Ledger Entry Type"::"Positive Adjmt.", LibraryRandom.RandIntInRange(50, 100), Location.Code);
+
+        // [GIVEN] Create sales order with the following lines:
+        // [GIVEN] Two item lines "I1" and "I2".
+        // [GIVEN] Two non-inventory item lines "NI1" and "NI2". Attach "NI1" to "I1" and "NI2" to "I2".
+        // [GIVEN] Two item charge lines "IC1" and "IC2". Assign each item charge equally to two item lines.
+        CreateSalesDocumentWithVariousLines(
+          SalesHeader, SalesHeader."Document Type"::Order, Item, NonInvtItem, ItemCharge, Location.Code);
+
+        // [GIVEN] Create inventory pick.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+
+        // [GIVEN] Set "Qty. to Handle" on inventory pick line for "I2" to zero.
+        AutoFillQtyToHandleOnWarehouseActivityLine(
+          WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Pick");
+        UpdateQtyToHandleOnWarehouseActivityLine(
+          WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Pick", Item[2]."No.", 0);
+
+        // [WHEN] Post the inventory pick.
+        PostInventoryActivity(
+          WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Pick", false);
+
+        // [THEN] Item line "I1" is fully shipped.
+        // [THEN] Item line "I2" is not shipped.
+        FindSalesLine(SalesLine, SalesHeader, Item[1]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, Item[2]."No.");
+        SalesLine.TestField("Quantity Shipped", 0);
+
+        // [THEN] Non-inventory line "NI1" is fully shipped.
+        // [THEN] Non-inventory line "NI2" is not shipped.
+        FindSalesLine(SalesLine, SalesHeader, NonInvtItem[1]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, NonInvtItem[2]."No.");
+        SalesLine.TestField("Quantity Shipped", 0);
+
+        // [THEN] Item charge line "IC1" is shipped for half quantity.
+        // [THEN] Item charge line "IC2" is shipped for half quantity.
+        FindSalesLine(SalesLine, SalesHeader, ItemCharge[1]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity / 2);
+        FindSalesLine(SalesLine, SalesHeader, ItemCharge[2]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity / 2);
+    end;
+
+    [Test]
+    procedure PostWarehouseReceiptForReturnOrderOnlyAttachedNonInvtLines()
+    var
+        Item: array[2] of Record Item;
+        NonInvtItem: array[2] of Record Item;
+        ItemCharge: array[2] of Record "Item Charge";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        i: Integer;
+    begin
+        // [FEATURE] [Attached to Line No] [Non-Inventory Item] [Sales] [Return Order] [Receipt]
+        // [SCENARIO 456417] Automatic posting of attached non-inventory sales return order lines using warehouse shipment.
+        Initialize();
+
+        // [GIVEN] Set "Non-Invt. Item Whse. Policy" in sales setup to "Attached/Assigned".
+        UpdateNonInvtPostingPolicyInSalesSetup("Non-Invt. Item Whse. Policy"::"Attached/Assigned");
+
+        // [GIVEN] Create two items, two non-inventory items, and two item charges.
+        for i := 1 to 2 do begin
+            LibraryInventory.CreateItem(Item[i]);
+            LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem[i]);
+            LibraryInventory.CreateItemCharge(ItemCharge[i]);
+        end;
+
+        // [GIVEN] Location set up for required receipt.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+
+        // [GIVEN] Create sales return order with the following lines:
+        // [GIVEN] Two item lines "I1" and "I2".
+        // [GIVEN] Two non-inventory item lines "NI1" and "NI2". Attach "NI1" to "I1" and "NI2" to "I2".
+        // [GIVEN] Two item charge lines "IC1" and "IC2". Assign each item charge equally to two item lines.
+        CreateSalesDocumentWithVariousLines(
+          SalesHeader, SalesHeader."Document Type"::"Return Order", Item, NonInvtItem, ItemCharge, Location.Code);
+
+        // [GIVEN] Create warehouse receipt.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseReceiptFromSalesReturnOrder(SalesHeader);
+
+        // [GIVEN] Set "Qty. to Receive" on warehouse receipt line for "I2" to zero.
+        FindWarehouseReceiptHeaderFromSalesReturnOrder(WarehouseReceiptHeader, SalesHeader."No.", Location.Code);
+        UpdateQuantityOnWarehouseReceiptLineFromSalesReturnOrder(SalesHeader."No.", Item[2]."No.", Location.Code, '', 0);
+
+        // [WHEN] Post the warehouse receipt.
+        LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
+
+        // [THEN] Item line "I1" is fully received.
+        // [THEN] Item line "I2" is not received.
+        FindSalesLine(SalesLine, SalesHeader, Item[1]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, Item[2]."No.");
+        SalesLine.TestField("Return Qty. Received", 0);
+
+        // [THEN] Non-inventory line "NI1" is fully received.
+        // [THEN] Non-inventory line "NI2" is not received.
+        FindSalesLine(SalesLine, SalesHeader, NonInvtItem[1]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, NonInvtItem[2]."No.");
+        SalesLine.TestField("Return Qty. Received", 0);
+
+        // [THEN] Item charge line "IC1" is received for half quantity.
+        // [THEN] Item charge line "IC2" is received for half quantity.
+        FindSalesLine(SalesLine, SalesHeader, ItemCharge[1]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity / 2);
+        FindSalesLine(SalesLine, SalesHeader, ItemCharge[2]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity / 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerSimple')]
+    procedure PostInventoryPutawayForReturnOrderOnlyAttachedNonInvtLines()
+    var
+        Item: array[2] of Record Item;
+        NonInvtItem: array[2] of Record Item;
+        ItemCharge: array[2] of Record "Item Charge";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        i: Integer;
+    begin
+        // [FEATURE] [Attached to Line No] [Non-Inventory Item] [Sales] [Return Order] [Inventory Put-away]
+        // [SCENARIO 456417] Automatic posting of attached non-inventory sales return order lines using inventory put-away.
+        Initialize();
+
+        // [GIVEN] Set "Non-Invt. Item Whse. Policy" in sales setup to "Attached/Assigned".
+        UpdateNonInvtPostingPolicyInSalesSetup("Non-Invt. Item Whse. Policy"::"Attached/Assigned");
+
+        // [GIVEN] Create two items, two non-inventory items, and two item charges.
+        for i := 1 to 2 do begin
+            LibraryInventory.CreateItem(Item[i]);
+            LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem[i]);
+            LibraryInventory.CreateItemCharge(ItemCharge[i]);
+        end;
+
+        // [GIVEN] Location set up for required put-away.
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+
+        // [GIVEN] Create sales return order with the following lines:
+        // [GIVEN] Two item lines "I1" and "I2".
+        // [GIVEN] Two non-inventory item lines "NI1" and "NI2". Attach "NI1" to "I1" and "NI2" to "I2".
+        // [GIVEN] Two item charge lines "IC1" and "IC2". Assign each item charge equally to two item lines.
+        CreateSalesDocumentWithVariousLines(
+          SalesHeader, SalesHeader."Document Type"::"Return Order", Item, NonInvtItem, ItemCharge, Location.Code);
+
+        // [GIVEN] Create inventory put-away.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+
+        // [GIVEN] Set "Qty. to Handle" on inventory put-away line for "I2" to zero.
+        AutoFillQtyToHandleOnWarehouseActivityLine(
+          WarehouseActivityLine."Source Document"::"Sales Return Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        UpdateQtyToHandleOnWarehouseActivityLine(
+          WarehouseActivityLine."Source Document"::"Sales Return Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Put-away", Item[2]."No.", 0);
+
+        // [WHEN] Post the inventory put-away.
+        PostInventoryActivity(
+          WarehouseActivityLine."Source Document"::"Sales Return Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Put-away", false);
+
+        // [THEN] Item line "I1" is fully received.
+        // [THEN] Item line "I2" is not received.
+        FindSalesLine(SalesLine, SalesHeader, Item[1]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, Item[2]."No.");
+        SalesLine.TestField("Return Qty. Received", 0);
+
+        // [THEN] Non-inventory line "NI1" is fully received.
+        // [THEN] Non-inventory line "NI2" is not received.
+        FindSalesLine(SalesLine, SalesHeader, NonInvtItem[1]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, NonInvtItem[2]."No.");
+        SalesLine.TestField("Return Qty. Received", 0);
+
+        // [THEN] Item charge line "IC1" is received for half quantity.
+        // [THEN] Item charge line "IC2" is received for half quantity.
+        FindSalesLine(SalesLine, SalesHeader, ItemCharge[1]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity / 2);
+        FindSalesLine(SalesLine, SalesHeader, ItemCharge[2]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity / 2);
+    end;
+
+    [Test]
+    procedure PostWarehouseShipmentForOrderAllNonInvtLines()
+    var
+        Item: array[2] of Record Item;
+        NonInvtItem: array[2] of Record Item;
+        ItemCharge: array[2] of Record "Item Charge";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        i: Integer;
+    begin
+        // [FEATURE] [Attached to Line No] [Non-Inventory Item] [Sales] [Order] [Shipment]
+        // [SCENARIO 456417] Automatic posting of all non-inventory sales order lines using warehouse shipment.
+        Initialize();
+
+        // [GIVEN] Set "Non-Invt. Item Whse. Policy" in sales setup to "All".
+        UpdateNonInvtPostingPolicyInSalesSetup("Non-Invt. Item Whse. Policy"::All);
+
+        // [GIVEN] Create two items, two non-inventory items, and two item charges.
+        for i := 1 to 2 do begin
+            LibraryInventory.CreateItem(Item[i]);
+            LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem[i]);
+            LibraryInventory.CreateItemCharge(ItemCharge[i]);
+        end;
+
+        // [GIVEN] Location set up for required shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+
+        // [GIVEN] Create sales order with the following lines:
+        // [GIVEN] Two item lines "I1" and "I2".
+        // [GIVEN] Two non-inventory item lines "NI1" and "NI2".
+        // [GIVEN] Two item charge lines "IC1" and "IC2". Assign each item charge equally to two item lines.
+        CreateSalesDocumentWithVariousLines(
+          SalesHeader, SalesHeader."Document Type"::Order, Item, NonInvtItem, ItemCharge, Location.Code);
+
+        // [GIVEN] Create warehouse shipment.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Set "Qty. to Ship" on warehouse shipment line for "I2" to zero.
+        FindWarehouseShipmentHeaderFromSalesOrder(WarehouseShipmentHeader, SalesHeader."No.", Location.Code);
+        UpdateQuantityOnWarehouseShipmentLineFromSalesOrder(SalesHeader."No.", Item[2]."No.", Location.Code, '', 0);
+
+        // [WHEN] Post the warehouse shipment.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] Item line "I1" is fully shipped.
+        // [THEN] Item line "I2" is not shipped.
+        FindSalesLine(SalesLine, SalesHeader, Item[1]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, Item[2]."No.");
+        SalesLine.TestField("Quantity Shipped", 0);
+
+        // [THEN] Non-inventory line "NI1" is fully shipped.
+        // [THEN] Non-inventory line "NI2" is fully shipped.
+        FindSalesLine(SalesLine, SalesHeader, NonInvtItem[1]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, NonInvtItem[2]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+
+        // [THEN] Item charge line "IC1" is fully shipped.
+        // [THEN] Item charge line "IC2" is fully shipped.
+        FindSalesLine(SalesLine, SalesHeader, ItemCharge[1]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, ItemCharge[2]."No.");
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerSimple')]
+    procedure PostInventoryPutawayForReturnOrderAllNonInvtLines()
+    var
+        Item: array[2] of Record Item;
+        NonInvtItem: array[2] of Record Item;
+        ItemCharge: array[2] of Record "Item Charge";
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        i: Integer;
+    begin
+        // [FEATURE] [Attached to Line No] [Non-Inventory Item] [Sales] [Return Order] [Inventory Put-away]
+        // [SCENARIO 456417] Automatic posting of all non-inventory sales return order lines using inventory put-away.
+        Initialize();
+
+        // [GIVEN] Set "Non-Invt. Item Whse. Policy" in sales setup to "All".
+        UpdateNonInvtPostingPolicyInSalesSetup("Non-Invt. Item Whse. Policy"::All);
+
+        // [GIVEN] Create two items, two non-inventory items, and two item charges.
+        for i := 1 to 2 do begin
+            LibraryInventory.CreateItem(Item[i]);
+            LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem[i]);
+            LibraryInventory.CreateItemCharge(ItemCharge[i]);
+        end;
+
+        // [GIVEN] Location set up for required put-away.
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+
+        // [GIVEN] Create sales return order with the following lines:
+        // [GIVEN] Two item lines "I1" and "I2".
+        // [GIVEN] Two non-inventory item lines "NI1" and "NI2".
+        // [GIVEN] Two item charge lines "IC1" and "IC2". Assign each item charge equally to two item lines.
+        CreateSalesDocumentWithVariousLines(
+          SalesHeader, SalesHeader."Document Type"::"Return Order", Item, NonInvtItem, ItemCharge, Location.Code);
+
+        // [GIVEN] Create inventory put-away.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+
+        // [GIVEN] Set "Qty. to Handle" on inventory put-away line for "I2" to zero.
+        AutoFillQtyToHandleOnWarehouseActivityLine(
+          WarehouseActivityLine."Source Document"::"Sales Return Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Put-away");
+        UpdateQtyToHandleOnWarehouseActivityLine(
+          WarehouseActivityLine."Source Document"::"Sales Return Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Put-away", Item[2]."No.", 0);
+
+        // [WHEN] Post the inventory put-away.
+        PostInventoryActivity(
+          WarehouseActivityLine."Source Document"::"Sales Return Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Put-away", false);
+
+        // [THEN] Item line "I1" is fully received.
+        // [THEN] Item line "I2" is not received.
+        FindSalesLine(SalesLine, SalesHeader, Item[1]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, Item[2]."No.");
+        SalesLine.TestField("Return Qty. Received", 0);
+
+        // [THEN] Non-inventory line "NI1" is fully received.
+        // [THEN] Non-inventory line "NI2" is fully received.
+        FindSalesLine(SalesLine, SalesHeader, NonInvtItem[1]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, NonInvtItem[2]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity);
+
+        // [THEN] Item charge line "IC1" is fully received.
+        // [THEN] Item charge line "IC2" is fully received.
+        FindSalesLine(SalesLine, SalesHeader, ItemCharge[1]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity);
+        FindSalesLine(SalesLine, SalesHeader, ItemCharge[2]."No.");
+        SalesLine.TestField("Return Qty. Received", SalesLine.Quantity);
     end;
 
     local procedure Initialize()
@@ -1873,6 +2296,7 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         LibrarySetupStorage.Save(Database::"General Ledger Setup");
         LibrarySetupStorage.Save(Database::"Inventory Setup");
         LibrarySetupStorage.Save(Database::"Warehouse Setup");
+        LibrarySetupStorage.SaveSalesSetup();
 
         isInitialized := true;
         Commit();
@@ -2723,6 +3147,19 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         ItemJournalLine.Modify(true);
     end;
 
+    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; Quantity: Decimal; LocationCode: Code[10])
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, '');
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
     local procedure CreateItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; Serial: Boolean; Lot: Boolean; StrictExpirationPosting: Boolean)
     begin
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, Serial, Lot);
@@ -2887,6 +3324,48 @@ codeunit 137162 "SCM Warehouse - Shipping III"
             CreateReservation(SalesLine, ReservationMode);
     end;
 
+    local procedure CreateSalesDocumentWithVariousLines(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Purchase Document Type";
+                                                        Item: array[2] of Record Item; NonInvtItem: array[2] of Record Item;
+                                                        ItemCharge: array[2] of Record "Item Charge"; LocationCode: Code[10])
+    var
+        SalesLineItem: array[2] of Record "Sales Line";
+        SalesLineNonInvtItem: array[2] of Record "Sales Line";
+        SalesLineItemCharge: array[2] of Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        i: Integer;
+        j: Integer;
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Modify(true);
+
+        for i := 1 to 2 do begin
+            LibrarySales.CreateSalesLine(
+              SalesLineItem[i], SalesHeader, SalesLineItem[i].Type::Item, Item[i]."No.", LibraryRandom.RandInt(10));
+        end;
+
+        for i := 1 to 2 do begin
+            LibrarySales.CreateSalesLine(
+              SalesLineNonInvtItem[i], SalesHeader, SalesLineNonInvtItem[i].Type::Item, NonInvtItem[i]."No.", LibraryRandom.RandInt(10));
+            SalesLineNonInvtItem[i]."Attached to Line No." := SalesLineItem[i]."Line No.";
+            SalesLineNonInvtItem[i].Modify();
+        end;
+
+        for i := 1 to 2 do begin
+            LibrarySales.CreateSalesLine(
+              SalesLineItemCharge[i], SalesHeader, SalesLineItemCharge[i].Type::"Charge (Item)", ItemCharge[i]."No.", 2);
+            SalesLineItemCharge[i].Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+            SalesLineItemCharge[i].Modify(true);
+            for j := 1 to 2 do begin
+                LibrarySales.CreateItemChargeAssignment(
+                  ItemChargeAssignmentSales, SalesLineItemCharge[i], ItemCharge[i],
+                  SalesLineItem[j]."Document Type", SalesLineItem[j]."Document No.", SalesLineItem[j]."Line No.",
+                  SalesLineItem[j]."No.", 1, SalesLineItemCharge[i]."Unit Cost");
+                ItemChargeAssignmentSales.Insert(true);
+            end;
+        end;
+    end;
+
     local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; No: Code[20]; Quantity: Decimal)
     var
         ServiceHeader: Record "Service Header";
@@ -2980,10 +3459,25 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         ItemLedgerEntry.FindFirst();
     end;
 
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; No: Code[20])
+    begin
+        SalesLine.Reset();
+        SalesLine.SetRange("No.", No);
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+    end;
+
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         FilterWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
         WarehouseActivityLine.FindFirst();
+    end;
+
+    local procedure AutoFillQtyToHandleOnWarehouseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
+        WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
@@ -3002,6 +3496,23 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
     end;
 
+    local procedure FindWarehouseReceiptHeaderFromSalesReturnOrder(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SourceNo: Code[20]; LocationCode: Code[10])
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        FindWarehouseReceiptHeader(
+          WarehouseReceiptHeader, WarehouseReceiptLine."Source Document"::"Sales Return Order", SourceNo, LocationCode);
+    end;
+
+    local procedure FindWarehouseReceiptHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; LocationCode: Code[10])
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        WarehouseReceiptLine.SetRange("Location Code", LocationCode);
+        FindWarehouseReceiptLine(WarehouseReceiptLine, SourceDocument, SourceNo);
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+    end;
+
     local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
@@ -3015,6 +3526,23 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     begin
         WarehouseShipmentLine.SetSourceFilter(SourceType, SourceSubtype, SourceNo, SourceLineNo, false);
         WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+    end;
+
+    local procedure FindWarehouseShipmentHeaderFromSalesOrder(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceNo: Code[20]; LocationCode: Code[10])
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        FindWarehouseShipmentHeader(
+          WarehouseShipmentHeader, WarehouseShipmentLine."Source Document"::"Sales Order", SourceNo, LocationCode);
+    end;
+
+    local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; LocationCode: Code[10])
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        WarehouseShipmentLine.SetRange("Location Code", LocationCode);
+        FindWarehouseShipmentLine(WarehouseShipmentLine, SourceDocument, SourceNo);
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
     end;
 
@@ -3064,6 +3592,16 @@ codeunit 137162 "SCM Warehouse - Shipping III"
             LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignAutoSerialNo);
             WarehouseReceiptLine.OpenItemTrackingLines();
         end;
+    end;
+
+    local procedure PostInventoryActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; Invoice: Boolean)
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, Invoice);
     end;
 
     local procedure PostPurchaseOrderWithTwoLot(var Item: Record Item; var Quantity: array[3] of Decimal; var LotNo: array[3] of Code[20]; PostShipReceive: Boolean; PostInvoice: Boolean)
@@ -3284,6 +3822,15 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         end;
     end;
 
+    local procedure UpdateNonInvtPostingPolicyInSalesSetup(NonInvtItemWhsePolicy: Enum "Non-Invt. Item Whse. Policy")
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Auto Post Non-Invt. via Whse.", NonInvtItemWhsePolicy);
+        SalesReceivablesSetup.Modify(true);
+    end;
+
     local procedure UpdateQtyToShipAndPostWhseShipment(SourceNo: Code[20]; QtyToShip: Decimal)
     var
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
@@ -3305,6 +3852,56 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     begin
         ChildItem.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         ChildItem.Modify(true);
+    end;
+
+    local procedure UpdateQuantityOnWarehouseReceiptLineFromSalesReturnOrder(SourceNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; QtyToReceive: Decimal)
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        UpdateQuantityOnWarehouseReceiptLine(
+          WarehouseReceiptLine."Source Document"::"Sales Return Order", SourceNo, ItemNo, LocationCode, VariantCode, QtyToReceive);
+    end;
+
+    local procedure UpdateQuantityOnWarehouseReceiptLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; QtyToReceive: Decimal)
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        WarehouseReceiptLine.SetRange("Item No.", ItemNo);
+        WarehouseReceiptLine.SetRange("Variant Code", VariantCode);
+        WarehouseReceiptLine.SetRange("Location Code", LocationCode);
+        FindWarehouseReceiptLine(WarehouseReceiptLine, SourceDocument, SourceNo);
+        WarehouseReceiptLine.Validate("Qty. to Receive", QtyToReceive);
+        WarehouseReceiptLine.Modify(true);
+    end;
+
+    local procedure UpdateQuantityOnWarehouseShipmentLineFromSalesOrder(SourceNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; QtyToShip: Decimal)
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        UpdateQuantityOnWarehouseShipmentLine(
+          WarehouseShipmentLine."Source Document"::"Sales Order", SourceNo, ItemNo, LocationCode, VariantCode, QtyToShip);
+    end;
+
+    local procedure UpdateQuantityOnWarehouseShipmentLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; QtyToShip: Decimal)
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        WarehouseShipmentLine.SetRange("Item No.", ItemNo);
+        WarehouseShipmentLine.SetRange("Variant Code", VariantCode);
+        WarehouseShipmentLine.SetRange("Location Code", LocationCode);
+        FindWarehouseShipmentLine(WarehouseShipmentLine, SourceDocument, SourceNo);
+        WarehouseShipmentLine.Validate("Qty. to Ship", QtyToShip);
+        WarehouseShipmentLine.Modify(true);
+    end;
+
+    local procedure UpdateQtyToHandleOnWarehouseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ItemNo: Code[20]; QtyToHandle: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Item No.", ItemNo);
+        FindWarehouseActivityLine(WarehouseActivityLine, SourceDocument, SourceNo, ActivityType);
+        WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+        WarehouseActivityLine.Modify(true);
     end;
 
     local procedure UndoSalesShipmentLine(DocumentNo: Code[20]; ExpectedMessage: Text)

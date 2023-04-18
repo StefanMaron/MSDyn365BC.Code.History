@@ -103,15 +103,15 @@ codeunit 9802 "Log Activity Permissions"
 
     local procedure IsFirstPermissionHigherThanSecond(First: Option; Second: Option): Boolean
     var
-        Permission: Record Permission;
+        TempExpandedPermission: Record "Expanded Permission" temporary;
     begin
         case First of
-            Permission."Read Permission"::" ":
+            TempExpandedPermission."Read Permission"::" ":
                 exit(false);
-            Permission."Read Permission"::Indirect:
-                exit(Second = Permission."Read Permission"::" ");
-            Permission."Read Permission"::Yes:
-                exit(Second in [Permission."Read Permission"::Indirect, Permission."Read Permission"::" "]);
+            TempExpandedPermission."Read Permission"::Indirect:
+                exit(Second = TempExpandedPermission."Read Permission"::" ");
+            TempExpandedPermission."Read Permission"::Yes:
+                exit(Second in [TempExpandedPermission."Read Permission"::Indirect, TempExpandedPermission."Read Permission"::" "]);
         end;
     end;
 

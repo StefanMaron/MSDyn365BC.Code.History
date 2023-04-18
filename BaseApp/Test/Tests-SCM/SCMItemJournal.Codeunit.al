@@ -1,4 +1,4 @@
-codeunit 137033 "SCM Item Journal"
+﻿codeunit 137033 "SCM Item Journal"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -1969,6 +1969,65 @@ codeunit 137033 "SCM Item Journal"
     end;
 
     [Test]
+    procedure CheckingForIncorrectQtyOnItemJournalWithSerialNoSpecified()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Item Tracking]
+        // [SCENARIO 459403] Check that abs(quantity) is not greater than 1 when serial no. is stated on item journal line.
+        Initialize();
+
+        LibraryItemTracking.CreateSerialItem(Item);
+        CreateItemJournalLineWithItemTrackingOnLines(ItemJournalLine, Item."No.");
+        ItemJournalLine.Validate(Quantity, 2);
+        ItemJournalLine.Modify(true);
+        Commit();
+
+        asserterror ItemJournalLine.Validate("Serial No.", LibraryUtility.GenerateGUID());
+        Assert.ExpectedError('-1');
+
+        ItemJournalLine.Validate(Quantity, 1);
+        ItemJournalLine.Validate("Serial No.", LibraryUtility.GenerateGUID());
+
+        asserterror ItemJournalLine.Validate(Quantity, 2);
+        Assert.ExpectedError('-1');
+    end;
+
+    [Test]
+    procedure CannotUpdateItemTrackingOnLineWhenReservEntryExists()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        // [FEATURE] [Item Tracking]
+        // [SCENARIO 459403] Cannot update serial no., lot no., package no., expiration date or warranty date on item journal line if item tracking exists.
+        Initialize();
+
+        LibraryItemTracking.CreateLotItem(Item);
+        CreateItemJournalLineWithItemTrackingOnLines(ItemJournalLine, Item."No.");
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+          ReservationEntry, ItemJournalLine, '', LibraryUtility.GenerateGUID(), ItemJournalLine.Quantity);
+        Commit();
+
+        asserterror ItemJournalLine.Validate("Lot No.", LibraryUtility.GenerateGUID());
+        Assert.ExpectedError(ItemJournalLine.FieldCaption("Lot No."));
+
+        asserterror ItemJournalLine.Validate("Serial No.", LibraryUtility.GenerateGUID());
+        Assert.ExpectedError(ItemJournalLine.FieldCaption("Serial No."));
+
+        asserterror ItemJournalLine.Validate("Package No.", LibraryUtility.GenerateGUID());
+        Assert.ExpectedError(ItemJournalLine.FieldCaption("Package No."));
+
+        asserterror ItemJournalLine.Validate("Expiration Date", LibraryRandom.RandDate(30));
+        Assert.ExpectedError(ItemJournalLine.FieldCaption("Expiration Date"));
+
+        asserterror ItemJournalLine.Validate("Warranty Date", LibraryRandom.RandDate(30));
+        Assert.ExpectedError(ItemJournalLine.FieldCaption("Warranty Date"));
+    end;
+
+    [Test]
     procedure RecordLinkDeletedAfterPostingItemJnlLine()
     var
         ItemJournalTemplate: Record "Item Journal Template";
@@ -2126,6 +2185,18 @@ codeunit 137033 "SCM Item Journal"
         ItemJournalBatch: Record "Item Journal Batch";
     begin
         SelectItemJournal(ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name",
+          ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, LibraryRandom.RandInt(10));
+    end;
+
+    local procedure CreateItemJournalLineWithItemTrackingOnLines(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        SelectItemJournal(ItemJournalBatch);
+        ItemJournalBatch."Item Tracking on Lines" := true;
+        ItemJournalBatch.Modify();
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name",
           ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, LibraryRandom.RandInt(10));

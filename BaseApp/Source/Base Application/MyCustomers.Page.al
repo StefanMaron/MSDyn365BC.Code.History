@@ -22,7 +22,7 @@ page 9150 "My Customers"
                         SyncFieldsWithCustomer();
                     end;
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';

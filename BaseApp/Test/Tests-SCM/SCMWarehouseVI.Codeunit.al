@@ -1137,6 +1137,7 @@ codeunit 137408 "SCM Warehouse VI"
         Location: Record Location;
         Zone: Record Zone;
         Bin: Record Bin;
+        HighRankingBin: Record Bin;
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         BinContent: Record "Bin Content";
@@ -1161,7 +1162,9 @@ codeunit 137408 "SCM Warehouse VI"
 
         // [GIVEN] Bin with empty bin content in additional unit of measure "UoM2". Setup min. bin content quantity, so that it requires replenishment.
         FindZone(Zone, Location.Code);
-        CreateBinWithBinRanking(Bin, Location.Code, Zone.Code, LibraryWarehouse.SelectBinType(false, false, true, true), 1);
+        FindHighestRankingBin(HighRankingBin, Location.Code);
+        CreateBinWithBinRanking(Bin, Location.Code, Zone.Code, LibraryWarehouse.SelectBinType(false, false, true, true), HighRankingBin."Bin Ranking" + 1);
+
         CreateBinContent(BinContent, Bin, Item, ItemUnitOfMeasure.Code, 1, 1);
 
         // [GIVEN] Calculate bin replenishment
@@ -2647,7 +2650,7 @@ codeunit 137408 "SCM Warehouse VI"
         BinContent.SetRange("Item No.", Item."No.");
         BinContent.SetRange("Lot No. Filter", LotNo[1]);
         LibraryWarehouse.WhseGetBinContent(
-		    BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
+            BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
         FindWarehouseWorksheetLine(WhseWorksheetLine, Item."No.");
 
         // [WHEN] Choose "Lot No." = "LOT2" on the Whse. Item Tracking Line for Whse. Worksheet Line with Assist Edit
@@ -3728,6 +3731,34 @@ codeunit 137408 "SCM Warehouse VI"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure CreateMovementWithBinReplenishmentForBasicWarehouse()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        Bin2: Record Bin;
+        ItemJournalLine: Record "Item Journal Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [SCENARIO] Test and verify Bin Replenishment is calculated and Inventory Movement created for basic warehouse.
+
+        // [GIVEN] Setup: Create Initial Setup for Bin Replenishment. Calculate Bin Replenishment for basic warehouse.
+        Initialize();
+        CreateInitialSetupForBinReplenishment(Item, Bin, Bin2, ItemJournalLine);
+        CalculateBinReplenishment(Bin."Location Code");
+
+        // [WHEN] Exercise: Create Movement.
+        CreateMovement(Item."No.");
+
+        // [THEN] Verify: Verify values on Inventory Movement.
+        FindWarehouseActivityHeader(WarehouseActivityHeader, Bin."Location Code", WarehouseActivityHeader.Type::"Invt. Movement");
+        VerifyWarehouseMovementLine(WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Take, Item."No.", Bin.Code, ItemJournalLine.Quantity);
+        VerifyWarehouseMovementLine(WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Place, Item."No.", Bin2.Code, ItemJournalLine.Quantity);
+    end;
+
+    [Test]
     procedure ExcludeShipmentBinFromPickingByFEFOAtNonDPnPLocation()
     var
         Item: Record Item;
@@ -4270,6 +4301,36 @@ codeunit 137408 "SCM Warehouse VI"
           WarehouseJournalLine, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Bin, Item."No.", BinContent."Min. Qty.");
     end;
 
+    local procedure CreateInitialSetupForBinReplenishment(var Item: Record Item; var Bin1: Record Bin; var Bin2: Record Bin; var ItemJournalLine: Record "Item Journal Line")
+    var
+        Location: Record Location;
+        Zone1: Record Zone;
+        Zone2: Record Zone;
+        BinContent: Record "Bin Content";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location."Bin Mandatory" := true;
+        //Location.Validate("Directed Put-away and Pick", true);
+        //Location.Validate("Use Cross-Docking", true);
+        Location.Modify(true);
+        CreateWarehouseEmployee(Location.Code);
+
+        LibraryWarehouse.CreateZone(Zone1, '', Location.Code, '', '', '', 1, false);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, Zone1.Code, '', 2, false);
+
+        LibraryWarehouse.CreateZone(Zone2, '', Location.Code, '', '', '', 2, false);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, Zone2.Code, '', 2, false);
+
+        FindBinAndUpdateBinRanking(Bin1, Zone1, '', LibraryRandom.RandInt(10));  // Use random Bin Ranking.
+        FindBinAndUpdateBinRanking(Bin2, Zone2, Bin1.Code, Bin1."Bin Ranking" + LibraryRandom.RandInt(10));  // Use random Bin Ranking and value is required.
+        CreateBinContent(BinContent, Bin2, Item, Item."Base Unit of Measure", LibraryRandom.RandDec(5, 2), LibraryRandom.RandDec(5, 2));
+
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, Bin1.Code, BinContent."Min. Qty.");
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
     local procedure CreateInitialSetupForMovementWorksheetWithCubage(var ItemUnitOfMeasure: Record "Item Unit of Measure"; var Bin: Record Bin)
     var
         Item: Record Item;
@@ -4794,6 +4855,14 @@ codeunit 137408 "SCM Warehouse VI"
         Bin.FindFirst();
         Bin.Validate("Bin Ranking", BinRanking);
         Bin.Modify(true);
+    end;
+
+    local procedure FindHighestRankingBin(var Bin: Record Bin; LocationCode: Code[10])
+    begin
+        Bin.SetCurrentKey("Location Code", "Bin Ranking");
+        Bin.SetAscending("Bin Ranking", false);
+        Bin.SetRange("Location Code", LocationCode);
+        Bin.FindFirst();
     end;
 
     local procedure FindBinContent(var BinContent: Record "Bin Content"; ItemNo: Code[20])

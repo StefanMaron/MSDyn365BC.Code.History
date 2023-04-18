@@ -4,21 +4,16 @@ codeunit 132214 "Library - Permissions"
     begin
     end;
 
-#if not CLEAN20
-    [Obsolete('Plan Permission Set is being removed as it is no longer used', '20.0')]
     procedure AddPermissionSetToPlan(PermissionSetCode: Code[20]; PlanID: Guid)
     var
-        PlanPermissionSet: Record "Plan Permission Set";
+        PlanConfiguration: Codeunit "Plan Configuration";
+        Scope: Option System,Tenant;
+        NullGuid: Guid;
     begin
-        if PlanPermissionSet.Get(PlanID, PermissionSetCode) then
-            exit;
-        PlanPermissionSet.Init();
-        PlanPermissionSet."Permission Set ID" := PermissionSetCode;
-        PlanPermissionSet."Plan ID" := PlanID;
-        PlanPermissionSet.Insert(true);
+        PlanConfiguration.AddDefaultPermissionSetToPlan(PlanID, PermissionSetCode, NullGuid, Scope::Tenant);
     end;
-#endif
 
+#if not CLEAN22
     procedure AddPermissionSetToUserGroup(AggregatePermissionSet: Record "Aggregate Permission Set"; UserGroupCode: Code[20])
     var
         UserGroupPermissionSet: Record "User Group Permission Set";
@@ -37,6 +32,7 @@ codeunit 132214 "Library - Permissions"
         UserGroupPermissionSet."App ID" := AggregatePermissionSet."App ID";
         UserGroupPermissionSet.Insert(true);
     end;
+#endif
 
     procedure AddPermissionSetToUser(var User: Record User; var PermissionSet: Record "Permission Set"; CompanyName: Text[30])
     begin
@@ -105,6 +101,7 @@ codeunit 132214 "Library - Permissions"
         TenantPermission.Insert(true);
     end;
 
+#if not CLEAN22
     procedure AddUserGroupToPlan(UserGroupCode: Code[20]; PlanID: Guid)
     var
         UserGroupPlan: Record "User Group Plan";
@@ -114,10 +111,13 @@ codeunit 132214 "Library - Permissions"
         UserGroupPlan."User Group Code" := UserGroupCode;
         UserGroupPlan.Insert(true);
     end;
+#endif
 
     procedure AddUserToPlan(UserID: Guid; PlanID: Guid)
     var
+#if not CLEAN22
         UserGroupPlan: Record "User Group Plan";
+#endif
         AzureADPlan: Codeunit "Azure AD Plan";
         AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
     begin
@@ -126,13 +126,16 @@ codeunit 132214 "Library - Permissions"
 
         AzureADPlanTestLibrary.AssignUserToPlan(UserID, PlanID);
 
+#if not CLEAN22
         UserGroupPlan.SetRange("Plan ID", PlanID);
         if UserGroupPlan.FindSet() then
             repeat
                 AddUserToUserGroupByCode(UserID, UserGroupPlan."User Group Code");
             until UserGroupPlan.Next() = 0;
+#endif
     end;
 
+#if not CLEAN22
     procedure AddUserToUserGroup(var UserGroup: Record "User Group"; var User: Record User; NewCompanyName: Text[30])
     var
         UserGroupMember: Record "User Group Member";
@@ -167,6 +170,7 @@ codeunit 132214 "Library - Permissions"
         UserGroupMember.Validate("User Group Code", NewUserGroupCode);
         UserGroupMember.Insert(true);
     end;
+#endif
 
     procedure CreateUser(var User: Record User; NewUserName: Text[50]; IsWindowsUser: Boolean)
     begin
@@ -233,6 +237,7 @@ codeunit 132214 "Library - Permissions"
         exit(User."User Security ID");
     end;
 
+#if not CLEAN22
     procedure CreateUserGroup(var UserGroup: Record "User Group"; NewCode: Code[20])
     begin
         if UserGroup.Get(NewCode) then
@@ -269,6 +274,7 @@ codeunit 132214 "Library - Permissions"
         UserGroupMember."User Security ID" := User."User Security ID";
         if UserGroupMember.Insert() then;
     end;
+#endif
 
     procedure GetNonExistingUserID(): Text[65]
     var
@@ -282,32 +288,30 @@ codeunit 132214 "Library - Permissions"
         exit(UserID)
     end;
 
-    procedure CreatePermissionSet(var PermissionSet: Record "Permission Set"; NewCode: Code[20])
+    procedure CreatePermissionSet(var TenantPermissionSet: Record "Tenant Permission Set"; NewCode: Code[20])
     begin
-        PermissionSet.SetRange("Role ID", NewCode);
-        if PermissionSet.FindFirst() then
+        TenantPermissionSet.SetRange("Role ID", NewCode);
+        if TenantPermissionSet.FindFirst() then
             exit;
         if NewCode <> '' then
-            PermissionSet."Role ID" := NewCode
+            TenantPermissionSet."Role ID" := NewCode
         else
-            PermissionSet."Role ID" := CopyStr(GetGuidString, 1, MaxStrLen(PermissionSet."Role ID"));
-        PermissionSet.Name := PermissionSet."Role ID" + ' Name';
-        PermissionSet.Insert(true);
+            TenantPermissionSet."Role ID" := CopyStr(GetGuidString, 1, MaxStrLen(TenantPermissionSet."Role ID"));
+        TenantPermissionSet.Name := TenantPermissionSet."Role ID" + ' Name';
+        TenantPermissionSet.Insert(true);
     end;
 
     procedure CreatePermissionSetInPlan(PermissionSetCode: Code[20]; PlanID: Guid)
     begin
         CreatePermissionSetWithCode(PermissionSetCode);
-#if not CLEAN20
         AddPermissionSetToPlan(PermissionSetCode, PlanID);
-#endif
     end;
 
     procedure CreatePermissionSetWithCode(PermissionSetCode: Code[20])
     var
-        PermissionSet: Record "Permission Set";
+        TenantPermissionSet: Record "Tenant Permission Set";
     begin
-        CreatePermissionSet(PermissionSet, PermissionSetCode);
+        CreatePermissionSet(TenantPermissionSet, PermissionSetCode);
     end;
 
     procedure CreateTenantPermissionSet(var TenantPermissionSet: Record "Tenant Permission Set"; NewCode: Code[20]; AppID: Guid)
@@ -321,6 +325,7 @@ codeunit 132214 "Library - Permissions"
         TenantPermissionSet.Insert(true);
     end;
 
+#if not CLEAN22
     procedure CreateUsersUserGroupsPermissionSets()
     var
         User: Record User;
@@ -348,6 +353,7 @@ codeunit 132214 "Library - Permissions"
                 CreateTenantPermissionSet(TenantPermissionSet, NewCode, TenantPermissionSet."App ID");
         end;
     end;
+#endif
 
     local procedure GetGuidString(): Text
     begin
@@ -362,6 +368,7 @@ codeunit 132214 "Library - Permissions"
         User.SetRange("User Name");
     end;
 
+#if not CLEAN22
     procedure RemoveUserFromAllUserGroups(UserID: Guid)
     var
         UserGroupMember: Record "User Group Member";
@@ -404,6 +411,7 @@ codeunit 132214 "Library - Permissions"
         if UserGroupPermissionSet.FindFirst() then
             UserGroupPermissionSet.DeleteAll(true);
     end;
+#endif
 
 #if not CLEAN20
     [Obsolete('Plan Permission Set is being removed as it is no longer used', '20.0')]

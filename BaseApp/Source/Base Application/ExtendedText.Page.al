@@ -23,7 +23,7 @@ page 386 "Extended Text"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether the text should be used for all language codes. If a language code has been chosen in the Language Code field, it will be overruled by this function.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the content of the extended item description.';

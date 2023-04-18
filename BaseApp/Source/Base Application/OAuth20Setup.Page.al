@@ -16,7 +16,7 @@ page 1140 "OAuth 2.0 Setup"
                 Caption = 'General';
                 Editable = false;
 
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description.';

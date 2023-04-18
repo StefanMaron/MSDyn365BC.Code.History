@@ -1,7 +1,11 @@
+#if not CLEAN22
 codeunit 134166 "ERM Intrastat Journal 2"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -195,4 +199,4 @@ codeunit 134166 "ERM Intrastat Journal 2"
         GetItemLedgerEntries.OK.Invoke;
     end;
 }
-
+#endif

@@ -136,6 +136,7 @@ codeunit 139400 "Permissions Test"
         TearDown();
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure UserGroupAddedToPlan()
@@ -262,6 +263,7 @@ codeunit 139400 "Permissions Test"
         LibraryPermissionsVerify.UserIsInUserGroup(UserID, UserGroupAccountantTxt);
         TearDown();
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -326,9 +328,9 @@ codeunit 139400 "Permissions Test"
 
         // [THEN] SaaS-related cues are not visible
         Assert.IsFalse(UserSecurityActivities."Users - Without Subscriptions".Visible(),
-          'Users without subscription plans on User Security Acticities page should not be visible');
-        Assert.IsFalse(UserSecurityActivities."Users - Not Group Members".Visible(),
-          'Users without group memberships on User Security Acticities page should not be visible');
+          'Users without subscription plans on User Security Activities page should not be visible');
+        Assert.IsFalse(UserSecurityActivities.NumberOfPlans.Visible(),
+          'Users without group memberships on User Security Activities page should not be visible');
     end;
 
     [Test]
@@ -352,6 +354,7 @@ codeunit 139400 "Permissions Test"
         Assert.IsFalse(UserSecurityStatusList."Belongs To Subscription Plan".Visible(), 'Plan related information should not be visible');
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure D365BusFullAccessShouldNotHaveDirectPermissionsOnUserGroupMember()
@@ -377,6 +380,7 @@ codeunit 139400 "Permissions Test"
         LibraryLowerPermissions.SetOutsideO365Scope();
         TearDown();
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -386,18 +390,6 @@ codeunit 139400 "Permissions Test"
         PlanningErrorLog: Record "Planning Error Log";
         TimeSheetCommentLine: Record "Time Sheet Comment Line";
         ServiceCue: Record "Service Cue";
-#if not CLEAN19
-        OutlookSynchEntity: Record "Outlook Synch. Entity";
-        OutlookSynchSetupDetail: Record "Outlook Synch. Setup Detail";
-        OutlookSynchField: Record "Outlook Synch. Field";
-        OutlookSynchUserSetup: Record "Outlook Synch. User Setup";
-        OutlookSynchLookupName: Record "Outlook Synch. Lookup Name";
-        OutlookSynchDependency: Record "Outlook Synch. Dependency";
-        OutlookSynchLink: Record "Outlook Synch. Link";
-        OutlookSynchEntityElement: Record "Outlook Synch. Entity Element";
-        OutlookSynchFilter: Record "Outlook Synch. Filter";
-        OutlookSynchOptionCorrel: Record "Outlook Synch. Option Correl.";
-#endif
         ReturnsRelatedDocument: Record "Returns-Related Document";
         ServiceShipmentBuffer: Record "Service Shipment Buffer";
         CauseOfInactivity: Record "Cause of Inactivity";
@@ -455,18 +447,6 @@ codeunit 139400 "Permissions Test"
         Assert.IsTrue(PlanningErrorLog.ReadPermission, 'PlanningErrorLog does not have read permission');
         Assert.IsTrue(TimeSheetCommentLine.ReadPermission, 'TimeSheetCommentLine does not have read permission');
         Assert.IsTrue(ServiceCue.ReadPermission, 'ServiceCue does not have read permission');
-#if not CLEAN19
-        Assert.IsTrue(OutlookSynchEntity.ReadPermission, 'OutlookSynchEntity does not have read permission');
-        Assert.IsTrue(OutlookSynchSetupDetail.ReadPermission, 'OutlookSynchSetupDetail does not have read permission');
-        Assert.IsTrue(OutlookSynchField.ReadPermission, 'OutlookSynchField does not have read permission');
-        Assert.IsTrue(OutlookSynchUserSetup.ReadPermission, 'OutlookSynchUserSetup does not have read permission');
-        Assert.IsTrue(OutlookSynchLookupName.ReadPermission, 'OutlookSynchLookupName does not have read permission');
-        Assert.IsTrue(OutlookSynchDependency.ReadPermission, 'OutlookSynchDependency does not have read permission');
-        Assert.IsTrue(OutlookSynchLink.ReadPermission, 'OutlookSynchLink does not have read permission');
-        Assert.IsTrue(OutlookSynchEntityElement.ReadPermission, 'OutlookSynchEntityElement does not have read permission');
-        Assert.IsTrue(OutlookSynchFilter.ReadPermission, 'OutlookSynchFilter does not have read permission');
-        Assert.IsTrue(OutlookSynchOptionCorrel.ReadPermission, 'OutlookSynchOptionCorrel does not have read permission');
-#endif
         Assert.IsTrue(ReturnsRelatedDocument.ReadPermission, 'ReturnsRelatedDocument does not have read permission');
         Assert.IsTrue(ServiceShipmentBuffer.ReadPermission, 'ServiceShipmentBuffer does not have read permission');
         Assert.IsTrue(CauseOfInactivity.ReadPermission, 'CauseofInactivity does not have read permission');
@@ -888,19 +868,6 @@ codeunit 139400 "Permissions Test"
         PermissionPagesMgt.ResolvePermissionAction(Notification);
     end;
 
-    local procedure AddTenantPermissionSetToUserGroup(TenantPermissionSet: Record "Tenant Permission Set"; UserGroupCode: Code[20])
-    var
-        UserGroupPermissionSet: Record "User Group Permission Set";
-    begin
-        UserGroupPermissionSet.Init();
-        UserGroupPermissionSet."User Group Code" := UserGroupCode;
-        UserGroupPermissionSet."User Group Name" := UserGroupCode;
-        UserGroupPermissionSet."Role ID" := TenantPermissionSet."Role ID";
-        UserGroupPermissionSet.Scope := UserGroupPermissionSet.Scope::Tenant;
-        UserGroupPermissionSet."App ID" := TenantPermissionSet."App ID";
-        UserGroupPermissionSet.Insert(true);
-    end;
-
     local procedure CreatePermissionSet(var PermissionSet: Record "Permission Set")
     begin
         PermissionSet.Init();
@@ -927,14 +894,17 @@ codeunit 139400 "Permissions Test"
         AzureADPlanTestLibrary.DeletePlan(PlanOffice365Txt);
         DeleteUser(UserCassieTxt);
         DeleteUser(UserDebraTxt);
+#if not CLEAN22
         DeleteTestUserGroupAndPermissionSet(UserGroupAccountantTxt);
         DeleteTestUserGroupAndPermissionSet(UserGroupAccountantPostingTxt);
         DeleteTestUserGroupAndPermissionSet(UserGroupAuditorTxt);
         DeleteTestUserGroupAndPermissionSet(UserGroupFinanceTxt);
+#endif
         UserSecurityStatus.LoadUsers();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
+#if not CLEAN22
     local procedure DeleteTestUserGroupAndPermissionSet(UserGroupCode: Code[20])
     var
         UserGroup: Record "User Group";
@@ -952,6 +922,7 @@ codeunit 139400 "Permissions Test"
         if UserGroup.FindFirst() then
             UserGroup.DeleteAll(true); // it will delete the associated UserGroupPermissionSet records too
     end;
+#endif
 
     local procedure DeleteUser(UserName: Code[50])
     var
@@ -966,6 +937,7 @@ codeunit 139400 "Permissions Test"
         end;
     end;
 
+#if not CLEAN22
     local procedure RunAndValidateUsersInUserGroupQuery(UserGroupCode: Text; ExpectedNumberOfUsers: Integer)
     var
         UsersInUserGroups: Query "Users in User Groups";
@@ -984,19 +956,7 @@ codeunit 139400 "Permissions Test"
         end;
         UsersInUserGroups.Close();
     end;
-
-    [TestPermissions(TestPermissions::NonRestrictive)]
-    local procedure VerifyExportedUserGroupsWithFilters(UserGroupSet: array[3] of Record "User Group"; FileName: Text)
-    var
-        XMLDOMManagement: Codeunit "XML DOM Management";
-        XmlDocument: DotNet XmlDocument;
-        XmlNodeList: DotNet XmlNodeList;
-    begin
-        XMLDOMManagement.LoadXMLDocumentFromFile(FileName, XmlDocument);
-        XMLDOMManagement.FindNodes(XmlDocument.DocumentElement, '/UserGroups/UserGroup', XmlNodeList);
-        Assert.AreEqual(UserGroupSet[1].Code, XmlNodeList.ItemOf(0).SelectSingleNode('Code').InnerText, WrongUserGroupCodeErr);
-        Assert.AreEqual(UserGroupSet[2].Code, XmlNodeList.ItemOf(1).SelectSingleNode('Code').InnerText, WrongUserGroupCodeErr);
-    end;
+#endif
 
     [MessageHandler]
     [Scope('OnPrem')]

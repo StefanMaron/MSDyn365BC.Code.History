@@ -87,28 +87,6 @@ page 9035 "Data Administration"
             {
                 Caption = 'Data Cleanup';
 
-# if not CLEAN19
-                group(DeleteLogs)
-                {
-                    Caption = 'Logs';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '19.0';
-                    ObsoleteReason = 'The functionality has been replaced with the retention policy module in system application.';
-
-                    Action(ChangeLogEntries)
-                    {
-                        Caption = 'Delete Change Log Entries';
-                        Tooltip = 'Delete Change Log Entries';
-                        ApplicationArea = All;
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '19.0';
-                        ObsoleteReason = 'The functionality has been replaced by the Retention Policy module in the System Application.';
-
-                        RunObject = report "Change Log - Delete";
-                        Ellipsis = true;
-                    }
-                }
-#endif                    
                 group(DeleteDocumentArchives)
                 {
                     Caption = 'Document Archives';
@@ -121,74 +99,6 @@ page 9035 "Data Administration"
                         RunObject = report "Delete Expired Sales Quotes";
                         Ellipsis = true;
                     }
-#if not CLEAN19
-                    action(DeleteSalesQuoteVersions)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Delete Sales Quote Versions';
-                        ToolTip = 'Delete Sales Quote Versions';
-                        RunObject = Report "Delete Sales Quote Versions";
-                        Ellipsis = true;
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '19.0';
-                        ObsoleteReason = 'Use the retention policy module to clean up document archive records instead.';
-                    }
-                    action(DeleteBlanketSalesOrderVersions)
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'Delete Blanket Sales Order Versions';
-                        ToolTip = 'Delete Blanket Sales Order Versions';
-                        RunObject = Report "Del. Blanket Sales Order Ver.";
-                        Ellipsis = true;
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '19.0';
-                        ObsoleteReason = 'Use the retention policy module to clean up document archive records instead.';
-                    }
-                    action(DeleteSalesOrderVersions)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Delete Sales Order Versions';
-                        ToolTip = 'Delete Sales Order Versions';
-                        RunObject = Report "Delete Sales Order Versions";
-                        Ellipsis = true;
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '19.0';
-                        ObsoleteReason = 'Use the retention policy module to clean up document archive records instead.';
-                    }
-                    action(DeletePurchaseQuoteVersions)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Delete Purchase Quote Versions';
-                        ToolTip = 'Delete Purchase Quote Versions';
-                        RunObject = Report "Delete Purchase Quote Versions";
-                        Ellipsis = true;
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '19.0';
-                        ObsoleteReason = 'Use the retention policy module to clean up document archive records instead.';
-                    }
-                    action(DeletePurchaseOrderVersions)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Delete Purchase Order Versions';
-                        ToolTip = 'Delete Purchase Order Versions';
-                        RunObject = Report "Delete Purchase Order Versions";
-                        Ellipsis = true;
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '19.0';
-                        ObsoleteReason = 'Use the retention policy module to clean up document archive records instead.';
-                    }
-                    action(DeleteBlanketPurchaseOrderVersions)
-                    {
-                        ApplicationArea = Suite;
-                        Caption = 'Delete Blanket Purchase Order Versions';
-                        ToolTip = 'Delete Blanket Purchase Order Versions';
-                        RunObject = Report "Del. Blanket Purch. Order Ver.";
-                        Ellipsis = true;
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '19.0';
-                        ObsoleteReason = 'Use the retention policy module to clean up document archive records instead.';
-                    }
-#endif
                 }
                 group(DeleteInvoicedDocuments)
                 {
@@ -388,6 +298,14 @@ page 9035 "Data Administration"
 
                         RunObject = report "Delete Service Item Log";
                         Ellipsis = true;
+                    }
+                    action(DeleteDetachedMedia)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Delete Detached media';
+                        ToolTip = 'Delete media that is not being actively referenced.';
+                        Ellipsis = true;
+                        RunObject = Page "Detached Media Cleanup";
                     }
                 }
             }

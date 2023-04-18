@@ -22,7 +22,7 @@ codeunit 134263 "Test Bank Payment Application"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Initialized: Boolean;
         ExcessiveAmtErr: Label 'You must apply the excessive amount of %1 %2 manually.', Comment = '%1 a decimal number, %2 currency code';
-        WrongStmEndBalanceErr: Label '%1 is not equal to Total Balance.', Comment = '%1 is a field caption';
+        WrongStmEndBalanceErr: Label '%1 must be equal to Total Balance.', Comment = '%1 is a field caption';
 
     [Test]
     [Scope('OnPrem')]

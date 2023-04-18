@@ -795,7 +795,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           PurchaseLine."Unit Cost (LCY)" * ServiceLine.Quantity);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure PstdServInvStatisticsUsingServOrderWithLineDisc()
@@ -1447,7 +1447,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."No.");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateItemWithSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     var
         Item: Record Item;

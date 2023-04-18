@@ -18,6 +18,8 @@ codeunit 137200 "SCM Inventory Movement Test"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
 
     local procedure Initialize()
@@ -25,6 +27,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Movement Test");
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Movement Test");
@@ -537,10 +540,391 @@ codeunit 137200 "SCM Inventory Movement Test"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandlerSimple')]
+    procedure InventoryMovementFromMovementWorksheetPopulatesSpecialEquipmentFromItem()
+    var
+        Location: Record Location;
+    begin
+        // [FEATURE] [Inventory Movement] [Movement Worksheet] [Special Equipment]
+        // [SCENARIO] Inventory Movement can be created from the Movement Worksheet and can be registered with 'Special Equipment Code' on basic warehouse
+        InventoryMovementFromMovementWorksheetPopulatesSpecialEquipment(Location."Special Equipment"::"According to SKU/Item");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandlerSimple')]
+    procedure InventoryMovementFromMovementWorksheetPopulatesSpecialEquipmentFromBin()
+    var
+        Location: Record Location;
+    begin
+        // [FEATURE] [Inventory Movement] [Movement Worksheet] [Special Equipment]
+        // [SCENARIO] Inventory Movement can be created from the Movement Worksheet and can be registered with 'Special Equipment Code' on basic warehouse
+        InventoryMovementFromMovementWorksheetPopulatesSpecialEquipment(Location."Special Equipment"::"According to Bin");
+    end;
+
+    procedure InventoryMovementFromMovementWorksheetPopulatesSpecialEquipment(SpecialEquipmentPolicy: Option)
+    var
+        FromBin: Record Bin;
+        ToBin: Record Bin;
+        Item: Record Item;
+        SpecialEquipment: Record "Special Equipment";
+        ItemJournalLine: Record "Item Journal Line";
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        Location: Record Location;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        RegisteredInvtMovementLine: Record "Registered Invt. Movement Line";
+        CreateInventoryPickMovement: Codeunit "Create Inventory Pick/Movement";
+    begin
+        // [GIVEN] Location with 3 bins are created and 'Special Equipment' is set to SKU/Item
+        LibraryWarehouse.FindBin(FromBin, CreateLocationWithWhseEmployeeAndNumberOfBins(Location, 3), '', 1);
+        Location.Validate("Special Equipment", SpecialEquipmentPolicy);
+        Location.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        SpecialEquipment.FindFirst();
+        FromBin.Validate("Special Equipment Code", SpecialEquipment.Code);
+        FromBin.Modify(true);
+        SpecialEquipment.Next();
+        Item.Validate("Special Equipment Code", SpecialEquipment.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create WorksheetName for the newly created Location
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
+        LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, Location.Code);
+
+        // [GIVEN] Item had stock of 10 PCS in the FromBin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", FromBin."Location Code", FromBin.Code, LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create Warehouse Worksheet Line to move those items from FromBin to ToBin
+        LibraryWarehouse.FindBin(ToBin, FromBin."Location Code", '', 2);
+        ToBin.Validate("Special Equipment Code", FromBin."Special Equipment Code");
+        ToBin.Modify(true);
+        LibraryWarehouse.CreateWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetTemplate.Name, WhseWorksheetName.Name, Location.Code, WhseWorksheetLine."Whse. Document Type"::"Whse. Mov.-Worksheet");
+        WhseWorksheetLine.Validate("Item No.", ItemJournalLine."Item No.");
+        WhseWorksheetLine.Validate("From Bin Code", FromBin.Code);
+        WhseWorksheetLine.Validate("To Bin Code", ToBin.Code);
+        WhseWorksheetLine.Validate(Quantity, ItemJournalLine.Quantity);
+        WhseWorksheetLine.Modify(true);
+
+        // [WHEN] Create Inventory Movement from Warehouse Worksheet Line
+        CreateInventoryPickMovement.CreateInvtMvntWithoutSource(WhseWorksheetLine);
+
+        // [THEN] Inventory Movement document is created
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Movement");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.SetRange("Item No.", ItemJournalLine."Item No.");
+        WarehouseActivityLine.SetRange("Bin Code", ItemJournalLine."Bin Code");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Register Inventory Movement
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Registered Invt. Movement Take Line has 10 PCS of the Item with Bin and Special Equipment Code set 
+        RegisteredInvtMovementLine.SetRange("Item No.", ItemJournalLine."Item No.");
+        RegisteredInvtMovementLine.SetRange("Action Type", RegisteredInvtMovementLine."Action Type"::Take);
+        RegisteredInvtMovementLine.FindFirst();
+        RegisteredInvtMovementLine.TestField("Bin Code", FromBin.Code);
+        RegisteredInvtMovementLine.TestField(Quantity, ItemJournalLine.Quantity);
+        case SpecialEquipmentPolicy of
+            Location."Special Equipment"::"According to Bin":
+                RegisteredInvtMovementLine.TestField("Special Equipment Code", FromBin."Special Equipment Code");
+            Location."Special Equipment"::"According to SKU/Item":
+                RegisteredInvtMovementLine.TestField("Special Equipment Code", Item."Special Equipment Code");
+        end;
+
+        RegisteredInvtMovementLine.SetRange("Action Type", RegisteredInvtMovementLine."Action Type"::Place);
+        RegisteredInvtMovementLine.FindFirst();
+        RegisteredInvtMovementLine.TestField("Bin Code", ToBin.Code);
+        RegisteredInvtMovementLine.TestField(Quantity, ItemJournalLine.Quantity);
+        case SpecialEquipmentPolicy of
+            Location."Special Equipment"::"According to Bin":
+                RegisteredInvtMovementLine.TestField("Special Equipment Code", ToBin."Special Equipment Code");
+            Location."Special Equipment"::"According to SKU/Item":
+                RegisteredInvtMovementLine.TestField("Special Equipment Code", Item."Special Equipment Code");
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandlerSimple')]
+    procedure InventoryMovementFromMovementWorksheet()
+    var
+        FromBin: Record Bin;
+        ToBin: Record Bin;
+        ItemJournalLine: Record "Item Journal Line";
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        Location: Record Location;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        RegisteredInvtMovementLine: Record "Registered Invt. Movement Line";
+        CreateInventoryPickMovement: Codeunit "Create Inventory Pick/Movement";
+    begin
+        // [FEATURE] [Inventory Movement] [Movement Worksheet]
+        // [SCENARIO] Inventory Movement can be created from the Movement Worksheet and canbe registered
+
+        // [GIVEN] Location with 3 bins are created
+        LibraryWarehouse.FindBin(FromBin, CreateLocationWithWhseEmployeeAndNumberOfBins(Location, 3), '', 1);
+
+        // [GIVEN] Create WorksheetName for the newly created Location
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
+        LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, Location.Code);
+
+        // [GIVEN] Item had stock of 10 PCS in the FromBin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, LibraryInventory.CreateItemNo(), FromBin."Location Code", FromBin.Code, LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create Warehouse Worksheet Line to move those items from FromBin to ToBin
+        LibraryWarehouse.FindBin(ToBin, FromBin."Location Code", '', 2);
+        LibraryWarehouse.CreateWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetTemplate.Name, WhseWorksheetName.Name, Location.Code, WhseWorksheetLine."Whse. Document Type"::"Whse. Mov.-Worksheet");
+        WhseWorksheetLine.Validate("Item No.", ItemJournalLine."Item No.");
+        WhseWorksheetLine.Validate("From Bin Code", FromBin.Code);
+        WhseWorksheetLine.Validate("To Bin Code", ToBin.Code);
+        WhseWorksheetLine.Validate(Quantity, ItemJournalLine.Quantity);
+        WhseWorksheetLine.Modify(true);
+
+        // [WHEN] Create Inventory Movement from Warehouse Worksheet Line
+        CreateInventoryPickMovement.CreateInvtMvntWithoutSource(WhseWorksheetLine);
+
+        // [THEN] Inventory Movement document is created
+        with WarehouseActivityLine do begin
+            SetRange("Activity Type", "Activity Type"::"Invt. Movement");
+            SetRange("Action Type", "Action Type"::Take);
+            SetRange("Item No.", ItemJournalLine."Item No.");
+            SetRange("Bin Code", ItemJournalLine."Bin Code");
+            FindFirst();
+            WarehouseActivityHeader.Get("Activity Type", "No.");
+        end;
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Register Inventory Movement
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Registered Invt. Movement Take Line has 10 PCS of the Item and the Bin
+        with RegisteredInvtMovementLine do begin
+            SetRange("Item No.", ItemJournalLine."Item No.");
+            SetRange("Action Type", "Action Type"::Take);
+            FindFirst();
+            TestField("Bin Code", FromBin.Code);
+            TestField(Quantity, ItemJournalLine.Quantity);
+
+            SetRange("Action Type", "Action Type"::Place);
+            FindFirst();
+            TestField("Bin Code", ToBin.Code);
+            TestField(Quantity, ItemJournalLine.Quantity);
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandlerSimple,SetSNOnItemTrackingLinesModalPageHandler,QuantityToCreatePageHandler,SetSNOnWhseItemTrackingLinesModalPageHandler')]
+    procedure InventoryMovementFromMovementWorksheetWithItemTracking()
+    var
+        Item: Record Item;
+        FromBin: Record Bin;
+        ToBin: Record Bin;
+        ItemJournalLine: Record "Item Journal Line";
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        Location: Record Location;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        RegisteredInvtMovementLine: Record "Registered Invt. Movement Line";
+        CreateInventoryPickMovement: Codeunit "Create Inventory Pick/Movement";
+    begin
+        // [FEATURE] [Inventory Movement] [Movement Worksheet] [Item Tracking]
+        // [SCENARIO] Inventory Movement can be created from the Movement Worksheet and canbe registered
+
+        // [GIVEN] Location with 3 bins are created
+        LibraryWarehouse.FindBin(FromBin, CreateLocationWithWhseEmployeeAndNumberOfBins(Location, 3), '', 1);
+
+        // [GIVEN] Create WorksheetName for the newly created Location
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
+        LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, Location.Code);
+
+        // [GIVEN] Serially tracked Item has stock of 10 PCS in the FromBin
+        LibraryInventory.CreateItem(Item);
+        SetItemTracking(Item);
+
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", FromBin."Location Code", FromBin.Code, LibraryRandom.RandInt(10));
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create Warehouse Worksheet Line to move those items from FromBin to ToBin
+        LibraryWarehouse.FindBin(ToBin, FromBin."Location Code", '', 2);
+        LibraryWarehouse.CreateWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetTemplate.Name, WhseWorksheetName.Name, Location.Code, WhseWorksheetLine."Whse. Document Type"::"Whse. Mov.-Worksheet");
+        WhseWorksheetLine.Validate("Item No.", ItemJournalLine."Item No.");
+        WhseWorksheetLine.Validate("From Bin Code", FromBin.Code);
+        WhseWorksheetLine.Validate("To Bin Code", ToBin.Code);
+        WhseWorksheetLine.Validate(Quantity, ItemJournalLine.Quantity);
+        WhseWorksheetLine.Modify(true);
+
+        // [GIVEN] Assign item tracking information
+        LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Qty. (Base)");
+        WhseWorksheetLine.OpenItemTrackingLines();
+
+        // [WHEN] Create Inventory Movement from Warehouse Worksheet Line
+        CreateInventoryPickMovement.CreateInvtMvntWithoutSource(WhseWorksheetLine);
+
+        // [THEN] Inventory Movement document is created and item tracking is transferred
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Movement");
+        WarehouseActivityLine.SetRange("Item No.", ItemJournalLine."Item No.");
+        WarehouseActivityLine.SetFilter("Bin Code", '<>%1', '');
+        WarehouseActivityLine.SetFilter("Serial No.", '<>%1', '');
+        Assert.RecordCount(WarehouseActivityLine, ItemJournalLine.Quantity * 2);
+
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Register Inventory Movement
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Registered Invt. Movement Take Line has 10 PCS of the Item, Bin and item tracking
+        RegisteredInvtMovementLine.SetRange("Item No.", ItemJournalLine."Item No.");
+        RegisteredInvtMovementLine.SetRange("Action Type", RegisteredInvtMovementLine."Action Type"::Take);
+        RegisteredInvtMovementLine.SetFilter("Serial No.", '<>%1', '');
+        RegisteredInvtMovementLine.SetRange(Quantity, 1);
+        Assert.RecordCount(RegisteredInvtMovementLine, ItemJournalLine.Quantity);
+
+        RegisteredInvtMovementLine.SetRange("Action Type", RegisteredInvtMovementLine."Action Type"::Place);
+        Assert.RecordCount(RegisteredInvtMovementLine, ItemJournalLine.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandlerSimple')]
+    procedure InventoryMovementCarriesZoneInfoAllTheWayToWarehouseEntries()
+    var
+        Location: Record Location;
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Zone: array[2] of Record Zone;
+        Bin: array[2] of Record Bin;
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        RegisteredInvtMovementLine: Record "Registered Invt. Movement Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        CreateInventoryPickMovement: Codeunit "Create Inventory Pick/Movement";
+    begin
+        // [FEATURE] [Inventory Movement] [Register Movement]
+        // [SCENARIO] Inventory Movement carries the zone and bin information from the document to the warehouse entries
+
+        // [GIVEN] Location with 2 bins are created
+        CreateLocationWithWhseEmployeeAndNumberOfBins(Location, 2);
+
+        // [GIVEN] Both the Bins belong to different Zones
+        LibraryWarehouse.CreateZone(Zone[1], '', Location.Code, '', '', '', 0, false);
+        LibraryWarehouse.CreateZone(Zone[2], '', Location.Code, '', '', '', 0, false);
+        LibraryWarehouse.FindBin(Bin[1], Location.Code, '', 1);
+        Bin[1].Validate("Zone Code", Zone[1].Code);
+        Bin[1].Modify(true);
+        LibraryWarehouse.FindBin(Bin[2], Location.Code, '', 2);
+        Bin[2].Validate("Zone Code", Zone[2].Code);
+        Bin[2].Modify(true);
+
+        // [GIVEN] Create WorksheetName for the newly created Location
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
+        LibraryWarehouse.CreateWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, Location.Code);
+
+        // [GIVEN] Item has stock of 10 PCS in Bin[1]
+        LibraryInventory.CreateItem(Item);
+
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Bin[1]."Location Code", Bin[1].Code, LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create Warehouse Worksheet Line to move those items from FromBin to ToBin
+        LibraryWarehouse.CreateWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetTemplate.Name, WhseWorksheetName.Name, Location.Code, WhseWorksheetLine."Whse. Document Type"::"Whse. Mov.-Worksheet");
+        WhseWorksheetLine.Validate("Item No.", ItemJournalLine."Item No.");
+        WhseWorksheetLine.Validate("From Bin Code", Bin[1].Code);
+        WhseWorksheetLine.Validate("To Bin Code", Bin[2].Code);
+        WhseWorksheetLine.Validate(Quantity, ItemJournalLine.Quantity);
+        WhseWorksheetLine.Modify(true);
+
+        // [WHEN] Create Inventory Movement from Warehouse Worksheet Line
+        CreateInventoryPickMovement.CreateInvtMvntWithoutSource(WhseWorksheetLine);
+
+        // [THEN] Inventory Movement document is created and zone and bin information is set on the movement lines
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Movement");
+        WarehouseActivityLine.SetRange("Item No.", ItemJournalLine."Item No.");
+        WarehouseActivityLine.SetFilter("Bin Code", '<>%1', '');
+        WarehouseActivityLine.SetFilter("Zone Code", '<>%1', '');
+        Assert.RecordCount(WarehouseActivityLine, 2);
+
+        // [THEN] Take Inventory Movement line has zone and bin information for the "from bin"
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Zone Code", Zone[1].Code);
+        WarehouseActivityLine.TestField("Bin Code", Bin[1].Code);
+
+        // [THEN] Place Inventory Movement line has zone and bin information for the "to bin"
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Zone Code", Zone[2].Code);
+        WarehouseActivityLine.TestField("Bin Code", Bin[2].Code);
+
+        // [GIVEN] Autofill the quantity on the movement document 
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Register Inventory Movement
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Registered Invt. Movement Take Line has zone and bin set correctly
+        RegisteredInvtMovementLine.SetRange("Item No.", ItemJournalLine."Item No.");
+        RegisteredInvtMovementLine.SetRange("Action Type", RegisteredInvtMovementLine."Action Type"::Take);
+        Assert.RecordCount(RegisteredInvtMovementLine, 1);
+
+        // [THEN] Registered Invt. Movement Place Line has zone and bin set correctly
+        RegisteredInvtMovementLine.SetRange("Action Type", RegisteredInvtMovementLine."Action Type"::Place);
+        Assert.RecordCount(RegisteredInvtMovementLine, 1);
+
+        // [THEN] Warehouse Entries have zone and bin set correctly
+        WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::Movement);
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        Assert.RecordCount(WarehouseEntry, 2);
+        WarehouseEntry.SetFilter(Quantity, '< %1', 0);
+        WarehouseEntry.FindFirst();
+        WarehouseEntry.TestField("Zone Code", Zone[1].Code);
+        WarehouseEntry.TestField("Bin Code", Bin[1].Code);
+
+        WarehouseEntry.SetFilter(Quantity, '> %1', 0);
+        WarehouseEntry.FindFirst();
+        WarehouseEntry.TestField("Zone Code", Zone[2].Code);
+        WarehouseEntry.TestField("Bin Code", Bin[2].Code);
+    end;
+
     local procedure CreateLocationWithWhseEmployeeAndNumberOfBins(NumberOfBins: Integer): Code[10]
     var
         WarehouseEmployee: Record "Warehouse Employee";
         Location: Record Location;
+    begin
+        WarehouseEmployee.DeleteAll();
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', NumberOfBins, false);
+        exit(Location.Code);
+    end;
+
+    local procedure CreateLocationWithWhseEmployeeAndNumberOfBins(var Location: Record Location; NumberOfBins: Integer): Code[10]
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
     begin
         WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
@@ -592,6 +976,7 @@ codeunit 137200 "SCM Inventory Movement Test"
         ItemTrackingCode.Validate("SN Warehouse Tracking", true);
         ItemTrackingCode.Modify(true);
         ItemRec.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        ItemRec."Serial Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         ItemRec.Modify(true);
     end;
 
@@ -984,6 +1369,63 @@ codeunit 137200 "SCM Inventory Movement Test"
     [MessageHandler]
     procedure MessageHandlerSimple(Message: Text)
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SetSNOnWhseItemTrackingLinesModalPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Index: Integer;
+        QtyToHandle: Integer;
+        ItemNo: Code[20];
+    begin
+        ItemNo := LibraryVariableStorage.DequeueText();
+        QtyToHandle := LibraryVariableStorage.DequeueInteger();
+
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindSet();
+        for Index := 1 to QtyToHandle do begin
+            WhseItemTrackingLines.New();
+            WhseItemTrackingLines."Serial No.".SetValue(ItemLedgerEntry."Serial No.");
+            WhseItemTrackingLines.Quantity.SetValue(1);
+            //WhseItemTrackingLines.Next();
+            ItemLedgerEntry.Next();
+        end;
+        WhseItemTrackingLines.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SetSNOnItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Index: Integer;
+        QtyToHandle: Integer;
+        ItemNo: Code[20];
+    begin
+        ItemTrackingLines."Assign &Serial No.".Invoke();
+        ItemTrackingLines.OK().Invoke();
+        /*        ItemNo := WhseItemTrackingLines."Item No.".Value;
+                QtyToHandle := WhseItemTrackingLines."Qty. to Handle (Base)".AsInteger();
+
+                ItemLedgerEntry.SetRange("Item No.", ItemNo);
+                ItemLedgerEntry.FindSet();
+                WhseItemTrackingLines.First();
+                for Index := 1 to QtyToHandle do begin
+                    WhseItemTrackingLines."Serial No.".SetValue(ItemLedgerEntry."Serial No.");
+                    WhseItemTrackingLines.Quantity.SetValue(1);
+                    WhseItemTrackingLines.Next();
+                    ItemLedgerEntry.Next();
+                end;
+                WhseItemTrackingLines.OK.Invoke();*/
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityToCreate.OK.Invoke;
     end;
 }
 

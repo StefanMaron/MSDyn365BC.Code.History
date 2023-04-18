@@ -1670,7 +1670,6 @@ codeunit 137621 "SCM Costing Bugs II"
     var
         Item: Record Item;
         Location: array[2] of Record Location;
-        ItemJournalLine: Record "Item Journal Line";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -1687,9 +1686,7 @@ codeunit 137621 "SCM Costing Bugs II"
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, 0, 18.0);
 
         // [GIVEN] Post 1 pc to inventory on location "A", unit cost = 18.0 LCY.
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location[1].Code, '', 1);
-        ItemJournalLine.Validate("Unit Amount", 18.0);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        CreateAndPostItemJournalLineWithUnitAmount(Item."No.", Location[1].Code, 1, 18.0);
 
         // [GIVEN] Purchase order for 100 pcs on location "B", unit cost = 100.0 LCY.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
@@ -2107,7 +2104,6 @@ codeunit 137621 "SCM Costing Bugs II"
     procedure UpdateAnalysisViewOnAdjustCostWithAutomaticCostPosting()
     var
         Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
         AnalysisView: Record "Analysis View";
         Qty: Decimal;
         LastEntryNo: Integer;
@@ -2122,16 +2118,10 @@ codeunit 137621 "SCM Costing Bugs II"
 
         // [GIVEN] Post positive inventory adjustment with "Unit Amount" > 0.
         LibraryInventory.CreateItem(Item);
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', Qty);
-        ItemJournalLine.Validate("Unit Amount", LibraryRandom.RandDec(100, 2));
-        ItemJournalLine.Modify(true);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        CreateAndPostItemJournalLineWithUnitAmount(Item."No.", '', Qty, LibraryRandom.RandDec(100, 2));
 
         // [GIVEN] Post negative inventory adjustment with "Unit Amount" = 0.
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', -Qty);
-        ItemJournalLine.Validate("Unit Amount", 0);
-        ItemJournalLine.Modify(true);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+        CreateAndPostItemJournalLineWithUnitAmount(Item."No.", '', -Qty, 0);
 
         // [GIVEN] Create analysis view, set "Update on Posting" = TRUE.
         // [GIVEN] Update the analysis view, note the "Last Entry No." = "N".
@@ -2295,6 +2285,50 @@ codeunit 137621 "SCM Costing Bugs II"
         VerifyValueEntry(Item."No.", 0, 0);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure StartAutomaticCostAdjustmentAfterNeverChangedToAlways()
+    var
+        InventorySetup: Record "Inventory Setup";
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        UnitAmount: Decimal;
+    begin
+        // [FEATURE] [Adjust Cost Item Entries] [Automatic Cost Adjustment]
+        // [SCENARIO 463262] Start automatic cost adjustment on posting the next item entry after "Automatic Cost Adjustment" setting is changed from "Never" to "Always".
+        Initialize();
+        UnitAmount := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] "Automatic Cost Adjustment" = "Never" in Inventory Setup.
+        InventorySetup.Get();
+        InventorySetup.Validate("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Never);
+        InventorySetup.Modify(true);
+
+        // [GIVEN] Post positive inventory adjustment using item journal. "Unit Amount" = "X".
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJournalLineWithUnitAmount(Item."No.", '', LibraryRandom.RandIntInRange(50, 100), UnitAmount);
+
+        // [GIVEN] Post negative adjustment, set "Unit Amount" = 0.
+        CreateAndPostItemJournalLineWithUnitAmount(Item."No.", '', -LibraryRandom.RandInt(10), 0);
+
+        // [GIVEN] Ensure that the negative entry is not adjusted automatically.
+        FindLastItemLedgerEntry(ItemLedgerEntry, Item."No.", '', false);
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", 0);
+
+        // [WHEN] Set "Automatic Cost Adjusment" = "Always".
+        InventorySetup.Validate("Automatic Cost Adjustment", InventorySetup."Automatic Cost Adjustment"::Always);
+        InventorySetup.Modify(true);
+
+        // [THEN] Post negative adjustment, set "Unit Amount" = 0.
+        CreateAndPostItemJournalLineWithUnitAmount(Item."No.", '', -LibraryRandom.RandInt(10), 0);
+
+        // [THEN] The cost of the negative entry has been automatically adjusted to "X".
+        FindLastItemLedgerEntry(ItemLedgerEntry, Item."No.", '', false);
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", ItemLedgerEntry.Quantity * UnitAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2392,6 +2426,16 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, '', Qty);
         ItemJournalLine.Validate("Applies-to Entry", AppliesToEntry);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateAndPostItemJournalLineWithUnitAmount(ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; UnitAmount: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, '', Qty);
+        ItemJournalLine.Validate("Unit Amount", UnitAmount);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;

@@ -832,7 +832,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         i: Integer;
     begin
         TempBlobANSI.CreateInStream(InStream);
-        Reader := Reader.StreamReader(InStream, Encoding.Default);
+        Reader := Reader.StreamReader(InStream, Encoding.GetEncoding(0));
         for i := 1 to ArrayLen(ExportData, 1) do
             VerifyOutputForLine(Reader, ExportData, i, ColumnSeparator, FieldDelimiter);
 

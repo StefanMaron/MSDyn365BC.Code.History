@@ -22,7 +22,7 @@ page 7600 "Base Calendar Card"
                         CurrPage.BaseCalendarEntries.PAGE.SetCalendarSource(Rec);
                     end;
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the base calendar in the entry.';

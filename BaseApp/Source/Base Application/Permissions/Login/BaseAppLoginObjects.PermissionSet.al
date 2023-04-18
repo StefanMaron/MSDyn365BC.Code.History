@@ -16,21 +16,20 @@ permissionset 184 "BaseApp Login - Objects"
                   codeunit "GlobalTriggerManagement" = X,
                   codeunit "Graph Mgt - General Tools" = X,
                   codeunit "Identity Management" = X,
-                  codeunit "Integration Management" = X,
                   codeunit "License Agreement Management" = X,
                   codeunit LogInManagement = X,
+#if not CLEAN22
                   codeunit "Manage User Plans And Groups" = X,
+#endif
                   codeunit "My Platform Notifications" = X,
                   codeunit "My Settings" = X,
                   codeunit "Permission Manager" = X,
                   codeunit "SaaS Log In Management" = X,
                   codeunit "Type Helper" = X,
+#if not CLEAN22
                   codeunit "User Groups" = X,
-                  page "Additional Customer Terms" = X,
-#if not CLEAN19
-                  page "My Settings" = X,
 #endif
-                  tabledata "Onboarding Signal" = rimd,
+                  page "Additional Customer Terms" = X,
                   table "Assisted Company Setup Status" = X,
                   table "License Agreement" = X,
                   table "Company Information" = X,

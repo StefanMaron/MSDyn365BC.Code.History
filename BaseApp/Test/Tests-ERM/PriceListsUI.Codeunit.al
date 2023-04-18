@@ -4075,6 +4075,64 @@ codeunit 134117 "Price Lists UI"
         UnbindSubscription(PriceListsUI);
     end;
 
+    [Test]
+    procedure SalesJobPriceListAutofillsJobNo()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceSource: Record "Price Source";
+        Job: Record Job;
+        PriceUXManagement: Codeunit "Price UX Management";
+        SourceGroup: Enum "Price Source Group";
+    begin
+        // [SCENARIO 449200] Creating Job Purchase Price List from a Job Card
+        Initialize(true);
+
+        // [GIVEN] A Job 
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] New PriceListHeader similar to opening a new Sales Price List via Job  Card "Sales Price Lists" action, and "New" button.
+        PriceListHeader.FilterGroup(2);
+        PriceListHeader.SetRange("Source Group", SourceGroup::Job);
+        PriceListHeader.SetFilter("Filter Source No.", Job."No.");
+        PriceListHeader.SetRange("Price Type", "Price Type"::Sale);
+
+        // [WHEN] GetFirstSourceFromFilter runs (triggered by New button on Sales Price Lists page)
+        PriceUXManagement.GetFirstSourceFromFilter(PriceListHeader, PriceSource, "Price Source Type"::"All Jobs");
+
+        // [THEN] PriceSource has "Source No." and "Source Type" set to Job.No and Job (Which later populates new Price Source List)
+        Assert.AreEqual(Job."No.", PriceSource."Source No.", '');
+        Assert.AreEqual("Price Source Type"::Job, PriceSource."Source Type", '');
+    end;
+
+    [Test]
+    procedure PurchaseJobPriceListAutofillsJobNo()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceSource: Record "Price Source";
+        Job: Record Job;
+        PriceUXManagement: Codeunit "Price UX Management";
+        SourceGroup: Enum "Price Source Group";
+    begin
+        // [SCENARIO 449200] Creating Job Purchase Price List from a Job Card
+        Initialize(true);
+
+        // [GIVEN] A Job 
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] New PriceListHeader similar to opening a new Purchase Price List via Job  Card "Purchase Price Lists" action, and "New" button.
+        PriceListHeader.FilterGroup(2);
+        PriceListHeader.SetRange("Source Group", SourceGroup::Job);
+        PriceListHeader.SetFilter("Filter Source No.", Job."No.");
+        PriceListHeader.SetRange("Price Type", "Price Type"::Purchase);
+
+        // [WHEN] GetFirstSourceFromFilter runs (triggered by New button on Purchase Price Lists page)
+        PriceUXManagement.GetFirstSourceFromFilter(PriceListHeader, PriceSource, "Price Source Type"::"All Jobs");
+
+        // [THEN] PriceSource has "Source No." and "Source Type" set to Job.No and Job (Which later populates new Price Source List)
+        Assert.AreEqual(Job."No.", PriceSource."Source No.", '');
+        Assert.AreEqual("Price Source Type"::Job, PriceSource."Source Type", '');
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         PriceListHeader: Record "Price List Header";

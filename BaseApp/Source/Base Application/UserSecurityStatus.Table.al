@@ -42,6 +42,14 @@ table 9062 "User Security Status"
             CalcFormula = Exist("User Group Member" WHERE("User Security ID" = FIELD("User Security ID")));
             Caption = 'Belongs to User Group';
             FieldClass = FlowField;
+            ObsoleteReason = 'User group membership cannot be calculated via a flow field in the new user group system.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
         }
         field(20; "Users - To review"; Integer)
         {
@@ -60,10 +68,18 @@ table 9062 "User Security Status"
         }
         field(22; "Users - Not Group Members"; Integer)
         {
-            CalcFormula = Count("User Security Status" WHERE("Belongs to User Group" = CONST(false),
-                                                              "User Security ID" = FILTER(<> '{00000000-0000-0000-0000-000000000000}')));
             Caption = 'Users - Not Group Members';
             FieldClass = FlowField;
+            ObsoleteReason = 'User group membership cannot be calculated via a flow field in the new user group system.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+            CalcFormula = Count("User Security Status" WHERE("Belongs to User Group" = CONST(false),
+                                                              "User Security ID" = FILTER(<> '{00000000-0000-0000-0000-000000000000}')));
+#endif
         }
         field(25; "CDS Integration Errors"; Integer)
         {
@@ -120,10 +136,11 @@ table 9062 "User Security Status"
         UserSecurityStatus: Record "User Security Status";
         EnvironmentInfo: Codeunit "Environment Information";
         AzureADPlan: Codeunit "Azure AD Plan";
+        UserSelection: Codeunit "User Selection";
         IsSaaS: Boolean;
     begin
         User.SetRange(State, User.State::Enabled);
-        HideExternalUsers(User);
+        UserSelection.FilterSystemUserAndGroupUsers(User);
         if not User.FindSet() then
             exit;
 
@@ -154,14 +171,6 @@ table 9062 "User Security Status"
         else
             ActivityMessage := StrSubstNo(UserNotReviewedTxt, "User Name");
         ActivityLog.LogActivity(RecordId, ActivityLog.Status::Success, SecurityContextTok, SecurityActivityTok, ActivityMessage);
-    end;
-
-    local procedure HideExternalUsers(var User: Record User)
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
-    begin
-        if EnvironmentInfo.IsSaaS() then
-            User.SetFilter("License Type", '<>%1', User."License Type"::"External User");
     end;
 }
 

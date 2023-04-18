@@ -26,7 +26,9 @@ codeunit 132907 AzureADUserMgtTest
         MockGraphQueryTestLibrary: Codeunit "MockGraphQuery Test Library";
         CompanyAdminRoleTemplateIdTok: Label '62e90394-69f5-4237-9190-012177145e10', Locked = true;
         DeviceUserCannotBeFirstUser: Label 'The device user cannot be the first user to log into the system.';
+#if not CLEAN22
         ExpectedUserGroupAssignedTxt: Label 'Expected the user to have the ''%1'' user group assigned.', Comment = '%1 - user group code';
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -152,6 +154,7 @@ codeunit 132907 AzureADUserMgtTest
         TearDown();
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -351,7 +354,174 @@ codeunit 132907 AzureADUserMgtTest
         UnbindSubscription(AzureADUserMgtTestLibrary);
         TearDown();
     end;
+#endif
 
+#if not CLEAN22
+    // The following tests rely on user sync using the AzureADUserManagement.ArePermissionsCustomized in the wizard,
+    // so they should only be enabled when this function is used.
+#else
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [CommitBehavior(CommitBehavior::Ignore)]
+    procedure TestPermissionsAppendedOnUserSyncNoCustomPermissions()
+    var
+        User: Record User;
+        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
+        FirstAzureADUserUpdateWizard: TestPage "Azure AD User Update Wizard";
+        SecondAzureADUserUpdateWizard: TestPage "Azure AD User Update Wizard";
+        GraphUser: DotNet UserInfo;
+        DummyGraphUser: DotNet UserInfo;
+        RainyCloudPlanId, ShinySunlightPlanId : Guid;
+        RainyCloudRoleId: Label 'Rainy Cloud';
+        ShinySunlightRoleId: Label 'Shiny Sunlight';
+    begin
+        Initialize();
+        BindSubscription(AzureADUserMgtTestLibrary);
+        BindSubscription(TestUserPermissionsSubs);
+        TestUserPermissionsSubs.SetCanManageUser(UserSecurityId());
+
+        // [GIVEN] A permission set in a plan exists
+        RainyCloudPlanId := AzureADPlanTestLibrary.CreatePlan('Rainy Cloud');
+        LibraryPermissions.CreatePermissionSetInPlan(RainyCloudRoleId, RainyCloudPlanId);
+
+        // [GIVEN] A user in Azure AD with the test plan exists
+        MockGraphQueryTestLibrary.AddAndReturnGraphUser(GraphUser, CreateGuid(), 'John', 'Doe', 'john.doe@microsoft.com');
+        MockGraphQueryTestLibrary.AddUserPlan(GraphUser.ObjectId, RainyCloudPlanId, '', 'Enabled');
+
+        // [GIVEN] The user has been synced
+        FirstAzureADUserUpdateWizard.Trap();
+        Page.Run(Page::"Azure AD User Update Wizard");
+        FirstAzureADUserUpdateWizard.Next.Invoke();
+        FirstAzureADUserUpdateWizard.ApplyUpdates.Invoke();
+        FirstAzureADUserUpdateWizard.Close.Invoke();
+
+        // Verify that the user has the permission set assigned
+        User.SetRange("Authentication Email", 'john.doe@microsoft.com');
+        Assert.IsTrue(User.FindFirst(), 'Expected to find the user.');
+        AssertPermissionSetAssignedToUser(RainyCloudRoleId, User."User Security ID");
+
+        // [GIVEN] The user does not have custom permission sets assigned
+        // [WHEN] The user has a change in assigned plans
+        GraphUser.AssignedPlans := DummyGraphUser.UserInfo().AssignedPlans; // clear Azure AD plans
+        ShinySunlightPlanId := AzureADPlanTestLibrary.CreatePlan('Shiny Sunlight');
+        LibraryPermissions.CreatePermissionSetInPlan(ShinySunlightRoleId, ShinySunlightPlanId);
+        MockGraphQueryTestLibrary.AddUserPlan(GraphUser.ObjectId, ShinySunlightPlanId, '', 'Enabled');
+
+        // [WHEN] The sync wizard is run
+        SecondAzureADUserUpdateWizard.Trap();
+        Page.Run(Page::"Azure AD User Update Wizard");
+
+        // [THEN] The wizard can be completed normally
+        SecondAzureADUserUpdateWizard.Next.Invoke();
+        SecondAzureADUserUpdateWizard.ApplyUpdates.Invoke();
+        SecondAzureADUserUpdateWizard.Close.Invoke();
+
+        // [THEN] The users has permission sets from both plans assigned
+        AssertPermissionSetAssignedToUser(RainyCloudRoleId, User."User Security ID");
+        AssertPermissionSetAssignedToUser(ShinySunlightRoleId, User."User Security ID");
+
+        UnbindSubscription(TestUserPermissionsSubs);
+        UnbindSubscription(AzureADUserMgtTestLibrary);
+        TearDown();
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [CommitBehavior(CommitBehavior::Ignore)]
+    procedure TestPermissionsAppendedOnUserSyncWithCustomPermissions()
+    var
+        User: Record User;
+        AccessControl: Record "Access Control";
+        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
+        FirstAzureADUserUpdateWizard: TestPage "Azure AD User Update Wizard";
+        SecondAzureADUserUpdateWizard: TestPage "Azure AD User Update Wizard";
+        GraphUser: DotNet UserInfo;
+        DummyGraphUser: DotNet UserInfo;
+        RainyCloudPlanId, ShinySunlightPlanId : Guid;
+        RainyCloudRoleId: Label 'Rainy Cloud';
+        ShinySunlightRoleId: Label 'Shiny Sunlight';
+    begin
+        // Same scenario as in TestPermissionsAppendedOnUserSyncNoCustomPermissions, but before
+        // the second round of syncing the user has been assigned a custom permission set.
+        Initialize();
+        BindSubscription(AzureADUserMgtTestLibrary);
+        BindSubscription(TestUserPermissionsSubs);
+        TestUserPermissionsSubs.SetCanManageUser(UserSecurityId());
+
+        // [GIVEN] A permission set in a plan exists
+        RainyCloudPlanId := AzureADPlanTestLibrary.CreatePlan('Rainy Cloud');
+        LibraryPermissions.CreatePermissionSetInPlan(RainyCloudRoleId, RainyCloudPlanId);
+
+        // [GIVEN] A user in Azure AD with the test plan exists
+        MockGraphQueryTestLibrary.AddAndReturnGraphUser(GraphUser, CreateGuid(), 'John', 'Doe', 'john.doe@microsoft.com');
+        MockGraphQueryTestLibrary.AddUserPlan(GraphUser.ObjectId, RainyCloudPlanId, '', 'Enabled');
+
+        // [GIVEN] The user has been synced
+        FirstAzureADUserUpdateWizard.Trap();
+        Page.Run(Page::"Azure AD User Update Wizard");
+        FirstAzureADUserUpdateWizard.Next.Invoke();
+        FirstAzureADUserUpdateWizard.ApplyUpdates.Invoke();
+        FirstAzureADUserUpdateWizard.Close.Invoke();
+
+        // Verify that the user has the permission set assigned
+        User.SetRange("Authentication Email", 'john.doe@microsoft.com');
+        Assert.IsTrue(User.FindFirst(), 'Expected to find the user.');
+        AssertPermissionSetAssignedToUser(RainyCloudRoleId, User."User Security ID");
+
+        // [GIVEN] The user has a custom permission set assigned
+        AccessControl."User Security ID" := User."User Security ID";
+        AccessControl."Role ID" := 'CUSTOM';
+        AccessControl.Scope := AccessControl.Scope::Tenant;
+        AccessControl.Insert();
+
+        // [WHEN] The user has a change in assigned plans
+        GraphUser.AssignedPlans := DummyGraphUser.UserInfo().AssignedPlans; // clear Azure AD plans
+        ShinySunlightPlanId := AzureADPlanTestLibrary.CreatePlan('Shiny Sunlight');
+        LibraryPermissions.CreatePermissionSetInPlan(ShinySunlightRoleId, ShinySunlightPlanId);
+        MockGraphQueryTestLibrary.AddUserPlan(GraphUser.ObjectId, ShinySunlightPlanId, '', 'Enabled');
+
+        // [WHEN] The sync wizard is run
+        SecondAzureADUserUpdateWizard.Trap();
+        Page.Run(Page::"Azure AD User Update Wizard");
+
+        // [THEN] The wizard will prompt the user to select what should be done with the custom permissions
+        SecondAzureADUserUpdateWizard.Next.Invoke(); // Welcome banner
+        Assert.IsTrue(SecondAzureADUserUpdateWizard.ManagePermissionUpdates.Visible(), 'Expected the manage permissions button to be visible.'); // Note: for the user the button is called "Next"
+        SecondAzureADUserUpdateWizard.ManagePermissionUpdates.Invoke();
+
+        // [THEN] The list is shown with the records that need some decision to be taken (in this case, only one row)
+        // Verify the row:
+        SecondAzureADUserUpdateWizard.First();
+        Assert.AreEqual('JOHN DOE', SecondAzureADUserUpdateWizard.DisplayName.Value, 'Unexpected user display name.');
+        Assert.AreEqual('Rainy Cloud', SecondAzureADUserUpdateWizard.CurrentLicense.Value, 'Unexpected current value.');
+        Assert.AreEqual('Shiny Sunlight', SecondAzureADUserUpdateWizard.NewLicense.Value, 'Unexpected new value.');
+        Assert.AreEqual(Format(Enum::"Azure AD Permission Change Action"::Select), SecondAzureADUserUpdateWizard.PermissionAction.Value, 'Unexpected default permission change action.');
+
+        // [THEN] The 'Next' button is not enabled until all the rows with permission change action "Select" have been changed to either "Append" or "Keep current"
+        Assert.IsFalse(SecondAzureADUserUpdateWizard.DoneSelectingPermissions.Enabled(), 'Expected the Finish action to be invisible.');
+
+        // [WHEN] The permission change action is selected to be "Append"
+        SecondAzureADUserUpdateWizard.PermissionAction.SetValue(Enum::"Azure AD Permission Change Action"::Append);
+
+        // [THEN] The 'Next' button becomes visible
+        Assert.IsTrue(SecondAzureADUserUpdateWizard.DoneSelectingPermissions.Enabled(), 'Expected the Finish action to be visible.');
+
+        // [THEN] The user is able to successfully finish the wizard
+        SecondAzureADUserUpdateWizard.DoneSelectingPermissions.Invoke();
+        SecondAzureADUserUpdateWizard.ApplyUpdates.Invoke();
+        SecondAzureADUserUpdateWizard.Close.Invoke();
+
+        // [THEN] The user has permission sets from both plans assigned
+        AssertPermissionSetAssignedToUser(RainyCloudRoleId, User."User Security ID");
+        AssertPermissionSetAssignedToUser(ShinySunlightRoleId, User."User Security ID");
+
+        UnbindSubscription(TestUserPermissionsSubs);
+        UnbindSubscription(AzureADUserMgtTestLibrary);
+        TearDown();
+    end;
+#endif
+
+#if not CLEAN22
     [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -412,6 +582,7 @@ codeunit 132907 AzureADUserMgtTest
         // Rollback SaaS test
         TearDown();
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -579,6 +750,7 @@ codeunit 132907 AzureADUserMgtTest
             MockGraphQueryTestLibrary.AddSubscribedSkuWithServicePlan(CreateGuid, Plan.Plan_ID, Plan.Plan_Name);
     end;
 
+#if not CLEAN22
     local procedure ValidateUserGetsTheUserGroupsOfThePlan(User: Record User; UserGroupPlan: Record "User Group Plan")
     var
         UserGroupMember: Record "User Group Member";
@@ -608,6 +780,7 @@ codeunit 132907 AzureADUserMgtTest
 
         MockGraphQueryTestLibrary.AddGraphUser(GetUserAuthenticationId(User), User."User Name", '', '', Plan.Plan_ID, Plan.Plan_Name, 'Enabled');
     end;
+#endif
 
     local procedure CreateUserWithPlan(var User: Record User; PlanID: Guid)
     var
@@ -625,6 +798,7 @@ codeunit 132907 AzureADUserMgtTest
         MockGraphQueryTestLibrary.AddGraphUser(GetUserAuthenticationId(User), User."User Name", '', '', Plan.Plan_ID, Plan.Plan_Name, 'Enabled');
     end;
 
+#if not CLEAN22
     local procedure AssertUserGroupHasOneMember(UserGroupCode: Code[20]; ErrorMessage: Text)
     var
         UserGroupMember: Record "User Group Member";
@@ -632,6 +806,7 @@ codeunit 132907 AzureADUserMgtTest
         UserGroupMember.SetRange("User Group Code", UserGroupCode);
         Assert.AreEqual(1, UserGroupMember.Count, ErrorMessage);
     end;
+#endif
 
     local procedure InsertUserProperty(UserSecurityId: Guid)
     var
@@ -643,11 +818,22 @@ codeunit 132907 AzureADUserMgtTest
         UserProperty.Insert();
     end;
 
+    local procedure AssertPermissionSetAssignedToUser(RoleId: Text; UserSecId: Guid)
+    var
+        AccessControl: Record "Access Control";
+    begin
+        AccessControl.SetRange("User Security ID", UserSecId);
+        AccessControl.SetRange("Role ID", CopyStr(RoleId, 1, MaxStrLen(AccessControl."Role ID")));
+        Assert.RecordIsNotEmpty(AccessControl);
+    end;
+
+#if not CLEAN22
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(MessageText: Text)
     begin
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]

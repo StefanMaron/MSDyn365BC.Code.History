@@ -25,9 +25,6 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Customer Bank Account" = IMD,
                   tabledata "Customer Discount Group" = RIMD,
                   tabledata "Customer Templ." = rm,
-#if not CLEAN19
-                  tabledata "Customer Template" = r,
-#endif
                   tabledata "Detailed Cust. Ledg. Entry" = Rimd,
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,
@@ -42,9 +39,6 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Item Analysis View Entry" = rid,
                   tabledata "Item Budget Entry" = r,
                   tabledata "Item Reference" = IMD,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = IMD,
-#endif
                   tabledata "Line Fee Note on Report Hist." = R,
                   tabledata Opportunity = Rm,
                   tabledata "Opportunity Entry" = Rm,

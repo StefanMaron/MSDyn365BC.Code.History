@@ -189,14 +189,11 @@ codeunit 136317 "Inv. Pick On Job Planning"
         QtyToUse := LibraryRandom.RandIntInRange(2, 10);
         CreateJobWithJobTask(JobTask);
         CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", LocationWithRequirePickBinMandatory.Code, Bin1.Code, QtyToUse);
-        commit;
+        Commit();
 
         // [WHEN] 'Create Inventory Put-away/Pick/Movement' action is invoked
         Job.Get(JobPlanningLine."Job No.");
-        JobCard.OpenEdit();
-        JobCard.GoToRecord(Job);
-
-        JobCard."Create Inventory Pick".Invoke();
+        OpenJobAndCreateInventoryPick(Job);
 
         // [THEN] Warehouse pick lines are created
         WarehouseActivityLine.SetRange("Source Document", WarehouseActivityLine."Source Document"::"Job Usage");
@@ -213,6 +210,8 @@ codeunit 136317 "Inv. Pick On Job Planning"
 
         // [WHEN] 'Put-away/Pick Lines/Movement Lines' action is invoked
         WarehouseActivityLines.Trap();
+        JobCard.OpenEdit();
+        JobCard.GoToRecord(Job);
         JobCard."Put-away/Pick Lines/Movement Lines".Invoke();
 
         // [THEN] 'Warehouse Activity Lines' page opens and loads the pick lines
@@ -316,13 +315,12 @@ codeunit 136317 "Inv. Pick On Job Planning"
 
         // [WHEN] 'Create Inventory Put-away/Pick/Movement' action is invoked
         Job.Get(JobPlanningLine."Job No.");
-        JobCard.OpenEdit();
-        JobCard.GoToRecord(Job);
-
-        JobCard."Create Inventory Pick".Invoke();
+        OpenJobAndCreateInventoryPick(Job);
 
         // [WHEN] 'Put-away/Pick Lines/Movement Lines' action is invoked
         WarehouseActivityLines.Trap();
+        JobCard.OpenEdit();
+        JobCard.GoToRecord(Job);
         JobCard."Put-away/Pick Lines/Movement Lines".Invoke();
 
         LibraryVariableStorage.Enqueue(QtyToUse); // Qty. to Handle
@@ -1798,9 +1796,9 @@ codeunit 136317 "Inv. Pick On Job Planning"
     begin
         LibraryInventory.CreateItem(Item);
         LibraryItemTracking.AddSerialNoTrackingInfo(Item);
-        if WMSSpecific then begin
+        if not WMSSpecific then begin
             ItemTrackingCode.Get(Item."Item Tracking Code");
-            ItemTrackingCode.Validate("SN Warehouse Tracking", true);
+            ItemTrackingCode.Validate("SN Warehouse Tracking", false);
             ItemTrackingCode.Modify(true);
         end;
     end;
@@ -1810,11 +1808,6 @@ codeunit 136317 "Inv. Pick On Job Planning"
         NoSeries: Record "No. Series";
         InventorySetup: Record "Inventory Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-#if not CLEAN20
-        FeatureKey: Record "Feature Key";
-        FeatureDataUpdateStatus: Record "Feature Data Update Status";
-        PicksForJobsFeatureIdLbl: Label 'PicksForJobs', Locked = true;
-#endif
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Inv. Pick On Job Planning");
         LibrarySetupStorage.Restore();
@@ -1857,17 +1850,6 @@ codeunit 136317 "Inv. Pick On Job Planning"
         LibrarySetupStorage.Save(Database::"Purchases & Payables Setup");
 
         IsInitialized := true;
-#if not CLEAN20
-        FeatureKey.Get(PicksForJobsFeatureIdLbl);
-        if FeatureKey.Enabled <> FeatureKey.Enabled::"All Users" then begin
-            FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
-            FeatureKey.Modify();
-        end;
-        if (FeatureDataUpdateStatus.Get(PicksForJobsFeatureIdLbl, CompanyName())) and (FeatureDataUpdateStatus."Feature Status" <> FeatureDataUpdateStatus."Feature Status"::Enabled) then begin
-            FeatureDataUpdateStatus."Feature Status" := FeatureDataUpdateStatus."Feature Status"::Enabled;
-            FeatureDataUpdateStatus.Modify();
-        end;
-#endif
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Inv. Pick On Job Planning");
     end;
 
@@ -1892,14 +1874,8 @@ codeunit 136317 "Inv. Pick On Job Planning"
     end;
 
     local procedure OpenJobAndCreateInventoryPick(Job: Record Job)
-    var
-        JobCardPage: TestPage "Job Card";
     begin
-        Commit();
-        JobCardPage.OpenEdit();
-        JobCardPage.GoToRecord(Job);
-        JobCardPage."Create Inventory Pick".Invoke();
-        JobCardPage.Close();
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Job Usage", Job."No.", false, true, false);
     end;
 
     local procedure OpenRelatedJournalAndPost(JobPlanningLine: Record "Job Planning Line")

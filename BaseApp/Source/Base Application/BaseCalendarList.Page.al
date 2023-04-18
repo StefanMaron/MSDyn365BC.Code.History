@@ -21,7 +21,7 @@ page 7601 "Base Calendar List"
                     Caption = 'Code';
                     ToolTip = 'Specifies the code for the base calendar you have set up.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the base calendar in the entry.';

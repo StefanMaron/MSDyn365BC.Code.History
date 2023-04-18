@@ -4,9 +4,7 @@
 /// </summary>
 codeunit 30162 "Shpfy Order Events"
 {
-    Access = Internal;
-
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Raised After Modify Shopify Order.
     /// </summary>
@@ -16,7 +14,7 @@ codeunit 30162 "Shpfy Order Events"
     begin
     end;
 
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Raised After NewShopify Order.
     /// </summary>
@@ -35,7 +33,7 @@ codeunit 30162 "Shpfy Order Events"
     begin
     end;
 
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Description for OnAfterMapCustomer.
     /// </summary>
@@ -44,7 +42,7 @@ codeunit 30162 "Shpfy Order Events"
     begin
     end;
 
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Description for OnBeforeMapShipmentMethod.
     /// </summary>
@@ -54,7 +52,7 @@ codeunit 30162 "Shpfy Order Events"
     begin
     end;
 
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Description for OnAfterMapShipmentMethod.
     /// </summary>
@@ -63,7 +61,7 @@ codeunit 30162 "Shpfy Order Events"
     begin
     end;
 
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Description for OnBeforeMapPaymentMethod.
     /// </summary>
@@ -73,7 +71,7 @@ codeunit 30162 "Shpfy Order Events"
     begin
     end;
 
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Description for OnAfterMapPaymentMethod.
     /// </summary>
@@ -82,28 +80,28 @@ codeunit 30162 "Shpfy Order Events"
     begin
     end;
 
-    [InternalEvent(false)]
+#pragma warning disable AS0025
+    [IntegrationEvent(false, false)]
     /// <summary> 
-    /// Raised Before Release Sales Header.
+    /// Raised After Processing of Sales Document.
     /// </summary>
     /// <param name="SalesHeader">Parameter of type Record "Sales Header".</param>
-    /// <param name="ShopifyOrderHeader">Parameter of type Record "Shopify Order Header".</param>
-    /// <param name="Handled">Parameter of type Boolean.</param>
-    internal procedure OnBeforeReleaseSalesHeader(var SalesHeader: Record "Sales Header"; ShopifyOrderHeader: Record "Shpfy Order Header"; var Handled: Boolean)
+    /// <param name="OrderHeader">Parameter of type Record "Shopify Order Header".</param>
+    internal procedure OnAfterProcessSalesDocument(var SalesHeader: Record "Sales Header"; OrderHeader: Record "Shpfy Order Header")
+    begin
+    end;
+#pragma warning restore AS0025
+
+    [IntegrationEvent(false, false)]
+    /// <summary> 
+    /// Raised Before Processing of Sales Document.
+    /// </summary>
+    /// <param name="SalesHeader">Parameter of type Record "Shopify Order Header".</param>
+    internal procedure OnBeforeProcessSalesDocument(var ShopifyOrderHeader: Record "Shpfy Order Header")
     begin
     end;
 
-    [InternalEvent(false)]
-    /// <summary> 
-    /// Raised After Release Sales Header.
-    /// </summary>
-    /// <param name="SalesHeader">Parameter of type Record "Sales Header".</param>
-    /// <param name="ShopifyHeader">Parameter of type Record "Shopify Order Header".</param>
-    internal procedure OnAfterReleaseSalesHeader(var SalesHeader: Record "Sales Header"; ShopifyHeader: Record "Shpfy Order Header")
-    begin
-    end;
-
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Raised After Create Item Sales Line.
     /// </summary>
@@ -115,29 +113,31 @@ codeunit 30162 "Shpfy Order Events"
     begin
     end;
 
-    [InternalEvent(false)]
+#pragma warning disable AS0025
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Raised After Create Sales Header.
     /// </summary>
-    /// <param name="ShopifyHeader">Parameter of type Record "Shopify Order Header".</param>
+    /// <param name="OrderHeader">Parameter of type Record "Shopify Order Header".</param>
     /// <param name="SalesHeader">Parameter of type Record "Sales Header".</param>
-    internal procedure OnAfterCreateSalesHeader(ShopifyHeader: Record "Shpfy Order Header"; var SalesHeader: Record "Sales Header")
+    internal procedure OnAfterCreateSalesHeader(OrderHeader: Record "Shpfy Order Header"; var SalesHeader: Record "Sales Header")
     begin
     end;
 
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Raised After Create Shipping Cost Sales Line.
     /// </summary>
     /// <param name="ShopifyOrderHeader">Parameter of type Record "Shopify Order Header".</param>
-    /// <param name="ShopifyShippingCost">Parameter of type Record "Shopify Order Shipping Cost".</param>
+    /// <param name="OrderShippingCharges">Parameter of type Record "Shopify Order Shipping Cost".</param>
     /// <param name="SalesHeader">Parameter of type Record "Sales Header".</param>
     /// <param name="SalesLine">Parameter of type Record "Sales Line".</param>
-    internal procedure OnAfterCreateShippingCostSalesLine(ShopifyOrderHeader: Record "Shpfy Order Header"; ShopifyShippingCost: Record "Shpfy Order Shipping Charges"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    internal procedure OnAfterCreateShippingCostSalesLine(ShopifyOrderHeader: Record "Shpfy Order Header"; OrderShippingCharges: Record "Shpfy Order Shipping Charges"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
+#pragma warning restore AS0025
 
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Raised Before Create Sales Header.
     /// </summary>
@@ -148,20 +148,22 @@ codeunit 30162 "Shpfy Order Events"
     begin
     end;
 
-    [InternalEvent(false)]
+#pragma warning disable AS0025
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Raised Before Create Shipping Cost Sales Line.
     /// </summary>
     /// <param name="ShopifyOrderHeader">Parameter of type Record "Shopify Order Header".</param>
-    /// <param name="ShopifyShippingCost">Parameter of type Record "Shopify Order Shipping Cost".</param>
+    /// <param name="OrderShippingCharges">Parameter of type Record "Shopify Order Shipping Cost".</param>
     /// <param name="SalesHeader">Parameter of type Record "Sales Header".</param>
     /// <param name="SalesLine">Parameter of type Record "Sales Line".</param>
     /// <param name="Handled">Parameter of type Boolean.</param>
-    internal procedure OnBeforeCreateShippingCostSalesLine(ShopifyOrderHeader: Record "Shpfy Order Header"; ShopifyShippingCost: Record "Shpfy Order Shipping Charges"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var Handled: Boolean)
+    internal procedure OnBeforeCreateShippingCostSalesLine(ShopifyOrderHeader: Record "Shpfy Order Header"; OrderShippingCharges: Record "Shpfy Order Shipping Charges"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var Handled: Boolean)
     begin
     end;
+#pragma warning restore AS0025
 
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     /// <summary> 
     /// Raised Before Create Item Sales Line.
     /// </summary>
@@ -174,4 +176,18 @@ codeunit 30162 "Shpfy Order Events"
     begin
     end;
 
+    [InternalEvent(false)]
+    internal procedure OnBeforeTranslateCurrencyCode(ShopifyCurrencyCode: Text; var CurrencyCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    internal procedure OnBeforeConvertToFinancialStatus(Value: Text; var ShpfyFinancialStatus: Enum "Shpfy Financial Status"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false)]
+    internal procedure OnBeforeConvertToFulfillmentStatus(Value: Text; var ShpfyOrderFulfillStatus: Enum "Shpfy Order Fulfill. Status"; var IsHandled: Boolean)
+    begin
+    end;
 }

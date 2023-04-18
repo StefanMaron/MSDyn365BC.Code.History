@@ -1,7 +1,7 @@
 page 9024 "Security Admin Role Center"
 {
-    Caption = 'Administration of users, user groups and permissions', Comment = 'Use same translation as ''Profile Description'' (if applicable)';
-    Description = 'Manage users, users groups and permissions';
+    Caption = 'Administration of users, security groups and permissions', Comment = 'Use same translation as ''Profile Description'' (if applicable)';
+    Description = 'Manage users, security groups and permissions';
     Editable = false;
     PageType = RoleCenter;
 
@@ -33,7 +33,17 @@ page 9024 "Security Admin Role Center"
             {
                 ApplicationArea = Suite;
             }
+#if not CLEAN22
             part(Control12; "Users in User Groups Chart")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false; // cannot control the visibility with the feature switch
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the Security Group Members Chart part.';
+                ObsoleteTag = '22.0';
+            }
+#endif
+            part("Security Group Members Chart"; "Security Group Members Chart")
             {
                 ApplicationArea = Basic, Suite;
             }
@@ -49,10 +59,21 @@ page 9024 "Security Admin Role Center"
                 ObsoleteTag = '20.0';
             }
 #endif
+#if not CLEAN22
             part(Control4; "User Groups FactBox")
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;
+                Visible = false; // cannot control the visibility with the feature switch
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Removed, use the Security Groups page directly.';
+                ObsoleteTag = '22.0';
+            }
+#endif
+            part(LicenseConfigurationPart; "Plan Configurations Part")
+            {
+                ApplicationArea = All;
+                Caption = 'Default Permissions per License';
             }
 #if not CLEAN20
             part("Plan Permission Set"; "Plan Permission Set")
@@ -103,19 +124,32 @@ page 9024 "Security Admin Role Center"
     {
         area(embedding)
         {
+#if not CLEAN22
             action("User Groups")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Groups';
                 RunObject = Page "User Groups";
                 ToolTip = 'Define user groups so that you can assign permission sets to multiple users easily. You can use a function to copy all permission sets from an existing user group to your new user group.';
+                Visible = false; // cannot control the visibility with the feature switch
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the Security Groups action.';
+                ObsoleteTag = '22.0';
+            }
+#endif
+            action("Security Groups")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Security Groups';
+                RunObject = Page "Security Groups";
+                ToolTip = 'Specify security groups so that you can assign permission sets to multiple users easily. You can use a function to copy all permission sets from an existing security group to your new security group.';
             }
             action(Users)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Users';
                 RunObject = Page Users;
-                ToolTip = 'Set up the database users and assign their permission sets to define which database objects, and thereby which UI elements, they have access to, and in which companies. You can add users to user groups to make it easier to assign the same permission sets to multiple users. In the User Setup window, administrators can define periods of time during which specified users are able to post, and also specify if the system logs when users are logged on.';
+                ToolTip = 'Set up the database users and assign their permission sets to define which database objects, and thereby which UI elements, they have access to, and in which companies. In the User Setup window, administrators can define periods of time during which specified users are able to post, and also specify if the system logs when users are logged on.';
             }
             action("User Review Log")
             {
@@ -155,6 +189,7 @@ page 9024 "Security Admin Role Center"
                     RunObject = Page Users;
                     ToolTip = 'View or edit users that will be configured in the database.';
                 }
+#if not CLEAN22
                 action(Action31)
                 {
                     ApplicationArea = Basic, Suite;
@@ -163,6 +198,18 @@ page 9024 "Security Admin Role Center"
                     PromotedCategory = Process;
                     RunObject = Page "User Groups";
                     ToolTip = 'Set up or modify user groups as a fast way of giving users access to the functionality that is relevant to their work.';
+                    Visible = false; // cannot control the visibility with the feature switch
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the Security Groups Section action.';
+                    ObsoleteTag = '22.0';
+                }
+#endif
+                action("Security Groups Section")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Security Groups';
+                    RunObject = Page "Security Groups";
+                    ToolTip = 'Set up or modify security groups as a fast way of giving users access to the functionality that is relevant to their work.';
                 }
                 action(Action28)
                 {

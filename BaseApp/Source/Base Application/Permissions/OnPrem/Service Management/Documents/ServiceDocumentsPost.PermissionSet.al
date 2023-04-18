@@ -7,6 +7,7 @@ permissionset 8322 "Service Documents - Post"
     IncludedPermissionSets = "Language - Read";
 
     Permissions = tabledata "Accounting Period" = r,
+                  tabledata "Alt. Customer Posting Group" = R,
                   tabledata "Analysis View" = rimd,
                   tabledata "Analysis View Entry" = rim,
                   tabledata "Analysis View Filter" = r,
@@ -41,6 +42,7 @@ permissionset 8322 "Service Documents - Post"
                   tabledata "Gen. Journal Template" = R,
                   tabledata "General Ledger Setup" = rm,
                   tabledata "General Posting Setup" = R,
+                  tabledata "IC Bank Account" = R,
                   tabledata "IC G/L Account" = R,
                   tabledata "IC Partner" = R,
                   tabledata "IC Setup" = R,
@@ -101,7 +103,7 @@ permissionset 8322 "Service Documents - Post"
                   tabledata "Sales Discount Access" = R,
                   tabledata "Sales Header" = RIM,
                   tabledata "Sales Line" = RIM,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Sales Line Discount" = R,
                   tabledata "Sales Price" = R,
 #endif

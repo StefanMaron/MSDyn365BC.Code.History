@@ -6,7 +6,8 @@ permissionset 8651 "Recievables Documents - Edit"
 
     IncludedPermissionSets = "Language - Read";
 
-    Permissions = tabledata "Bank Account" = R,
+    Permissions = tabledata "Alt. Customer Posting Group" = R,
+                  tabledata "Bank Account" = R,
                   tabledata Bin = R,
                   tabledata "BOM Component" = R,
                   tabledata "Close Opportunity Code" = R,
@@ -40,9 +41,6 @@ permissionset 8651 "Recievables Documents - Edit"
                   tabledata "Item Charge" = R,
                   tabledata "Item Charge Assignment (Purch)" = Rm,
                   tabledata "Item Charge Assignment (Sales)" = RIMD,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = R,
-#endif
                   tabledata "Item Journal Line" = Rm,
                   tabledata "Item Ledger Entry" = Rm,
                   tabledata "Item Reference" = R,

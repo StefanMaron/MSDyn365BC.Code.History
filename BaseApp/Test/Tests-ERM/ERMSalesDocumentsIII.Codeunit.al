@@ -1792,9 +1792,12 @@ codeunit 134387 "ERM Sales Documents III"
         // [SCENARIO 380573] Sales Invoice is posted with "Customer Posting Group" from Sales Header when "Customer Posting Group" in Customer Card is different
 
         Initialize();
+        SetSalesAllowMultiplePostingGroups(true);
 
         // [GIVEN] Customer "X" with "Customer Posting Group" "DOMESTIC"
         LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Allow Multiple Posting Groups", true);
+        Customer.Modify();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
@@ -1803,11 +1806,13 @@ codeunit 134387 "ERM Sales Documents III"
 
         // [GIVEN] Sales Invoice with Customer "X" and "Customer Posting Group" "FOREIGN"
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
+        LibrarySales.CreateAltCustomerPostingGroup(Customer."Customer Posting Group", CustomerPostingGroup.Code);
         SalesHeader.Validate("Customer Posting Group", CustomerPostingGroup.Code);
         SalesHeader.Modify(true);
 
         // [WHEN] Post Sales Invoice
         InvNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SetSalesAllowMultiplePostingGroups(false);
 
         // [THEN] Customer Ledger Entry with "Customer Posting Group" "FOREIGN" is posted
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvNo);
@@ -5701,7 +5706,9 @@ codeunit 134387 "ERM Sales Documents III"
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
+#if not CLEAN22
         IntrastatSetup: Record "Intrastat Setup";
+#endif
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Documents III");
@@ -5717,6 +5724,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
+#if not CLEAN22
         if not IntrastatSetup.Get() then begin
             IntrastatSetup.Init();
             IntrastatSetup.Insert();
@@ -5724,6 +5732,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryERM.SetDefaultTransactionTypesInIntrastatSetup;
 
         LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
+#endif
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         ReportSelections.SetRange(Usage, LibraryERMCountryData.GetReportSelectionsUsageSalesQuote);
@@ -6899,6 +6908,16 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         SalesLine.Modify(true);
+    end;
+
+    local procedure SetSalesAllowMultiplePostingGroups(AllowMultiplePostingGroups: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Allow Multiple Posting Groups" := AllowMultiplePostingGroups;
+        SalesReceivablesSetup."Check Multiple Posting Groups" := "Posting Group Change Method"::"Alternative Groups";
+        SalesReceivablesSetup.Modify();
     end;
 
     [ConfirmHandler]

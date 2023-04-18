@@ -1,7 +1,7 @@
 codeunit 1410 "Doc. Exch. Service Mgt."
 {
-    Permissions = TableData "Sales Invoice Header" = m,
-                  TableData "Sales Cr.Memo Header" = m;
+    Permissions = TableData "Sales Invoice Header" = rm,
+                  TableData "Sales Cr.Memo Header" = rm;
 
     trigger OnRun()
     begin
@@ -124,7 +124,6 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         EmptyIdTokenTxt: Label 'The ID token is empty.';
 
 
-    [Scope('OnPrem')]
     procedure IsSandbox(var DocExchServiceSetup: Record "Doc. Exch. Service Setup"): Boolean
     begin
         exit(DocExchServiceSetup."Service URL".Contains(SandboxTxt));
@@ -437,7 +436,6 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         RenewTokenNotification.Send();
     end;
 
-    [Scope('OnPrem')]
     procedure RecallActivateAppNotification()
     var
         ActivateAppNotification: Notification;
@@ -1372,7 +1370,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         CheckServiceEnabled(DocExchServiceSetup);
     end;
 
-    local procedure GetServiceSetUp(var DocExchServiceSetup: Record "Doc. Exch. Service Setup")
+    procedure GetServiceSetUp(var DocExchServiceSetup: Record "Doc. Exch. Service Setup")
     begin
         if not DocExchServiceSetup.Get() then begin
             Session.LogMessage('0000EYY', NotSetUpTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
@@ -1639,7 +1637,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         exit(Format(PurchaseHeader."Document Type"));
     end;
 
-    local procedure LogActivitySucceeded(RelatedRecordID: RecordID; ActivityDescription: Text; ActivityMessage: Text)
+    procedure LogActivitySucceeded(RelatedRecordID: RecordID; ActivityDescription: Text; ActivityMessage: Text)
     var
         ActivityLog: Record "Activity Log";
     begin
@@ -1647,7 +1645,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
           ActivityDescription, ActivityMessage);
     end;
 
-    local procedure LogActivityFailed(RelatedRecordID: RecordID; ActivityDescription: Text; ActivityMessage: Text)
+    procedure LogActivityFailed(RelatedRecordID: RecordID; ActivityDescription: Text; ActivityMessage: Text)
     var
         ActivityMessageVar: Text;
     begin
@@ -1655,7 +1653,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         LogActivityFailedCommon(RelatedRecordID, ActivityDescription, ActivityMessageVar);
     end;
 
-    local procedure LogActivityFailedAndError(RelatedRecordID: RecordID; ActivityDescription: Text; ActivityMessage: Text)
+    procedure LogActivityFailedAndError(RelatedRecordID: RecordID; ActivityDescription: Text; ActivityMessage: Text)
     begin
         LogActivityFailedCommon(RelatedRecordID, ActivityDescription, ActivityMessage);
         if DelChr(ActivityMessage, '<>', ' ') <> '' then

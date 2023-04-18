@@ -138,7 +138,7 @@ codeunit 48 PostingSetupManagement
         if IsHandled then
             exit;
 
-        if not IsPostingSetupNotificationEnabled() then
+        if not IsPostingSetupNotificationEnabled() or not InventoryPostingSetup.WritePermission then
             exit;
 
         if not InventoryPostingSetup.Get(LocationCode, PostingGroup) then

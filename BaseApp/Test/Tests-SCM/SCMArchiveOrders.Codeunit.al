@@ -1048,8 +1048,8 @@ codeunit 137207 "SCM Archive Orders"
     begin
         // Verify archived Header.
         PurchaseHeaderArchive.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", 1, VersionNo);
-        PurchaseHeaderArchive.TestField("Archived By", UserId);
-        PurchaseHeaderArchive.TestField("Date Archived", WorkDate());
+        PurchaseHeaderArchive.TestField("Archived By", UserId());
+        PurchaseHeaderArchive.TestField("Date Archived", Today());
 
         // Get actual archived lines.
         LibraryPurchase.FilterPurchaseLineArchive(PurchaseLineArchive, PurchaseHeader."Document Type", PurchaseHeader."No.", 1, VersionNo);

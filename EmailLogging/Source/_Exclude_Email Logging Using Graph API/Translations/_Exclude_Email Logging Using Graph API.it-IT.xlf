@@ -213,12 +213,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmptyEmailAddressErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2120671752 - NamedType 33623699" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The Email Logging Using the Microsoft Graph API feature is not enabled.</source>
-          <target state="translated">La funzionalità Log delle e-mail tramite l'API Microsoft Graph non è abilitata.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType FeatureDisabledErr</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2120671752 - NamedType 1164843116" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your license does not allow you to schedule the email logging task or register interaction log entries. To view details about your permissions, see the Effective Permissions page.</source>
           <target state="translated">La licenza non consente di pianificare il task di log delle e-mail o di registrare i movimenti del log di interazione. Per visualizzare i dettagli sulle autorizzazioni, vedere la pagina Autorizzazioni valide.</target>
@@ -285,11 +279,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType ClearSetupTxt</note>
         </trans-unit>
-        <trans-unit id="Page 3925836548 - NamedType 1063437616" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This setup page can only be used when the Email Logging Using the Microsoft Graph API feature is enabled. You can enable the feature on the Feature Management page.</source>
-          <target state="translated">Questa pagina di setup può essere utilizzata solo quando è abilitata la funzionalità Registrazione e-mail tramite l'API Microsoft Graph. È possibile abilitare la funzionalità nella pagina Gestione funzionalità.</target>
+        <trans-unit id="Page 3925836548 - NamedType 685980417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This feature requires that you are using Microsoft Exchange Online. By enabling this feature, you consent to sharing some of your organization's data in Office 365 with Business Central. Business Central will access details about email messages in the shared mailbox that your administrator created for email logging. The details include the message’s IDs, whether it is a draft, the dates and times it was sent and received, the text from the Subject line, a link to the message in Exchange Online, and the email addresses of the sender and the recipients on the To and Cc lines.\\Business Central will store only the IDs, dates, subject, and weblink. We do not store the content of the messages, but there is a link that will open the email message in Outlook Online.\\Do you want to continue?</source>
+          <target state="translated">Questa funzionalità richiede l'utilizzo di Microsoft Exchange Online. Abilitando la funzionalità, si acconsente alla condivisione di alcuni dati dell'organizzazione in Office 365 con Business Central. Business Central accederà ai dettagli sui messaggi e-mail nella cassetta postale condivisa creata dall'amministratore per il log delle e-mail. I dettagli includono l'ID del messaggio, se si tratta di una bozza, le date e le ore in cui è stato inviato e ricevuto, il testo dalla riga dell'oggetto, un collegamento al messaggio in Exchange Online e gli indirizzi e-mail del mittente e dei destinatari nelle righe A e Cc.\\Business Central memorizza solo ID, date, oggetto e collegamento Web. Il contenuto dei messaggi non viene memorizzato, ma esiste un collegamento che apre il messaggio e-mail in Outlook Online.\\Continuare?</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType FeautureNotEnabledErr</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType DataHandlingConsentQst</note>
         </trans-unit>
         <trans-unit id="Page 3925836548 - NamedType 3536538717" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must sign in with an administrator account for Exchange Online and give consent to the application that will be used to connect to the shared mailbox. Do you want to continue?</source>

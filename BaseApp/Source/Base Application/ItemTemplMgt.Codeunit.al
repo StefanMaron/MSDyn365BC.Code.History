@@ -9,7 +9,7 @@ codeunit 1336 "Item Templ. Mgt."
         UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records in fields that do not already contain data. Do you want to continue?';
         OpenBlankCardQst: Label 'Do you want to open the blank item card?';
 
-    procedure CreateItemFromTemplate(var Item: Record Item; var IsHandled: Boolean) Result: Boolean
+    procedure CreateItemFromTemplate(var Item: Record Item; var IsHandled: Boolean; ItemTemplCode: Code[20]) Result: Boolean
     var
         ItemTempl: Record "Item Templ.";
     begin
@@ -21,8 +21,12 @@ codeunit 1336 "Item Templ. Mgt."
         IsHandled := true;
 
         OnCreateItemFromTemplateOnBeforeSelectItemTemplate(Item, ItemTempl);
-        if not SelectItemTemplate(ItemTempl) then
-            exit(false);
+        if ItemTemplCode = '' then begin
+            if not SelectItemTemplate(ItemTempl) then
+                exit(false);
+        end
+        else
+            ItemTempl.Get(ItemTemplCode);
 
         Item.Init();
         InitItemNo(Item, ItemTempl);
@@ -32,6 +36,11 @@ codeunit 1336 "Item Templ. Mgt."
 
         OnAfterCreateItemFromTemplate(Item, ItemTempl);
         exit(true);
+    end;
+
+    procedure CreateItemFromTemplate(var Item: Record Item; var IsHandled: Boolean): Boolean
+    begin
+        exit(CreateItemFromTemplate(Item, IsHandled, ''));
     end;
 
     procedure ApplyItemTemplate(var Item: Record Item; ItemTempl: Record "Item Templ.")

@@ -807,6 +807,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn postingDate - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Query 3347428205 - QueryColumn 1246474670 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your Reference</source>
+          <target state="translated">Votre référence</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query API Fin - Cust Ledg Entry - QueryColumn yourReference - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Query 389033821 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>API Fin - Dtld Cust Ledg Entry</source>
           <target state="translated">Fin API - Écriture comptable client détaillée</target>

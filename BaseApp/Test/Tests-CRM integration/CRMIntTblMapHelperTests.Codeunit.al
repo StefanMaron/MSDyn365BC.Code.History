@@ -122,8 +122,6 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         CRMAccount.OwnerId := CRMSystemuser.SystemUserId;
         // [GIVEN] The Destination Customer with salesperson code set
         LibrarySales.CreateSalesperson(DecoupledSalespersonPurchaser);
-        LibraryCRMIntegration.CreateIntegrationRecord(
-          CreateGuid, DATABASE::"Salesperson/Purchaser", DecoupledSalespersonPurchaser.RecordId);
         Customer."Salesperson Code" := DecoupledSalespersonPurchaser.Code;
 
         SourceRecordRef.GetTable(CRMAccount);
@@ -187,8 +185,6 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser);
         CRMContact.OwnerId := CRMSystemuser.SystemUserId;
         LibrarySales.CreateSalesperson(DecoupledSalespersonPurchaser);
-        LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, DATABASE::"Salesperson/Purchaser",
-          DecoupledSalespersonPurchaser.RecordId);
         Contact."Salesperson Code" := DecoupledSalespersonPurchaser.Code;
 
         SourceRecordRef.GetTable(CRMContact);

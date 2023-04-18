@@ -15,7 +15,9 @@ codeunit 8912 "Environment Cleanup Subs"
         CRMConnectionSetup: Record "CRM Connection Setup";
         CDSConnectionSetup: Record "CDS Connection Setup";
         ServiceConnection: Record "Service Connection";
+#if not CLEAN22
         MarketingSetup: Record "Marketing Setup";
+#endif
         ExchangeSync: Record "Exchange Sync";
         JobQueueManagement: Codeunit "Job Queue Management";
         nullGUID: Guid;
@@ -37,9 +39,9 @@ codeunit 8912 "Environment Cleanup Subs"
         CDSConnectionSetup.ModifyAll("Is Enabled", false);
 
         ServiceConnection.ModifyAll(Status, ServiceConnection.Status::Disabled);
-
+#if not CLEAN22
         MarketingSetup.ModifyAll("Exchange Service URL", '');
-
+#endif
         ExchangeSync.ModifyAll(Enabled, false);
 
         JobQueueManagement.SetRecurringJobsOnHold(CompanyName);

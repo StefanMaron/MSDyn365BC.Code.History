@@ -1,3 +1,4 @@
+#if not CLEAN22
 page 9191 "User Page Personalization List"
 {
     ApplicationArea = Basic, Suite;
@@ -7,8 +8,9 @@ page 9191 "User Page Personalization List"
     PageType = List;
     SourceTable = "User Metadata";
     SourceTableTemporary = true;
-    UsageCategory = Lists;
-    AdditionalSearchTerms = 'delete user personalization,User Page Personalizations'; // "Delete User Personalization" is the old name of the page
+    ObsoleteReason = 'This page is based on an obsoleted record. Use page 9200 "Personalized Pages" instead.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     layout
     {
@@ -411,3 +413,4 @@ page 9191 "User Page Personalization List"
         ShowingOnlyErrors: Boolean;
 }
 
+#endif

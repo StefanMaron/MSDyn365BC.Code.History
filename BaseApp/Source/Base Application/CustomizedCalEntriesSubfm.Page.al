@@ -79,7 +79,7 @@ page 7605 "Customized Cal. Entries Subfm"
                         UpdateCusomizedCalendarChanges();
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Description';

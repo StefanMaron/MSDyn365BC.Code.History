@@ -1280,7 +1280,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     end;
 
     [Test]
-    [HandlerFunctions('NoSeriesListPageHandler')]
+    [HandlerFunctions('NoSeriesPageHandler')]
     [Scope('OnPrem')]
     procedure CreatingItemFromNoSeriesLookupTakesDefaultCostingMethod()
     var
@@ -1302,7 +1302,7 @@ codeunit 137297 "SCM Inventory Misc. V"
 
         // [WHEN] Choose an item NoSeries through assist edit
         ItemCard."No.".AssistEdit();
-        // Selection handled by NoSeriesListPageHandler
+        // Selection handled by NoSeriesPageHandler
 
         // [THEN] Costing method on this Item is changed to Standard
         ItemCard."Costing Method".AssertEquals(CostingMethod::Standard);
@@ -1968,9 +1968,9 @@ codeunit 137297 "SCM Inventory Misc. V"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListPageHandler(var NoSeriesList: TestPage "No. Series")
+    procedure NoSeriesPageHandler(var NoSeriesPage: TestPage "No. Series")
     begin
-        NoSeriesList.OK().Invoke();
+        NoSeriesPage.OK().Invoke();
     end;
 }
 

@@ -59,7 +59,7 @@ codeunit 138020 "O365 Customer Prices"
         LibraryLowerPermissions.SetO365Full;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('ShowItemPage')]
     [Scope('OnPrem')]
@@ -1800,7 +1800,7 @@ codeunit 138020 "O365 Customer Prices"
         Customer.Insert(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure InitCustomerAndDiscAndPrices(var Customer: Record Customer)
     begin
         CreateBlankCustomer(Customer);
@@ -1999,7 +1999,7 @@ codeunit 138020 "O365 Customer Prices"
         exit(CopyStr('P_GR_' + CustomerNo, 1, 10))
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure SetBufferOnlyToSLDiscounts(var TempSalesPriceAndLineDiscBuff: Record "Sales Price and Line Disc Buff" temporary)
     begin
         TempSalesPriceAndLineDiscBuff.SetRange("Line Type", TempSalesPriceAndLineDiscBuff."Line Type"::"Sales Line Discount");
@@ -2079,7 +2079,7 @@ codeunit 138020 "O365 Customer Prices"
         ItemDiscGroupsPage.OK.Invoke;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VerifyFieldVisibilityOnSalesPriceAndLineDiscountsPageHandler(var SalesPrLineDisc: TestPage "Sales Price and Line Discounts")

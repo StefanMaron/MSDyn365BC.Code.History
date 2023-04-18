@@ -405,7 +405,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PostedPurchaseDocumentLinesModalHandler,ConfirmHandler')]
+    [HandlerFunctions('PostedPurchaseDocumentLinesModalHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PurchReturnPostOrderInvoiceStandard()
     var
@@ -421,7 +421,8 @@ codeunit 137032 "SCM Costing Purch Returns II"
         Initialize();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, true);
         InventorySetup.Get();
-        UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+        LibraryInventory.SetAutomaticCostPosting(true);
 
         // [GIVEN] Item of Standard Cost = "C", purchase item, receive only, set "Direct Unit Cost" <> "C".
         // [GIVEN] Return item, ship only.
@@ -474,7 +475,7 @@ codeunit 137032 "SCM Costing Purch Returns II"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PostedPurchaseDocumentLinesModalHandler,ConfirmHandler')]
+    [HandlerFunctions('PostedPurchaseDocumentLinesModalHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure NoExactCostRevMandPurchReturnOrderInvStandard()
     var
@@ -490,7 +491,8 @@ codeunit 137032 "SCM Costing Purch Returns II"
         Initialize();
         InventorySetup.Get();
         UpdatePurchasesPayablesSetup(BaseExactCostReversingMand, false);
-        UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
+        LibraryInventory.SetAutomaticCostPosting(true);
 
         // [GIVEN] Item of Standard Cost = "C", purchase item, receive only, set "Direct Unit Cost" <> "C".
         // [GIVEN] Return item, ship only.

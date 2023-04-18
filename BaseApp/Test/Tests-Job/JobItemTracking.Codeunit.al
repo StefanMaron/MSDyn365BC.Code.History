@@ -92,7 +92,7 @@ codeunit 136319 "Job Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('CreateInvtPutawayPickMvmtRequestPageHandler,ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure EmptySerialNoForSerialTrackedItemThrowsErrorOnPosting()
     var
@@ -443,7 +443,7 @@ codeunit 136319 "Job Item Tracking"
         // [GIVEN] Location, lot tracked item with sufficient quantity in the inventory
         Initialize();
 
-        LibraryItemTracking.CreateLotItem(LotTrackedItem);
+        CreateLotTrackedItem(LotTrackedItem, true);
         QtyInventory := 2;
         CreateAndPostInvtAdjustmentWithLotTracking(LotTrackedItem."No.", LocationWithRequirePick.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
         CreateAndPostInvtAdjustmentWithLotTracking(LotTrackedItem."No.", LocationWithRequirePick.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
@@ -535,7 +535,7 @@ codeunit 136319 "Job Item Tracking"
         // [SCENARIO] Splitting and Posting the Job Journal with the transferred ItemTracking with lot no. from Job Planning Line deletes all the related reservation entries.
         // [GIVEN] Location, lot tracked item with sufficient quantity in the inventory
         Initialize();
-        LibraryItemTracking.CreateLotItem(LotTrackedItem);
+        CreateLotTrackedItem(LotTrackedItem, true);
         QtyInventory := 4;
         // 3 Lots are assigned.
         CreateAndPostInvtAdjustmentWithLotTracking(LotTrackedItem."No.", LocationWithRequirePick.Code, '', 4, LibraryRandom.RandDec(10, 2));
@@ -1601,7 +1601,7 @@ codeunit 136319 "Job Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('CreateInvtPutawayPickMvmtRequestPageHandler,ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure AssignSerialNumberOnInventoryPickPage() //Test12
     var
@@ -1744,7 +1744,7 @@ codeunit 136319 "Job Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('CreateInvtPutawayPickMvmtRequestPageHandler,ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure TransferSNFromJobPlanningLinesToInventoryPick() //Test13
     var
@@ -1851,7 +1851,7 @@ codeunit 136319 "Job Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('CreateInvtPutawayPickMvmtRequestPageHandler,ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure TransferSNFromJobPlanLinesToInventoryPickRequiresSplit()
     var
@@ -1947,7 +1947,7 @@ codeunit 136319 "Job Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('CreateInvtPutawayPickMvmtRequestPageHandler,ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure PostPartialInventoryPickForSNTransferredFromJobPlanningLines()
     var
@@ -2044,7 +2044,7 @@ codeunit 136319 "Job Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('CreateInvtPutawayPickMvmtRequestPageHandler,ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure PostPartialInventoryPickForLotTransferredFromJobPlanningLines()
     var
@@ -2066,7 +2066,7 @@ codeunit 136319 "Job Item Tracking"
         // [GIVEN] Job planning line with ItemLotAll Location LocationWithRequirePickBinMandatory Bin1
 
         Initialize();
-        LibraryItemTracking.CreateLotItem(ItemLotAll);
+        CreateLotTrackedItem(ItemLotAll, true);
         QtyInventory := 5;
         QtyToHandle := 2;
 
@@ -2128,11 +2128,12 @@ codeunit 136319 "Job Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('CreateInvtPutawayPickMvmtRequestPageHandler,ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure QtyToHandleDoesNotMatchItemTrackingOnJobPlanningLineForLotWithSplitError()
     var
         ItemLotAll1: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
         JobPlanningLine1: Record "Job Planning Line";
         JobPlanningLine2: Record "Job Planning Line";
         Job: Record Job;
@@ -2151,7 +2152,7 @@ codeunit 136319 "Job Item Tracking"
         // [GIVEN] Job planning line with ItemLotAll1 Location LocationWithRequirePick
 
         Initialize();
-        LibraryItemTracking.CreateLotItem(ItemLotAll1);
+        CreateLotTrackedItem(ItemLotAll1, false);
         QtyInventory := 4;
         QtyOnJobPlanningLine := 3;
         QtyToHandle := 1;
@@ -2236,12 +2237,13 @@ codeunit 136319 "Job Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('CreateInvtPutawayPickMvmtRequestPageHandler,ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure PostInventoryPickForLotTransferredFromJobPlanningLinesWithSplit()
     var
         ItemLotAll1: Record Item;
         ItemLotAll2: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
         JobPlanningLine1: Record "Job Planning Line";
         JobPlanningLine2: Record "Job Planning Line";
         JobPlanningLine3: Record "Job Planning Line";
@@ -2264,8 +2266,8 @@ codeunit 136319 "Job Item Tracking"
         // [GIVEN] Job planning line with ItemLotAll2 Location LocationWithRequirePick
 
         Initialize();
-        LibraryItemTracking.CreateLotItem(ItemLotAll1);
-        LibraryItemTracking.CreateLotItem(ItemLotAll2);
+        CreateLotTrackedItem(ItemLotAll1, false);
+        CreateLotTrackedItem(ItemLotAll2, false);
         QtyInventory := 2;
         QtyOnJobPlanningLine := 2;
         QtyToHandle := 1;
@@ -2358,7 +2360,7 @@ codeunit 136319 "Job Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
+    [HandlerFunctions('CreateInvtPutawayPickMvmtRequestPageHandler,ItemTrackingLinesPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure PostPartialInventoryPickForLotFromJobPlanningLinesWithNegAdjLot()
     var
@@ -2383,7 +2385,7 @@ codeunit 136319 "Job Item Tracking"
         // [GIVEN] Job planning line with ItemLotAll Location LocationWithRequirePickBinMandatory Bin1
 
         Initialize();
-        LibraryItemTracking.CreateLotItem(ItemLotAll);
+        CreateLotTrackedItem(ItemLotAll, true);
         CreateNegAdjTrackedItemWithLot(ItemLotNegAdj);
 
         QtyInventory := 5;
@@ -2471,7 +2473,7 @@ codeunit 136319 "Job Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue,JobTransferFromJobPlanLineHandler')]
+    [HandlerFunctions('CreateInvtPutawayPickMvmtRequestPageHandler,ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue,JobTransferFromJobPlanLineHandler')]
     [Scope('OnPrem')]
     procedure CannotPostRelatedJobJournalAfterPostingInventoryPick()
     var
@@ -2912,6 +2914,92 @@ codeunit 136319 "Job Item Tracking"
         Assert.RecordCount(ReservationEntry, 0);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,MessageHandler,ConfirmHandlerTrue,WhseSrcCreateDocReqHandler,JobTransferFromJobPlanLineHandler')]
+    [Scope('OnPrem')]
+    procedure PartialWarehousePickAndPost()
+    var
+        Item: Record Item;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        ReservationEntry: Record "Reservation Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        SerialNo1: Code[50];
+        SerialNo2: Code[50];
+    begin
+        // [FEATURE] 427973 [WMS] Support Item Tracking for Inventory Pick and Warehouse Pick scenarios for Job Planning Lines
+        // [SCENARIO] Partial warehouse pick and post does not throw errors.
+
+        // [GIVEN] Serial tracked item with enough inventory in location where warehouse pick and shipment is enabled and bin is mandatory
+        Initialize();
+        CreateSerialTrackedItem(Item, true);
+        CreateAndPostInvtAdjustmentWithSNTracking(Item."No.", LocationRequireWhsePickBinMandatory.Code, WhseBin1.Code, 10, 1);
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindFirst();
+        // [GIVEN] Save Serial numbers
+        SerialNo1 := ItemLedgerEntry."Serial No.";
+        ItemLedgerEntry.Next();
+        SerialNo2 := ItemLedgerEntry."Serial No.";
+
+        // [GIVEN] A Job with the item in the planning lines
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
+        Job.Validate("Apply Usage Link", true);
+        Job.Modify(true);
+
+        // [GIVEN] Create job tasks and a Job Planning Line 
+        // [GIVEN] Job Planning Line for Job Task T1: Type = SerialTrackedItem, Line Type = Budget
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithData(
+            JobPlanningLine,
+            JobTask,
+            "Job Planning Line Line Type"::Budget,
+            JobPlanningLine.Type::Item,
+            Item."No.",
+            LocationRequireWhsePickBinMandatory.Code,
+            WhseBin2.Code,
+            3
+        );
+
+        // [GIVEN] Warehouse Picks are created for the job.
+        Job.Get(JobTask."Job No.");
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [GIVEN] Select serial number for quantity 2(2 takes and 2 places) and set quantity to handle on the last line to 0 without setting serial number 
+        SetItemQtyToHandleOnWhsPickAction(Item, 1, true, true, LocationRequireWhsePickBinMandatory.Code);
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.FindSet(true);
+        WarehouseActivityLine.Validate("Serial No.", SerialNo1);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.Validate("Serial No.", SerialNo1);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.Validate("Serial No.", SerialNo2);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.Validate("Serial No.", SerialNo2);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.Validate("Qty. to Handle", 0);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.Validate("Qty. to Handle", 0);
+        WarehouseActivityLine.Modify(true);
+
+        // [GIVEN] Register pick
+        RegisterWarehousePickFromPage(Job."No.", LocationRequireWhsePickBinMandatory.Code, false);
+
+        // [WHEN] Picked quantities are transferred to the journal and posted
+        JobPlanningLine.Find();
+        JobPlanningLine.Validate("Qty. to Transfer to Journal", 2);
+        JobPlanningLine.Modify(true);
+        TransferToJobJournalFromJobPlanningLine(JobPlanningLine);
+
+        // [THEN] Posting runs without errors
+        OpenRelatedJournalAndPost(JobPlanningLine);
+    end;
 
     [Test]
     [HandlerFunctions('JobTransferFromJobPlanLineHandler,ItemTrackingLinesPageHandler,AssignSerialNoEnterQtyPageHandler,ItemTrackingSummaryPageHandler,MessageHandler,ConfirmHandlerTrue,WhseSrcCreateDocReqHandler')]
@@ -3270,11 +3358,6 @@ codeunit 136319 "Job Item Tracking"
         InventorySetup: Record "Inventory Setup";
         WarehouseSetup: Record "Warehouse Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-#if not CLEAN20
-        FeatureKey: Record "Feature Key";
-        FeatureDataUpdateStatus: Record "Feature Data Update Status";
-        PicksForJobsFeatureIdLbl: Label 'PicksForJobs', Locked = true;
-#endif
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Inv. Pick On Job Planning");
         LibrarySetupStorage.Restore();
@@ -3330,17 +3413,6 @@ codeunit 136319 "Job Item Tracking"
         LibrarySetupStorage.Save(Database::"Purchases & Payables Setup");
 
         IsInitialized := true;
-#if not CLEAN20
-        FeatureKey.Get(PicksForJobsFeatureIdLbl);
-        if FeatureKey.Enabled <> FeatureKey.Enabled::"All Users" then begin
-            FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
-            FeatureKey.Modify();
-        end;
-        if (FeatureDataUpdateStatus.Get(PicksForJobsFeatureIdLbl, CompanyName())) and (FeatureDataUpdateStatus."Feature Status" <> FeatureDataUpdateStatus."Feature Status"::Enabled) then begin
-            FeatureDataUpdateStatus."Feature Status" := FeatureDataUpdateStatus."Feature Status"::Enabled;
-            FeatureDataUpdateStatus.Modify();
-        end;
-#endif
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Inv. Pick On Job Planning");
     end;
 
@@ -3856,9 +3928,21 @@ codeunit 136319 "Job Item Tracking"
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         LibraryItemTracking.CreateSerialItem(Item);
-        if WMSSpecific then begin
+        if not WMSSpecific then begin
             ItemTrackingCode.Get(Item."Item Tracking Code");
-            ItemTrackingCode.Validate("SN Warehouse Tracking", true);
+            ItemTrackingCode.Validate("SN Warehouse Tracking", false);
+            ItemTrackingCode.Modify(true);
+        end;
+    end;
+
+    local procedure CreateLotTrackedItem(var Item: Record Item; WMSSpecific: Boolean)
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryItemTracking.CreateLotItem(Item);
+        if not WMSSpecific then begin
+            ItemTrackingCode.Get(Item."Item Tracking Code");
+            ItemTrackingCode.Validate("Lot Warehouse Tracking", false);
             ItemTrackingCode.Modify(true);
         end;
     end;
@@ -4186,6 +4270,13 @@ codeunit 136319 "Job Item Tracking"
     procedure JobTransferToSalesInvoiceRequestPageHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
         JobTransferToSalesInvoice.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure CreateInvtPutawayPickMvmtRequestPageHandler(var CreateInvtPutawayPickMvmt: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreateInvtPutawayPickMvmt.CInvtPick.SetValue(true);
+        CreateInvtPutawayPickMvmt.OK().Invoke();
     end;
 }
 

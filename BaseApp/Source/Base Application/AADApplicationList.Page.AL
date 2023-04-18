@@ -22,7 +22,7 @@ page 9860 "AAD Application List"
                     Caption = 'Client ID';
                     ToolTip = 'Specifies the client ID of the app that the entry is for.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;

@@ -23,12 +23,6 @@ codeunit 5323 "Exchange Add-in Setup"
         InitializedWithCredentialsTxt: Label 'The service is initialized with credentials.', Locked = true;
         NotInitializedWithCredentialsTxt: Label 'The service is not initialized with credentials.', Locked = true;
         TryAutodiscoverEndpointTxt: Label 'Try to autodiscover endpoint.', Locked = true;
-#if not CLEAN19
-        PromptForCredentialsTxt: Label 'Prompt for credentials.', Locked = true;
-        UserFoundTxt: Label 'User is found.', Locked = true;
-        CredentialsRequiredTxt: Label 'Credentials are required.', Locked = true;
-        CredentialsPromptCancelledTxt: Label 'Credentials prmpt is cancelled.', Locked = true;
-#endif
         ImpersonateUserTxt: Label 'Impersonate user.', Locked = true;
         DeployAddInTxt: Label 'Deploy add-in.', Locked = true;
         DeploySampleEmailsTxt: Label 'Deploy sample emails.', Locked = true;
@@ -115,41 +109,6 @@ codeunit 5323 "Exchange Add-in Setup"
     begin
         Required := not Initialize(AuthenticationEmail);
     end;
-
-#if not CLEAN19
-    [Obsolete('Removing legacy basic authentication. Outlook Add-ins must be deployed manually or using Exchange Web Services with OAuth token.', '19.0')]
-    [Scope('OnPrem')]
-    procedure PromptForCredentials(): Boolean
-    var
-        User: Record User;
-        TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;
-    begin
-        Session.LogMessage('0000BXE', PromptForCredentialsTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
-
-        TempOfficeAdminCredentials.Init();
-        TempOfficeAdminCredentials.Insert();
-
-        User.SetRange("User Name", UserId);
-        if User.FindFirst() then begin
-            Session.LogMessage('0000BXF', UserFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
-            TempOfficeAdminCredentials.Email := User."Authentication Email";
-            TempOfficeAdminCredentials.Modify();
-        end;
-
-        if CredentialsRequired(TempOfficeAdminCredentials.Email) or (TempOfficeAdminCredentials.Email = '') then begin
-            Session.LogMessage('0000BXG', CredentialsRequiredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
-            ClearLastError();
-            repeat
-                if PAGE.RunModal(PAGE::"Office 365 Credentials", TempOfficeAdminCredentials) <> ACTION::LookupOK then begin
-                    Session.LogMessage('0000BXH', CredentialsPromptCancelledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ExchangeTelemetryCategoryTxt);
-                    exit(false);
-                end;
-            until InitializeServiceWithCredentials(TempOfficeAdminCredentials.Email, TempOfficeAdminCredentials.GetPassword());
-        end;
-
-        exit(true);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure ImpersonateUser(Email: Text[80])

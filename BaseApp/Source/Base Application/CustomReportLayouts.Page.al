@@ -33,7 +33,7 @@ page 9650 "Custom Report Layouts"
                     Enabled = false;
                     ToolTip = 'Specifies the name of the report.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the report layout.';
@@ -49,7 +49,7 @@ page 9650 "Custom Report Layouts"
                     Enabled = false;
                     ToolTip = 'Specifies if the report layout is built-in or not.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -123,6 +123,82 @@ page 9650 "Custom Report Layouts"
         }
         area(processing)
         {
+            action(OpenInOneDrive)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Open in OneDrive';
+                ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can manage or share the file.', Comment = 'OneDrive should not be translated';
+                Image = Cloud;
+                Visible = ShareOptionsVisible;
+                Enabled = ShareOptionsEnabled;
+                Scope = Repeater;
+                trigger OnAction()
+                var
+                    FileManagement: Codeunit "File Management";
+                    DocumentServiceMgt: Codeunit "Document Service Management";
+                    FileName: Text;
+                    FileExtension: Text;
+                    InStream: InStream;
+                begin
+                    FileName := FileManagement.StripNotsupportChrInFileName(Rec."Report Name");
+                    FileExtension := DocxFileExtensionLbl;
+                    Rec.Layout.CreateInStream(InStream);
+                    DocumentServiceMgt.OpenInOneDrive(FileName, FileExtension, InStream);
+                end;
+            }
+            action(EditInOneDrive)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Edit in OneDrive';
+                ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can edit the file.', Comment = 'OneDrive should not be translated';
+                Image = Cloud;
+                Visible = ShareOptionsVisible;
+                Enabled = ShareOptionsEnabled;
+                Scope = Repeater;
+
+                trigger OnAction()
+                var
+                    DocumentServiceMgt: Codeunit "Document Service Management";
+                    TempBlob: Codeunit "Temp Blob";
+                    InStream: InStream;
+                    OutStream: OutStream;
+                begin
+                    Rec.Layout.CreateInStream(InStream);
+                    TempBlob.CreateOutStream(OutStream);
+                    CopyStream(OutStream, InStream);
+
+                    if DocumentServiceMgt.EditInOneDrive(Rec."Report Name" + DocxFileExtensionLbl, DocxFileExtensionLbl, TempBlob) then begin
+                        Rec.Layout.CreateOutStream(OutStream);
+                        TempBlob.CreateInStream(InStream);
+                        CopyStream(OutStream, InStream);
+                        Rec.Modify();
+                    end;
+                end;
+            }
+            action(ShareWithOneDrive)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Share';
+                ToolTip = 'Copy the file to your Business Central folder in OneDrive and share the file. You can also see who it''s already shared with.', Comment = 'OneDrive should not be translated';
+                Image = Share;
+                Visible = ShareOptionsVisible;
+                Enabled = ShareOptionsEnabled;
+                Scope = Repeater;
+                trigger OnAction()
+                var
+                    FileManagement: Codeunit "File Management";
+                    DocumentServiceMgt: Codeunit "Document Service Management";
+                    FileName: Text;
+                    FileExtension: Text;
+                    InStream: InStream;
+                begin
+                    FileName := FileManagement.StripNotsupportChrInFileName(Rec."Report Name");
+                    FileExtension := DocxFileExtensionLbl;
+
+                    Rec.Layout.CreateInStream(InStream);
+                    DocumentServiceMgt.OpenInOneDrive(FileName, FileExtension, InStream);
+                end;
+            }
             action(ExportWordXMLPart)
             {
                 ApplicationArea = Basic, Suite;
@@ -225,6 +301,22 @@ page 9650 "Custom Report Layouts"
                     {
                     }
                 }
+                group(OneDrive)
+                {
+                    Caption = 'OneDrive';
+                    ShowAs = SplitButton;
+                    Image = Cloud;
+
+                    actionref(OpenInOneDrive_Promoted; OpenInOneDrive)
+                    {
+                    }
+                    actionref(EditInOneDrive_Promoted; EditInOneDrive)
+                    {
+                    }
+                    actionref(ShareWithOneDrive_Promoted; ShareWithOneDrive)
+                    {
+                    }
+                }
             }
             group(Category_Report)
             {
@@ -235,11 +327,17 @@ page 9650 "Custom Report Layouts"
 
     trigger OnAfterGetCurrRecord()
     var
+        CustomReportLayout: Record "Custom Report Layout";
         ReportLayoutSelection: Record "Report Layout Selection";
+        DocumentSharing: Codeunit "Document Sharing";
     begin
         CurrPage.Caption := GetPageCaption();
         ReportLayoutSelection.SetTempLayoutSelected('');
-        IsNotBuiltIn := not "Built-In";
+        IsNotBuiltIn := not Rec."Built-In";
+        CurrPage.SetSelectionFilter(CustomReportLayout);
+        IsMultiSelect := CustomReportLayout.Count() > 1;
+        ShareOptionsVisible := DocumentSharing.ShareEnabled(Enum::"Document Sharing Source"::System);
+        ShareOptionsEnabled := not IsMultiSelect and IsNotBuiltIn and (Rec.Type = Rec.Type::Word);
     end;
 
     trigger OnClosePage()
@@ -264,8 +362,12 @@ page 9650 "Custom Report Layouts"
         PageName: Text;
         CaptionTxt: Label '%1 - %2 %3', Locked = true;
         IsNotBuiltIn: Boolean;
+        IsMultiSelect: Boolean;
+        ShareOptionsVisible: Boolean;
+        ShareOptionsEnabled: Boolean;
         SetUpBankAccountMsg: Label 'Business documents often require bank information. To specify the information to include on documents, use the Payments FastTab on the Company Information page.';
         BankAccountNotificationActionMsg: Label 'Specify bank information';
+        DocxFileExtensionLbl: Label '.docx';
 
     local procedure GetPageCaption(): Text
     var

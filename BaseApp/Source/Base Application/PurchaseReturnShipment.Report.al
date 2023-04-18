@@ -587,7 +587,7 @@ report 6636 "Purchase - Return Shipment"
 
     local procedure InitLogInteraction()
     begin
-        LogInteraction := SegManagement.FindInteractTmplCode(21) <> '';
+        LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Return Shipment") <> '';
     end;
 
     local procedure IsReportInPreviewMode(): Boolean

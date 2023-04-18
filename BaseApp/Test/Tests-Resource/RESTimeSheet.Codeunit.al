@@ -362,6 +362,7 @@ codeunit 136504 "RES Time Sheet"
         ResourcesSetup.TestField("Time Sheet by Job Approval", ResourcesSetup."Time Sheet by Job Approval"::Always);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure CommentsOnTimeSheetHeaderAndLine()
@@ -391,7 +392,9 @@ codeunit 136504 "RES Time Sheet"
         // Tear Down: Delete Time Sheet And Resource.
         DeleteTimeSheetAndResource(TimeSheetHeader."No.", ResourceNo);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimeSheetCommentsDeletion()
@@ -429,7 +432,9 @@ codeunit 136504 "RES Time Sheet"
         // Tear Down: Delete Time Sheet And Resource.
         DeleteTimeSheetAndResource(TimeSheetHeader."No.", ResourceNo);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure ManagerTimeSheetComments()
@@ -459,7 +464,9 @@ codeunit 136504 "RES Time Sheet"
         // Tear Down: Delete Time Sheet And Resource.
         DeleteTimeSheetAndResource(TimeSheetHeader."No.", ResourceNo);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -493,7 +500,9 @@ codeunit 136504 "RES Time Sheet"
         // Tear Down: Delete Time Sheet And Resource.
         DeleteTimeSheetAndResource(TimeSheetHeader."No.", ResourceNo);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -532,7 +541,9 @@ codeunit 136504 "RES Time Sheet"
         TimeSheet.Reopen.Invoke;
         DeleteTimeSheetAndResource(TimeSheetHeader."No.", ResourceNo);
     end;
+#endif
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('MoveTimeSheetHandler,MessageHandler,StrMenuHandler')]
     [Scope('OnPrem')]
@@ -594,6 +605,7 @@ codeunit 136504 "RES Time Sheet"
         Resource.Delete(true);
         UnbindSubscription(RESTimeSheet);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -637,6 +649,7 @@ codeunit 136504 "RES Time Sheet"
         Assert.IsFalse(TimeSheetLine.FindFirst, TimeSheetLineExist);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure TimeSheetDecimalPlaces()
@@ -694,6 +707,7 @@ codeunit 136504 "RES Time Sheet"
 
         UnbindSubscription(RESTimeSheet);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('JobJournalLineHandler,ConfirmHandler')]
@@ -1202,6 +1216,7 @@ codeunit 136504 "RES Time Sheet"
         Assert.ExpectedError(ResourceBlockedErr);
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('MoveTimeSheetHandler,MessageHandler,StrMenuHandler')]
     [Scope('OnPrem')]
@@ -1256,6 +1271,7 @@ codeunit 136504 "RES Time Sheet"
         Resource.Delete(true);
         UnbindSubscription(RESTimeSheet);
     end;
+#endif
 
     local procedure Initialize()
     var
@@ -1426,6 +1442,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetList.Close();
     end;
 
+#if not CLEAN22
     local procedure OpenTimeSheetAndEnterComments(var TimeSheet: TestPage "Time Sheet"; TimeSheetHeaderNo: Code[20])
     var
         TimeSheetLine: Record "Time Sheet Line";
@@ -1437,6 +1454,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheet.LineComments.Invoke;
         TimeSheetCommentSheet.Comment.SetValue(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
     end;
+#endif
 
     local procedure DeleteTimeSheetAndResource(No: Code[20]; ResourceNo: Code[20])
     var
@@ -1628,6 +1646,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
     end;
 
+#if not CLEAN22
     local procedure VerifyCommentsOnTimeSheetLine(TimeSheetHeaderNo: Code[20])
     var
         TimeSheetLine: Record "Time Sheet Line";
@@ -1640,6 +1659,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheet.LineComments.Invoke;
         TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
     end;
+#endif
 
     local procedure VerifyCommentsOnManagerTimeSheetHeader(TimeSheetHeaderNo: Code[20])
     var
@@ -1691,11 +1711,13 @@ codeunit 136504 "RES Time Sheet"
         end;
     end;
 
+#if not CLEAN22
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Time Sheet Management", 'OnAfterTimeSheetV2Enabled', '', false, false)]
     local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
     begin
         Result := false;
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

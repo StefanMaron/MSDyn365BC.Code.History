@@ -5,6 +5,7 @@
 
 codeunit 347 "Amount Auto Format"
 {
+    Permissions = tabledata "General Ledger Setup" = r;
     SingleInstance = true;
 
     trigger OnRun()

@@ -7,6 +7,7 @@ permissionset 9221 "Customer - Edit"
     IncludedPermissionSets = "Language - Read";
 
     Permissions = tabledata "Additional Fee Setup" = R,
+                  tabledata "Alt. Customer Posting Group" = R,
                   tabledata "API Entities Setup" = RIMD,
                   tabledata "Bank Account Ledger Entry" = rm,
                   tabledata Bin = R,
@@ -32,7 +33,7 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Customer Posting Group" = R,
                   tabledata "Customer Price Group" = R,
                   tabledata "Customer Templ." = rm,
-#if not CLEAN19
+#if not CLEAN20
                   tabledata "Customer Template" = r,
 #endif
                   tabledata "Default Dimension" = RIMD,
@@ -52,14 +53,12 @@ permissionset 9221 "Customer - Edit"
                   tabledata "Gen. Journal Batch" = r,
                   tabledata "Gen. Journal Line" = r,
                   tabledata "Gen. Journal Template" = r,
+                  tabledata "IC Bank Account" = Rm,
                   tabledata "IC Partner" = Rm,
                   tabledata "Interaction Log Entry" = R,
                   tabledata "Item Analysis View Budg. Entry" = r,
                   tabledata "Item Analysis View Entry" = rid,
                   tabledata "Item Budget Entry" = r,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Journal Line" = r,
                   tabledata "Item Ledger Entry" = rm,
                   tabledata "Item Reference" = RIMD,

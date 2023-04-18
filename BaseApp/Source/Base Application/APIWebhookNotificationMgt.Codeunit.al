@@ -3,16 +3,15 @@ codeunit 6153 "API Webhook Notification Mgt."
     // Registers notifications in table API Webhook Notification on entity insert, modify, rename and delete
 
     SingleInstance = true;
-    Permissions = TableData "API Webhook Subscription" = imd,
-                  TableData "API Webhook Notification" = imd,
-                  TableData "API Webhook Notification Aggr" = imd;
+    Permissions = TableData "API Webhook Subscription" = rimd,
+                  TableData "API Webhook Notification" = rimd,
+                  TableData "API Webhook Notification Aggr" = rimd;
 
     trigger OnRun()
     begin
     end;
 
     var
-        IntegrationManagement: Codeunit "Integration Management";
         APIWebhookCategoryLbl: Label 'AL API Webhook', Locked = true;
         JobQueueCategoryCodeLbl: Label 'APIWEBHOOK', Locked = true;
         JobQueueCategoryDescLbl: Label 'Send API Webhook Notifications';
@@ -402,7 +401,7 @@ codeunit 6153 "API Webhook Notification Mgt."
             ClearLastError();
             Commit();
             OnDeleteAPIWebhookNotifications(APIWebhookNotification, Success);
-            if Success then 
+            if Success then
                 exit;
 
             Session.LogMessage('0000HRE', StrSubstNo(FailedDeletingAPIWebhooksLbl, GetLastErrorCode(), GetLastErrorText()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
@@ -471,17 +470,6 @@ codeunit 6153 "API Webhook Notification Mgt."
         exit(false);
     end;
 
-#if not CLEAN19
-    [Scope('OnPrem')]
-    [Obsolete('Use another implementation of TryGetEntityKeyField', '19.0')]
-    procedure TryGetEntityKeyField(var ApiWebhookEntity: Record "Api Webhook Entity"; var RecRef: RecordRef; var FieldRef: FieldRef): Boolean
-    var
-        APIWebhookSubscription: Record "API Webhook Subscription";
-    begin
-        exit(TryGetEntityKeyField(APIWebhookSubscription, ApiWebhookEntity, RecRef, FieldRef));
-    end;
-#endif
-
     [Scope('OnPrem')]
     procedure TryGetEntityKeyField(var APIWebhookSubscription: Record "API Webhook Subscription"; var ApiWebhookEntity: Record "Api Webhook Entity"; var RecRef: RecordRef; var FieldRef: FieldRef): Boolean
     var
@@ -518,6 +506,7 @@ codeunit 6153 "API Webhook Notification Mgt."
 
     local procedure GetRawFieldValue(var FieldRef: FieldRef; var Value: Text): Boolean
     var
+        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
         Date: Date;
         Time: Time;
         DateTime: DateTime;
@@ -531,7 +520,7 @@ codeunit 6153 "API Webhook Notification Mgt."
             FieldType::GUID:
                 begin
                     Guid := FieldRef.Value;
-                    Value := LowerCase(IntegrationManagement.GetIdWithoutBrackets(Guid));
+                    Value := LowerCase(GraphMgtGeneralTools.GetIdWithoutBrackets(Guid));
                 end;
             FieldType::Code, FieldType::Text:
                 begin
@@ -578,10 +567,10 @@ codeunit 6153 "API Webhook Notification Mgt."
                     Value := SetDecimalFormat(Decimal);
                 end;
             else begin
-                    ErrorMessage := StrSubstNo(UnsupportedFieldTypeErr, FieldRef.Caption, FieldRef.Record().Caption);
-                    Session.LogMessage('000029O', ErrorMessage, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
-                    exit(false);
-                end;
+                ErrorMessage := StrSubstNo(UnsupportedFieldTypeErr, FieldRef.Caption, FieldRef.Record().Caption);
+                Session.LogMessage('000029O', ErrorMessage, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+                exit(false);
+            end;
         end;
         exit(true);
     end;
@@ -853,6 +842,26 @@ codeunit 6153 "API Webhook Notification Mgt."
     local procedure DateTimeToString(Value: DateTime): Text
     begin
         exit(Format(Value, 0, '<Year4>-<Month,2>-<Day,2> <Hours24>:<Minutes,2>:<Seconds,2><Second dec.><Comma,.>'));
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Environment Cleanup", 'OnClearDatabaseConfig', '', false, false)]
+    local procedure HandleOnClearCompanyConfig(SourceEnv: Enum "Environment Type"; DestinationEnv: Enum "Environment Type")
+    begin
+        CleanupAPIWebhookSetup();
+    end;
+
+    local procedure CleanupAPIWebhookSetup()
+    var
+        APIWebhookSubscription: Record "API Webhook Subscription";
+        APIWebhookNotification: Record "API Webhook Notification";
+        APIWebhookNotificationAggr: Record "API Webhook Notification Aggr";
+    begin
+        APIWebhookSubscription.DeleteAll();
+        Commit();
+        APIWebhookNotification.DeleteAll();
+        Commit();
+        APIWebhookNotificationAggr.DeleteAll();
+        Commit();
     end;
 }
 

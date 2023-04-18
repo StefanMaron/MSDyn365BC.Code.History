@@ -7,7 +7,9 @@ permissionset 185 "BaseApp Login - Read"
                   tabledata "Assisted Company Setup Status" = r,
                   tabledata "Company Information" = r,
                   tabledata "License Agreement" = r,
-                  tabledata "My Notifications" = r,
+#if not CLEAN22
                   tabledata "User Group Member" = r,
-                  tabledata "User Group Plan" = r;
+                  tabledata "User Group Plan" = r,
+#endif
+                  tabledata "My Notifications" = r;
 }

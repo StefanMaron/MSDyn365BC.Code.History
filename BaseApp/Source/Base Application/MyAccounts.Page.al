@@ -21,7 +21,7 @@ page 9153 "My Accounts"
                         SyncFieldsWithGLAccount();
                     end;
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';

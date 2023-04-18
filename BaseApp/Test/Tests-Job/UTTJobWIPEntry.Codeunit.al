@@ -25,7 +25,6 @@ codeunit 136356 "UT T Job WIP Entry"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         IncorrectWIPEntryAmountErr: Label 'Incorrect WIP Entry Amount.';
-        D365UserGroupCodeTxt: Label 'D365 ADMINISTRATOR', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -48,7 +47,6 @@ codeunit 136356 "UT T Job WIP Entry"
     var
         Job: Record Job;
         JobTask: Record "Job Task";
-        UserGroup: Record "User Group";
         JobCalculateWIP: Codeunit "Job Calculate WIP";
         ExpectedCostAmount: Decimal;
         ExpectedSalesAmount: Decimal;
@@ -61,13 +59,10 @@ codeunit 136356 "UT T Job WIP Entry"
         // [GIVEN] Job Ledger entries for Costs and Sales with negative amount = "X"
         CreateJobLedgerEntries(Job, ExpectedCostAmount, ExpectedSalesAmount, JobTask);
         // [WHEN] Calculate Job WIP
-        if UserGroup.FindFirst() then
-            if UserGroup.Code <> D365UserGroupCodeTxt then begin
-                JobCalculateWIP.JobCalcWIP(Job, WorkDate(), LibraryUtility.GenerateGUID());
-                // [THEN] Job WIP Entry is created with negative amount = "X"
-                VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Costs", ExpectedCostAmount);
-                VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Sales", ExpectedSalesAmount);
-            end;
+        JobCalculateWIP.JobCalcWIP(Job, WorkDate(), LibraryUtility.GenerateGUID());
+        // [THEN] Job WIP Entry is created with negative amount = "X"
+        VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Costs", ExpectedCostAmount);
+        VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Sales", ExpectedSalesAmount);
     end;
 
     [Test]
@@ -77,7 +72,6 @@ codeunit 136356 "UT T Job WIP Entry"
     var
         Job: Record Job;
         JobTask: Record "Job Task";
-        UserGroup: Record "User Group";
         JobCalculateWIP: Codeunit "Job Calculate WIP";
         ExpectedCostAmount: Decimal;
         ExpectedSalesAmount: Decimal;
@@ -94,11 +88,8 @@ codeunit 136356 "UT T Job WIP Entry"
         LibraryVariableStorage.Enqueue(true);
         JobCalculateWIP.JobCalcWIP(Job, WorkDate(), LibraryUtility.GenerateGUID());
         // [THEN] Job WIP Entry is created with negative amount = "X"
-        if UserGroup.FindFirst() then
-            if UserGroup.Code <> D365UserGroupCodeTxt then begin
-                VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Costs", ExpectedCostAmount);
-                VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Sales", ExpectedSalesAmount);
-            end;
+        VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Costs", ExpectedCostAmount);
+        VerifyJobWIPEntryAmount(Job."No.", JobWIPEntry.Type::"Recognized Sales", ExpectedSalesAmount);
     end;
 
     local procedure Initialize()

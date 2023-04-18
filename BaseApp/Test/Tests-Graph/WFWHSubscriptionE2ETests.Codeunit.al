@@ -76,7 +76,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
 
         // [WHEN] A GET request is made for a given workflow webhook subscription.
         TargetURL := CreateTargetURL(
-            TypeHelper.GetGuidAsString(WorkflowWebhookSubscription.Id), PAGE::"Workflow Webhook Subscriptions",
+            LowerCase(Format(WorkflowWebhookSubscription.Id, 0, 4)), PAGE::"Workflow Webhook Subscriptions",
             WorkflowWebhookSubscriptionsPage.Caption);
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
@@ -1381,7 +1381,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
     begin
         Assert.AreNotEqual('', WorkflowWebhookSubscriptionJSON, EmptyJSONErr);
         VerifyPropertyInJSON(
-          WorkflowWebhookSubscriptionJSON, 'clientId', TypeHelper.GetGuidAsString(WorkflowWebhookSubscriptionRec."Client Id"));
+          WorkflowWebhookSubscriptionJSON, 'clientId', LowerCase(Format(WorkflowWebhookSubscriptionRec."Client Id", 0, 4)));
         VerifyPropertyInJSON(WorkflowWebhookSubscriptionJSON, 'clientType', WorkflowWebhookSubscriptionRec."Client Type");
         VerifyPropertyInJSON(WorkflowWebhookSubscriptionJSON, 'eventCode', WorkflowWebhookSubscriptionRec."Event Code");
         VerifyPropertyInJSON(WorkflowWebhookSubscriptionJSON, 'conditions', WorkflowWebhookSubscriptionRec.GetConditions);
@@ -1429,7 +1429,7 @@ codeunit 135528 "WFWH Subscription E2E Tests"
         JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         JSONManagement.AddJPropertyToJObject(
-          JsonObject, 'clientId', TypeHelper.GetGuidAsString(WorkflowWebhookSubscriptionRec."Client Id"));
+          JsonObject, 'clientId', LowerCase(Format(WorkflowWebhookSubscriptionRec."Client Id", 0, 4)));
         JSONManagement.AddJPropertyToJObject(JsonObject, 'clientType', WorkflowWebhookSubscriptionRec."Client Type");
         JSONManagement.AddJPropertyToJObject(JsonObject, 'eventCode', WorkflowWebhookSubscriptionRec."Event Code");
         JSONManagement.AddJPropertyToJObject(JsonObject, 'conditions', WorkflowWebhookSubscriptionRec.GetConditions);

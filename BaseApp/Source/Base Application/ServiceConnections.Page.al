@@ -17,7 +17,7 @@ page 1279 "Service Connections"
         {
             repeater(Group)
             {
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the service. The description is based on the name of the setup page that opens when you choose the Setup.';
@@ -28,7 +28,7 @@ page 1279 "Service Connections"
                     ToolTip = 'Specifies the name of the web service. This is typically a URL.';
                     Visible = false;
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleExpression;

@@ -6,6 +6,8 @@
 codeunit 421 "Data Compression Impl."
 {
     Access = Internal;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     var
         TempBlobZip: Codeunit "Temp Blob";
@@ -44,7 +46,7 @@ codeunit 421 "Data Compression Impl."
     var
         DefaultEncoding: DotNet Encoding;
     begin
-        DefaultEncoding := DefaultEncoding.Default();
+        DefaultEncoding := DefaultEncoding.GetEncoding(0);
         OpenZipArchive(InputInStream, OpenForUpdate, DefaultEncoding.CodePage());
     end;
 

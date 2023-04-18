@@ -389,7 +389,7 @@ page 9192 "Company Creation Wizard"
 
         if FindSet() then
             repeat
-                PermissionManager.AddUserToDefaultUserGroupsForCompany("User Security ID", NewCompanyName);
+                PermissionManager.AssignDefaultPermissionsToUser("User Security ID", NewCompanyName);
             until Next() = 0;
 
         CompanyCreated := true;

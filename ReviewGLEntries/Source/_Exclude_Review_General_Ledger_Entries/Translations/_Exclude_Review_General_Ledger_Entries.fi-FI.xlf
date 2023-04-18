@@ -1,0 +1,552 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="fi-FI" original="_Exclude_Review_General_Ledger_Entries">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 3107932718 - NamedType 1448111787" maxwidth="999" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Selected G/L Entries for G/L Account %1 %2 were not marked as reviewed because credit and debit do not match and the review policy on the account enforces that</source>
+          <target state="translated">KP-tilin %1 %2 valittuja KP-tapahtumia ei ole merkitty tarkistetuiksi, koska credit ja debet eivät täsmää, vaikka tilin tarkistuskäytäntö edellyttää sitä</target>
+          <note from="Developer" annotates="general" priority="2">%1 is G/L Account No. and %2 is G/L Account Name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Review G/L Entry - NamedType BalanceNotMatchingMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3107932718 - NamedType 2635438508" maxwidth="999" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Entries for G/L Account %1 %2 were not marked as reviewed since the G/L Account has a No Review Policy</source>
+          <target state="translated">KP-tili %1 %2 kirjanpito tapahtumia ei merkitty tarkiste tuiksi, koska KP-tilillä ei ole tarkistus käytäntöä</target>
+          <note from="Developer" annotates="general" priority="2">%1 is G/L Account No. and %2 is G/L Account Name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Review G/L Entry - NamedType GLAccountLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3107932718 - NamedType 4218043748" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No entries were selected</source>
+          <target state="translated">Yhtään tapahtumaa ei valittu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Review G/L Entry - NamedType NoEntriesSelectedLbl</note>
+        </trans-unit>
+        <trans-unit id="Enum 3059661478 - EnumValue 1320218767 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Allow Review and Match Balance</source>
+          <target state="translated">Salli tarkistus ja täsmäytä saldo</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Review Policy Type - EnumValue Allow Review and Match Balance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3059661478 - EnumValue 171085621 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Allow Review</source>
+          <target state="translated">Salli tarkistus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Review Policy Type - EnumValue Allow Review - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3059661478 - EnumValue 3371220206 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>None</source>
+          <target state="translated">Ei mitään</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Review Policy Type - EnumValue None - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3177632721 - EnumValue 1320218767 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Allow Review and Match Balance</source>
+          <target state="translated">Salli tarkistus ja täsmäytä saldo</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum G/L Account Review Policy - EnumValue Allow Review and Match Balance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3177632721 - EnumValue 171085621 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Allow Review</source>
+          <target state="translated">Salli tarkistus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum G/L Account Review Policy - EnumValue Allow Review - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 3177632721 - EnumValue 3371220206 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>None</source>
+          <target state="translated">Ei mitään</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum G/L Account Review Policy - EnumValue None - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 2079910339 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>About hiding and showing entries</source>
+          <target state="translated">Tietoja tapahtumien piilottamisesta ja näyttämisestä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action Hide Reviewed Entries - Property AboutTitle</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 2079910339 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Hide reviewed entries, hides all the reviewed entries on the page</source>
+          <target state="translated">Piilota tarkistetut tapahtumat, piilottaa kaikki sivulla olevat tarkistetut tapahtumat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action Hide Reviewed Entries - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 2079910339 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You can use the show or hide reviewed entries to toggle which entries are displayed on the table and show all to see both reviewed and unreviewed</source>
+          <target state="translated">Voit vaihtaa taulukossa näkyviä tapahtumia ja näyttää sekä tarkistettuja että tarkistamattomia tapahtumia käyttämällä Näytä tarkistetut tapahtumat- tai Piilota tarkistetut tapahtumat -toimintoa</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action Hide Reviewed Entries - Property AboutText</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 2079910339 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Hide reviewed entries</source>
+          <target state="translated">Piilota tarkistetut tapahtumat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action Hide Reviewed Entries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 2309888678 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show all entries, removes the filters set in the view</source>
+          <target state="translated">Näytä kaikki tapahtumat, poistaa näkymässä määritetyt suodattimet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action Show All - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 2309888678 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show all entries</source>
+          <target state="translated">Näytä kaikki tapahtumat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action Show All - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 2553591649 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>For selected G/L Entries, field Reviewer is set to blank, field Review Status is set to Not Reviewed, field Reviewed On is set to blank, field Review Id is to blank</source>
+          <target state="translated">Valittujen KP-tapahtumien Tarkistaja-kenttä on tyhjä, Tarkistuksen tila -kentän arvoksi on määritetty Ei tarkistettu, Tarkistettu-kenttä on tyhjä ja Tarkistustunnus-kenttä on tyhjä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action SetSelectedAsNotReviewed - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 2553591649 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set selected as not reviewed</source>
+          <target state="translated">Määritä valitut tarkistamattomiksi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action SetSelectedAsNotReviewed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 3288081654 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>About review and unreview entries</source>
+          <target state="translated">Tietoja tarkistetuista ja tarkistamattomista tapahtumista</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action SetSelectedAsReviewed - Property AboutTitle</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 3288081654 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>For selected G/L Entries, field Reviewer is set to the current user, field Review Status is set to Reviewed, field Reviewed On is set to current date, field Review Id is to a number which all the marked entries share</source>
+          <target state="translated">Valittujen KP-tapahtumien Tarkistaja-kentän arvoksi on määritetty nykyinen käyttäjä, Tarkistuksen tila -kentän arvoksi on määritetty Tarkistettu, Tarkistettu-kentän arvoksi on määritetty nykyinen päivämäärä ja Tarkistustunnus-kentän arvoksi on määritetty numero, jonka kaikki merkityt tapahtumat jakavat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action SetSelectedAsReviewed - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 3288081654 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set selected as reviewed updates the fields related to reviews and marks the entry as reviewed, set selected as not reviewed clears these fields</source>
+          <target state="translated">Määritä valitut tarkistetuiksi päivittää tarkistuksiin liittyvät kentät ja merkitsee tapahtuman tarkistetuksi. Määritä valitut tarkistamattomiksi tyhjentää nämä kentät</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action SetSelectedAsReviewed - Property AboutText</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 3288081654 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set selected as reviewed</source>
+          <target state="translated">Määritä valitut tarkistetuiksi</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action SetSelectedAsReviewed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Entry</source>
+          <target state="translated">Tapahtuma</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 3473830694 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show reviewed entries, hides all the unreviewed entries on the page</source>
+          <target state="translated">Näytä tarkistetut tapahtumat, piilottaa kaikki sivulla olevat tarkistamattomat tapahtumat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action Show Reviewed Entries - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 3473830694 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show reviewed entries</source>
+          <target state="translated">Näytä tarkistetut tapahtumat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action Show Reviewed Entries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Action 4181767958 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Application</source>
+          <target state="translated">Kohdistus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action Application - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 1267408499 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the account no. that will be applied.</source>
+          <target state="translated">Määrittää käytettävän tilinumeron.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Account - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 1515723681 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>About Review Id?</source>
+          <target state="translated">Tietoja tarkistustunnuksesta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Review Id - Property AboutTitle</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 1515723681 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the id that represents the review.</source>
+          <target state="translated">Määrittää tarkistusta kuvaavan tunnuksen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Review Id - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 1515723681 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>When one or more entries has been marked as reviewed together, you can see an identifier unique to the entries that were reviewed together</source>
+          <target state="translated">Jos yksi tai useita tapahtumia on merkitty tarkistetuiksi samanaikaisesti, voit nähdä samanaikaisesti tarkistettujen tapahtumien yksilöivän tunnisteen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Review Id - Property AboutText</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 1519032111 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>About Reviewer?</source>
+          <target state="translated">Tietoja tarkistajasta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Reviewer - Property AboutTitle</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 1519032111 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a code for the ID when you set entries as reviewed.</source>
+          <target state="translated">Määrittää tunnuksen koodin, kun merkitset tapahtumat tarkistetuiksi.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Reviewer - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 1519032111 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>When an entry has been marked as reviewed, you can see the name of that person</source>
+          <target state="translated">Jos tapahtuma on merkitty tarkistetuksi, voit nähdä kyseisen henkilön nimen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Reviewer - Property AboutText</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 2141525479 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the accumulated credit amount of all the lines applied to this line.</source>
+          <target state="translated">Määrittää tähän riviin kohdistettujen kaikkien rivien kerääntyneen credit-summan.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Credit - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 2141525479 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Credit (LCY)</source>
+          <target state="translated">Kredit (PVA)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Credit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 2363328873 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of document that the G/L entries apply to.</source>
+          <target state="translated">Määrittää sen asiakirjan tyypin, jota KP-tapahtumat koskevat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Document Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 2457185862 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>About Review Policy?</source>
+          <target state="translated">Tietoja tarkistuskäytännöstä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Review Policy - Property AboutTitle</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 2457185862 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the review policy for the G/L Account shown in the page caption</source>
+          <target state="translated">Määrittää sivun otsikossa näkyvän KP-tilin tarkistuskäytännön</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Review Policy - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 2457185862 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The review policy specifies the rules for which the selected entries must adhere to</source>
+          <target state="translated">Tarkistuskäytäntö määrittää säännöt, joiden mukaisia valittujen tapahtumien tulee olla</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Review Policy - Property AboutText</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 2457185862 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review Policy</source>
+          <target state="translated">Tarkistuskäytäntö</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Review Policy - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 2556136339 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the credit amount that will be applied.</source>
+          <target state="translated">Määrittää käytettävän hyvityssumman.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Credit Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 2567000513 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>About Reviewed Date?</source>
+          <target state="translated">Tietoja tarkistuspäivämäärästä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Reviewed Date - Property AboutTitle</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 2567000513 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the time when the ledger entries were reviewed.</source>
+          <target state="translated">Määrittää kellonajan, jolloin kirjanpitotapahtumat tarkistettiin.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Reviewed Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 2567000513 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>When an entry has been marked as reviewed, you can see the date on which it was done</source>
+          <target state="translated">Jos tapahtuma on merkitty tarkistetuksi, voit nähdä päivämäärän, jolloin se on tehty</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Reviewed Date - Property AboutText</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 25700210 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>About Balance?</source>
+          <target state="translated">Tietoja saldosta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Balance - Property AboutTitle</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 25700210 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the accumulated balance of all the lines applied to this line.</source>
+          <target state="translated">Määrittää tähän riviin kohdistettujen kaikkien rivien kerääntyneen saldon.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Balance - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 25700210 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Based on the selected records, the balance displays the sum of debit and credit</source>
+          <target state="translated">Valittujen tietueiden perusteella saldossa näkyy debetin ja kreditin summa</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Balance - Property AboutText</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 25700210 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Balance</source>
+          <target state="translated">Saldo</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Balance - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 2796346326 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the debit amount that will be applied.</source>
+          <target state="translated">Määrittää käytettävän debet-summan.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Debit Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies additional information about the general ledger entry.</source>
+          <target state="translated">Määrittää kirjanpitotapahtuman lisätiedot.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 3710982960 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date when the G/L entries were posted.</source>
+          <target state="translated">Määrittää päivämäärän, jolloin KP-tapahtumat kirjattiin.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Posting Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 3732000533 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>About reviewed?</source>
+          <target state="translated">Tietoja tarkistetuista</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Reviewed - Property AboutTitle</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 3732000533 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if an entry is marked as reviewed.</source>
+          <target state="translated">Määrittää, onko tapahtuma merkitty tarkistetuksi.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Reviewed - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 3732000533 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>In this column you can see which entries have already been marked as reviewed and which has not, you can easily filter on this or use the Hide/Show actions</source>
+          <target state="translated">Tässä sarakkeessa näet tapahtumat, jotka on jo merkitty tarkistetuiksi ja joita ei ole. Voit helposti suodattaa tämän tai käyttää Piilota/Näytä-toimintoja</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Reviewed - Property AboutText</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 486908828 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the document that the general ledger entries apply to.</source>
+          <target state="translated">Määrittää sen asiakirjan numeron, jota kirjanpitotapahtumat koskevat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Document No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 636392376 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the amount that will be applied.</source>
+          <target state="translated">Määrittää käytettävän summan.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 84647506 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the accumulated debit amount of all the lines applied to this line.</source>
+          <target state="translated">Määrittää tähän riviin kohdistettujen kaikkien rivien kerääntyneen debet-summan.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Debit - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 84647506 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Debit (LCY)</source>
+          <target state="translated">Debet (PVA)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Debit - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Control 883711285 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the general ledger entry no.</source>
+          <target state="translated">Määrittää kirjanpidon tapahtumanron</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Control Entry No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2293883615 - Control 2272945056 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies which review implementation the review system uses</source>
+          <target state="translated">Määrittää, mitä tarkistuksen toteutusta tarkistusjärjestelmä käyttää</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Entry Review Setup - Control Review Engine - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2293883615 - Control 2445482498 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>General</source>
+          <target state="translated">Yleiset</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Entry Review Setup - Control General - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - NamedType 2180186744" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 %2</source>
+          <target state="translated">%1 %2</target>
+          <note from="Developer" annotates="general" priority="2">%1 is the G/L Account No. and %2 is the G/L Account Name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - NamedType CaptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>About Review G/L Entries</source>
+          <target state="translated">Tietoja Tarkista KP-tapahtumia -toiminnosta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Property AboutTitle</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select one or more entries by marking one and marking a second one while holding down either CTRL or SHIFT while marking entries. On this page you manually mark entries as reviewed according to the given review policy, which is specified on the G/L Account. When you review one or more entries, they are given a unique common identifier, the data can be opened in Excel</source>
+          <target state="translated">Valitse yksi tai useita tapahtumia merkitsemällä yksi ja merkitsemällä toinen pitämällä CTRL- tai vaihtonäppäintä painettuna samalla kun merkitset tapahtumia. Tällä sivulla merkitset tapahtumat tarkistetuiksi manuaalisesti KP-tilillä määritetyn tarkistuskäytännön mukaisesti. Kun tarkistat yhden tai usean tapahtuman, niille määritetään yksilöivä yleinen tunniste. Tiedot voidaan avata Excelissä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Property AboutText</note>
+        </trans-unit>
+        <trans-unit id="Page 2247589152 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review G/L Entries</source>
+          <target state="translated">Tarkista KP-tapahtumia</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2293883615 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Entry Review Setup</source>
+          <target state="translated">KP-tapahtumien tarkistuksen määritys</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Entry Review Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2293883615 - Property 3863440606" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>review,apply,gl entries, review gl</source>
+          <target state="translated">tarkista,kohdista,kp-tapahtumat, tarkista kp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page G/L Entry Review Setup - Property AdditionalSearchTerms</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3920593255 - Action 682019436 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review Entries</source>
+          <target state="translated">Tarkista tapahtumat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3105459369</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3920593255 - Action 682019436 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens a page where you can manually review G/L entries</source>
+          <target state="translated">Avaa sivun, jolta voit tarkistaa KP-tapahtumat manuaalisesti</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3105459369</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3920593255 - Action 682019436 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens a new page where you can manually mark entries as reviewed and open the page in Excel</source>
+          <target state="translated">Avaa uuden sivun, jolla voit merkitä tapahtumat tarkistetuiksi manuaalisesti ja avata sivun Excelissä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3105459369</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3920593255 - Action 682019436 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review Entries</source>
+          <target state="translated">Tarkista tapahtumat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3105459369</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4104492989 - Action 682019436 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review Entries</source>
+          <target state="translated">Tarkista tapahtumat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1887905131</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4104492989 - Action 682019436 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens a page where you can manually review G/L entries</source>
+          <target state="translated">Avaa sivun, jolta voit tarkistaa KP-tapahtumat manuaalisesti</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1887905131</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4104492989 - Action 682019436 - Property 247559172" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opens a new page where you can manually mark entries as reviewed and open the page in Excel</source>
+          <target state="translated">Avaa uuden sivun, jolla voit merkitä tapahtumat tarkistetuiksi manuaalisesti ja avata sivun Excelissä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1887905131</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4104492989 - Action 682019436 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review Entries</source>
+          <target state="translated">Tarkista tapahtumat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1887905131</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3191048332 - Control 2457185862 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the review policy for this account.</source>
+          <target state="translated">Määrittää tämän tilin tarkistuskäytännön.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4219821699</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3191048332 - Control 2457185862 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review Policy</source>
+          <target state="translated">Tarkistuskäytäntö</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4219821699</note>
+        </trans-unit>
+        <trans-unit id="Table 2293883615 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key</source>
+          <target state="translated">Perusavain</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Entry Review Setup - Field Primary Key - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2293883615 - Field 2789930462 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Entry Reviewer</source>
+          <target state="translated">KP-tapahtumien tarkistaja</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Entry Review Setup - Field GLEntryReviewer - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3624135866 - Field 1411740825 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Entry No.</source>
+          <target state="translated">KP-tapahtuman nro</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Entry Review Entry - Field G/L Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3624135866 - Field 1699201620 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reviewed Identifier</source>
+          <target state="translated">Tarkistettu tunnus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Entry Review Entry - Field Reviewed Identifier - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3624135866 - Field 2188429124 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reviewed By</source>
+          <target state="translated">Tarkistanut</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Entry Review Entry - Field Reviewed By - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2293883615 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Entry Review Setup</source>
+          <target state="translated">KP-tapahtumien tarkistuksen määritys</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Entry Review Setup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3624135866 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Entry Review Entry</source>
+          <target state="translated">KP-tapahtumien tarkistustapahtuma</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table G/L Entry Review Entry - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2120619102 - Field 1699201620 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reviewed Identifier</source>
+          <target state="translated">Tarkistettu tunnus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2825951060</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2120619102 - Field 2188429124 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reviewed By</source>
+          <target state="translated">Tarkistanut</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2825951060</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2120619102 - Field 2567000513 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reviewed Date</source>
+          <target state="translated">Tarkistuspäivämäärä</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2825951060</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2120619102 - Field 3732000533 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reviewed</source>
+          <target state="translated">Tarkistettu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2825951060</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3177632721 - Field 2457185862 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review Policy</source>
+          <target state="translated">Tarkistuskäytäntö</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 4274826855</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

@@ -1907,21 +1907,29 @@ codeunit 137088 "SCM Order Planning - III"
     var
         Item: Record Item;
         JobPlanningLine: Record "Job Planning Line";
+        ItemJournalLine: Record "Item Journal Line";
         RequisitionWkshName: Record "Requisition Wksh. Name";
         RequisitionLine: Record "Requisition Line";
         ManufacturingUserTemplate: Record "Manufacturing User Template";
     begin
         // [FEATURE] [Order Planning] [Reservation] [Binding] [Job Planning Line] [Requisition Line]
         // [SCENARIO 371276] Order-to-Order reservation is established when requisition line supplying job planning line is created from Order Planning.
+        // [SCENARIO 454609] Reserved Quantity on requisition line does not exceed Quantity.
         Initialize();
 
         // [GIVEN] Item "I" that is replenished by production order.
+        // [GIVEN] Set Reserve = Always.
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate(Reserve, Item.Reserve::Always);
         Item.Modify(true);
 
-        // [GIVEN] Job, Job Task and Job Planning Line for item "I".
+        // [GIVEN] Job, Job Task and Job Planning Line for 20 pcs of item "I".
         CreateJobPlanningLine(JobPlanningLine, Item."No.", '');
+
+        // [GIVEN] Post 5 pcs of item "I" to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', LibraryRandom.RandInt(10));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [GIVEN] Calculate Order Planning for job planning lines.
         LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
@@ -1945,6 +1953,16 @@ codeunit 137088 "SCM Order Planning - III"
         VerifyOrderToOrderBindingOnReservEntry(
           DATABASE::"Job Planning Line", JobPlanningLine.Status.AsInteger(), JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.",
           DATABASE::"Requisition Line");
+
+        // [THEN] Reserved quantity on the requisition worksheet line = 15 pcs.
+        RequisitionLine.Reset();
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+        RequisitionLine.FindFirst();
+        RequisitionLine.CalcFields("Reserved Quantity");
+        RequisitionLine.TestField("Reserved Quantity", RequisitionLine.Quantity);
     end;
 
     [Test]
@@ -3004,7 +3022,7 @@ codeunit 137088 "SCM Order Planning - III"
         JobPlanningLine.Validate("Location Code", LocationCode);
         JobPlanningLine.Validate("Planning Date", WorkDate());
         JobPlanningLine.Validate("Usage Link", true);
-        JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        JobPlanningLine.Validate(Quantity, LibraryRandom.RandIntInRange(11, 20));
         JobPlanningLine.Modify(true);
     end;
 

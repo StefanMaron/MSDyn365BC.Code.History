@@ -135,6 +135,12 @@
           <note from="Developer" annotates="general" priority="2">%1 is the item name, %2 is the quantity sold</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType MostPopularItemPayloadTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3892878374 - NamedType 967194017" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>&lt;-%1D&gt;</source>
+          <target state="translated">&lt;-%1D&gt;</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Number of days</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType NoDaysAgoFilterTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 2645967220" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your VAT return is due %1 (in %2 days)</source>
           <target state="translated">Vaše přiznání k DPH je splatné %1 (za %2 dní)</target>
@@ -206,6 +212,30 @@
           <target state="translated">Částka</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - NamedType AmountCaptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3615731784 - Control 592951229 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the amount in local currency.</source>
+          <target state="translated">Určuje částku v místní měně.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - Control Amount (LCY</note>
+        </trans-unit>
+        <trans-unit id="Page 3615731784 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name.</source>
+          <target state="translated">Určuje název.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3615731784 - Control 2704404533 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the quantity.</source>
+          <target state="translated">Určuje množství.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - Control Quantity - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3615731784 - Control 1920046521 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the unit of measure.</source>
+          <target state="translated">Určuje měrnou jednotku.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Headline Details - Control Unit of Measure - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Query 3009275761 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Best Sold Item Headline</source>

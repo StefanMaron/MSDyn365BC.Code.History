@@ -10,6 +10,8 @@
 codeunit 425 "Data Compression"
 {
     Access = Public;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     var
         DataCompressionImpl: Codeunit "Data Compression Impl.";

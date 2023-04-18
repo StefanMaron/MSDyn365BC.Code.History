@@ -47,7 +47,7 @@ codeunit 1997 "Checklist Events"
         GuidedExperienceType: Enum "Guided Experience Type";
         SpotlightTourType: Enum "Spotlight Tour Type";
     begin
-        // Business Manager
+        // Business Manager Evaluation
         GetRolesForEvaluationCompany(TempAllProfileBusinessManagerEval);
 
         Checklist.Insert(GuidedExperienceType::Tour, ObjectType::Page, Page::"Business Manager Role Center", 1000, TempAllProfileBusinessManagerEval, true);
@@ -56,6 +56,9 @@ codeunit 1997 "Checklist Events"
         Checklist.Insert(Page::"Item Card", SpotlightTourType::"Share to Teams", 3000, TempAllProfileBusinessManagerEval, true);
 
         Checklist.Insert(GuidedExperienceType::Video, YourSalesWithinOutlookVideoLinkTxt, 4000, TempAllProfileBusinessManagerEval, true);
+
+        Checklist.Insert(Page::"Item Card", SpotlightTourType::Copilot, 5000, TempAllProfileBusinessManagerEval, true);
+
         if not TenantLicenseState.IsPaidMode() then
             Checklist.Insert(enum::"Guided Experience Type"::Learn, ReadyToGoLinkTxt, 9000, TempAllProfileBusinessManagerEval, true);
 

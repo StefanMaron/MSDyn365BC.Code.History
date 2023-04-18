@@ -18,7 +18,7 @@ page 1871 "Credit Limit Details"
                 Editable = false;
                 ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
             }
-            field(Name; Name)
+            field(Name; Rec.Name)
             {
                 ApplicationArea = Basic, Suite;
                 Editable = false;

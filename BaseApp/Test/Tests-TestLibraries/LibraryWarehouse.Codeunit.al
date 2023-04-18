@@ -265,8 +265,8 @@ codeunit 132204 "Library - Warehouse"
         if BinCode = '' then
             BinCode := LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), DATABASE::Bin);
         Bin.Validate(Code, BinCode);
-        Bin.Validate("Zone Code", ZoneCode);
         Bin.Validate("Bin Type Code", BinTypeCode);
+        Bin.Validate("Zone Code", ZoneCode);
         Bin.Insert(true);
 
         OnAfterCreateBin(Bin, LocationCode, BinCode, ZoneCode, BinTypeCode);

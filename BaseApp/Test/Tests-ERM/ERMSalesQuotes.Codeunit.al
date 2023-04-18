@@ -1581,8 +1581,10 @@ codeunit 134379 "ERM Sales Quotes"
         UpdateSalesReceivablesSetup(OldDefaultPostingDate, OldDefaultPostingDate, OldStockoutWarning);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
     procedure SalesOrderFromSalesQuoteWithTransactionType()
     var
         SalesHeader: Record "Sales Header";
@@ -1602,6 +1604,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [THEN] Verify that New Sales Order created from Sales Quote has Transaction Type on Header and Line
         VerifyTransactionTypeOnOrder(SalesHeader, SalesHeader."No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1780,7 +1783,9 @@ codeunit 134379 "ERM Sales Quotes"
 
     local procedure Initialize()
     var
+#if not CLEAN22
         IntrastatSetup: Record "Intrastat Setup";
+#endif
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
@@ -1796,17 +1801,20 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryTemplates.EnableTemplatesFeature();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+#if not CLEAN22
         if not IntrastatSetup.Get() then begin
             IntrastatSetup.Init();
             IntrastatSetup.Insert();
         end;
         LibrarySetupStorage.Save(DATABASE::"Intrastat Setup");
+#endif
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Quotes");
     end;
 
+#if not CLEAN22
     local procedure VerifyTransactionTypeOnOrder(SalesHeader: Record "Sales Header"; QuoteNo: Code[20])
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -1820,6 +1828,7 @@ codeunit 134379 "ERM Sales Quotes"
         FindSalesLine(SalesLine, QuoteNo);
         SalesLine.TestField("Transaction Type", IntrastatSetup."Default Trans. - Purchase");
     end;
+#endif
 
     local procedure CreateSimpleVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     var

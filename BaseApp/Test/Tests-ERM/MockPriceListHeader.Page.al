@@ -9,7 +9,7 @@ page 134118 "Mock Price List Header"
         {
             repeater(Control1)
             {
-                field(Code; Code)
+                field(Code; Rec.Code)
                 {
                 }
                 field("Source Group"; "Source Group")

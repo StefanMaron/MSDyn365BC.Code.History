@@ -19,7 +19,7 @@ page 9600 "XML Schemas"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the XML schema.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the XML schema file that has been loaded for the line.';

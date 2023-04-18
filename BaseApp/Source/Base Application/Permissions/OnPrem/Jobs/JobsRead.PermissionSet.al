@@ -9,7 +9,7 @@ permissionset 1087 "Jobs - Read"
                   tabledata "Dtld. Price Calculation Setup" = R,
                   tabledata "Duplicate Price Line" = R,
                   tabledata Job = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Job G/L Account Price" = R,
                   tabledata "Job Item Price" = R,
 #endif
@@ -17,7 +17,7 @@ permissionset 1087 "Jobs - Read"
                   tabledata "Job Planning Line - Calendar" = R,
                   tabledata "Job Planning Line" = R,
                   tabledata "Job Planning Line Invoice" = R,
-#if not CLEAN19
+#if not CLEAN21
                   tabledata "Job Resource Price" = R,
 #endif
                   tabledata "Job Task" = R,

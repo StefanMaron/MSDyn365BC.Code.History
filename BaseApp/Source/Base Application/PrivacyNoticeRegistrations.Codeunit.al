@@ -1,5 +1,13 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 codeunit 1357 "Privacy Notice Registrations"
 {
+    InherentEntitlements = X;
+    InherentPermissions = X;
+
     var
         MicrosoftOneDriveTxt: Label 'Microsoft OneDrive', Locked = true; // Product names are not translated and it's important this entry exists.
         MicrosoftExchangeTxt: Label 'Microsoft Exchange', Locked = true;

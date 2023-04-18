@@ -855,7 +855,7 @@ codeunit 136502 "UT Time Sheets Posting"
         CheckTimeSheetPostingEntry(TimeSheetLine, PostedAssemblyLine."Document No.", PostedAssemblyLine.Quantity);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure SuggestJobJournalLineTSLineDiscountPct()
@@ -920,7 +920,7 @@ codeunit 136502 "UT Time Sheets Posting"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT Time Sheets Posting");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateJobResourcePriceWithLineDiscountPct(var JobResourcePrice: Record "Job Resource Price"; JobNo: Code[20]; JobTaskNo: Code[20]; Type: Option; "Code": Code[20])
     begin
         LibraryJob.CreateJobResourcePrice(
