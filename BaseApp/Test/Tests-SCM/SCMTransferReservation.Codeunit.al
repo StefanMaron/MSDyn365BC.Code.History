@@ -33,6 +33,7 @@ codeunit 137269 "SCM Transfer Reservation"
         DummyQst: Label 'Dummy Dialog Question?';
         ConfirmDialogOccursErr: Label 'Confirm Dialog occurs.';
         ExpectedDateConfclictErr: Label 'The change leads to a date conflict with existing reservations';
+        ReservEntryQtyIncorrectErr: Label 'Reservation Entry Quantity is different than expected.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1842,6 +1843,46 @@ codeunit 137269 "SCM Transfer Reservation"
         asserterror LibraryInventory.PostTransferHeader(TransferHeader, true, false);
     end;
 
+    [Test]
+    [HandlerFunctions('LotItemTrackingLinesPageHandler')]
+    procedure VerifyQtyToHandleOnReceiptTrackingLinesForPartialPostingTransferOrder()
+    var
+        Item: Record Item;
+        LocationWhite: Record Location;
+        LocationBlue: Record Location;
+        TransferHeader: Record "Transfer Header";
+        LotNo, LotNo2 : Code[20];
+    begin
+        // [SCENARIO 468270] Verify Qty. to Handle on receipt tracking lines for partial posting transfer order
+        Initialize();
+
+        // [GIVEN] Create Lot-tracked item
+        CreateTrackedItem(Item, false, true, false, true);
+
+        // [GIVEN] Create two Locations
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationWhite);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
+
+        // [GIVEN] The item is in inventory on location "W".
+        LotNo := CreateLotNoInformation(Item."No.");
+        LotNo2 := CreateLotNoInformation(Item."No.");
+        PostItemJournalWithTracking(Item."No.", LocationWhite.Code, LotNo, LotNo2, 10, 10);
+
+        // [GIVEN] Transfer Order from "W" to "B" with Item Tracking Lines
+        CreateTransferOrderWithItemTracking(TransferHeader, Item."No.", LocationWhite.Code, LocationBlue.Code, LotNo, LotNo2, 10, 3);
+
+        // [GIVEN] Update Qty. to Ship on Transfer Line
+        UpdateQtyToShipOnTransferLine(TransferHeader, 5);
+
+        // [WHEN] Post the Transfer Shipment
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [THEN] Verify results
+        VerifyQtyOnReservationEntriesForLotNo(TransferHeader, Item."No.", LocationBlue.Code, LotNo, 5);
+        VerifyQtyOnReservationEntriesForLotNo(TransferHeader, Item."No.", LocationBlue.Code, LotNo2, 5);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Transfer Reservation");
@@ -2582,6 +2623,23 @@ codeunit 137269 "SCM Transfer Reservation"
         TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
     end;
 
+    local procedure CreateTransferOrderWithItemTracking(var TransferHeader: Record "Transfer Header"; ItemNo: Code[20]; FromLocationCode: Code[10]; ToLocationCode: Code[10]; TrackingNo: Code[20]; TrackingNo2: Code[20]; QtyToBase: Decimal; QtyToHandle: Decimal)
+    var
+        InTransitLocation: Record Location;
+        TransferLine: Record "Transfer Line";
+    begin
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+        CreateTransferOrder(
+          TransferHeader, TransferLine, ItemNo, FromLocationCode, ToLocationCode, InTransitLocation.Code, WorkDate(), QtyToBase);
+        LibraryVariableStorage.Enqueue(TrackingNo);
+        LibraryVariableStorage.Enqueue(QtyTobase / 2);
+        LibraryVariableStorage.Enqueue(QtyToHandle);
+        LibraryVariableStorage.Enqueue(TrackingNo2);
+        LibraryVariableStorage.Enqueue(QtyTobase / 2);
+        LibraryVariableStorage.Enqueue(QtyToBase / 2 - QtyToHandle);
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
+    end;
+
     local procedure CreateTransferOrder(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; ItemNo: Code[20]; FromLocationCode: Code[10]; ToLocationCode: Code[10]; TransitLocationCode: Code[10]; ReceiptDate: Date; Qty: Decimal)
     begin
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, TransitLocationCode);
@@ -2613,6 +2671,21 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
+    local procedure PostItemJournalWithTracking(ItemNo: Code[20]; LocationCode: Code[10]; TrackingNo: Code[20]; TrackingNo2: Code[20]; QtyToBase: Decimal; QtyToHandle: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLine(ItemJournalLine, ItemNo, LocationCode, '', QtyToBase + QtyToHandle);
+        LibraryVariableStorage.Enqueue(TrackingNo);
+        LibraryVariableStorage.Enqueue(QtyToBase);
+        LibraryVariableStorage.Enqueue(QtyToHandle);
+        LibraryVariableStorage.Enqueue(TrackingNo2);
+        LibraryVariableStorage.Enqueue(QtyToBase);
+        LibraryVariableStorage.Enqueue(QtyToHandle);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
     local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
@@ -2633,6 +2706,20 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, TemplateType);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, TemplateType, ItemJournalTemplate.Name);
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+    end;
+
+    local procedure VerifyQtyOnReservationEntriesForLotNo(var TransferHeader: Record "Transfer Header"; ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[20]; Quantity: Decimal)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetSourceFilter(Database::"Transfer Line", 1, TransferHeader."No.", -1, true);
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Location Code", LocationCode);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.CalcSums("Quantity (Base)", "Qty. to Handle (Base)", "Qty. to Invoice (Base)");
+        Assert.AreEqual(Quantity, ReservationEntry."Quantity (Base)", ReservEntryQtyIncorrectErr);
+        Assert.AreEqual(Quantity, ReservationEntry."Qty. to Handle (Base)", ReservEntryQtyIncorrectErr);
+        Assert.AreEqual(Quantity, ReservationEntry."Qty. to Invoice (Base)", ReservEntryQtyIncorrectErr);
     end;
 
     local procedure RunDummyConfirm()
@@ -2688,6 +2775,25 @@ codeunit 137269 "SCM Transfer Reservation"
         ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
         QtyToHandle := LibraryVariableStorage.DequeueDecimal();
         ItemTrackingLines."Quantity (Base)".SetValue(QtyToHandle);
+        ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure LotItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        QtyToBase, QtyToHandle : Decimal;
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+        QtyToBase := LibraryVariableStorage.DequeueDecimal();
+        QtyToHandle := LibraryVariableStorage.DequeueDecimal();
+        ItemTrackingLines."Quantity (Base)".SetValue(QtyToBase);
+        ItemTrackingLines."Qty. to Handle (Base)".SetValue(QtyToHandle);
+        ItemTrackingLines.Next();
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+        QtyToBase := LibraryVariableStorage.DequeueDecimal();
+        QtyToHandle := LibraryVariableStorage.DequeueDecimal();
+        ItemTrackingLines."Quantity (Base)".SetValue(QtyToBase);
+        ItemTrackingLines."Qty. to Handle (Base)".SetValue(QtyToHandle);
         ItemTrackingLines.OK.Invoke;
     end;
 
