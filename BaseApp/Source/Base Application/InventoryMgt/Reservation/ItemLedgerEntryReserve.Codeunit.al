@@ -8,7 +8,12 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
 
     procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ItemLedgEntry: Record "Item Ledger Entry")
     begin
-        FilterReservEntry.SetSourceFilter(DATABASE::"Item Ledger Entry", 0, '', ItemLedgEntry."Entry No.", false);
+        FilterReservFor(FilterReservEntry, ItemLedgEntry."Entry No.", false);
+    end;
+
+    procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; ItemLedgerEntryNo: Integer; SourceKey: Boolean)
+    begin
+        FilterReservEntry.SetSourceFilter(DATABASE::"Item Ledger Entry", 0, '', ItemLedgerEntryNo, SourceKey);
         FilterReservEntry.SetSourceFilter('', 0);
     end;
 

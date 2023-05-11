@@ -134,24 +134,21 @@ table 1170 "User Task"
         }
         field(14; "Created By User Name"; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Created By"),
-                                                         "License Type" = CONST("Full User")));
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Created By")));
             Caption = 'User Created By';
             Editable = false;
             FieldClass = FlowField;
         }
         field(15; "Assigned To User Name"; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Assigned To"),
-                                                         "License Type" = CONST("Full User")));
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Assigned To")));
             Caption = 'User Assigned To';
             Editable = false;
             FieldClass = FlowField;
         }
         field(16; "Completed By User Name"; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Completed By"),
-                                                         "License Type" = CONST("Full User")));
+            CalcFormula = Lookup(User."User Name" WHERE("User Security ID" = FIELD("Completed By")));
             Caption = 'User Completed By';
             Editable = false;
             FieldClass = FlowField;
@@ -244,6 +241,8 @@ table 1170 "User Task"
     begin
         Validate("Created DateTime", CurrentDateTime);
         "Created By" := UserSecurityId();
+        if IsNullGuid("Assigned To") and ("User Task Group Assigned To" = '') then
+            "Assigned To" := UserSecurityId();
     end;
 
     var

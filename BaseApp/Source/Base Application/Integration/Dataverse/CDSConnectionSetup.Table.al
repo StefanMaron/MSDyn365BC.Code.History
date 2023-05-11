@@ -595,6 +595,20 @@ table 7200 "CDS Connection Setup"
             until IntegrationTableMapping.Next() = 0;
     end;
 
+    internal procedure GetProxyVersion(): Integer
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+    begin
+        if "Proxy Version" >= 100 then
+            exit("Proxy Version");
+
+        if not EnvironmentInformation.IsSaaS() then
+            exit("Proxy Version");
+
+        Session.LogMessage('0000K7Q', DefaultingToDataverseServiceClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+        exit(100);
+    end;
+
     var
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
@@ -614,4 +628,5 @@ table 7200 "CDS Connection Setup"
         CannotDisableCDSErr: Label 'To disable the connection with Dataverse, you must first disable the existing connection with Dynamics 365 Sales.';
         TransferringConnectionValuesFromCRMConnectionsetupTxt: Label 'Transferring connection string values from Dynamics 365 sales connection setup to Dataverse connection setup', Locked = true;
         TestServerAddressTok: Label '@@test@@', Locked = true;
+        DefaultingToDataverseServiceClientTxt: Label 'Defaulting to DataverseServiceClient', Locked = true;
 }

@@ -7,14 +7,25 @@ codeunit 5942 "ServContractQuote-Tmpl. Upd."
         ServiceContractTemplate.Reset();
         if not ServiceContractTemplate.FindFirst() then
             exit;
-
-        TestField("Contract No.");
+        CheckContractNo(Rec);
 
         PickAndApplyTemplate(Rec);
     end;
 
     var
         ServiceContractTemplate: Record "Service Contract Template";
+
+    local procedure CheckContractNo(var ServiceContractHeader: Record "Service Contract Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckContractNo(ServiceContractHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        ServiceContractHeader.TestField("Contract No.");
+    end;
 
     local procedure PickAndApplyTemplate(var ServiceContractHeader: Record "Service Contract Header")
     var
@@ -82,6 +93,11 @@ codeunit 5942 "ServContractQuote-Tmpl. Upd."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApplyTemplate(var ServiceContractHeader: Record "Service Contract Header"; ServiceContractTemplate: Record "Service Contract Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckContractNo(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 

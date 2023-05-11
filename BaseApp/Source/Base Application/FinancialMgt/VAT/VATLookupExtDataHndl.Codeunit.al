@@ -33,8 +33,6 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
         SendRequestToVatRegistrationService(TempBlobRequestBody, ShowErrors);
 
         InsertLogEntry(TempBlobRequestBody);
-
-        Commit();
     end;
 
     local procedure SendRequestToVatRegistrationService(var TempBlobBody: Codeunit "Temp Blob"; ShowErrors: Boolean)

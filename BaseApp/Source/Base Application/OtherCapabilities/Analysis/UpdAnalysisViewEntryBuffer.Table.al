@@ -71,8 +71,11 @@ table 2151 "Upd Analysis View Entry Buffer"
         {
             DataClassification = CustomerContent;
         }
+        field(17; "Account Source"; Enum "Analysis Account Source")
+        {
+            Caption = 'Account Source';
+        }
     }
-
     keys
     {
         key(Key1; "Primary Key")

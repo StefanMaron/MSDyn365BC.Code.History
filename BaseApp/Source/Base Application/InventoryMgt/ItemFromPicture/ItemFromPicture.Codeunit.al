@@ -1,7 +1,8 @@
 codeunit 7499 "Item From Picture"
 {
     Access = Internal;
-    Permissions = tabledata "Image Analysis Scenario" = Rimd;
+    Permissions = tabledata "Nav App Setting" = rm,
+                  tabledata "Image Analysis Scenario" = Rimd;
 
     var
         // Setup handling
@@ -14,6 +15,10 @@ codeunit 7499 "Item From Picture"
         ImageAnalysisNotificationNameTxt: Label 'Notify the user of Image Analysis capabilities when creating an item from picture.', MaxLength = 128;
         ImageAnalysisNotificationDescriptionTxt: Label 'Reminds the user that the Item From Picture experience supports using Image Analysis capabilities.';
         ItemFromPictureScenarioTxt: Label 'ITEM FROM PICTURE', Locked = true;
+        // Sandbox HTTP calls handling
+        SystemApplicationAppIdTxt: Label '63ca2fa4-4f03-4f2b-a480-172fef340d3f', Locked = true;
+        EnableHttpCallsQst: Label 'This feature only works if you allow %1 extensions to communicate with external services. This is turned off by default in Sandbox environments.\\Do you want to allow communication from %1 extensions to external services? You can always change this from the Extension Management page.', Comment = '%1 = The publisher of the BaseApp extension, for example Microsoft.';
+        CouldNotEnableHttpCallsMsg: Label 'We could not enable external calls for this scenario. You might lack permissions for this operation.';
         // Image handling
         ImageFileFilterLbl: Label 'All supported images (*.jpg;*.jpeg;*.png;*.gif;*.bmp)';
         ImageFileFilterExtensionsTxt: Label '%1|*.jpg;*.jpeg;*.png;*.gif;*.bmp', Locked = true;
@@ -124,6 +129,8 @@ codeunit 7499 "Item From Picture"
     var
         UnusedAction: Action;
     begin
+        PromptOnHttpCallsIfSandbox();
+        Commit();
         UnusedAction := Page.RunModal(Page::"Item From Picture");
     end;
 
@@ -233,7 +240,7 @@ codeunit 7499 "Item From Picture"
         exit(BestItemCategory.Code);
     end;
 
-    local procedure IdentifyBetterItemCategory(TagName: Text; ItemConfidence: Decimal; var FoundExactMatch: Boolean; var FoundPartialMatch: Boolean; var CurrentBestItemCategory: Record "Item Category"; var CurrentBestItemCategoryConfidence: Decimal)
+    local procedure IdentifyBetterItemCategory(TagName: Text; ItemConfidence: Decimal; var CurrentBestCategoryIsExactMatch: Boolean; var CurrentBestCategoryIsPartialMatch: Boolean; var CurrentBestItemCategory: Record "Item Category"; var CurrentBestCategoryConfidence: Decimal)
     var
         ItemCategory: Record "Item Category";
         ItemCategoryManagement: Codeunit "Item Category Management";
@@ -241,28 +248,24 @@ codeunit 7499 "Item From Picture"
         if ItemConfidence <= 0.5 then
             exit;
 
-        if ItemCategoryManagement.FindMatchInCategories(TagName, ItemCategory, true) then begin
-            if (not FoundExactMatch)
+        if ItemCategoryManagement.FindMatchInCategories(TagName, ItemCategory, true) then
+            if (not CurrentBestCategoryIsExactMatch)
                     or (CurrentBestItemCategory.Indentation < ItemCategory.Indentation)
-                    or ((CurrentBestItemCategory.Indentation = ItemCategory.Indentation) and (CurrentBestItemCategoryConfidence < ItemConfidence)) then begin
+                    or ((CurrentBestItemCategory.Indentation = ItemCategory.Indentation) and (CurrentBestCategoryConfidence < ItemConfidence)) then begin
                 CurrentBestItemCategory := ItemCategory;
-                CurrentBestItemCategoryConfidence := ItemConfidence;
+                CurrentBestCategoryConfidence := ItemConfidence;
+                CurrentBestCategoryIsExactMatch := true;
             end;
 
-            FoundExactMatch := true;
-        end;
-
-        if not FoundExactMatch then
-            if ItemCategoryManagement.FindMatchInCategories(TagName, ItemCategory, false) then begin
-                if (not FoundPartialMatch)
+        if not CurrentBestCategoryIsExactMatch then
+            if ItemCategoryManagement.FindMatchInCategories(TagName, ItemCategory, false) then
+                if (not CurrentBestCategoryIsPartialMatch)
                         or (CurrentBestItemCategory.Indentation < ItemCategory.Indentation)
-                        or ((CurrentBestItemCategory.Indentation = ItemCategory.Indentation) and (CurrentBestItemCategoryConfidence < ItemConfidence)) then begin
+                        or ((CurrentBestItemCategory.Indentation = ItemCategory.Indentation) and (CurrentBestCategoryConfidence < ItemConfidence)) then begin
                     CurrentBestItemCategory := ItemCategory;
-                    CurrentBestItemCategoryConfidence := ItemConfidence;
+                    CurrentBestCategoryConfidence := ItemConfidence;
+                    CurrentBestCategoryIsPartialMatch := true;
                 end;
-
-                FoundPartialMatch := true;
-            end;
     end;
 
     local procedure CreateErrorNotification(NotificationMessage: Text): Notification
@@ -377,11 +380,23 @@ codeunit 7499 "Item From Picture"
             MyNotifications.InsertDefault(NotificationId, ImageAnalysisNotificationNameTxt, ImageAnalysisNotificationDescriptionTxt, false);
     end;
 
+    [NonDebuggable]
     procedure RunWizard(Notification: Notification)
     var
+        ImageAnalysisSetup: Record "Image Analysis Setup";
+        EnvironmentInformation: Codeunit "Environment Information";
         ItemFromPictureWizard: Page "Item From Picture Wizard";
+        PageImageAnalysisSetup: Page "Image Analysis Setup";
     begin
         ItemFromPictureWizard.RunModal();
+
+        if not ImageAnalysisSetup.WritePermission() then
+            exit;
+
+        ImageAnalysisSetup.GetSingleInstance();
+        if EnvironmentInformation.IsOnPrem() then
+            if (ImageAnalysisSetup."Api Uri" = '') or (ImageAnalysisSetup.GetApiKey() = '') then
+                PageImageAnalysisSetup.Run();
     end;
 
     procedure GetItemFromPictureScenario(): Code[20]
@@ -398,5 +413,46 @@ codeunit 7499 "Item From Picture"
     local procedure OnGetKnownScenariosAddItemFromPicture(var Scenarios: List of [Code[20]])
     begin
         Scenarios.Add(ItemFromPictureScenarioTxt);
+    end;
+
+    local procedure PromptOnHttpCallsIfSandbox()
+    var
+        NavAppSettings: Record "NAV App Setting";
+        EnvironmentInformation: Codeunit "Environment Information";
+        BaseAppSettingsExist: Boolean;
+        SystemAppSettingsExist: Boolean;
+        ShowFailedMessage: Boolean;
+        CurrentModuleInfo: ModuleInfo;
+    begin
+        if not EnvironmentInformation.IsSandbox() then
+            exit;
+
+        if not NavAppSettings.WritePermission() then
+            exit;
+
+        NavApp.GetCurrentModuleInfo(CurrentModuleInfo);
+
+        BaseAppSettingsExist := NavAppSettings.Get(CurrentModuleInfo.Id());
+        SystemAppSettingsExist := NavAppSettings.Get(SystemApplicationAppIdTxt);
+
+        if BaseAppSettingsExist and SystemAppSettingsExist then
+            exit; // Choices have already been made
+
+        if Confirm(EnableHttpCallsQst, false, CurrentModuleInfo.Publisher) then begin
+            if not BaseAppSettingsExist then begin
+                NavAppSettings."App ID" := CurrentModuleInfo.Id();
+                NavAppSettings."Allow HttpClient Requests" := true;
+                ShowFailedMessage := ShowFailedMessage or not NavAppSettings.Insert(true);
+            end;
+
+            if not SystemAppSettingsExist then begin
+                NavAppSettings."App ID" := SystemApplicationAppIdTxt;
+                NavAppSettings."Allow HttpClient Requests" := true;
+                ShowFailedMessage := ShowFailedMessage or not NavAppSettings.Insert(true);
+            end;
+
+            if ShowFailedMessage then
+                Message(CouldNotEnableHttpCallsMsg);
+        end;
     end;
 }

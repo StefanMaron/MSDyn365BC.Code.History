@@ -705,6 +705,105 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         BankAccReconciliationLine.TestField("Applied Entries", 1);
     end;
 
+    [Test]
+    [HandlerFunctions('TransferToGenJnlReqPageHandler,GenJnlPagePostHandler')]
+    [Scope('OnPrem')]
+    procedure BankAccReconLineAppliedEntriesValueAfterPostGenJnlLineForDifference()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        CustomerNo: Variant;
+        PaymentAmount: Decimal;
+        OriginalAmount: Decimal;
+        PostedAmount: Decimal;
+        NumberOfEntries: Integer;
+    begin
+        // [SCENARIO] Transfer the difference of an applied Bank Acc. Recon. Line to a journal and after posting the new Bank Acc. L.E. should be
+        // applied correctly to the bank statement line.
+        Initialize();
+
+        // [GIVEN] A Bank Account Reconciliation
+        PaymentAmount := LibraryRandom.RandDec(100, 2);
+        CreateBankReconciliation(BankAccReconciliation, BankAccReconciliationPage,
+            LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(GenJnlLine.Description), 0), PaymentAmount);
+        LibraryVariableStorage.Dequeue(CustomerNo);
+
+        // [GIVEN] A Bank Account Reconciliation Line matched to 90% of the real amount
+        BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.FindFirst();
+        OriginalAmount := PaymentAmount - 10;
+        PostedAmount := -10;
+        BankAccReconciliationLine.Validate("Statement Amount", OriginalAmount);
+        BankAccReconciliationLine.Modify(true);
+        BankAccReconciliationPage.GotoRecord(BankAccReconciliation);
+        BankAccReconciliationPage.StmtLine.First;
+        BankAccReconciliationPage.ApplyBankLedgerEntries.First;
+        BankAccReconciliationPage.MatchManually.Invoke;
+
+        // [GIVEN] A Journal and Batch to use for transfer
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
+        GenJournalBatch."Bal. Account No." := BankAccReconciliation."Bank Account No.";
+        GenJournalBatch.Modify();
+
+        // [GIVEN] Setup the report data for when the action is invoked
+        LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+
+        // [GIVEN] Transfer to General Journal is invoked
+        Commit();
+        LibraryLowerPermissions.SetBanking;
+        BankAccReconciliationPage."Transfer to General Journal".Invoke;
+
+        // [WHEN] Gen. Journal Line is posted
+        GenJnlLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJnlLine.SetRange("Bal. Account No.", BankAccReconciliation."Bank Account No.");
+        GenJnlLine.FindFirst();
+        GenJnlLine.Validate("Document No.", '1');
+        GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::Customer);
+        GenJnlLine.Validate("Account No.", CustomerNo);
+        GenJnlLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+
+        // [THEN] Bank Acc. Reconciliation Line "Applied Entries" = 2
+        BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliationLine."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.SetRange("Applied Amount", OriginalAmount);
+        BankAccReconciliationLine.FindFirst();
+        BankAccReconciliationLine.TestField("Applied Entries", 2);
+
+        // [THEN] Two Bank Account Ledger Entries matched to the same Bank Acc. Reconciliation Line.
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccountLedgerEntry.SetRange(Open, true);
+        BankAccountLedgerEntry.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccountLedgerEntry.SetRange("Statement Line No.", BankAccReconciliationLine."Statement Line No.");
+        NumberOfEntries := BankAccountLedgerEntry.Count();
+        if NumberOfEntries <> 2 then
+            Assert.IsTrue(false, StrSubstNo('There should be two entries. Currently: %1 entries.', NumberOfEntries));
+
+        BankAccountLedgerEntry.FindSet();
+        repeat
+            case BankAccountLedgerEntry.Amount of
+                PaymentAmount:
+                    Assert.IsTrue(BankAccountLedgerEntry."Statement Status" = BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", 'Entry must be applied');
+                PostedAmount:
+                    Assert.IsTrue(BankAccountLedgerEntry."Statement Status" = BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", 'Entry must be applied');
+                else
+                    Assert.IsTrue(false, StrSubstNo('There should be only two entries with "Applied Amounts" %1 and %2. Current "Applied Amount" = %3',
+                                  PaymentAmount, PostedAmount, BankAccountLedgerEntry.Amount));
+            end;
+        until BankAccountLedgerEntry.Next() = 0;
+    end;
+
     local procedure GLEntryPaymentDocTypeAfterPostPmtReconJnlWithGLAcc(AmountToApply: Decimal)
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
@@ -942,6 +1041,14 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
     local procedure CreateBankReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation"; StatementDescription: Text[100])
     var
+        PaymentAmount: Decimal;
+    begin
+        PaymentAmount := LibraryRandom.RandDec(100, 2);
+        CreateBankReconciliation(BankAccReconciliation, BankAccReconciliationPage, StatementDescription, PaymentAmount);
+    end;
+
+    local procedure CreateBankReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation"; StatementDescription: Text[100]; PaymentAmount: Decimal)
+    var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         BankAccount: Record "Bank Account";
         GenJournalLine: Record "Gen. Journal Line";
@@ -949,10 +1056,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         GenJournalBatch: Record "Gen. Journal Batch";
         Customer: Record Customer;
         "count": Integer;
-        PaymentAmount: Decimal;
     begin
-        PaymentAmount := LibraryRandom.RandDec(100, 2);
-
         LibraryERM.CreateBankAccount(BankAccount);
         LibrarySales.CreateCustomer(Customer);
         LibraryVariableStorage.Enqueue(Customer."No.");

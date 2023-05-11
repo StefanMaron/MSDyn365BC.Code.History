@@ -129,6 +129,138 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Archive Implementation - NamedType AlreadyCreatedErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 1564268693" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Continue exploring the Cronus demo company to learn more.​</source>
+          <target state="translated">Ga verder met het verkennen van het voorbeeldbedrijf Cronus om meer te leren.</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerDescriptionCompletedEvaluationLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 1599976135" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Hi, meet Business Central!</source>
+          <target state="translated">Hallo, maak kennis met Business Central!</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist* %1 = The user's name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerHeaderWelcomeEvaluationLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 1609631096" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All set, ready for business!</source>
+          <target state="translated">Klaar. U kunt aan de slag!</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerHeaderCompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 1940743142" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Here are a few things you can try out</source>
+          <target state="translated">Hier volgen enkele zaken die u kunt uitproberen</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType CollapsedBannerHeaderWelcomeEvaluationLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 1949645189" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Complete the last steps to get ready for business</source>
+          <target state="translated">Voer de laatste stappen uit om aan de slag te kunnen gaan</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType CollapsedBannerHeader75To100CompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 2035056148" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Continue the steps to get ready for business</source>
+          <target state="translated">Ga door met de stappen om aan de slag te kunnen gaan</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerHeader50To75CompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 2210982429" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Hi, ready to set up your business?</source>
+          <target state="translated">Hallo, bent u klaar om uw bedrijf in te stellen?</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist* %1 = The user's name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerHeaderWelcomeLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 2292823024" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Complete a few steps to get ready for business</source>
+          <target state="translated">Voer enkele stappen uit om aan de slag te kunnen gaan</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType CollapsedBannerHeaderWelcomeLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 2485686368" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You're all set to try out our demo company, Cronus. Go explore on your own, or take a quick tour first.</source>
+          <target state="translated">U bent klaar om ons demobedrijf Cronus uit te proberen. Kijk zelf verder of volg eerst een korte rondleiding.</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerDescriptionWelcomeEvaluationLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 2947130806" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
+          <source>We've prepared a few activities to get you and your team quickly started.</source>
+          <target state="translated">We hebben enkele activiteiten voorbereid om u en uw team snel aan de slag te helpen.</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerDescriptionWelcomeLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 3343390623" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This step is completed</source>
+          <target state="translated">Deze stap is voltooid</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType CompletedStepLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 3362335776" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Complete the last steps to get ready for business</source>
+          <target state="translated">Voer de laatste stappen uit om aan de slag te kunnen gaan</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerHeader75To100CompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 3592446311" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Complete a few steps to get ready for business</source>
+          <target state="translated">Voer enkele stappen uit om aan de slag te kunnen gaan</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType CollapsedBannerHeader0To50CompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 3740258827" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get started:</source>
+          <target state="translated">Aan de slag:</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType CollapsedBannerTitleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 380625362" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get started</source>
+          <target state="translated">Aan de slag</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerTitleLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 3839883753" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Continue the steps to get ready for business</source>
+          <target state="translated">Ga door met de stappen om aan de slag te kunnen gaan</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType CollapsedBannerHeader50To75CompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 3896960046" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Thank you for trying Business Central!</source>
+          <target state="translated">Bedankt voor het uitproberen van Business Central.</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerHeaderCompletedEvaluationLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 3909847519" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Start exploring Business Central now. You can revisit the checklist later and enable additional features as you need them.</source>
+          <target state="translated">Begin met verkennen van Business Central. U kunt later naar de controlelijst terugkeren en meer functies inschakelen.</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerDescriptionCompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 4074556712" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The Cronus company data you are using is for demonstration, evaluation, and training purposes.</source>
+          <target state="translated">De gegevens van het bedrijf Cronus die u gebruikt, zijn bedoeld voor demonstratie-, evaluatie- en trainingsdoeleinden.</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerDescriptionInProgressEvaluationLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 695930270" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Here are a few steps that make you ready for business</source>
+          <target state="translated">Hier volgen enkele stappen om aan de slag te kunnen gaan</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerHeader0To50CompletedLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 935875799" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Here are a few things you can try out</source>
+          <target state="translated">Hier volgen enkele zaken die u kunt uitproberen</target>
+          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType BannerHeaderInProgressEvaluationLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 122002130 - NamedType 968324436" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You skipped this step</source>
+          <target state="translated">U hebt deze stap overgeslagen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner Impl. - NamedType SkippedStepLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1225200592 - NamedType 2920143230" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>%1 must be greater than %2.</source>
           <target state="translated">%1 moet groter zijn dan %2.</target>
@@ -236,6 +368,12 @@
           <target state="translated">Er is geen Azure Active Directory-gebruiker gevonden met object-id %1.</target>
           <note from="Developer" annotates="general" priority="2">%1 = The specified object id</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure AD Graph User Impl. - NamedType CouldNotFindGraphUserErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1577480097 - NamedType 398345591" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The interface was initialized by a different app. Initializer app id: %1, caller app id :%2</source>
+          <target state="translated">De interface is geïnitialiseerd door een andere app.-id van een app-initialisatie: %1, id van aanroepende app: %2</target>
+          <note from="Developer" annotates="general" priority="2">%1 and %2 are guid's</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Reten. Pol. Record Ref. Impl. - NamedType IncorrectCallerAppIdErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 161895806 - NamedType 1540109134" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>In compliance with the Microsoft Secure Hash Algorithm deprecation policy SHA1 and MD5 hash alghoritms have been deprecated.</source>
@@ -1221,6 +1359,12 @@
           <note from="Developer" annotates="general" priority="2">%1 = Object type, %2 = The object ID</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Guided Experience Impl. - NamedType ObjectDoesNotExistErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2667037335 - NamedType 1341060089" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The oldest record in table ID %1, %2 is younger than the earliest expiration date. There are no records to delete.</source>
+          <target state="translated">De oudste record in tabel-id %1, %2 is jonger dan de vroegste vervaldatum. Er zijn geen records om te verwijderen.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = a id of a table (integer), %2 = the caption of the table.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Reten. Pol. Filtering Impl. - NamedType OldestRecordYoungerThanExpirationLbl</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2667037335 - NamedType 2736976260" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The expiration date for table %1, %2 must be at least %3 days before the current date. Please update the retention policy.</source>
           <target state="translated">De verloopdatum voor tabel %1, %2 moet ten minste %3 dagen vóór de huidige datum liggen. Werk het bewaarbeleid bij.</target>
@@ -2072,138 +2216,6 @@
           <target state="translated">De installatie van de marktplaatsextensie is mislukt met het resultaat %1. Foutmelding: %2</target>
           <note from="Developer" annotates="general" priority="2">%1 - OperationResult parameter value, %2 - Error message</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Extension Marketplace - NamedType MarketPlaceUnsuccInstallTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 1564268693" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Continue exploring the Cronus demo company to learn more.​</source>
-          <target state="translated">Ga verder met het verkennen van het voorbeeldbedrijf Cronus om meer te leren.</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerDescriptionCompletedEvaluationLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 1599976135" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Hi, meet Business Central!</source>
-          <target state="translated">Hallo, maak kennis met Business Central!</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist* %1 = The user's name</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerHeaderWelcomeEvaluationLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 1609631096" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
-          <source>All set, ready for business!</source>
-          <target state="translated">Klaar. U kunt aan de slag!</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerHeaderCompletedLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 1940743142" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Here are a few things you can try out</source>
-          <target state="translated">Hier volgen enkele zaken die u kunt uitproberen</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType CollapsedBannerHeaderWelcomeEvaluationLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 1949645189" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Complete the last steps to get ready for business</source>
-          <target state="translated">Voer de laatste stappen uit om aan de slag te kunnen gaan</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType CollapsedBannerHeader75To100CompletedLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 2035056148" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Continue the steps to get ready for business</source>
-          <target state="translated">Ga door met de stappen om aan de slag te gaan</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerHeader50To75CompletedLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 2210982429" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Hi, ready to set up your business?</source>
-          <target state="translated">Hallo, bent u klaar om uw bedrijf in te stellen?</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist* %1 = The user's name</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerHeaderWelcomeLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 2292823024" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Complete a few steps to get ready for business</source>
-          <target state="translated">Voer enkele stappen uit om aan de slag te kunnen gaan</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType CollapsedBannerHeaderWelcomeLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 2485686368" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You're all set to try out our demo company, Cronus. Go explore on your own, or take a quick tour first.</source>
-          <target state="translated">U bent klaar om ons demobedrijf Cronus uit te proberen. Kijk zelf verder of volg eerst een korte rondleiding.</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerDescriptionWelcomeEvaluationLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 2947130806" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
-          <source>We've prepared a few activities to get you and your team quickly started.</source>
-          <target state="translated">We hebben enkele activiteiten voorbereid om u en uw team snel aan de slag te helpen.</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerDescriptionWelcomeLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 3343390623" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>This step is completed</source>
-          <target state="translated">Deze stap is voltooid</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType CompletedStepLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 3362335776" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Complete the last steps to get ready for business</source>
-          <target state="translated">Voer de laatste stappen uit om aan de slag te kunnen gaan</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerHeader75To100CompletedLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 3592446311" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Complete a few steps to get ready for business</source>
-          <target state="translated">Voer enkele stappen uit om aan de slag te kunnen gaan</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType CollapsedBannerHeader0To50CompletedLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 3740258827" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Get started:</source>
-          <target state="translated">Aan de slag:</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType CollapsedBannerTitleLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 380625362" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Get started</source>
-          <target state="translated">Aan de slag</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerTitleLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 3839883753" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Continue the steps to get ready for business</source>
-          <target state="translated">Ga door met de stappen om aan de slag te gaan</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType CollapsedBannerHeader50To75CompletedLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 3896960046" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Thank you for trying Business Central!</source>
-          <target state="translated">Bedankt voor het uitproberen van Business Central.</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerHeaderCompletedEvaluationLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 3909847519" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Start exploring Business Central now. You can revisit the checklist later and enable additional features as you need them.</source>
-          <target state="translated">Begin met verkennen van Business Central. U kunt later naar de controlelijst terugkeren en meer functies inschakelen.</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerDescriptionCompletedLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 4074556712" maxwidth="125" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The Cronus company data you are using is for demonstration, evaluation, and training purposes.</source>
-          <target state="translated">De gegevens van het bedrijf Cronus die u gebruikt, zijn bedoeld voor demonstratie-, evaluatie- en trainingsdoeleinden.</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerDescriptionInProgressEvaluationLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 695930270" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Here are a few steps that make you ready for business</source>
-          <target state="translated">U kunt deze stappen uitvoeren om aan de slag te gaan</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerHeader0To50CompletedLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 935875799" maxwidth="60" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Here are a few things you can try out</source>
-          <target state="translated">Hier volgen enkele zaken die u kunt uitproberen</target>
-          <note from="Developer" annotates="general" priority="2">*Onboarding Checklist*</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType BannerHeaderInProgressEvaluationLbl</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 3692338268 - NamedType 968324436" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>You skipped this step</source>
-          <target state="translated">U hebt deze stap overgeslagen</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Banner - NamedType SkippedStepLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 3771105887 - NamedType 1709475783" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Allowed deletion of the locked retention policy setup line for table %1, %2.</source>
@@ -5325,6 +5337,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Profiling Full Time Chart - Action Actions - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2187745225 - Action 1944433722 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select and add a source table to the template.</source>
+          <target state="translated">Een brontabel selecteren en toevoegen aan de sjabloon.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Tables Part - Action Add new entity - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2187745225 - Action 1944433722 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add new entity</source>
+          <target state="translated">Nieuwe entiteit toevoegen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Tables Part - Action Add new entity - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2252665413 - Action 1235620153 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Next</source>
           <target state="translated">Volgende</target>
@@ -5788,14 +5812,14 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Plan Configuration Card - Action BCAdminCenter - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3163801880 - Action 593408208 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Download the selected attachment file.</source>
-          <target state="translated">Het geselecteerde bijlagebestand downloaden.</target>
+          <source>Download the selected attachment files.</source>
+          <target state="translated">De geselecteerde bijlagebestanden downloaden.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Action Download - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3163801880 - Action 593408208 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Download Attachment</source>
-          <target state="translated">Bijlage downloaden</target>
+          <source>Download Attachments</source>
+          <target state="translated">Bijlagen downloaden</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Action Download - Property Caption</note>
         </trans-unit>
@@ -8905,6 +8929,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Time Zones Lookup - Control ID - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 2187745225 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the name of the data source from which the template will get data.</source>
+          <target state="translated">Hiermee wordt de naam opgegeven van de gegevensbron van waaruit de sjabloon gegevens ontvangt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Tables Part - Control Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2187745225 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Naam</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Tables Part - Control Name - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2198836005 - Control 129688762 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the user.</source>
           <target state="translated">Hiermee wordt de gebruiker opgegeven.</target>
@@ -11592,6 +11628,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control DowloandInstructions - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 3314581104 - Control 2041017429 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Tables</source>
+          <target state="translated">Brontabellen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control WordTemplateTables - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3314581104 - Control 219540363 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the language of the template.</source>
           <target state="translated">Hiermee wordt de taal van de sjabloon opgegeven.</target>
@@ -11633,18 +11675,6 @@
           <target state="translated">Code</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control TemplateCodeOverview - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3314581104 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Specifies the name of the data source from which the template will get data.</source>
-          <target state="translated">Hiermee wordt de naam opgegeven van de gegevensbron van waaruit de sjabloon gegevens ontvangt.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control Name - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 3314581104 - Control 2961552353 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Name</source>
-          <target state="translated">Naam</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control Name - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3314581104 - Control 314111314 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Give the template a name, and then upload it. Choose Finish when you're done.</source>
@@ -11711,12 +11741,6 @@
           <target state="translated">Entiteit</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control TemplateEntity - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 3314581104 - Control 3815676058 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source> </source>
-          <target state="translated"> </target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - Control AddNewEntity - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3314581104 - Control 3832370403 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> </source>
@@ -15690,6 +15714,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page New Security Group - NamedType NoUsersErr</note>
         </trans-unit>
+        <trans-unit id="Page 3163801880 - NamedType 2806801928" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>EmailAttachments.zip</source>
+          <target state="translated">EmailAttachments.zip</target>
+          <note from="Developer" annotates="general" priority="2">Name of the zip file containing email attachments.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - NamedType EmailAttachmentsZipFileNameTxt</note>
+        </trans-unit>
         <trans-unit id="Page 3212752058 - NamedType 1530166770" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No source entity relation was specified.</source>
           <target state="translated">Er is geen relatie met een bronentiteit opgegeven.</target>
@@ -15725,12 +15755,6 @@
           <target state="translated">Er bestaat al een sjabloon met deze code.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - NamedType CodeAlreadyUsedErr</note>
-        </trans-unit>
-        <trans-unit id="Page 3314581104 - NamedType 2375307040" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Add new entity</source>
-          <target state="translated">Nieuwe entiteit toevoegen</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Word Template Creation Wizard - NamedType AddNewEntityLbl</note>
         </trans-unit>
         <trans-unit id="Page 3314581104 - NamedType 3227856182" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Please upload a template before continuing.</source>
@@ -16145,6 +16169,12 @@
           <target state="translated">Aanvullende previewvoorwaarden</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Copilot Information - NamedType SupplementalTermsTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 572257666 - NamedType 3134195044" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Communication with external services is turned off by default in Sandbox environments. By accepting these terms, you also allow %1 by %2 to communicate with external services. You can always change this from the Extension Management page.</source>
+          <target state="translated">Communicatie met externe services is standaard uitgeschakeld in sandbox-omgevingen. Als u deze voorwaarden accepteert, staat u %1 van %2 ook toe te communiceren met externe services. U kunt dit altijd wijzigen op de pagina Extensiebeheer.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = The name of the extension, for example System Application; %2 = the extension publisher, for example Microsoft.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Copilot Information - NamedType EnableHttpCallsTxt</note>
         </trans-unit>
         <trans-unit id="Page 572257666 - NamedType 3334639707" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn more</source>
@@ -16576,6 +16606,12 @@
           <target state="translated">Tijdzones</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Time Zones Lookup - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2187745225 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Word Template Tables</source>
+          <target state="translated">Word-sjabloontabellen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Word Templates Tables Part - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2198836005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Checklist Users</source>

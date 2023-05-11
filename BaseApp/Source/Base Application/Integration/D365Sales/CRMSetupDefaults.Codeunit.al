@@ -1135,7 +1135,7 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationTableMappingName,
           SalesHeader.FieldNo("Last Shipment Date"),
           CRMSalesorder.FieldNo(DateFulfilled),
-          IntegrationFieldMapping.Direction::Bidirectional,
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
         // Bill-to Address

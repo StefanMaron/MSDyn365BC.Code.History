@@ -20,6 +20,9 @@ query 7345 "Avail Qty. (Base) In QC Bins"
                 filter(Variant_Code; "Variant Code")
                 {
                 }
+                filter(Dedicated; Dedicated)
+                {
+                }
                 column(Bin_Type_Code; "Bin Type Code")
                 {
                 }

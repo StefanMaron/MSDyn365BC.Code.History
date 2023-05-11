@@ -7,7 +7,6 @@ page 113 Budget
     LinksAllowed = false;
     ModifyAllowed = false;
     PageType = ListPlus;
-    SaveValues = true;
 
     layout
     {

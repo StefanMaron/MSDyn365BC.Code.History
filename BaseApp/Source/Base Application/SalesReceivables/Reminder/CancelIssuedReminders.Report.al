@@ -15,7 +15,7 @@ report 1393 "Cancel Issued Reminders"
                 TempErrorMessage: Record "Error Message" temporary;
                 CancelIssuedReminder: Codeunit "Cancel Issued Reminder";
             begin
-                CancelIssuedReminder.SetParameters(UseSameDocumentNo, UseSamePostingDate, NewPostingDate, NoOfRecords > 1);
+                CancelIssuedReminder.SetParameters(UseSameDocumentNo, UseSamePostingDate, NewPostingDate, UseSameVATDateReq, NewVATDateReq, NoOfRecords > 1);
                 CancelIssuedReminder.SetGenJnlBatch(GenJnlBatch);
                 if CancelIssuedReminder.Run("Issued Reminder Header") then begin
                     if CancelIssuedReminder.GetErrorMessages(TempErrorMessage) then
@@ -42,8 +42,11 @@ report 1393 "Cancel Issued Reminders"
                 if NoOfRecords = 0 then
                     Error(NothingToCancelErr);
 
-                if not UseSamePostingDate and (NewPostingDate = 0D) then
+                if (not UseSamePostingDate) and (NewPostingDate = 0D) then
                     Error(SpecifyPostingDateErr);
+
+                if (not UseSameVATDateReq) and (NewVATDateReq = 0D) then
+                    Error(SpecifyVATDateErr);
             end;
         }
     }
@@ -72,7 +75,26 @@ report 1393 "Cancel Issued Reminders"
                         if UseSamePostingDate then
                             NewPostingDate := 0D;
                         SetEnabled();
+
+                        if VATReportingDateMgt.IsVATDateUsageSetToPostingDate() then
+                            UseSameVATDateReq := UseSamePostingDate;
                     end;
+                }
+                field(UseSameVATDate; UseSameVATDateReq)
+                {
+                    ApplicationArea = VAT;
+                    Caption = 'Use Same VAT Date';
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
+                    ToolTip = 'Specifies if you want to use same VAT date for corrective ledger entries.';
+                }
+                field(NewVATDate; NewVATDateReq)
+                {
+                    ApplicationArea = VAT;
+                    Caption = 'New VAT Date';
+                    Editable = VATDateEnabled and (not UseSameVATDateReq);
+                    Visible = VATDateEnabled;
+                    ToolTip = 'Specifies the new VAT date for corrective ledger entries.';
                 }
                 field(NewPostingDate; NewPostingDate)
                 {
@@ -80,6 +102,11 @@ report 1393 "Cancel Issued Reminders"
                     Caption = 'New Posting Date';
                     Enabled = NewPostingDateEnabled;
                     ToolTip = 'Specifies the new posting date for corrective ledger entries.';
+
+                    trigger OnValidate()
+                    begin
+                        UpdateVATDate();
+                    end;
                 }
                 field(JnlTemplateName; GenJnlLineReq."Journal Template Name")
                 {
@@ -130,7 +157,9 @@ report 1393 "Cancel Issued Reminders"
         begin
             UseSameDocumentNo := true;
             UseSamePostingDate := true;
+            UseSameVATDateReq := true;
             SetEnabled();
+            VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
 
             GLSetup.Get();
             IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
@@ -146,16 +175,19 @@ report 1393 "Cancel Issued Reminders"
         GenJnlLineReq: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
         GLSetup: Record "General Ledger Setup";
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         NoOfRecords: Integer;
         NothingToCancelErr: Label 'There is nothing to cancel.';
         UseSameDocumentNo: Boolean;
-        UseSamePostingDate: Boolean;
-        NewPostingDate: Date;
+        UseSamePostingDate, UseSameVATDateReq : Boolean;
+        NewPostingDate, NewVATDateReq : Date;
         [InDataSet]
         NewPostingDateEnabled: Boolean;
         [InDataSet]
         IsJournalTemplNameVisible: Boolean;
-        SpecifyPostingDateErr: Label 'You must specify a posting date.';
+        VATDateEnabled: Boolean;
+        SpecifyPostingDateErr: Label 'You must specify a Posting Date.';
+        SpecifyVATDateErr: Label 'You must specify a VAT Date.';
         ShowNotCancelledRemindersQst: Label 'One or more of the selected issued reminders could not be canceled.\\Do you want to see a list of the issued reminders that were not canceled?';
 
     local procedure SetEnabled()
@@ -175,6 +207,12 @@ report 1393 "Cancel Issued Reminders"
     begin
         TempIssuedReminderHeader := "Issued Reminder Header";
         TempIssuedReminderHeader.Insert();
+    end;
+
+    local procedure UpdateVATDate()
+    begin
+        if not UseSameVATDateReq then
+            NewVATDateReq := NewPostingDate;
     end;
 }
 

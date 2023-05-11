@@ -153,18 +153,25 @@ table 727 "Analysis by Dim. User Param."
     local procedure LoadForAnalysisByDimensions(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     var
         SavedAnalysisViewCode: Code[10];
+        AccountsFilter: Text[250];
     begin
+        AccountsFilter := AnalysisByDimParameters."Account Filter";
         if AnalysisByDimParameters."Analysis View Code" <> '' then begin
             SavedAnalysisViewCode := AnalysisByDimParameters."Analysis View Code";
             if Get(UserId(), Page::"Analysis by Dimensions") then begin
                 AnalysisByDimParameters.TransferFields(Rec);
+                if AccountsFilter <> '' then
+                    AnalysisByDimParameters."Account Filter" := AccountsFilter;
                 AnalysisByDimParameters."Analysis View Code" := SavedAnalysisViewCode;
             end;
             AnalysisByDimParameters.Modify();
         end else begin
             AnalysisByDimParameters.Init();
-            if Get(UserId(), Page::"Analysis by Dimensions") then
+            if Get(UserId(), Page::"Analysis by Dimensions") then begin
                 AnalysisByDimParameters.TransferFields(Rec);
+                if AccountsFilter <> '' then
+                    AnalysisByDimParameters."Account Filter" := AccountsFilter;
+            end;
             AnalysisByDimParameters.Insert();
         end;
     end;

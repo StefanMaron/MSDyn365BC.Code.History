@@ -94,29 +94,27 @@ codeunit 5722 "Item Category Management"
 
     procedure FindMatchInCategories(SearchTerm: Text; var ItemCategory: Record "Item Category"; ExactMatchOnly: Boolean): Boolean
     var
-        SearchCode: Text;
-        SearchDescription: Text;
+        FilterPattern: Text;
     begin
+        SearchTerm := DelChr(SearchTerm, '=', '.&|<>=*@()?%#''');
+
         if SearchTerm = '' then
             exit(false);
 
-        if ExactMatchOnly then begin
-            SearchCode := '@' + CopyStr(SearchTerm, 1, MaxStrLen(ItemCategory.Code));
-            SearchDescription := '@' + CopyStr(SearchTerm, 1, MaxStrLen(ItemCategory.Description));
-        end else begin
-            SearchCode := '@*' + CopyStr(SearchTerm, 1, MaxStrLen(ItemCategory.Code)) + '*';
-            SearchDescription := '@*' + CopyStr(SearchTerm, 1, MaxStrLen(ItemCategory.Description)) + '*';
-        end;
+        if ExactMatchOnly then
+            FilterPattern := '@%1'
+        else
+            FilterPattern := '@*%1*';
 
         ItemCategory.Reset();
-        ItemCategory.SetFilter(Code, SearchCode);
+        ItemCategory.SetFilter(Code, StrSubstNo(FilterPattern, CopyStr(SearchTerm, 1, MaxStrLen(ItemCategory.Code))));
         ItemCategory.SetCurrentKey(Indentation);
         ItemCategory.SetAscending(Indentation, false);
         if ItemCategory.FindFirst() then
             exit(true);
 
         ItemCategory.Reset();
-        ItemCategory.SetFilter(Description, SearchDescription);
+        ItemCategory.SetFilter(Description, StrSubstNo(FilterPattern, CopyStr(SearchTerm, 1, MaxStrLen(ItemCategory.Description))));
         ItemCategory.SetCurrentKey(Indentation);
         ItemCategory.SetAscending(Indentation, false);
         if ItemCategory.FindFirst() then

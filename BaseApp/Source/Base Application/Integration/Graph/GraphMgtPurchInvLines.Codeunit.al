@@ -41,5 +41,21 @@ codeunit 5528 "Graph Mgt - Purch. Inv. Lines"
         PurchaseOrderEntityBuffer.Get(PurchaseLine."Document No.");
         exit(Format(PurchaseOrderEntityBuffer.Id));
     end;
+
+    [Scope('Cloud')]
+    procedure GetPurchaseCreditMemoDocumentIdFilterFromSystemId(Id: Guid): Text
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+        PurchCrMemoEntityBuffer: Record "Purch. Cr. Memo Entity Buffer";
+    begin
+        if PurchCrMemoLine.GetBySystemId(Id) then
+            if PurchCrMemoEntityBuffer.Get(PurchCrMemoLine."Document No.", true) then
+                exit(Format(PurchCrMemoEntityBuffer.Id));
+        if PurchaseLine.GetBySystemId(Id) then
+            if PurchCrMemoEntityBuffer.Get(PurchaseLine."Document No.", false) then
+                exit(Format(PurchCrMemoEntityBuffer.Id));
+        exit(' ');
+    end;
 }
 

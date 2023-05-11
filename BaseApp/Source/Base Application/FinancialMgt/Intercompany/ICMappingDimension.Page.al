@@ -45,7 +45,7 @@ page 656 "IC Mapping Dimension"
                     var
                         ICDimension: Record "IC Dimension";
                         Dimension: Record Dimension;
-                        ICMappingDimensions: Codeunit "IC Mapping Dimensions";
+                        ICMapping: Codeunit "IC Mapping";
                         UserSelection: Integer;
                     begin
                         UserSelection := StrMenu(SelectionOptionsQst, 0, MapDimensionsInstructionQst);
@@ -53,19 +53,19 @@ page 656 "IC Mapping Dimension"
                             1:
                                 begin
                                     CurrPage.IntercompanyDimensions.Page.GetSelectedLines(ICDimension);
-                                    ICMappingDimensions.MapICDimensions(ICDimension);
+                                    ICMapping.MapICDimensions(ICDimension);
                                 end;
                             2:
                                 begin
                                     CurrPage.CompanyDimensions.Page.GetSelectedLines(Dimension);
-                                    ICMappingDimensions.MapCompanyDimensions(Dimension);
+                                    ICMapping.MapCompanyDimensions(Dimension);
                                 end;
                             3:
                                 begin
                                     CurrPage.IntercompanyDimensions.Page.GetSelectedLines(ICDimension);
                                     CurrPage.CompanyDimensions.Page.GetSelectedLines(Dimension);
-                                    ICMappingDimensions.MapICDimensions(ICDimension);
-                                    ICMappingDimensions.MapCompanyDimensions(Dimension);
+                                    ICMapping.MapICDimensions(ICDimension);
+                                    ICMapping.MapCompanyDimensions(Dimension);
                                 end;
                         end;
                     end;
@@ -81,7 +81,7 @@ page 656 "IC Mapping Dimension"
                     var
                         ICDimension: Record "IC Dimension";
                         Dimension: Record Dimension;
-                        ICMappingDimensions: Codeunit "IC Mapping Dimensions";
+                        ICMapping: Codeunit "IC Mapping";
                         UserSelection: Integer;
                     begin
                         UserSelection := StrMenu(SelectionOptionsQst, 0, RemoveMappingInstructionQst);
@@ -89,19 +89,19 @@ page 656 "IC Mapping Dimension"
                             1:
                                 begin
                                     CurrPage.IntercompanyDimensions.Page.GetSelectedLines(ICDimension);
-                                    ICMappingDimensions.RemoveICMapping(ICDimension);
+                                    ICMapping.RemoveICMapping(ICDimension);
                                 end;
                             2:
                                 begin
                                     CurrPage.CompanyDimensions.Page.GetSelectedLines(Dimension);
-                                    ICMappingDimensions.RemoveCompanyMapping(Dimension);
+                                    ICMapping.RemoveCompanyMapping(Dimension);
                                 end;
                             3:
                                 begin
                                     CurrPage.IntercompanyDimensions.Page.GetSelectedLines(ICDimension);
                                     CurrPage.CompanyDimensions.Page.GetSelectedLines(Dimension);
-                                    ICMappingDimensions.RemoveICMapping(ICDimension);
-                                    ICMappingDimensions.RemoveCompanyMapping(Dimension);
+                                    ICMapping.RemoveICMapping(ICDimension);
+                                    ICMapping.RemoveCompanyMapping(Dimension);
                                 end;
                         end;
                     end;

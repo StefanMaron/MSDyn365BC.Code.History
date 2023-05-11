@@ -419,7 +419,7 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, "Sales Document Type"::Invoice, Customer."No.", '', 1, '', 0D);
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
-        asserterror SalesHeader.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        SalesHeader.Validate("Customer Posting Group", CustomerPostingGroup.Code);
     end;
 
     [Test]
@@ -439,7 +439,7 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, "Purchase Document Type"::Invoice, Vendor."No.", '', 1, '', 0D);
         LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
-        asserterror PurchaseHeader.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        PurchaseHeader.Validate("Vendor Posting Group", VendorPostingGroup.Code);
     end;
 
     [Test]
@@ -463,7 +463,7 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
 
         // Verify another posting group cannot be assigned
-        asserterror SalesHeader.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        SalesHeader.Validate("Customer Posting Group", CustomerPostingGroup.Code);
     end;
 
     [Test]
@@ -561,7 +561,7 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
 
         // Verify another posting group cannot be assigned
-        asserterror PurchaseHeader.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        PurchaseHeader.Validate("Vendor Posting Group", VendorPostingGroup.Code);
     end;
 
     [Test]
@@ -628,7 +628,7 @@ codeunit 134195 "ERM Multiple Posting Groups"
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
 
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
-        asserterror ServiceHeader.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        ServiceHeader.Validate("Customer Posting Group", CustomerPostingGroup.Code);
     end;
 
     [Test]

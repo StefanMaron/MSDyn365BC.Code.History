@@ -977,6 +977,13 @@ table 167 Job
             ELSE
             IF ("Ship-to Country/Region Code" = FILTER(<> '')) "Post Code" WHERE("Country/Region Code" = FIELD("Ship-to Country/Region Code"));
             ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                PostCode.ValidatePostCode(
+                    "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code",
+                    (CurrFieldNo <> 0) and GuiAllowed() and (not GetHideValidationDialog()));
+            end;
         }
         field(3008; "Ship-to County"; Text[30])
         {

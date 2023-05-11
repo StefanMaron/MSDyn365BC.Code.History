@@ -635,7 +635,7 @@ codeunit 5944 SignServContractDoc
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetInvoicing(ServContractHeader, IsHandled);
+        OnBeforeSetInvoicing(ServContractHeader, IsHandled, InvoiceNow);
         if IsHandled then
             exit;
 
@@ -1172,7 +1172,7 @@ codeunit 5944 SignServContractDoc
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetInvoicing(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    local procedure OnBeforeSetInvoicing(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean; var InvoiceNow: Boolean)
     begin
     end;
 

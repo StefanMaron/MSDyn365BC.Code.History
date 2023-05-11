@@ -3,6 +3,7 @@ codeunit 134151 "ERM Intercompany"
     Subtype = Test;
     TestPermissions = Restrictive;
     Permissions = tabledata "G/L Entry" = r;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -48,6 +49,11 @@ codeunit 134151 "ERM Intercompany"
         RecordExistsErr: Label 'DB:RecordExists';
         TransAlreadyExistErr: Label 'Transaction %1 for %2 %3 already exists in the %4 table.', Locked = true;
         BlockedPrivacyBlockedErr: Label 'You cannot create this type of document when %1 %2 is blocked for privacy.', Locked = true;
+        ExpectedDiffBetweenNumberOfEntriesErr: Label 'There should be a difference between the initial number of entries in %1 and the final one. Initial = %2, Final = %3', Locked = true;
+        WrongExpectedNumberOfEntriesErr: Label 'It was expected to find %1 entries, but there are %2 entries.', Locked = true;
+        WrongFieldValueErr: Label 'Field %1 must be %2. Current value is %3', Locked = true;
+        UnexpectedEntryErr: Label 'Entry with field %1 and value %2 must not exist in %3', Locked = true;
+        MissingICGLAccountEntry: Label 'IC G/L Account with No. %1 is missing', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -1312,6 +1318,7 @@ codeunit 134151 "ERM Intercompany"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PostNonICAndICJournalLine()
     var
@@ -1878,6 +1885,361 @@ codeunit 134151 "ERM Intercompany"
         LibraryLowerPermissions.SetIntercompanyPostingsSetup();
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CopyGLAccountsToICGLAccounts()
+    var
+        GLAccountHeading: Record "G/L Account";
+        GLAccountBegin: Record "G/L Account";
+        GLAccountPosting: Record "G/L Account";
+        GLAccountEnd: Record "G/L Account";
+        ICGLAccount: Record "IC G/L Account";
+        ICChartOfAccounts: TestPage "IC Chart of Accounts";
+        InitialICGLAccountsNumber: Integer;
+        FinalICGLAccountsNumber: Integer;
+    begin
+        // [SCENARIO] Copy the Chart of Accounts to be used as IC Chart of Accounts
+        Initialize();
+
+        // [GIVEN] Empty G/L Accounts table
+        if not GLAccountHeading.IsEmpty() then
+            GLAccountHeading.DeleteAll(false);
+
+        // [GIVEN] An existing number of IC G/L Accounts
+        InitialICGLAccountsNumber := ICGLAccount.Count();
+
+        // [GIVEN] Multiple G/L Accounts with different Account types
+        CreateMultipleGLAccounts(GLAccountHeading, GLAccountBegin, GLAccountPosting, GLAccountEnd);
+
+        // [WHEN] Invoke the action "Copy from Chart of Accounts"
+        ICChartOfAccounts.OpenView();
+        ICChartOfAccounts."Copy from Chart of Accounts".Invoke();
+        FinalICGLAccountsNumber := ICGLAccount.Count();
+
+        // [THEN] The are multiple IC G/L Account entries compare to the initial empty table
+        Assert.IsFalse(Assert.Equal(InitialICGLAccountsNumber, FinalICGLAccountsNumber), StrSubstNo(ExpectedDiffBetweenNumberOfEntriesErr, ICGLAccount.TableCaption, InitialICGLAccountsNumber, FinalICGLAccountsNumber));
+        Assert.IsTrue(Assert.Equal(4, FinalICGLAccountsNumber), StrSubstNo(WrongExpectedNumberOfEntriesErr, 4, FinalICGLAccountsNumber));
+
+        // [THEN] An IC G/L Account of type Heading is generated
+        ICGLAccount.SetRange("No.", GLAccountHeading."No.");
+        ICGLAccount.FindFirst();
+        CompareGLAccountAndICGLAccountFields(GLAccountHeading, ICGLAccount);
+
+        // [THEN] An IC G/L Account of type "Begin-Total" is generated
+        ICGLAccount.SetRange("No.", GLAccountBegin."No.");
+        ICGLAccount.FindFirst();
+        CompareGLAccountAndICGLAccountFields(GLAccountBegin, ICGLAccount);
+
+        // [THEN] An IC G/L Account of type Posting is generated
+        ICGLAccount.SetRange("No.", GLAccountPosting."No.");
+        ICGLAccount.FindFirst();
+        CompareGLAccountAndICGLAccountFields(GLAccountPosting, ICGLAccount);
+
+        // [THEN] An IC G/L Account of type "End-Total" is generated
+        ICGLAccount.SetRange("No.", GLAccountEnd."No.");
+        ICGLAccount.FindFirst();
+        CompareGLAccountAndICGLAccountFields(GLAccountEnd, ICGLAccount);
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CopyGLAccountsToICGLAccounts_WithExistingICGLAccounts()
+    var
+        GLAccount: Record "G/L Account";
+        ICGLAccount: Record "IC G/L Account";
+        ICChartOfAccounts: TestPage "IC Chart of Accounts";
+        ICGLAccountNo: Code[20];
+        InitialICGLAccountsNumber: Integer;
+        FinalICGLAccountsNumber: Integer;
+    begin
+        // [SCENARIO] Copy the Chart of Accounts to be used as IC Chart of Accounts. Any existing IC Account should be removed.
+        Initialize();
+
+        // [GIVEN] Empty G/L Accounts table
+        if not GLAccount.IsEmpty() then
+            GLAccount.DeleteAll(false);
+
+        // [GIVEN] Empty IC G/L Accounts table
+        if not ICGLAccount.IsEmpty() then
+            ICGLAccount.DeleteAll(false);
+
+        // [GIVEN] An existing IC G/L Account
+        LibraryERM.CreateICGLAccount(ICGLAccount);
+        ICGLAccountNo := ICGLAccount."No.";
+
+        // [GIVEN] An existing number of IC G/L Accounts
+        InitialICGLAccountsNumber := ICGLAccount.Count();
+
+        // [GIVEN] Multiple G/L Accounts
+        CreateMultipleGLAccounts();
+
+        // [WHEN] Invoke the action "Copy from Chart of Accounts"
+        ICChartOfAccounts.OpenView();
+        ICChartOfAccounts."Copy from Chart of Accounts".Invoke();
+        FinalICGLAccountsNumber := ICGLAccount.Count();
+
+        // [THEN] The are multiple IC G/L Account entries, and the old ones were overwritten.
+        Assert.IsFalse(Assert.Equal(InitialICGLAccountsNumber, FinalICGLAccountsNumber), StrSubstNo(ExpectedDiffBetweenNumberOfEntriesErr, ICGLAccount.TableCaption, InitialICGLAccountsNumber, FinalICGLAccountsNumber));
+        Assert.IsTrue(Assert.Equal(4, FinalICGLAccountsNumber), StrSubstNo(WrongExpectedNumberOfEntriesErr, 4, FinalICGLAccountsNumber));
+
+        // [THEN] The initial IC G/L Account has been deleted
+        ICGLAccount.Reset();
+        ICGLAccount.SetRange("No.", ICGLAccountNo);
+        Assert.IsFalse(ICGLAccount.FindFirst(), StrSubstNo(UnexpectedEntryErr, ICGLAccount.FieldCaption("No."), ICGLAccount."No.", ICGLAccount.TableCaption));
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SynchronizeICAccountsWithICPartner()
+    var
+        ICSetup: Record "IC Setup";
+        ICPartner: Record "IC Partner";
+        ICGLAccount: Record "IC G/L Account";
+        ICGLAccountHeading: Record "IC G/L Account";
+        ICGLAccountBegin: Record "IC G/L Account";
+        ICGLAccountPosting: Record "IC G/L Account";
+        ICGLAccountEnd: Record "IC G/L Account";
+        ICChartOfAccounts: TestPage "IC Chart of Accounts";
+        ERMIntercompany: Codeunit "ERM Intercompany";
+    begin
+        // [SCENARIO] Synchronize IC G/L Accounts from IC Partner.
+        Initialize();
+
+        // [GIVEN] An IC Partner selected for syncronization
+        LibraryERM.CreateICPartner(ICPartner);
+        ICSetup.Get();
+        ICSetup.Validate("Partner Code for Acc. Syn.", ICPartner.Code);
+        ICSetup.Modify();
+
+        // [GIVEN] Empty IC G/L Accounts table
+        if not ICGLAccountHeading.IsEmpty() then
+            ICGLAccountHeading.DeleteAll(false);
+
+        // [GIVEN] Multiple IC G/L Accounts with different Account types
+        CreateMultipleICGLAccounts(ICGLAccountHeading, ICGLAccountBegin, ICGLAccountPosting, ICGLAccountEnd);
+
+        // [GIVEN] Bind to the integration event to mock data as if it came from another partner
+        BindSubscription(ERMIntercompany);
+
+        // [WHEN] Invoke the action "Synchronization Setup"
+        ICChartOfAccounts.OpenView();
+        ICChartOfAccounts.SynchronizationSetup.Invoke();
+
+        // [THEN] The IC G/L Accounts were transfer.
+        ICGLAccount.SetRange("No.", ICGLAccountHeading."No.");
+        Assert.IsTrue(ICGLAccount.FindFirst(), StrSubstNo(MissingICGLAccountEntry, ICGLAccountHeading."No."));
+        ICGLAccount.SetRange("No.", ICGLAccountBegin."No.");
+        Assert.IsTrue(ICGLAccount.FindFirst(), StrSubstNo(MissingICGLAccountEntry, ICGLAccountBegin."No."));
+        ICGLAccount.SetRange("No.", ICGLAccountPosting."No.");
+        Assert.IsTrue(ICGLAccount.FindFirst(), StrSubstNo(MissingICGLAccountEntry, ICGLAccountPosting."No."));
+        ICGLAccount.SetRange("No.", ICGLAccountEnd."No.");
+        Assert.IsTrue(ICGLAccount.FindFirst(), StrSubstNo(MissingICGLAccountEntry, ICGLAccountEnd."No."));
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CleanICGLAccountsAndGLAccountsWhenDeleted()
+    var
+        GLAccount: Record "G/L Account";
+        ICGLAccount: Record "IC G/L Account";
+        ERMIntercompany: Codeunit "ERM Intercompany";
+        GLAccountNo: Code[20];
+        ICGLAccountNo: Code[20];
+    begin
+        // [SCENARIO] Delete an IC G/L Account and a G/L Account. Any existing mapping to said accounts should be clean.
+        Initialize();
+
+        // [GIVEN] A set of G/L Accounts
+        if not GLAccount.IsEmpty() then
+            GLAccount.DeleteAll(false);
+        CreateMultipleGLAccounts();
+
+        // [GIVEN] A set of IC G/L Accounts
+        if not ICGLAccount.IsEmpty() then
+            ICGLAccount.DeleteAll(false);
+        CreateMultipleICGLAccounts();
+
+        // [GIVEN] Two G/L Accounts mapped to an IC G/L Account
+        ICGLAccount.SetRange("Account Type", "G/L Account Type"::Heading);
+        ICGLAccount.FindFirst();
+        ICGLAccountNo := ICGLAccount."No.";
+        GLAccount.SetRange("Account Type", "G/L Account Type"::"Begin-Total");
+        GLAccount.FindFirst();
+        GLAccount."Default IC Partner G/L Acc. No" := ICGLAccountNo;
+        GLAccount.Modify();
+        GLAccount.SetRange("Account Type", "G/L Account Type"::"End-Total");
+        GLAccount.FindFirst();
+        GLAccount."Default IC Partner G/L Acc. No" := ICGLAccountNo;
+        GLAccount.Modify();
+
+        // [GIVEN] Two IC G/L Accounts mapped to a G/L Account
+        GLAccount.SetRange("Account Type", "G/L Account Type"::Heading);
+        GLAccount.FindFirst();
+        GLAccountNo := GLAccount."No.";
+        ICGLAccount.SetRange("Account Type", "G/L Account Type"::"Begin-Total");
+        ICGLAccount.FindFirst();
+        ICGLAccount."Map-to G/L Acc. No." := GLAccountNo;
+        ICGLAccount.Modify();
+        ICGLAccount.SetRange("Account Type", "G/L Account Type"::"Begin-Total");
+        ICGLAccount.FindFirst();
+        ICGLAccount."Map-to G/L Acc. No." := GLAccountNo;
+        ICGLAccount.Modify();
+
+        // [WHEN] The IC G/L Account is deleted
+        ICGLAccount.SetRange("Account Type", "G/L Account Type"::Heading);
+        ICGLAccount.FindFirst();
+        ICGLAccount.Delete(true);
+
+        // [THEN] The two G/L Account entries are not mapped.
+        GLAccount.Reset();
+        GLAccount.SetRange("Default IC Partner G/L Acc. No", ICGLAccountNo);
+        Assert.IsTrue(GLAccount.IsEmpty(), StrSubstNo(UnexpectedEntryErr, GLAccount.FieldCaption("Default IC Partner G/L Acc. No"), ICGLAccountNo, GLAccount.TableCaption));
+
+        // [GIVEN] Bind to the integration event to avoid checks on GLEntries
+        BindSubscription(ERMIntercompany);
+
+        // [WHEN] The G/L Account is deleted
+        GLAccount.SetRange("Default IC Partner G/L Acc. No");
+        GLAccount.SetRange("Account Type", "G/L Account Type"::Heading);
+        GLAccount.FindFirst();
+        GLAccount.Delete(true);
+
+        // [THEN] The two IC G/L Account entries are not mapped.
+        ICGLAccount.Reset();
+        ICGLAccount.SetRange("Map-to G/L Acc. No.", GLAccountNo);
+        Assert.IsTrue(ICGLAccount.IsEmpty(), StrSubstNo(UnexpectedEntryErr, ICGLAccount.FieldCaption("Map-to G/L Acc. No."), GLAccountNo, ICGLAccount.TableCaption));
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CopyDimensionsToICDimensions_WithExistingDimensions()
+    var
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        ICDimension: Record "IC Dimension";
+        ICDimensionValue: Record "IC Dimension Value";
+        ICDimensions: TestPage "IC Dimensions";
+        ICDimensionCode: Code[20];
+        InitialICDimensionsNumber: Integer;
+        FinalICDimensionsNumber: Integer;
+    begin
+        // [SCENARIO] Copy the Dimensions to be used as IC Dimensions. Any existing IC Dimension should be kept.
+        Initialize();
+
+        // [GIVEN] Empty Dimension Values table
+        if not DimensionValue.IsEmpty() then
+            DimensionValue.DeleteAll(false);
+
+        // [GIVEN] Empty Dimensions table
+        if not Dimension.IsEmpty() then
+            Dimension.DeleteAll(false);
+
+        // [GIVEN] Empty IC Dimension Values table
+        if not ICDimensionValue.IsEmpty() then
+            ICDimensionValue.DeleteAll(false);
+
+        // [GIVEN] Empty IC Dimensions table
+        if not ICDimension.IsEmpty() then
+            ICDimension.DeleteAll(false);
+
+        // [GIVEN] An existing IC Dimension
+        LibraryERM.CreateICDimension(ICDimension);
+        ICDimensionCode := ICDimension."Code";
+
+        // [GIVEN] An existing number of IC G/L Accounts
+        InitialICDimensionsNumber := ICDimension.Count();
+
+        // [GIVEN] Multiple Dimensions
+        CreateMultipleDimensions();
+
+        // [WHEN] Invoke the action "Copy from Dimensions"
+        ICDimensions.OpenView();
+        ICDimensions.CopyFromDimensions.Invoke();
+        FinalICDimensionsNumber := ICDimension.Count();
+
+        // [THEN] The are multiple IC Dimension entries, and old ones should still be present.
+        Assert.IsFalse(Assert.Equal(InitialICDimensionsNumber, FinalICDimensionsNumber), StrSubstNo(ExpectedDiffBetweenNumberOfEntriesErr, ICDimension.TableCaption, InitialICDimensionsNumber, FinalICDimensionsNumber));
+        Assert.IsTrue(Assert.Equal(5, FinalICDimensionsNumber), StrSubstNo(WrongExpectedNumberOfEntriesErr, 4, FinalICDimensionsNumber));
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CleanICDimensionsAndDimensionsWhenDeleted()
+    var
+        Dimension: Record Dimension;
+        ICDimension: Record "IC Dimension";
+        ERMIntercompany: Codeunit "ERM Intercompany";
+        DimensionCode: Code[20];
+        ICDimensionCode: Code[20];
+    begin
+        // [SCENARIO] Delete an IC Dimension and a Dimension. Any existing mapping to said entries should be clean.
+        Initialize();
+
+        // [GIVEN] A set of Dimensions
+        if not Dimension.IsEmpty() then
+            Dimension.DeleteAll(false);
+        CreateMultipleDimensions();
+
+        // [GIVEN] A set of IC Dimensions
+        if not ICDimension.IsEmpty() then
+            ICDimension.DeleteAll(false);
+        CreateMultipleICDimensions();
+
+        // [GIVEN] Two Dimensions mapped to an IC Dimension
+        ICDimension.FindFirst();
+        ICDimensionCode := ICDimension."Code";
+        Dimension.FindSet();
+        Dimension."Map-to IC Dimension Code" := ICDimensionCode;
+        Dimension.Modify();
+        Dimension.Next();
+        Dimension."Map-to IC Dimension Code" := ICDimensionCode;
+        Dimension.Modify();
+
+        // [GIVEN] Two IC Dimensions mapped to a Dimension
+        Dimension.FindFirst();
+        DimensionCode := Dimension."Code";
+        ICDimension.FindSet();
+        ICDimension."Map-to Dimension Code" := DimensionCode;
+        ICDimension.Modify();
+        Dimension.Next();
+        ICDimension."Map-to Dimension Code" := DimensionCode;
+        ICDimension.Modify();
+
+        // [WHEN] The IC Dimension is deleted
+        ICDimension.SetRange("Code", ICDimensionCode);
+        ICDimension.FindFirst();
+        ICDimension.Delete(true);
+
+        // [THEN] The two Dimension entries are not mapped.
+        Dimension.Reset();
+        Dimension.SetRange("Map-to IC Dimension Code", ICDimensionCode);
+        Assert.IsTrue(Dimension.IsEmpty(), StrSubstNo(UnexpectedEntryErr, Dimension.FieldCaption("Map-to IC Dimension Code"), ICDimensionCode, Dimension.TableCaption));
+
+        // [GIVEN] Bind to the integration event to avoid unnnecesary checks.
+        BindSubscription(ERMIntercompany);
+
+        // [WHEN] The Dimension is deleted
+        Dimension.SetRange("Map-to IC Dimension Code");
+        Dimension.SetRange("Code", DimensionCode);
+        Dimension.FindFirst();
+        Dimension.Delete(true);
+
+        // [THEN] The two IC Dimension entries are not mapped.
+        ICDimension.Reset();
+        ICDimension.SetRange("Map-to Dimension Code", DimensionCode);
+        Assert.IsTrue(ICDimension.IsEmpty(), StrSubstNo(UnexpectedEntryErr, ICDimension.FieldCaption("Map-to Dimension Code"), DimensionCode, ICDimension.TableCaption));
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2347,6 +2709,118 @@ codeunit 134151 "ERM Intercompany"
         end;
     end;
 
+    local procedure CreateMultipleGLAccounts()
+    var
+        GLAccountHeading: Record "G/L Account";
+        GLAccountBegin: Record "G/L Account";
+        GLAccountPosting: Record "G/L Account";
+        GLAccountEnd: Record "G/L Account";
+    begin
+        CreateMultipleGLAccounts(GLAccountHeading, GLAccountBegin, GLAccountPosting, GLAccountEnd);
+    end;
+
+    local procedure CreateMultipleGLAccounts(var GLAccountHeading: Record "G/L Account"; var GLAccountBegin: Record "G/L Account"; var GLAccountPosting: Record "G/L Account"; var GLAccountEnd: Record "G/L Account")
+    begin
+        LibraryERM.CreateGLAccount(GLAccountHeading);
+        GLAccountHeading."Account Type" := "G/L Account Type"::Heading;
+        GLAccountHeading.Modify();
+
+        LibraryERM.CreateGLAccount(GLAccountBegin);
+        GLAccountBegin."Account Type" := "G/L Account Type"::"Begin-Total";
+        GLAccountBegin.Modify();
+
+        LibraryERM.CreateGLAccount(GLAccountPosting);
+        GLAccountPosting."Account Type" := "G/L Account Type"::Posting;
+        GLAccountPosting.Modify();
+
+        LibraryERM.CreateGLAccount(GLAccountEnd);
+        GLAccountEnd."Account Type" := "G/L Account Type"::"End-Total";
+        GLAccountEnd.Modify();
+    end;
+
+    local procedure CompareGLAccountAndICGLAccountFields(var GLAccount: Record "G/L Account"; var ICGLAccount: Record "IC G/L Account")
+    begin
+        Assert.IsTrue(Assert.Equal(GLAccount."No.", ICGLAccount."No."), StrSubstNo(WrongFieldValueErr, ICGLAccount.FieldCaption("No."), GLAccount."No.", ICGLAccount."No."));
+        Assert.IsTrue(Assert.Equal(GLAccount.Name, ICGLAccount.Name), StrSubstNo(WrongFieldValueErr, ICGLAccount.FieldCaption(Name), GLAccount.Name, ICGLAccount.Name));
+        Assert.IsTrue(Assert.Equal(GLAccount."Account Type", ICGLAccount."Account Type"), StrSubstNo(WrongFieldValueErr, ICGLAccount.FieldCaption("Account Type"), GLAccount."Account Type", ICGLAccount."Account Type"));
+        Assert.IsTrue(Assert.Equal(GLAccount."Income/Balance", ICGLAccount."Income/Balance"), StrSubstNo(WrongFieldValueErr, ICGLAccount.FieldCaption("Income/Balance"), GLAccount."Income/Balance", ICGLAccount."Income/Balance"));
+        Assert.IsTrue(Assert.Equal(GLAccount.Blocked, ICGLAccount.Blocked), StrSubstNo(WrongFieldValueErr, ICGLAccount.FieldCaption(Blocked), GLAccount.Blocked, ICGLAccount.Blocked));
+        Assert.IsTrue(Assert.Equal('', ICGLAccount."Map-to G/L Acc. No."), StrSubstNo(WrongFieldValueErr, ICGLAccount.FieldCaption("Map-to G/L Acc. No."), '', ICGLAccount."Map-to G/L Acc. No."));
+    end;
+
+    local procedure CreateMultipleICGLAccounts()
+    var
+        ICAccountHeading: Record "IC G/L Account";
+        ICAccountBegin: Record "IC G/L Account";
+        ICAccountPosting: Record "IC G/L Account";
+        ICAccountEnd: Record "IC G/L Account";
+    begin
+        CreateMultipleICGLAccounts(ICAccountHeading, ICAccountBegin, ICAccountPosting, ICAccountEnd);
+    end;
+
+    local procedure CreateMultipleICGLAccounts(var ICAccountHeading: Record "IC G/L Account"; var ICAccountBegin: Record "IC G/L Account"; var ICAccountPosting: Record "IC G/L Account"; var ICAccountEnd: Record "IC G/L Account")
+    begin
+        LibraryERM.CreateICGLAccount(ICAccountHeading);
+        ICAccountHeading."Account Type" := "G/L Account Type"::Heading;
+        ICAccountHeading.Modify();
+
+        LibraryERM.CreateICGLAccount(ICAccountBegin);
+        ICAccountBegin."Account Type" := "G/L Account Type"::"Begin-Total";
+        ICAccountBegin.Modify();
+
+        LibraryERM.CreateICGLAccount(ICAccountPosting);
+        ICAccountPosting."Account Type" := "G/L Account Type"::Posting;
+        ICAccountPosting.Modify();
+
+        LibraryERM.CreateICGLAccount(ICAccountEnd);
+        ICAccountEnd."Account Type" := "G/L Account Type"::"End-Total";
+        ICAccountEnd.Modify();
+    end;
+
+    local procedure CreateMultipleDimensions()
+    var
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryERM.CreateDimension(Dimension);
+        CreateDimensionValue(DimensionValue, Dimension.Code, DimensionValue."Dimension Value Type"::Heading);
+        LibraryERM.CreateDimension(Dimension);
+        CreateDimensionValue(DimensionValue, Dimension.Code, DimensionValue."Dimension Value Type"::"Begin-Total");
+        LibraryERM.CreateDimension(Dimension);
+        CreateDimensionValue(DimensionValue, Dimension.Code, DimensionValue."Dimension Value Type"::Standard);
+        LibraryERM.CreateDimension(Dimension);
+        CreateDimensionValue(DimensionValue, Dimension.Code, DimensionValue."Dimension Value Type"::"End-Total");
+    end;
+
+    local procedure CreateDimensionValue(var DimensionValue: Record "Dimension Value"; DimensionCode: Code[20]; DimensionValueType: Option)
+    begin
+        LibraryERM.CreateDimensionValue(DimensionValue, DimensionCode);
+        DimensionValue."Dimension Value Type" := DimensionValueType;
+        DimensionValue.Modify();
+    end;
+
+    local procedure CreateMultipleICDimensions()
+    var
+        ICDimension: Record "IC Dimension";
+        ICDimensionValue: Record "IC Dimension Value";
+    begin
+        LibraryERM.CreateICDimension(ICDimension);
+        CreateICDimensionValue(ICDimensionValue, ICDimension.Code, ICDimensionValue."Dimension Value Type"::Heading);
+        LibraryERM.CreateICDimension(ICDimension);
+        CreateICDimensionValue(ICDimensionValue, ICDimension.Code, ICDimensionValue."Dimension Value Type"::"Begin-Total");
+        LibraryERM.CreateICDimension(ICDimension);
+        CreateICDimensionValue(ICDimensionValue, ICDimension.Code, ICDimensionValue."Dimension Value Type"::Standard);
+        LibraryERM.CreateICDimension(ICDimension);
+        CreateICDimensionValue(ICDimensionValue, ICDimension.Code, ICDimensionValue."Dimension Value Type"::"End-Total");
+    end;
+
+    local procedure CreateICDimensionValue(var ICDimensionValue: Record "IC Dimension Value"; ICDimensionCode: Code[20]; ICDimensionValueType: Option)
+    begin
+        LibraryERM.CreateICDimensionValue(ICDimensionValue, ICDimensionCode);
+        ICDimensionValue."Dimension Value Type" := ICDimensionValueType;
+        ICDimensionValue.Modify();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ICOutboxJnlLinesPageHandler(var ICOutboxJnlLines: TestPage "IC Outbox Jnl. Lines")
@@ -2366,6 +2840,31 @@ codeunit 134151 "ERM Intercompany"
     procedure YesConfirmHandler(Message: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text)
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"IC Mapping", 'OnAllowChangeCompanyForICAccounts', '', false, false)]
+    local procedure OnAllowChangeCompanyForICAccounts(var IsChangeCompanyAllowed: Boolean; var PartnersICAccounts: Record "IC G/L Account")
+    begin
+        IsChangeCompanyAllowed := false;
+        PartnersICAccounts.FindSet();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::MoveEntries, 'OnBeforeCheckGLAccountEntries', '', false, false)]
+    local procedure OnBeforeCheckGLAccountEntries(var GLEntry: Record "G/L Entry"; var GLSetup: Record "General Ledger Setup"; var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
+    begin
+        IsHandled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Dimension, 'OnBeforeCheckIfDimUsedAsAnalysisViewDim', '', false, false)]
+    local procedure OnBeforeCheckIfDimUsedAsAnalysisViewDim(AnalysisView: Record "Analysis View"; DimChecked: Code[20]; DimTypeChecked: Option " ",Global1,Global2,Shortcut3,Shortcut4,Shortcut5,Shortcut6,Shortcut7,Shortcut8,Budget1,Budget2,Budget3,Budget4,Analysis1,Analysis2,Analysis3,Analysis4,ItemBudget1,ItemBudget2,ItemBudget3,ItemAnalysis1,ItemAnalysis2,ItemAnalysis3; CheckAllDim: Boolean; CheckAnalysisViewDim: Boolean; AnalysisViewChecked: Code[10]; var UsedAsAnalysisViewDim: Boolean; var IsHandled: Boolean)
+    begin
+        IsHandled := true;
     end;
 }
 

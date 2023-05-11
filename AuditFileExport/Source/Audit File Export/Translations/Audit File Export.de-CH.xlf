@@ -587,7 +587,7 @@
         </trans-unit>
         <trans-unit id="Page 2053205652 - Control 2295014698 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the size of the file.</source>
-          <target state="translated">Gibt die Größe der Bilddatei an</target>
+          <target state="translated">Gibt die Grösse der Bilddatei an</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Audit Files - Control AuditFileSize - Property ToolTip</note>
         </trans-unit>
@@ -773,7 +773,7 @@
         </trans-unit>
         <trans-unit id="Page 3665447164 - Control 147873798 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if you want to be notified about fields that have not been set up correctly for specific customers.</source>
-          <target state="translated">Gibt an, ob Sie über Felder benachrichtigt werden möchten, die für bestimmte Debitoren nicht ordnungsgemäß eingerichtet wurden</target>
+          <target state="translated">Gibt an, ob Sie über Felder benachrichtigt werden möchten, die für bestimmte Debitoren nicht ordnungsgemäss eingerichtet wurden</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control CheckCustomer - Property ToolTip</note>
         </trans-unit>
@@ -785,31 +785,31 @@
         </trans-unit>
         <trans-unit id="Page 3665447164 - Control 1608686094 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if you want to be notified about fields that have not been set up correctly for specific vendors</source>
-          <target state="translated">Gibt an, ob Sie über Felder benachrichtigt werden möchten, die für bestimmte Kreditoren nicht ordnungsgemäß eingerichtet wurden</target>
+          <target state="translated">Gibt an, ob Sie über Felder benachrichtigt werden möchten, die für bestimmte Kreditoren nicht ordnungsgemäss eingerichtet wurden</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control CheckVendor - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3665447164 - Control 2051062043 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the default audit file export format code.</source>
-          <target state="translated">Gibt den standardmäßigen Code des Exportformats der Protokolldatei an</target>
+          <target state="translated">Gibt den standardmässigen Code des Exportformats der Protokolldatei an</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control AuditFileExportFormatCode - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3665447164 - Control 2627088132 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if you want to be notified about the address that has not been set up correctly.</source>
-          <target state="translated">Gibt an, ob Sie über die Adresse benachrichtigt werden möchten, die nicht ordnungsgemäß eingerichtet wurde</target>
+          <target state="translated">Gibt an, ob Sie über die Adresse benachrichtigt werden möchten, die nicht ordnungsgemäss eingerichtet wurde</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control CheckAddress - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3665447164 - Control 2704216983 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if you want to be notified about fields that have not been set up correctly in the Company Information.</source>
-          <target state="translated">Gibt an, ob Sie über Felder benachrichtigt werden möchten, die in den Unternehmensinformationen nicht ordnungsgemäß eingerichtet wurden</target>
+          <target state="translated">Gibt an, ob Sie über Felder benachrichtigt werden möchten, die in den Unternehmensinformationen nicht ordnungsgemäss eingerichtet wurden</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control CheckCompanyInformation - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3665447164 - Control 3829821075 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if you want to be notified about fields that have not been set up correctly for specific bank accounts.</source>
-          <target state="translated">Gibt an, ob Sie über Felder benachrichtigt werden möchten, die für bestimmte Bankkonten nicht ordnungsgemäß eingerichtet wurden</target>
+          <target state="translated">Gibt an, ob Sie über Felder benachrichtigt werden möchten, die für bestimmte Bankkonten nicht ordnungsgemäss eingerichtet wurden</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Setup - Control CheckBankAccount - Property ToolTip</note>
         </trans-unit>
@@ -821,7 +821,7 @@
         </trans-unit>
         <trans-unit id="Page 3668181135 - Control 1203412368 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the audit file export format to which the standard general ledger accounts are linked.</source>
-          <target state="translated">Gibt das Exportformat der Protokolldatei an, mit dem die standardmäßigen Hauptbuchkonten verknüpft sind</target>
+          <target state="translated">Gibt das Exportformat der Protokolldatei an, mit dem die standardmässigen Hauptbuchkonten verknüpft sind</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page G/L Account Mapping Card - Control AuditFileExportFormat - Property ToolTip</note>
         </trans-unit>
@@ -950,6 +950,12 @@
           <target state="translated">Gibt das Enddatum des Berichtszeitraums an</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control EndingDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 3651544782 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the unique identifier of the audit file export document.</source>
+          <target state="translated">Gibt den eindeutigen Bezeichner des Belegs für den Export der Prüfungsdatei an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control DocumentId - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 4169847893 - Control 4085528741 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the date and time when the audit file generation was started.</source>
@@ -1637,7 +1643,7 @@
         </trans-unit>
         <trans-unit id="Table 936908093 - Field 2166844813 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>File Size</source>
-          <target state="translated">Dateigröße</target>
+          <target state="translated">Dateigrösse</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Audit File - Field File Size - Property Caption</note>
         </trans-unit>

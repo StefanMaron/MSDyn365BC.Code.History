@@ -1256,6 +1256,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table Word Templates Test Table 2 - Field Value 4 - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 2887211577 - Field 2334199647 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Word Templates Test Table 2 Field]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Word Templates Test Table 2 - Field Word Templates Test Table 2 Field - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 3524908194 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Word Templates Test Table 3]]></Val>

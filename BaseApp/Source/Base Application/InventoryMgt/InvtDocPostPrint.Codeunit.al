@@ -27,14 +27,20 @@ codeunit 5852 "Invt. Doc.-Post + Print"
             InvtDocHeader."Document Type"::Receipt:
                 begin
                     InvtDocPostReceipt.Run(InvtDocHeader);
-                    InvtRcptHeader."No." := InvtDocHeader."Posting No.";
+                    if InvtDocHeader."No. Series" = InvtDocHeader."Posting No. Series" then
+                        InvtRcptHeader."No." := InvtDocHeader."No."
+                    else
+                        InvtRcptHeader."No." := InvtDocHeader."Posting No.";
                     InvtRcptHeader.SetRecFilter();
                     InvtRcptHeader.PrintRecords(false);
                 end;
             InvtDocHeader."Document Type"::Shipment:
                 begin
                     InvtDocPostShipment.Run(InvtDocHeader);
-                    InvtShptHeader."No." := InvtDocHeader."Posting No.";
+                    if InvtDocHeader."No. Series" = InvtDocHeader."Posting No. Series" then
+                        InvtShptHeader."No." := InvtDocHeader."No."
+                    else
+                        InvtShptHeader."No." := InvtDocHeader."Posting No.";
                     InvtShptHeader.SetRecFilter();
                     InvtShptHeader.PrintRecords(false);
                 end;

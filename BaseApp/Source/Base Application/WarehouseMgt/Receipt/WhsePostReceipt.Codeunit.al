@@ -226,6 +226,7 @@ codeunit 5760 "Whse.-Post Receipt"
                            (PurchHeader."Posting Date" <> WhseRcptHeader."Posting Date")
                         then begin
                             OnInitSourceDocumentHeaderOnBeforePurchHeaderReopen(PurchHeader, WhseRcptHeader);
+                            PurchRelease.SetSkipWhseRequestOperations(true);
                             PurchRelease.Reopen(PurchHeader);
                             PurchRelease.SetSkipCheckReleaseRestrictions();
                             PurchHeader.SetHideValidationDialog(true);
@@ -249,6 +250,7 @@ codeunit 5760 "Whse.-Post Receipt"
                         if (SalesHeader."Posting Date" = 0D) or
                            (SalesHeader."Posting Date" <> WhseRcptHeader."Posting Date")
                         then begin
+                            SalesRelease.SetSkipWhseRequestOperations(true);
                             SalesRelease.Reopen(SalesHeader);
                             SalesRelease.SetSkipCheckReleaseRestrictions();
                             SalesHeader.SetHideValidationDialog(true);

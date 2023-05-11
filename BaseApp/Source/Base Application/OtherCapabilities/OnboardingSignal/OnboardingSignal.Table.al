@@ -34,6 +34,19 @@ table 5490 "Onboarding Signal"
         {
             Caption = 'Onboarding Signal Type';
         }
+        field(5; "Onboarding Start Date"; Date)
+        {
+            Caption = 'Onboarding Start Date';
+        }
+        field(6; "Onboarding Complete Date"; Date)
+        {
+            Caption = 'Onboarding Complete Date';
+        }
+        field(7; "Extension ID"; Guid)
+        {
+            Caption = 'Extension ID';
+            Description = 'The Extension that registered the signal';
+        }
     }
 
     keys

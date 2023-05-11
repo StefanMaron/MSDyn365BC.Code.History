@@ -352,8 +352,6 @@ table 9500 "Email Item"
     var
         TempBlob: Codeunit "Temp Blob";
         FileManagement: Codeunit "File Management";
-        BodyText: BigText;
-        DataStream: InStream;
         BlobInStream: InStream;
         BodyOutStream: OutStream;
         IsHandled: Boolean;
@@ -376,6 +374,16 @@ table 9500 "Email Item"
             CopyStream(BodyOutStream, BlobInStream);
         end;
 
+        Value := GetBodyTextFromBlob();
+
+        exit(Value);
+    end;
+
+    procedure GetBodyTextFromBlob() Value: Text
+    var
+        BodyText: BigText;
+        DataStream: InStream;
+    begin
         if "Plaintext Formatted" then begin
             Body.CreateInStream(DataStream, TextEncoding::UTF8);
             BodyText.Read(DataStream);
@@ -384,8 +392,6 @@ table 9500 "Email Item"
             Body.CreateInStream(DataStream, TextEncoding::UTF8);
             DataStream.Read(Value);
         end;
-
-        exit(Value);
     end;
 
     local procedure CorrectAndValidateEmailList(var EmailAddresses: Text[250])

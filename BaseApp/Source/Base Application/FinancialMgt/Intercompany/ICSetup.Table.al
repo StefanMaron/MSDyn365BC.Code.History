@@ -69,6 +69,11 @@ table 443 "IC Setup"
             Caption = 'Account Syncronization Partner Code';
             TableRelation = "IC Partner".Code WHERE("Inbox Type" = FILTER("IC Partner Inbox Type"::Database));
         }
+        field(9; "Transaction Notifications"; Boolean)
+        {
+            Caption = 'Transaction Nofitications';
+            InitValue = true;
+        }
     }
 
     keys

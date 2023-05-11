@@ -8,13 +8,12 @@ codeunit 5771 "Whse.-Sales Release"
 
     var
         WarehouseRequest: Record "Warehouse Request";
-        SalesLine: Record "Sales Line";
-        Location: Record Location;
         OldLocationCode: Code[10];
         First: Boolean;
 
     procedure Release(SalesHeader: Record "Sales Header")
     var
+        SalesLine: Record "Sales Line";
         WhseType: Enum "Warehouse Request Type";
         OldWhseType: Enum "Warehouse Request Type";
         IsHandled: Boolean;
@@ -46,24 +45,25 @@ codeunit 5771 "Whse.-Sales Release"
         if SalesLine.FindSet() then begin
             First := true;
             repeat
-                if ((SalesHeader."Document Type" = "Sales Document Type"::Order) and (SalesLine.Quantity >= 0)) or
-                    ((SalesHeader."Document Type" = "Sales Document Type"::"Return Order") and (SalesLine.Quantity < 0))
-                then
-                    WhseType := WhseType::Outbound
-                else
-                    WhseType := WhseType::Inbound;
+                if SalesLine.IsInventoriableItem() then begin
+                    if ((SalesHeader."Document Type" = "Sales Document Type"::Order) and (SalesLine.Quantity >= 0)) or
+                        ((SalesHeader."Document Type" = "Sales Document Type"::"Return Order") and (SalesLine.Quantity < 0))
+                    then
+                        WhseType := WhseType::Outbound
+                    else
+                        WhseType := WhseType::Inbound;
 
-                OnReleaseOnBeforeCreateWhseRequest(SalesLine, OldWhseType, WhseType, First);
+                    OnReleaseOnBeforeCreateWhseRequest(SalesLine, OldWhseType, WhseType, First);
+                    if First or (SalesLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
+                        CreateWarehouseRequest(SalesHeader, SalesLine, WhseType, WarehouseRequest);
 
-                if First or (SalesLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
-                    CreateWarehouseRequest(SalesHeader, SalesLine, WhseType, WarehouseRequest);
+                    OnAfterReleaseOnAfterCreateWhseRequest(
+                        SalesHeader, SalesLine, WhseType.AsInteger(), First, OldWhseType.AsInteger(), OldLocationCode);
 
-                OnAfterReleaseOnAfterCreateWhseRequest(
-                    SalesHeader, SalesLine, WhseType.AsInteger(), First, OldWhseType.AsInteger(), OldLocationCode);
-
-                First := false;
-                OldLocationCode := SalesLine."Location Code";
-                OldWhseType := WhseType;
+                    First := false;
+                    OldLocationCode := SalesLine."Location Code";
+                    OldWhseType := WhseType;
+                end;
             until SalesLine.Next() = 0;
         end;
 
@@ -71,7 +71,6 @@ codeunit 5771 "Whse.-Sales Release"
 
         WarehouseRequest.Reset();
         WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        WarehouseRequest.SetRange(Type, WarehouseRequest.Type);
         WarehouseRequest.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
         WarehouseRequest.SetRange("Document Status", SalesHeader.Status::Open);
         if not WarehouseRequest.IsEmpty() then
@@ -124,7 +123,7 @@ codeunit 5771 "Whse.-Sales Release"
     var
         SalesLine2: Record "Sales Line";
     begin
-        if ShouldCreateWarehouseRequest(WhseType) then begin
+        if ShouldCreateWarehouseRequest(WhseType, SalesLine."Location Code") then begin
             SalesLine2.Copy(SalesLine);
             SalesLine2.SetRange("Location Code", SalesLine."Location Code");
             SalesLine2.SetRange("Unit of Measure Code", '');
@@ -158,15 +157,19 @@ codeunit 5771 "Whse.-Sales Release"
         end;
     end;
 
-    local procedure ShouldCreateWarehouseRequest(WhseType: Enum "Warehouse Request Type") ShouldCreate: Boolean;
+    local procedure ShouldCreateWarehouseRequest(WhseType: Enum "Warehouse Request Type"; LocationCode: Code[10]) ShouldCreate: Boolean
+    var
+        Location: Record Location;
     begin
+        if LocationCode <> '' then
+            Location.Get(LocationCode);
         ShouldCreate :=
            ((WhseType = "Warehouse Request Type"::Outbound) and
-            (Location.RequireShipment(SalesLine."Location Code") or
-             Location.RequirePicking(SalesLine."Location Code"))) or
+            (Location.RequireShipment(LocationCode) or
+             Location.RequirePicking(LocationCode))) or
            ((WhseType = "Warehouse Request Type"::Inbound) and
-            (Location.RequireReceive(SalesLine."Location Code") or
-             Location.RequirePutaway(SalesLine."Location Code")));
+            (Location.RequireReceive(LocationCode) or
+             Location.RequirePutaway(LocationCode)));
 
         OnAfterShouldCreateWarehouseRequest(Location, ShouldCreate);
     end;

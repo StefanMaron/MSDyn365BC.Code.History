@@ -1,4 +1,4 @@
-codeunit 137038 "SCM Transfers"
+﻿codeunit 137038 "SCM Transfers"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -898,6 +898,46 @@ codeunit 137038 "SCM Transfers"
         // [THEN] New value is accepted
         TransferLine.Find();
         TransferLine.TestField("Qty. to Receive", Qty);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyToShipCannotBeChangedManuallyOnNonWMSLocationForDirectTransferPosting()
+    var
+        Location: Record Location;
+        WMSLocation: Record Location;
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TransferOrder: TestPage "Transfer Order";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Transfer]
+        // [SCENARIO 377487] "Qty. to Ship" in transfer order cannot be changed on warehouse shipment lines for direct transfer
+
+        // [GIVEN] Location "L1" with warehouse shipment requirement
+        LibraryWarehouse.CreateLocationWMS(WMSLocation, false, false, false, false, true);
+        // [GIVEN] Location "L2" without WMS setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        EnableDirectTransfersInInventorySetup();
+
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+        CreateItemWithPositiveInventory(Item, WMSLocation.Code, Qty * 2);
+
+        // [GIVEN] Create transfer order from "L1" to "L2". Quantity = "Q"
+        CreateTransferOrderNoRoute(TransferHeader, TransferLine, WMSLocation.Code, Location.Code, Item."No.", '', Qty * 2);
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Modify();
+
+        // [GIVEN] Create warehouse shipment from transfer order, set "Qty. to Ship" = "Q" / 2 and post shipment
+        LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+
+        WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Transfer Line");
+        WarehouseShipmentLine.SetRange("Source No.", TransferHeader."No.");
+        WarehouseShipmentLine.FindFirst();
+        asserterror WarehouseShipmentLine.Validate("Qty. to Ship", Qty);
     end;
 
     [Test]
@@ -2113,6 +2153,45 @@ codeunit 137038 "SCM Transfers"
 
     [Test]
     [Scope('OnPrem')]
+    procedure PostDirectTransferWithPartialShipmentEnableDirectTransfers()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        Item: Record Item;
+        QtyToShip: Integer;
+    begin
+        // [FEATURE 463842] [Direct Transfer] [Order] [Partial Shipment]
+        // [SCENARIO] Post partial shipment in direct transfer order with posting direct transfer
+        Initialize();
+        EnableDirectTransfersInInventorySetup();
+        QtyToShip := LibraryRandom.RandInt(10) + 1;
+
+        // [GIVEN] Locations "A" and "B".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationFrom);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationTo);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post positive inventory adjustment to location "A".
+        // [GIVEN] Post negative inventory adjustment from blank location.
+        CreateAndPostItemJnlWithCostLocationVariant(
+          "Item Ledger Entry Type"::"Positive Adjmt.", Item."No.", QtyToShip, 0, LocationFrom.Code, '');
+        CreateAndPostItemJnlWithCostLocationVariant(
+          "Item Ledger Entry Type"::"Negative Adjmt.", Item."No.", QtyToShip, 0, '', '');
+
+        // [GIVEN] Direct transfer order from "A" to "B".
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Modify(true);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", QtyToShip);
+
+        // [WHEN] Post the direct transfer.
+        asserterror TransferLine.validate("Qty. to Ship", QtyToShip - 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure PostTransferOrderWhenLocationFromContainsSpecialChars()
     var
         Location: array[2] of Record Location;
@@ -2464,6 +2543,47 @@ codeunit 137038 "SCM Transfers"
         // [THEN] Warehouse Shipment has Shipment Method Code = "XXX"
         WarehouseShipmentHeader.Get(LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Transfer Line", 0, TransferHeader."No."));
         WarehouseShipmentHeader.TestField("Shipment Method Code", TransferHeader."Shipment Method Code");
+    end;
+
+    [Test]
+    procedure TransferOrderPostingPreservesExternalDocumentNo()
+    var
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Location: array[3] of Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ExpectedExternalDocumentNoLbl: Label 'External Document No. is expected on Item Ledger Entry.';
+    begin
+        // [FEATURE] [Transfer Order]
+        // [SCENARIO] When creating and posting Transfer Order, External Document No. is preserved on Item Ledger Entry
+        Initialize();
+
+        // [GIVEN] Create LocationFrom, LocationTo and LocationInTransit.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
+        LibraryWarehouse.CreateInTransitLocation(Location[3]);
+
+        // [GIVEN] Create Item with stock
+        CreateItemWithPositiveInventory(Item, Location[1].Code, 10);
+
+        // [GIVEN] Create Transfer Order with External Document No
+        LibraryInventory.CreateTransferHeader(TransferHeader, Location[1].Code, Location[2].Code, Location[3].Code);
+        TransferHeader.Validate("External Document No.", LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(TransferHeader."External Document No."), 0));
+        TransferHeader.Modify();
+
+        // [GIVEN] Create Transfer Line
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandIntInRange(1, 5));
+
+        // [WHEN] Post transfer Order
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true);  // Ship and receive
+
+        // [THEN] Verify item ledger entries have the same External Document No.
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::"Transfer", Location[1].Code, false);
+        Assert.AreEqual(TransferHeader."External Document No.", ItemLedgerEntry."External Document No.", ExpectedExternalDocumentNoLbl);
+
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::"Transfer", Location[2].Code, true);
+        Assert.AreEqual(TransferHeader."External Document No.", ItemLedgerEntry."External Document No.", ExpectedExternalDocumentNoLbl);
     end;
 
     [Test]

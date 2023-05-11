@@ -380,8 +380,15 @@ page 343 "Check Credit Limit"
     end;
 
     [Scope('OnPrem')]
-    procedure ServiceContractHeaderShowWarning(ServiceContractHeader: Record "Service Contract Header"): Boolean
+    procedure ServiceContractHeaderShowWarning(ServiceContractHeader: Record "Service Contract Header") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeServiceContractHeaderShowWarning(ServiceContractHeader, Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SalesSetup.Get();
         if SalesSetup."Credit Warnings" =
            SalesSetup."Credit Warnings"::"No Warning"
@@ -675,6 +682,11 @@ page 343 "Check Credit Limit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeServiceHeaderShowWarning(var ServiceHeader: Record "Service Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServiceContractHeaderShowWarning(ServiceContractHeader: Record "Service Contract Header"; var Customer: Record Customer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

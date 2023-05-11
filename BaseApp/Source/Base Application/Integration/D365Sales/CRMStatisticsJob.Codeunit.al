@@ -138,10 +138,8 @@ codeunit 5350 "CRM Statistics Job"
         CRMSynchStatus: Record "CRM Synch Status";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        if CRMSynchStatus.IsEmpty() then
-            CRMIntegrationManagement.InitializeCRMSynchStatus();
+        CRMIntegrationManagement.InitializeCRMSynchStatus(CRMSynchStatus);
 
-        CRMSynchStatus.Get();
         if CRMSynchStatus."Cust. Statistics Synch. Time" = 0DT then begin
             CRMSynchStatus."Cust. Statistics Synch. Time" := CurrentDateTime();
             CRMSynchStatus.Modify();
@@ -356,8 +354,7 @@ codeunit 5350 "CRM Statistics Job"
         ForAllCustomers: Boolean;
         UnexpectedErrorDetected: Boolean;
     begin
-        if CRMSynchStatus.IsEmpty() then
-            CRMIntegrationManagement.InitializeCRMSynchStatus();
+        CRMIntegrationManagement.InitializeCRMSynchStatus(CRMSynchStatus);
 
         DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Posting Date");
         DtldCustLedgEntry.SetFilter("Entry No.", '>%1', CRMSynchStatus."Last Update Invoice Entry No.");

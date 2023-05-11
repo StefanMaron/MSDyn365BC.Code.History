@@ -18,6 +18,7 @@ codeunit 5857 "Copy Invt. Document Mgt."
         CannotCopyToItselfErr: Label '%1 %2 cannot be copied onto itself.', Comment = '%1 = document type, %2 = document number';
         LinesWillBeDeletedQst: Label 'The existing lines for %1 %2 will be deleted.\\Do you want to continue?', Comment = '%1 = document type, %2 = document number';
         LinesNotCopiedMsg: Label 'The document line(s) with a G/L account where direct posting is not allowed have not been copied to the new document by the Copy Document batch job.';
+        LinesNotAppliedMsg: Label 'There is %1 document line(s) with Item Tracking which requires manual specify of apply to/from numbers within Item Tracking Lines', Comment = '%1-line count';
 
     procedure SetProperties(NewIncludeHeader: Boolean; NewRecalculateLines: Boolean; NewCreateToHeader: Boolean; NewHideDialog: Boolean; NewFillAppliesFields: Boolean)
     begin
@@ -40,6 +41,7 @@ codeunit 5857 "Copy Invt. Document Mgt."
         FromInvtShptLine: Record "Invt. Shipment Line";
         NextLineNo: Integer;
         LinesNotCopied: Integer;
+        LinesSkipApplies: Integer;
     begin
         with ToInvtDocHeader do begin
             if not CreateToHeader then begin
@@ -179,6 +181,7 @@ codeunit 5857 "Copy Invt. Document Mgt."
             end;
 
             LinesNotCopied := 0;
+            LinesSkipApplies := 0;
             case FromDocType of
                 InvtDocType::Receipt,
                 InvtDocType::Shipment:
@@ -188,7 +191,7 @@ codeunit 5857 "Copy Invt. Document Mgt."
                         FromInvtDocLine.SetRange("Document No.", FromInvtDocHeader."No.");
                         if FromInvtDocLine.Find('-') then
                             repeat
-                                CopyInvtDocLine(ToInvtDocHeader, ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine, NextLineNo, LinesNotCopied);
+                                CopyInvtDocLine(ToInvtDocHeader, ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine, NextLineNo, LinesNotCopied, LinesSkipApplies);
                             until FromInvtDocLine.Next() = 0;
                     end;
                 InvtDocType::"Posted Receipt":
@@ -201,7 +204,7 @@ codeunit 5857 "Copy Invt. Document Mgt."
                                 FromInvtDocLine.TransferFields(FromInvtRcptLine);
                                 CopyInvtDocLine(
                                   ToInvtDocHeader, ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine,
-                                  NextLineNo, LinesNotCopied);
+                                  NextLineNo, LinesNotCopied, LinesSkipApplies);
                             until FromInvtRcptLine.Next() = 0;
                     end;
                 InvtDocType::"Posted Shipment":
@@ -213,7 +216,7 @@ codeunit 5857 "Copy Invt. Document Mgt."
                         if FromInvtShptLine.Find('-') then
                             repeat
                                 FromInvtDocLine.TransferFields(FromInvtShptLine);
-                                CopyInvtDocLine(ToInvtDocHeader, ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine, NextLineNo, LinesNotCopied);
+                                CopyInvtDocLine(ToInvtDocHeader, ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine, NextLineNo, LinesNotCopied, LinesSkipApplies);
                             until FromInvtShptLine.Next() = 0;
                     end;
             end;
@@ -221,9 +224,12 @@ codeunit 5857 "Copy Invt. Document Mgt."
 
         if LinesNotCopied > 0 then
             Message(LinesNotCopiedMsg);
+
+        if LinesSkipApplies > 0 then
+            Message(LinesNotAppliedMsg, LinesSkipApplies);
     end;
 
-    local procedure CopyInvtDocLine(var ToInvtDocHeader: Record "Invt. Document Header"; var ToInvtDocLine: Record "Invt. Document Line"; var FromInvtDocHeader: Record "Invt. Document Header"; var FromInvtDocLine: Record "Invt. Document Line"; var NextLineNo: Integer; var LinesNotCopied: Integer)
+    local procedure CopyInvtDocLine(var ToInvtDocHeader: Record "Invt. Document Header"; var ToInvtDocLine: Record "Invt. Document Line"; var FromInvtDocHeader: Record "Invt. Document Header"; var FromInvtDocLine: Record "Invt. Document Line"; var NextLineNo: Integer; var LinesNotCopied: Integer; var LinesSkipApplies: Integer)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         CopyThisLine: Boolean;
@@ -254,7 +260,7 @@ codeunit 5857 "Copy Invt. Document Mgt."
             if not CreateToHeader then
                 ToInvtDocLine."Document Date" := ToInvtDocHeader."Document Date";
         end;
-        if FillAppliesFields then
+        if FillAppliesFields then begin
             if FromInvtDocHeader."Document Type" = FromInvtDocHeader."Document Type"::Receipt then
                 ToInvtDocLine.Validate(
                   "Applies-to Entry",
@@ -269,6 +275,10 @@ codeunit 5857 "Copy Invt. Document Mgt."
                     FromInvtDocLine."Document No.",
                     ItemLedgerEntry."Document Type"::"Inventory Shipment".AsInteger(),
                     FromInvtDocLine."Line No."));
+
+            if (ToInvtDocLine."Applies-to Entry" = 0) and (ToInvtDocLine."Applies-from Entry" = 0) then
+                LinesSkipApplies += 1;
+        end;
         if CopyThisLine then
             ToInvtDocLine.Insert()
         else
@@ -303,7 +313,8 @@ codeunit 5857 "Copy Invt. Document Mgt."
         ItemLedgerEntry.SetRange("Document Type", DocType);
         ItemLedgerEntry.SetRange("Document Line No.", DocLineNo);
         if ItemLedgerEntry.FindFirst() then
-            exit(ItemLedgerEntry."Entry No.");
+            if not ItemLedgerEntry.TrackingExists() then
+                exit(ItemLedgerEntry."Entry No.");
 
         exit(0);
     end;

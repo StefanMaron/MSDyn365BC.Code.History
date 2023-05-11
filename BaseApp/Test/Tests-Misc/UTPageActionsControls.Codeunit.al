@@ -4572,6 +4572,66 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.ExpectedError(FieldLengthErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ContactCompanyCardRegistrationNumberIsEditable()
+    var
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+        RegistrationNumber: Text[50];
+    begin
+        // [FEATURE] [Contact]
+        // [SCENARIO 466353] Registration Number field is editable on the company Contact Card page
+        LibraryMarketing.CreateCompanyContact(Contact);
+        RegistrationNumber := LibraryUtility.GenerateGUID();
+
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+        ContactCard."Registration Number".SetValue(RegistrationNumber);
+        ContactCard.Close();
+
+        Contact.Find();
+        Contact.TestField("Registration Number", RegistrationNumber);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ContactPersonCardRegistrationNumberIsNotEnabled()
+    var
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+    begin
+        // [FEATURE] [Contact]
+        // [SCENARIO 466353] Registration Number field is not enablesdon the person Contact Card page
+        LibraryMarketing.CreatePersonContact(Contact);
+
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+        Assert.IsFalse(ContactCard."Registration Number".Enabled, '');
+        ContactCard.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ContactCompanyCardRegistrationNumberErrorLength()
+    var
+        Contact: Record Contact;
+        ContactCard: TestPage "Contact Card";
+        RegistrationNumber: Text[50];
+    begin
+        // [FEATURE] [Contact]        
+        // [SCENARIO 466353] Registration Number field error for legth more than 20 on the Contact Card page
+        LibraryMarketing.CreateCompanyContact(Contact);
+        RegistrationNumber := LibraryUtility.GenerateRandomText(21);
+
+        ContactCard.OpenEdit();
+        ContactCard.Filter.SetFilter("No.", Contact."No.");
+        asserterror ContactCard."Registration Number".SetValue(RegistrationNumber);
+
+        Assert.ExpectedErrorCode('TestValidation');
+        Assert.ExpectedError(FieldLengthErr);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

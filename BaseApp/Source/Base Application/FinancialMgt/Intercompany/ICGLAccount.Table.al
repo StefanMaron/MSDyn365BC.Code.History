@@ -82,5 +82,14 @@ table 410 "IC G/L Account"
 
         FeatureTelemetry.LogUptake('0000IKN', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
     end;
+
+    trigger OnDelete()
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.SetRange("Default IC Partner G/L Acc. No", Rec."No.");
+        if not GLAccount.IsEmpty() then
+            GLAccount.ModifyAll("Default IC Partner G/L Acc. No", '');
+    end;
 }
 

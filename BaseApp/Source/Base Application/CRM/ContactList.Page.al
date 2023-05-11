@@ -139,7 +139,18 @@ page 5052 "Contact List"
                     ToolTip = 'Specifies that a parent or guardian of the minor has provided their consent to allow the minor to use this service. When this check box is selected, data for the minor can be processed.';
                     Visible = false;
                 }
+#if not CLEAN23
                 field("Coupled to CRM"; Rec."Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the contact is coupled to a contact in Dataverse.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the contact is coupled to a contact in Dataverse.';
@@ -453,9 +464,17 @@ page 5052 "Contact List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Relate&d Contacts';
                     Image = Users;
-                    RunObject = Page "Contact List";
-                    RunPageLink = "Company No." = FIELD("Company No.");
                     ToolTip = 'View a list of all contacts.';
+
+                    trigger OnAction()
+                    var
+                        Contact: Record Contact;
+                        ContactList: Page "Contact List";
+                    begin
+                        Contact.SetRange("Company No.", Rec."Company No.");
+                        ContactList.SetTableView(Contact);
+                        ContactList.Run();
+                    end;
                 }
                 action("Segmen&ts")
                 {

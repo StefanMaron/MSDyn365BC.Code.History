@@ -24,7 +24,9 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         IsInitialized: Boolean;
+        TypeOfID: Option "Auto Generated",Custom;
         AllocSourceFound: Label 'Cost allocation sources were found.';
         AllocTargetShareIsZero: Label 'For cost allocation target %1, the Share equals 0.';
         AmountsAreDifferent: Label 'Posted amount %1 is different from original amount %2.';
@@ -63,6 +65,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         ValuesAreWrong: Label 'The %1 values are not correct.';
         AllowedPostingDateErr: Label 'The date in the Allow Posting From field must not be after the date in the Allow Posting To field.';
         AllowedPostingDateMsg: Label 'The setup of allowed posting dates is incorrect. The date in the Allow Posting From field must not be after the date in the Allow Posting To field.';
+        NoRecordsInFilterErr: Label 'There are no records within the filters specified for table %1. The filters are: %2.';
+        AllocatedregitserNoErr: Label 'Allocated Register No. does not exist.';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerNo')]
@@ -3053,6 +3057,54 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         Assert.ExpectedMessage(AllowedPostingDateMsg, LibraryVariableStorage.DequeueText);
     end;
 
+    [Test]
+    [HandlerFunctions('AllocateCostsForLevels,ConfirmHandlerYes,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyCostEntryAllocatedWithRegisterNo()
+    var
+        CostAllocationSource: Record "Cost Allocation Source";
+        CostAllocationTarget: Record "Cost Allocation Target";
+        CostEntry: Record "Cost Entry";
+        CostJournalBatch: Record "Cost Journal Batch";
+        CostJournalLine: Record "Cost Journal Line";
+        CostRegister: Record "Cost Register";
+        CostObject: Record "Cost Object";
+        MaxLevel: Integer;
+    begin
+        // [SCENARIO 460769] Cost allocations are not strictly done separately for either Cost Entries or Cost Budget Entries
+        Initialize();
+
+        // [GIVEN] Create Cost Object and define MaxLevel
+        LibraryCostAccounting.CreateCostObject(CostObject);
+        MaxLevel := LibraryRandom.RandInt(99);
+
+        // [GIVEN] Enqueue the Maxlevel
+        LibraryVariableStorage.Enqueue(MaxLevel);
+
+        // [GIVEN] Clear all Source level and allocate source and Target
+        ClearAllocSourceLevel(MaxLevel);
+        CreateAllocSourceAndTargets(CostAllocationSource, MaxLevel, CostAllocationTarget.Base::Static);
+
+        // [GIVEN] Select cost journal batch and create Gen. Journal Line.
+        SelectCostJournalBatch(CostJournalBatch);
+        CreateCostJournalLineWithCC(CostJournalLine, CostJournalBatch, CostAllocationSource."Cost Center Code", WorkDate());
+
+        // [GIVEN] Post the Gen. Journal Line and run the Allocation Cost report
+        LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
+        RunCostAllocationReport;
+
+        // [VERIFY] Verify the cost register created successfully
+        VerifyCostRegisterAndEntry(CostRegister);
+
+        // [VERIFY] Cost entry has valid "Allocated with Journal No."
+        CostRegister.FindLast();
+        CostEntry.SetRange("Cost Type No.", CostJournalLine."Cost Type No.");
+        CostEntry.SetRange("Cost Center Code", CostJournalLine."Cost Center Code");
+        CostEntry.SetRange("Document No.", CostJournalLine."Document No.");
+        CostEntry.FindLast();
+        Assert.AreEqual(CostRegister."No.", CostEntry."Allocated with Journal No.", AllocatedregitserNoErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cost Accounting - Codeunit");
@@ -3716,6 +3768,121 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
             CostAllocationTarget.TestField(Share, ExpectedShare);
             LineNo := LineNo + 1;
         end;
+    end;
+
+    local procedure CreateJnlLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date; AccountNo: Code[20]; Amount: Decimal)
+    begin
+        // Create General Journal Line.
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", AccountNo, Amount);
+
+        // Update journal line to avoid Posting errors
+        GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::" ");
+        GenJournalLine.Validate("Gen. Bus. Posting Group", '');
+        GenJournalLine.Validate("Gen. Prod. Posting Group", '');
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Allow Zero-Amount Posting", true);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure SetupGeneralJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryCostAccounting.CreateBalanceSheetGLAccount(GLAccount);
+        GenJournalBatch.Validate("Bal. Account No.", GLAccount."No.");
+        GenJournalBatch.Modify(true);
+
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+    end;
+
+    local procedure CreateAllocSourceAndTargets(var CostAllocationSource: Record "Cost Allocation Source"; Level: Integer; Base: Option)
+    var
+        CostAllocationTarget: Record "Cost Allocation Target";
+        Index: Integer;
+    begin
+        LibraryCostAccounting.CreateAllocSourceWithCCenter(CostAllocationSource, TypeOfID::"Auto Generated");
+        CostAllocationSource.Validate(Level, Level);
+        CostAllocationSource.Modify(true);
+
+        for Index := 1 to LibraryRandom.RandInt(4) do begin
+            Clear(CostAllocationTarget);
+            LibraryCostAccounting.CreateAllocTargetWithCObject(
+              CostAllocationTarget, CostAllocationSource, Index * 10, Base, CostAllocationTarget."Allocation Target Type"::"All Costs");
+        end;
+    end;
+
+    local procedure RunCostAllocationReport()
+    begin
+        Commit();
+        REPORT.Run(REPORT::"Cost Allocation");
+    end;
+
+    local procedure VerifyCostRegisterAndEntry(var CostRegister: Record "Cost Register")
+    var
+        CostEntry: Record "Cost Entry";
+    begin
+        if not CostRegister.FindLast() then
+            Error(StrSubstNo(NoRecordsInFilterErr, CostRegister.TableCaption(), CostRegister.GetFilters));
+
+        CostEntry.SetRange("Allocated with Journal No.", CostRegister."No.");
+        CostEntry.FindFirst();
+        CostEntry.TestField(Allocated, true);
+    end;
+
+    local procedure ClearAllocSourceLevel(Level: Integer)
+    var
+        CostAllocationSource: Record "Cost Allocation Source";
+    begin
+        CostAllocationSource.SetFilter(Level, '%1', Level);
+        CostAllocationSource.ModifyAll(Level, Level - 1, true);
+    end;
+
+    local procedure SelectCostJournalBatch(var CostJournalBatch: Record "Cost Journal Batch")
+    var
+        CostJournalTemplate: Record "Cost Journal Template";
+    begin
+        if not CostJournalTemplate.FindLast() then
+            Error(StrSubstNo(NoRecordsInFilterErr, CostJournalTemplate.TableCaption(), CostJournalTemplate.GetFilters));
+        LibraryCostAccounting.FindCostJournalBatch(CostJournalBatch, CostJournalTemplate.Name);
+        LibraryCostAccounting.ClearCostJournalLines(CostJournalBatch);
+    end;
+
+    local procedure CreateCostJournalLineWithCC(var CostJournalLine: Record "Cost Journal Line"; CostJournalBatch: Record "Cost Journal Batch"; CostCenterCode: Code[20]; PostingDate: Date)
+    var
+        CostType: Record "Cost Type";
+        BalCostType: Record "Cost Type";
+    begin
+        LibraryCostAccounting.FindCostTypeWithCostCenter(CostType);
+        FindCostTypeWithCostCenter(BalCostType, CostCenterCode);
+        LibraryCostAccounting.CreateCostJournalLineBasic(
+          CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name, PostingDate, CostType."No.", BalCostType."No.");
+
+        CostJournalLine.Validate("Cost Center Code", CostCenterCode);
+        CostJournalLine.Modify(true);
+    end;
+
+    local procedure FindCostTypeWithCostCenter(var CostType: Record "Cost Type"; CostCenterCode: Code[20])
+    begin
+        LibraryCostAccounting.GetAllCostTypes(CostType);
+        CostType.SetFilter("Cost Center Code", '<>%1&<>%2', '', CostCenterCode);
+        CostType.SetFilter("Cost Object Code", '%1', '');
+        if CostType.IsEmpty() then
+            Error(StrSubstNo(NoRecordsInFilterErr, CostType.TableCaption(), CostType.GetFilters));
+
+        CostType.Next(LibraryRandom.RandInt(CostType.Count));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AllocateCostsForLevels(var CostAllocation: TestRequestPage "Cost Allocation")
+    var
+        Level: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(Level);
+        LibraryCostAccounting.AllocateCostsFromTo(CostAllocation, Level, Level, WorkDate(), '', '');
+        CostAllocation.OK.Invoke;
     end;
 }
 

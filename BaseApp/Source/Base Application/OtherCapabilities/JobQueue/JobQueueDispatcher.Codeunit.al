@@ -83,7 +83,7 @@ codeunit 448 "Job Queue Dispatcher"
             SendTraceOnFailedToGetRecordBeforeFinalizingRecord(JobQueueEntry);
 
 
-        OnAfterSuccessHandleRequest(JobQueueEntry, JobQueueExecutionTimeInMs);
+        OnAfterSuccessHandleRequest(JobQueueEntry, JobQueueExecutionTimeInMs, JobQueueLogEntry."System Task Id");
     end;
 
     procedure WaitForOthersWithSameCategory(var CurrJobQueueEntry: Record "Job Queue Entry") Result: Boolean
@@ -328,7 +328,7 @@ codeunit 448 "Job Queue Dispatcher"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSuccessHandleRequest(var JobQueueEntry: Record "Job Queue Entry"; JobQueueExecutionTime: Integer)
+    local procedure OnAfterSuccessHandleRequest(var JobQueueEntry: Record "Job Queue Entry"; JobQueueExecutionTime: Integer; PreviousTaskId: Guid)
     begin
     end;
 

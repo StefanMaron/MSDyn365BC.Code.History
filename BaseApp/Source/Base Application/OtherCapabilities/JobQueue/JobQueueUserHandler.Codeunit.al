@@ -12,18 +12,14 @@ codeunit 455 "Job Queue User Handler"
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process");
+        JobQueueEntry.SetFilter(Status, '%1|%2|%3', JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process", JobQueueEntry.Status::"On Hold with Inactivity Timeout");
         JobQueueEntry.SetRange("Recurring Job", true);
+        JobQueueEntry.SetRange(Scheduled, false); // Only reschedule unscheduled jobs
+        JobQueueEntry.SetRange("User ID", UserId);
+
         if JobQueueEntry.FindSet(true) then
             repeat
                 if JobShouldBeRescheduled(JobQueueEntry) then
-                    Reschedule(JobQueueEntry);
-            until JobQueueEntry.Next() = 0;
-
-        JobQueueEntry.FilterInactiveOnHoldEntries();
-        if JobQueueEntry.FindSet(true) then
-            repeat
-                if JobQueueEntry.DoesJobNeedToBeRun() then
                     Reschedule(JobQueueEntry);
             until JobQueueEntry.Next() = 0;
     end;
@@ -54,7 +50,6 @@ codeunit 455 "Job Queue User Handler"
 
     local procedure JobShouldBeRescheduled(JobQueueEntry: Record "Job Queue Entry") Result: Boolean
     var
-        User: Record User;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -62,18 +57,14 @@ codeunit 455 "Job Queue User Handler"
         if IsHandled then
             exit(Result);
 
-        if JobQueueEntry."User ID" = UserId then begin
-            JobQueueEntry.CalcFields(Scheduled);
-            exit(not JobQueueEntry.Scheduled);
-        end;
-        User.SetRange("User Name", JobQueueEntry."User ID");
-        exit(User.IsEmpty);
+        exit(true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
     local procedure RescheduleJobQueueEntriesOnCompanyOpen()
     var
         JobQueueEntry: Record "Job Queue Entry";
+        ScheduledTask: Record "Scheduled Task";
         User: Record User;
     begin
         if not GuiAllowed then
@@ -82,14 +73,19 @@ codeunit 455 "Job Queue User Handler"
             exit;
         if not (JobQueueEntry.TryCheckRequiredPermissions()) then
             exit;
-        if not TASKSCHEDULER.CanCreateTask() then
+        if not TaskScheduler.CanCreateTask() then
             exit;
         if not User.Get(UserSecurityId()) then
             exit;
         if User."License Type" = User."License Type"::"Limited User" then
             exit;
 
-        TASKSCHEDULER.CreateTask(CODEUNIT::"Job Queue User Handler", 0, true, CompanyName, CurrentDateTime + 15000); // Add 15s
+        ScheduledTask.SetRange("Run Codeunit", Codeunit::"Job Queue User Handler");
+        ScheduledTask.SetRange(Company, CompanyName());
+        ScheduledTask.SetRange("User ID", UserSecurityId());
+        ScheduledTask.SetRange("Is Ready", true);
+        if ScheduledTask.IsEmpty() then
+            TaskScheduler.CreateTask(Codeunit::"Job Queue User Handler", 0, true, CompanyName, CurrentDateTime + 15000); // Add 15s
     end;
 
     [IntegrationEvent(false, false)]

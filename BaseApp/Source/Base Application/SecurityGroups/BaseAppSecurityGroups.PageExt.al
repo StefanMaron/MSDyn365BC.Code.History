@@ -34,5 +34,14 @@ pageextension 9871 "BaseApp Security Groups" extends "Security Groups"
         {
             Visible = false;
         }
+        modify(NewSecurityGroup)
+        {
+            trigger OnAfterAction()
+            var
+                BaseAppSecurityGroupImpl: Codeunit "BaseApp Security Group Impl.";
+            begin
+                BaseAppSecurityGroupImpl.SendLicenseConfigurationNotificationOnFirstRecord(Rec);
+            end;
+        }
     }
 }

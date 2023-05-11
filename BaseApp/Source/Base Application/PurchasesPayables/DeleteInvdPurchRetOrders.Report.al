@@ -19,6 +19,7 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                 PostPurchDelete: Codeunit "PostPurch-Delete";
                 IsHandled: Boolean;
+                ShouldDeleteLinks: Boolean;
             begin
                 IsHandled := false;
                 OnBeforePurchaseHeaderOnAfterGetRecord("Purchase Header", IsHandled);
@@ -58,7 +59,9 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                                                 ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
                                                 ItemChargeAssgntPurch.DeleteAll();
                                             end;
-                                            if PurchLine.HasLinks then
+                                            ShouldDeleteLinks := PurchLine.HasLinks();
+                                            OnPurchaseHeaderOnAfterGetRecordOnAfterCalcShouldDeleteLinks(PurchLine, ShouldDeleteLinks);
+                                            if ShouldDeleteLinks then
                                                 PurchLine.DeleteLinks();
                                             OnBeforePurchLineDelete(PurchLine);
                                             PurchLine.Delete();
@@ -172,6 +175,11 @@ report 6661 "Delete Invd Purch. Ret. Orders"
 
     [IntegrationEvent(true, false)]
     local procedure OnPurchaseHeaderAfterGetRecordOnBeforeCommit(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchaseHeaderOnAfterGetRecordOnAfterCalcShouldDeleteLinks(var PurchaseLine: Record "Purchase Line"; var ShouldDeleteLinks: Boolean)
     begin
     end;
 }

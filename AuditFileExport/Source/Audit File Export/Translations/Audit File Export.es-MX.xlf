@@ -951,6 +951,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control EndingDate - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 4169847893 - Control 3651544782 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the unique identifier of the audit file export document.</source>
+          <target state="translated">Especifica el identificador único del documento de exportación de archivos de auditoría.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Audit File Export Documents - Control DocumentId - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 4169847893 - Control 4085528741 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the date and time when the audit file generation was started.</source>
           <target state="translated">Especifica la fecha y la hora en que se inició la generación del archivo de auditoría.</target>

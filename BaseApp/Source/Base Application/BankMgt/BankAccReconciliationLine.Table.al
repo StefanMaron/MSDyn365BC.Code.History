@@ -480,6 +480,7 @@ table 274 "Bank Acc. Reconciliation Line"
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Statement No.", "Statement Line No."));
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        OnAfterShowDimensions(Rec);
     end;
 
 #if not CLEAN20
@@ -1380,13 +1381,18 @@ table 274 "Bank Acc. Reconciliation Line"
         exit(FeatureKey.Enabled = FeatureKey.Enabled::"All Users");
     end;
 
+    internal procedure GetAppliesToIDForBankStatement(): Code[50]
+    begin
+        exit(CopyStr(Rec."Bank Account No." + '-' + Format(Rec."Statement No."), 1, 50));
+    end;
+
     procedure GetAppliesToID(): Code[50]
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         exit(
             CopyStr(
-                "Bank Account No." + '-' + Format("Statement No.") + '-' + Format("Statement Line No."),
+                GetAppliesToIDForBankStatement() + '-' + Format(Rec."Statement Line No."),
                 1,
                 MaxStrLen(CustLedgerEntry."Applies-to ID")));
     end;
@@ -1473,6 +1479,11 @@ table 274 "Bank Acc. Reconciliation Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; xBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
     end;
 

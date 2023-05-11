@@ -116,14 +116,14 @@ codeunit 5348 "CRM Quote to Sales Quote"
         RevisionedCRMQuote.SetRange(StateCode, RevisionedCRMQuote.StateCode::Closed);
         RevisionedCRMQuote.SetRange(StatusCode, RevisionedCRMQuote.StatusCode::Revised);
         if RevisionedCRMQuote.FindSet() then
-                repeat
-                    if CRMIntegrationRecord.FindRecordIDFromID(RevisionedCRMQuote.QuoteId, DATABASE::"Sales Header", RecordId) then begin
-                        GetSalesHeaderByRecordId(RecordId, SalesHeader);
-                        CRMIntegrationRecord.Get(RevisionedCRMQuote.QuoteId, SalesHeader.SystemId);
-                        CRMIntegrationRecord.Delete(true);
-                        exit(CreateOrUpdateNAVQuote(CRMQuote, SalesHeader, OpType::Update));
-                    end;
-                until RevisionedCRMQuote.Next() = 0;
+            repeat
+                if CRMIntegrationRecord.FindRecordIDFromID(RevisionedCRMQuote.QuoteId, DATABASE::"Sales Header", RecordId) then begin
+                    GetSalesHeaderByRecordId(RecordId, SalesHeader);
+                    CRMIntegrationRecord.Get(RevisionedCRMQuote.QuoteId, SalesHeader.SystemId);
+                    CRMIntegrationRecord.Delete(true);
+                    exit(CreateOrUpdateNAVQuote(CRMQuote, SalesHeader, OpType::Update));
+                end;
+            until RevisionedCRMQuote.Next() = 0;
 
         exit(CreateOrUpdateNAVQuote(CRMQuote, SalesHeader, OpType::Create));
     end;
@@ -270,9 +270,9 @@ codeunit 5348 "CRM Quote to Sales Quote"
         CRMAnnotation.SetRange(ObjectId, CRMQuote.QuoteId);
         CRMAnnotation.SetRange(IsDocument, false);
         if CRMAnnotation.FindSet() then
-                repeat
-                    CreateNote(SalesHeader, CRMAnnotation);
-                until CRMAnnotation.Next() = 0;
+            repeat
+                CreateNote(SalesHeader, CRMAnnotation);
+            until CRMAnnotation.Next() = 0;
     end;
 
     local procedure CreateOrUpdateSalesQuoteLines(CRMQuote: Record "CRM Quote"; SalesHeader: Record "Sales Header")
@@ -537,6 +537,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         SalesHeader.Validate(
           "Ship-to Country/Region Code", Format(CRMQuote.ShipTo_Country, MaxStrLen(SalesHeader."Ship-to Country/Region Code")));
         SalesHeader.Validate("Ship-to County", Format(CRMQuote.ShipTo_StateOrProvince, MaxStrLen(SalesHeader."Ship-to County")));
+        OnAfterCopyShipToInformationIfNotEmpty(CRMQuote, SalesHeader);
     end;
 
     local procedure CreateNote(SalesHeader: Record "Sales Header"; CRMAnnotation: Record "CRM Annotation")
@@ -654,6 +655,11 @@ codeunit 5348 "CRM Quote to Sales Quote"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitializeSalesQuoteLine(CRMQuotedetail: Record "CRM Quotedetail"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyShipToInformationIfNotEmpty(CRMQuote: Record "CRM Quote"; var SalesHeader: Record "Sales Header")
     begin
     end;
 

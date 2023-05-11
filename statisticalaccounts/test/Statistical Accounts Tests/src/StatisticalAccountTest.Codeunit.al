@@ -8,11 +8,26 @@ codeunit 139683 "Statistical Account Test"
         Any: Codeunit Any;
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryDimension: Codeunit "Library - Dimension";
         Initialized: Boolean;
+        EMPLOYEESLbl: Label 'EMPLOYEES';
+        OFFICESPACELbl: Label 'OFFICESPACE';
+        DEPARTMENTLbl: Label 'DEPARTMENT';
+        DemoDataSetupCompleteMsg: Label 'The setup was completed successfully.';
+        DeleteSetupDataQst: Label 'This action will delete all setup data.';
+        REVEMPLLbl: Label 'REV_EMPL';
+        EmployeesExpectedAmount: Integer;
+        FirstDimensionEmployeeAmount: Integer;
+        SecondDimensionEmployeeAmount: Integer;
+        ThirdDimensionEmployeeAmount: Integer;
+        OfficeSpaceExpectedAmount: Integer;
+        TotalNumberOfOfficeSpaceLedgerEntries: Integer;
+        TotalNumberOfEmployeeLedgerEntries: Integer;
 
     local procedure Initialize()
     var
+        AnalysisView: Record "Analysis View";
         StatisticalAccount: Record "Statistical Account";
         StatisticalLedgerEntry: Record "Statistical Ledger Entry";
         StatisticalAccJournalLine: Record "Statistical Acc. Journal Line";
@@ -20,10 +35,19 @@ codeunit 139683 "Statistical Account Test"
         StatisticalAccount.DeleteAll();
         StatisticalLedgerEntry.DeleteAll();
         StatisticalAccJournalLine.DeleteAll();
+        AnalysisView.DeleteAll(true);
         LibraryVariableStorage.AssertEmpty();
 
         if Initialized then
             exit;
+
+        EmployeesExpectedAmount := 70;
+        OfficeSpaceExpectedAmount := 2820;
+        TotalNumberOfEmployeeLedgerEntries := 6;
+        TotalNumberOfOfficeSpaceLedgerEntries := 7;
+        FirstDimensionEmployeeAmount := 33;
+        SecondDimensionEmployeeAmount := 14;
+        ThirdDimensionEmployeeAmount := 23;
 
         Commit();
         Initialized := true;
@@ -140,6 +164,230 @@ codeunit 139683 "Statistical Account Test"
         VerifyStatisticalAccountBalances(StatAccountBalance, TempStatisticalAccountLedgerEntries);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageDialogHandler,ConfirmationDialogHandler')]
+    procedure TestDemoDataIsCreatedOnTheFly()
+    var
+        StatisticalAccount: Record "Statistical Account";
+        StatisticalLedgerEntry: Record "Statistical Ledger Entry";
+    begin
+        // [GIVEN] - A system without any demodata
+        Initialize();
+
+        // [WHEN] User invokes create demo data
+        CreateDemoData();
+
+        // [THEN] Demodata is generated successfully for Employees
+        Assert.AreEqual(2, StatisticalAccount.Count(), 'The statistical accounts are not created correctly');
+        Assert.IsTrue(StatisticalAccount.Get(EMPLOYEESLbl), 'Employees account was not created');
+        StatisticalAccount.CalcFields(Balance);
+        Assert.AreEqual(EmployeesExpectedAmount, StatisticalAccount.Balance, StrSubstNo('Wrong balance on the statistical account %1', StatisticalAccount."No."));
+        StatisticalLedgerEntry.SetRange("Statistical Account No.", StatisticalAccount."No.");
+        Assert.AreEqual(TotalNumberOfEmployeeLedgerEntries, StatisticalLedgerEntry.Count(), 'Wrong number of statistical account ledger entries');
+        StatisticalLedgerEntry.SetRange("Global Dimension 1 Code", '');
+        Assert.AreEqual(0, StatisticalLedgerEntry.Count(), 'Global dimension should be assigned to all values.');
+        Clear(StatisticalLedgerEntry);
+
+        // [THEN] Demodata is generated successfully for Office Space
+        Assert.IsTrue(StatisticalAccount.Get(OFFICESPACELbl), 'Employees account was not created');
+        StatisticalAccount.CalcFields(Balance);
+        Assert.AreEqual(OfficeSpaceExpectedAmount, StatisticalAccount.Balance, StrSubstNo('Wrong balance on the statistical account %1', StatisticalAccount."No."));
+        StatisticalLedgerEntry.SetRange("Statistical Account No.", StatisticalAccount."No.");
+        Assert.AreEqual(TotalNumberOfOfficeSpaceLedgerEntries, StatisticalLedgerEntry.Count(), 'Wrong number of statistical account ledger entries');
+        StatisticalLedgerEntry.SetRange("Global Dimension 1 Code", '');
+        Assert.AreEqual(0, StatisticalLedgerEntry.Count(), 'Global dimension should be assigned to all values.');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageDialogHandler,ConfirmationDialogHandler')]
+    procedure TestFinancialReportsForStatisticalAccounts()
+    var
+        FinancialReport: Record "Financial Report";
+        FinancialReports: TestPage "Financial Reports";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+    begin
+        // [GIVEN] - A system with demodata
+        Initialize();
+        SetupFinancialReport();
+        CreateFinancialReport(REVEMPLLbl, EMPLOYEESLbl);
+
+        // [WHEN] User invokes show Financial Reports action
+        FinancialReport.Get(REVEMPLLbl);
+        FinancialReports.OpenEdit();
+        FinancialReports.GoToRecord(FinancialReport);
+        AccScheduleOverview.Trap();
+        FinancialReports.ViewFinancialReport.Invoke();
+
+        // [THEN] Financial Report shows the correct data
+        VerifyDemoDataFinancialReport(AccScheduleOverview);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageDialogHandler,ConfirmationDialogHandler')]
+    procedure TestFinancialReportsForStatisticalAccountsWithAnalysisView()
+    var
+        FinancialReport: Record "Financial Report";
+        AnalysisView: Record "Analysis View";
+        AnalysisViewCard: TestPage "Analysis View Card";
+        FinancialReports: TestPage "Financial Reports";
+        AccScheduleOverview: TestPage "Acc. Schedule Overview";
+    begin
+        // [GIVEN] A system with financial report
+        Initialize();
+        SetupFinancialReport();
+        CreateFinancialReport(REVEMPLLbl, EMPLOYEESLbl);
+
+        // [GIVEN] Analysis view record for Statistical account 
+        CreateAnalysisViewForStatisticalAccount(AnalysisViewCard, AnalysisView);
+
+        // [GIVEN] Analysis view record is setup for the Financial report
+        FinancialReport.Get(REVEMPLLbl);
+        FinancialReports.OpenEdit();
+        FinancialReports.GoToRecord(FinancialReport);
+        FinancialReports.AnalysisViewRow.SetValue(AnalysisView.Code);
+
+        // [WHEN] User invokes show Financial Reports action
+        AccScheduleOverview.Trap();
+        FinancialReports.ViewFinancialReport.Invoke();
+
+        // [THEN] Financial Report shows the correct data
+        VerifyDemoDataFinancialReport(AccScheduleOverview);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageDialogHandler,ConfirmationDialogHandler,DimOvervMatrixVerifyCountPageHandler')]
+    procedure TestStatisticalAccountsAnalysisView()
+    var
+        AnalysisView: Record "Analysis View";
+        AnalysisViewCard: TestPage "Analysis View Card";
+        AnalysisViewList: TestPage "Analysis View List";
+        AnalysisbyDimensions: TestPage "Analysis by Dimensions";
+        AnalysisAmountType: Enum "Analysis Amount Type";
+    begin
+        // [GIVEN] A system with financial report
+        Initialize();
+        SetupFinancialReport();
+
+        // [GIVEN] Analysis view record for Statistical account 
+        CreateAnalysisViewForStatisticalAccount(AnalysisViewCard, AnalysisView);
+        AnalysisViewCard.Close();
+
+        // [WHEN] User invokes show matrix
+        AnalysisViewList.OpenEdit();
+        AnalysisViewList.GoToRecord(AnalysisView);
+        AnalysisbyDimensions.Trap();
+        AnalysisViewList.EditAnalysis.Invoke();
+        AnalysisbyDimensions.ColumnDimCode.SetValue(DEPARTMENTLbl);
+        AnalysisbyDimensions.QtyType.SetValue(AnalysisAmountType::"Balance at Date");
+        LibraryVariableStorage.Enqueue(EMPLOYEESLbl);
+        LibraryVariableStorage.Enqueue(EmployeesExpectedAmount);
+        LibraryVariableStorage.Enqueue(FirstDimensionEmployeeAmount);
+        LibraryVariableStorage.Enqueue(SecondDimensionEmployeeAmount);
+        LibraryVariableStorage.Enqueue(ThirdDimensionEmployeeAmount);
+        AnalysisbyDimensions.ShowMatrix.Invoke();
+
+        // [THEN] The values are shown correctly
+        // Verified in DimOvervMatrixVerifyCountPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageDialogHandler,ConfirmationDialogHandler,DimOvervMatrixVerifyCountPageHandler')]
+    procedure TestGLAndStatisticalAccountsAnalysisView()
+    var
+        AnalysisView: Record "Analysis View";
+        AnalysisViewCard: TestPage "Analysis View Card";
+        AnalysisViewList: TestPage "Analysis View List";
+        AnalysisbyDimensions: TestPage "Analysis by Dimensions";
+        StatisticalAnalysisbyDimensions: TestPage "Analysis by Dimensions";
+        AnalysisAmountType: Enum "Analysis Amount Type";
+    begin
+        // [GIVEN] A system with financial report
+        Initialize();
+        SetupFinancialReport();
+
+        // [GIVEN] Analysis view record for Statistical account 
+        CreateAnalysisViewForGLAndStatisticalAccount(AnalysisViewCard, AnalysisView);
+        AnalysisViewCard.Close();
+
+        // [WHEN] User invokes show matrix
+        AnalysisViewList.OpenEdit();
+        AnalysisViewList.GoToRecord(AnalysisView);
+        AnalysisbyDimensions.Trap();
+        AnalysisViewList.EditAnalysis.Invoke();
+
+        StatisticalAnalysisbyDimensions.Trap();
+        AnalysisbyDimensions.OpenAnalysisByDimensionStatisticalAccounts.Invoke();
+
+        StatisticalAnalysisbyDimensions.ColumnDimCode.SetValue(DEPARTMENTLbl);
+        StatisticalAnalysisbyDimensions.QtyType.SetValue(AnalysisAmountType::"Balance at Date");
+        LibraryVariableStorage.Enqueue(EMPLOYEESLbl);
+        LibraryVariableStorage.Enqueue(EmployeesExpectedAmount);
+        LibraryVariableStorage.Enqueue(FirstDimensionEmployeeAmount);
+        LibraryVariableStorage.Enqueue(SecondDimensionEmployeeAmount);
+        LibraryVariableStorage.Enqueue(ThirdDimensionEmployeeAmount);
+        StatisticalAnalysisbyDimensions.ShowMatrix.Invoke();
+
+        // [THEN] The values are shown correctly
+        // Verified in DimOvervMatrixVerifyCountPageHandler
+    end;
+
+    local procedure SetupFinancialReport()
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleLineTotalingType: Enum "Acc. Schedule Line Totaling Type";
+    begin
+        CreateDemoData();
+        AccScheduleLine.SetRange("Schedule Name", REVEMPLLbl);
+        AccScheduleLine.SetFilter("Totaling Type", '<>%1', AccScheduleLineTotalingType::"Statistical Account");
+        AccScheduleLine.DeleteAll();
+    end;
+
+    local procedure CreateDemoData()
+    var
+        StatisticalAccountList: TestPage "Statistical Account List";
+    begin
+        StatisticalAccountList.OpenEdit();
+        LibraryVariableStorage.Enqueue(DeleteSetupDataQst);
+        LibraryVariableStorage.Enqueue(true);
+        StatisticalAccountList.CleanupDemoData.Invoke();
+
+        LibraryVariableStorage.Enqueue(DemoDataSetupCompleteMsg);
+        StatisticalAccountList.SetupDemoData.Invoke();
+    end;
+
+    local procedure CreateAnalysisViewForStatisticalAccount(var AnalysisViewCard: TestPage "Analysis View Card"; var AnalysisView: Record "Analysis View")
+    var
+        AnalysisViewCode: Code[10];
+    begin
+        AnalysisViewCard.OpenNew();
+        AnalysisViewCode := CopyStr(Any.AlphabeticText(10), 1, 10);
+        AnalysisViewCard.Code.SetValue(AnalysisViewCode);
+        AnalysisViewCard."Account Source".SetValue(AnalysisView."Account Source"::"Statistical Account");
+        AnalysisViewCard."Account Filter".SetValue(EMPLOYEESLbl);
+        AnalysisViewCard."Dimension 1 Code".SetValue(DEPARTMENTLbl);
+        AnalysisViewCard."&Update".Invoke();
+        AnalysisView.Get(AnalysisViewCode);
+    end;
+
+    local procedure CreateAnalysisViewForGLAndStatisticalAccount(var AnalysisViewCard: TestPage "Analysis View Card"; var AnalysisView: Record "Analysis View")
+    var
+        GLAccount: Record "G/L Account";
+        AnalysisViewCode: Code[10];
+    begin
+        AnalysisViewCard.OpenNew();
+        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
+        GLAccount.FindFirst();
+
+        AnalysisViewCode := CopyStr(Any.AlphabeticText(10), 1, 10);
+        AnalysisViewCard.Code.SetValue(AnalysisViewCode);
+        AnalysisViewCard."Account Source".SetValue(AnalysisView."Account Source"::"G/L Account");
+        AnalysisViewCard."Account Filter".SetValue(GLAccount."No.");
+        AnalysisViewCard.StatisticalAccountFilter.SetValue(EMPLOYEESLbl);
+        AnalysisViewCard."Dimension 1 Code".SetValue(DEPARTMENTLbl);
+        AnalysisViewCard."&Update".Invoke();
+        AnalysisView.Get(AnalysisViewCode);
+    end;
+
     local procedure RegisterJournal(var StatisticalAccountsJournal: TestPage "Statistical Accounts Journal")
     begin
         LibraryVariableStorage.Enqueue('register');
@@ -212,6 +460,13 @@ codeunit 139683 "Statistical Account Test"
         StatisticalAccount.Insert();
     end;
 
+    local procedure VerifyDemoDataFinancialReport(var AccScheduleOverview: TestPage "Acc. Schedule Overview")
+    begin
+        Assert.AreEqual(EmployeesExpectedAmount, AccScheduleOverview.ColumnValues1.AsInteger(), 'Wrong value for the first column');
+        Assert.AreNotEqual(AccScheduleOverview.ColumnValues2.AsInteger(), 0, 'Wrong value for the second column');
+        Assert.AreNotEqual(AccScheduleOverview.ColumnValues3.AsInteger(), 0, 'Wrong value for the third column');
+    end;
+
     [MessageHandler]
     procedure MessageDialogHandler(Message: Text[1024])
     var
@@ -229,5 +484,77 @@ codeunit 139683 "Statistical Account Test"
         ExpectedQuestion := LibraryVariableStorage.DequeueText();
         Assert.IsTrue(StrPos(Question, ExpectedQuestion) > 0, 'Expected ' + Question);
         Reply := LibraryVariableStorage.DequeueBoolean();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure DimOvervMatrixVerifyCountPageHandler(var AnalysisbyDimensionsMatrix: TestPage "Analysis by Dimensions Matrix")
+    begin
+        AnalysisbyDimensionsMatrix.First();
+        Assert.AreEqual(AnalysisbyDimensionsMatrix.Code.Value(), LibraryVariableStorage.DequeueText(), 'Code value is incorrect');
+        Assert.AreEqual(AnalysisbyDimensionsMatrix.TotalAmount.AsInteger(), LibraryVariableStorage.DequeueInteger(), 'Wrong value for Total Amount');
+        Assert.AreEqual(AnalysisbyDimensionsMatrix.Field1.AsInteger(), LibraryVariableStorage.DequeueInteger(), 'Wrong value for first entry');
+        Assert.AreEqual(AnalysisbyDimensionsMatrix.Field2.AsInteger(), LibraryVariableStorage.DequeueInteger(), 'Wrong value for second entry');
+        Assert.AreEqual(AnalysisbyDimensionsMatrix.Field3.AsInteger(), LibraryVariableStorage.DequeueInteger(), 'Wrong value for third entry');
+    end;
+
+    local procedure CreateFinancialReport(FinancialReportName: Code[10]; TotalingFilter: Text[250])
+    var
+        RevenuePerEmpAccScheduleName: Record "Acc. Schedule Name";
+        RevenuePerEmpAccScheduleLine: Record "Acc. Schedule Line";
+        RevenuePerEmpFinancialReport: Record "Financial Report";
+        ColumnLayoutName: Record "Column Layout Name";
+    begin
+        if RevenuePerEmpFinancialReport.Get(FinancialReportName) then
+            RevenuePerEmpFinancialReport.Delete();
+
+        Clear(RevenuePerEmpFinancialReport);
+        RevenuePerEmpFinancialReport.Name := FinancialReportName;
+        RevenuePerEmpFinancialReport.Description := FinancialReportName;
+        RevenuePerEmpFinancialReport.Insert();
+
+        RevenuePerEmpAccScheduleLine.SetRange("Schedule Name", FinancialReportName);
+        RevenuePerEmpAccScheduleLine.DeleteAll();
+
+        if RevenuePerEmpAccScheduleName.Get(FinancialReportName) then
+            RevenuePerEmpAccScheduleName.Delete();
+
+        RevenuePerEmpAccScheduleName.Name := FinancialReportName;
+        RevenuePerEmpAccScheduleName.Description := FinancialReportName;
+        RevenuePerEmpAccScheduleName."Analysis View Name" := '';
+        RevenuePerEmpAccScheduleName.Insert();
+
+        RevenuePerEmpAccScheduleLine.Init();
+        RevenuePerEmpAccScheduleLine."Schedule Name" := FinancialReportName;
+        RevenuePerEmpAccScheduleLine."Line No." := 10000;
+        RevenuePerEmpAccScheduleLine."Totaling Type" := RevenuePerEmpAccScheduleLine."Totaling Type"::"Statistical Account";
+        RevenuePerEmpAccScheduleLine.Totaling := TotalingFilter;
+        RevenuePerEmpAccScheduleLine."Row No." := '20';
+        RevenuePerEmpAccScheduleLine.Description := FinancialReportName;
+        RevenuePerEmpAccScheduleLine."Row Type" := RevenuePerEmpAccScheduleLine."Row Type"::"Balance at Date";
+        RevenuePerEmpAccScheduleLine.Bold := true;
+        RevenuePerEmpAccScheduleLine.Insert();
+
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+        CreateColumnLayout(ColumnLayoutName.Name, '10', 'Current Period', 10000, '');
+        CreateColumnLayout(ColumnLayoutName.Name, '20', 'Period - 1', 20000, '-1P');
+        CreateColumnLayout(ColumnLayoutName.Name, '30', 'Period - 2', 30000, '-2P');
+
+        RevenuePerEmpFinancialReport.Find();
+        RevenuePerEmpFinancialReport."Financial Report Row Group" := RevenuePerEmpAccScheduleName.Name;
+        RevenuePerEmpFinancialReport."Financial Report Column Group" := ColumnLayoutName.Name;
+        RevenuePerEmpFinancialReport.Modify();
+    end;
+
+    local procedure CreateColumnLayout(ColumnLayoutName: Code[10]; ColumnNo: Code[10]; ColumnHeader: Code[30]; LineNo: Integer; ComparisonPeriodFormula: Text[10])
+    var
+        ColumnLayout: Record "Column Layout";
+    begin
+        ColumnLayout.Validate("Column Layout Name", ColumnLayoutName);
+        ColumnLayout.Validate("Line No.", LineNo);
+        ColumnLayout.Validate("Column No.", ColumnNo);
+        ColumnLayout.Validate("Column Header", ColumnHeader);
+        ColumnLayout.Validate("Comparison Period Formula", ComparisonPeriodFormula);
+        ColumnLayout.Insert();
     end;
 }

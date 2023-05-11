@@ -169,6 +169,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             SalesHeader.Validate(
               "Ship-to Country/Region Code", CopyStr(CRMSalesorder.ShipTo_Country, 1, MaxStrLen(SalesHeader."Ship-to Country/Region Code")));
         SalesHeader.Validate("Ship-to County", CopyStr(CRMSalesorder.ShipTo_StateOrProvince, 1, MaxStrLen(SalesHeader."Ship-to County")));
+        OnAfterCopyShipToInformationIfNotEmpty(CRMSalesorder, SalesHeader);
     end;
 
     local procedure SetLineDescription(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var CRMSalesorderdetail: Record "CRM Salesorderdetail")
@@ -368,10 +369,12 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             exit;
         end;
 
+#if not CLEAN23
         if Rec."Coupled to CRM" then begin
             Rec."Coupled to CRM" := false;
             if Rec.Modify() then;
         end;
+#endif
 
         if CRMIntegrationManagement.RemoveCoupling(Rec.RecordId(), false) then begin
             Session.LogMessage('0000DEY', StrSubstNo(SuccessfullyUncoupledSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), Rec.SystemId, CRMSalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
@@ -844,6 +847,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
             CRMSalesorder.Modify(true);
             Session.LogMessage('0000DF9', StrSubstNo(SuccessfullySetLastBackOfficeSubmitTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId, Format(NewDate)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyShipToInformationIfNotEmpty(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

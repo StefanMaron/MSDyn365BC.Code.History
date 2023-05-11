@@ -12,9 +12,17 @@ codeunit 904 "Whse.-Assembly Release"
     procedure Release(AssemblyHeader: Record "Assembly Header")
     var
         AssemblyLine: Record "Assembly Line";
+        LocationOutput: Record Location;
         OldLocationCode: Code[10];
         First: Boolean;
     begin
+        if AssemblyHeader."Location Code" <> '' then begin
+            LocationOutput.SetLoadFields("Directed Put-away and Pick");
+            if LocationOutput.Get(AssemblyHeader."Location Code") then
+                if LocationOutput."Directed Put-away and Pick" then
+                    AssemblyHeader.TestField("Unit of Measure Code");
+        end;
+
         OldLocationCode := '';
         with AssemblyHeader do begin
             FilterAssemblyLine(AssemblyLine, "Document Type", "No.");

@@ -206,6 +206,19 @@ table 5335 "Integration Table Mapping"
         field(33; "Disable Event Job Resch."; Boolean)
         {
             Caption = 'Disable Event-driven Synch. Job Rescheduling';
+
+            trigger OnValidate()
+            begin
+                if not GuiAllowed() then
+                    exit;
+
+                if Rec."Disable Event Job Resch." then
+                    if not Confirm(DisableEventDrivenReshedulingQst) then
+                        Error('');
+
+                if not Confirm(EnableEventDrivenReshedulingQst) then
+                    Error('');
+            end;
         }
         field(100; "Full Sync is Running"; Boolean)
         {
@@ -270,6 +283,8 @@ table 5335 "Integration Table Mapping"
         RemoveCouplingStrategyQst: Label 'Synch. Only Coupled Records is unchecked. Therefore, if conflict resolution strategy removes a broken coupling, a subsequent scheduled synchronization job may recreate the coupling. Do you want to continue?';
         TelemetryCategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CompanyIdFieldNameTxt: Label 'CompanyId', Locked = true;
+        DisableEventDrivenReshedulingQst: Label 'This will disable the event-based rescheduling of synchronization jobs for this table. \\The frequency of the synchronization job runs is specified in the Inactivity Timeout Period field on the corresponding job queue entry. \\Do you want to continue?';
+        EnableEventDrivenReshedulingQst: Label 'This will enable the event-based rescheduling of synchronization jobs for this table. \\The synchronization job will be rescheduled within 30-60 seconds after an insertion, change or deletion on the corresponding table. \\In case of no changes during a long period, the synchronization job will be rescheduled as specified in the Inactivity Timeout Period field on the corresponding job queue entry. \\Do you want to continue?';
 
     procedure FindFilteredRec(RecordRef: RecordRef; var OutOfMapFilter: Boolean) Found: Boolean
     var
@@ -624,7 +639,6 @@ table 5335 "Integration Table Mapping"
         SynchronizeNow(ResetLastSynchModifiedOnDateTime, false);
     end;
 
-    [Scope('OnPrem')]
     procedure SynchronizeNow(ResetLastSynchModifiedOnDateTime: Boolean; ResetSynchonizationTimestampOnRecords: Boolean)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";

@@ -590,7 +590,7 @@ page 9807 "User Card"
 
         OnPremAskFirstUserToCreateSuper();
 
-        Usermanagement.BasicAuthDepricationNotificationDefault(true);
+        Usermanagement.BasicAuthDepricationNotificationDefault(false);
         if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
             UserManagement.BasicAuthDepricationNotificationShow(BasicAuthDepricationNotification);
     end;

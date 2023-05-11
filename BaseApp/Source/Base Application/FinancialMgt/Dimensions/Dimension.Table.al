@@ -158,6 +158,7 @@ table 348 Dimension
                     GLSetup.Modify();
                 end;
         end;
+        RemoveICDimensionMappings();
     end;
 
     trigger OnInsert()
@@ -578,6 +579,32 @@ table 348 Dimension
     local procedure SetLastModifiedDateTime()
     begin
         "Last Modified Date Time" := CurrentDateTime;
+    end;
+
+    local procedure RemoveICDimensionMappings()
+    var
+        ICDimension: Record "IC Dimension";
+        ICDimensionValue: Record "IC Dimension Value";
+    begin
+        ICDimension.SetRange("Map-to Dimension Code", Rec."Code");
+        if not ICDimension.IsEmpty() then begin
+            ICDimension.FindSet();
+            repeat
+                ICDimensionValue.SetRange("Dimension Code", ICDimension.Code);
+                if not ICDimensionValue.IsEmpty() then begin
+                    ICDimensionValue.FindSet();
+                    repeat
+                        if ICDimensionValue."Map-to Dimension Code" <> '' then begin
+                            ICDimensionValue."Map-to Dimension Code" := '';
+                            ICDimensionValue."Map-to Dimension Value Code" := '';
+                            ICDimensionValue.Modify();
+                        end;
+                    until ICDimensionValue.Next() = 0;
+                end;
+                ICDimension."Map-to Dimension Code" := '';
+                ICDimension.Modify();
+            until ICDimension.Next() = 0;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

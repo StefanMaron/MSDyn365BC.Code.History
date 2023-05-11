@@ -1381,6 +1381,7 @@ xmlport 1602 "Sales Invoice - PEPPOL 2.0"
                 begin
                     PEPPOLMgt.GetLegalMonetaryInfo(
                       SalesHeader,
+                      TempSalesLineRounding,
                       TempVATAmtLine,
                       LineExtensionAmount,
                       LegalMonetaryTotalCurrencyID,
@@ -2007,6 +2008,7 @@ xmlport 1602 "Sales Invoice - PEPPOL 2.0"
         SalesInvoiceLine: Record "Sales Invoice Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        TempSalesLineRounding: Record "Sales Line" temporary;
         PEPPOLMgt: Codeunit "PEPPOL Management";
         SpecifyASalesInvoiceNoErr: Label 'You must specify a sales invoice number.';
         SpecifyAServInvoiceNoErr: Label 'You must specify a service invoice number.';

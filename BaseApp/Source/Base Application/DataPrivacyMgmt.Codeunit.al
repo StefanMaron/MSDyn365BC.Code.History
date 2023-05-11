@@ -409,6 +409,7 @@ codeunit 1180 "Data Privacy Mgmt"
           DATABASE::"Sales Cr.Memo Header",
           DATABASE::"Purch. Rcpt. Header",
           DATABASE::"Purch. Inv. Header",
+          Database::"Purch. Cr. Memo Entity Buffer",
           DATABASE::"Purch. Cr. Memo Hdr.",
           DATABASE::"Sales Header Archive",
           DATABASE::"Purchase Header Archive",

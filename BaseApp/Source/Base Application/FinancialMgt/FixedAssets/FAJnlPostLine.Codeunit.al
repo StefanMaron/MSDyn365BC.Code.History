@@ -124,6 +124,8 @@ codeunit 5632 "FA Jnl.-Post Line"
                     PostFixedAsset();
                 end;
             end;
+            
+            FAInsertLedgEntry.CopyRecordLinksToFALedgEntry(GenJnlLine);
         end;
 
         OnAfterGenJnlPostLine(GenJnlLine);

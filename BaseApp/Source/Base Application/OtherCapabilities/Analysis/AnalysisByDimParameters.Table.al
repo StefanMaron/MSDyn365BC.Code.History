@@ -110,6 +110,11 @@ table 361 "Analysis by Dim. Parameters"
             Caption = 'View as';
             DataClassification = SystemMetadata;
         }
+        field(34; "Analysis Account Source"; Enum "Analysis Account Source")
+        {
+            Caption = 'Analysis Account Source';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

@@ -158,5 +158,10 @@ codeunit 421 "Data Compression Impl."
         ZipArchiveEntry := ZipArchive.CreateEntry(PathInArchive);
         CopyStream(ZipArchiveEntry.Open(), InStreamToAdd);
     end;
+
+    procedure RemoveEntry(PathInArchive: Text)
+    begin
+        ZipArchive.GetEntry(PathInArchive).Delete();
+    end;
 }
 

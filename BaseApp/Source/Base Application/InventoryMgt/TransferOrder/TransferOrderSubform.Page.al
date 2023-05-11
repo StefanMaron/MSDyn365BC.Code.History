@@ -1,4 +1,4 @@
-page 5741 "Transfer Order Subform"
+﻿page 5741 "Transfer Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -117,7 +117,7 @@ page 5741 "Transfer Order Subform"
                 {
                     ApplicationArea = Location;
                     BlankZero = true;
-                    Editable = NOT "Direct Transfer";
+                    Editable = NOT Rec."Direct Transfer";
                     ToolTip = 'Specifies the quantity of items that remains to be received.';
                 }
                 field("Quantity Received"; Rec."Quantity Received")

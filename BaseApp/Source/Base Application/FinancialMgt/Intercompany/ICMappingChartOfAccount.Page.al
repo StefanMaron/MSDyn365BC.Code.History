@@ -45,7 +45,7 @@ page 626 "IC Mapping Chart of Account"
                     var
                         ICAccounts: Record "IC G/L Account";
                         GLAccounts: Record "G/L Account";
-                        ICMappingAccounts: Codeunit "IC Mapping Accounts";
+                        ICMapping: Codeunit "IC Mapping";
                         UserSelection: Integer;
                     begin
                         UserSelection := StrMenu(SelectionOptionsQst, 0, MapAccountsInstructionQst);
@@ -53,20 +53,20 @@ page 626 "IC Mapping Chart of Account"
                             1:
                                 begin
                                     CurrPage.IntercompanyChartOfAccounts.Page.GetSelectedLines(ICAccounts);
-                                    ICMappingAccounts.MapICAccounts(ICAccounts);
+                                    ICMapping.MapICAccounts(ICAccounts);
                                 end;
                             2:
                                 begin
 
                                     CurrPage.CurrentCompanyChartOfAccounts.Page.GetSelectedLines(GLAccounts);
-                                    ICMappingAccounts.MapCompanyAccounts(GLAccounts);
+                                    ICMapping.MapCompanyAccounts(GLAccounts);
                                 end;
                             3:
                                 begin
                                     CurrPage.IntercompanyChartOfAccounts.Page.GetSelectedLines(ICAccounts);
                                     CurrPage.CurrentCompanyChartOfAccounts.Page.GetSelectedLines(GLAccounts);
-                                    ICMappingAccounts.MapICAccounts(ICAccounts);
-                                    ICMappingAccounts.MapCompanyAccounts(GLAccounts);
+                                    ICMapping.MapICAccounts(ICAccounts);
+                                    ICMapping.MapCompanyAccounts(GLAccounts);
                                 end;
                         end;
                     end;
@@ -82,7 +82,7 @@ page 626 "IC Mapping Chart of Account"
                     var
                         ICAccounts: Record "IC G/L Account";
                         GLAccounts: Record "G/L Account";
-                        ICMappingAccounts: Codeunit "IC Mapping Accounts";
+                        ICMapping: Codeunit "IC Mapping";
                         UserSelection: Integer;
                     begin
                         UserSelection := StrMenu(SelectionOptionsQst, 0, RemoveMappingInstructionQst);
@@ -90,19 +90,19 @@ page 626 "IC Mapping Chart of Account"
                             1:
                                 begin
                                     CurrPage.IntercompanyChartOfAccounts.Page.GetSelectedLines(ICAccounts);
-                                    ICMappingAccounts.RemoveICMapping(ICAccounts);
+                                    ICMapping.RemoveICMapping(ICAccounts);
                                 end;
                             2:
                                 begin
                                     CurrPage.CurrentCompanyChartOfAccounts.Page.GetSelectedLines(GLAccounts);
-                                    ICMappingAccounts.RemoveCompanyMapping(GLAccounts);
+                                    ICMapping.RemoveCompanyMapping(GLAccounts);
                                 end;
                             3:
                                 begin
                                     CurrPage.IntercompanyChartOfAccounts.Page.GetSelectedLines(ICAccounts);
                                     CurrPage.CurrentCompanyChartOfAccounts.Page.GetSelectedLines(GLAccounts);
-                                    ICMappingAccounts.RemoveICMapping(ICAccounts);
-                                    ICMappingAccounts.RemoveCompanyMapping(GLAccounts);
+                                    ICMapping.RemoveICMapping(ICAccounts);
+                                    ICMapping.RemoveCompanyMapping(GLAccounts);
                                 end;
                         end;
                     end;

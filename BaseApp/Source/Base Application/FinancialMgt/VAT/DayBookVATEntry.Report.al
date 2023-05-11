@@ -53,10 +53,22 @@ report 2500 "Day Book VAT Entry"
             {
                 AutoFormatType = 1;
             }
+            column(VAT_Entry__NDBase; "VAT Entry"."Non-Deductible VAT Base")
+            {
+                AutoFormatType = 1;
+            }
+            column(VAT_Entry__NDAmount; "VAT Entry"."Non-Deductible VAT Amount")
+            {
+                AutoFormatType = 1;
+            }
             column(Total_for_____FORMAT_Date__Period_Start__0_4__Control41; StrSubstNo(Text002Lbl, Format(Date."Period Start", 0, 4)))
             {
             }
             column(VAT_Entry___Additional_Currency_Base_; "VAT Entry"."Additional-Currency Base")
+            {
+                AutoFormatType = 1;
+            }
+            column(VAT_Entry___Additional_Currency_NDBase_; "VAT Entry"."Non-Deductible VAT Base ACY")
             {
                 AutoFormatType = 1;
             }
@@ -119,6 +131,12 @@ report 2500 "Day Book VAT Entry"
             column(VAT_Entry_AmountCaption; "VAT Entry".FieldCaption(Amount))
             {
             }
+            column(VAT_Entry_NDBaseCaption; "VAT Entry".FieldCaption("Non-Deductible VAT Base"))
+            {
+            }
+            column(VAT_Entry_NDAmountCaption; "VAT Entry".FieldCaption("Non-Deductible VAT Amount"))
+            {
+            }
             column(VAT_Entry__VAT_Base_Discount___Caption; "VAT Entry".FieldCaption("VAT Base Discount %"))
             {
             }
@@ -157,6 +175,14 @@ report 2500 "Day Book VAT Entry"
                     {
                         AutoFormatType = 1;
                     }
+                    column(VAT_Entry_NDBase; "Non-Deductible VAT Base")
+                    {
+                        AutoFormatType = 1;
+                    }
+                    column(VAT_Entry_NDAmount; "Non-Deductible VAT Amount")
+                    {
+                        AutoFormatType = 1;
+                    }
                     column(SellToBuyFromName; SellToBuyFromName)
                     {
                     }
@@ -180,6 +206,14 @@ report 2500 "Day Book VAT Entry"
                         AutoFormatType = 1;
                     }
                     column(VAT_Entry__Additional_Currency_Amount_; "Additional-Currency Amount")
+                    {
+                        AutoFormatType = 1;
+                    }
+                    column(VAT_Entry__Additional_Currency_NDBase_; "Non-Deductible VAT Base ACY")
+                    {
+                        AutoFormatType = 1;
+                    }
+                    column(VAT_Entry__Additional_Currency_NDAmount_; "Non-Deductible VAT Amount ACY")
                     {
                         AutoFormatType = 1;
                     }
@@ -251,6 +285,8 @@ report 2500 "Day Book VAT Entry"
                         SetFilter(Type, Format(Integer.Number));
                         Clear(Base);
                         Clear(Amount);
+                        Clear("Non-Deductible VAT Base");
+                        Clear("Non-Deductible VAT Amount");
                         FilterGroup(0);
                     end;
                 }

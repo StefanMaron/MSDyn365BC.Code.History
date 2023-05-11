@@ -455,6 +455,7 @@ table 5330 "CRM Connection Setup"
         UnitGroupMappingEnabledConfirmLbl: Label 'When you enable unit group mapping integration table mappings will be updated and a data upgrade job to update unit groups will be scheduled. Do you want to enable?';
         UnitGroupMappingEnabledLbl: Label 'Unit group mapping is enabled and a data upgrade job is scheduled. Please wait the job to be completed before you start synchronizing data. Do you want to navigate to the job?';
         ScheduleJobFailedLbl: Label 'Scheduling data upgrade job failed.';
+        DefaultingToDataverseServiceClientTxt: Label 'Defaulting to DataverseServiceClient', Locked = true;
 
     [Scope('OnPrem')]
     procedure EnsureCDSConnectionIsEnabled();
@@ -655,12 +656,12 @@ table 5330 "CRM Connection Setup"
         // then we will connect via OAuth client credentials grant flow, and construct the connection string accordingly, with the actual client secret
         if "Authentication Type" = "Authentication Type"::Office365 then begin
             if ConnectionString.Contains(ClientSecretTok) then begin
-                ConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, "Server Address", CDSIntegrationImpl.GetCDSConnectionClientId(), CDSIntegrationImpl.GetCDSConnectionClientSecret(), "Proxy Version");
+                ConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, "Server Address", CDSIntegrationImpl.GetCDSConnectionClientId(), CDSIntegrationImpl.GetCDSConnectionClientSecret(), GetProxyVersion());
                 exit(ConnectionString);
             end;
 
             if ConnectionString.Contains(CertificateTok) then begin
-                ConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, "Server Address", CDSIntegrationImpl.GetCDSConnectionFirstPartyAppId(), CDSIntegrationImpl.GetCDSConnectionFirstPartyAppCertificate(), "Proxy Version");
+                ConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, "Server Address", CDSIntegrationImpl.GetCDSConnectionFirstPartyAppId(), CDSIntegrationImpl.GetCDSConnectionFirstPartyAppCertificate(), GetProxyVersion());
                 exit(ConnectionString);
             end;
         end;
@@ -1573,6 +1574,20 @@ table 5330 "CRM Connection Setup"
         "Newest UI AppModuleId" := NewestUIAppModuleId();
         if "Newest UI AppModuleId" <> '' then
             "Use Newest UI" := true;
+    end;
+
+    internal procedure GetProxyVersion(): Integer
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+    begin
+        if "Proxy Version" >= 100 then
+            exit("Proxy Version");
+
+        if not EnvironmentInformation.IsSaaS() then
+            exit("Proxy Version");
+
+        Session.LogMessage('0000K7P', DefaultingToDataverseServiceClientTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+        exit(100);
     end;
 
     [IntegrationEvent(false, false)]

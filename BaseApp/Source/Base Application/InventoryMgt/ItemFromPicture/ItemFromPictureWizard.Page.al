@@ -32,7 +32,7 @@ page 7497 "Item From Picture Wizard"
                     label(TourGroup)
                     {
                         ApplicationArea = All;
-                        Caption = 'New from Picture uses the Computer Vision API from Microsoft Cognitive Services to match the images you upload in the New from Picture page with item categories. This makes it easy and fast for you to create items when you have their pictures available.';
+                        Caption = 'New from Picture uses the Computer Vision API from Azure Cognitive Services to match the images you upload in the New from Picture page with item categories. This makes it easy and fast for you to create items when you have their pictures available.';
                     }
                     field(CognitiveServicesLink; CognitiveServicesLinkTxt)
                     {
@@ -64,7 +64,7 @@ page 7497 "Item From Picture Wizard"
                     label(PrivacyNoticeLabel)
                     {
                         ApplicationArea = All;
-                        Caption = 'This feature utilizes Microsoft Cognitive Services. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Cognitive Services may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Microsoft Cognitive Services to learn more.';
+                        CaptionClass = '3,' + PrivacyLabel;
                     }
                     field(PrivacyNoticeLink; PrivacyStatementTxt)
                     {
@@ -80,7 +80,7 @@ page 7497 "Item From Picture Wizard"
                     label(TermsPart)
                     {
                         ApplicationArea = All;
-                        Caption = 'Your use of this feature may be subject to the additional licensing terms in the Microsoft Cognitive Services section of the Online Services Terms.';
+                        Caption = 'Your use of this feature may be subject to the additional licensing terms in the Azure Cognitive Services section of the Online Services Terms.';
                     }
                     field(TermsPartLink; OnlineServicesTermLinkTxt)
                     {
@@ -105,7 +105,6 @@ page 7497 "Item From Picture Wizard"
                     begin
                         ShowSecondStep();
                     end;
-
                 }
             }
 
@@ -185,8 +184,11 @@ page 7497 "Item From Picture Wizard"
     }
 
     trigger OnInit()
+    var
+        LocalPrivacyNotice: Codeunit "Privacy Notice";
     begin
         LoadTopBanners();
+        PrivacyLabel := StrSubstNo(LocalPrivacyNotice.GetDefaultPrivacyAgreementTxt(), AcsNameLbl, ProductName.Full());
     end;
 
     trigger OnOpenPage()
@@ -205,9 +207,11 @@ page 7497 "Item From Picture Wizard"
         FinalStepVisible: Boolean;
         BackActionEnabled: Boolean;
         NextActionEnabled: Boolean;
+        PrivacyLabel: Text;
         PrivacyStatementTxt: Label 'Privacy and cookies';
+        AcsNameLbl: Label 'Azure Cognitive Services', Comment = 'The name of the product Azure Cognitive Services';
         PrivacyStatementLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=831305', Locked = true;
-        CognitiveServicesLinkTxt: Label 'Learn more about Microsoft Cognitive Services';
+        CognitiveServicesLinkTxt: Label 'Learn more about Azure Cognitive Services';
         OnlineServicesTermLinkLinkTxt: Label 'https://www.microsoft.com/en-us/licensing/product-licensing/products.aspx', Locked = true;
         OnlineServicesTermLinkTxt: Label 'Online Services Terms (OST)';
         CognitiveServicesLinkLinkTxt: Label 'http://go.microsoft.com/fwlink/?LinkID=829046', Locked = true;

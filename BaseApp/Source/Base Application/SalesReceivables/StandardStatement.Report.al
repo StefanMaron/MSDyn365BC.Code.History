@@ -394,14 +394,17 @@ report 1316 "Standard Statement"
                         column(OriginalAmt_CustLedgEntry2Caption2; CustLedgEntry2.FieldCaption("Original Amount"))
                         {
                         }
+                        column(OverDueEntries; StrSubstNo(OverdueEntriesLbl, CurrencyCode3))
+                        {
+                        }
+                        column(CurrencyCode3_CustLedgEntry2; CurrencyCode3)
+                        {
+                        }
                         dataitem(CustLedgEntry2; "Cust. Ledger Entry")
                         {
                             DataItemLink = "Customer No." = FIELD("No.");
                             DataItemLinkReference = Customer;
                             DataItemTableView = SORTING("Customer No.", Open, Positive, "Due Date");
-                            column(OverDueEntries; StrSubstNo(OverdueEntriesLbl, TempCurrency2.Code))
-                            {
-                            }
                             column(RemainAmt_CustLedgEntry2; "Remaining Amount")
                             {
                                 AutoFormatExpression = "Currency Code";
@@ -431,9 +434,6 @@ report 1316 "Standard Statement"
                             {
                             }
                             column(Currency2Code_CustLedgEntry2; TempCurrency2.Code)
-                            {
-                            }
-                            column(CurrencyCode3_CustLedgEntry2; CurrencyCode3)
                             {
                             }
                             column(CustNo_CustLedgEntry2; "Customer No.")

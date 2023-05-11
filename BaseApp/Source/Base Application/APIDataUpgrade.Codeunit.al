@@ -122,6 +122,11 @@ codeunit 9994 "API Data Upgrade"
                             UpgradePurchRcptLineDocumentId(false);
                             SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
                         end;
+                    'PURCHASE CREDIT MEMOS':
+                        begin
+                            UpgradePurchaseCreditMemoBuffer();
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
                     else
                         OnAPIDataUpgrade(APIDataUpgrade."Upgrade Tag");
                 end;
@@ -686,6 +691,18 @@ codeunit 9994 "API Data Upgrade"
         end;
     end;
 
+    local procedure UpgradePurchaseCreditMemoBuffer()
+    var
+        GraphMgtPurchCrMemo: Codeunit "Graph Mgt - Purch. Cr. Memo";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        GraphMgtPurchCrMemo.UpdateBufferTableRecords();
+
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaseCreditMemoUpgradeTag()) then
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaseCreditMemoUpgradeTag());
+    end;
+
     local procedure GetSafeRecordCountForSaaSUpgrade(): Integer
     begin
         exit(300000);
@@ -722,6 +739,7 @@ codeunit 9994 "API Data Upgrade"
         APIDataUpgradeEntities.Add('Dimension Values', 'dimensionValues');
         APIDataUpgradeEntities.Add('Accounts', 'accounts');
         APIDataUpgradeEntities.Add('Purchase Receipts', 'purchaseReceipts');
+        APIDataUpgradeEntities.Add('Purchase Credit Memos', 'purchaseCreditMemos');
 
         OnGetAPIDataUpgradeEntities(APIDataUpgradeEntities)
     end;

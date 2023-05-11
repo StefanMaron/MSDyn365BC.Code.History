@@ -993,7 +993,7 @@ page 6510 "Item Tracking Lines"
         NotifyWhenTrackingIsManagedByWhse();
     end;
 
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    trigger OnQueryClosePage(CloseAction: Action) Result: Boolean
     var
         IsHandled: Boolean;
     begin
@@ -1007,9 +1007,10 @@ page 6510 "Item Tracking Lines"
                 CurrPage.Update();
 
             IsHandled := false;
-            OnQueryClosePageOnBeforeConfirmClosePage(Rec, IsHandled, CurrentRunMode);
+            Result := true;
+            OnQueryClosePageOnBeforeConfirmClosePage(Rec, IsHandled, CurrentRunMode, Result);
             if IsHandled then
-                Exit(true);
+                exit(Result);
 
             exit(Confirm(AvailabilityWarningsQst, true));
         end;
@@ -3636,7 +3637,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnQueryClosePageOnBeforeConfirmClosePage(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; CurrentRunMode: Enum "Item Tracking Run Mode")
+    local procedure OnQueryClosePageOnBeforeConfirmClosePage(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; CurrentRunMode: Enum "Item Tracking Run Mode"; var Result: Boolean)
     begin
     end;
 

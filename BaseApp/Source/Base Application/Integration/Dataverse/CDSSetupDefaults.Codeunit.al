@@ -1031,6 +1031,59 @@ codeunit 7204 "CDS Setup Defaults"
             JobQueueEntry.Insert(true);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Setup Defaults", 'OnGetCDSTableNo', '', false, false)]
+    local procedure ReturnProxyTableNoOnGetCDSTableNo(BCTableNo: Integer; var CDSTableNo: Integer; var handled: Boolean)
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        if handled then
+            exit;
+
+        if not CDSConnectionSetup.Get() then
+            exit;
+
+        if not CDSConnectionSetup."Is Enabled" then
+            exit;
+
+        case BCTableNo of
+            DATABASE::Contact:
+                CDSTableNo := DATABASE::"CRM Contact";
+            DATABASE::Currency:
+                CDSTableNo := DATABASE::"CRM Transactioncurrency";
+            DATABASE::Customer,
+            DATABASE::Vendor:
+                CDSTableNo := DATABASE::"CRM Account";
+            DATABASE::"Salesperson/Purchaser":
+                CDSTableNo := DATABASE::"CRM Systemuser";
+            DATABASE::"Payment Terms":
+                CDSTableNo := DATABASE::"CRM Payment Terms";
+            DATABASE::"Shipment Method":
+                CDSTableNo := DATABASE::"CRM Freight Terms";
+            DATABASE::"Shipping Agent":
+                CDSTableNo := DATABASE::"CRM Shipping Method";
+        end;
+
+        if CDSTableNo <> 0 then
+            handled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Setup Defaults", 'OnAddEntityTableMapping', '', false, false)]
+    local procedure AddProxyTablesOnAddEntityTableMapping(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+    begin
+        if not CDSConnectionSetup.Get() then
+            exit;
+
+        if not CDSConnectionSetup."Is Enabled" then
+            exit;
+
+        TempNameValueBuffer.ID := TempNameValueBuffer.Count() + 1;
+        TempNameValueBuffer.Name := 'account';
+        TempNameValueBuffer.Value := Format(Database::Vendor);
+        TempNameValueBuffer.Insert();
+    end;
+
     procedure GetDefaultDirection(NAVTableID: Integer): Integer
     var
         IntegrationTableMapping: Record "Integration Table Mapping";

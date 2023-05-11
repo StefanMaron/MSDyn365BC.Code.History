@@ -618,7 +618,7 @@ codeunit 99000787 "Create Prod. Order Lines"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterProdOrderLineInsert(var ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var NextProdOrderLineNo: Integer)
     begin
     end;

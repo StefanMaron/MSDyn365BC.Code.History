@@ -88,6 +88,8 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = r,
                   tabledata "VAT Setup Posting Groups" = r,
+                  tabledata "VAT Setup" = R,
+                  tabledata "VAT Posting Parameters" = R,
                   tabledata "Vendor Ledger Entry" = r,
                   tabledata "Vendor Posting Group" = r;
 }

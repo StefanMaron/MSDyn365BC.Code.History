@@ -1645,6 +1645,61 @@ codeunit 134263 "Test Bank Payment Application"
         BankAccountStatement.TestField("Statement Date", StatementDate);
     end;
 
+    [Test]
+    [HandlerFunctions('CreatePaymentWithPostingModalPageHandler,SelectTemplatePageHandler')]
+    procedure ApplicationsToTheSameEntryShouldErrorInPaymentRecJournal()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary;
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        GeneralJournalTemplateList: Page "General Journal Template List";
+        PaymentJournal: TestPage "Payment Journal";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+        ExpectedErr: Text;
+    begin
+        // [SCENARIO] If entries are being applied through a Payment Journal, if shouldn't be possible to apply them to a Payment Rec. Journal.
+        // [GIVEN] A purchase invoice
+        CreateVendAndPostPurchInvoice(VendorLedgerEntry, '');
+        VendorLedgerEntry.CalcFields(Amount);
+        // [GIVEN] Payment created for this purchase invoice
+        PaymentJournal.Trap();
+        LibraryVariableStorage.Enqueue('DOC01');
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(WorkDate());
+        VendorLedgerEntries.OpenView();
+        VendorLedgerEntries.GoToRecord(VendorLedgerEntry);
+
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
+        if GenJournalTemplate.Count() < 2 then // f. ex.: RU has 2 Payment Gen. Jnl Templates in demo database which triggers an extra page onopen
+            GeneralJournalTemplateList.RunModal();
+
+        VendorLedgerEntries."Create Payment".Invoke();
+
+        PaymentJournal.Close();
+        // [GIVEN] A payment reconciliation journal with a line for that amount
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Payment Application");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
+        BankAccReconciliationLine.Validate("Statement Amount", -VendorLedgerEntry.Amount);
+        BankAccReconciliationLine.Validate("Applied Amount", 0);
+        BankAccReconciliationLine.Modify(true);
+        // [WHEN] Attempting to apply to this entry in the payment reconciliation journal
+        TempPaymentApplicationProposal.TransferFromBankAccReconLine(BankAccReconciliationLine);
+        TempPaymentApplicationProposal."Account Type" := TempPaymentApplicationProposal."Account Type"::Vendor;
+        TempPaymentApplicationProposal."Account No." := VendorLedgerEntry."Vendor No.";
+        TempPaymentApplicationProposal."Applies-to Entry No." := VendorLedgerEntry."Entry No.";
+        TempPaymentApplicationProposal.Insert();
+        // [THEN] An error should occur
+        asserterror TempPaymentApplicationProposal.Validate(Applied, true);
+        ExpectedErr := 'This entry has an ongoing application process';
+        Assert.IsTrue(CopyStr(GetLastErrorText(), 1, StrLen(ExpectedErr)) = ExpectedErr, 'The error shown should be that the entry has been applied in another journal.');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1976,5 +2031,25 @@ codeunit 134263 "Test Bank Payment Application"
         PostPmtsAndRecBankAcc.StatementDate.SetValue(LibraryVariableStorage.DequeueDate());
         PostPmtsAndRecBankAcc.OK.Invoke();
     end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CreatePaymentWithPostingModalPageHandler(var CreatePayment: TestPage "Create Payment")
+    var
+        StartingDocumentNo: Text;
+    begin
+        StartingDocumentNo := LibraryVariableStorage.DequeueText();
+        CreatePayment."Bank Account".SetValue(LibraryVariableStorage.DequeueText());
+        CreatePayment."Posting Date".SetValue(LibraryVariableStorage.DequeueDate());
+        CreatePayment."Starting Document No.".SetValue(StartingDocumentNo);
+        CreatePayment.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SelectTemplatePageHandler(var Page: TestPage "General Journal Template List")
+    begin
+        Page.OK.Invoke();
+    end;
+
 }
 

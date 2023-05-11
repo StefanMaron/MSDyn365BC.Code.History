@@ -16,7 +16,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         ReservMgt: Codeunit "Reservation Management";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         Blocked: Boolean;
         ApplySpecificItemTracking: Boolean;
@@ -381,20 +381,27 @@ codeunit 99000834 "Purch. Line-Reserve"
         exit(DeleteItemTracking);
     end;
 
-    procedure DeleteLine(var PurchLine: Record "Purchase Line")
+    procedure DeleteLine(var PurchaseLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteLine(PurchaseLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if Blocked then
             exit;
 
-        with PurchLine do begin
-            ReservMgt.SetReservSource(PurchLine);
+        with PurchaseLine do begin
+            ReservMgt.SetReservSource(PurchaseLine);
             if DeleteItemTracking then
                 ReservMgt.SetItemTrackingHandling(1); // Allow Deletion
             ReservMgt.DeleteReservEntries(true, 0);
-            DeleteInvoiceSpecFromLine(PurchLine);
+            DeleteInvoiceSpecFromLine(PurchaseLine);
             ReservMgt.ClearActionMessageReferences();
             CalcFields("Reserved Qty. (Base)");
-            AssignForPlanning(PurchLine);
+            AssignForPlanning(PurchaseLine);
         end;
     end;
 
@@ -422,31 +429,36 @@ codeunit 99000834 "Purch. Line-Reserve"
         Blocked := SetBlocked;
     end;
 
-    procedure CallItemTracking(var PurchLine: Record "Purchase Line")
+    procedure CallItemTracking(var PurchaseLine: Record "Purchase Line")
     var
         TrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
         ShouldProcessDropShipment: Boolean;
+        IsHandled: Boolean;
     begin
-        TrackingSpecification.InitFromPurchLine(PurchLine);
-        if ((PurchLine."Document Type" = PurchLine."Document Type"::Invoice) and
-            (PurchLine."Receipt No." <> '')) or
-           ((PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo") and
-            (PurchLine."Return Shipment No." <> ''))
-        then
-            ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Combined Ship/Rcpt");
-        ShouldProcessDropShipment := PurchLine."Drop Shipment";
-        OnCallItemTrackingOnAfterCalcShouldProcessDropShipment(PurchLine, ShouldProcessDropShipment, ItemTrackingLines);
-        if ShouldProcessDropShipment then begin
-            ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Drop Shipment");
-            if PurchLine."Sales Order No." <> '' then
-                ItemTrackingLines.SetSecondSourceRowID(ItemTrackingMgt.ComposeRowID(DATABASE::"Sales Line",
-                    1, PurchLine."Sales Order No.", '', 0, PurchLine."Sales Order Line No."));
+        IsHandled := false;
+        OnBeforeCallItemTracking(PurchaseLine, IsHandled);
+        if not IsHandled then begin
+            TrackingSpecification.InitFromPurchLine(PurchaseLine);
+            if ((PurchaseLine."Document Type" = PurchaseLine."Document Type"::Invoice) and
+                (PurchaseLine."Receipt No." <> '')) or
+            ((PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Credit Memo") and
+                (PurchaseLine."Return Shipment No." <> ''))
+            then
+                ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Combined Ship/Rcpt");
+            ShouldProcessDropShipment := PurchaseLine."Drop Shipment";
+            OnCallItemTrackingOnAfterCalcShouldProcessDropShipment(PurchaseLine, ShouldProcessDropShipment, ItemTrackingLines);
+            if ShouldProcessDropShipment then begin
+                ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Drop Shipment");
+                if PurchaseLine."Sales Order No." <> '' then
+                    ItemTrackingLines.SetSecondSourceRowID(ItemTrackingManagement.ComposeRowID(DATABASE::"Sales Line",
+                        1, PurchaseLine."Sales Order No.", '', 0, PurchaseLine."Sales Order Line No."));
+            end;
+            ItemTrackingLines.SetSourceSpec(TrackingSpecification, PurchaseLine."Expected Receipt Date");
+            ItemTrackingLines.SetInbound(PurchaseLine.IsInbound());
+            OnCallItemTrackingOnBeforeItemTrackingFormRunModal(PurchaseLine, ItemTrackingLines);
+            RunItemTrackingLinesPage(ItemTrackingLines);
         end;
-        ItemTrackingLines.SetSourceSpec(TrackingSpecification, PurchLine."Expected Receipt Date");
-        ItemTrackingLines.SetInbound(PurchLine.IsInbound());
-        OnCallItemTrackingOnBeforeItemTrackingFormRunModal(PurchLine, ItemTrackingLines);
-        RunItemTrackingLinesPage(ItemTrackingLines);
     end;
 
     procedure CallItemTracking(var PurchLine: Record "Purchase Line"; SecondSourceQuantityArray: array[3] of Decimal)
@@ -494,7 +506,7 @@ codeunit 99000834 "Purch. Line-Reserve"
             OK := RetrieveInvoiceSpecification2(PurchLine, TempInvoicingSpecification)
         else begin
             SourceSpecification.InitFromPurchLine(PurchLine);
-            OK := ItemTrackingMgt.RetrieveInvoiceSpecification(SourceSpecification, TempInvoicingSpecification);
+            OK := ItemTrackingManagement.RetrieveInvoiceSpecification(SourceSpecification, TempInvoicingSpecification);
         end;
     end;
 
@@ -533,13 +545,13 @@ codeunit 99000834 "Purch. Line-Reserve"
 
     procedure DeleteInvoiceSpecFromHeader(PurchHeader: Record "Purchase Header")
     begin
-        ItemTrackingMgt.DeleteInvoiceSpecFromHeader(
+        ItemTrackingManagement.DeleteInvoiceSpecFromHeader(
           DATABASE::"Purchase Line", PurchHeader."Document Type".AsInteger(), PurchHeader."No.");
     end;
 
     procedure DeleteInvoiceSpecFromLine(PurchLine: Record "Purchase Line")
     begin
-        ItemTrackingMgt.DeleteInvoiceSpecFromLine(
+        ItemTrackingManagement.DeleteInvoiceSpecFromLine(
           DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", PurchLine."Line No.");
     end;
 
@@ -827,6 +839,11 @@ codeunit 99000834 "Purch. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferPurchLineToItemJnlLine(var PurchaseLine: Record "Purchase Line"; var ItemJournalLine: Record "Item Journal Line"; TransferQty: Decimal; var CheckApplToItemEntry: Boolean; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -903,6 +920,11 @@ codeunit 99000834 "Purch. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateReservation(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCallItemTracking(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

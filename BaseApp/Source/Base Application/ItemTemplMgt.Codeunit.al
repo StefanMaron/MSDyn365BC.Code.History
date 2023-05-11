@@ -129,7 +129,14 @@ codeunit 1336 "Item Templ. Mgt."
     local procedure SelectItemTemplate(var ItemTempl: Record "Item Templ."): Boolean
     var
         SelectItemTemplList: Page "Select Item Templ. List";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSelectItemTemplate(ItemTempl, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         if ItemTempl.Count = 1 then begin
             ItemTempl.FindFirst();
             exit(true);
@@ -621,6 +628,11 @@ codeunit 1336 "Item Templ. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyTemplateOnBeforeValidateFields(var ItemRecRef: RecordRef; var ItemTemplRecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSelectItemTemplate(ItemTempl: Record "Item Templ."; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 }

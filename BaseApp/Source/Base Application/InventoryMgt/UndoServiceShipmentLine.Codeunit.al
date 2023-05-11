@@ -370,6 +370,7 @@ codeunit 5818 "Undo Service Shipment Line"
             OnBeforePostResJnlLine(ResJnlLine, ServiceShptLine, IsHandled);
             if not IsHandled then
                 ResJnlPostLine.RunWithCheck(ResJnlLine);
+            OnPostResJnlLineOnAfterRunWithCheck(ResJnlLine, ServiceShptLine);
         end;
 
         TimeSheetMgt.CreateTSLineFromServiceShptLine(ServiceShptLine);
@@ -469,6 +470,11 @@ codeunit 5818 "Undo Service Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnItemJnlPostLineOnAfterItemShptEntryNoOnBeforeExit(var ItemJournalLine: Record "Item Journal Line"; var ServiceShipmentLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostResJnlLineOnAfterRunWithCheck(var ResJournalLine: Record "Res. Journal Line"; var ServiceShipmentLine: Record "Service Shipment Line")
     begin
     end;
 }

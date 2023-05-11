@@ -155,6 +155,10 @@ report 496 "Batch Post Purchase Orders"
             UserSetupManagement: Codeunit "User Setup Management";
             Receive: Boolean;
         begin
+            if not VATReportingDateMgt.IsVATDateEnabled() then begin
+                ReplaceVATDateReq := ReplacePostingDate;
+                VATDateReq := PostingDateReq;
+            end;
             if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
                 exit;
             PurchasesPayablesSetup.Get();
@@ -164,8 +168,7 @@ report 496 "Batch Post Purchase Orders"
             VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
             UserSetupManagement.GetPurchaseInvoicePostingPolicy(Receive, InvReq);
             PostInvoiceEditable := not Receive;
-
-            OnAfterOnOpenPage(ReceiveReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc);
+            OnAfterOnOpenPage(ReceiveReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc, ReplaceVATDateReq, VATDateReq);
         end;
     }
 
@@ -233,7 +236,7 @@ report 496 "Batch Post Purchase Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnOpenPage(var ReceiveReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean)
+    local procedure OnAfterOnOpenPage(var ReceiveReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean; var ReplaceVATDateReq: Boolean; var VATDateReq: Date)
     begin
     end;
 

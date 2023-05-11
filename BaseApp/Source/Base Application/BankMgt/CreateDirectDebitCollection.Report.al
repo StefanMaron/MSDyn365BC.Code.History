@@ -11,7 +11,7 @@
             RequestFilterFields = "Currency Code", "Country/Region Code";
             dataitem("Cust. Ledger Entry"; "Cust. Ledger Entry")
             {
-                DataItemLink = "Customer No." = FIELD("No.");
+                DataItemLink = "Customer No." = FIELD("No."), "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"), "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"), "Currency Code" = FIELD("Currency Filter"), "Date Filter" = FIELD("Date Filter");
                 DataItemTableView = SORTING(Open, "Due Date") WHERE(Open = CONST(true), "Document Type" = CONST(Invoice));
 
                 trigger OnAfterGetRecord()

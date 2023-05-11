@@ -456,9 +456,12 @@ codeunit 5496 "Graph Mgt - Sales Order Buffer"
                 SalesInvoiceLineAggregate."Line No." := 10000;
 
             SalesLine."Line No." := SalesInvoiceLineAggregate."Line No.";
-        end else
+        end else begin
             if SalesLine.Get(SalesLine."Document Type"::Order, SalesOrderEntityBuffer."No.", SalesInvoiceLineAggregate."Line No.") then
                 Error(CannotInsertALineThatAlreadyExistsErr);
+
+            SalesLine."Line No." := SalesInvoiceLineAggregate."Line No.";
+        end;
 
         SalesLine.Insert(true);
         TransferSalesInvoiceLineAggregateToSalesLine(SalesInvoiceLineAggregate, SalesLine, TempFieldBuffer);

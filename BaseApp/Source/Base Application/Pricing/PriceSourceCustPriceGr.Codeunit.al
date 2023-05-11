@@ -64,5 +64,12 @@ codeunit 7033 "Price Source - Cust. Price Gr." implements "Price Source"
         PriceSource."Allow Line Disc." := CustomerPriceGroup."Allow Line Disc.";
         PriceSource."Price Includes VAT" := CustomerPriceGroup."Price Includes VAT";
         PriceSource."VAT Bus. Posting Gr. (Price)" := CustomerPriceGroup."VAT Bus. Posting Gr. (Price)";
+
+        OnAfterFillAdditionalFields(PriceSource, CustomerPriceGroup);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillAdditionalFields(var PriceSource: Record "Price Source"; CustomerPriceGroup: Record "Customer Price Group")
+    begin
     end;
 }

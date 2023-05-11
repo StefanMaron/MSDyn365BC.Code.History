@@ -173,10 +173,25 @@ page 30113 "Shpfy Order"
                     Importance = Additional;
                     ToolTip = 'Specifies the reason why the order was cancelled. Valid values are: customer, fraud, inventory, declined, other.';
                 }
+                field(AppName; Rec."App Name")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'The name of the app used by the channel where you sell your products. A channel can be a platform or a marketplace such as an online store or POS.';
+                }
+                field(ChannelName; Rec."Channel Name")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'The name of the channel where you sell your products. A channel can be a platform or a marketplace such as an online store or POS.';
+                }
                 field(SourceName; Rec."Source Name")
                 {
                     ApplicationArea = All;
                     Editable = false;
+                    Visible = false;
                     Importance = Additional;
                     ToolTip = 'Specifies where the order is originated. Example values: web, pos, iphone, android.';
                 }

@@ -1,4 +1,4 @@
-codeunit 99000835 "Item Jnl. Line-Reserve"
+﻿codeunit 99000835 "Item Jnl. Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd;
 
@@ -8,59 +8,59 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
     var
         FromTrackingSpecification: Record "Tracking Specification";
-        ReservMgt: Codeunit "Reservation Management";
+        ReservationManagement: Codeunit "Reservation Management";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
+        ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
         Blocked: Boolean;
         DeleteItemTracking: Boolean;
 
-        Text000: Label 'Reserved quantity cannot be greater than %1';
-        Text002: Label 'must be filled in when a quantity is reserved';
-        Text003: Label 'must not be filled in when a quantity is reserved';
-        Text004: Label 'must not be changed when a quantity is reserved';
-        Text005: Label 'Codeunit is not initialized correctly.';
-        Text006: Label 'You cannot define item tracking on %1 %2';
+        Text000Err: Label 'Reserved quantity cannot be greater than %1', Comment = '%1 - quantity';
+        Text002Err: Label 'must be filled in when a quantity is reserved';
+        Text003Err: Label 'must not be filled in when a quantity is reserved';
+        Text004Err: Label 'must not be changed when a quantity is reserved';
+        Text005Err: Label 'Codeunit is not initialized correctly.';
+        Text006Err: Label 'You cannot define item tracking on %1 %2', Comment = '%1 - Operation No. caption, %2 - Operation No. value';
 
-    procedure CreateReservation(var ItemJnlLine: Record "Item Journal Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservEntry: Record "Reservation Entry")
+    procedure CreateReservation(var ItemJournalLine: Record "Item Journal Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservationEntry: Record "Reservation Entry")
     var
         ShipmentDate: Date;
         IsHandled: Boolean;
     begin
         if FromTrackingSpecification."Source Type" = 0 then
-            Error(Text005);
+            Error(Text005Err);
 
-        ItemJnlLine.TestField("Item No.");
-        ItemJnlLine.TestField("Posting Date");
-        ItemJnlLine.CalcFields("Reserved Qty. (Base)");
-        if Abs(ItemJnlLine."Quantity (Base)") <
-           Abs(ItemJnlLine."Reserved Qty. (Base)") + QuantityBase
+        ItemJournalLine.TestField("Item No.");
+        ItemJournalLine.TestField("Posting Date");
+        ItemJournalLine.CalcFields("Reserved Qty. (Base)");
+        if Abs(ItemJournalLine."Quantity (Base)") <
+           Abs(ItemJournalLine."Reserved Qty. (Base)") + QuantityBase
         then
             Error(
-              Text000,
-              Abs(ItemJnlLine."Quantity (Base)") - Abs(ItemJnlLine."Reserved Qty. (Base)"));
+              Text000Err,
+              Abs(ItemJournalLine."Quantity (Base)") - Abs(ItemJournalLine."Reserved Qty. (Base)"));
 
-        ItemJnlLine.TestField("Location Code", FromTrackingSpecification."Location Code");
-        ItemJnlLine.TestField("Variant Code", FromTrackingSpecification."Variant Code");
+        ItemJournalLine.TestField("Location Code", FromTrackingSpecification."Location Code");
+        ItemJournalLine.TestField("Variant Code", FromTrackingSpecification."Variant Code");
 
         if QuantityBase > 0 then
-            ShipmentDate := ItemJnlLine."Posting Date"
+            ShipmentDate := ItemJournalLine."Posting Date"
         else begin
             ShipmentDate := ExpectedReceiptDate;
-            ExpectedReceiptDate := ItemJnlLine."Posting Date";
+            ExpectedReceiptDate := ItemJournalLine."Posting Date";
         end;
 
         IsHandled := false;
-        OnCreateReservationOnBeforeCreateReservEntry(ItemJnlLine, Quantity, QuantityBase, ForReservEntry, IsHandled);
+        OnCreateReservationOnBeforeCreateReservEntry(ItemJournalLine, Quantity, QuantityBase, ForReservationEntry, IsHandled);
         if not IsHandled then begin
             CreateReservEntry.CreateReservEntryFor(
                 DATABASE::"Item Journal Line",
-                ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name",
-                ItemJnlLine."Journal Batch Name", 0, ItemJnlLine."Line No.", ItemJnlLine."Qty. per Unit of Measure",
-                Quantity, QuantityBase, ForReservEntry);
+                ItemJournalLine."Entry Type".AsInteger(), ItemJournalLine."Journal Template Name",
+                ItemJournalLine."Journal Batch Name", 0, ItemJournalLine."Line No.", ItemJournalLine."Qty. per Unit of Measure",
+                Quantity, QuantityBase, ForReservationEntry);
             CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
         end;
         CreateReservEntry.CreateReservEntry(
-            ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Location Code",
+            ItemJournalLine."Item No.", ItemJournalLine."Variant Code", ItemJournalLine."Location Code",
             Description, ExpectedReceiptDate, ShipmentDate, 0);
 
         FromTrackingSpecification."Source Type" := 0;
@@ -71,289 +71,288 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         FromTrackingSpecification := TrackingSpecification;
     end;
 
-    procedure Caption(ItemJnlLine: Record "Item Journal Line") CaptionText: Text
+    procedure Caption(ItemJournalLine: Record "Item Journal Line") CaptionText: Text
     begin
-        CaptionText := ItemJnlLine.GetSourceCaption();
+        CaptionText := ItemJournalLine.GetSourceCaption();
     end;
 
-    procedure FindReservEntry(ItemJnlLine: Record "Item Journal Line"; var ReservEntry: Record "Reservation Entry"): Boolean
+    procedure FindReservEntry(ItemJournalLine: Record "Item Journal Line"; var ReservationEntry: Record "Reservation Entry"): Boolean
     begin
-        ReservEntry.InitSortingAndFilters(false);
-        ItemJnlLine.SetReservationFilters(ReservEntry);
-        exit(ReservEntry.FindLast());
+        ReservationEntry.InitSortingAndFilters(false);
+        ItemJournalLine.SetReservationFilters(ReservationEntry);
+        exit(ReservationEntry.FindLast());
     end;
 
-    procedure ReservEntryExist(ItemJnlLine: Record "Item Journal Line"): Boolean
+    procedure ReservEntryExist(ItemJournalLine: Record "Item Journal Line"): Boolean
     begin
-        exit(ItemJnlLine.ReservEntryExist());
+        exit(ItemJournalLine.ReservEntryExist());
     end;
 
-    procedure VerifyChange(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line")
+    procedure VerifyChange(var NewItemJournalLine: Record "Item Journal Line"; var OldItemJournalLine: Record "Item Journal Line")
     var
-        ItemJnlLine: Record "Item Journal Line";
-        TempReservEntry: Record "Reservation Entry";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
         ShowError: Boolean;
         HasError: Boolean;
         PointerChanged: Boolean;
     begin
         if Blocked then
             exit;
-        if NewItemJnlLine."Line No." = 0 then
-            if not ItemJnlLine.Get(
-                 NewItemJnlLine."Journal Template Name",
-                 NewItemJnlLine."Journal Batch Name",
-                 NewItemJnlLine."Line No.")
+        if NewItemJournalLine."Line No." = 0 then
+            if not ItemJournalLine.Get(
+                 NewItemJournalLine."Journal Template Name",
+                 NewItemJournalLine."Journal Batch Name",
+                 NewItemJournalLine."Line No.")
             then
                 exit;
 
-        NewItemJnlLine.CalcFields("Reserved Qty. (Base)");
-        ShowError := NewItemJnlLine."Reserved Qty. (Base)" <> 0;
+        NewItemJournalLine.CalcFields("Reserved Qty. (Base)");
+        ShowError := NewItemJournalLine."Reserved Qty. (Base)" <> 0;
 
-        if NewItemJnlLine."Posting Date" = 0D then
+        if NewItemJournalLine."Posting Date" = 0D then
             if ShowError then
-                NewItemJnlLine.FieldError("Posting Date", Text002)
+                NewItemJournalLine.FieldError("Posting Date", Text002Err)
             else
                 HasError := true;
 
-        if NewItemJnlLine."Drop Shipment" then
+        if NewItemJournalLine."Drop Shipment" then
             if ShowError then
-                NewItemJnlLine.FieldError("Drop Shipment", Text003)
+                NewItemJournalLine.FieldError("Drop Shipment", Text003Err)
             else
                 HasError := true;
 
-        if NewItemJnlLine."Item No." <> OldItemJnlLine."Item No." then
+        if NewItemJournalLine."Item No." <> OldItemJournalLine."Item No." then
             if ShowError then
-                NewItemJnlLine.FieldError("Item No.", Text004)
+                NewItemJournalLine.FieldError("Item No.", Text004Err)
             else
                 HasError := true;
 
-        if NewItemJnlLine."Entry Type" <> OldItemJnlLine."Entry Type" then
+        if NewItemJournalLine."Entry Type" <> OldItemJournalLine."Entry Type" then
             if ShowError then
-                NewItemJnlLine.FieldError("Entry Type", Text004)
+                NewItemJournalLine.FieldError("Entry Type", Text004Err)
             else
                 HasError := true;
 
-        if (NewItemJnlLine."Entry Type" = NewItemJnlLine."Entry Type"::Transfer) and
-           (NewItemJnlLine."Quantity (Base)" < 0)
+        if (NewItemJournalLine."Entry Type" = NewItemJournalLine."Entry Type"::Transfer) and
+           (NewItemJournalLine."Quantity (Base)" < 0)
         then begin
-            if NewItemJnlLine."New Location Code" <> OldItemJnlLine."Location Code" then
+            if NewItemJournalLine."New Location Code" <> OldItemJournalLine."Location Code" then
                 if ShowError then
-                    NewItemJnlLine.FieldError("New Location Code", Text004)
+                    NewItemJournalLine.FieldError("New Location Code", Text004Err)
                 else
                     HasError := true;
-            if NewItemJnlLine."New Bin Code" <> OldItemJnlLine."Bin Code" then
-                if ItemTrackingMgt.GetWhseItemTrkgSetup(NewItemJnlLine."Item No.") then
+            if NewItemJournalLine."New Bin Code" <> OldItemJournalLine."Bin Code" then
+                if ItemTrackingManagement.GetWhseItemTrkgSetup(NewItemJournalLine."Item No.") then
                     if ShowError then
-                        NewItemJnlLine.FieldError("New Bin Code", Text004)
+                        NewItemJournalLine.FieldError("New Bin Code", Text004Err)
                     else
                         HasError := true;
         end else begin
-            if NewItemJnlLine."Location Code" <> OldItemJnlLine."Location Code" then
+            if NewItemJournalLine."Location Code" <> OldItemJournalLine."Location Code" then
                 if ShowError then
-                    NewItemJnlLine.FieldError("Location Code", Text004)
+                    NewItemJournalLine.FieldError("Location Code", Text004Err)
                 else
                     HasError := true;
-            if (NewItemJnlLine."Bin Code" <> OldItemJnlLine."Bin Code") and
-               (not ReservMgt.CalcIsAvailTrackedQtyInBin(
-                  NewItemJnlLine."Item No.", NewItemJnlLine."Bin Code",
-                  NewItemJnlLine."Location Code", NewItemJnlLine."Variant Code",
-                  DATABASE::"Item Journal Line", NewItemJnlLine."Entry Type".AsInteger(),
-                  NewItemJnlLine."Journal Template Name", NewItemJnlLine."Journal Batch Name",
-                  0, NewItemJnlLine."Line No."))
+            if (NewItemJournalLine."Bin Code" <> OldItemJournalLine."Bin Code") and
+               (not ReservationManagement.CalcIsAvailTrackedQtyInBin(
+                  NewItemJournalLine."Item No.", NewItemJournalLine."Bin Code",
+                  NewItemJournalLine."Location Code", NewItemJournalLine."Variant Code",
+                  DATABASE::"Item Journal Line", NewItemJournalLine."Entry Type".AsInteger(),
+                  NewItemJournalLine."Journal Template Name", NewItemJournalLine."Journal Batch Name",
+                  0, NewItemJournalLine."Line No."))
             then begin
                 if ShowError then
-                    NewItemJnlLine.FieldError("Bin Code", Text004);
+                    NewItemJournalLine.FieldError("Bin Code", Text004Err);
                 HasError := true;
             end;
         end;
-        if NewItemJnlLine."Variant Code" <> OldItemJnlLine."Variant Code" then
+        if NewItemJournalLine."Variant Code" <> OldItemJournalLine."Variant Code" then
             if ShowError then
-                NewItemJnlLine.FieldError("Variant Code", Text004)
+                NewItemJournalLine.FieldError("Variant Code", Text004Err)
             else
                 HasError := true;
-        if NewItemJnlLine."Line No." <> OldItemJnlLine."Line No." then
+        if NewItemJournalLine."Line No." <> OldItemJournalLine."Line No." then
             HasError := true;
 
-        OnVerifyChangeOnBeforeHasError(NewItemJnlLine, OldItemJnlLine, HasError, ShowError);
+        OnVerifyChangeOnBeforeHasError(NewItemJournalLine, OldItemJournalLine, HasError, ShowError);
 
         if HasError then begin
-            FindReservEntry(NewItemJnlLine, TempReservEntry);
-            TempReservEntry.ClearTrackingFilter();
+            FindReservEntry(NewItemJournalLine, ReservationEntry);
+            ReservationEntry.ClearTrackingFilter();
 
-            PointerChanged := (NewItemJnlLine."Item No." <> OldItemJnlLine."Item No.") or
-              (NewItemJnlLine."Entry Type" <> OldItemJnlLine."Entry Type");
+            PointerChanged := (NewItemJournalLine."Item No." <> OldItemJournalLine."Item No.") or
+              (NewItemJournalLine."Entry Type" <> OldItemJournalLine."Entry Type");
 
-            if PointerChanged or
-               (not TempReservEntry.IsEmpty)
-            then
+            if PointerChanged or (not ReservationEntry.IsEmpty()) then
                 if PointerChanged then begin
-                    ReservMgt.SetReservSource(OldItemJnlLine);
-                    ReservMgt.DeleteReservEntries(true, 0);
-                    ReservMgt.SetReservSource(NewItemJnlLine);
+                    ReservationManagement.SetReservSource(OldItemJournalLine);
+                    ReservationManagement.DeleteReservEntries(true, 0);
+                    ReservationManagement.SetReservSource(NewItemJournalLine);
                 end else begin
-                    ReservMgt.SetReservSource(NewItemJnlLine);
-                    ReservMgt.DeleteReservEntries(true, 0);
+                    ReservationManagement.SetReservSource(NewItemJournalLine);
+                    ReservationManagement.DeleteReservEntries(true, 0);
                 end;
         end;
     end;
 
-    procedure VerifyQuantity(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line")
+    procedure VerifyQuantity(var NewItemJournalLine: Record "Item Journal Line"; var OldItemJournalLine: Record "Item Journal Line")
     var
-        ItemJnlLine: Record "Item Journal Line";
+        ItemJournalLine: Record "Item Journal Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeVerifyQuantity(NewItemJnlLine, OldItemJnlLine, ReservMgt, Blocked, IsHandled);
+        OnBeforeVerifyQuantity(NewItemJournalLine, OldItemJournalLine, ReservationManagement, Blocked, IsHandled);
         if IsHandled then
             exit;
 
         if Blocked then
             exit;
 
-        with NewItemJnlLine do begin
-            if "Line No." = OldItemJnlLine."Line No." then
-                if "Quantity (Base)" = OldItemJnlLine."Quantity (Base)" then
+        with NewItemJournalLine do begin
+            if "Line No." = OldItemJournalLine."Line No." then
+                if "Quantity (Base)" = OldItemJournalLine."Quantity (Base)" then
                     exit;
             if "Line No." = 0 then
-                if not ItemJnlLine.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
+                if not ItemJournalLine.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
                     exit;
-            ReservMgt.SetReservSource(NewItemJnlLine);
-            if "Qty. per Unit of Measure" <> OldItemJnlLine."Qty. per Unit of Measure" then
-                ReservMgt.ModifyUnitOfMeasure();
-            if "Quantity (Base)" * OldItemJnlLine."Quantity (Base)" < 0 then
-                ReservMgt.DeleteReservEntries(true, 0)
+            ReservationManagement.SetReservSource(NewItemJournalLine);
+            if "Qty. per Unit of Measure" <> OldItemJournalLine."Qty. per Unit of Measure" then
+                ReservationManagement.ModifyUnitOfMeasure();
+            if "Quantity (Base)" * OldItemJournalLine."Quantity (Base)" < 0 then
+                ReservationManagement.DeleteReservEntries(true, 0)
             else
-                ReservMgt.DeleteReservEntries(false, "Quantity (Base)");
+                ReservationManagement.DeleteReservEntries(false, "Quantity (Base)");
         end;
     end;
 
-    procedure TransferItemJnlToItemLedgEntry(var ItemJnlLine: Record "Item Journal Line"; var ItemLedgEntry: Record "Item Ledger Entry"; TransferQty: Decimal; SkipInventory: Boolean): Boolean
+    procedure TransferItemJnlToItemLedgEntry(var ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; TransferQty: Decimal; SkipInventory: Boolean): Boolean
     var
-        OldReservEntry: Record "Reservation Entry";
-        OldReservEntry2: Record "Reservation Entry";
+        OldReservationEntry: Record "Reservation Entry";
+        OldReservationEntry2: Record "Reservation Entry";
         ReservStatus: Enum "Reservation Status";
         SkipThisRecord: Boolean;
         IsHandled: Boolean;
     begin
-        if not FindReservEntry(ItemJnlLine, OldReservEntry) then
+        if not FindReservEntry(ItemJournalLine, OldReservationEntry) then
             exit(false);
 
-        OldReservEntry.Lock();
+        OldReservationEntry.Lock();
 
-        ItemLedgEntry.TestField("Item No.", ItemJnlLine."Item No.");
-        ItemLedgEntry.TestField("Variant Code", ItemJnlLine."Variant Code");
-        if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then
-            ItemLedgEntry.TestField("Location Code", ItemJnlLine."New Location Code")
+        ItemLedgerEntry.TestField("Item No.", ItemJournalLine."Item No.");
+        ItemLedgerEntry.TestField("Variant Code", ItemJournalLine."Variant Code");
+        if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Transfer then
+            ItemLedgerEntry.TestField("Location Code", ItemJournalLine."New Location Code")
         else
-            ItemLedgEntry.TestField("Location Code", ItemJnlLine."Location Code");
+            ItemLedgerEntry.TestField("Location Code", ItemJournalLine."Location Code");
 
         for ReservStatus := ReservStatus::Reservation to ReservStatus::Prospect do begin
             if TransferQty = 0 then
                 exit(true);
-            OldReservEntry.SetRange("Reservation Status", ReservStatus);
+            OldReservationEntry.SetRange("Reservation Status", ReservStatus);
 
-            if OldReservEntry.FindSet() then
+            if OldReservationEntry.FindSet() then
                 repeat
-                    OldReservEntry.TestField("Item No.", ItemJnlLine."Item No.");
-                    OnTransferItemJnlToItemLedgEntryOnBeforeTestVariantCode(OldReservEntry, ItemJnlLine, IsHandled);
-                    OldReservEntry.TestField("Variant Code", ItemJnlLine."Variant Code");
+                    OldReservationEntry.TestField("Item No.", ItemJournalLine."Item No.");
+                    OnTransferItemJnlToItemLedgEntryOnBeforeTestVariantCode(OldReservationEntry, ItemJournalLine, IsHandled);
+                    OldReservationEntry.TestField("Variant Code", ItemJournalLine."Variant Code");
 
                     if SkipInventory then
-                        if OldReservEntry.IsReservationOrTracking() then begin
-                            OldReservEntry2.Get(OldReservEntry."Entry No.", not OldReservEntry.Positive);
-                            SkipThisRecord := OldReservEntry2."Source Type" = DATABASE::"Item Ledger Entry";
+                        if OldReservationEntry.IsReservationOrTracking() then begin
+                            OldReservationEntry2.Get(OldReservationEntry."Entry No.", not OldReservationEntry.Positive);
+                            SkipThisRecord := OldReservationEntry2."Source Type" = DATABASE::"Item Ledger Entry";
                         end else
                             SkipThisRecord := false;
 
                     if not SkipThisRecord then begin
-                        if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then begin
-                            if ItemLedgEntry.Quantity < 0 then
-                                TestOldReservEntryLocationCode(OldReservEntry, ItemJnlLine);
+                        if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Transfer then begin
+                            if ItemLedgerEntry.Quantity < 0 then
+                                TestOldReservEntryLocationCode(OldReservationEntry, ItemJournalLine);
                             CreateReservEntry.SetInbound(true);
                         end else
-                            TestOldReservEntryLocationCode(OldReservEntry, ItemJnlLine);
+                            TestOldReservEntryLocationCode(OldReservationEntry, ItemJournalLine);
 
-                        OnTransferItemJnlToItemLedgEntryOnBeforeTransferReservEntry(ItemLedgEntry);
+                        OnTransferItemJnlToItemLedgEntryOnBeforeTransferReservEntry(ItemLedgerEntry);
                         TransferQty :=
                           CreateReservEntry.TransferReservEntry(
                             DATABASE::"Item Ledger Entry", 0, '', '', 0,
-                            ItemLedgEntry."Entry No.", ItemLedgEntry."Qty. per Unit of Measure",
-                            OldReservEntry, TransferQty);
-                        OnTransferItemJnlToItemLedgEntryOnAfterTransferReservEntry(OldReservEntry2, ReservStatus, ItemLedgEntry);
+                            ItemLedgerEntry."Entry No.", ItemLedgerEntry."Qty. per Unit of Measure",
+                            OldReservationEntry, TransferQty);
+                        OnTransferItemJnlToItemLedgEntryOnAfterTransferReservEntry(OldReservationEntry2, ReservStatus, ItemLedgerEntry);
                     end else
                         if ReservStatus = ReservStatus::Tracking then begin
-                            OldReservEntry2.Delete();
-                            OldReservEntry.Delete();
-                            ReservMgt.ModifyActionMessage(OldReservEntry."Entry No.", 0, true);
+                            OldReservationEntry2.Delete();
+                            OldReservationEntry.Delete();
+                            ReservationManagement.ModifyActionMessage(OldReservationEntry."Entry No.", 0, true);
                         end;
-                until (OldReservEntry.Next() = 0) or (TransferQty = 0);
+                until (OldReservationEntry.Next() = 0) or (TransferQty = 0);
         end; // DO
 
         exit(true);
     end;
 
-    local procedure TestOldReservEntryLocationCode(var OldReservEntry: Record "Reservation Entry"; var ItemJnlLine: Record "Item Journal Line")
+    local procedure TestOldReservEntryLocationCode(var OldReservationEntry: Record "Reservation Entry"; var ItemJournalLine: Record "Item Journal Line")
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeTestOldReservEntryLocationCode(OldReservEntry, ItemJnlLine, IsHandled);
+        OnBeforeTestOldReservEntryLocationCode(OldReservationEntry, ItemJournalLine, IsHandled);
         if IsHandled then
             exit;
 
-        OldReservEntry.TestField("Location Code", ItemJnlLine."Location Code");
+        OldReservationEntry.TestField("Location Code", ItemJournalLine."Location Code");
     end;
 
-    procedure RenameLine(var NewItemJnlLine: Record "Item Journal Line"; var OldItemJnlLine: Record "Item Journal Line")
+    procedure RenameLine(var NewItemJournalLine: Record "Item Journal Line"; var OldItemJournalLine: Record "Item Journal Line")
     begin
-        ReservEngineMgt.RenamePointer(DATABASE::"Item Journal Line",
-          OldItemJnlLine."Entry Type".AsInteger(),
-          OldItemJnlLine."Journal Template Name",
-          OldItemJnlLine."Journal Batch Name",
+        ReservationEngineMgt.RenamePointer(DATABASE::"Item Journal Line",
+          OldItemJournalLine."Entry Type".AsInteger(),
+          OldItemJournalLine."Journal Template Name",
+          OldItemJournalLine."Journal Batch Name",
           0,
-          OldItemJnlLine."Line No.",
-          NewItemJnlLine."Entry Type".AsInteger(),
-          NewItemJnlLine."Journal Template Name",
-          NewItemJnlLine."Journal Batch Name",
+          OldItemJournalLine."Line No.",
+          NewItemJournalLine."Entry Type".AsInteger(),
+          NewItemJournalLine."Journal Template Name",
+          NewItemJournalLine."Journal Batch Name",
           0,
-          NewItemJnlLine."Line No.");
+          NewItemJournalLine."Line No.");
     end;
 
-    procedure DeleteLineConfirm(var ItemJnlLine: Record "Item Journal Line"): Boolean
+    procedure DeleteLineConfirm(var ItemJournalLine: Record "Item Journal Line"): Boolean
     begin
-        with ItemJnlLine do begin
+        with ItemJournalLine do begin
             if not ReservEntryExist() then
                 exit(true);
 
-            ReservMgt.SetReservSource(ItemJnlLine);
-            if ReservMgt.DeleteItemTrackingConfirm() then
+            ReservationManagement.SetReservSource(ItemJournalLine);
+            if ReservationManagement.DeleteItemTrackingConfirm() then
                 DeleteItemTracking := true;
         end;
 
         exit(DeleteItemTracking);
     end;
 
-    procedure DeleteLine(var ItemJnlLine: Record "Item Journal Line")
+    procedure DeleteLine(var ItemJournalLine: Record "Item Journal Line")
     begin
+        OnBeforeDeleteLine(ItemJournalLine);
         if Blocked then
             exit;
 
-        with ItemJnlLine do begin
-            ReservMgt.SetReservSource(ItemJnlLine);
+        with ItemJournalLine do begin
+            ReservationManagement.SetReservSource(ItemJournalLine);
             if DeleteItemTracking then
-                ReservMgt.SetItemTrackingHandling(1); // Allow Deletion
-            ReservMgt.DeleteReservEntries(true, 0);
+                ReservationManagement.SetItemTrackingHandling(1); // Allow Deletion
+            ReservationManagement.DeleteReservEntries(true, 0);
             CalcFields("Reserved Qty. (Base)");
         end;
     end;
 
-    procedure AssignForPlanning(var ItemJnlLine: Record "Item Journal Line")
+    procedure AssignForPlanning(var ItemJournalLine: Record "Item Journal Line")
     var
         PlanningAssignment: Record "Planning Assignment";
     begin
-        if ItemJnlLine."Item No." <> '' then
-            with ItemJnlLine do begin
+        if ItemJournalLine."Item No." <> '' then
+            with ItemJournalLine do begin
                 PlanningAssignment.ChkAssignOne("Item No.", "Variant Code", "Location Code", "Posting Date");
                 if "Entry Type" = "Entry Type"::Transfer then
                     PlanningAssignment.ChkAssignOne("Item No.", "Variant Code", "New Location Code", "Posting Date");
@@ -365,36 +364,41 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         Blocked := SetBlocked;
     end;
 
-    procedure CallItemTracking(var ItemJnlLine: Record "Item Journal Line"; IsReclass: Boolean)
+    procedure CallItemTracking(var ItemJournalLine: Record "Item Journal Line"; IsReclass: Boolean)
     var
         TrackingSpecification: Record "Tracking Specification";
-        ReservEntry: Record "Reservation Entry";
+        ReservationEntry: Record "Reservation Entry";
         ItemTrackingLines: Page "Item Tracking Lines";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCallItemTracking(ItemJnlLine, IsReclass, IsHandled);
+        OnBeforeCallItemTracking(ItemJournalLine, IsReclass, IsHandled);
         if IsHandled then
             exit;
 
-        ItemJnlLine.TestField("Item No.");
-        if not ItemJnlLine.ItemPosting() then begin
-            ReservEntry.InitSortingAndFilters(false);
-            ItemJnlLine.SetReservationFilters(ReservEntry);
-            ReservEntry.ClearTrackingFilter();
-            if ReservEntry.IsEmpty() then
-                Error(Text006, ItemJnlLine.FieldCaption("Operation No."), ItemJnlLine."Operation No.");
+        ItemJournalLine.TestField("Item No.");
+        if not ItemJournalLine.ItemPosting() then begin
+            ReservationEntry.InitSortingAndFilters(false);
+            ItemJournalLine.SetReservationFilters(ReservationEntry);
+            ReservationEntry.ClearTrackingFilter();
+            if ReservationEntry.IsEmpty() then
+                Error(Text006Err, ItemJournalLine.FieldCaption("Operation No."), ItemJournalLine."Operation No.");
         end;
-        TrackingSpecification.InitFromItemJnlLine(ItemJnlLine);
-        if IsReclass then
-            ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::Reclass);
-        ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJnlLine."Posting Date");
-        ItemTrackingLines.SetInbound(ItemJnlLine.IsInbound());
-        OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(ItemJnlLine, ItemTrackingLines);
-        ItemTrackingLines.RunModal();
+
+        IsHandled := false;
+        OnCallItemTrackingOnBeforeCallItemJnlLineItemTracking(ItemJournalLine, IsHandled);
+        if not IsHandled then begin
+            TrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
+            if IsReclass then
+                ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::Reclass);
+            ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJournalLine."Posting Date");
+            ItemTrackingLines.SetInbound(ItemJournalLine.IsInbound());
+            OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(ItemJournalLine, ItemTrackingLines);
+            ItemTrackingLines.RunModal();
+        end;
     end;
 
-    procedure CreateItemTracking(var ItemJnlLine: Record "Item Journal Line")
+    procedure CreateItemTracking(var ItemJournalLine: Record "Item Journal Line")
     var
         Item: Record Item;
         ItemTrackingSetup: Record "Item Tracking Setup";
@@ -402,30 +406,30 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         ItemTrackingLines: Page "Item Tracking Lines";
     begin
-        if not ItemJnlLine.TrackingExists() then
+        if not ItemJournalLine.TrackingExists() then
             exit;
 
         Item.SetLoadFields("Item Tracking Code");
-        if not Item.Get(ItemJnlLine."Item No.") then
+        if not Item.Get(ItemJournalLine."Item No.") then
             exit;
 
         if Item."Item Tracking Code" = '' then
             exit;
 
-        if ReservEntryExist(ItemJnlLine) then
+        if ReservEntryExist(ItemJournalLine) then
             exit;
 
-        ItemTrackingSetup.CopyTrackingFromItemJnlLine(ItemJnlLine);
-        TempTrackingSpecification.InitFromItemJnlLine(ItemJnlLine);
+        ItemTrackingSetup.CopyTrackingFromItemJnlLine(ItemJournalLine);
+        TempTrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
         TempTrackingSpecification.CopyTrackingFromItemTrackingSetup(ItemTrackingSetup);
-        TempTrackingSpecification."Expiration Date" := ItemJnlLine."Expiration Date";
-        TempTrackingSpecification."Warranty Date" := ItemJnlLine."Warranty Date";
+        TempTrackingSpecification."Expiration Date" := ItemJournalLine."Expiration Date";
+        TempTrackingSpecification."Warranty Date" := ItemJournalLine."Warranty Date";
         TempTrackingSpecification.Insert();
 
         SourceTrackingSpecification := TempTrackingSpecification;
         ItemTrackingLines.SetBlockCommit(true);
         ItemTrackingLines.RegisterItemTrackingLines(
-            SourceTrackingSpecification, ItemJnlLine."Posting Date", TempTrackingSpecification);
+            SourceTrackingSpecification, ItemJournalLine."Posting Date", TempTrackingSpecification);
     end;
 
     procedure RegisterBinContentItemTracking(var ItemJournalLine: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
@@ -443,17 +447,17 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
           SourceTrackingSpecification, ItemJournalLine."Posting Date", TempTrackingSpecification);
     end;
 
-    local procedure SetReservSourceFor(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var CaptionText: Text)
+    local procedure SetReservSourceFor(SourceRecordRef: RecordRef; var ReservationEntry: Record "Reservation Entry"; var CaptionText: Text)
     var
-        ItemJnlLine: Record "Item Journal Line";
+        ItemJournalLine: Record "Item Journal Line";
     begin
-        SourceRecRef.SetTable(ItemJnlLine);
-        ItemJnlLine.TestField("Drop Shipment", false);
-        ItemJnlLine.TestField("Posting Date");
+        SourceRecordRef.SetTable(ItemJournalLine);
+        ItemJournalLine.TestField("Drop Shipment", false);
+        ItemJournalLine.TestField("Posting Date");
 
-        ItemJnlLine.SetReservationEntry(ReservEntry);
+        ItemJournalLine.SetReservationEntry(ReservationEntry);
 
-        CaptionText := ItemJnlLine.GetSourceCaption();
+        CaptionText := ItemJournalLine.GetSourceCaption();
     end;
 
     local procedure EntryStartNo(): Integer
@@ -511,44 +515,44 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnLookupDocument', '', false, false)]
     local procedure OnLookupDocument(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceRefNo: Integer)
     var
-        ItemJnlLine: Record "Item Journal Line";
+        ItemJournalLine: Record "Item Journal Line";
     begin
         if MatchThisTable(SourceType) then begin
-            ItemJnlLine.Reset();
-            ItemJnlLine.SetRange("Journal Template Name", SourceID);
-            ItemJnlLine.SetRange("Journal Batch Name", SourceBatchName);
-            ItemJnlLine.SetRange("Line No.", SourceRefNo);
-            ItemJnlLine.SetRange("Entry Type", SourceSubtype);
-            PAGE.RunModal(PAGE::"Item Journal Lines", ItemJnlLine);
+            ItemJournalLine.Reset();
+            ItemJournalLine.SetRange("Journal Template Name", SourceID);
+            ItemJournalLine.SetRange("Journal Batch Name", SourceBatchName);
+            ItemJournalLine.SetRange("Line No.", SourceRefNo);
+            ItemJournalLine.SetRange("Entry Type", SourceSubtype);
+            PAGE.RunModal(PAGE::"Item Journal Lines", ItemJournalLine);
         end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnLookupLine', '', false, false)]
     local procedure OnLookupLine(SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceBatchName: Code[10]; SourceRefNo: Integer)
     var
-        ItemJnlLine: Record "Item Journal Line";
+        ItemJournalLine: Record "Item Journal Line";
     begin
         if MatchThisTable(SourceType) then begin
-            ItemJnlLine.Reset();
-            ItemJnlLine.SetRange("Journal Template Name", SourceID);
-            ItemJnlLine.SetRange("Journal Batch Name", SourceBatchName);
-            ItemJnlLine.SetRange("Line No.", SourceRefNo);
-            ItemJnlLine.SetRange("Entry Type", SourceSubtype);
-            PAGE.Run(PAGE::"Item Journal Lines", ItemJnlLine);
+            ItemJournalLine.Reset();
+            ItemJournalLine.SetRange("Journal Template Name", SourceID);
+            ItemJournalLine.SetRange("Journal Batch Name", SourceBatchName);
+            ItemJournalLine.SetRange("Line No.", SourceRefNo);
+            ItemJournalLine.SetRange("Entry Type", SourceSubtype);
+            PAGE.Run(PAGE::"Item Journal Lines", ItemJournalLine);
         end;
     end;
 
-    local procedure GetSourceValue(ReservEntry: Record "Reservation Entry"; var SourceRecRef: RecordRef; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)"): Decimal
+    local procedure GetSourceValue(ReservationEntry: Record "Reservation Entry"; var SourceRecRef: RecordRef; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)"): Decimal
     var
-        ItemJnlLine: Record "Item Journal Line";
+        ItemJournalLine: Record "Item Journal Line";
     begin
-        ItemJnlLine.Get(ReservEntry."Source ID", ReservEntry."Source Batch Name", ReservEntry."Source Ref. No.");
-        SourceRecRef.GetTable(ItemJnlLine);
+        ItemJournalLine.Get(ReservationEntry."Source ID", ReservationEntry."Source Batch Name", ReservationEntry."Source Ref. No.");
+        SourceRecRef.GetTable(ItemJournalLine);
         case ReturnOption of
             ReturnOption::"Net Qty. (Base)":
-                exit(ItemJnlLine."Quantity (Base)");
+                exit(ItemJournalLine."Quantity (Base)");
             ReturnOption::"Gross Qty. (Base)":
-                exit(ItemJnlLine."Quantity (Base)");
+                exit(ItemJournalLine."Quantity (Base)");
         end;
     end;
 
@@ -561,6 +565,11 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCallItemTracking(var ItemJournalLine: Record "Item Journal Line"; IsReclass: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteLine(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -601,6 +610,11 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservationOnBeforeCreateReservEntry(var ItemJnlLine: Record "Item Journal Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ForReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnBeforeCallItemJnlLineItemTracking(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

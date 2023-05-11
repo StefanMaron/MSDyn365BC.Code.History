@@ -7,62 +7,60 @@ codeunit 5773 "Whse.-Transfer Release"
 
     var
         Location: Record Location;
-        WhseMgt: Codeunit "Whse. Management";
+        WhseManagement: Codeunit "Whse. Management";
         CalledFromTransferOrder: Boolean;
 
-    procedure Release(TransHeader: Record "Transfer Header")
+    procedure Release(TransferHeader: Record "Transfer Header")
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
-        OnBeforeRelease(TransHeader);
+        OnBeforeRelease(TransferHeader);
 
-        with TransHeader do begin
-            InitializeWhseRequest(WhseRqst, TransHeader, Status::Released);
+        InitializeWhseRequest(WarehouseRequest, TransferHeader, TransferHeader.Status::Released);
 
-            if Location.RequireReceive("Transfer-to Code") or Location.RequirePutaway("Transfer-to Code") then
-                CreateInboundWhseRequest(WhseRqst, TransHeader);
-            if Location.RequireShipment("Transfer-from Code") or Location.RequirePicking("Transfer-from Code") then
-                CreateOutboundWhseRequest(WhseRqst, TransHeader);
+        if ShouldCreateInboundWhseRequest(TransferHeader."Transfer-to Code") then
+            CreateInboundWhseRequest(WarehouseRequest, TransferHeader);
+        if ShouldCreateOutboundWhseRequest(TransferHeader."Transfer-from Code") then
+            CreateOutboundWhseRequest(WarehouseRequest, TransferHeader);
 
-            DeleteOpenWhseRequest("No.");
-        end;
+        DeleteOpenWhseRequest(TransferHeader."No.");
 
-        OnAfterRelease(TransHeader);
+        OnAfterRelease(TransferHeader);
     end;
 
-    procedure Reopen(TransHeader: Record "Transfer Header")
+    procedure Reopen(TransferHeader: Record "Transfer Header")
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
-        OnBeforeReopen(TransHeader);
+        OnBeforeReopen(TransferHeader);
 
-        with TransHeader do begin
-            if WhseRqst.Get(WhseRqst.Type::Inbound, "Transfer-to Code", DATABASE::"Transfer Line", 1, "No.") then begin
-                WhseRqst."Document Status" := Status::Open;
-                WhseRqst.Modify();
+        with TransferHeader do begin
+            if WarehouseRequest.Get("Warehouse Request Type"::Inbound, "Transfer-to Code", DATABASE::"Transfer Line", 1, "No.") then begin
+                WarehouseRequest."Document Status" := Status::Open;
+                WarehouseRequest.Modify();
             end;
-            if WhseRqst.Get(WhseRqst.Type::Outbound, "Transfer-from Code", DATABASE::"Transfer Line", 0, "No.") then begin
-                WhseRqst."Document Status" := Status::Open;
-                WhseRqst.Modify();
+            if WarehouseRequest.Get("Warehouse Request Type"::Outbound, "Transfer-from Code", DATABASE::"Transfer Line", 0, "No.") then begin
+                WarehouseRequest."Document Status" := Status::Open;
+                WarehouseRequest.Modify();
             end;
         end;
 
-        OnAfterReopen(TransHeader);
+        OnAfterReopen(TransferHeader);
     end;
 
     [Scope('OnPrem')]
-    procedure UpdateExternalDocNoForReleasedOrder(TransHeader: Record "Transfer Header")
+    procedure UpdateExternalDocNoForReleasedOrder(TransferHeader: Record "Transfer Header")
     var
-        WhseRqst: Record "Warehouse Request";
+        WarehouseRequest: Record "Warehouse Request";
     begin
-        with TransHeader do begin
-            if WhseRqst.Get(WhseRqst.Type::Inbound, "Transfer-to Code", DATABASE::"Transfer Line", 1, "No.") then begin
-                WhseRqst."External Document No." := "External Document No.";
-                WhseRqst.Modify();
+        with TransferHeader do begin
+            if WarehouseRequest.Get("Warehouse Request Type"::Inbound, "Transfer-to Code", DATABASE::"Transfer Line", 1, "No.") then begin
+                WarehouseRequest."External Document No." := "External Document No.";
+                WarehouseRequest.Modify();
             end;
-            if WhseRqst.Get(WhseRqst.Type::Outbound, "Transfer-from Code", DATABASE::"Transfer Line", 0, "No.") then begin
-                WhseRqst."External Document No." := "External Document No.";
-                WhseRqst.Modify();
+            if WarehouseRequest.Get("Warehouse Request Type"::Outbound, "Transfer-from Code", DATABASE::"Transfer Line", 0, "No.") then begin
+                WarehouseRequest."External Document No." := "External Document No.";
+                WarehouseRequest.Modify();
             end;
         end;
     end;
@@ -87,7 +85,7 @@ codeunit 5773 "Whse.-Transfer Release"
 
             Type := Type::Inbound;
             "Source Subtype" := 1;
-            "Source Document" := WhseMgt.GetWhseRqstSourceDocument("Source Type", "Source Subtype");
+            "Source Document" := WhseManagement.GetWhseRqstSourceDocument("Source Type", "Source Subtype");
             "Expected Receipt Date" := TransferHeader."Receipt Date";
             "Location Code" := TransferHeader."Transfer-to Code";
             "Completely Handled" := TransferHeader."Completely Received";
@@ -115,7 +113,7 @@ codeunit 5773 "Whse.-Transfer Release"
 
             Type := Type::Outbound;
             "Source Subtype" := 0;
-            "Source Document" := WhseMgt.GetWhseRqstSourceDocument("Source Type", "Source Subtype");
+            "Source Document" := WhseManagement.GetWhseRqstSourceDocument("Source Type", "Source Subtype");
             "Location Code" := TransferHeader."Transfer-from Code";
             "Completely Handled" := TransferHeader."Completely Shipped";
             "Shipment Method Code" := TransferHeader."Shipment Method Code";
@@ -153,14 +151,29 @@ codeunit 5773 "Whse.-Transfer Release"
 
     local procedure CheckUnitOfMeasureCode(DocumentNo: Code[20])
     var
-        TransLine: Record "Transfer Line";
+        TransferLine: Record "Transfer Line";
     begin
-        TransLine.SetRange("Document No.", DocumentNo);
-        TransLine.SetRange("Unit of Measure Code", '');
-        TransLine.SetFilter("Item No.", '<>%1', '');
-        OnCheckUnitOfMeasureCodeOnAfterTransLineSetFilters(TransLine, DocumentNo);
-        if TransLine.FindFirst() then
-            TransLine.TestField("Unit of Measure Code");
+        TransferLine.SetRange("Document No.", DocumentNo);
+        TransferLine.SetRange("Unit of Measure Code", '');
+        TransferLine.SetFilter("Item No.", '<>%1', '');
+        OnCheckUnitOfMeasureCodeOnAfterTransLineSetFilters(TransferLine, DocumentNo);
+        if TransferLine.FindFirst() then
+            TransferLine.TestField("Unit of Measure Code");
+    end;
+
+
+    local procedure ShouldCreateInboundWhseRequest(LocationCode: Code[10]) ShouldCreate: Boolean
+    begin
+        ShouldCreate := Location.RequireReceive(LocationCode) or Location.RequirePutaway(LocationCode);
+
+        OnAfterShouldCreateInboundWhseRequest(LocationCode, ShouldCreate);
+    end;
+
+    local procedure ShouldCreateOutboundWhseRequest(LocationCode: Code[10]) ShouldCreate: Boolean;
+    begin
+        ShouldCreate := Location.RequireShipment(LocationCode) or Location.RequirePicking(LocationCode);
+
+        OnAfterShouldCreateOutboundWhseRequest(LocationCode, ShouldCreate);
     end;
 
     [IntegrationEvent(false, false)]
@@ -200,6 +213,16 @@ codeunit 5773 "Whse.-Transfer Release"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckUnitOfMeasureCodeOnAfterTransLineSetFilters(var TransLine: Record "Transfer Line"; DocumentNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShouldCreateInboundWhseRequest(LocationCode: Code[20]; var ShouldCreate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShouldCreateOutboundWhseRequest(LocationCode: Code[20]; var ShouldCreate: Boolean)
     begin
     end;
 }

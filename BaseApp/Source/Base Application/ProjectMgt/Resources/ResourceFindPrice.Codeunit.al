@@ -7,7 +7,14 @@ codeunit 221 "Resource-Find Price"
     ObsoleteTag = '16.0';
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(ResPrice, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ResPrice.Copy(Rec);
         with ResPrice do
             if FindResPrice() then
@@ -62,6 +69,11 @@ codeunit 221 "Resource-Find Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindResPrice(var ResourcePrice: Record "Resource Price"; Resource: Record Resource)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var ResourcePrice: Record "Resource Price"; var ResourcePriceRec: Record "Resource Price"; var IsHandled: Boolean)
     begin
     end;
 

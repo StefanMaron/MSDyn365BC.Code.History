@@ -1019,6 +1019,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Pstd. Phys. Invt. Tracking" = RM,
                   tabledata "Purch. Comment Line" = RM,
                   tabledata "Purch. Comment Line Archive" = RM,
+                  tabledata "Purch. Cr. Memo Entity Buffer" = RIMD,
                   tabledata "Purch. Cr. Memo Hdr." = RIMD,
                   tabledata "Purch. Cr. Memo Line" = Rimd,
                   tabledata "Purch. Inv. Entity Aggregate" = RIMD,

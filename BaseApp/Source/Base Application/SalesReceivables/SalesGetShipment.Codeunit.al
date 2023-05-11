@@ -210,6 +210,7 @@ codeunit 64 "Sales-Get Shipment"
                         ItemChargeAssgntSales2 := ItemChargeAssgntSales;
                         ItemChargeAssgntSales2."Qty. to Assign" :=
                           Round(QtyFactor * ItemChargeAssgntSales2."Qty. to Assign", UOMMgt.QtyRndPrecision());
+                        ItemChargeAssgntSales2.Validate("Qty. to Handle", ItemChargeAssgntSales2."Qty. to Assign");
                         SalesLine2.SetRange("Shipment No.", SalesShptLine."Document No.");
                         SalesLine2.SetRange("Shipment Line No.", SalesShptLine."Line No.");
                         if SalesLine2.FindSet() then
@@ -239,11 +240,7 @@ codeunit 64 "Sales-Get Shipment"
                                 if ItemChargeAssgntSales2."Applies-to Doc. Type" = "Document Type" then begin
                                     ItemChargeAssgntSales2."Applies-to Doc. Type" := SalesLine2."Document Type";
                                     ItemChargeAssgntSales2."Applies-to Doc. No." := SalesLine2."Document No.";
-                                    SalesShptLine2.SetCurrentKey("Order No.", "Order Line No.");
-                                    SalesShptLine2.SetRange("Order No.", ItemChargeAssgntSales."Applies-to Doc. No.");
-                                    SalesShptLine2.SetRange("Order Line No.", ItemChargeAssgntSales."Applies-to Doc. Line No.");
-                                    SalesShptLine2.SetRange(Correction, false);
-                                    SalesShptLine2.SetFilter(Quantity, '<>0');
+                                    SetShipmentLineFilters(SalesShptLine2, ItemChargeAssgntSales, SalesLine2);
                                     if SalesShptLine2.FindFirst() then begin
                                         SalesLine2.SetCurrentKey("Document Type", "Shipment No.", "Shipment Line No.");
                                         SalesLine2.SetRange("Document Type", "Document Type"::Invoice);
@@ -266,6 +263,31 @@ codeunit 64 "Sales-Get Shipment"
                     end;
                 until ItemChargeAssgntSales.Next() = 0;
         end;
+    end;
+
+    local procedure SetShipmentLineFilters(var SalesShptLine2: Record "Sales Shipment Line"; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; var SalesLine2: Record "Sales Line")
+    begin
+        SalesShptLine2.SetCurrentKey("Order No.", "Order Line No.");
+        SalesShptLine2.SetRange("Order No.", ItemChargeAssgntSales."Applies-to Doc. No.");
+        SalesShptLine2.SetRange("Order Line No.", ItemChargeAssgntSales."Applies-to Doc. Line No.");
+        SalesShptLine2.SetRange(Correction, false);
+        SalesShptLine2.SetFilter(Quantity, '<>0');
+        if (SalesLine2."Shipment No." <> '') then
+            if CheckSalesShipmentLine(SalesLine2) then
+                SalesShptLine2.SetRange("Document No.", SalesLine2."Shipment No.");
+    end;
+
+    local procedure CheckSalesShipmentLine(var SalesLine2: Record "Sales Line"): Boolean
+    var
+        SalesShptLine2: Record "Sales Shipment Line";
+    begin
+        if SalesLine2."Shipment No." = '' then
+            exit;
+        SalesShptLine2.SetRange("Document No.", SalesLine2."Shipment No.");
+        SalesShptLine2.SetRange(Type, SalesLine2.Type::Item);
+        SalesShptLine2.SetFilter(Quantity, '<>0');
+        if not SalesShptLine2.IsEmpty() then
+            exit(true);
     end;
 
     local procedure GetQtyAssignedInNewLine(ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"): Decimal

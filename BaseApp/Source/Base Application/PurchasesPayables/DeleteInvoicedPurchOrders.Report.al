@@ -21,6 +21,7 @@ report 499 "Delete Invoiced Purch. Orders"
                 PostPurchDelete: Codeunit "PostPurch-Delete";
                 IsHandled: Boolean;
                 ItemChargeComplete: Boolean;
+                ShouldDeleteLinks: Boolean;
             begin
                 IsHandled := false;
                 OnBeforePurchaseHeaderOnAfterGetRecord("Purchase Header", IsHandled);
@@ -85,7 +86,9 @@ report 499 "Delete Invoiced Purch. Orders"
                             ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
                             ItemChargeAssgntPurch.DeleteAll();
                         end;
-                        if PurchLine.HasLinks then
+                        ShouldDeleteLinks := PurchLine.HasLinks();
+                        OnPurchaseHeaderOnAfterGetRecordOnAfterCalcShouldDeleteLinks(PurchLine, ShouldDeleteLinks);
+                        if ShouldDeleteLinks then
                             PurchLine.DeleteLinks();
 
                         OnBeforePurchLineDelete(PurchLine);
@@ -208,6 +211,11 @@ report 499 "Delete Invoiced Purch. Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchaseHeaderOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchaseHeaderOnAfterGetRecordOnAfterCalcShouldDeleteLinks(var PurchaseLine: Record "Purchase Line"; var ShouldDeleteLinks: Boolean)
     begin
     end;
 }

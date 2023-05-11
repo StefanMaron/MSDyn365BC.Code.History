@@ -11,6 +11,7 @@ codeunit 1720 "Deferral Utilities"
         InvalidPostingDateErr: Label '%1 is not within the range of posting dates for your company.', Comment = '%1=The date passed in for the posting date.';
         DeferSchedOutOfBoundsErr: Label 'The deferral schedule falls outside the accounting periods that have been set up for the company.';
         SelectDeferralCodeMsg: Label 'A deferral code must be selected for the line to view the deferral schedule.';
+        DescriptionTok: Label '%1-%2', Locked = true;
 
     procedure CreateRecurringDescription(PostingDate: Date; Description: Text[100]) FinalDescription: Text[100]
     var
@@ -199,7 +200,7 @@ codeunit 1720 "Deferral Utilities"
 
     local procedure CheckPostingDate(DeferralHeader: Record "Deferral Header"; DeferralLine: Record "Deferral Line")
     var
-        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJournalBatch: Record "Gen. Journal Batch";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -207,8 +208,8 @@ codeunit 1720 "Deferral Utilities"
         if IsHandled then
             exit;
 
-        if GenJnlBatch.Get(DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name") then
-            GenJnlCheckLine.SetGenJnlBatch(GenJnlBatch);
+        if GenJournalBatch.Get(DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name") then
+            GenJnlCheckLine.SetGenJnlBatch(GenJournalBatch);
         if GenJnlCheckLine.DeferralPostingDateNotAllowed(DeferralLine."Posting Date") then
             Error(InvalidPostingDateErr, DeferralLine."Posting Date");
     end;
@@ -402,7 +403,7 @@ codeunit 1720 "Deferral Utilities"
 
     procedure IsDateNotAllowed(PostingDate: Date) Result: Boolean
     var
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         UserSetup: Record "User Setup";
         AllowPostingFrom: Date;
         AllowPostingTo: Date;
@@ -419,10 +420,10 @@ codeunit 1720 "Deferral Utilities"
                 AllowPostingTo := UserSetup."Allow Deferral Posting To";
             end;
         if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
-            GLSetup.Get();
-            GLSetup.CheckAllowedDeferralPostingDates(1);
-            AllowPostingFrom := GLSetup."Allow Deferral Posting From";
-            AllowPostingTo := GLSetup."Allow Deferral Posting To";
+            GeneralLedgerSetup.Get();
+            GeneralLedgerSetup.CheckAllowedDeferralPostingDates(1);
+            AllowPostingFrom := GeneralLedgerSetup."Allow Deferral Posting From";
+            AllowPostingTo := GeneralLedgerSetup."Allow Deferral Posting To";
         end;
         if AllowPostingTo = 0D then
             AllowPostingTo := DMY2Date(31, 12, 9999);
@@ -501,6 +502,8 @@ codeunit 1720 "Deferral Utilities"
         DeferralHeader: Record "Deferral Header";
         DeferralTemplate: Record "Deferral Template";
         OldDeferralPostingDate: Date;
+        UseDeferralCalculationMethod: Enum "Deferral Calculation Method";
+        UseNoOfPeriods: Integer;
     begin
         if DeferralCode = '' then
             // If the user cleared the deferral code, we should remove the saved schedule...
@@ -519,9 +522,18 @@ codeunit 1720 "Deferral Utilities"
                         PostingDate := OldDeferralPostingDate;
                     end;
 
+                    UseDeferralCalculationMethod := DeferralTemplate."Calc. Method";
+                    UseNoOfPeriods := DeferralTemplate."No. of Periods";
+                    DeferralHeader.SetLoadFields("Calc. Method", "No. of Periods");
+                    if DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
+                        UseDeferralCalculationMethod := DeferralHeader."Calc. Method";
+                        if DeferralHeader."No. of Periods" >= 1 then
+                            UseNoOfPeriods := DeferralHeader."No. of Periods";
+                    end;
+
                     CreateDeferralSchedule(DeferralCode, DeferralDocType,
                       GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo, Amount,
-                      DeferralTemplate."Calc. Method", PostingDate, DeferralTemplate."No. of Periods",
+                      UseDeferralCalculationMethod, PostingDate, UseNoOfPeriods,
                       true, GetDeferralDescription(GenJnlBatchName, DocumentNo, Description),
                       AdjustStartDate, CurrencyCode);
                 end;
@@ -534,10 +546,10 @@ codeunit 1720 "Deferral Utilities"
         DeferralTemplate: Record "Deferral Template";
         PostedDeferralHeader: Record "Posted Deferral Header";
         PostedDeferralLine: Record "Posted Deferral Line";
-        CustPostingGr: Record "Customer Posting Group";
-        VendPostingGr: Record "Vendor Posting Group";
-        BankAcc: Record "Bank Account";
-        BankAccPostingGr: Record "Bank Account Posting Group";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        BankAccount: Record "Bank Account";
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         DeferralAccount: Code[20];
         Account: Code[20];
@@ -564,19 +576,19 @@ codeunit 1720 "Deferral Utilities"
             case GLAccountType of
                 GenJournalLine."Account Type"::Customer:
                     begin
-                        CustPostingGr.Get(GenJournalLine."Posting Group");
-                        Account := CustPostingGr.GetReceivablesAccount();
+                        CustomerPostingGroup.Get(GenJournalLine."Posting Group");
+                        Account := CustomerPostingGroup.GetReceivablesAccount();
                     end;
                 GenJournalLine."Account Type"::Vendor:
                     begin
-                        VendPostingGr.Get(GenJournalLine."Posting Group");
-                        Account := VendPostingGr.GetPayablesAccount();
+                        VendorPostingGroup.Get(GenJournalLine."Posting Group");
+                        Account := VendorPostingGroup.GetPayablesAccount();
                     end;
                 GenJournalLine."Account Type"::"Bank Account":
                     begin
-                        BankAcc.Get(GLAccount);
-                        BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group");
-                        Account := BankAccPostingGr."G/L Account No.";
+                        BankAccount.Get(GLAccount);
+                        BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
+                        Account := BankAccountPostingGroup."G/L Account No.";
                     end;
                 else
                     Account := GLAccount;
@@ -671,13 +683,17 @@ codeunit 1720 "Deferral Utilities"
         DeferralHeader: Record "Deferral Header";
         DeferralSchedule: Page "Deferral Schedule";
         Changed: Boolean;
+        IsHandled: Boolean;
     begin
         if DeferralCode = '' then
             Message(SelectDeferralCodeMsg)
         else
             if DeferralTemplate.Get(DeferralCode) then
                 if DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
-                    DeferralSchedule.SetParameter(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
+                    IsHandled := false;
+                    OnOpenLineScheduleEditOnBeforeDeferralScheduleSetParameters(DeferralSchedule, DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, DeferralHeader, IsHandled);
+                    if not IsHandled then
+                        DeferralSchedule.SetParameter(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
                     DeferralSchedule.RunModal();
                     Changed := DeferralSchedule.GetParameter();
                     Clear(DeferralSchedule);
@@ -744,7 +760,7 @@ codeunit 1720 "Deferral Utilities"
     procedure RoundDeferralAmount(var DeferralHeader: Record "Deferral Header"; CurrencyCode: Code[10]; CurrencyFactor: Decimal; PostingDate: Date; var AmtToDefer: Decimal; var AmtToDeferLCY: Decimal)
     var
         DeferralLine: Record "Deferral Line";
-        CurrExchRate: Record "Currency Exchange Rate";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
         UseDate: Date;
         DeferralCount: Integer;
         TotalAmountLCY: Decimal;
@@ -757,7 +773,7 @@ codeunit 1720 "Deferral Utilities"
             UseDate := PostingDate;
 
         DeferralHeader."Amount to Defer (LCY)" :=
-          Round(CurrExchRate.ExchangeAmtFCYToLCY(UseDate, CurrencyCode, DeferralHeader."Amount to Defer", CurrencyFactor));
+          Round(CurrencyExchangeRate.ExchangeAmtFCYToLCY(UseDate, CurrencyCode, DeferralHeader."Amount to Defer", CurrencyFactor));
         DeferralHeader.Modify();
         AmtToDefer := DeferralHeader."Amount to Defer";
         AmtToDeferLCY := DeferralHeader."Amount to Defer (LCY)";
@@ -775,7 +791,7 @@ codeunit 1720 "Deferral Utilities"
                     DeferralLine.Modify();
                 end else begin
                     DeferralLine."Amount (LCY)" :=
-                      Round(CurrExchRate.ExchangeAmtFCYToLCY(UseDate, CurrencyCode, DeferralLine.Amount, CurrencyFactor));
+                      Round(CurrencyExchangeRate.ExchangeAmtFCYToLCY(UseDate, CurrencyCode, DeferralLine.Amount, CurrencyFactor));
                     TotalAmountLCY := TotalAmountLCY + DeferralLine."Amount (LCY)";
                     DeferralLine.Modify();
                 end;
@@ -808,6 +824,7 @@ codeunit 1720 "Deferral Utilities"
         DeferralLine."Document No." := DeferralHeader."Document No.";
         DeferralLine."Line No." := DeferralHeader."Line No.";
         DeferralLine."Currency Code" := DeferralHeader."Currency Code";
+        OnInitializeDeferralHeaderAndSetPostDateAfterInitDeferralLine(DeferralLine);
 
         if PeriodicCount = 1 then begin
             if not AccountingPeriod.IsEmpty() then begin
@@ -932,8 +949,8 @@ codeunit 1720 "Deferral Utilities"
             exit(Result);
 
         if GenJnlBatchName <> '' then
-            exit(CopyStr(StrSubstNo('%1-%2', GenJnlBatchName, Description), 1, 100));
-        exit(CopyStr(StrSubstNo('%1-%2', DocumentNo, Description), 1, 100));
+            exit(CopyStr(StrSubstNo(DescriptionTok, GenJnlBatchName, Description), 1, 100));
+        exit(CopyStr(StrSubstNo(DescriptionTok, DocumentNo, Description), 1, 100));
     end;
 
     [IntegrationEvent(false, false)]
@@ -1083,6 +1100,16 @@ codeunit 1720 "Deferral Utilities"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateDeferralTemplate(DeferralTemplate: Record "Deferral Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitializeDeferralHeaderAndSetPostDateAfterInitDeferralLine(var DeferralLine: Record "Deferral Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenLineScheduleEditOnBeforeDeferralScheduleSetParameters(var DeferralSchedule: Page "Deferral Schedule"; DeferralDocType: Integer; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; DeferralHeader: Record "Deferral Header"; var IsHandled: Boolean)
     begin
     end;
 }

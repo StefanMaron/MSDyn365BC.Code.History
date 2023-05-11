@@ -46,6 +46,7 @@ table 5635 "Insurance Journal Line"
             trigger OnValidate()
             begin
                 if "FA No." = '' then begin
+                    CreateDimFromDefaultDim();
                     "FA Description" := '';
                     exit;
                 end;
@@ -53,6 +54,7 @@ table 5635 "Insurance Journal Line"
                 "FA Description" := FA.Description;
                 FA.TestField(Blocked, false);
                 FA.TestField(Inactive, false);
+                CreateDimFromDefaultDim();
             end;
         }
         field(7; "FA Description"; Text[100])
@@ -313,6 +315,7 @@ table 5635 "Insurance Journal Line"
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
         DimMgt.AddDimSource(DefaultDimSource, Database::Insurance, Rec."Insurance No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Fixed Asset", Rec."FA No.");
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
     end;

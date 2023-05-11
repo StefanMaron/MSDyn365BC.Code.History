@@ -5,6 +5,7 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." Implements "Reten. Pol. Filtering
     var
         NoRecordsToDeleteLbl: Label 'There are no records to delete for table ID %1, %2.', Comment = '%1 = a id of a table (integer), %2 = the caption of the table.';
         MinExpirationDateErr: Label 'The expiration date for table %1, %2 must be at least %3 days before the current date. Please update the retention policy.', Comment = '%1 = table number, %2 = table caption, %3 = integer';
+        OldestRecordYoungerThanExpirationLbl: Label 'The oldest record in table ID %1, %2 is younger than the earliest expiration date. There are no records to delete.', Comment = '%1 = a id of a table (integer), %2 = the caption of the table.';
         RecordReferenceIndirectPermission: Interface "Record Reference";
 
     procedure HasReadPermission(TableId: Integer): Boolean
@@ -47,6 +48,11 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." Implements "Reten. Pol. Filtering
             YoungestExpirationDate := Yesterday();
         OldestRecordDate := GetOldestRecordDate(RetentionPolicySetup);
         NumberOfDays := YoungestExpirationDate - OldestRecordDate;
+
+        if NumberOfDays <= 0 then begin
+            RetentionPolicyLog.LogInfo(LogCategory(), StrSubstNo(OldestRecordYoungerThanExpirationLbl, RetentionPolicySetup."Table Id", RetentionPolicySetup."Table Caption"));
+            exit(false);
+        end;
 
         CurrDate := OldestRecordDate;
         For i := 1 to NumberOfDays do begin

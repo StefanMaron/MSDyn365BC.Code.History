@@ -93,7 +93,9 @@ codeunit 730 "Copy Item"
 
             "Last Date Modified" := Today;
             "Created From Nonstock Item" := false;
+#if not CLEAN23
             "Coupled to CRM" := false;
+#endif
         end;
     end;
 

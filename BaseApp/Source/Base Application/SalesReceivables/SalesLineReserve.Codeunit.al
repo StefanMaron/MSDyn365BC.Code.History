@@ -379,11 +379,13 @@ codeunit 99000832 "Sales Line-Reserve"
                     then
                         OldReservEntry."Reservation Status" := OldReservEntry."Reservation Status"::Surplus;
 
-                    OnTransferSaleLineToSalesLineOnBeforeCalcTransferQty(NewSalesLine, OldReservEntry);
-                    TransferQty :=
-                        CreateReservEntry.TransferReservEntry(DATABASE::"Sales Line",
-                            NewSalesLine."Document Type".AsInteger(), NewSalesLine."Document No.", '', 0,
-                            NewSalesLine."Line No.", NewSalesLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+                    IsHandled := false;
+                    OnTransferSaleLineToSalesLineOnBeforeCalcTransferQty(NewSalesLine, OldReservEntry, IsHandled);
+                    if not IsHandled then
+                        TransferQty :=
+                            CreateReservEntry.TransferReservEntry(DATABASE::"Sales Line",
+                                NewSalesLine."Document Type".AsInteger(), NewSalesLine."Document No.", '', 0,
+                                NewSalesLine."Line No.", NewSalesLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
 
                 until (OldReservEntry.Next() = 0) or (TransferQty = 0);
         end;
@@ -1178,7 +1180,7 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferSaleLineToSalesLineOnBeforeCalcTransferQty(var NewSalesLine: Record "Sales Line"; var OldReservationEntry: Record "Reservation Entry")
+    local procedure OnTransferSaleLineToSalesLineOnBeforeCalcTransferQty(var NewSalesLine: Record "Sales Line"; var OldReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 

@@ -165,14 +165,12 @@ codeunit 5400 "Available Management"
     end;
 
     [IntegrationEvent(false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCalcAvailableQty(var Item: Record Item; CalcAvailable: Boolean; PlannedOrderReceiptDate: Date; var AvailableQty: Decimal)
+    local procedure OnAfterCalcAvailableQty(var Item: Record Item; CalcAvailable: Boolean; PlannedOrderReceiptDate: Date; var AvailableQty: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterCalcExpectedQty(var Item: Record Item; CalcAvailable: Boolean; ExtraNetNeed: Decimal; var Available: Decimal; PlannedOrderReceiptDate: Date; var ExpectedQty: Decimal)
+    local procedure OnAfterCalcExpectedQty(var Item: Record Item; CalcAvailable: Boolean; ExtraNetNeed: Decimal; var Available: Decimal; PlannedOrderReceiptDate: Date; var ExpectedQty: Decimal)
     begin
     end;
 }

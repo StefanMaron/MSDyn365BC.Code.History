@@ -214,7 +214,7 @@ page 9830 "User Groups"
            ("Default Profile App ID" <> xRec."Default Profile App ID") or
            ("Default Profile Scope" <> xRec."Default Profile Scope")
         then
-            ConfPersonalizationMgt.ChangePersonalizationForUserGroupMembers(Code, xRec."Default Profile ID", Rec."Default Profile ID");
+            ConfPersonalizationMgt.ChangePersonalizationForUserGroupMembers(xRec, Rec);
         CurrPage.Update();
     end;
 

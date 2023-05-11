@@ -1,4 +1,4 @@
-table 5767 "Warehouse Activity Line"
+﻿table 5767 "Warehouse Activity Line"
 {
     Caption = 'Warehouse Activity Line';
     DrillDownPageID = "Warehouse Activity Lines";
@@ -1692,11 +1692,16 @@ table 5767 "Warehouse Activity Line"
                         WhseItemTrkgLine.SetRange("Source Prod. Order Line", WhseActivLine."Source Line No.");
                         WhseItemTrkgLine.SetRange("Source Ref. No.", WhseActivLine."Source Subline No.");
                     end;
-                WhseActivLine."Whse. Document Type"::Assembly,
-                WhseActivLine."Whse. Document Type"::Job:
+                WhseActivLine."Whse. Document Type"::Assembly:
                     begin
                         WhseItemTrkgLine.SetRange("Source Type", WhseActivLine."Source Type");
                         WhseItemTrkgLine.SetRange("Source Subtype", WhseActivLine."Source Subtype");
+                        WhseItemTrkgLine.SetRange("Source ID", WhseActivLine."Source No.");
+                        WhseItemTrkgLine.SetRange("Source Ref. No.", WhseActivLine."Source Line No.");
+                    end;
+		        WhseActivLine."Whse. Document Type"::Job:
+                    begin
+                        WhseItemTrkgLine.SetFilter("Source Type", '%1|%2', WhseActivLine."Source Type", Database::"Job Planning Line");
                         WhseItemTrkgLine.SetRange("Source ID", WhseActivLine."Source No.");
                         WhseItemTrkgLine.SetRange("Source Ref. No.", WhseActivLine."Source Line No.");
                     end;
@@ -2868,8 +2873,11 @@ table 5767 "Warehouse Activity Line"
 
     local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     begin
-        exit(UOMMgt.CalcBaseQty(
-            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
+        OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName);
+
+        exit(
+            UOMMgt.CalcBaseQty(
+                "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     local procedure ShouldLookupBinContent(): Boolean
@@ -3510,6 +3518,11 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromJobPlanningLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBaseQty(var WarehouseActivityLine: Record "Warehouse Activity Line"; var Qty: Decimal; FromFieldName: Text; ToFieldName: Text)
     begin
     end;
 }

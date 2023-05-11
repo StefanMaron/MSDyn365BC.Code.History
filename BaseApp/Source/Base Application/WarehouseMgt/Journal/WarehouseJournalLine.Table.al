@@ -836,6 +836,8 @@ table 7311 "Warehouse Journal Line"
 
     local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
     begin
+        OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName);
+
         exit(UOMMgt.CalcBaseQty(
             "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
@@ -1669,6 +1671,11 @@ table 7311 "Warehouse Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateQtyPhysInventoryBase(var WarehouseJournalLine: Record "Warehouse Journal Line"; PhysInvtEntered: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBaseQty(var WarehouseJournalLine: Record "Warehouse Journal Line"; var Qty: Decimal; FromFieldName: Text; ToFieldName: Text)
     begin
     end;
 }

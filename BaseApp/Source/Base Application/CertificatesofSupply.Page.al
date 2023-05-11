@@ -124,7 +124,8 @@ page 780 "Certificates of Supply"
         if GetFilters = '' then
             SetFilter(Status, '<>%1', Status::"Not Applicable")
         else
-            InitRecord("Document Type".AsInteger(), "Document No.")
+            if "Document No." <> '' then
+                InitRecord("Document Type".AsInteger(), "Document No.")
     end;
 }
 

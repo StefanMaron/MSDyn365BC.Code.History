@@ -58,10 +58,13 @@ report 6651 "Delete Invd Sales Ret. Orders"
                                                 ItemChargeAssgntSales.SetRange("Document Line No.", SalesOrderLine."Line No.");
                                                 ItemChargeAssgntSales.DeleteAll();
                                             end;
-                                            OnBeforeDeleteSalesOrderLine(SalesOrderLine);
-                                            if SalesOrderLine.HasLinks then
-                                                SalesOrderLine.DeleteLinks();
+                                            IsHandled := false;
+                                            OnBeforeDeleteSalesOrderLine(SalesOrderLine, IsHandled);
+                                            if not IsHandled then
+                                                if SalesOrderLine.HasLinks then
+                                                    SalesOrderLine.DeleteLinks();
                                             SalesOrderLine.Delete();
+                                            OnSalesHeaderOnAfterGetRecordOnAfterSalesOrderLineDelete(SalesOrderLine);
                                         end else
                                             AllLinesDeleted := false;
 
@@ -147,12 +150,17 @@ report 6651 "Delete Invd Sales Ret. Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteSalesOrderLine(var SalesOrderLine: Record "Sales Line")
+    local procedure OnBeforeDeleteSalesOrderLine(var SalesOrderLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnSalesHeaderOnBeforeOnAfterGetRecord(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesHeaderOnAfterGetRecordOnAfterSalesOrderLineDelete(var SalesOrderLine: Record "Sales Line")
     begin
     end;
 }

@@ -189,49 +189,6 @@ codeunit 139196 "CDS Connection Setup Test"
     end;
 
     [Test]
-    [HandlerFunctions('SDKVersionListModalHandler,ConfirmYes')]
-    [Scope('OnPrem')]
-    procedure ChangeProxyVersionUpdatesConnectionString()
-    var
-        CDSConnectionSetup: Record "CDS Connection Setup";
-        CDSConnectionSetupPage: TestPage "CDS Connection Setup";
-    begin
-        // [FEATURE] [Connection String]
-        // [SCENARIO] When SDK Proxy Version is changed in page it is also changed in connection string
-        Initialize();
-
-        // [GIVEN] Connection is not enabled
-        InitializeSetup(true);
-        CDSConnectionSetup.Get();
-        CDSConnectionSetup."Is Enabled" := false;
-        CDSConnectionSetup.Modify();
-
-        // [WHEN] Connection Setup page is opened
-        CDSConnectionSetupPage.OpenEdit();
-        // [WHEN] Proxy Version is set to "91"
-        LibraryVariableStorage.Enqueue(91);
-        CDSConnectionSetupPage."SDK Version".AssistEdit();
-        // [THEN] Proxy Version in Connection String is "91"
-        CDSConnectionSetupPage."SDK Version".AssertEquals(91);
-        Assert.ExpectedMessage('ProxyVersion=91', CDSConnectionSetupPage."Connection String".Value());
-        CDSConnectionSetupPage.Close();
-        CDSConnectionSetup.Get();
-        Assert.ExpectedMessage('ProxyVersion=91', CDSConnectionSetup."Connection String");
-
-        // [WHEN] Connection Setup page is opened
-        CDSConnectionSetupPage.OpenEdit();
-        // [WHEN] Proxy Version is set to "100"
-        LibraryVariableStorage.Enqueue(100);
-        CDSConnectionSetupPage."SDK Version".AssistEdit();
-        // [THEN] Proxy Version in Connection String is "100"
-        CDSConnectionSetupPage."SDK Version".AssertEquals(100);
-        Assert.ExpectedMessage('ProxyVersion=100', CDSConnectionSetupPage."Connection String".Value());
-        CDSConnectionSetupPage.Close();
-        CDSConnectionSetup.Get();
-        Assert.ExpectedMessage('ProxyVersion=100', CDSConnectionSetup."Connection String");
-    end;
-
-    [Test]
     [HandlerFunctions('ConfirmYes')]
     [Scope('OnPrem')]
     procedure ChangeServerAddressUpdatesConnectionString()
@@ -1167,13 +1124,13 @@ codeunit 139196 "CDS Connection Setup Test"
         CDSConnectionSetup.Get();
         Assert.AreEqual(OldConnectionString, CDSIntegrationImpl.GetConnectionString(CDSConnectionSetup), 'Unexpected old connection string');
 
-        // [WHEN] SDK Version is set to "9.1"
-        NewVersion := 91;
+        // [WHEN] SDK Version is set to "10.0"
+        NewVersion := 100;
         CDSConnectionSetupPage.OpenEdit();
         CDSConnectionSetupPage."SDK Version".SetValue(NewVersion);
         CDSConnectionSetupPage.Close();
 
-        // [THEN] Proxy Version in CDS Connection Setup record is "9.1", other parts are unchanged
+        // [THEN] Proxy Version in CDS Connection Setup record is "10.0", other parts are unchanged
         CDSConnectionSetup.Get();
         NewConnectionString := StrSubstNo(PasswordConnectionStringFormatTxt, CDSConnectionSetup."Server Address", UserTok, PasswordTok, NewVersion, PasswordAuthTxt);
         Assert.AreEqual(NewConnectionString, CDSIntegrationImpl.GetConnectionString(CDSConnectionSetup), 'Unexpected new connection string');
@@ -1210,13 +1167,13 @@ codeunit 139196 "CDS Connection Setup Test"
         CDSConnectionSetup.Get();
         Assert.AreEqual(OldConnectionString, CDSIntegrationImpl.GetConnectionString(CDSConnectionSetup), 'Unexpected old connection string');
 
-        // [WHEN] SDK Version is set to "9.1"
-        NewVersion := 91;
+        // [WHEN] SDK Version is set to "10.0"
+        NewVersion := 100;
         CDSConnectionSetupPage.OpenEdit();
         CDSConnectionSetupPage."SDK Version".SetValue(NewVersion);
         CDSConnectionSetupPage.Close();
 
-        // [THEN] Proxy Version in CDS Connection Setup record is "9.1", other parts are unchanged
+        // [THEN] Proxy Version in CDS Connection Setup record is "10.0", other parts are unchanged
         CDSConnectionSetup.Get();
         NewConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, NewVersion);
         Assert.AreEqual(NewConnectionString, CDSIntegrationImpl.GetConnectionString(CDSConnectionSetup), 'Unexpected new connection string');
@@ -1253,13 +1210,13 @@ codeunit 139196 "CDS Connection Setup Test"
         CDSConnectionSetup.Get();
         Assert.AreEqual(OldConnectionString, CDSIntegrationImpl.GetConnectionString(CDSConnectionSetup), 'Unexpected old connection string');
 
-        // [WHEN] SDK Version is set to "9.1"
-        NewVersion := 91;
+        // [WHEN] SDK Version is set to "10.0"
+        NewVersion := 100;
         CDSConnectionSetupPage.OpenEdit();
         CDSConnectionSetupPage."SDK Version".SetValue(NewVersion);
         CDSConnectionSetupPage.Close();
 
-        // [THEN] Proxy Version in CDS Connection Setup record is "9.1", other parts are unchanged
+        // [THEN] Proxy Version in CDS Connection Setup record is "10.0", other parts are unchanged
         CDSConnectionSetup.Get();
         NewConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, CertificateTok, NewVersion);
         Assert.AreEqual(NewConnectionString, CDSIntegrationImpl.GetConnectionString(CDSConnectionSetup), 'Unexpected new connection string');

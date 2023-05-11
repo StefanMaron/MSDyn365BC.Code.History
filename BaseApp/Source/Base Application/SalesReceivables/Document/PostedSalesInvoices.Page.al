@@ -283,9 +283,21 @@ page 143 "Posted Sales Invoices"
                         DocExchServDocStatus.DocExchStatusDrillDown(Rec);
                     end;
                 }
+#if not CLEAN23                
                 field("<Document Exchange Status>"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
+                    ToolTip = 'Specifies that the posted sales order is coupled to a sales order in Dynamics 365 Sales.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
+                {
+                    ApplicationArea = All;
+                    Caption = '<Document Exchange Status>';
                     ToolTip = 'Specifies that the posted sales order is coupled to a sales order in Dynamics 365 Sales.';
                     Visible = CRMIntegrationEnabled;
                 }

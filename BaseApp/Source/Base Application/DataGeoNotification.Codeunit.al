@@ -1,5 +1,7 @@
 codeunit 1760 "Data Geo. Notification"
 {
+    Permissions = TableData "NAV App Installed App" = r;
+
     var
         DontShowAgainMsg: Label 'Don''t show me again';
         LearnMoreMsg: Label 'Click here to learn more about what that means';

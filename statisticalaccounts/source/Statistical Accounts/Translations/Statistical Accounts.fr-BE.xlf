@@ -153,12 +153,6 @@
           <note from="Developer" annotates="general" priority="2">%1 table caption</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Reverse Entry - NamedType CannotReverseDeletedErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3825015776 - NamedType 2251879158" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Changing the setup values will delete the existing entries.\\You will have to update again.\\Do you want to continue?</source>
-          <target state="translated">Si vous modifiez les valeurs de configuration, les écritures existantes seront supprimées.\\Vous devrez effectuer une nouvelle mise à jour.\\Voulez-vous continuer ?</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stat. Acc. Analysis View Mgt. - NamedType UpdateOfAnalysisViewNeededQst</note>
-        </trans-unit>
         <trans-unit id="Codeunit 839727883 - NamedType 2310760446" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The journal lines were successfully registered.</source>
           <target state="translated">Les lignes de la feuille ont été enregistrées correctement.</target>
@@ -1293,11 +1287,39 @@
           <note from="ObjectTarget" annotates="general" priority="5">Page 2458191494</note>
         </trans-unit>
         <trans-unit id="PageExtension 1938842319 - Action 1520112955 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Statistical account</source>
-          <target state="translated">Compte statistique</target>
+          <source>Statistical Accounts</source>
+          <target state="translated">Comptes statistiques</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 2458191494</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 978306832 - Action 140166112 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show Statistical Account Analysis.</source>
+          <target state="translated">Affichez l’analyse du compte statistique.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 532803670</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 978306832 - Action 140166112 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show Statistical Account Analysis</source>
+          <target state="translated">Afficher l’analyse du compte statistique</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 532803670</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1032181344 - Control 2995380534 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies which statistical accounts are shown in the analysis view.</source>
+          <target state="translated">Spécifie les comptes statistiques qui sont affichés dans la vue d’analyse.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3207557005</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1032181344 - Control 2995380534 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Filter</source>
+          <target state="translated">Filtre compte statistique</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3207557005</note>
         </trans-unit>
         <trans-unit id="PermissionSet 15885222 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Statistical Accounts - Objects</source>
@@ -1725,12 +1747,26 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Statistical Ledger Entry - Property Caption</note>
         </trans-unit>
+        <trans-unit id="TableExtension 1032181344 - Field 276476254 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Statistical Account Filter</source>
+          <target state="translated">Filtre compte statistique</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2416796065</note>
+        </trans-unit>
         <trans-unit id="TableExtension 1082028096 - Field 2218020965 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Statistical Account Journal</source>
           <target state="translated">Feuille compte statistique</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Table 1642199961</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 1032181344 - NamedType 2251879158" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Changing the setup values will delete the existing entries.\\You will have to update again.\\Do you want to continue?</source>
+          <target state="translated">Si vous modifiez les valeurs de configuration, les écritures existantes seront supprimées.\\Vous devrez effectuer une nouvelle mise à jour.\\Voulez-vous continuer ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">TableExtension 1032181344</note>
         </trans-unit>
         <trans-unit id="TableExtension 1082028096 - NamedType 1747359951" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>STATACC</source>

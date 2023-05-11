@@ -51,7 +51,7 @@ codeunit 395 "FinChrgMemo-Issue"
             Customer.Get("Customer No.");
             Customer.TestField("Customer Posting Group");
             if "Customer Posting Group" <> Customer."Customer Posting Group" then
-                Customer.TestField("Allow Multiple Posting Groups");
+                Customer.CheckAllowMultiplePostingGroups();
             CustomerPostingGroup.Get("Customer Posting Group");
             CalcFields("Interest Amount", "Additional Fee", "Remaining Amount");
             if ("Interest Amount" = 0) and ("Additional Fee" = 0) and ("Remaining Amount" = 0) then

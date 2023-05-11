@@ -1696,17 +1696,17 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Report Intrastat Report Get Lines - Control IndCostPctReq - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Report 3076093313 - Control 1542740196 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Report 3076093313 - Control 184221872 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the amount of the entry including any item charges.</source>
           <target state="translated">Anger transaktionsbeloppet inklusive eventuella artikelomkostnader.</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Report Intrastat Report Get Lines - Control AmountInclItemCharges - Property ToolTip</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Intrastat Report Get Lines - Control AmtInclItemCharges - Property ToolTip</note>
         </trans-unit>
-        <trans-unit id="Report 3076093313 - Control 1542740196 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+        <trans-unit id="Report 3076093313 - Control 184221872 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Amount incl. Item Charges</source>
           <target state="translated">Belopp inklusive artikelomkostnader</target>
           <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Report Intrastat Report Get Lines - Control AmountInclItemCharges - Property Caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Intrastat Report Get Lines - Control AmtInclItemCharges - Property Caption</note>
         </trans-unit>
         <trans-unit id="Report 3076093313 - Control 1956400827 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if item ledger entries that are shipped or received but not yet invoiced must be excluded from the process.</source>
@@ -1791,6 +1791,12 @@
           <target state="translated">Startdatum</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Report Intrastat Report Get Lines - Control StartingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Report 3076093313 - NamedType 1113046263" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No lines are suggested for the period. Please check %1.</source>
+          <target state="translated">Inga rader föreslås för perioden. Kontrollera %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Intrastat Report Setup caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Intrastat Report Get Lines - NamedType NoLinesMsg</note>
         </trans-unit>
         <trans-unit id="Report 3076093313 - NamedType 2595295012" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The existing lines for Intrastat report %1 will be deleted. Do you want to continue?</source>

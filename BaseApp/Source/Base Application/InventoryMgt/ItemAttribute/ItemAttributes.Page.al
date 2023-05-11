@@ -7,6 +7,7 @@ page 7500 "Item Attributes"
     RefreshOnActivate = true;
     SourceTable = "Item Attribute";
     UsageCategory = Lists;
+    DelayedInsert = true;
 
     layout
     {

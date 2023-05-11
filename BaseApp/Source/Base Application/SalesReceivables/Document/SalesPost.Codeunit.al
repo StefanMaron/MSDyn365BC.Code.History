@@ -863,7 +863,7 @@
 
             ShouldPostLine := (Type <> Type::" ") and ("Qty. to Invoice" <> 0);
             OnPostSalesLineOnBeforePostSalesLine(
-                SalesHeader, SalesLine, GenJnlLineDocNo, GenJnlLineExtDocNo, GenJnlLineDocType, SrcCode, GenJnlPostLine, ShouldPostLine);
+                SalesHeader, SalesLine, GenJnlLineDocNo, GenJnlLineExtDocNo, GenJnlLineDocType, SrcCode, GenJnlPostLine, ShouldPostLine, SalesLineACY);
             if ShouldPostLine then begin
                 AdjustPrepmtAmountLCY(SalesHeader, SalesLine);
                 OnPostSalesLineOnAfterAdjustPrepmtAmountLCY(SalesLine, xSalesLine, TempTrackingSpecification, SalesHeader);
@@ -1033,6 +1033,7 @@
 #if not CLEAN20
             end;
 #endif
+            OnPostInvoiceOnAfterPostLines(SalesHeader, SrcCode, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, GenJnlPostLine);
 
             // Post customer entry
             if GuiAllowed and not HideProgressWindow then
@@ -6509,10 +6510,18 @@
         end;
 
         if SalesHeader.IsCreditDocType() then begin
-            if (SalesHeader."Ship-to Country/Region Code" <> '') then
-                exit(SalesHeader."Ship-to Country/Region Code")
-            else
-                exit(SalesHeader."Sell-to Country/Region Code");
+            if not SalesHeader.Receive then begin
+                if (SalesHeader."Ship-to Country/Region Code" <> '') then
+                    exit(SalesHeader."Ship-to Country/Region Code")
+                else
+                    exit(SalesHeader."Sell-to Country/Region Code");
+            end else begin
+                if (SalesHeader."Ship-to Country/Region Code" = '') and (SalesHeader."Rcvd-from Country/Region Code" = '') then
+                    exit(SalesHeader."Sell-to Country/Region Code");
+                if SalesHeader."Rcvd-from Country/Region Code" <> '' then
+                    exit(SalesHeader."Rcvd-from Country/Region Code");
+                exit(SalesHeader."Ship-to Country/Region Code");
+            end;
         end else begin
             CountryRegionCode := SalesHeader."Ship-to Country/Region Code";
 
@@ -8650,6 +8659,10 @@
             SalesHeader."VAT Reporting Date" := GLSetup.GetVATDate(SalesHeader."Posting Date", SalesHeader."Document Date");
             SalesHeader.Modify();
         end;
+
+        // VAT only checked on Invoice
+        if SalesHeader.Receive or SalesHeader.Ship then
+            exit;
 
         // check whether VAT Date is within allowed VAT Periods
         GenJnlCheckLine.CheckVATDateAllowed(SalesHeader."VAT Reporting Date");
@@ -11523,7 +11536,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostSalesLineOnBeforePostSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; GenJnlLineDocType: Enum "Gen. Journal Document Type"; SrcCode: Code[10]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
+    local procedure OnPostSalesLineOnBeforePostSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; GenJnlLineDocType: Enum "Gen. Journal Document Type"; SrcCode: Code[10]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean; SalesLineACY: Record "Sales Line")
     begin
     end;
 
@@ -11537,7 +11550,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnPostItemLineOnBeforePostItemJnlLineForInvoiceDoc(SalesHeader: Record "Sales Header"; var SalesLineToShip: Record "Sales Line"; Ship: Boolean; var ItemLedgShptEntryNo: Integer; var GenJnlLineDocNo: Code[20]; var GenJnlLineExtDocNo: Code[35]; SalesShptHeader: Record "Sales Shipment Header"; var TempHandlingSpecification: Record "Tracking Specification" temporary; var TempTrackingSpecificationInv: Record "Tracking Specification" temporary; var TempTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean; QtyToInvoice: Decimal; TempAssembletoOrderLink: Record "Posted Assemble-to-Order Link" temporary)
     begin
     end;
@@ -11594,6 +11607,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSetCommitBehavior(var ErrorOnCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostInvoiceOnAfterPostLines(var SalesHeader: Record "Sales Header"; SrcCode: Code[10]; GenJnlLineDocType: Enum "Gen. Journal Document Type"; GenJnlLineDocNo: Code[20]; GenJnlLineExtDocNo: Code[35]; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 }

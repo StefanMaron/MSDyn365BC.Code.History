@@ -83,6 +83,7 @@ codeunit 137150 "SCM Warehouse UOM"
         InsufficientQtyToPickInBinErr: Label 'The Qty. Outstanding (Base) %1 exceeds the quantity available to pick %2 of the Bin Content.', Comment = '%1: Field(Qty. Outstanding (Base)), %2: Quantity available to pick in bin.';
         UoMIsStillUsedError: Label 'You cannot delete the unit of measure because it is assigned to one or more records.';
         ItemTrackingQtyHandledErr: Label 'The Qty Handled (Base) is incorrect on the Item Tracking line.';
+        QtyToHandleBaseErr: Label 'The Qty. to Handle (Base) is incorrect.';
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler')]
@@ -3916,6 +3917,57 @@ codeunit 137150 "SCM Warehouse UOM"
         ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke(); // Uses ProductionJournalUnitOfMeasureCodeErrorHandler.
     end;
 
+    [Test]
+    procedure VerifyRoundingOnWarehousePickForAdditionalUoM()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        SalesHeader: Record "Sales Header";
+        WarehouseActivityLineTake: Record "Warehouse Activity Line";
+        WarehouseActivityLinePlace: Record "Warehouse Activity Line";
+        BaseUOMCode, AltUOMCode : Code[10];
+    begin
+        // [SCENARIO 466774] Verify Rounding On Warehouse Pick For Additional UoM and defined Rounding Precision
+        Initialize();
+
+        // [GIVEN] Create Location Setup with Warehouse Employee on default White Location
+        CreateLocationSetup();
+
+        // [GIVEN] Find Bin
+        FindBin(Bin, LocationWhite.Code);
+
+        // [GIVEN] Create Item with additional UoM
+        CreateItemWithAdditionalUOMs(Item, BaseUOMCode, AltUOMCode, 12);
+
+        // [GIVEN] Register Warehouse Journal 
+        CreateAndRegisterWarehouseJournalLine(Bin, Item, 1000, Item."Base Unit of Measure");
+
+        // [GIVEN] Calculate Warehouse Adjustment and Post Item Journal Line
+        CalculateWarehouseAdjustmentAndPostItemJournalLine(Item);
+
+        // [GIVEN] Create Sales Order
+        CreateAndReleaseSalesOrderAtLocationWithAdditionalUoM(SalesHeader, Item."No.", LocationWhite.Code, 4, AltUOMCode);
+
+        // [GIVEN] Create Warehouse Shipment and Pick from Sales Order
+        CreateWarehouseShipmentAndPickFromSalesOrder(WarehouseShipmentHeader, SalesHeader);
+
+        // [GIVEN] Find Warehouse Activity Lines
+        FindWarehousePickTypeLine(
+          WarehouseActivityLineTake, WarehouseActivityLineTake."Source Document"::"Sales Order",
+          Item."No.", WarehouseActivityLineTake."Activity Type"::Pick, WarehouseActivityLineTake."Action Type"::Take);
+        FindWarehousePickTypeLine(
+          WarehouseActivityLinePlace, WarehouseActivityLinePlace."Source Document"::"Sales Order",
+          Item."No.", WarehouseActivityLinePlace."Activity Type"::Pick, WarehouseActivityLinePlace."Action Type"::Place);
+
+        // [WHEN] Update "Qty. to Handle"
+        UpdateQtyToHandleOnWarehouseActivityLinesPair(WarehouseActivityLineTake, WarehouseActivityLinePlace, 35, 35 / 12);
+
+        // [THEN] Verify result
+        Assert.IsTrue(WarehouseActivityLineTake."Qty. to Handle (Base)" = 35, QtyToHandleBaseErr);
+        Assert.IsTrue(WarehouseActivityLinePlace."Qty. to Handle (Base)" = 35, QtyToHandleBaseErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6342,6 +6394,78 @@ codeunit 137150 "SCM Warehouse UOM"
 
         WarehouseActivityLine.SetRange("Bin Code", LastBinCode);
         Assert.RecordCount(WarehouseActivityLine, 2);
+    end;
+
+    local procedure UpdateQtyToHandleOnWarehouseActivityLinesPair(var WarehouseActivityLineTake: Record "Warehouse Activity Line"; var WarehouseActivityLinePlace: Record "Warehouse Activity Line"; QtyToHandleTake: Decimal; QtyToHandlePlace: Decimal)
+    begin
+        WarehouseActivityLineTake.Validate("Qty. to Handle", QtyToHandleTake);
+        WarehouseActivityLineTake.Modify(true);
+        WarehouseActivityLinePlace.Validate("Qty. to Handle", QtyToHandlePlace);
+        WarehouseActivityLinePlace.Modify(true);
+    end;
+
+    local procedure FindWarehousePickTypeLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type")
+    begin
+        with WarehouseActivityLine do begin
+            Reset();
+            SetRange("Source Document", SourceDocument);
+            SetRange("Item No.", ItemNo);
+            SetRange("Activity Type", ActivityType);
+            SetRange("Action Type", ActionType);
+            Findfirst();
+        end;
+    end;
+
+    local procedure CreateAndReleaseSalesOrderAtLocationWithAdditionalUoM(var SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; UoMCode: Code[10])
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Unit of Measure Code", UoMCode);
+        SalesLine.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CreateItemWithAdditionalUOMs(var Item: Record Item; var BaseUOMCode: Code[10]; var AltUOMCode: Code[10]; QtyPerAltUOM: Decimal)
+    var
+        AdditionalItemUOM: Record "Item Unit of Measure";
+        BaseItemUnitOfMeasure: Record "Item Unit of Measure";
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(AdditionalItemUOM, Item."No.", UnitOfMeasure.Code, QtyPerAltUOM);
+        BaseItemUnitOfMeasure.Get(Item."No.", Item."Base Unit of Measure");
+        BaseItemUnitOfMeasure.Validate("Qty. Rounding Precision", 1);
+        BaseItemUnitOfMeasure.Modify(true);
+        BaseUOMCode := Item."Base Unit of Measure";
+        AltUOMCode := AdditionalItemUOM.Code;
+    end;
+
+    local procedure CreateWarehousePickFromShipment(WarehouseShipmentLine: Record "Warehouse Shipment Line") WhsePickNo: Code[20]
+    var
+        CreatePickParameters: Record "Create Pick Parameters";
+        WhseWkshLine: Record "Whse. Worksheet Line";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        CreatePick: Codeunit "Create Pick";
+        FirstWhseDocNo: Code[20];
+    begin
+        with WarehouseShipmentLine do begin
+            ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
+              WhseWkshLine."Whse. Document Type"::Shipment, "No.", "Line No.",
+              "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
+
+            CreatePickParameters."Whse. Document" := CreatePickParameters."Whse. Document"::Shipment;
+            CreatePickParameters."Whse. Document Type" := CreatePickParameters."Whse. Document Type"::Pick;
+            CreatePick.SetParameters(CreatePickParameters);
+            CreatePick.SetWhseShipment(WarehouseShipmentLine, 1, '', '', '');
+            CreatePick.SetTempWhseItemTrkgLine("No.", DATABASE::"Warehouse Shipment Line", '', 0, "Line No.", "Location Code");
+            CreatePick.CreateTempLine("Location Code", "Item No.", '', '', '', "Bin Code", 1, Quantity, "Qty. (Base)");
+            CreatePick.CreateWhseDocument(FirstWhseDocNo, WhsePickNo, true);
+        end;
     end;
 
     [ModalPageHandler]

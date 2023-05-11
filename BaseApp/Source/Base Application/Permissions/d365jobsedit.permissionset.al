@@ -42,5 +42,7 @@ permissionset 9886 "D365 JOBS, EDIT"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
-                  tabledata "Price Worksheet Line" = RIMD;
+                  tabledata "Price Worksheet Line" = RIMD,
+                  tabledata "VAT Setup" = R,
+                  tabledata "VAT Posting Parameters" = R;
 }

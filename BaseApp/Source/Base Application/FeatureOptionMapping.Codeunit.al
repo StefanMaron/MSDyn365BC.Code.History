@@ -36,7 +36,6 @@ codeunit 5408 "Feature - Option Mapping" implements "Feature Data Update"
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, TempIntegrationFieldMapping.TableCaption(), StartDateTime);
 
         StartDateTime := CurrentDateTime;
-        SetCouplingFlags();
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, CRMOptionMapping.TableCaption(), StartDateTime);
     end;
 
@@ -132,17 +131,6 @@ codeunit 5408 "Feature - Option Mapping" implements "Feature Data Update"
         end;
 
         CDSFailedOptionMapping.DeleteAll();
-    end;
-
-    local procedure SetCouplingFlags()
-    var
-        CRMOptionMapping: Record "CRM Option Mapping";
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
-    begin
-        if CRMOptionMapping.FindSet() then
-            repeat
-                CRMIntegrationManagement.SetCoupledFlag(CRMOptionMapping, true);
-            until CRMOptionMapping.Next() = 0;
     end;
 
     local procedure InsertDocumentEntry(TableID: Integer; TableName: Text; RecordCount: Integer)

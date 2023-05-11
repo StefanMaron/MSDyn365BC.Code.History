@@ -95,8 +95,12 @@
         if not CODEUNIT.Run(CODEUNIT::"Correct Posted Sales Invoice", SalesInvoiceHeader) then begin
             SalesCrMemoHeader.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
             if SalesCrMemoHeader.FindFirst() then begin
-                if Confirm(StrSubstNo(PostingCreditMemoFailedOpenPostedCMQst, GetLastErrorText)) then
-                    PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+                if Confirm(StrSubstNo(PostingCreditMemoFailedOpenPostedCMQst, GetLastErrorText)) then begin
+                    IsHandled := false;
+                    OnCreateCreditMemoOnBeforePostedPageRun(SalesCrMemoHeader, IsHandled);
+                    if not IsHandled then
+                        PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+                end;
             end else begin
                 SalesHeader.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
                 if SalesHeader.FindFirst() then begin
@@ -882,10 +886,25 @@
                 SalesInvoiceLine.GetItemLedgEntries(TempItemLedgerEntry, false);
                 if SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then begin
                     UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesInvoiceLine.Quantity, SalesInvoiceLine."Quantity (Base)");
+                    if SalesLine."Qty. to Ship" = 0 then
+                        UpdateWhseRequest(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Location Code");
                     TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
                     UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, SalesInvoiceLine."Shipment Date", true);
                 end;
             until SalesInvoiceLine.Next() = 0;
+    end;
+
+    local procedure UpdateWhseRequest(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; LocationCode: Code[10])
+    var
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WarehouseRequest.SetSourceFilter(SourceType, SourceSubType, SourceNo);
+        WarehouseRequest.SetRange("Location Code", LocationCode);
+        if WarehouseRequest.FindFirst() and WarehouseRequest."Completely Handled" then begin
+            WarehouseRequest."Completely Handled" := false;
+            WarehouseRequest.Modify();
+        end;
     end;
 
     local procedure UpdateSalesOrderLineInvoicedQuantity(var SalesLine: Record "Sales Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal)
@@ -903,7 +922,7 @@
         SalesLine."Qty. Shipped (Base)" -= CancelledQtyBase;
         SalesLine.InitOutstanding();
         SalesLine.InitQtyToShip();
-        SalesLine.InitQtyToInvoice();
+        SalesLine.UpdateWithWarehouseShip();
         SalesLine.Modify();
 
         OnAfterUpdateSalesOrderLineInvoicedQuantity(SalesLine, CancelledQuantity, CancelledQtyBase);
@@ -1009,6 +1028,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateCreditMemoOnBeforePageRun(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCreditMemoOnBeforePostedPageRun(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
     begin
     end;
 

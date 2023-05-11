@@ -45,5 +45,7 @@ permissionset 8785 "Recievables Journals - Edit"
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
-                  tabledata "VAT Setup Posting Groups" = R;
+                  tabledata "VAT Setup Posting Groups" = R,
+				  tabledata "VAT Setup" = R,
+                  tabledata "VAT Posting Parameters" = R;
 }

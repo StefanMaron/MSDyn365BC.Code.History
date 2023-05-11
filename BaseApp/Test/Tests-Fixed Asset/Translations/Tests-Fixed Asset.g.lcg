@@ -50,6 +50,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Fixed Assets - NamedType DepreciationBookError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2708761409 - NamedType 2141466536" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The dimensions must be equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Fixed Assets - NamedType DimensionsAreNotEqual)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2708761409 - NamedType 728882997" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[A dimension used in %1 %2, %3, %4 has caused an error. Select a %5 for the %6 %7 for %8 %9.]]></Val>

@@ -31,11 +31,16 @@ page 2023 "Image Analysis Scenarios Part"
                     ToolTip = 'Specifies whether Image Analysis can be used or not for this scenario.';
 
                     trigger OnValidate()
+                    var
+                        PrivacyNotice: Codeunit "Privacy Notice";
+                        PrivacyNoticeText: Text;
                     begin
                         if not Rec.Status then
                             exit;
 
-                        if not Confirm(ConfirmAcceptQuestionTxt) then
+                        PrivacyNoticeText := StrSubstNo(PrivacyNotice.GetDefaultPrivacyAgreementTxt(), AcsServiceNameTxt, ProductName.Full());
+
+                        if not Confirm(ConfirmPrivacyNoticeQst, false, PrivacyNoticeText, PrivacyStatementLinkTxt) then
                             Error('');
                     end;
                 }
@@ -44,6 +49,7 @@ page 2023 "Image Analysis Scenarios Part"
     }
 
     var
-        ConfirmAcceptQuestionTxt: Label 'This feature utilizes Microsoft Cognitive Services. By continuing you are affirming that you understand that the data handling and compliance standards of Microsoft Cognitive Services may not be the same as those provided by Microsoft Dynamics 365 Business Central. Please consult the documentation for Microsoft Cognitive Services to learn more.';
-
+        AcsServiceNameTxt: Label 'Azure Cognitive Services', Comment = 'The product name of Azure Cognitive Services';
+        PrivacyStatementLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=831305', Locked = true;
+        ConfirmPrivacyNoticeQst: Label '%1\\%2\\Do you want to enable this scenario?', Comment = '%1 = a long text describing the privacy notice for this feature. %2 = a link to the privacy notice';
 }

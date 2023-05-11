@@ -40,6 +40,7 @@ page 5135 "Customer Link"
         if ("No." <> '') and (CloseAction = ACTION::LookupOK) then begin
             ContBusRel := Rec;
             ContBusRel.Insert(true);
+            OnQueryClosePageOnAfterContBusRelInsert(CurrMasterFields, ContBusRel);
 
             case CurrMasterFields of
                 CurrMasterFields::Contact:
@@ -63,5 +64,10 @@ page 5135 "Customer Link"
         UpdateCustVendBank: Codeunit "CustVendBank-Update";
         UpdateContFromCust: Codeunit "CustCont-Update";
         CurrMasterFields: Option Contact,Customer;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnQueryClosePageOnAfterContBusRelInsert(CurrMasterFields: Option Contact,Customer; var ContactBusinessRelation: Record "Contact Business Relation")
+    begin
+    end;
 }
 

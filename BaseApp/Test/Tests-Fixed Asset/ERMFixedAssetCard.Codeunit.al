@@ -1305,6 +1305,45 @@ codeunit 134456 "ERM Fixed Asset Card"
         FADepreciationBook.TestField("FA Posting Group", FAPostingGroup.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure S468467_FixedAssetDescriptionCopiedToFADepreciationBookDescription_FADescriptionAfterDepreciationBookCode()
+    var
+        FASetup: Record "FA Setup";
+        FixedAsset: Record "Fixed Asset";
+        FASubclass: Record "FA Subclass";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        DescriptionToSet: Text[100];
+    begin
+        // [FEATURE] [UT] [Fixed Asset Card]
+        // [SCENARIO 401954] "Fixed Asset".Description is copied to "FA Depreciation Book".Description when "Fixed Asset Card".Description is defined after "Fixed Asset Card".DepreciationBookCode.
+
+        // [GIVEN] FA Setup is in place.
+        FixedAssetAndDeprecationBookSetup(FASubclass);
+        FASetup.Get();
+        DescriptionToSet := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(FixedAsset.Description)), 1, MaxStrLen(FixedAsset.Description));
+
+        // [GIVEN] Fixed Asset is created.
+        FixedAssetCard.OpenNew();
+
+        // [GIVEN] Fixed Asset is DepreciationBookCode is defined.
+        FixedAssetCard.DepreciationBookCode.SetValue(FASetup."Default Depr. Book");
+
+        // [WHEN] Fixed Asset is Description is defined.
+        FixedAssetCard.Description.SetValue(DescriptionToSet);
+        FixedAssetCard.Close();
+
+        // [WHEN] There is one "FA Depreciation Book" record for created Fixed Asset and its Description is equal to Description of Fixed Asset.
+        FixedAsset.FindFirst();
+        FADepreciationBook.SetRange("FA No.", FixedAsset."No.");
+        Assert.RecordCount(FADepreciationBook, 1);
+
+        FADepreciationBook.FindFirst();
+        FADepreciationBook.TestField("Depreciation Book Code", FASetup."Default Depr. Book");
+        FADepreciationBook.TestField(Description, DescriptionToSet);
+    end;
+
     local procedure FixedAssetAndDeprecationBookSetup(var FASubclass: Record "FA Subclass")
     var
         DepreciationBook: Record "Depreciation Book";

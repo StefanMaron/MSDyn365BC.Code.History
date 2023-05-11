@@ -2747,6 +2747,82 @@ codeunit 136305 "Job Journal"
         JobCard."Bill-to Contact No.".AssertEquals(JobCard."Sell-to Contact No.");
     end;
 
+    [Test]
+    [HandlerFunctions('JobTransferToSalesInvoiceRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure AddCampaignOnInvoice()
+    var
+        Campaign: Record Campaign;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LibraryJob: Codeunit "Library - Job";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        i: Integer;
+    begin
+        // [FEATURE] [Sales] [Campaign]        
+        // [SCENARIO 465382] Campaign No. can not be set when sales invoice is created from Job Planning
+        Initialize();
+
+        // [GIVEN] Create campaign   
+        LibraryMarketing.CreateCampaign(Campaign);
+
+        // [GIVEN] A Job Planning Line for a new Job, Create Sales Invoice from Job Planning Line and find the created Sales Invoice.
+        Initialize();
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        Commit();  // Using Commit to prevent Test Failure.
+        LibraryVariableStorage.Enqueue(WorkDate());
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+        FindSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, JobTask."Job No.", SalesLine.Type::Item);
+
+        //Exercise: Campaign No. is not set
+        Assert.AreEqual('', SalesHeader."Campaign No.", 'Campaign is already assigned to sales invoice');
+
+        // [WHEN] Set campaign no. on sales invoice
+        // [THEN] Veirfy an error
+        asserterror SalesHeader.Validate("Campaign No.", Campaign."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    procedure VerifyJobPlanningLineAfterPostingJobJournalWithResourceAndAdditionalUoM()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ResUnitOfMeasure: Record "Resource Unit of Measure";
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        JobPlanningLine: Record "Job Planning Line";
+        ResourceNo: Code[20];
+    begin
+        // [SCENARIO 470263] Verify Job Planning Line after posting Job Journal with Resource and Additional UoM
+        Initialize();
+
+        // [GIVEN] Create Resource
+        ResourceNo := LibraryResource.CreateResourceNo();
+
+        // [GIVEN] Create additional UoM for Resource
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryResource.CreateResourceUnitOfMeasure(ResUnitOfMeasure, ResourceNo, UnitOfMeasure.Code, 8);
+
+        // [GIVEN] Create Job Journal Line with Resource and Additional UoM
+        CreateResourceJobJournalLine(JobJournalLine, ResourceNo, UnitOfMeasure.Code);
+
+        // [WHEN] Post Job Journal
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [THEN] Verify result
+        JobPlanningLine.SetRange("Job No.", JobJournalLine."Job No.");
+        JobPlanningLine.SetRange("Job Task No.", JobJournalLine."Job Task No.");
+        Assert.RecordCount(JobPlanningLine, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2815,6 +2891,20 @@ codeunit 136305 "Job Journal"
         JobJournalLine.Validate("No.", CreateItem);
         JobJournalLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
         JobJournalLine.Validate("Unit Price (LCY)", LibraryRandom.RandDec(100, 2));
+        JobJournalLine.Modify(true);
+    end;
+
+    local procedure CreateResourceJobJournalLine(var JobJournalLine: Record "Job Journal Line"; ResourceNo: Code[20]; UnitOfMeasureCode: Code[10])
+    var
+        JobTask: Record "Job Task";
+    begin
+        // Create Job Journal Line with Random Quantity and Unit Price.
+        CreateJobWithJobTask(JobTask);
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::"Both Budget and Billable", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Resource);
+        JobJournalLine.Validate("No.", ResourceNo);
+        JobJournalLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
+        JobJournalLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
         JobJournalLine.Modify(true);
     end;
 

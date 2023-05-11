@@ -184,6 +184,7 @@ page 2901 "Demand Forecast Card"
             part(Matrix; "Demand Forecast Variant Matrix")
             {
                 ApplicationArea = Planning;
+                Editable = IsEditable;
             }
         }
     }

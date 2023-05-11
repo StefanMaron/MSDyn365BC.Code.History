@@ -148,7 +148,7 @@ report 11 "G/L - VAT Reconciliation"
                 }
                 dataitem("G/L Account"; "G/L Account")
                 {
-                    DataItemTableView = SORTING("No.");
+                    DataItemTableView = sorting("No.") where("No." = filter(<> ''));
                     column(VAT_Statement_Line___Amount_Type_; Format("VAT Statement Line"."Amount Type"))
                     {
                     }

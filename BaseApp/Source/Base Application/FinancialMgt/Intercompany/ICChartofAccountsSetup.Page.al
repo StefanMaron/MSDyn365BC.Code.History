@@ -30,7 +30,7 @@ page 629 "IC Chart of Accounts Setup"
         ICAccounts: Record "IC G/L Account";
         ICPartner: Record "IC Partner";
         ICPartnerAccounts: Record "IC G/L Account";
-        ICMappingAccounts: Codeunit "IC Mapping Accounts";
+        ICMapping: Codeunit "IC Mapping";
         MessageText: Text;
     begin
         if Rec."Partner Code for Acc. Syn." = '' then
@@ -57,7 +57,7 @@ page 629 "IC Chart of Accounts Setup"
                 exit;
         end;
 
-        ICMappingAccounts.SynchronizeAccounts(true, Rec."Partner Code for Acc. Syn.");
+        ICMapping.SynchronizeAccounts(true, Rec."Partner Code for Acc. Syn.");
     end;
 
     var

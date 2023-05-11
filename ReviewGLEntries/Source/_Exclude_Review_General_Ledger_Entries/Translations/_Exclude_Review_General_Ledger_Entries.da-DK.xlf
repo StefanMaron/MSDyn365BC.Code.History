@@ -23,7 +23,7 @@
         </trans-unit>
         <trans-unit id="Enum 3059661478 - EnumValue 1320218767 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Allow Review and Match Balance</source>
-          <target state="translated">Tillad gennemsyn, og match saldo</target>
+          <target state="translated">Tillad gennemsyn og match saldo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Review Policy Type - EnumValue Allow Review and Match Balance - Property Caption</note>
         </trans-unit>
@@ -41,7 +41,7 @@
         </trans-unit>
         <trans-unit id="Enum 3177632721 - EnumValue 1320218767 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Allow Review and Match Balance</source>
-          <target state="translated">Tillad gennemsyn, og match saldo</target>
+          <target state="translated">Tillad gennemsyn og match saldo</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum G/L Account Review Policy - EnumValue Allow Review and Match Balance - Property Caption</note>
         </trans-unit>

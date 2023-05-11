@@ -4,6 +4,7 @@ page 7503 "Item Attribute"
     PageType = Card;
     RefreshOnActivate = true;
     SourceTable = "Item Attribute";
+    DelayedInsert = true;
 
     layout
     {

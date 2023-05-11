@@ -933,6 +933,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy GraphQL Type - EnumValue UpdateOrderAttributes - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Enum 1984319471 - EnumValue 2354680434 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get Next Fulfillment Orders From Order</source>
+          <target state="translated">Hae seuraavat jakelutilaukset tilauksesta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy GraphQL Type - EnumValue GetNextFulfillmentOrdersFromOrder - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Enum 1984319471 - EnumValue 2379002150 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Get Order Fulfillment</source>
           <target state="translated">Hae tilauksen jakelu</target>
@@ -1064,6 +1070,12 @@
           <target state="translated">Tilauksen riskit</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy GraphQL Type - EnumValue OrderRisks - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1984319471 - EnumValue 4206997083 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Get Fulfillment Orders From Order</source>
+          <target state="translated">Hae jakelutilaukset tilauksesta</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy GraphQL Type - EnumValue GetFulfillmentOrdersFromOrder - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 1984319471 - EnumValue 4251599368 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Get Product Variant Ids</source>
@@ -1323,12 +1335,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Financial Status - EnumValue Refunded - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Enum 2734534355 - EnumValue 2151249993 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Authorized</source>
-          <target state="translated">Valtuutettu</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Financial Status - EnumValue authorized - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Enum 2734534355 - EnumValue 2780909271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Voided</source>
           <target state="translated">Mitätöity</target>
@@ -1346,6 +1352,12 @@
           <target state="translated">Odottava</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Financial Status - EnumValue Pending - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2734534355 - EnumValue 381497705 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Authorized</source>
+          <target state="translated">Valtuutettu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Shpfy Financial Status - EnumValue Authorized - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 2734534355 - EnumValue 4294440508 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unknown</source>
@@ -3916,6 +3928,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Orders to Import - Control CurrencyCode - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 2016272457 - Control 630061656 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The name of the channel where you sell your products. A channel can be a platform or a marketplace such as an online store or POS.</source>
+          <target state="translated">Sen kanavan nimi, jolla myyt tuotteitasi. Kanava voi olla alusta tai markkinapaikka, kuten verkkokauppa tai myyntipiste.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Orders to Import - Control ChannelName - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 2016272457 - Control 681009761 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the order number from Shopify.</source>
           <target state="translated">Määrittää Shopify-tilausnumeron.</target>
@@ -5761,6 +5779,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Order - Control TemplCodeField - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 437915150 - Control 1683930818 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The name of the app used by the channel where you sell your products. A channel can be a platform or a marketplace such as an online store or POS.</source>
+          <target state="translated">Sen kanavan käyttämän sovelluksen nimi, jolla myyt tuotteitasi. Kanava voi olla alusta tai markkinapaikka, kuten verkkokauppa tai myyntipiste.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Order - Control AppName - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 437915150 - Control 1693087673 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the customer's country/region.</source>
           <target state="translated">Määrittää asiakkaan maan/alueen nimen.</target>
@@ -6114,6 +6138,12 @@
           <target state="translated">Määrittää tuotteet ostavan asiakkaan numeron.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Order - Control SellToCustomerNo - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 437915150 - Control 630061656 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The name of the channel where you sell your products. A channel can be a platform or a marketplace such as an online store or POS.</source>
+          <target state="translated">Sen kanavan nimi, jolla myyt tuotteitasi. Kanava voi olla alusta tai markkinapaikka, kuten verkkokauppa tai myyntipiste.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Order - Control ChannelName - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 437915150 - Control 666555521 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the city of the customer that you sent the invoice or credit memo to.</source>
@@ -10268,6 +10298,12 @@
           <target state="translated">Shopify-tilaustunnus</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy FulFillment Order Header - Field Shopify Order Id - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4104547265 - Field 1175880302 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shopify Location Id</source>
+          <target state="translated">Shopify-sijaintitunnus</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy FulFillment Order Header - Field Shopify Location Id - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 4104547265 - Field 1669136979 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shop Code</source>

@@ -363,10 +363,13 @@
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
+    [Obsolete('Use FindInteractionTemplateCode(DocumentType: Enum "Interaction Log Entry Document Type") instead.', '22.0')]
     procedure FindInteractTmplCode(DocumentType: Integer) InteractTmplCode: Code[10]
     begin
         exit(FindInteractionTemplateCode("Interaction Log Entry Document Type".FromInteger(DocumentType)));
     end;
+#pragma warning restore AS0072
 #endif
 
     procedure FindInteractionTemplateCode(DocumentType: Enum "Interaction Log Entry Document Type") InteractTmplCode: Code[10]

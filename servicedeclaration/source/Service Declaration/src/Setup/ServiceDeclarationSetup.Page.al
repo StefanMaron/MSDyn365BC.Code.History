@@ -70,6 +70,22 @@ page 5010 "Service Declaration Setup"
 
     actions
     {
+        area(processing)
+        {
+            action(ImportDefaultDataExchangeDef)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Create Default Data Exch. Def.';
+                Image = Create;
+                ToolTip = 'Create/Restore Default Data Exchange Definition(-s)';
+                trigger OnAction()
+                var
+                    ServDeclMgt: Codeunit "Service Declaration Mgt.";
+                begin
+                    ServDeclMgt.CreateDefaultDataExchangeDef();
+                end;
+            }
+        }
     }
 
     trigger OnOpenPage()
@@ -82,4 +98,3 @@ page 5010 "Service Declaration Setup"
         end;
     end;
 }
-

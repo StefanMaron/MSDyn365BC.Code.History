@@ -41,6 +41,7 @@ page 5137 "Bank Account Link"
             TestField("No.");
             ContBusRel := Rec;
             ContBusRel.Insert(true);
+            OnQueryClosePageOnAfterContBusRelInsert(CurrMasterFields, ContBusRel);
             case CurrMasterFields of
                 CurrMasterFields::Contact:
                     begin
@@ -63,5 +64,10 @@ page 5137 "Bank Account Link"
         UpdateCustVendBank: Codeunit "CustVendBank-Update";
         UpdateContFromBank: Codeunit "BankCont-Update";
         CurrMasterFields: Option Contact,Bank;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnQueryClosePageOnAfterContBusRelInsert(CurrMasterFields: Option Contact,Bank; var ContactBusinessRelation: Record "Contact Business Relation")
+    begin
+    end;
 }
 

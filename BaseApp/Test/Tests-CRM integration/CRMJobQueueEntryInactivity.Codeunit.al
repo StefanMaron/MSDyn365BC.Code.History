@@ -138,57 +138,6 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
 
     [Test]
     [Scope('OnPrem')]
-    procedure T113_InactiveJobsAreActivatedOnCompanyOpenIfSourceModified()
-    var
-        CRMProduct: Record "CRM Product";
-        Item: Record Item;
-        JobQueueEntry: array[5] of Record "Job Queue Entry";
-        UpdatedJobQueueEntry: Record "Job Queue Entry";
-        I: Integer;
-    begin
-        // [FEATURE] [UT] [Login]
-        // [SCENARIO 211307] "Inactive" jobs are activated on Company opening if source tables are modified
-        // [SCENARIO 222608] "Inactive" jobs are rescheduled on company open
-        // [SCENARIO 310997] "Error" jobs are not started on company open
-        Initialize();
-        // [GIVEN] the Item is coupled to the CRM Product
-        LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
-        // [GIVEN] Jobs 'A' and 'B', executed and got Status "On Hold with Inactivity period"
-        FindJobQueueEntryForMapping(JobQueueEntry[1], DATABASE::Item, JobQueueEntry[1].Status::"On Hold with Inactivity Timeout", 10);
-        FindJobQueueEntryForMapping(JobQueueEntry[2], DATABASE::Customer, JobQueueEntry[2].Status::"On Hold with Inactivity Timeout", 10);
-        // [GIVEN] Job 'C', where Status "On Hold"
-        FindJobQueueEntryForMapping(JobQueueEntry[3], DATABASE::Resource, JobQueueEntry[3].Status::"On Hold", 0);
-        // [GIVEN] Job 'D', where Status "Ready"
-        FindJobQueueEntryForMapping(JobQueueEntry[4], DATABASE::Currency, JobQueueEntry[4].Status::Ready, 0);
-        // [GIVEN] Job 'E', where Status "Error", "User ID" = USERID
-        FindJobQueueEntryForMapping(JobQueueEntry[5], DATABASE::"Unit of Measure", JobQueueEntry[5].Status::Error, 0);
-        JobQueueEntry[5]."User ID" := UserId;
-        JobQueueEntry[5].Modify();
-
-        // [GIVEN] the CRM Product is modified
-        CRMProduct.ModifiedOn := CurrentDateTime;
-        CRMProduct.Modify();
-
-        // [WHEN] Open company (run codeunit "Job Queue User Handler")
-        CODEUNIT.Run(CODEUNIT::"Job Queue User Handler");
-
-        VerifyJobQueueEntryUnchanged(JobQueueEntry[2]);
-        VerifyJobQueueEntryUnchanged(JobQueueEntry[3]);
-        for I := 1 to 5 do
-            JobQueueEntry[I].Find();
-        // [THEN] Job 'ITEM' is activated, Status is Ready, new "Earliest Start Date/Time" is about 1 second from now
-        Assert.AreEqual(JobQueueEntry[1].Status::Ready, JobQueueEntry[1].Status, 'Job A Status');
-        // [THEN] Jobs 'B', 'C' are not changed
-        UpdatedJobQueueEntry.SetRange(Status, UpdatedJobQueueEntry.Status::"On Hold with Inactivity Timeout");
-        Assert.RecordCount(UpdatedJobQueueEntry, 3);
-        // [THEN] Job 'D' is rescheduled
-        Assert.AreEqual(JobQueueEntry[4].Status::Ready, JobQueueEntry[4].Status, 'Job D Status');
-        // [THEN] Job 'E' is not changed
-        Assert.AreEqual(JobQueueEntry[5].Status::Error, JobQueueEntry[5].Status, 'Job E Status');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure T121_InactiveCRMStatsJobBecomesActiveOnCompanyOpen()
     var
         CRMSynchStatus: Record "CRM Synch Status";

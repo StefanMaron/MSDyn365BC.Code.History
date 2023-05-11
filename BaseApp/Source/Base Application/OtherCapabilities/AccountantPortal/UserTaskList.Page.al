@@ -20,6 +20,12 @@ page 1170 "User Task List"
         {
             repeater(Group)
             {
+                field(ID; Rec.ID)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the ID of the task.';
+                    visible = false;
+                }
                 field(Title; Rec.Title)
                 {
                     ApplicationArea = Basic, Suite;
@@ -161,29 +167,51 @@ page 1170 "User Task List"
         }
     }
 
-    trigger OnAfterGetRecord()
-    begin
-        StyleTxt := Rec.SetStyle();
-    end;
+    var
+        FilteredUserTask: Record "User Task";
 
     trigger OnFindRecord(Which: Text): Boolean
+    var
+        Found: Boolean;
     begin
-        FilterUserTasks();
-        exit(Rec.Find(Which));
+        FilteredUserTask := Rec;
+        Found := FilteredUserTask.find(Which);
+        if Found then
+            Rec := FilteredUserTask;
+        exit(Found);
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
+    var
+        NewSteps: Integer;
     begin
-        FilterUserTasks();
-        exit(Rec.Next(Steps));
+        FilteredUserTask := Rec;
+        NewSteps := FilteredUserTask.Next(Steps);
+        if NewSteps <> 0 then
+            Rec := FilteredUserTask;
+        exit(NewSteps);
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        StyleTxt := Rec.SetStyle();
     end;
 
     trigger OnOpenPage()
     var
         ShouldOpenToViewPendingTasks: Boolean;
     begin
-        if Evaluate(ShouldOpenToViewPendingTasks, GetFilter(ShouldShowPendingTasks)) and ShouldOpenToViewPendingTasks then
+        if IsShowingMyPendingTasks or Evaluate(ShouldOpenToViewPendingTasks, GetFilter(ShouldShowPendingTasks)) and ShouldOpenToViewPendingTasks then
             SetPageToShowMyPendingUserTasks();
+        FilterUserTasks();
+        FilteredUserTask.SetAutoCalcFields("Created By User Name", "Assigned To User Name", "Completed By User Name");
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Rec."Created By" := UserSecurityId();
+        Rec.Validate("Created DateTime", CurrentDateTime());
+        Rec.CalcFields("Created By User Name");
     end;
 
     var
@@ -201,8 +229,10 @@ page 1170 "User Task List"
 
     local procedure FilterUserTasks()
     begin
-        if IsShowingMyPendingTasks then
-            UserTaskManagement.SetFiltersToShowMyUserTasks(Rec, DueDateFilterOptions::NONE);
+        if IsShowingMyPendingTasks then begin
+            UserTaskManagement.SetFiltersToShowMyUserTasks(FilteredUserTask, DueDateFilterOptions::NONE);
+            Rec.SetRange(ShouldShowPendingTasks, true); // to pass the filter on to the card when it is opened
+        end;
     end;
 
     procedure SetPageToShowMyPendingUserTasks()

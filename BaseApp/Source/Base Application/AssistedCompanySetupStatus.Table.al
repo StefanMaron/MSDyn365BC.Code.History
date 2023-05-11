@@ -3,6 +3,9 @@ table 1802 "Assisted Company Setup Status"
     Caption = 'Assisted Company Setup Status';
     DataPerCompany = false;
     ReplicateData = false;
+    InherentEntitlements = r;
+    InherentPermissions = r;
+    Permissions = tabledata "Assisted Company Setup Status" = r;
 
     fields
     {

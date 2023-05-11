@@ -724,6 +724,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control Name - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 2401688108 - Control 2986416530 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if event-based rescheduling of synchronization jobs should be turned off for this table.</source>
+          <target state="translated">Määrittää, tuleeko synkronointitöiden tapahtumapohjainen uudelleenajoitus laittaa pois päältä tälle taulukolle.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - Control Disable Event Job Resch. - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 2401688108 - Control 2987383563 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the action to take when a coupled record is deleted in one of the connected applications.</source>
           <target state="translated">Määrittää toiminnon, joka suoritetaan, kun yhdistetty tietue poistetaan jostakin yhdistetystä sovelluksesta.</target>
@@ -988,11 +994,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - NamedType SynchronizeModifiedQst</note>
         </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 133954306" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table %1 is shared across all companies of this environment. Choose another table.</source>
+          <target state="translated">Taulukko %1 on jaettu tämän ympäristön kaikille yrityksille. Valitse toinen taulukko.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - a table name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType TableNotPerCompanyErr</note>
+        </trans-unit>
         <trans-unit id="Page 2401688108 - NamedType 1360988555" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must choose at least one integration table mapping.</source>
           <target state="translated">Vähintään yksi integrointitaulukon yhdistämismääritys on valittava.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType NoRecSelectedErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 1390984168" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your license doesn't grant you permissions for writing into table %1. Choose another table.</source>
+          <target state="translated">Käyttöoikeutesi eivät sisällä oikeutta kirjoittaa taulukkoon %1. Valitse toinen taulukko.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - a table name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType TablePermissionMissingErr</note>
         </trans-unit>
         <trans-unit id="Page 2401688108 - NamedType 1624143781" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You are about to uncouple the selected mappings, which means data for the records will no longer synchronize. \\Do you want to continue?</source>
@@ -1006,11 +1024,23 @@
           <note from="Developer" annotates="general" priority="2">%1 caption from page Integration Synch. Job List</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType SynchronizeModifiedScheduledMsg</note>
         </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 2526433295" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Metadata for table %1 cannot be loaded. Choose another table.</source>
+          <target state="translated">Taulukon %1 metatietoja ei voi ladata. Valitse toinen taulukko.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - a table name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType TableMetadataNotFoundErr</note>
+        </trans-unit>
         <trans-unit id="Page 2401688108 - NamedType 2564837436" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You are about to uncouple the selected mappings, which means data for the records will no longer synchronize. \\The uncoupling will run in the background, so you can continue with other tasks.\\Do you want to continue?</source>
           <target state="translated">Olet poistamassa valitut yhdistämismääritykset, mikä tarkoittaa, että tietueiden tietoja ei enää synkronoida. \\Linkityksen poisto suoritetaan taustalla, joten voit jatkaa muiden tehtävien suorittamista.\\Haluatko jatkaa?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType StartUncouplingQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 2641270440" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The chosen table has a relation to the following tables that are currently not included in the synchronization: %1. \\Do you want to synchronize these tables too?</source>
+          <target state="translated">Valitulla taulukolla on suhde seuraaviin taulukoihin, joita ei ole tällä hetkellä sisällytetty synkronointiin: %1. \\Haluatko myös synkronoida nämä taulukot?</target>
+          <note from="Developer" annotates="general" priority="2">%1 - comma-separated list of table names</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType RelatedTablesQst</note>
         </trans-unit>
         <trans-unit id="Page 2401688108 - NamedType 2700510275" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You are about to couple Business Central records to the source company records from the selected mapping, based on the matching criteria that you must define. \\The coupling will run in the background, so you can continue with other tasks.\\Do you want to continue?</source>
@@ -1047,6 +1077,18 @@
           <target state="translated">Tämän taulukon tietueita ei ole tällä hetkellä yhdistetty lähdeyrityksen tietueisiin. \\Valitse Suorita täysi synkronointi -toiminto.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType NoCoupledRecordsMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 4176957336" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table %1 is either declared as temporary, a query or as an interface for accessing an external entity. Choose another table.</source>
+          <target state="translated">Taulukko %1 on määritetty tilapäiseksi, kyselyksi tai liittymäksi ulkoisen objektin käyttöä varten. Valitse toinen taulukko.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - a table name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType TableNotOfTypeNormalErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2401688108 - NamedType 647948205" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table %1 and related tables: %2 are added to the synchronization with state set to Disabled. \\Open Synchronization Tables page, choose synchronization fields for each of the added tables and then set their status to Enabled.</source>
+          <target state="translated">Taulukko %1 ja liittyvät taulukot: %2 lisätään synkronointiin, jonka tilaksi on määritetty Ei käytössä. \\Avaa Synkronointitaulukot-sivu, valitse synkronointikentät kullekin lisätylle taulukolle ja määritä niiden tilaksi Käytössä.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - a table name, %2 - comma-separated list of table names</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Synch. Tables - NamedType RelatedTablesAddedMsg</note>
         </trans-unit>
         <trans-unit id="Page 2401688108 - NamedType 682633368" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>&lt;Edit table filter&gt;</source>

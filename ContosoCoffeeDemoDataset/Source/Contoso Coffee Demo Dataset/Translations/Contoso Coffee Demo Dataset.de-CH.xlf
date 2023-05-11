@@ -1781,7 +1781,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 3619231197 - NamedType 3474196376" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>White Warehouse</source>
-          <target state="translated">Weißes Warenlager</target>
+          <target state="translated">Weisses Warenlager</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Locations - NamedType ADVLOCNAMETok</note>
         </trans-unit>

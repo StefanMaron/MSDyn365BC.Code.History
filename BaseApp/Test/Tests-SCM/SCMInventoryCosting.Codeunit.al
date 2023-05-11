@@ -1232,6 +1232,40 @@ codeunit 137007 "SCM Inventory Costing"
         ProdItem.TestField("Standard Cost", Round(0.42886, LibraryERM.GetUnitAmountRoundingPrecision()));
     end;
 
+    [Test]
+    procedure S468541_RevaluationJournalWithStandardCostCanBePostedWhenVariantCodeIsMandatoryIsEnabled()
+    var
+        InventorySetup: Record "Inventory Setup";
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        CostAmount: Decimal;
+    begin
+        // [FEATURE] [Standard Cost] [Variant Code] [Variant Mandatory if Exists] [Revaluation Journal]
+        // [SCENARIO 468541] Revaluation Journal with Standard Cost can be posted when "Variant Mandatory if Exists" is enabled.
+        Initialize();
+
+        // [GIVEN] Set "Variant Mandatory if Exists" in "Inventory Setup".
+        InventorySetup.Get();
+        InventorySetup.Validate("Location Mandatory", false);
+        InventorySetup.Validate("Variant Mandatory if Exists", true);
+        InventorySetup.Modify();
+
+        // [GIVEN] Create Item with Standard Cost and "Variant Mandatory if Exists".
+        CreateItemWithCostingMethod(Item, Item."Costing Method"::Standard);
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Yes);
+        Item.Modify();
+
+        // [GIVEN] Create Item Variant.
+        LibraryInventory.CreateVariant(ItemVariant, Item);
+
+        // [GIVEN] Put Item Variant on Inventory.
+        CreatePostPositiveAdjustmentWithVariant(Item, ItemVariant, LibraryRandom.RandInt(10));
+
+        // [WHEN] Revaluation Journal is created and posted.
+        // [THEN] No error is thrown.
+        CreatePostRevaluation(Item, CostAmount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1515,11 +1549,17 @@ codeunit 137007 "SCM Inventory Costing"
     local procedure CreateRevalutionItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
     var
         ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalLine: Record "Item Journal Line";
     begin
         SelectRevaluationItemJournalTemplate(ItemJournalTemplate);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);
+
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        if not ItemJournalLine.IsEmpty() then
+            ItemJournalLine.DeleteAll();
     end;
 
     local procedure CreateRevalutionJournal(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line"; ByLocation: Boolean; ByVariant: Boolean; CalculatePer: Option; CalculationBase: Option)
@@ -1583,6 +1623,17 @@ codeunit 137007 "SCM Inventory Costing"
 
         CreateItemJournalLine(ItemJournalBatch, ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
         ItemJournalLine.Validate("Unit Amount", UnitAmount);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreatePostPositiveAdjustmentWithVariant(var Item: Record Item; ItemVariant: Record "Item Variant"; Quantity: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateItemJournalLine(ItemJournalBatch, ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
+        ItemJournalLine.Validate("Variant Code", ItemVariant.Code);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;

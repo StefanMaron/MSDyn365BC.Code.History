@@ -45,6 +45,18 @@
           <note from="Developer" annotates="general" priority="2">%1 = number of line;%2 = type of the line (item, resource, etc.);%3 = item/resource code</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Service Declaration Mgt. - NamedType TransactionTypeCodeNotSpecifiedInLineErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2714038767 - NamedType 3174602886" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You've already submitted the report for this period.\Do you want to continue?</source>
+          <target state="translated">Sie haben den Bericht für diesen Zeitraum bereits gesendet.\Möchten Sie fortfahren?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Service Declaration Mgt. - NamedType PeriodAlreadyReportedQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2383749531 - Method 1665861916 - NamedType 3174602886" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You've already submitted the report for this period.\Do you want to continue?</source>
+          <target state="translated">Sie haben den Bericht für diesen Zeitraum bereits gesendet.\Möchten Sie fortfahren?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Export Service Declaration - Method OnRun - NamedType PeriodAlreadyReportedQst</note>
+        </trans-unit>
         <trans-unit id="Enum 363159866 - EnumValue 1631535830 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>VAT Reg. No.</source>
           <target state="translated">USt-IdNr.</target>
@@ -62,6 +74,16 @@
           <target state="translated">Ländercode + USt-IdNr.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Serv. Decl. VAT Reg. No. Type - EnumValue Country Code + VAT Reg. No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 608762036 - EnumValue 4020758431 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Released</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Serv. Decl. Status - EnumValue Released - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 608762036 - EnumValue 4259830144 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Serv. Decl. Status - EnumValue Open - Property Caption</note>
         </trans-unit>
         <trans-unit id="EnumExtension 3472035958 - EnumValue 4184400519 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Declaration</source>
@@ -88,6 +110,22 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Action ActionNext - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4184400519 - Action 2071937805 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reopen the document to change it after it has been approved. Approved documents have the Released status and must be opened before they can be changed.</source>
+          <target state="translated">Öffnet den Beleg erneut, um ihn nach der Genehmigung zu ändern. Genehmigte Belege haben den Status „Freigegeben“ und müssen geöffnet werden, bevor sie geändert werden können.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Action Reopen - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4184400519 - Action 2071937805 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Re&amp;open</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Action Reopen - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4184400519 - Action 2224783030 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Release</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Action Category_Category5 - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4184400519 - Action 2246317104 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Suggests transactions to be reported and fills in the journal.</source>
           <target state="translated">Schlägt Transaktionen für den Bericht vor und füllt das Erf.-Journal aus.</target>
@@ -100,6 +138,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Action GetEntries - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4184400519 - Action 3383493608 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Process</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Action Category_Process - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4184400519 - Action 3560983695 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Release</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Action Action21 - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4184400519 - Action 3628747446 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create the reporting file.</source>
           <target state="translated">Intrastat-Berichtsdatei erstellen</target>
@@ -111,6 +159,17 @@
           <target state="translated">Datei erstellen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Action CreateFile - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4184400519 - Action 4032263875 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Release the document to the next stage of processing. You must reopen the document before you can make changes to it.</source>
+          <target state="translated">Geben Sie den Beleg in die nächste Verarbeitungsstufe frei. Sie müssen den Beleg erneut öffnen, bevor Sie Änderungen daran vornehmen können.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Action Release - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4184400519 - Action 4032263875 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Re&amp;lease</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Action Release - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4184400519 - Action 873771301 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Opens the overview with the service declaration lines grouped and summarized as in the exported file. </source>
@@ -361,6 +420,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Control Config. Code - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 4184400519 - Control 3293730985 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the entry has already been reported to the authorities.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Control Reported - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4184400519 - Control 3813362964 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date when the declaration has been exported.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Control Export Date - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 4184400519 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the code of the service declaration.</source>
           <target state="translated">Gibt den Code der Servicemeldung an.</target>
@@ -378,6 +447,16 @@
           <target state="translated">Gibt das Startdatum der Servicemeldung an</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Control Starting Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4184400519 - Control 471116883 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the time when the declaration has been exported.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Control Export Time - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4184400519 - Control 513339096 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the status of the service declaration.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration - Control Status - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 525048986 - Control 1447790309 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the Sales Amount (LCY) of the source value entry.</source>
@@ -1005,7 +1084,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Line - Field Sales Amount (LCY</note>
         </trans-unit>
         <trans-unit id="Table 2713885285 - Field 1631535830 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>VAT Registration No.</source>
+          <source>Partner VAT ID</source>
           <target state="translated">Mehrwertsteuererfassungsnummer</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Line - Field VAT Reg. No. - Property Caption</note>
@@ -1184,6 +1263,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - Field Created Date-Time - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 613874622 - Field 3293730985 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Reported</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - Field Reported - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 613874622 - Field 3813362964 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Export Date</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - Field Export Date - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 613874622 - Field 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No.</source>
           <target state="translated">Nr.</target>
@@ -1201,6 +1290,16 @@
           <target state="translated">Startdatum</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - Field Starting Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 613874622 - Field 471116883 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Export Time</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - Field Export Time - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 613874622 - Field 513339096 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Service Declaration Header - Field Status - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 894930515 - Field 3004954119 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Code</source>

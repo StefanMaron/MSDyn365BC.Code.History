@@ -207,6 +207,7 @@ codeunit 74 "Purch.-Get Receipt"
                         ItemChargeAssgntPurch2 := ItemChargeAssgntPurch;
                         ItemChargeAssgntPurch2."Qty. to Assign" :=
                           Round(QtyFactor * ItemChargeAssgntPurch2."Qty. to Assign", UOMMgt.QtyRndPrecision());
+                        ItemChargeAssgntPurch2.Validate("Qty. to Handle", ItemChargeAssgntPurch2."Qty. to Assign");
                         PurchLine2.SetRange("Receipt No.", PurchRcptLine."Document No.");
                         PurchLine2.SetRange("Receipt Line No.", PurchRcptLine."Line No.");
                         if PurchLine2.Find('-') then
@@ -236,11 +237,7 @@ codeunit 74 "Purch.-Get Receipt"
                                 if ItemChargeAssgntPurch2."Applies-to Doc. Type" = "Document Type" then begin
                                     ItemChargeAssgntPurch2."Applies-to Doc. Type" := PurchLine2."Document Type";
                                     ItemChargeAssgntPurch2."Applies-to Doc. No." := PurchLine2."Document No.";
-                                    PurchRcptLine2.SetCurrentKey("Order No.", "Order Line No.");
-                                    PurchRcptLine2.SetRange("Order No.", ItemChargeAssgntPurch."Applies-to Doc. No.");
-                                    PurchRcptLine2.SetRange("Order Line No.", ItemChargeAssgntPurch."Applies-to Doc. Line No.");
-                                    PurchRcptLine2.SetRange(Correction, false);
-                                    PurchRcptLine2.SetFilter(Quantity, '<>0');
+                                    SetReceiptPurchLineFilters(PurchRcptLine2, ItemChargeAssgntPurch, PurchLine2);
                                     if PurchRcptLine2.FindFirst() then begin
                                         PurchLine2.SetCurrentKey("Document Type", "Receipt No.", "Receipt Line No.");
                                         PurchLine2.SetRange("Document Type", PurchLine2."Document Type"::Invoice);
@@ -265,6 +262,31 @@ codeunit 74 "Purch.-Get Receipt"
                     end;
                 until ItemChargeAssgntPurch.Next() = 0;
         end;
+    end;
+
+    local procedure SetReceiptPurchLineFilters(var PurchRcptLine2: Record "Purch. Rcpt. Line"; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var PurchLine2: Record "Purchase Line")
+    begin
+        PurchRcptLine2.SetCurrentKey("Order No.", "Order Line No.");
+        PurchRcptLine2.SetRange("Order No.", ItemChargeAssgntPurch."Applies-to Doc. No.");
+        PurchRcptLine2.SetRange("Order Line No.", ItemChargeAssgntPurch."Applies-to Doc. Line No.");
+        PurchRcptLine2.SetRange(Correction, false);
+        PurchRcptLine2.SetFilter(Quantity, '<>0');
+        if (PurchLine2."Receipt No." <> '') then
+            if CheckPurchRcptLine(PurchLine2) then
+                PurchRcptLine2.SetRange("Document No.", PurchLine2."Receipt No.");
+    end;
+
+    local procedure CheckPurchRcptLine(var PurchLine2: Record "Purchase Line"): Boolean
+    var
+        PurchRcptLine2: Record "Purch. Rcpt. Line";
+    begin
+        if PurchLine2."Receipt No." = '' then
+            exit;
+        PurchRcptLine2.SetRange("Document No.", PurchLine2."Receipt No.");
+        PurchRcptLine2.SetRange(Type, PurchRcptLine2.Type::Item);
+        PurchRcptLine2.SetFilter(Quantity, '<>0');
+        if not PurchRcptLine2.IsEmpty() then
+            exit(true);
     end;
 
     local procedure GetQtyAssignedInNewLine(ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"): Decimal

@@ -40,8 +40,6 @@ page 1837 "Automate Environment Picker"
                     ShowCaption = false;
                 }
             }
-
-            // Introduction step
             group(Step1)
             {
                 Caption = '';
@@ -57,7 +55,7 @@ page 1837 "Automate Environment Picker"
                     group("Para1.1.2")
                     {
                         Caption = '';
-                        InstructionalText = 'This wizard allows you to explicitly choose which Dataverse environment to use for such features, providing all the flexibility you need as a user or maker.';
+                        InstructionalText = 'This wizard allows you to explicitly choose which Power Platform environment to use for such features, providing all the flexibility you need as a user or maker. If you have relevant permissions, you will be able to propagate the environment choice for all users in your organization.';
                     }
                     group("Para1.1.3")
                     {
@@ -117,9 +115,9 @@ page 1837 "Automate Environment Picker"
                         field("Environment Display Name"; Rec."Environment Display Name")
                         {
                             ApplicationArea = Basic, Suite;
-                            Caption = 'Dataverse Environment Name';
+                            Caption = 'Power Platform Environment Name';
                             Editable = false;
-                            ToolTip = 'Specifies the name of the Dataverse environment.';
+                            ToolTip = 'Specifies the name of the Power Platform environment.';
 
                             trigger OnDrillDown()
                             begin
@@ -130,7 +128,7 @@ page 1837 "Automate Environment Picker"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Selected';
-                            ToolTip = 'Specifies if the Dataverse environment is selected.';
+                            ToolTip = 'Specifies if the Power Platform environment is selected.';
 
                             trigger OnValidate()
                             begin
@@ -148,10 +146,17 @@ page 1837 "Automate Environment Picker"
                 group("Para4.1")
                 {
                     Caption = 'All done!';
-                    group("Para4.1.1")
+                    group("Para4.1.1.All")
                     {
                         Caption = '';
-                        InstructionalText = 'You selected: ';
+                        Visible = HasChangedForAll;
+                        InstructionalText = 'You selected for your organization: ';
+                    }
+                    group("Para4.1.1.Me")
+                    {
+                        Caption = '';
+                        Visible = NOT HasChangedForAll;
+                        InstructionalText = 'You selected just for you: ';
                     }
                     label(EnvironmentName)
                     {
@@ -166,7 +171,7 @@ page 1837 "Automate Environment Picker"
                         group("Para4.1.2.1")
                         {
                             Caption = '';
-                            InstructionalText = 'This change applies only to you; other users will still use their preferred Dataverse environment, or the default one if they didn''t make a decision.';
+                            InstructionalText = 'This change applies only to you; other users will still use their preferred Power Platform environment, or the default one if they didn''t make a decision.';
                         }
                         group("Para4.1.2.2")
                         {
@@ -211,17 +216,38 @@ page 1837 "Automate Environment Picker"
                     NextStep(true);
                 end;
             }
-            action(ActionChoose)
+            action(ActionChooseForAll)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Choose for your organization';
+                ToolTip = 'Choose the Power Platform environment for all users in your organization.';
+                Visible = ChooseActionVisible AND CanApproveForAll;
+
+                Image = NextRecord;
+                InFooterBar = true;
+
+                trigger OnAction()
+                begin
+                    If Confirm(ConfirmSelectionForAllTxt, false) then begin
+                        HasChangedForAll := true;
+                        FlowServiceManagement.SaveFlowEnvironmentSelectionForAll(Rec);
+                        EnvironmentDisplayNameText := FlowServiceManagement.GetSelectedFlowEnvironmentName();
+                        NextStep(false);
+                    end;
+                end;
+            }
+            action(ActionChooseForMe)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Choose';
+                ToolTip = 'Choose the Power Platform environment just for you.';
                 Visible = ChooseActionVisible;
                 Image = NextRecord;
                 InFooterBar = true;
 
                 trigger OnAction()
                 begin
-                    if WasSomethingChanged then
+                    if HasSomethingChangedForInvidualChoice then
                         FlowServiceManagement.SaveFlowUserEnvironmentSelection(Rec);
                     EnvironmentDisplayNameText := FlowServiceManagement.GetSelectedFlowEnvironmentName();
                     NextStep(false);
@@ -263,6 +289,8 @@ page 1837 "Automate Environment Picker"
     trigger OnOpenPage()
     begin
         ShowIntroStep();
+        HasChangedForAll := false;
+        CanApproveForAll := FlowServiceManagement.CanApproveForAll();
     end;
 
     local procedure NextStep(Backwards: Boolean)
@@ -347,12 +375,12 @@ page 1837 "Automate Environment Picker"
         FinishStepVisible := false;
 
         // Actions
-        WasSomethingChanged := false;
+        HasSomethingChangedForInvidualChoice := false;
     end;
 
     local procedure EnsureOnlyOneSelection()
     begin
-        WasSomethingChanged := true;
+        HasSomethingChangedForInvidualChoice := true;
         SetRange(Enabled, true);
         if Count >= 1 then
             ModifyAll(Enabled, false);
@@ -393,8 +421,11 @@ page 1837 "Automate Environment Picker"
         PrivacyNoticeStepVisible: Boolean;
         ChoiceStepVisible: Boolean;
         FinishStepVisible: Boolean;
-        WasSomethingChanged: Boolean;
+        HasSomethingChangedForInvidualChoice: Boolean;
+        HasChangedForAll: Boolean;
+        CanApproveForAll: Boolean;
         EnvironmentDisplayNameText: Text;
         IntegratedAppsFwdLinkTxt: Label 'https://aka.ms/bcautomate', Locked = true;
         OpenPrivacyNoticeTxt: Label 'Open Privacy Notice Page';
+        ConfirmSelectionForAllTxt: Label 'If you choose the environment for your organization, it will override the current environment setting for all users. Users that have access to this page will still be able to change it later. This action cannot be reverted. Do you want to continue?';
 }

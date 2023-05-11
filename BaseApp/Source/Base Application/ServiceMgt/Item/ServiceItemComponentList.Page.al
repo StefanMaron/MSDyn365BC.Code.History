@@ -106,7 +106,7 @@ page 5986 "Service Item Component List"
                 action("&Copy from BOM")
                 {
                     ApplicationArea = Service;
-                    Caption = '&Copy from BOM';
+                    Caption = '&Copy from Assembly BOM';
                     Image = CopyFromBOM;
                     ToolTip = 'Insert the service item components of the service item''s bill of material. ';
 

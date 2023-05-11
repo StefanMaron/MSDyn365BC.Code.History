@@ -54,7 +54,7 @@ codeunit 30190 "Shpfy Export Shipments"
         end;
     end;
 
-    internal procedure CreateFulfillmentOrderRequest(SalesShipmentHeader: Record 110; LocationId: BigInteger; LocationCode: Code[10]) Request: Text;
+    internal procedure CreateFulfillmentOrderRequest(SalesShipmentHeader: Record "Sales Shipment Header"; LocationId: BigInteger; LocationCode: Code[10]) Request: Text;
     var
         SalesShipmentLine: Record "Sales Shipment Line";
         ShippingAgent: Record "Shipping Agent";
@@ -71,14 +71,24 @@ codeunit 30190 "Shpfy Export Shipments"
         SalesShipmentLine.Reset();
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
         SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+        SalesShipmentLine.SetRange("Location Code", LocationCode);
         SalesShipmentLine.SetFilter("Shpfy Order Line Id", '<>%1', 0);
         SalesShipmentLine.SetFilter(Quantity, '>%1', 0);
         if SalesShipmentLine.FindSet() then begin
             repeat
                 if FindFulfillmentOrderLine(SalesShipmentHeader, SalesShipmentLine, FulfillmentOrderLine) then begin
-                    TempFulfillmentOrderLine := FulfillmentOrderLine;
-                    TempFulfillmentOrderLine."Quantity to Fulfill" := Round(SalesShipmentLine.Quantity, 1, '=');
-                    TempFulfillmentOrderLine.Insert();
+                    FulfillmentOrderLine."Quantity to Fulfill" += Round(SalesShipmentLine.Quantity, 1, '=');
+                    FulfillmentOrderLine."Remaining Quantity" := FulfillmentOrderLine."Remaining Quantity" - Round(SalesShipmentLine.Quantity, 1, '=');
+                    FulfillmentOrderLine.Modify();
+
+                    if TempFulfillmentOrderLine.Get(FulfillmentOrderLine."Shopify Fulfillment Order Id", FulfillmentOrderLine."Shopify Fulfillm. Ord. Line Id") then begin
+                        TempFulfillmentOrderLine."Quantity to Fulfill" += Round(SalesShipmentLine.Quantity, 1, '=');
+                        TempFulfillmentOrderLine.Modify();
+                    end else begin
+                        TempFulfillmentOrderLine := FulfillmentOrderLine;
+                        TempFulfillmentOrderLine."Quantity to Fulfill" := Round(SalesShipmentLine.Quantity, 1, '=');
+                        TempFulfillmentOrderLine.Insert();
+                    end;
                 end;
             until SalesShipmentLine.Next() = 0;
 
@@ -106,12 +116,17 @@ codeunit 30190 "Shpfy Export Shipments"
                     GraphQuery.Append('number: \"');
                     GraphQuery.Append(SalesShipmentHeader."Package Tracking No.");
                     GraphQuery.Append('\",');
-                    GraphQuery.Append('url: \"');
                     ShippingEvents.BeforeRetrieveTrackingUrl(SalesShipmentHeader, TrackingUrl, IsHandled);
                     if not IsHandled then
-                        TrackingUrl := ShippingAgent.GetTrackingInternetAddr(SalesShipmentHeader."Package Tracking No.");
-                    GraphQuery.Append(TrackingUrl);
-                    GraphQuery.Append('\"');
+                        if ShippingAgent."Internet Address" <> '' then
+                            TrackingUrl := ShippingAgent.GetTrackingInternetAddr(SalesShipmentHeader."Package Tracking No.");
+
+                    if TrackingUrl <> '' then begin
+                        GraphQuery.Append('url: \"');
+                        GraphQuery.Append(TrackingUrl);
+                        GraphQuery.Append('\"');
+                    end;
+
                     GraphQuery.Append('}');
                 end;
                 GraphQuery.Append('lineItemsByFulfillmentOrder: [');
@@ -143,15 +158,16 @@ codeunit 30190 "Shpfy Export Shipments"
         end;
     end;
 
-    local procedure FindFulfillmentOrderLine(SalesShipmentHeader: record "Sales Shipment Header"; SalesShipmentLine: record "Sales Shipment Line"; var FulfillmentOrderLine: record "Shpfy FulFillment Order Line"): Boolean
+    local procedure FindFulfillmentOrderLine(SalesShipmentHeader: Record "Sales Shipment Header"; SalesShipmentLine: Record "Sales Shipment Line"; var FulfillmentOrderLine: Record "Shpfy FulFillment Order Line"): Boolean
     var
         OrderLine: Record "Shpfy Order Line";
     begin
         if OrderLine.Get(SalesShipmentHeader."Shpfy Order Id", SalesShipmentLine."Shpfy Order Line Id") then begin
             FulfillmentOrderLine.Reset();
             FulfillmentOrderLine.SetRange("Shopify Order Id", OrderLine."Shopify Order Id");
-            FulfillmentOrderLine.SetRange("Shopify Product Id", OrderLine."Shopify Product Id");
             FulfillmentOrderLine.SetRange("Shopify Variant Id", OrderLine."Shopify Variant Id");
+            FulfillmentOrderLine.SetRange("Shopify Location Id", OrderLine."Location Id");
+            FulfillmentOrderLine.SetFilter("Remaining Quantity", '>=%1', Round(SalesShipmentLine.Quantity, 1, '='));
             if FulfillmentOrderLine.FindFirst() then
                 exit(true);
         end;

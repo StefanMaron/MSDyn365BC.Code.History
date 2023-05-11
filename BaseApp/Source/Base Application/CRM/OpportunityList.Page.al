@@ -107,7 +107,18 @@ page 5123 "Opportunity List"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the current calculated value of the opportunity.';
                 }
+#if not CLEAN23
                 field("Coupled to CRM"; Rec."Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the opportunity is coupled to an opportunity in Dynamics 365 Sales.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
+                    ObsoleteTag = '23.0';
+                }
+#endif
+                field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the opportunity is coupled to an opportunity in Dynamics 365 Sales.';

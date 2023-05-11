@@ -1,3 +1,4 @@
+#if not CLEAN23
 codeunit 446 "IC Mapping Dimensions"
 {
     Access = Internal;
@@ -435,3 +436,4 @@ codeunit 446 "IC Mapping Dimensions"
         FailedToChangeCompanyErr: Label 'It was not possible to find table %1 in partner %2.', Comment = '%1 = Table caption, %2 = Partner Code';
         MissingPermissionToReadTableErr: Label 'You do not have the necessary permissions to access table %1 of partner %2.', Comment = '%1 = Table name, %2 = Partner Code';
 }
+#endif

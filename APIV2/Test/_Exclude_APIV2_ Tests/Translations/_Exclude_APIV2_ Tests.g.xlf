@@ -53,6 +53,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Attachments E2E - NamedType JournalServiceNameTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3702088939 - NamedType 3710439506" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseCreditMemos</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Attachments E2E - NamedType PurchaseCreditMemoServiceNameTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3702088939 - NamedType 3267338700" size-unit="char" translate="yes" xml:space="preserve">
           <source>purchaseInvoices</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -593,6 +598,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - PDF Document E2E - NamedType PDFDocumentServiceNameTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1499788930 - NamedType 3710439506" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseCreditMemos</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - PDF Document E2E - NamedType PurchaseCreditMemoServiceNameTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1499788930 - NamedType 3267338700" size-unit="char" translate="yes" xml:space="preserve">
           <source>purchaseInvoices</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -637,6 +647,51 @@
           <source>vendors</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Pictures E2E - NamedType VendorAPINameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2652406081 - NamedType 3626585037" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find the draft credit memo.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Cr. Memos E2E - NamedType CannotFindDraftCreditMemoErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2652406081 - NamedType 1557704249" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cannot find the posted credit memo.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Cr. Memos E2E - NamedType CannotFindPostedCreditMemoErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2652406081 - NamedType 561832087" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseCreditMemos</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Cr. Memos E2E - NamedType CreditMemoServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2652406081 - NamedType 2568479970" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The credit memo status is incorrect.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Cr. Memos E2E - NamedType CreditMemoStatusErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2652406081 - NamedType 3488157165" size-unit="char" translate="yes" xml:space="preserve">
+          <source>discountAmount</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Cr. Memos E2E - NamedType DiscountAmountFieldTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2652406081 - NamedType 1750966882" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Response body should be empty.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Cr. Memos E2E - NamedType NotEmptyResponseErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2540230020 - NamedType 4104417004" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseCreditMemoLines</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Cr.M. Lines E2E - NamedType CreditMemoServiceLinesNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2540230020 - NamedType 561832087" size-unit="char" translate="yes" xml:space="preserve">
+          <source>purchaseCreditMemos</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Cr.M. Lines E2E - NamedType CreditMemoServiceNameTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2540230020 - NamedType 3583508509" size-unit="char" translate="yes" xml:space="preserve">
+          <source>lineType</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit APIV2 - Purch. Cr.M. Lines E2E - NamedType LineTypeFieldNameTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 1534256134 - NamedType 3583508509" size-unit="char" translate="yes" xml:space="preserve">
           <source>lineType</source>

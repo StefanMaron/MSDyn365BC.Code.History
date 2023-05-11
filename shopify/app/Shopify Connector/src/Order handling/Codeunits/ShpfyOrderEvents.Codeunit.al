@@ -6,6 +6,18 @@ codeunit 30162 "Shpfy Order Events"
 {
     [IntegrationEvent(false, false)]
     /// <summary> 
+    /// Raised after import Shopify Order Header.
+    /// </summary>
+    /// <param name="ShopifyOrderHeader">Parameter of type Record "Shopify Order Header".</param>
+    /// <param name="IsNew">Parameter of type boolean.</param>
+    internal procedure OnAfterImportShopifyOrderHeader(var ShopifyOrderHeader: Record "Shpfy Order Header"; IsNew: Boolean)
+    begin
+    end;
+
+#if not CLEAN23
+    [Obsolete('This event is not used.', '23.0')]
+    [IntegrationEvent(false, false)]
+    /// <summary> 
     /// Raised After Modify Shopify Order.
     /// </summary>
     /// <param name="ShopifyOrderHeader">Parameter of type Record "Shopify Order Header".</param>
@@ -14,6 +26,7 @@ codeunit 30162 "Shpfy Order Events"
     begin
     end;
 
+    [Obsolete('This event is not used.', '23.0')]
     [IntegrationEvent(false, false)]
     /// <summary> 
     /// Raised After NewShopify Order.
@@ -22,6 +35,7 @@ codeunit 30162 "Shpfy Order Events"
     internal procedure OnAfterNewShopifyOrder(var ShopifyOrderHeader: Record "Shpfy Order Header")
     begin
     end;
+#endif
 
     [InternalEvent(false)]
     /// <summary> 

@@ -106,6 +106,11 @@ table 7500 "Item Attribute"
             until ItemAttributeValue.Next() = 0;
     end;
 
+    trigger OnInsert()
+    begin
+        TestField(Name);
+    end;
+
     var
         ItemAttributeTranslation: Record "Item Attribute Translation";
         NameAlreadyExistsErr: Label 'The item attribute with name ''%1'' already exists.', Comment = '%1 - arbitrary name';

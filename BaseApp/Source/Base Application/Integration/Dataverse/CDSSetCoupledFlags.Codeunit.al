@@ -1,6 +1,10 @@
+#if not CLEAN23
 codeunit 7207 "CDS Set Coupled Flags"
 {
     SingleInstance = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by flow fields Coupled to Dataverse';
+    ObsoleteTag = '23.0';
 
     trigger OnRun()
     begin
@@ -25,3 +29,4 @@ codeunit 7207 "CDS Set Coupled Flags"
             until CRMIntegrationRecord.Next() = 0;
     end;
 }
+#endif

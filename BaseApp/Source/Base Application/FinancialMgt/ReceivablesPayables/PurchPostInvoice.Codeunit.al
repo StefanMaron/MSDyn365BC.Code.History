@@ -17,6 +17,7 @@
         DeferralUtilities: Codeunit "Deferral Utilities";
         JobPostLine: Codeunit "Job Post-Line";
         PurchPostInvoiceEvents: Codeunit "Purch. Post Invoice Events";
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         DeferralLineNo: Integer;
         InvDefLineNo: Integer;
         FALineNo: Integer;
@@ -84,6 +85,11 @@
         AmtToDeferACY: Decimal;
         TotalVATBase: Decimal;
         TotalVATBaseACY: Decimal;
+        TotalNonDedVATBase: Decimal;
+        TotalNonDedVATAmount: Decimal;
+        TotalNonDedVATBaseACY: Decimal;
+        TotalNonDedVATAmountACY: Decimal;
+        TotalNonDedVATDiff: Decimal;
         DeferralAccount: Code[20];
         PurchAccount: Code[20];
         InvDiscAccount: code[20];
@@ -111,7 +117,7 @@
 
         InitTotalAmounts(
             PurchLine, PurchLineACY, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY,
-            TotalVATBase, TotalVATBaseACY);
+            TotalVATBase, TotalVATBaseACY, TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff);
 
         PurchPostInvoiceEvents.RunOnPrepareLineOnAfterAssignAmounts(PurchLine, PurchLineACY, TotalAmount, TotalAmountACY);
 
@@ -135,10 +141,11 @@
                     if InvoicePostingBuffer.Type = InvoicePostingBuffer.Type::"Fixed Asset" then begin
                         PrepareLineFADiscount(
                           InvoicePostingBuffer, GenPostingSetup, PurchLine."No.",
-                          TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY);
+                          TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY, TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff);
                         InvoicePostingBuffer.SetAccount(
                           GenPostingSetup.GetPurchInvDiscAccount(), TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                         InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
+                        NonDeductibleVAT.Update(TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff, InvoicePostingBuffer);
                         InvoicePostingBuffer.Type := InvoicePostingBuffer.Type::"G/L Account";
                         UpdateInvoicePostingBuffer(InvoicePostingBuffer);
                         InvoicePostingBuffer.Type := InvoicePostingBuffer.Type::"Fixed Asset";
@@ -151,6 +158,7 @@
                             InvDiscAccount := GenPostingSetup.GetPurchInvDiscAccount();
                         InvoicePostingBuffer.SetAccount(InvDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                         InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
+                        NonDeductibleVAT.Update(TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff, InvoicePostingBuffer);
                         UpdateInvoicePostingBuffer(InvoicePostingBuffer);
                         PurchPostInvoiceEvents.RunOnPrepareLineOnAfterSetInvoiceDiscAccount(
                             PurchLine, GenPostingSetup, InvoicePostingBuffer, TempInvoicePostingBuffer);
@@ -175,10 +183,11 @@
                     if InvoicePostingBuffer.Type = InvoicePostingBuffer.Type::"Fixed Asset" then begin
                         PrepareLineFADiscount(
                           InvoicePostingBuffer, GenPostingSetup, PurchLine."No.",
-                          TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY);
+                          TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY, TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff);
                         InvoicePostingBuffer.SetAccount(
                           GenPostingSetup.GetPurchLineDiscAccount(), TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                         InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
+                        NonDeductibleVAT.Update(TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff, InvoicePostingBuffer);
                         InvoicePostingBuffer.Type := InvoicePostingBuffer.Type::"G/L Account";
                         UpdateInvoicePostingBuffer(InvoicePostingBuffer);
                         InvoicePostingBuffer.Type := InvoicePostingBuffer.Type::"Fixed Asset";
@@ -190,6 +199,7 @@
                             LineDiscAccount := GenPostingSetup.GetPurchLineDiscAccount();
                         InvoicePostingBuffer.SetAccount(LineDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
                         InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
+                        NonDeductibleVAT.Update(TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff, InvoicePostingBuffer);
                         UpdateInvoicePostingBuffer(InvoicePostingBuffer);
                         PurchPostInvoiceEvents.RunOnPrepareLineOnAfterSetLineDiscAccount(PurchLine, GenPostingSetup, InvoicePostingBuffer, TempInvoicePostingBuffer);
                     end;
@@ -229,6 +239,7 @@
         PurchPostInvoiceEvents.RunOnPrepareLineOnBeforeSetAccount(PurchHeader, PurchLine, PurchAccount);
         InvoicePostingBuffer.SetAccount(PurchAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
         InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
+        NonDeductibleVAT.SetNonDeductibleVAT(InvoicePostingBuffer, TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff);
         InvoicePostingBuffer."Deferral Code" := PurchLine."Deferral Code";
         PurchPostInvoiceEvents.RunOnPrepareLineOnAfterFillInvoicePostingBuffer(InvoicePostingBuffer, PurchLine);
         UpdateInvoicePostingBuffer(InvoicePostingBuffer);
@@ -335,7 +346,7 @@
         PurchPostInvoiceEvents.RunOnAfterCalcLineDiscountPosting(PurchHeader, PurchLine, PurchLineACY, InvoicePostingBuffer);
     end;
 
-    local procedure InitTotalAmounts(PurchLine: Record "Purchase Line"; PurchLineACY: Record "Purchase Line"; var TotalVAT: Decimal; var TotalVATACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; var TotalVATBase: Decimal; var TotalVATBaseACY: Decimal)
+    local procedure InitTotalAmounts(PurchLine: Record "Purchase Line"; PurchLineACY: Record "Purchase Line"; var TotalVAT: Decimal; var TotalVATACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; var TotalVATBase: Decimal; var TotalVATBaseACY: Decimal; var TotalNonDedVATBase: Decimal; var TotalNonDedVATAmount: Decimal; var TotalNonDedVATBaseACY: Decimal; var TotalNonDedVATAmountACY: Decimal; var TotalNonDedVATDiff: Decimal)
     begin
         TotalVAT := PurchLine."Amount Including VAT" - PurchLine.Amount;
         TotalVATACY := PurchLineACY."Amount Including VAT" - PurchLineACY.Amount;
@@ -343,11 +354,13 @@
         TotalAmountACY := PurchLineACY.Amount;
         TotalVATBase := PurchLine."VAT Base Amount";
         TotalVATBaseACY := PurchLineACY."VAT Base Amount";
+        NonDeductibleVAT.Init(
+            TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff, PurchLine, PurchLineACY);
 
         PurchPostInvoiceEvents.RunOnAfterInitTotalAmounts(PurchLine, PurchLineACY, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, TotalVATBase, TotalVATBaseACY);
     end;
 
-    local procedure PrepareLineFADiscount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; GenPostingSetup: Record "General Posting Setup"; AccountNo: Code[20]; TotalVAT: Decimal; TotalVATACY: Decimal; TotalAmount: Decimal; TotalAmountACY: Decimal; TotalVATBase: Decimal; TotalVATBaseACY: Decimal)
+    local procedure PrepareLineFADiscount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; GenPostingSetup: Record "General Posting Setup"; AccountNo: Code[20]; TotalVAT: Decimal; TotalVATACY: Decimal; TotalAmount: Decimal; TotalAmountACY: Decimal; TotalVATBase: Decimal; TotalVATBaseACY: Decimal; TotalNonDedVATBase: Decimal; TotalNonDedVATAmount: Decimal; TotalNonDedVATBaseACY: Decimal; TotalNonDedVATAmountACY: Decimal; TotalNonDedVATDiff: Decimal)
     var
         DeprBook: Record "Depreciation Book";
         IsHandled: Boolean;
@@ -361,11 +374,13 @@
         if DeprBook."Subtract Disc. in Purch. Inv." then begin
             InvoicePostingBuffer.SetAccount(AccountNo, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
             InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
+            NonDeductibleVAT.Update(TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff, InvoicePostingBuffer);
             UpdateInvoicePostingBuffer(InvoicePostingBuffer);
             InvoicePostingBuffer.ReverseAmounts();
             InvoicePostingBuffer.SetAccount(
               GenPostingSetup.GetPurchFADiscAccount(), TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY);
             InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
+            NonDeductibleVAT.Update(TotalNonDedVATBase, TotalNonDedVATAmount, TotalNonDedVATBaseACY, TotalNonDedVATAmountACY, TotalNonDedVATDiff, InvoicePostingBuffer);
             InvoicePostingBuffer.Type := InvoicePostingBuffer.Type::"G/L Account";
             UpdateInvoicePostingBuffer(InvoicePostingBuffer);
             InvoicePostingBuffer.ReverseAmounts();
@@ -715,6 +730,7 @@
     var
         CurrencyDocument: Record Currency;
         VATPostingSetup: Record "VAT Posting Setup";
+        RemainderInvoicePostingBuffer: Record "Invoice Posting Buffer";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         VATBaseAmount: Decimal;
         VATBaseAmountACY: Decimal;
@@ -783,6 +799,7 @@
                                 InvoicePostingBuffer."VAT Base Amount" := Round(InvoicePostingBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100));
                                 InvoicePostingBuffer."VAT Base Amount (ACY)" := Round(InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
                             end;
+                            NonDeductibleVAT.Update(InvoicePostingBuffer, RemainderInvoicePostingBuffer, CurrencyDocument."Amount Rounding Precision");
                             PurchPostInvoiceEvents.RunOnCalculateVATAmountsOnReverseChargeVATOnBeforeModify(PurchHeader, CurrencyDocument, VATPostingSetup, InvoicePostingBuffer);
                             InvoicePostingBuffer.Modify();
                         end;

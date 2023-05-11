@@ -3287,5 +3287,30 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         WarehouseActivityLine.CalcSums(Quantity);
         WarehouseActivityLine.TestField(Quantity, QtyToConsume + QtyToSell);
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckAssemblyOrderOutputItemUoMDuringReleases()
+    var
+        AssemblyHeader: Record "Assembly Header";
+    begin
+        // [FEATURE] [Assembly Order], [Direct Put-Away and Pick], [UoM required]
+        // [SCENARIO 465623] In assembly order, output item must be with unit of meassure if output location is with "Directed Put-away and Pick"
+        Initialize();
+
+        //[GIVEN] Advance wms Location and Assembly Item with component
+        AssignBinCodesWMS;
+        CreateItems(Tracking::Untracked);
+
+        //[GIVEN] Created Assembly order
+        CreateAssemblyOrder(LocationWMS, LibraryRandom.RandIntInRange(1, 10), AssemblyHeader);
+
+        // [WHEN] User delete/remove output Unit of Measure
+        AssemblyHeader.SetWarningsOff();
+        AssemblyHeader.Validate("Unit of Measure Code", '');
+
+        // [THEN] During the releases process system should throw an exception
+        asserterror CODEUNIT.Run(CODEUNIT::"Release Assembly Document", AssemblyHeader);
+    end;
 }
 
