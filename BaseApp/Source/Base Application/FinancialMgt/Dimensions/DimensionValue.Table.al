@@ -10,6 +10,7 @@ table 349 "Dimension Value"
             Caption = 'Dimension Code';
             NotBlank = true;
             TableRelation = Dimension;
+            Editable = false;
 
             trigger OnValidate()
             begin

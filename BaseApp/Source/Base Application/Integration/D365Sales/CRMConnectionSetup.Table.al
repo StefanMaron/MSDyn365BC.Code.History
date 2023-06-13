@@ -428,7 +428,7 @@ table 5330 "CRM Connection Setup"
         [Obsolete('This functionality is not in use and not supported', '20.0')]
         CannotConnectCRMErr: Label 'The system is unable to connect to %2, and the connection has been disabled. Verify the credentials of the user account %1, and then enable the connection again in the Microsoft Dynamics 365 Connection Setup window.', Comment = '%1 - email of the user, %2 = CRM product name';
 #endif
-        LCYMustMatchBaseCurrencyErr: Label 'LCY Code %1 does not match ISO Currency Code %2 of the CRM base currency.', Comment = '%1,%2 - ISO currency codes';
+        LCYMustMatchBaseCurrencyErr: Label 'Your local currency code %1 does not match any ISO Currency Code in the Dataverse currency table. To continue, make sure that the local currency code in General Ledger Setup complies with the ISO standard and create a currency in Dataverse currency table that uses it as ISO Currency Code.', Comment = '%1 - ISO currency code';
         UserNameMustIncludeDomainErr: Label 'The user name must include the domain when the authentication type is set to Active Directory.';
         UserNameMustBeEmailErr: Label 'The user name must be a valid email address when the authentication type is set to Office 365.';
         ConnectionStringPwdPlaceHolderMissingErr: Label 'The connection string must include the password placeholder {PASSWORD}.';
@@ -525,7 +525,7 @@ table 5330 "CRM Connection Setup"
                     exit;
         end;
 
-        if CRMIntegrationManagement.ImportCRMSolution("Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, "Proxy Version", ForceRedeploy) then
+        if CRMIntegrationManagement.ImportCRMSolution("Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, GetProxyVersion(), ForceRedeploy) then
             Message(DeploySucceedMsg)
         else
             Message(DeployFailedMsg);
@@ -1034,7 +1034,7 @@ table 5330 "CRM Connection Setup"
         end;
 
         CRMIntegrationManagement.ImportCRMSolution(
-            "Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, "Proxy Version", false);
+            "Server Address", "User Name", AdminEmail, AdminPassword, AccessToken, AdminADDomain, GetProxyVersion(), false);
     end;
 
     local procedure EnableIntegrationTables()
@@ -1209,9 +1209,8 @@ table 5330 "CRM Connection Setup"
 
     local procedure VerifyBaseCurrencyMatchesLCY()
     var
-        CRMOrganization: Record "CRM Organization";
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1219,11 +1218,11 @@ table 5330 "CRM Connection Setup"
         if IsHandled then
             exit;
 
-        CRMOrganization.FindFirst();
-        CRMTransactioncurrency.Get(CRMOrganization.BaseCurrencyId);
-        GLSetup.Get();
-        if DelChr(CRMTransactioncurrency.ISOCurrencyCode) <> DelChr(GLSetup."LCY Code") then
-            Error(LCYMustMatchBaseCurrencyErr, GLSetup."LCY Code", CRMTransactioncurrency.ISOCurrencyCode);
+        GeneralLedgerSetup.Get();
+        CRMTransactionCurrency.Reset();
+        CRMTransactioncurrency.SetRange(ISOCurrencyCode, CopyStr(GeneralLedgerSetup."LCY Code", 1, MaxStrLen(CRMTransactioncurrency.ISOCurrencyCode)));
+        if (GeneralLedgerSetup."LCY Code" = '') or CRMTransactioncurrency.IsEmpty() then
+            Error(LCYMustMatchBaseCurrencyErr, GeneralLedgerSetup."LCY Code");
     end;
 
     [Scope('OnPrem')]
@@ -1377,12 +1376,12 @@ table 5330 "CRM Connection Setup"
     procedure UpdateConnectionString() ConnectionString: Text
     begin
         if "Authentication Type" <> "Authentication Type"::Office365 then
-            ConnectionString := StrSubstNo(ConnectionStringFormatTok, "Server Address", GetUserName(), MissingPasswordTok, "Proxy Version", CrmAuthenticationType())
+            ConnectionString := StrSubstNo(ConnectionStringFormatTok, "Server Address", GetUserName(), MissingPasswordTok, GetProxyVersion(), CrmAuthenticationType())
         else
             if CDSIntegrationImpl.GetCDSConnectionFirstPartyAppId() <> '' then
-                ConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, "Server Address", ClientIdTok, CertificateTok, "Proxy Version")
+                ConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, "Server Address", ClientIdTok, CertificateTok, GetProxyVersion())
             else
-                ConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, "Server Address", ClientIdTok, ClientSecretTok, "Proxy Version");
+                ConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, "Server Address", ClientIdTok, ClientSecretTok, GetProxyVersion());
 
         SetConnectionString(ConnectionString);
     end;
@@ -1407,7 +1406,7 @@ table 5330 "CRM Connection Setup"
 
         // if there is no proxy version in the connection string, just add it to the end
         if IndexOfProxyVersion = 0 then begin
-            ConnectionString += ('; ' + ProxyVersionTok + Format("Proxy Version"));
+            ConnectionString += ('; ' + ProxyVersionTok + Format(GetProxyVersion()));
             SetConnectionString(ConnectionString);
             exit;
         end;
@@ -1419,14 +1418,14 @@ table 5330 "CRM Connection Setup"
         // if there is no ; in it, then this is the end of the original connection string
         // just add proxy version to the end of LeftPart
         if RightPart.IndexOf(';') = 0 then begin
-            ConnectionString := LeftPart + ProxyVersionTok + Format("Proxy Version");
+            ConnectionString := LeftPart + ProxyVersionTok + Format(GetProxyVersion());
             SetConnectionString(ConnectionString);
             exit;
         end;
 
         // in the remaining case, ProxyVersion=XYZ is in the middle of the string
         RightPart := CopyStr(RightPart, RightPart.IndexOf(';'));
-        ConnectionString := LeftPart + ProxyVersionTok + Format("Proxy Version") + RightPart;
+        ConnectionString := LeftPart + ProxyVersionTok + Format(GetProxyVersion()) + RightPart;
         SetConnectionString(ConnectionString);
     end;
 

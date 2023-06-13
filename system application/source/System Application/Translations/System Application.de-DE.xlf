@@ -5811,6 +5811,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Plan Configuration Card - Action BCAdminCenter - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 3163801880 - Action 593408208 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download the selected attachment files.</source>
+          <target state="translated">Laden Sie die ausgewählten Anlagedateien herunter.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Action Download - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3163801880 - Action 593408208 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Download Attachments</source>
+          <target state="translated">Anlagen herunterladen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Action Download - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 3170013184 - Action 176562519 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the status of the deployment.</source>
           <target state="translated">Gibt den Status der Bereitstellung an.</target>
@@ -7388,6 +7400,12 @@
           <target state="translated">Gibt die ID des Berechtigungssatzes an.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sec. Group Permissions Part - Control Role ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1108212613 - Control 1918310387 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Permission Set</source>
+          <target state="translated">Berechtigungssatz</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sec. Group Permissions Part - Control Role ID - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1108212613 - Control 3997336476 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the company that the permission set applies to.</source>
@@ -15174,6 +15192,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Control ConnectorType - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 761349018 - Control 100492085 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the size of the attachment</source>
+          <target state="translated">Gibt die Größe des Anhangs an</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Control FileSize - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 761349018 - Control 100492085 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Size</source>
+          <target state="translated">Dateigröße</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Control FileSize - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 761349018 - Control 989751795 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the attachment</source>
           <target state="translated">Gibt den Namen des Anhangs an.</target>
@@ -15701,6 +15731,12 @@
           <target state="translated">Es muss mindestens ein Benutzer im System vorhanden sein, damit Sie eine Sicherheitsgruppe erstellen können.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page New Security Group - NamedType NoUsersErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3163801880 - NamedType 2806801928" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>EmailAttachments.zip</source>
+          <target state="translated">EmailAttachments.zip</target>
+          <note from="Developer" annotates="general" priority="2">Name of the zip file containing email attachments.</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - NamedType EmailAttachmentsZipFileNameTxt</note>
         </trans-unit>
         <trans-unit id="Page 3212752058 - NamedType 1530166770" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>No source entity relation was specified.</source>

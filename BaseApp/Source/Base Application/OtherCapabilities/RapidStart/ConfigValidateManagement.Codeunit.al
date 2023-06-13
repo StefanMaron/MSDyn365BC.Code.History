@@ -878,6 +878,7 @@ codeunit 8617 "Config. Validate Management"
                         DefaultValue := CurDefaultValue
                     else
                         DefaultValue := "Default Value";
+                    OnTransferRecordDefaultValuesOnBeforeValidateFieldValue(RecRef, CurFieldNo, CurDefaultValue);
                     ValidateFieldValue(RecRef, FieldRef, DefaultValue, true, "Language ID");
                 until Next() = 0;
         end;
@@ -934,6 +935,11 @@ codeunit 8617 "Config. Validate Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRoundDecimalValue(var DecimalFieldRef: FieldRef; var DecimalValue: Decimal; var ShouldRound: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferRecordDefaultValuesOnBeforeValidateFieldValue(var RecordReference: RecordRef; CurFieldNo: Integer; CurDefaultValue: Text)
     begin
     end;
 }

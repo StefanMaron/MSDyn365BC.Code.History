@@ -192,6 +192,7 @@ codeunit 104 "Update Name In Ledger Entries"
                 repeat
                     if GetCustomer("Customer No.", Customer) then begin
                         "Customer Name" := Customer.Name;
+                        OnUpdateCustNamesInLedgerEntriesOnBeforeModifyCustLedgEntry(CustLedgEntry, Customer);
                         Modify();
                     end;
                 until Next() = 0;
@@ -286,10 +287,21 @@ codeunit 104 "Update Name In Ledger Entries"
                 repeat
                     if GetVendor("Vendor No.", Vendor) then begin
                         "Vendor Name" := Vendor.Name;
+                        OnUpdateVendNamesInLedgerEntriesOnBeforeModifyVendLedgEntry(VendLedgEntry, Vendor);
                         Modify();
                     end;
                 until Next() = 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustNamesInLedgerEntriesOnBeforeModifyCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVendNamesInLedgerEntriesOnBeforeModifyVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; Vendor: Record Vendor)
+    begin
     end;
 }
 

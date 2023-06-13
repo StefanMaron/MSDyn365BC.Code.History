@@ -55,12 +55,24 @@ table 5886 "Exp. Phys. Invt. Tracking"
     end;
 
     procedure DeleteLine(DocumentNo: Code[20]; LineNo: Integer; RemoveAll: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteLine(Rec, DocumentNo, LineNo, RemoveAll, IsHandled);
+        if IsHandled then
+            exit;
+
         SetRange("Order No", DocumentNo);
         SetRange("Order Line No.", LineNo);
         if not RemoveAll then
             SetRange("Quantity (Base)", 0);
         DeleteAll();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteLine(var ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking"; DocumentNo: Code[20]; LineNo: Integer; var RemoveAll: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

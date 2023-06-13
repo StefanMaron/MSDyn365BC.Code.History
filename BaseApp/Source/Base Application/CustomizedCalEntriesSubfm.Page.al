@@ -16,28 +16,28 @@ page 7605 "Customized Cal. Entries Subfm"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(CurrSourceType; "Source Type")
+                field(CurrSourceType; Rec."Source Type")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Current Source Type';
                     ToolTip = 'Specifies the source type for the calendar entry.';
                     Visible = false;
                 }
-                field(CurrSourceCode; "Source Code")
+                field(CurrSourceCode; Rec."Source Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Current Source Code';
                     ToolTip = 'Specifies the source code for the calendar entry.';
                     Visible = false;
                 }
-                field(CurrAdditionalSourceCode; "Additional Source Code")
+                field(CurrAdditionalSourceCode; Rec."Additional Source Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Current Additional Source Code';
                     ToolTip = 'Specifies the calendar entry.';
                     Visible = false;
                 }
-                field(CurrCalendarCode; "Base Calendar Code")
+                field(CurrCalendarCode; Rec."Base Calendar Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Current Calendar Code';
@@ -45,21 +45,21 @@ page 7605 "Customized Cal. Entries Subfm"
                     ToolTip = 'Specifies the calendar code.';
                     Visible = false;
                 }
-                field("Period Start"; Date)
+                field("Period Start"; Rec.Date)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Date';
                     Editable = false;
                     ToolTip = 'Specifies the date.';
                 }
-                field("Period Name"; Day)
+                field("Period Name"; Rec.Day)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Day';
                     Editable = false;
                     ToolTip = 'Specifies the day of the week.';
                 }
-                field(WeekNo; Date2DWY(Date, 2))
+                field(WeekNo; Date2DWY(Rec.Date, 2))
                 {
                     ApplicationArea = Suite;
                     Caption = 'Week No.';
@@ -67,7 +67,7 @@ page 7605 "Customized Cal. Entries Subfm"
                     ToolTip = 'Specifies the week number for the calendar entries.';
                     Visible = false;
                 }
-                field(Nonworking; Nonworking)
+                field(Nonworking; Rec.Nonworking)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Nonworking';
@@ -192,22 +192,29 @@ page 7605 "Customized Cal. Entries Subfm"
     local procedure IsInBaseCalendar(): Boolean
     var
         BaseCalendarChange: Record "Base Calendar Change";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
-        if BaseCalendarChange.get("Base Calendar Code", "Recurring System"::" ", Date, Day) then
-            exit(BaseCalendarChange.Nonworking = Nonworking);
+        IsHandled := false;
+        OnBeforeIsInBaseCalendar(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
-        if BaseCalendarChange.get("Base Calendar Code", "Recurring System"::"Weekly Recurring", 0D, Day) then
-            exit(BaseCalendarChange.Nonworking = Nonworking);
+        if BaseCalendarChange.Get(Rec."Base Calendar Code", Rec."Recurring System"::" ", Rec.Date, Rec.Day) then
+            exit(BaseCalendarChange.Nonworking = Rec.Nonworking);
 
-        BaseCalendarChange.SetRange("Base Calendar Code", "Base Calendar Code");
+        if BaseCalendarChange.Get(Rec."Base Calendar Code", Rec."Recurring System"::"Weekly Recurring", 0D, Rec.Day) then
+            exit(BaseCalendarChange.Nonworking = Rec.Nonworking);
+
+        BaseCalendarChange.SetRange("Base Calendar Code", Rec."Base Calendar Code");
         BaseCalendarChange.SetRange(Day, BaseCalendarChange.Day::" ");
-        BaseCalendarChange.SetRange("Recurring System", "Recurring System"::"Annual Recurring");
+        BaseCalendarChange.SetRange("Recurring System", Rec."Recurring System"::"Annual Recurring");
         if BaseCalendarChange.Find('-') then
             repeat
-                if (Date2DMY(BaseCalendarChange.Date, 2) = Date2DMY(Date, 2)) and
-                   (Date2DMY(BaseCalendarChange.Date, 1) = Date2DMY(Date, 1))
+                if (Date2DMY(BaseCalendarChange.Date, 2) = Date2DMY(Rec.Date, 2)) and
+                   (Date2DMY(BaseCalendarChange.Date, 1) = Date2DMY(Rec.Date, 1))
                 then
-                    exit(BaseCalendarChange.Nonworking = Nonworking);
+                    exit(BaseCalendarChange.Nonworking = Rec.Nonworking);
             until BaseCalendarChange.Next() = 0;
 
         exit(not CurrCalendarChange.Nonworking);
@@ -215,6 +222,11 @@ page 7605 "Customized Cal. Entries Subfm"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCusomizedCalendarChanges(var CustomizedCalendarChange: Record "Customized Calendar Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsInBaseCalendar(var CustomizedCalendarChange: Record "Customized Calendar Change"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

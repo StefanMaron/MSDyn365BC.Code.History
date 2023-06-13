@@ -195,7 +195,7 @@ table 133 "Incoming Document Attachment"
     begin
         TestField("Incoming Document Entry No.");
         "Created Date-Time" := RoundDateTime(CurrentDateTime, 1000);
-        "Created By User Name" := UserId;
+        "Created By User Name" := CopyStr(UserId(), 1, MaxStrLen("Created By User Name"));
 
         SetFirstAttachmentAsDefault();
         SetFirstAttachmentAsMain();
@@ -218,7 +218,14 @@ table 133 "Incoming Document Attachment"
         NotifIncDocCompletedMsg: Label 'The action to create an incoming document from file has completed.';
 
     procedure NewAttachment()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNewAttachment(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not CODEUNIT.Run(CODEUNIT::"Import Attachment - Inc. Doc.", Rec) then
             Error('');
     end;
@@ -299,8 +306,16 @@ table 133 "Incoming Document Attachment"
             SendNotifActionCompleted();
     end;
 
-    procedure Import(): Boolean
+    procedure Import() IsImported: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        IsImported := false;
+        OnBeforeImport(Rec, IsImported, IsHandled);
+        if IsHandled then
+            exit(IsImported);
+
         exit(Import(false));
     end;
 
@@ -419,7 +434,14 @@ table 133 "Incoming Document Attachment"
     end;
 
     local procedure FindDataExchType()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindDataExchType(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type <> Type::XML then
             exit;
         Commit();
@@ -672,6 +694,21 @@ table 133 "Incoming Document Attachment"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetValueOnExtractHeaderField(var IncomingDocument: Record "Incoming Document"; FieldNumber: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindDataExchType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNewAttachment(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeImport(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IsImported: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

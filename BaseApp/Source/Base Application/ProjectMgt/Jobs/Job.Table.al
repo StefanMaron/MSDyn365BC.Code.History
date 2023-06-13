@@ -1584,7 +1584,13 @@ table 167 Job
     procedure CurrencyUpdatePlanningLines()
     var
         JobPlanningLine: Record "Job Planning Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCurrencyUpdatePlanningLines(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         JobPlanningLine.SetRange("Job No.", "No.");
         JobPlanningLine.SetAutoCalcFields("Qty. Transferred to Invoice");
         JobPlanningLine.LockTable();
@@ -2407,16 +2413,22 @@ table 167 Job
 
             IsHandled := false;
             OnUpdateCustOnBeforeAssignIncoiceCurrencyCode(Job, xJob, BillToCustomer, IsHandled);
-
             if not IsHandled then
                 "Invoice Currency Code" := BillToCustomer."Currency Code";
-            if "Invoice Currency Code" <> '' then
-                Validate("Currency Code", '');
+
+            IsHandled := false;
+            OnBillToCustomerNoUpdatedOnBeforeAssignCurrencyCode(Job, xJob, BillToCustomer, IsHandled);
+            if not IsHandled then
+                if "Invoice Currency Code" <> '' then
+                    Validate("Currency Code", '');
 
             Job."Customer Disc. Group" := BillToCustomer."Customer Disc. Group";
             Job."Customer Price Group" := BillToCustomer."Customer Price Group";
             Job."Language Code" := BillToCustomer."Language Code";
-            UpdateBillToContact(Job."Bill-to Customer No.");
+            IsHandled := false;
+            OnBillToCustomerNoUpdatedOnBeforeUpdateBillToContact(Job, xJob, BillToCustomer, IsHandled);
+            if not IsHandled then            
+                UpdateBillToContact(Job."Bill-to Customer No.");
             Job.CopyDefaultDimensionsFromCustomer();
         end else begin
             Job."Bill-to Name" := '';
@@ -2832,6 +2844,21 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateStatusOnBeforeConfirm(var Job: Record "Job"; xJob: Record "Job"; var UndidCompleteStatus: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCurrencyUpdatePlanningLines(var Job: Record Job; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBillToCustomerNoUpdatedOnBeforeAssignCurrencyCode(var Job: Record Job; xJob: Record Job; Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBillToCustomerNoUpdatedOnBeforeUpdateBillToContact(var Job: Record Job; xJob: Record Job; Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 }

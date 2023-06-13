@@ -102,7 +102,8 @@ page 1263 Certificate
                     RecallNotifications();
                     IsolatedCertificate := Rec;
                     CertPassword := '';
-
+                    CertificateManagement.SetCertPassword(CertPassword);
+                    
                     CheckEncryption();
 
                     if not CertificateManagement.UploadAndVerifyCert(Rec) then begin

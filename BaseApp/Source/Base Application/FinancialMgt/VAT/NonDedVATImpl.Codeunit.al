@@ -19,6 +19,7 @@ codeunit 6201 "Non-Ded. VAT Impl."
         CannotBeNegativeErr: Label 'cannot be negative';
         PrepaymentsWithNDVATErr: Label 'You cannot post prepayment that contains Non-Deductible VAT.';
         UnrealizedVATWithNDVATErr: Label 'You cannot post unrealized VAT that contains Non-Deductible VAT.';
+        DifferentNonDedVATRatesSameVATIdentifierErr: Label 'You cannot set different Non-Deductible VAT % for the combinations of business and product groups with the same VAT identifier.\The following combination with the same VAT identifier has different Non-Deductible VAT %: business group %1, product group %2', Comment = '%1, %2 - codes';
 
     procedure IsNonDeductibleVATEnabled(): Boolean
     var
@@ -394,6 +395,10 @@ codeunit 6201 "Non-Ded. VAT Impl."
 
     procedure CopyNonDedVATAmountFromGenJnlLineToGLEntry(var GLEntry: Record "G/L Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
+        if GenJournalLine."Gen. Posting Type" <> GenJournalLine."Gen. Posting Type"::Purchase then
+            exit;
+        if not (GenJournalLine."VAT Posting" in [GenJournalLine."VAT Posting"::"Automatic VAT Entry", GenJournalLine."VAT Posting"::"Manual VAT Entry"]) then
+            exit;
         GLEntry."Non-Deductible VAT Amount" := GenJournalLine."Non-Deductible VAT Amount";
     end;
 
@@ -403,10 +408,39 @@ codeunit 6201 "Non-Ded. VAT Impl."
             error(PrepaymentsWithNDVATErr);
     end;
 
+    procedure CheckPrepmtVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        if (VATPostingSetup."Allow Non-Deductible VAT" = VATPostingSetup."Allow Non-Deductible VAT"::Allow) and (VATPostingSetup."Non-Deductible VAT %" <> 0) then
+            error(PrepaymentsWithNDVATErr);
+    end;
+
     procedure CheckUnrealizedVATWithNonDeductibleVATInVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup")
     begin
         If (VATPostingSetup."Unrealized VAT Type" <> VATPostingSetup."Unrealized VAT Type"::" ") and (VATPostingSetup."Non-Deductible VAT %" <> 0) and (VATPostingSetup."Allow Non-Deductible VAT" = VATPostingSetup."Allow Non-Deductible VAT"::Allow) then
             error(UnrealizedVATWithNDVATErr);
+    end;
+
+    procedure CheckVATPostingSetupChangeIsAllowed(VATPostingSetup: Record "VAT Posting Setup")
+    var
+        ExistingVATPostingSetup: Record "VAT Posting Setup";
+        IsHandled: Boolean;
+    begin
+        if not IsNonDeductibleVATEnabled() then
+            exit;
+        NonDeductibleVAT.OnBeforeCheckVATPostingSetupChangeIsAllowed(VATPostingSetup, IsHandled);
+        if IsHandled then
+            exit;
+        if VATPostingSetup."Allow Non-Deductible VAT" = VATPostingSetup."Allow Non-Deductible VAT"::"Do Not Allow" then
+            exit;
+        ExistingVATPostingSetup.SetRange("VAT Identifier", VATPostingSetup."VAT Identifier");
+        ExistingVATPostingSetup.SetRange("Allow Non-Deductible VAT", VATPostingSetup."Allow Non-Deductible VAT"::Allow);
+        if ExistingVATPostingSetup.FindSet() then
+            repeat
+                if (ExistingVATPostingSetup."VAT Bus. Posting Group" <> VATPostingSetup."VAT Bus. Posting Group") or (ExistingVATPostingSetup."VAT Prod. Posting Group" <> VATPostingSetup."VAT Prod. Posting Group") then
+                    If ExistingVATPostingSetup."Non-Deductible VAT %" <> VATPostingSetup."Non-Deductible VAT %" then
+                        error(DifferentNonDedVATRatesSameVATIdentifierErr, ExistingVATPostingSetup."VAT Bus. Posting Group", ExistingVATPostingSetup."VAT Prod. Posting Group");
+            until ExistingVATPostingSetup.Next() = 0;
+        CheckUnrealizedVATWithNonDeductibleVATInVATPostingSetup(VATPostingSetup);
     end;
 
     procedure CheckNonDeductibleVATAmountDiff(var TempVATAmountLine: Record "VAT Amount Line" temporary; xTempVATAmountLine: Record "VAT Amount Line" temporary; AllowVATDifference: Boolean; Currency: Record Currency)
@@ -500,6 +534,16 @@ codeunit 6201 "Non-Ded. VAT Impl."
     procedure Reverse(var GLEntry: Record "G/L Entry"; GLEntryToReverse: Record "G/L Entry")
     begin
         GLEntry."Non-Deductible VAT Amount" := -GLEntryToReverse."Non-Deductible VAT Amount";
+    end;
+
+    procedure Reverse(var VATEntry: Record "VAT Entry")
+    begin
+        VATEntry."Non-Deductible VAT Base" := -VATEntry."Non-Deductible VAT Base";
+        VATEntry."Non-Deductible VAT Amount" := -VATEntry."Non-Deductible VAT Amount";
+        VATEntry."Non-Deductible VAT Base ACY" := -VATEntry."Non-Deductible VAT Base ACY";
+        VATEntry."Non-Deductible VAT Amount ACY" := -VATEntry."Non-Deductible VAT Amount ACY";
+        VATEntry."Non-Deductible VAT Diff." := -VATEntry."Non-Deductible VAT Diff.";
+        VATEntry."Non-Deductible VAT Diff. ACY" := -VATEntry."Non-Deductible VAT Diff. ACY";
     end;
 
     procedure Increment(var TotalPurchaseLine: Record "Purchase Line"; PurchaseLine: Record "Purchase Line")

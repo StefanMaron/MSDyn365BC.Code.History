@@ -314,6 +314,7 @@ codeunit 6710 ODataUtility
         ObjectId: Integer;
     begin
         EditinExcelFilters.AddField('Journal_Batch_Name', Enum::"Edit in Excel Filter Type"::Equal, JournalBatchName, Enum::"Edit in Excel Edm Type"::"Edm.String");
+        EditinExcelFilters.AddField('Journal_Template_Name', Enum::"Edit in Excel Filter Type"::Equal, JournalTemplateName, Enum::"Edit in Excel Edm Type"::"Edm.String");
 
         Evaluate(ObjectId, CopyStr(PageId, 5));
         EditinExcel.EditPageInExcel(PageCaption, ObjectId, EditinExcelFilters);

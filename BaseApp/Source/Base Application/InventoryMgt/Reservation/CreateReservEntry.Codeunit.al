@@ -454,11 +454,13 @@ codeunit 99000830 "Create Reserv. Entry"
                     NewReservEntry.Modify();
                 end;
             end else begin
+                SetQtyToHandleAndInvoiceForReservationWithoutItemTracking(NewReservEntry, NewReservEntry."Quantity (Base)", NewReservEntry."Quantity (Base)", false);
                 OnTransferReservEntryOnBeforeNewReservEntryModify(NewReservEntry, false);
                 NewReservEntry.Modify();
                 TransferQty := NewReservEntry."Quantity (Base)";
                 if NewReservEntry."Source Type" = DATABASE::"Item Ledger Entry" then begin
                     if NewReservEntry.Get(NewReservEntry."Entry No.", not NewReservEntry.Positive) then begin // Get partner-record
+                        SetQtyToHandleAndInvoiceForReservationWithoutItemTracking(NewReservEntry, NewReservEntry."Quantity (Base)", NewReservEntry."Quantity (Base)", false);
                         if NewReservEntry."Quantity (Base)" < 0 then
                             NewReservEntry."Expected Receipt Date" := 0D
                         else
@@ -482,6 +484,7 @@ codeunit 99000830 "Create Reserv. Entry"
                 end else
                     if CarriedItemTrackingSetup.TrackingExists() then
                         if NewReservEntry.Get(NewReservEntry."Entry No.", not NewReservEntry.Positive) then; // Get partner-record
+                SetQtyToHandleAndInvoiceForReservationWithoutItemTracking(NewReservEntry, NewReservEntry."Quantity (Base)", NewReservEntry."Quantity (Base)", true);
             end;
 
         OnTransferReservEntryOnBeforeCheckCarriedItemTrackingSetupTrackingExists(NewReservEntry, OldReservEntry);
@@ -997,6 +1000,19 @@ codeunit 99000830 "Create Reserv. Entry"
 
         LastProcessedSourceID := CurrSourceID;
         exit(true);
+    end;
+
+    internal procedure SetQtyToHandleAndInvoiceForReservationWithoutItemTracking(var ReservationEntry: Record "Reservation Entry"; QtyToHandleBase: Decimal; QtyToInvoiceBase: Decimal; DoModify: Boolean)
+    begin
+        if (ReservationEntry."Item Tracking" = ReservationEntry."Item Tracking"::None) and
+           (ReservationEntry."Reservation Status" = ReservationEntry."Reservation Status"::Reservation) and
+           (ReservationEntry."Qty. to Handle (Base)" = 0) and (ReservationEntry."Qty. to Invoice (Base)" = 0)
+        then begin
+            ReservationEntry."Qty. to Handle (Base)" := QtyToHandleBase;
+            ReservationEntry."Qty. to Invoice (Base)" := QtyToInvoiceBase;
+            if DoModify then
+                ReservationEntry.Modify();
+        end;
     end;
 
     [IntegrationEvent(false, false)]

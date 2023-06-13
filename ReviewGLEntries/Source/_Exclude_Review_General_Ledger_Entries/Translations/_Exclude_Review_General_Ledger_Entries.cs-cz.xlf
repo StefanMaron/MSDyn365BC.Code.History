@@ -101,7 +101,7 @@
         </trans-unit>
         <trans-unit id="Page 2247589152 - Action 2553591649 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set selected as not reviewed</source>
-          <target state="translated">Nastavit vybrané jako nekontrolované</target>
+          <target state="translated">Nastavit vybrané jako nezkontrolované</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Review G/L Entries - Action SetSelectedAsNotReviewed - Property Caption</note>
         </trans-unit>
@@ -401,7 +401,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 3920593255 - Action 682019436 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Review Entries</source>
-          <target state="translated">Položky kontroly</target>
+          <target state="translated">Zkontrolovat položky</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 3105459369</note>
@@ -422,14 +422,14 @@
         </trans-unit>
         <trans-unit id="PageExtension 3920593255 - Action 682019436 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Review Entries</source>
-          <target state="translated">Položky kontroly</target>
+          <target state="translated">Zkontrolovat položky</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 3105459369</note>
         </trans-unit>
         <trans-unit id="PageExtension 4104492989 - Action 682019436 - Property 1064389655" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Review Entries</source>
-          <target state="translated">Položky kontroly</target>
+          <target state="translated">Zkontrolovat položky</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1887905131</note>
@@ -450,7 +450,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 4104492989 - Action 682019436 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Review Entries</source>
-          <target state="translated">Položky kontroly</target>
+          <target state="translated">Zkontrolovat položky</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1887905131</note>

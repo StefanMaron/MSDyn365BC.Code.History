@@ -72,7 +72,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 exit;
 
         IsHandled := false;
-        OnBeforeCreatePickOrMoveLines(WhseRequest, WhseActivHeader, LineCreated, IsHandled, HideDialog);
+        OnBeforeCreatePickOrMoveLines(WhseRequest, WhseActivHeader, LineCreated, IsHandled, HideDialog, IsInvtMovement, IsBlankInvtMovement, CompleteShipment);
         if IsHandled then
             exit;
 
@@ -429,7 +429,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 SetFilter("Shipment Date", WarehouseSourceFilter.GetFilter("Shipment Date Filter"));
             end;
 
-            OnBeforeFindSalesLine(SalesLine, SalesHeader, WhseActivHeader, WhseRequest);
+            OnBeforeFindSalesLine(SalesLine, SalesHeader, WhseActivHeader, WhseRequest, CheckLineExist);
             Result := Find('-');
         end;
         OnAfterSetFilterSalesLine(SalesLine, SalesHeader, WhseActivHeader, WhseRequest, ShowError, Result);
@@ -924,6 +924,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
             if Location."Bin Mandatory" then begin
                 // find Take qty. for bin code of source line
+                OnCreatePickOrMoveLineOnBeforeCheckIfInsertPickOrMoveBinWhseActLine(NewWhseActivLine, RemQtyToPickBase);
                 if (RemQtyToPickBase > 0) and
                    (NewWhseActivLine."Bin Code" <> '') and
                    (not IsInvtMovement or IsBlankInvtMovement) and
@@ -1021,7 +1022,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
             SetTrackingFilterFromWhseActivityLineIfNotBlank(NewWhseActivLine);
 
-            OnBeforeFindFromBinContent(FromBinContent, NewWhseActivLine, FromBinCode, BinCode, IsInvtMovement, IsBlankInvtMovement, DefaultBin, WhseItemTrackingSetup);
+            OnBeforeFindFromBinContent(FromBinContent, NewWhseActivLine, FromBinCode, BinCode, IsInvtMovement, IsBlankInvtMovement, DefaultBin, WhseItemTrackingSetup, WhseActivHeader, WhseRequest);
             if Find('-') then
                 repeat
                     IsHandled := false;
@@ -1034,6 +1035,8 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         OnInsertPickOrMoveBinWhseActLineOnAfterCalcQtyAvailToPick(QtyAvailToPickBase, FromBinContent);
                         if RemQtyToPickBase < QtyAvailToPickBase then
                             QtyAvailToPickBase := RemQtyToPickBase;
+
+                        OnInsertPickOrMoveBinWhseActLineOnBeforeMakeHeader(RemQtyToPickBase, QtyAvailToPickBase, DefaultBin, FromBinContent);
                         if QtyAvailToPickBase > 0 then begin
                             MakeHeader();
                             if WhseItemTrackingSetup."Serial No. Required" then begin
@@ -1050,6 +1053,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                                 OnInsertPickOrMoveBinWhseActLineOnBeforeLoopMakeLine(WhseActivHeader, WhseRequest, NewWhseActivLine, FromBinContent, AutoCreation, QtyToPickBase);
                                 repeat
                                     MakeLine(NewWhseActivLine, "Bin Code", QtyToPickBase, RemQtyToPickBase);
+                                    OnInsertPickOrMoveBinWhseActLineOnAfterMakeLine(QtyToPickBase, DefaultBin);
                                     QtyAvailToPickBase := QtyAvailToPickBase - QtyToPickBase;
                                 until QtyAvailToPickBase <= 0;
                             end;
@@ -1261,7 +1265,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
         GetLocation(WhseRequest."Location Code");
 
         IsHandled := false;
-        OnBeforeAutoCreatePickOrMove(WhseRequest, WhseActivHeader, LineCreated, IsHandled, HideDialog);
+        OnBeforeAutoCreatePickOrMove(WhseRequest, WhseActivHeader, LineCreated, IsHandled, HideDialog, IsInvtMovement, IsBlankInvtMovement, CompleteShipment);
         if IsHandled then
             exit;
 
@@ -2234,7 +2238,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoCreatePickOrMove(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LineCreated: Boolean; var IsHandled: Boolean; var HideDialog: Boolean)
+    local procedure OnBeforeAutoCreatePickOrMove(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LineCreated: Boolean; var IsHandled: Boolean; var HideDialog: Boolean; IsInvtMovement: Boolean; IsBlankInvtMovement: Boolean; var CompleteShipment: Boolean)
     begin
     end;
 
@@ -2244,7 +2248,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePickOrMoveLines(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LinesCreated: Boolean; var IsHandled: Boolean; var HideDialog: Boolean)
+    local procedure OnBeforeCreatePickOrMoveLines(WarehouseRequest: Record "Warehouse Request"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var LinesCreated: Boolean; var IsHandled: Boolean; var HideDialog: Boolean; IsInvtMovement: Boolean; IsBlankInvtMovement: Boolean; var CompleteShipment: Boolean)
     begin
     end;
 
@@ -2334,7 +2338,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseRequest: Record "Warehouse Request")
+    local procedure OnBeforeFindSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseRequest: Record "Warehouse Request"; CheckLineExist: Boolean)
     begin
     end;
 
@@ -2364,7 +2368,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindFromBinContent(var FromBinContent: Record "Bin Content"; var WarehouseActivityLine: Record "Warehouse Activity Line"; FromBinCode: Code[20]; BinCode: Code[20]; IsInvtMovement: Boolean; IsBlankInvtMovement: Boolean; DefaultBin: Boolean; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    local procedure OnBeforeFindFromBinContent(var FromBinContent: Record "Bin Content"; var WarehouseActivityLine: Record "Warehouse Activity Line"; FromBinCode: Code[20]; BinCode: Code[20]; IsInvtMovement: Boolean; IsBlankInvtMovement: Boolean; DefaultBin: Boolean; WhseItemTrackingSetup: Record "Item Tracking Setup"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseRequest: Record "Warehouse Request")
     begin
     end;
 
@@ -2430,7 +2434,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
     begin
     end;
 #endif
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCreatePickOrMoveLineOnAfterFindTakeQtyForBinCodeSourceLine(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var RemQtyToPickBase: Decimal; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
@@ -2597,6 +2601,21 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAutoCreatePickOrMoveOnBeforeWarehouseActivityHeaderModify(var WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseRequest: Record "Warehouse Request"; Location: Record Location)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPickOrMoveBinWhseActLineOnBeforeMakeHeader(var RemQtyToPickBase: Decimal; var QtyAvailToPickBase: Decimal; var DefaultBin: Boolean; var FromBinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPickOrMoveBinWhseActLineOnAfterMakeLine(var QtyToPickBase: Decimal; var DefaultBin: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePickOrMoveLineOnBeforeCheckIfInsertPickOrMoveBinWhseActLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var RemQtyToPickBase: Decimal)
     begin
     end;
 }

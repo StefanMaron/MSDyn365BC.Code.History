@@ -254,7 +254,10 @@ codeunit 8614 "Config. XML Exchange"
 
         ExportMetadata := true;
         RecRef.Open(ConfigPackageTable."Table ID");
-        ApplyPackageFilter(ConfigPackageTable, RecRef);
+        IsHandled := false;
+        OnCreateRecordNodesOnBeforeApplyPackageFilter(ConfigPackageTable, RecRef, IsHandled);
+        if not IsHandled then
+            ApplyPackageFilter(ConfigPackageTable, RecRef);
         OnCreateRecordNodesOnAfterApplyPackageFilter(ConfigPackageTable, ConfigPackage, RecRef);
         if RecRef.FindSet() then begin
             RecordCount := RecRef.Count();
@@ -1658,6 +1661,11 @@ codeunit 8614 "Config. XML Exchange"
 
     [IntegrationEvent(false, false)]
     local procedure OnImportPackageXMLDocumentOnDefaultDimOnAfterConfigPackageRecordSetFilters(var ConfigPackageRecord: Record "Config. Package Record"; ConfigPackageData: Record "Config. Package Data"; PackageCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateRecordNodesOnBeforeApplyPackageFilter(var ConfigPackageTable: Record "Config. Package Table"; var RecordReference: RecordRef; var IsHandled: Boolean);
     begin
     end;
 }

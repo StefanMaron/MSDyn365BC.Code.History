@@ -5041,6 +5041,65 @@ codeunit 137051 "SCM Warehouse - III"
         ProdOrderComponent.TestField("Qty. Picked (Base)", 0.1);
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalPostOneHandler,ConfirmHandler2,MessageHandler')]
+    procedure PostingConsumptionWithAlternateUoMAtLocationWithNoPick()
+    var
+        Location: Record Location;
+        CompItem: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+    begin
+        // [FEATURE] [Production] [Consumption] [Unit of Measure]
+        // [SCENARIO 473386] "Qty. Picked" is properly updated on posting prod. order component with alternate unit of measure.
+        Initialize();
+
+        // [GIVEN] Location that is not set up for warehouse.
+        // [GIVEN] Item "C" with base unit of measure = "PC" and alternate UoM "GR" = 0.001 "PC".
+        // [GIVEN] Post 1 PC of item "C" to inventory.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, CompItem."No.", 0.001);
+        LibraryInventory.CreateItemJnlLine(
+          ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), CompItem."No.", LibraryRandom.RandInt(10), Location.Code);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Production order at the location.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, LibraryInventory.CreateItemNo(), 1);
+        LibraryManufacturing.CreateProdOrderLine(
+          ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", ProductionOrder."Source No.", '', Location.Code, 1);
+
+        // [GIVEN] Add 1 "GR" of item "C" to prod. order components.
+        LibraryManufacturing.CreateProductionOrderComponent(
+          ProdOrderComponent, ProductionOrder.Status, ProductionOrder."No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", CompItem."No.");
+        ProdOrderComponent.Validate("Quantity per", 1);
+        ProdOrderComponent.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ProdOrderComponent.Validate("Location Code", Location.Code);
+        ProdOrderComponent.Modify();
+
+        // [WHEN] Post consumption.
+        LibraryVariableStorage.Enqueue(CompItem."No.");
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderComponent."Prod. Order Line No.");
+
+        // [THEN] The consumption has been successfully posted.
+        // [THEN] "Qty. Picked" is updated to 1.
+        // [THEN] "Qty. Picked (Base)" is updated to 0.001.
+        ProdOrderComponent.Find();
+        ProdOrderComponent.CalcFields("Act. Consumption (Qty)");
+        ProdOrderComponent.TestField("Act. Consumption (Qty)", 0.001);
+        ProdOrderComponent.TestField("Qty. Picked", 1);
+        ProdOrderComponent.TestField("Qty. Picked (Base)", 0.001);
+        ProdOrderComponent.TestField("Completely Picked");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

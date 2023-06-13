@@ -31,7 +31,7 @@ codeunit 1026 "Job Link Usage"
     var
         JobPlanningLine: Record "Job Planning Line";
         JobUsageLink: Record "Job Usage Link";
-        Confirmed: Boolean;
+        Confirmed, IsHandled : Boolean;
         MatchedQty: Decimal;
         MatchedTotalCost: Decimal;
         MatchedLineAmount: Decimal;
@@ -50,7 +50,10 @@ codeunit 1026 "Job Link Usage"
                 end else
                     CreateJobPlanningLine(JobPlanningLine, JobLedgerEntry, RemainingQtyToMatch);
 
-            RemainingQtyToMatchPerUoM := UOMMgt.CalcQtyFromBase(RemainingQtyToMatch, JobPlanningLine."Qty. per Unit of Measure");
+            IsHandled := false;
+            OnMatchUsageUnspecifiedOnBeforeCheckPostedQty(JobPlanningLine, JobLedgerEntry, RemainingQtyToMatch, IsHandled);
+            if not IsHandled then
+                RemainingQtyToMatchPerUoM := UOMMgt.CalcQtyFromBase(RemainingQtyToMatch, JobPlanningLine."Qty. per Unit of Measure");
             if (RemainingQtyToMatchPerUoM = JobPlanningLine."Qty. Posted") and (JobPlanningLine."Remaining Qty. (Base)" = 0) then
                 exit;
 
@@ -101,11 +104,12 @@ codeunit 1026 "Job Link Usage"
         PostedQtyBase: Decimal;
         TotalQtyBase: Decimal;
         TotalRemainingQtyPrePostBase: Decimal;
-        PartialJobPlanningLineQuantityPosting: Boolean;
+        PartialJobPlanningLineQuantityPosting, UpdateQuantity : Boolean;
     begin
         PostedQtyBase := JobPlanningLine."Quantity (Base)" - JobPlanningLine."Remaining Qty. (Base)";
         TotalRemainingQtyPrePostBase := JobJournalLine."Quantity (Base)" + JobJournalLine."Remaining Qty. (Base)";
         TotalQtyBase := PostedQtyBase + TotalRemainingQtyPrePostBase;
+        OnBeforeHandleMatchUsageSpecifiedJobPlanningLine(PostedQtyBase, TotalRemainingQtyPrePostBase, TotalQtyBase, JobPlanningLine, JobJournalLine);
         JobPlanningLine.SetBypassQtyValidation(true);
 
         if Abs(UOMMgt.CalcQtyFromBase(JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code", TotalQtyBase, JobPlanningLine."Qty. per Unit of Measure")) < Abs(JobPlanningLine.Quantity) then begin
@@ -113,7 +117,9 @@ codeunit 1026 "Job Link Usage"
             HandleMatchUsageSpecifiedJobPlanningLineOnAfterCalcPartialJobPlanningLineQuantityPosting(JobPlanningLine, JobJournalLine, JobLedgerEntry, PartialJobPlanningLineQuantityPosting);
         end;
         // CalledFromInvtPutawayPick - Skip this quantity validation for Inventory Pick posting as quantity cannot be updated with an active Warehouse Activity Line.
-        if not (CalledFromInvtPutawayPick or PartialJobPlanningLineQuantityPosting) then
+        UpdateQuantity := not (CalledFromInvtPutawayPick or PartialJobPlanningLineQuantityPosting);
+        OnHandleMatchUsageSpecifiedJobPlanningLineOnBeforeUpdateQuantity(JobPlanningLine, JobJournalLine, UpdateQuantity);
+        if UpdateQuantity then
             if (TotalQtyBase > JobPlanningLine.Quantity) or (JobPlanningLine.Quantity = 0) then
                 JobPlanningLine.Validate(Quantity,
                     UOMMgt.CalcQtyFromBase(
@@ -311,6 +317,21 @@ codeunit 1026 "Job Link Usage"
 
     [IntegrationEvent(false, false)]
     local procedure HandleMatchUsageSpecifiedJobPlanningLineOnAfterCalcPartialJobPlanningLineQuantityPosting(JobPlanningLine: Record "Job Planning Line"; JobJournalLine: Record "Job Journal Line"; JobLedgerEntry: Record "Job Ledger Entry"; var PartialJobPlanningLineQuantityPosting: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHandleMatchUsageSpecifiedJobPlanningLine(var PostedQtyBase: Decimal; var TotalQtyBase: Decimal; var TotalRemainingQtyPrePostBase: Decimal; JobPlanningLine: Record "Job Planning Line"; JobJournalLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleMatchUsageSpecifiedJobPlanningLineOnBeforeUpdateQuantity(var JobPlanningLine: Record "Job Planning Line"; JobJournalLine: Record "Job Journal Line"; var UpdateQuantity: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatchUsageUnspecifiedOnBeforeCheckPostedQty(JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry"; RemainingQtyToMatch: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

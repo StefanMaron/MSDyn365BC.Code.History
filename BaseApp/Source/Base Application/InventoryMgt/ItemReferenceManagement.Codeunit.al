@@ -318,7 +318,7 @@
         ItemReference.SetRange("Reference No.", ItemRefNo);
         ItemReference.SetRange("Item No.", ItemNo);
         ExcludeOtherReferenceTypes(ItemReference, ItemRefType);
-        OnInitItemReferenceFiltersOnBeforeCheckIsEmpty(ItemReference);
+        OnInitItemReferenceFiltersOnBeforeCheckIsEmpty(ItemReference, ItemRefType);
         if ItemReference.IsEmpty() then
             ItemReference.SetRange("Item No.");
     end;
@@ -869,7 +869,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitItemReferenceFiltersOnBeforeCheckIsEmpty(var ItemReference: Record "Item Reference")
+    local procedure OnInitItemReferenceFiltersOnBeforeCheckIsEmpty(var ItemReference: Record "Item Reference"; ItemRefType: Enum "Item Reference Type")
     begin
     end;
 

@@ -88,6 +88,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1767462481 - NamedType 2995302679" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You do not have permission to enable this feature. Please contact your administrator.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - NamedType NoPermissionToEnableErr</note>
+        </trans-unit>
         <trans-unit id="Table 1767462481 - NamedType 3788244515" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify an API key and an API URI in the Sales and Inventory Forecast Setup page.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -102,6 +107,11 @@
           <source>API URI</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field API URI - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1767462481 - Field 2891538263 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enabled</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table MS - Sales Forecast Setup - Field Enabled - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1767462481 - Field 3046871300 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Expiration Period (Days)</source>
@@ -562,6 +572,11 @@
           <source>API Key</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control APIKey - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3997127860 - Control 2891538263 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if the forecasting feature is enabled.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sales Forecast Setup Card - Control Enabled - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3997127860 - Control 3046871300 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of days until the forecast expires.</source>

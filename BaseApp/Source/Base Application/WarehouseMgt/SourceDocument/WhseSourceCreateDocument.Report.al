@@ -430,8 +430,15 @@ report 7305 "Whse.-Source - Create Document"
             end;
 
             trigger OnPreDataItem()
+            var
+                IsHandled: Boolean;
             begin
                 if WhseDoc <> WhseDoc::Assembly then
+                    CurrReport.Break();
+
+                IsHandled := false;
+                OnBeforeOnPreDataItemAssemblyLine(AssemblyHeader, HideValidationDialog, IsHandled);
+                if IsHandled then
                     CurrReport.Break();
 
                 WhseSetup.Get();
@@ -1083,7 +1090,14 @@ report 7305 "Whse.-Source - Create Document"
     end;
 
     local procedure CreateMovementLines(WhseWorksheetLine: Record "Whse. Worksheet Line"; var PickQty: Decimal; var PickQtyBase: Decimal)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateMovementLines(WhseWorksheetLine, PickQty, PickQtyBase, IsHandled);
+        if IsHandled then
+            exit;
+
         CreatePick.SetCalledFromWksh(true);
         CreatePick.SetWhseWkshLine(WhseWorksheetLine, 1);
 
@@ -1369,6 +1383,16 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetQuantityOnAfterFindWhseItemTrackingLine(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreDataItemAssemblyLine(var AssemblyHeader: Record "Assembly Header"; HideValidationDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateMovementLines(var WhseWorksheetLine: Record "Whse. Worksheet Line"; var PickQty: Decimal; var PickQtyBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

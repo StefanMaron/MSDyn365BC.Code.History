@@ -59,80 +59,83 @@ codeunit 5816 "Undo Return Receipt Line"
         PostedWhseRcptLineFound: Boolean;
         IsHandled: Boolean;
     begin
-        with ReturnRcptLine do begin
-            Clear(ItemJnlPostLine);
-            SetRange(Correction, false);
-            SetFilter(Quantity, '<>0');
-            if IsEmpty() then
-                Error(AlreadyReversedErr);
+        IsHandled := false;
+        OnBeforeCode(ReturnRcptLine, HideDialog, IsHandled);
+        if not IsHandled then
+            with ReturnRcptLine do begin
+                Clear(ItemJnlPostLine);
+                SetRange(Correction, false);
+                SetFilter(Quantity, '<>0');
+                if IsEmpty() then
+                    Error(AlreadyReversedErr);
 
-            FindFirst();
-            repeat
-                if not HideDialog then
-                    Window.Open(Text003);
-                CheckReturnRcptLine(ReturnRcptLine);
-            until Next() = 0;
+                FindFirst();
+                repeat
+                    if not HideDialog then
+                        Window.Open(Text003);
+                    CheckReturnRcptLine(ReturnRcptLine);
+                until Next() = 0;
 
-            Find('-');
-            repeat
-                TempGlobalItemLedgEntry.Reset();
-                if not TempGlobalItemLedgEntry.IsEmpty() then
-                    TempGlobalItemLedgEntry.DeleteAll();
-                TempGlobalItemEntryRelation.Reset();
-                if not TempGlobalItemEntryRelation.IsEmpty() then
-                    TempGlobalItemEntryRelation.DeleteAll();
+                Find('-');
+                repeat
+                    TempGlobalItemLedgEntry.Reset();
+                    if not TempGlobalItemLedgEntry.IsEmpty() then
+                        TempGlobalItemLedgEntry.DeleteAll();
+                    TempGlobalItemEntryRelation.Reset();
+                    if not TempGlobalItemEntryRelation.IsEmpty() then
+                        TempGlobalItemEntryRelation.DeleteAll();
 
-                if not HideDialog then
-                    Window.Open(Text001);
+                    if not HideDialog then
+                        Window.Open(Text001);
 
-                if Type = Type::Item then begin
-                    PostedWhseRcptLineFound :=
-                    WhseUndoQty.FindPostedWhseRcptLine(
-                        PostedWhseRcptLine,
-                        DATABASE::"Return Receipt Line", "Document No.",
-                        DATABASE::"Sales Line", SalesLine."Document Type"::"Return Order".AsInteger(), "Return Order No.", "Return Order Line No.");
+                    if Type = Type::Item then begin
+                        PostedWhseRcptLineFound :=
+                        WhseUndoQty.FindPostedWhseRcptLine(
+                            PostedWhseRcptLine,
+                            DATABASE::"Return Receipt Line", "Document No.",
+                            DATABASE::"Sales Line", SalesLine."Document Type"::"Return Order".AsInteger(), "Return Order No.", "Return Order Line No.");
 
-                    ItemShptEntryNo := PostItemJnlLine(ReturnRcptLine, DocLineNo);
-                end else
-                    DocLineNo := GetCorrectionLineNo(ReturnRcptLine);
+                        ItemShptEntryNo := PostItemJnlLine(ReturnRcptLine, DocLineNo);
+                    end else
+                        DocLineNo := GetCorrectionLineNo(ReturnRcptLine);
 
-                InsertNewReceiptLine(ReturnRcptLine, ItemShptEntryNo, DocLineNo);
+                    InsertNewReceiptLine(ReturnRcptLine, ItemShptEntryNo, DocLineNo);
 
-                IsHandled := false;
-                OnAfterInsertNewReceiptLine(ReturnRcptLine, PostedWhseRcptLine, PostedWhseRcptLineFound, DocLineNo, IsHandled);
-                if not IsHandled then begin
-                    SalesLine.Get(SalesLine."Document Type"::"Return Order", "Return Order No.",
-                    "Return Order Line No.");
-                    if "Item Rcpt. Entry No." > 0 then
-                        if SalesLine."Appl.-from Item Entry" <> 0 then begin
-                            SalesLine."Appl.-from Item Entry" := ItemShptEntryNo;
-                            SalesLine.Modify();
-                        end;
+                    IsHandled := false;
+                    OnAfterInsertNewReceiptLine(ReturnRcptLine, PostedWhseRcptLine, PostedWhseRcptLineFound, DocLineNo, IsHandled);
+                    if not IsHandled then begin
+                        SalesLine.Get(SalesLine."Document Type"::"Return Order", "Return Order No.",
+                        "Return Order Line No.");
+                        if "Item Rcpt. Entry No." > 0 then
+                            if SalesLine."Appl.-from Item Entry" <> 0 then begin
+                                SalesLine."Appl.-from Item Entry" := ItemShptEntryNo;
+                                SalesLine.Modify();
+                            end;
+
+                        if PostedWhseRcptLineFound then
+                            WhseUndoQty.UndoPostedWhseRcptLine(PostedWhseRcptLine);
+
+                        UpdateOrderLine(ReturnRcptLine);
+                        UpdateItemTrkgApplFromEntry(SalesLine);
+                    end;
 
                     if PostedWhseRcptLineFound then
-                        WhseUndoQty.UndoPostedWhseRcptLine(PostedWhseRcptLine);
+                        WhseUndoQty.UpdateRcptSourceDocLines(PostedWhseRcptLine);
 
-                    UpdateOrderLine(ReturnRcptLine);
-                    UpdateItemTrkgApplFromEntry(SalesLine);
-                end;
+                    "Quantity Invoiced" := Quantity;
+                    "Qty. Invoiced (Base)" := "Quantity (Base)";
+                    "Return Qty. Rcd. Not Invd." := 0;
+                    Correction := true;
 
-                if PostedWhseRcptLineFound then
-                    WhseUndoQty.UpdateRcptSourceDocLines(PostedWhseRcptLine);
+                    OnBeforeReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine);
+                    Modify();
+                    OnAfterReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine, DocLineNo, HideDialog);
+                until Next() = 0;
 
-                "Quantity Invoiced" := Quantity;
-                "Qty. Invoiced (Base)" := "Quantity (Base)";
-                "Return Qty. Rcd. Not Invd." := 0;
-                Correction := true;
+                MakeInventoryAdjustment();
 
-                OnBeforeReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine);
-                Modify();
-                OnAfterReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine, DocLineNo, HideDialog);
-            until Next() = 0;
-
-            MakeInventoryAdjustment();
-
-            WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
-        end;
+                WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
+            end;
 
         OnAfterCode(ReturnRcptLine);
     end;
@@ -344,6 +347,11 @@ codeunit 5816 "Undo Return Receipt Line"
             InvtAdjmtHandler.SetJobUpdateProperties(true);
             InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(ReturnReceiptLine: Record "Return Receipt Line"; HideDialog: Boolean; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

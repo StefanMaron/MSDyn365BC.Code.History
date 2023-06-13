@@ -128,9 +128,14 @@ table 9 "Country/Region"
     trigger OnDelete()
     var
         VATRegNoFormat: Record "VAT Registration No. Format";
+        CountryRegionTranslation: Record "Country/Region Translation";
     begin
         VATRegNoFormat.SetRange("Country/Region Code", Code);
         VATRegNoFormat.DeleteAll();
+
+        CountryRegionTranslation.SetRange("Country/Region Code", Rec.Code);
+        if not CountryRegionTranslation.IsEmpty() then
+            CountryRegionTranslation.DeleteAll(true);
     end;
 
     trigger OnInsert()
@@ -169,14 +174,39 @@ table 9 "Country/Region"
         exit(CountryRegion."EU Country/Region Code" <> '');
     end;
 
-    procedure GetNameInCurrentLanguage(): Text[50]
+    procedure TranslateName(LanguageCode: Code[10])
     var
         CountryRegionTranslation: Record "Country/Region Translation";
-        Language: Codeunit Language;
     begin
-        if CountryRegionTranslation.Get(Code, Language.GetUserLanguageCode()) then
+        if LanguageCode = '' then
+            exit;
+        if CountryRegionTranslation.Get(Code, LanguageCode) then
+            Rec.Name := CountryRegionTranslation.Name;
+    end;
+
+    procedure GetTranslatedName(LanguageID: Integer): Text[50]
+    var
+        Language: Codeunit Language;
+        LanguageCode: Code[10];
+    begin
+        LanguageCode := Language.GetLanguageCode(LanguageID);
+        exit(GetTranslatedName(LanguageCode));
+    end;
+
+    procedure GetTranslatedName(LanguageCode: Code[10]): Text[50]
+    var
+        CountryRegionTranslation: Record "Country/Region Translation";
+    begin
+        if CountryRegionTranslation.Get(Code, LanguageCode) then
             exit(CountryRegionTranslation.Name);
         exit(Name);
+    end;
+
+    procedure GetNameInCurrentLanguage(): Text[50]
+    var
+        Language: Codeunit Language;
+    begin
+        exit(GetTranslatedName(Language.GetUserLanguageCode()));
     end;
 
     procedure CreateAddressFormat(CountryCode: Code[10]; LinePosition: Integer; FieldID: Integer): Integer

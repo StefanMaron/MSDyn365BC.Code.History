@@ -228,8 +228,12 @@ codeunit 7205 "CDS Int. Table. Subscriber"
         Resource: Record Resource;
         PriceListLine: Record "Price List Line";
         CRMProduct: Record "CRM Product";
+        SalesLine: Record "Sales Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        CRMTransactionCurrency: Record "CRM Transactioncurrency";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         DestinationRecRef: RecordRef;
+        TransactionCurrencyId: Guid;
         OriginalDestinationFieldValue: Variant;
         IsClearValueOnFailedSync: Boolean;
         OptionValue: Integer;
@@ -307,6 +311,38 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                 exit;
             end;
         end;
+
+        if (SourceFieldRef.Name() = SalesLine.FieldName(SalesLine."Currency Code")) and (DestinationFieldRef.Name() = CRMTransactionCurrency.FieldName(TransactionCurrencyId)) then
+            if Format(SourceFieldRef.Value()) = '' then
+                if CDSConnectionSetup.Get() then
+                    if CDSConnectionSetup.BaseCurrencyCode <> '' then begin
+                        GeneralLedgerSetup.Get();
+                        if GeneralLedgerSetup."LCY Code" <> CDSConnectionSetup.BaseCurrencyCode then begin
+                            CRMTransactionCurrency.SetRange(ISOCurrencyCode, CopyStr(GeneralLedgerSetup."LCY Code", 1, MaxStrLen(CRMTransactionCurrency.ISOCurrencyCode)));
+                            if CRMTransactionCurrency.FindFirst() then begin
+                                NewValue := CRMTransactionCurrency.TransactionCurrencyId;
+                                IsValueFound := true;
+                                NeedsConversion := false;
+                                exit;
+                            end;
+                        end;
+                    end;
+
+        if (SourceFieldRef.Name() = CRMTransactionCurrency.FieldName(TransactionCurrencyId)) and (DestinationFieldRef.Name() = SalesLine.FieldName(SalesLine."Currency Code")) then
+            if CDSConnectionSetup.Get() then
+                if CDSConnectionSetup.BaseCurrencyCode <> '' then begin
+                    GeneralLedgerSetup.Get();
+                    if GeneralLedgerSetup."LCY Code" <> CDSConnectionSetup.BaseCurrencyCode then begin
+                        Evaluate(TransactionCurrencyId, Format(SourceFieldRef.Value()));
+                        if CRMTransactionCurrency.Get(TransactionCurrencyId) then
+                            if Format(CRMTransactionCurrency.ISOCurrencyCode) = Format(GeneralLedgerSetup."LCY Code") then begin
+                                NewValue := '';
+                                IsValueFound := true;
+                                NeedsConversion := false;
+                                exit;
+                            end;
+                    end;
+                end;
 
         if CRMSynchHelper.FindNewValueForSpecialMapping(SourceFieldRef, DestinationFieldRef, NewValue) then begin
             IsValueFound := true;

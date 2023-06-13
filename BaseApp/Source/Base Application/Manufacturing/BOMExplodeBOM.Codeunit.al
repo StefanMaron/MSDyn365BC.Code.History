@@ -27,6 +27,7 @@ codeunit 51 "BOM-Explode BOM"
 
         Item.Get("No.");
         QtyPerUnitOfMeasure := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+        OnRunOnAfterGetQtyPerUnitOfMeasure(Rec, Item, QtyPerUnitOfMeasure);
 
         FromBOMComp.Find('-');
         NextLineNo := "Line No.";
@@ -62,6 +63,11 @@ codeunit 51 "BOM-Explode BOM"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeToBOMCompInsert(var ToBOMComp: Record "BOM Component"; FromBOMComp: Record "BOM Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterGetQtyPerUnitOfMeasure(BOMComponent: Record "BOM Component"; Item: Record Item; var QtyPerUnitOfMeasure: Decimal)
     begin
     end;
 }

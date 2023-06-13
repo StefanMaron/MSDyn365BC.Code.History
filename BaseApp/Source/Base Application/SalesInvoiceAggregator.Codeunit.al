@@ -343,6 +343,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesHeader.Get(TargetRecordRef.RecordId);
         SalesHeader.CopySellToAddressToBillToAddress();
         SalesHeader.SetDefaultPaymentServices();
+        SetShortcutDimensions(SalesHeader, SalesInvoiceEntityAggregate, TempFieldBuffer);
         SalesHeader.Modify(true);
 
         SalesInvoiceEntityAggregate."No." := SalesHeader."No.";
@@ -1142,6 +1143,17 @@ codeunit 5477 "Sales Invoice Aggregator"
             exit(false);
 
         exit(true);
+    end;
+
+    local procedure SetShortcutDimensions(var SalesHeader: Record "Sales Header"; SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate"; var TempFieldBuffer: Record "Field Buffer" temporary)
+    begin
+        TempFieldBuffer.SetRange("Table ID", Database::"Sales Invoice Entity Aggregate");
+        TempFieldBuffer.SetRange("Field ID", SalesInvoiceEntityAggregate.FieldNo("Shortcut Dimension 1 Code"));
+        if not TempFieldBuffer.IsEmpty() then
+            SalesHeader.Validate("Shortcut Dimension 1 Code", SalesInvoiceEntityAggregate."Shortcut Dimension 1 Code");
+        TempFieldBuffer.SetRange("Field ID", SalesInvoiceEntityAggregate.FieldNo("Shortcut Dimension 2 Code"));
+        if not TempFieldBuffer.IsEmpty() then
+            SalesHeader.Validate("Shortcut Dimension 2 Code", SalesInvoiceEntityAggregate."Shortcut Dimension 2 Code");
     end;
 
     [Scope('OnPrem')]

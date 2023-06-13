@@ -169,7 +169,7 @@ report 99003803 "Copy Production Forecast"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShowConfirm(IsHandled);
+        OnBeforeShowConfirm(IsHandled, Confirmed);
         if IsHandled then
             exit;
 
@@ -182,7 +182,7 @@ report 99003803 "Copy Production Forecast"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowConfirm(var IsHandled: Boolean)
+    local procedure OnBeforeShowConfirm(var IsHandled: Boolean; var Confirmed: Boolean)
     begin
     end;
 }

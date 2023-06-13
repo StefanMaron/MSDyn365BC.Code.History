@@ -232,14 +232,14 @@
           <note from="Xliff Generator" annotates="general" priority="3">Enum Intrastat Report Type - EnumValue Purchases - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 2793014759 - EnumValue 2199205890 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Bill-to VAT</source>
-          <target state="translated">IVA de facturación</target>
+          <source>Bill-to Customer</source>
+          <target state="translated">Cliente de facturación</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Intrastat Report VAT No. Base - EnumValue Bill-to VAT - Property Caption</note>
         </trans-unit>
         <trans-unit id="Enum 2793014759 - EnumValue 2713471061 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sell-to VAT</source>
-          <target state="translated">IVA de dirección de venta</target>
+          <source>Sell-to Customer</source>
+          <target state="translated">Cliente de venta</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Enum Intrastat Report VAT No. Base - EnumValue Sell-to VAT - Property Caption</note>
         </trans-unit>
@@ -1855,8 +1855,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Line - Field Transaction Specification - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 2113709934 - Field 1624434300 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Partner VAT ID</source>
-          <target state="translated">CIF de socio</target>
+          <source>VAT Reg. No.</source>
+          <target state="translated">RFC/Curp</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Line - Field Partner VAT ID - Property Caption</note>
         </trans-unit>
@@ -2317,14 +2317,14 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Data Exch. Def. Name - Receipt - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3132071445 - Field 1818799312 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Customer VAT No. on File</source>
-          <target state="translated">CIF/NIF de cliente en archivo</target>
+          <source>Customer VAT Reg. No. on File</source>
+          <target state="translated">RFC/Curp registrado del cliente</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Cust. VAT No. on File - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3132071445 - Field 19531693 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Default 3-Party Trade VAT No.</source>
-          <target state="translated">N.º IVA comercial predeterminado de terceros</target>
+          <source>Default 3-Party Trade VAT Reg. No.</source>
+          <target state="translated">RFC/Curp comercial predet. de terceros</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Def. 3-Party Trade VAT No. - Property Caption</note>
         </trans-unit>
@@ -2347,20 +2347,20 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Default Trans. - Return - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3132071445 - Field 2410835908 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Get Partner VAT For</source>
-          <target state="translated">Obtener IVA de socio para</target>
+          <source>Get VAT Reg. No. For</source>
+          <target state="translated">Obtener RFC/Curp para</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Get Partner VAT For - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3132071445 - Field 2680197960 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Vendor VAT No. on File</source>
-          <target state="translated">CIF/NIF proveedor en archivo</target>
+          <source>Vendor VAT Reg. No. on File</source>
+          <target state="translated">RFC/Curp registrado del proveedor</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Vend. VAT No. on File - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3132071445 - Field 2681653000 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Company VAT No. on File</source>
-          <target state="translated">CIF de empresa en archivo</target>
+          <source>Company VAT Reg. No. on File</source>
+          <target state="translated">RFC/Curp registrado de la empresa</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Company VAT No. on File - Property Caption</note>
         </trans-unit>
@@ -2371,8 +2371,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Data Exch. Def. Name - Shpt. - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3132071445 - Field 2903705327 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Default Private Person VAT No.</source>
-          <target state="translated">N.º de IVA de persona privada predeterminada</target>
+          <source>Default Private Person VAT Reg. No.</source>
+          <target state="translated">RFC/Curp predet. de persona privada</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Def. Private Person VAT No. - Property Caption</note>
         </trans-unit>
@@ -2413,8 +2413,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Default Trans. Spec. Ret. Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3132071445 - Field 3961198312 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>VAT No. Based On</source>
-          <target state="translated">N.º de IVA basado en</target>
+          <source>VAT Reg. No. Based On</source>
+          <target state="translated">RFC/Curp basado en</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field VAT No. Based On - Property Caption</note>
         </trans-unit>
@@ -2431,8 +2431,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Def. Country/Region Code - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3132071445 - Field 694900210 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Def. VAT for Unknown State</source>
-          <target state="translated">IVA predet. para estado desconocido</target>
+          <source>Def. VAT Reg. No. for Unknown State</source>
+          <target state="translated">RFC/Curp predet. para estado desconocido</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Def. VAT for Unknown State - Property Caption</note>
         </trans-unit>

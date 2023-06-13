@@ -166,15 +166,17 @@ table 7602 "Customized Calendar Change"
                     TestField(Day);
                 end;
         end;
+
+        OnAfterCheckEntryLine(Rec, xRec);
     end;
 
-    procedure IsEqualSource(CustCalChange: Record "Customized Calendar Change"): Boolean;
+    procedure IsEqualSource(CustomizedCalendarChange: Record "Customized Calendar Change"): Boolean;
     begin
         exit(
-            ("Source Type" = CustCalChange."Source Type") and
-            ("Source Code" = CustCalChange."Source Code") and
-            ("Additional Source Code" = CustCalChange."Additional Source Code") and
-            ("Base Calendar Code" = CustCalChange."Base Calendar Code"));
+            ("Source Type" = CustomizedCalendarChange."Source Type") and
+            ("Source Code" = CustomizedCalendarChange."Source Code") and
+            ("Additional Source Code" = CustomizedCalendarChange."Additional Source Code") and
+            ("Base Calendar Code" = CustomizedCalendarChange."Base Calendar Code"));
     end;
 
     procedure IsBlankSource(): Boolean;
@@ -189,6 +191,8 @@ table 7602 "Customized Calendar Change"
         "Source Code" := SourceCode;
         "Additional Source Code" := AdditionalSourceCode;
         "Base Calendar Code" := BaseCalendarCode;
+
+        OnAfterSetSource(Rec);
     end;
 
     procedure AdjustSourceType()
@@ -210,17 +214,17 @@ table 7602 "Customized Calendar Change"
 
     procedure CalcCalendarCode()
     var
-        CompanyInfo: Record "Company Information";
+        CompanyInformation: Record "Company Information";
         Customer: Record Customer;
         Vendor: Record Vendor;
         Location: Record Location;
-        ShippingAgentService: Record "Shipping Agent Services";
-        ServMgtSetup: Record "Service Mgt. Setup";
+        ShippingAgentServices: Record "Shipping Agent Services";
+        ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
         case "Source Type" of
             "Source Type"::Company:
-                if CompanyInfo.Get() then
-                    "Base Calendar Code" := CompanyInfo."Base Calendar Code";
+                if CompanyInformation.Get() then
+                    "Base Calendar Code" := CompanyInformation."Base Calendar Code";
             "Source Type"::Customer:
                 if Customer.Get("Source Code") then
                     "Base Calendar Code" := Customer."Base Calendar Code";
@@ -228,21 +232,23 @@ table 7602 "Customized Calendar Change"
                 if Vendor.Get("Source Code") then
                     "Base Calendar Code" := Vendor."Base Calendar Code";
             "Source Type"::"Shipping Agent":
-                if ShippingAgentService.Get("Source Code", "Additional Source Code") then
-                    "Base Calendar Code" := ShippingAgentService."Base Calendar Code"
+                if ShippingAgentServices.Get("Source Code", "Additional Source Code") then
+                    "Base Calendar Code" := ShippingAgentServices."Base Calendar Code"
                 else
-                    if CompanyInfo.Get() then
-                        "Base Calendar Code" := CompanyInfo."Base Calendar Code";
+                    if CompanyInformation.Get() then
+                        "Base Calendar Code" := CompanyInformation."Base Calendar Code";
             "Source Type"::Location:
                 if Location.Get("Source Code") and (Location."Base Calendar Code" <> '') then
                     "Base Calendar Code" := Location."Base Calendar Code"
                 else
-                    if CompanyInfo.Get() then
-                        "Base Calendar Code" := CompanyInfo."Base Calendar Code";
+                    if CompanyInformation.Get() then
+                        "Base Calendar Code" := CompanyInformation."Base Calendar Code";
             "Source Type"::Service:
-                if ServMgtSetup.Get() then
-                    "Base Calendar Code" := ServMgtSetup."Base Calendar Code";
+                if ServiceMgtSetup.Get() then
+                    "Base Calendar Code" := ServiceMgtSetup."Base Calendar Code";
         end;
+
+        OnAfterCalcCalendarCode(Rec);
     end;
 
     procedure IsDateCustomized(TargetDate: date): Boolean
@@ -255,6 +261,21 @@ table 7602 "Customized Calendar Change"
             "Recurring System"::"Annual Recurring":
                 exit((Date2DMY(TargetDate, 2) = Date2DMY(Date, 2)) and (Date2DMY(TargetDate, 1) = Date2DMY(Date, 1)));
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcCalendarCode(var CustomizedCalendarChange: Record "Customized Calendar Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSource(var CustomizedCalendarChange: Record "Customized Calendar Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckEntryLine(var CustomizedCalendarChange: Record "Customized Calendar Change"; xCustomizedCalendarChange: Record "Customized Calendar Change")
+    begin
     end;
 }
 

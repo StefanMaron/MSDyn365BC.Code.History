@@ -5813,13 +5813,13 @@
         </trans-unit>
         <trans-unit id="Page 3163801880 - Action 593408208 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Download the selected attachment files.</source>
-          <target state="translated">Laden Sie die ausgewählte Anlagedatei herunter.</target>
+          <target state="translated">Laden Sie die ausgewählten Anlagedateien herunter.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Action Download - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3163801880 - Action 593408208 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Download Attachments</source>
-          <target state="translated">Anlage herunterladen</target>
+          <target state="translated">Anlagen herunterladen</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - Action Download - Property Caption</note>
         </trans-unit>
@@ -7403,6 +7403,7 @@
         </trans-unit>
         <trans-unit id="Page 1108212613 - Control 1918310387 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Permission Set</source>
+          <target state="translated">Berechtigungssatz</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sec. Group Permissions Part - Control Role ID - Property Caption</note>
         </trans-unit>
@@ -15191,6 +15192,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Control ConnectorType - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 761349018 - Control 100492085 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the size of the attachment</source>
+          <target state="translated">Gibt die Grösse des Anhangs an</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Control FileSize - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 761349018 - Control 100492085 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Size</source>
+          <target state="translated">Dateigrösse</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Control FileSize - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 761349018 - Control 989751795 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the attachment</source>
           <target state="translated">Gibt den Namen des Anhangs an.</target>
@@ -15721,6 +15734,7 @@
         </trans-unit>
         <trans-unit id="Page 3163801880 - NamedType 2806801928" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>EmailAttachments.zip</source>
+          <target state="translated">EmailAttachments.zip</target>
           <note from="Developer" annotates="general" priority="2">Name of the zip file containing email attachments.</note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Choose Scenario Attach - NamedType EmailAttachmentsZipFileNameTxt</note>
         </trans-unit>

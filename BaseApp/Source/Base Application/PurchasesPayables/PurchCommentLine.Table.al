@@ -56,6 +56,7 @@ table 43 "Purch. Comment Line"
         PurchCommentLine.SetRange("No.", "No.");
         PurchCommentLine.SetRange("Document Line No.", "Document Line No.");
         PurchCommentLine.SetRange(Date, WorkDate());
+        OnSetUpNewLineOnAfterSetFilter(Rec, PurchCommentLine);
         if not PurchCommentLine.FindFirst() then
             Date := WorkDate();
 
@@ -80,6 +81,7 @@ table 43 "Purch. Comment Line"
                 PurchCommentLine2 := PurchCommentLine;
                 PurchCommentLine2."Document Type" := "Purchase Comment Document Type".FromInteger(ToDocumentType);
                 PurchCommentLine2."No." := ToNumber;
+                OnBeforeCopyCommentsOnBeforeInsert(PurchCommentLine2, PurchCommentLine);
                 PurchCommentLine2.Insert();
             until PurchCommentLine.Next() = 0;
     end;
@@ -212,6 +214,16 @@ table 43 "Purch. Comment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyHeaderComments(var PurchCommentLine: Record "Purch. Comment Line"; var IsHandled: Boolean; FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyCommentsOnBeforeInsert(var NewPurchCommentLine: Record "Purch. Comment Line"; OldPurchCommentLine: Record "Purch. Comment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUpNewLineOnAfterSetFilter(var PurchCommentLineRec: Record "Purch. Comment Line"; var PurchCommentLineFilter: Record "Purch. Comment Line")
     begin
     end;
 }

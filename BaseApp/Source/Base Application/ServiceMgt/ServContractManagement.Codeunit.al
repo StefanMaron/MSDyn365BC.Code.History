@@ -1563,6 +1563,7 @@ codeunit 5940 ServContractManagement
         ServItem: Record "Service Item";
         ServContractLine: Record "Service Contract Line";
         ServContractLine2: Record "Service Contract Line";
+        IsHandled: Boolean;
     begin
         if not Recursive then begin
             TempServContract.DeleteAll();
@@ -1582,6 +1583,7 @@ codeunit 5940 ServContractManagement
         ServContractLine.SetRange("Contract No.", ServContract."Contract No.");
         ServContractLine.SetFilter("Contract Status", '<>%1', ServContractLine."Contract Status"::Cancelled);
         ServContractLine.SetFilter("Service Item No.", '<>%1', '');
+        OnGetAffectedItemsOnContractChangeOnAfterServContractLineSetFilters(ServContractLine);
         if ServContractLine.Find('-') then
             repeat
                 if not TempServItem.Get(ServContractLine."Service Item No.") then begin
@@ -1590,30 +1592,33 @@ codeunit 5940 ServContractManagement
                     TempServItem.Insert();
                 end;
 
-                ServContractLine2.Reset();
-                ServContractLine2.SetCurrentKey("Service Item No.", "Contract Status");
-                ServContractLine2.SetRange("Service Item No.", ServContractLine."Service Item No.");
-                ServContractLine2.SetFilter("Contract Status", '<>%1', ServContractLine."Contract Status"::Cancelled);
-                ServContractLine2.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
-                ServContractLine2.SetFilter("Contract No.", '<>%1', ServContractLine."Contract No.");
-                if ServContractLine2.Find('-') then
-                    repeat
-                        GetAffectedItemsOnContractChange(
-                          ServContractLine2."Contract No.", TempServContract, TempServItem,
-                          true, ServContractLine."Contract Type"::Contract);
-                    until ServContractLine2.Next() = 0;
+                IsHandled := false;
+                OnGetAffectedItemsOnContractChangeOnAfterTempServItemGetOrInsert(IsHandled, ServContractLine, TempServContract, TempServItem);
+                if not IsHandled then begin
+                    ServContractLine2.Reset();
+                    ServContractLine2.SetCurrentKey("Service Item No.", "Contract Status");
+                    ServContractLine2.SetRange("Service Item No.", ServContractLine."Service Item No.");
+                    ServContractLine2.SetFilter("Contract Status", '<>%1', ServContractLine."Contract Status"::Cancelled);
+                    ServContractLine2.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
+                    ServContractLine2.SetFilter("Contract No.", '<>%1', ServContractLine."Contract No.");
+                    if ServContractLine2.Find('-') then
+                        repeat
+                            GetAffectedItemsOnContractChange(
+                              ServContractLine2."Contract No.", TempServContract, TempServItem,
+                              true, ServContractLine."Contract Type"::Contract);
+                        until ServContractLine2.Next() = 0;
 
-                ServContractLine2.Reset();
-                ServContractLine2.SetCurrentKey("Service Item No.");
-                ServContractLine2.SetRange("Service Item No.", ServContractLine."Service Item No.");
-                ServContractLine2.SetRange("Contract Type", ServContractLine."Contract Type"::Quote);
-                if ServContractLine2.Find('-') then
-                    repeat
-                        GetAffectedItemsOnContractChange(
-                          ServContractLine2."Contract No.", TempServContract, TempServItem,
-                          true, ServContractLine."Contract Type"::Quote);
-                    until ServContractLine2.Next() = 0;
-
+                    ServContractLine2.Reset();
+                    ServContractLine2.SetCurrentKey("Service Item No.");
+                    ServContractLine2.SetRange("Service Item No.", ServContractLine."Service Item No.");
+                    ServContractLine2.SetRange("Contract Type", ServContractLine."Contract Type"::Quote);
+                    if ServContractLine2.Find('-') then
+                        repeat
+                            GetAffectedItemsOnContractChange(
+                              ServContractLine2."Contract No.", TempServContract, TempServItem,
+                              true, ServContractLine."Contract Type"::Quote);
+                        until ServContractLine2.Next() = 0;
+                end;
             until ServContractLine.Next() = 0;
     end;
 
@@ -1645,6 +1650,7 @@ codeunit 5940 ServContractManagement
 
                 Cust.Get(NewCustomertNo);
                 SetHideValidationDialog(true);
+                OnChangeCustNoOnServContractOnAfterGetCust(Cust, ServContractHeader);
                 if Cust."Bill-to Customer No." <> '' then
                     Validate("Bill-to Customer No.", Cust."Bill-to Customer No.")
                 else
@@ -1721,6 +1727,8 @@ codeunit 5940 ServContractManagement
             if OldServItem."Ship-to Code" <> NewShipToCode then
                 ServLogMgt.ServItemShipToCodeChange(ServItem, OldServItem);
         ServItem.Modify();
+
+        OnAfterChangeCustNoOnServItem(ServItem);
     end;
 
     procedure CreateHeadingServiceLine(ServHeader: Record "Service Header"; ContractType: Enum "Service Contract Type"; ContractNo: Code[20])
@@ -2790,5 +2798,25 @@ codeunit 5940 ServContractManagement
     local procedure OnCreateServHeaderOnAfterCopyFromCustomer(var ServiceHeader: Record "Service Header"; ServiceContract: Record "Service Contract Header"; Customer: Record Customer)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAffectedItemsOnContractChangeOnAfterServContractLineSetFilters(var ServiceContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAffectedItemsOnContractChangeOnAfterTempServItemGetOrInsert(var IsHandled: Boolean; var ServiceContractLine: Record "Service Contract Line"; var TempServiceContractHeader: Record "Service Contract Header"; var TempServiceItem: Record "Service Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+     local procedure OnChangeCustNoOnServContractOnAfterGetCust(Customer: Record Customer; var ServiceContractHeader: Record "Service Contract Header") 
+     begin
+     end;
+
+     [IntegrationEvent(false, false)]
+     local procedure OnAfterChangeCustNoOnServItem(var ServiceItem: Record "Service Item") 
+     begin
+     end; 
 }
 

@@ -1864,6 +1864,8 @@ codeunit 5330 "CRM Integration Management"
                 CRMEntityUrl += StrSubstNo(NewestUIAppIdParameterTxt, CRMConnectionSetup."Newest UI AppModuleId")
         end;
 
+        OnAfterGetCRMEntityUrlFromCRMID(CRMEntityUrlTemplateTxt, NewestUIAppIdParameterTxt, TableId, CRMId, CRMEntityUrl);
+
         exit(CRMEntityUrl);
     end;
 
@@ -1874,7 +1876,13 @@ codeunit 5330 "CRM Integration Management"
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         RecordId: RecordId;
         BCTableId: Integer;
+        IsHandled, Result : Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenCoupledNavRecordPage(CRMID, CRMEntityTypeName, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         // Find the corresponding NAV record and type
         CRMSetupDefaults.GetTableIDCRMEntityNameMapping(TempNameValueBuffer);
         TempNameValueBuffer.SetCurrentKey(Name);
@@ -3861,8 +3869,15 @@ codeunit 5330 "CRM Integration Management"
         Customer: Record Customer;
         TableNo: Integer;
         FieldNo: Integer;
+        IsHandled: Boolean;
     begin
         TableNo := RecRef.Number();
+
+        IsHandled := false;
+        OnBeforeFindCoupledToCRMField(TableNo, IsHandled);
+        if IsHandled then
+            exit(false);
+
         if CachedCoupledToCRMFieldNo.ContainsKey(TableNo) then
             FieldNo := CachedCoupledToCRMFieldNo.Get(TableNo)
         else begin
@@ -4185,6 +4200,21 @@ codeunit 5330 "CRM Integration Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnIsIntegrationRecordChild(TableID: Integer; var Handled: Boolean; var ReturnValue: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenCoupledNavRecordPage(CRMID: Guid; CRMEntityTypeName: Text; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindCoupledToCRMField(TableNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCRMEntityUrlFromCRMID(CRMEntityUrlTemplateTxt: Text; NewestUIAppIdParameterTxt: Text; TableId: Integer; CRMId: Guid; var CRMEntityUrl: Text)
     begin
     end;
 }

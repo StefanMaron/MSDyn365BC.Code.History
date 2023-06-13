@@ -33,6 +33,12 @@
           <note from="Developer" annotates="general" priority="2">%1 - page caption</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Service Declaration Mgt. - NamedType FeatureNotEnabledMessageTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 2714038767 - NamedType 2720855049" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This will create the default Service Declaration %1 . \\All existing default Service Declaration %1 will be overwritten.\\Do you want to continue?</source>
+          <target state="translated">Verrà creata la dichiarazione di servizio predefinita %1. \\La dichiarazione di servizio predefinita %1 verrà sovrascritta. \\Continuare?</target>
+          <note from="Developer" annotates="general" priority="2">%1 - Data Exchange Definition caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Service Declaration Mgt. - NamedType ImportDefaultServDeclDataExchDefConfirmQst</note>
+        </trans-unit>
         <trans-unit id="Codeunit 2714038767 - NamedType 2986705282" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Service Declaration</source>
           <target state="translated">Dichiarazione di servizio</target>
@@ -50,6 +56,12 @@
           <target state="translated">Il report per questo periodo è già stato inviato.\Continuare?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Service Declaration Mgt. - NamedType PeriodAlreadyReportedQst</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2714038767 - NamedType 3189276614" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to recreate %1 ?</source>
+          <target state="translated">Ricreare %1?</target>
+          <note from="Developer" annotates="general" priority="2">%1 - VAT Reports Configuration caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Service Declaration Mgt. - NamedType UpdateVATReportConfigConfirmQst</note>
         </trans-unit>
         <trans-unit id="Codeunit 2383749531 - Method 1665861916 - NamedType 3174602886" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You've already submitted the report for this period.\Do you want to continue?</source>
@@ -111,6 +123,18 @@
           <target state="translated">Avanti</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Serv. Decl. Setup Wizard - Action ActionNext - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3454677590 - Action 63770366 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create/Restore Default Data Exchange Definition(-s)</source>
+          <target state="translated">Crea/Ripristina definizioni di scambio dati predefinite</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Setup - Action ImportDefaultDataExchangeDef - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3454677590 - Action 63770366 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create Default Data Exch. Def.</source>
+          <target state="translated">Crea definizione di scambio dati predefinita</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Service Declaration Setup - Action ImportDefaultDataExchangeDef - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4184400519 - Action 2071937805 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Reopen the document to change it after it has been approved. Approved documents have the Released status and must be opened before they can be changed.</source>

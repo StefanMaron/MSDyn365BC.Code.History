@@ -13,10 +13,10 @@ codeunit 5765 "Whse.-Post Shipment + Print"
         WhseShptLine: Record "Warehouse Shipment Line";
         WhsePostShipment: Codeunit "Whse.-Post Shipment";
         Selection: Integer;
-        ShipInvoiceQst: Label '&Ship,Ship &and Invoice';
 
     local procedure "Code"()
     var
+        PostingSelectionManagement: Codeunit "Posting Selection Management";
         Invoice: Boolean;
         HideDialog: Boolean;
         IsPosted: Boolean;
@@ -30,8 +30,7 @@ codeunit 5765 "Whse.-Post Shipment + Print"
         with WhseShptLine do begin
             if Find() then
                 if not HideDialog then begin
-                    Selection := StrMenu(ShipInvoiceQst, 1);
-                    if Selection = 0 then
+                    if not PostingSelectionManagement.ConfirmPostWhseShipment(WhseShptLine, Selection) then
                         exit;
                     Invoice := (Selection = 2);
                 end;

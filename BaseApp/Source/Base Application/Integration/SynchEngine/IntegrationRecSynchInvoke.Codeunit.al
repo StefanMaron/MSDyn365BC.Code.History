@@ -370,7 +370,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         else begin  // Integration Table -> NAV synch
             IDFieldRef := SourceRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
             RecordFound :=
-              IntegrationRecordManagement.FindRecordIdByIntegrationTableUid(
+            IntegrationRecordManagement.FindRecordIdByIntegrationTableUid(
                 IntegrationTableConnectionType, IDFieldRef.Value, IntegrationTableMapping."Table ID", RecordIDValue);
             if RecordFound then
                 IsDestinationDeleted := not DestinationRecordRef.Get(RecordIDValue);
@@ -401,13 +401,13 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     local procedure FindIntegrationTableRecord(IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var IsDestinationDeleted: Boolean; IntegrationTableConnectionType: TableConnectionType) FoundDestination: Boolean
     var
         IntegrationRecordManagement: Codeunit "Integration Record Management";
-        IDValue: Variant;
+        IDValueVariant: Variant;
     begin
         FoundDestination :=
-          IntegrationRecordManagement.FindIntegrationTableUIdByRecordRef(IntegrationTableConnectionType, SourceRecordRef, IDValue);
+          IntegrationRecordManagement.FindIntegrationTableUIdByRecordRef(IntegrationTableConnectionType, SourceRecordRef, IDValueVariant);
 
         if FoundDestination then
-            IsDestinationDeleted := not IntegrationTableMapping.GetRecordRef(IDValue, DestinationRecordRef);
+            IsDestinationDeleted := not IntegrationTableMapping.GetRecordRef(IDValueVariant, DestinationRecordRef);
     end;
 
     local procedure PrepareNewDestination(var IntegrationTableMapping: Record "Integration Table Mapping"; var RecordRef: RecordRef; var CoupledRecordRef: RecordRef)
@@ -499,8 +499,10 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         IntegrationRecordManagement: Codeunit "Integration Record Management";
         DirectionToIntTable: Boolean;
     begin
-        if CRMIntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
-            exit;
+        if IntegrationTableMapping.Type = IntegrationTableMapping.Type::Dataverse then
+            if CRMIntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
+                exit;
+
         DirectionToIntTable := IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::ToIntegrationTable;
         IntegrationRecordManagement.MarkLastSynchAsFailure(IntegrationTableConnectionType, SourceRecordRef, DirectionToIntTable, JobId, ForceMarkAsSkipped);
     end;
@@ -512,8 +514,10 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         DirectionToIntTable: Boolean;
         MarkedAsSkipped: Boolean;
     begin
-        if CRMIntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
-            exit;
+        if IntegrationTableMapping.Type = IntegrationTableMapping.Type::Dataverse then
+            if CRMIntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
+                exit;
+
         DirectionToIntTable := IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::ToIntegrationTable;
         MarkedAsSkipped := SyncAction = SynchActionType::Skip;
         IntegrationRecordManagement.MarkLastSynchAsFailure(IntegrationTableConnectionType, SourceRecordRef, DirectionToIntTable, JobId, MarkedAsSkipped);
@@ -571,8 +575,9 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         if IsHandled then
             exit;
 
-        if CRMIntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
-            exit;
+        if IntegrationTableMapping.Type = IntegrationTableMapping.Type::Dataverse then
+            if CRMIntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
+                exit;
 
         DirectionToIntTable := SourceRecordRef.Number() = IntegrationTableMapping."Table ID";
         if DirectionToIntTable then begin

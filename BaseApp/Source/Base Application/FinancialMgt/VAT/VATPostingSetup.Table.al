@@ -149,6 +149,7 @@ table 325 "VAT Posting Setup"
             trigger OnValidate()
             begin
                 "VAT %" := GetVATPtc();
+                NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
         }
         field(14; "EU Service"; Boolean)
@@ -187,7 +188,7 @@ table 325 "VAT Posting Setup"
             begin
                 TestNotSalesTax(CopyStr(FieldCaption("VAT %"), 1, 100));
                 TestField("Allow Non-Deductible VAT", "Allow Non-Deductible VAT"::Allow);
-                NonDeductibleVAT.CheckUnrealizedVATWithNonDeductibleVATInVATPostingSetup(Rec);
+                NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
         }
         field(6202; "Non-Ded. Purchase VAT Account"; Code[20])
@@ -207,7 +208,7 @@ table 325 "VAT Posting Setup"
 
             trigger OnValidate()
             begin
-                NonDeductibleVAT.CheckUnrealizedVATWithNonDeductibleVATInVATPostingSetup(Rec);
+                NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
         }
     }

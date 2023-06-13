@@ -32,6 +32,8 @@ codeunit 5061 SegHistoryManagement
         SegHist."Segment Action No." := SegHeader."No. of Criteria Actions";
         SegHist."Segment Line No." := LineNo;
         SegHist."Contact No." := ContactNo;
+
+        OnAfterInitLine(SegmentNo, SegHist);
     end;
 
     procedure GoBack(SegmentNo: Code[20])
@@ -83,6 +85,11 @@ codeunit 5061 SegHistoryManagement
             repeat
                 SegCriteriaLine.Delete();
             until (SegCriteriaLine.Type = SegCriteriaLine.Type::Action) or (SegCriteriaLine.Next(-1) = 0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitLine(SegmentNo: Code[20]; var SegmentHistory: Record "Segment History")
+    begin
     end;
 }
 

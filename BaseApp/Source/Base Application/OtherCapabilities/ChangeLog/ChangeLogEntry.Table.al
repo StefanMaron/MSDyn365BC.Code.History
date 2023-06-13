@@ -164,6 +164,9 @@ table 405 "Change Log Entry"
         key(key5; "Field Log Entry Feature")
         {
         }
+        key(key6; SystemCreatedAt, Protected, "Field Log Entry Feature")
+        {
+        }
     }
 
     fieldgroups

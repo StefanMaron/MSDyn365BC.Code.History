@@ -415,6 +415,9 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Customer Price Group" = RIMD,
                   tabledata "Customer Sales Buffer" = RIMD,
                   tabledata "Customer Templ." = RIMD,
+#if not CLEAN20
+                  tabledata "Customer Template" = RIMD,
+#endif
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
                   tabledata "CV Ledger Entry Buffer" = RIMD,

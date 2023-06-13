@@ -275,10 +275,13 @@ codeunit 8618 "Config. Excel Exchange"
     local procedure IsImportFromExcelConfirmed(var TempConfigPackageTable: Record "Config. Package Table" temporary): Boolean
     var
         ConfigPackageImportPreview: Page "Config. Package Import Preview";
-        ShowDialog: Boolean;
+        ShowDialog, Result, IsHandled : Boolean;
     begin
         ShowDialog := GuiAllowed() and not HideDialog;
         if ReadPackageTableKeysFromExcel(TempConfigPackageTable, ShowDialog) and ShowDialog then begin
+            OnIsImportFromExcelConfirmedOnAfterReadFromExcel(Result, IsHandled);
+            if IsHandled then
+                exit(Result);
             ConfigPackageImportPreview.SetData(SelectedConfigPackage.Code, TempConfigPackageTable);
             ConfigPackageImportPreview.RunModal();
             exit(ConfigPackageImportPreview.IsImportConfirmed());
@@ -845,6 +848,11 @@ codeunit 8618 "Config. Excel Exchange"
 
     [IntegrationEvent(false, false)]
     local procedure OnImportExcelFile(var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsImportFromExcelConfirmedOnAfterReadFromExcel(var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

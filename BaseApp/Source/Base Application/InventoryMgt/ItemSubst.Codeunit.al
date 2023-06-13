@@ -39,6 +39,7 @@ codeunit 5701 "Item Subst."
     procedure ItemSubstGet(var SalesLine: Record "Sales Line") Found: Boolean
     var
         SalesLineReserve: Codeunit "Sales Line-Reserve";
+        IsHandled: Boolean;
     begin
         TempSalesLine := SalesLine;
         if (TempSalesLine.Type <> TempSalesLine.Type::Item) or
@@ -71,26 +72,28 @@ codeunit 5701 "Item Subst."
             TempItemSubstitution.SetRange("No.", TempSalesLine."No.");
             TempItemSubstitution.SetRange("Variant Code", TempSalesLine."Variant Code");
             TempItemSubstitution.SetRange("Location Filter", TempSalesLine."Location Code");
-            OnItemSubstGetOnAfterTempItemSubstitutionSetFilters(TempItemSubstitution);
-            if PAGE.RunModal(PAGE::"Item Substitution Entries", TempItemSubstitution) =
-               ACTION::LookupOK
-            then begin
-                if TempItemSubstitution."Substitute Type" =
-                   TempItemSubstitution."Substitute Type"::"Nonstock Item"
+            IsHandled := false;
+            OnItemSubstGetOnAfterTempItemSubstitutionSetFilters(TempItemSubstitution, SalesLine, TempSalesLine, OldSalesUOM, IsHandled);
+            if not IsHandled then
+                if PAGE.RunModal(PAGE::"Item Substitution Entries", TempItemSubstitution) =
+                ACTION::LookupOK
                 then begin
-                    NonStockItem.Get(TempItemSubstitution."Substitute No.");
-                    if NonStockItem."Item No." = '' then begin
-                        CatalogItemMgt.CreateItemFromNonstock(NonStockItem);
+                    if TempItemSubstitution."Substitute Type" =
+                    TempItemSubstitution."Substitute Type"::"Nonstock Item"
+                    then begin
                         NonStockItem.Get(TempItemSubstitution."Substitute No.");
+                        if NonStockItem."Item No." = '' then begin
+                            CatalogItemMgt.CreateItemFromNonstock(NonStockItem);
+                            NonStockItem.Get(TempItemSubstitution."Substitute No.");
+                        end;
+                        TempItemSubstitution."Substitute No." := NonStockItem."Item No."
                     end;
-                    TempItemSubstitution."Substitute No." := NonStockItem."Item No."
-                end;
-                ItemSubstGetPopulateTempSalesLine(SalesLine);
+                    ItemSubstGetPopulateTempSalesLine(SalesLine);
 
-                Commit();
-                if ItemCheckAvail.SalesLineCheck(TempSalesLine) then
-                    TempSalesLine := SalesLine;
-            end;
+                    Commit();
+                    if ItemCheckAvail.SalesLineCheck(TempSalesLine) then
+                        TempSalesLine := SalesLine;
+                end;
         end else
             Error(Text001, TempSalesLine."No.");
 
@@ -136,7 +139,7 @@ codeunit 5701 "Item Subst."
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcCustPrice(TempItemSubstitution, TempSalesLine, IsHandled);
+        OnBeforeCalcCustPrice(TempItemSubstitution, TempSalesLine, IsHandled, Item);
         if IsHandled then
             exit;
 
@@ -684,7 +687,7 @@ codeunit 5701 "Item Subst."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcCustPrice(var TempItemSubstitution: Record "Item Substitution" temporary; TempSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean)
+    local procedure OnBeforeCalcCustPrice(var TempItemSubstitution: Record "Item Substitution" temporary; TempSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean; Item: Record Item)
     begin
     end;
 
@@ -729,7 +732,7 @@ codeunit 5701 "Item Subst."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnItemSubstGetOnAfterTempItemSubstitutionSetFilters(var TempItemSubstitution: Record "Item Substitution" temporary)
+    local procedure OnItemSubstGetOnAfterTempItemSubstitutionSetFilters(var TempItemSubstitution: Record "Item Substitution" temporary; var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; OldSalesUOM: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

@@ -4794,6 +4794,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
             TestField(Type, Type::Item);
             TestField("No.", ProdOrderLine."Item No.");
             TestField(Quantity, ProdOrderLine.Quantity);
+            TestField("Replenishment System", "Replenishment System"::"Prod. Order");
         end;
     end;
 

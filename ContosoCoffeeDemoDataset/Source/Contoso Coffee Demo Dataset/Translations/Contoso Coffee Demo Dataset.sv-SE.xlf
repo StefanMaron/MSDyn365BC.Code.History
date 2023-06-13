@@ -760,7 +760,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XReservoirTok</note>
         </trans-unit>
         <trans-unit id="Codeunit 68986151 - NamedType 1276095357" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Screw Hex M3, Zink</source>
+          <source>Screw Hex M3, Zinc</source>
           <target state="translated">Sexkantsskruv M3, zink</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XScrewHexM3Tok</note>
@@ -784,8 +784,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XSNPRODTok</note>
         </trans-unit>
         <trans-unit id="Codeunit 68986151 - NamedType 1223161368" maxwidth="30" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Stainless still thermal carafe</source>
-          <target state="translated">Rostfri termoskanna</target>
+          <source>Stainless steel thermal carafe</source>
+          <target state="translated">Termoskanna i rostfritt stål</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Mfg Item - NamedType XStillCarafeTok</note>
         </trans-unit>
@@ -1732,7 +1732,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Item - NamedType BAGTok</note>
         </trans-unit>
         <trans-unit id="Codeunit 1755822452 - NamedType 3005490637" maxwidth="100" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Whole Roasted Beans, Columbia</source>
+          <source>Whole Roasted Beans, Colombia</source>
           <target state="translated">Hela rostade bönor, Colombia</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Create Whse Item - NamedType BeansDesc1Tok</note>

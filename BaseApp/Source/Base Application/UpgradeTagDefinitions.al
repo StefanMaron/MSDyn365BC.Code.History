@@ -138,6 +138,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetOptionMappingUpgradeTag());
         PerCompanyUpgradeTags.Add(GetProductionSourceCodeUpdateTag());
         PerCompanyUpgradeTags.Add(GetPurchaseCreditMemoUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetWorkflowDelegatedAdminSetupTemplateUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -1083,6 +1084,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetPurchaseCreditMemoUpgradeTag(): Code[250]
     begin
         exit('MS-466523-PurchaseCreditMemoUpgradeTag-20230323');
+    end;
+
+    internal procedure GetWorkflowDelegatedAdminSetupTemplateUpgradeTag(): Code[250]
+    begin
+        exit('MS-473204-GetWorkflowDelegatedAdminSetupTemplateUpgradeTag-20230531');
     end;
 }
 

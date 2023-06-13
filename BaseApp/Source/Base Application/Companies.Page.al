@@ -140,6 +140,8 @@ page 357 Companies
 
                     if CopiedCompany.Get(CopyCompany.GetCompanyName()) then
                         AssistedCompanySetupStatus.CopySaaSCompanySetupStatus(Rec.Name, CopiedCompany.Name);
+
+                    OnAfterCopyCompanyOnAction(CopyCompany.GetCompanyName());
                 end;
             }
         }
@@ -264,6 +266,11 @@ page 357 Companies
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteRecord(var Company: Record Company)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyCompanyOnAction(CompanyName: Text[30])
     begin
     end;
 }

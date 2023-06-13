@@ -107,7 +107,13 @@ codeunit 28 "Error Message Management"
     var
         RecRef: RecordRef;
         TableNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetContextRecID(ContextVariant, ContextRecID, IsHandled);
+        if IsHandled then
+            exit;
+
         Clear(ContextRecID);
         case true of
             ContextVariant.IsRecord:
@@ -722,5 +728,10 @@ codeunit 28 "Error Message Management"
                 Rec.Message := Rec.Description;
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetContextRecID(ContextVariant: Variant; var ContextRecID: RecordID; var IsHandled: Boolean)
+    begin
+    end;
 }
 

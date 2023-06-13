@@ -119,6 +119,8 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
         PriceAsset.Validate("Asset No.", PriceCalculationBuffer."Asset No.");
         PriceAsset."Work Type Code" := PriceCalculationBuffer."Work Type Code";
         PriceAsset."Unit of Measure Code" := PriceCalculationBuffer."Unit of Measure Code";
+
+        OnAfterFillFromBuffer(PriceAsset, PriceCalculationBuffer);
     end;
 
     local procedure FillAdditionalFields(var PriceAsset: Record "Price Asset")
@@ -151,6 +153,11 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillFromBuffer(var PriceAsset: Record "Price Asset"; PriceCalculationBuffer: Record "Price Calculation Buffer")
     begin
     end;
 }

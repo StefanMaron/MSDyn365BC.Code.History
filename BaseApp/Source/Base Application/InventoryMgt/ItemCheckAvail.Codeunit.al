@@ -786,7 +786,7 @@ codeunit 311 "Item-Check Avail."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeSalesLineCheck(SalesLine: Record "Sales Line"; var Rollback: Boolean; var IsHandled: Boolean)
     begin
     end;

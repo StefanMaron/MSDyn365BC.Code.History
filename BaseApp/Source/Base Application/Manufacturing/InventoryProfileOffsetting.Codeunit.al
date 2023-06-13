@@ -230,7 +230,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         if InventoryProfile.IsSupply then
                             InventoryProfile.ChangeSign();
                         InventoryProfile."MPS Order" := true;
-                        OnTransSalesLineToProfileOnBeforeInvProfileInsert(InventoryProfile, Item);
+                        OnTransSalesLineToProfileOnBeforeInvProfileInsert(InventoryProfile, Item, LineNo);
                         InventoryProfile.Insert();
                         OnTransSalesLineToProfileOnAfterInsertInventoryProfileFromOrder(Item, SalesLine, InventoryProfile);
                     end;
@@ -323,7 +323,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         InventoryProfile.TransferFromComponent(ProdOrderComp, TempItemTrkgEntry);
                         if InventoryProfile.IsSupply then
                             InventoryProfile.ChangeSign();
-                        OnTransProdOrderCompToProfileOnBeforeInvProfileInsert(InventoryProfile, Item);
+                        OnTransProdOrderCompToProfileOnBeforeInvProfileInsert(InventoryProfile, Item, LineNo);
                         InventoryProfile.Insert();
                     end;
                 end;
@@ -352,7 +352,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     InventoryProfile.TransferFromPlanComponent(PlanningComponent, TempItemTrkgEntry);
                     if InventoryProfile.IsSupply then
                         InventoryProfile.ChangeSign();
-                    OnTransPlanningCompToProfileOnBeforeInventoryProfileInsert(InventoryProfile, Item);
+                    OnTransPlanningCompToProfileOnBeforeInventoryProfileInsert(InventoryProfile, Item, LineNo);
                     InventoryProfile.Insert();
                 end;
             until PlanningComponent.Next() = 0;
@@ -3061,6 +3061,10 @@ codeunit 99000854 "Inventory Profile Offsetting"
                (ReqLine."Starting Date" > ReqLine."Ending Date")
             then
                 ReqLine."Starting Date" := ReqLine."Ending Date";
+            if (ReqLine."Starting Date" = ReqLine."Ending Date") and
+               (ReqLine."Ending Time" < ReqLine."Starting Time")
+            then
+                ReqLine."Ending Time" := ReqLine."Starting Time";
         end;
 
         OnAfterAdjustPlanLine(ReqLine, SupplyInventoryProfile);
@@ -5972,7 +5976,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransPlanningCompToProfileOnBeforeInventoryProfileInsert(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
+    local procedure OnTransPlanningCompToProfileOnBeforeInventoryProfileInsert(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var LineNo: Integer)
     begin
     end;
 
@@ -6012,7 +6016,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransSalesLineToProfileOnBeforeInvProfileInsert(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
+    local procedure OnTransSalesLineToProfileOnBeforeInvProfileInsert(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var LineNo: Integer)
     begin
     end;
 
@@ -6022,7 +6026,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransProdOrderCompToProfileOnBeforeInvProfileInsert(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
+    local procedure OnTransProdOrderCompToProfileOnBeforeInvProfileInsert(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var LineNo: Integer)
     begin
     end;
 

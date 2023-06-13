@@ -270,6 +270,7 @@ codeunit 137140 "SCM Inventory Documents"
         CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", Qty);
         TransferLine.Validate("Transfer-from Bin Code", Bin.Code);
+        TransferLine.Validate("Qty. to Ship", TransferLine.Quantity);
         TransferLine.Modify(true);
 
         // [WHEN] Post the transfer using "Direct Transfer Posting" = "Direct Transfer"
@@ -1133,6 +1134,63 @@ codeunit 137140 "SCM Inventory Documents"
 
         // [VERIFY] Verify Unit Cost will update when Base Unit Of Measure Code is Change to new Unit of Measure Code. 
         Assert.AreEqual(Item."Unit Cost" * ItemUnitOfMeasure."Qty. per Unit of Measure", InvtDocumentLine."Unit Cost", UnitCostErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyUnitCostWhenUsingItemSKUAndChangingUOMInInventoryReceipt()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Location: Record Location;
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: array[2] of Record "Item Unit of Measure";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        // [SCENARIO 473495] Unit Cost is not updated when using Item SKU and changing UoM in Inventory Receipt
+        Initialize();
+
+        // [GIVEN] Create Location with Inventory Posting Setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Item and Item Unit of Measure Code
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Add Unit cost in the Item
+        Item."Unit Cost" := LibraryRandom.RandDec(10, 2);
+        Item.Modify(true);
+
+        // [GIVEN] Create Item Unit of Measure Code 1.
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure[1], Item."No.", UnitOfMeasure.Code, 1);
+
+        // [GIVEN] Create Item Unit of Measure Code 2.
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure[2], Item."No.", 2);
+
+        // [GIVEN] Create Stock Keeping Unit for Item
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, Item."No.", '');
+
+        // [GIVEN] Create Inventory Receipt with Location Code and update Posting No. on Inventory Receipt Document.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        InvtDocumentHeader."Posting No." := LibraryUtility.GenerateGUID();
+        InvtDocumentHeader.Modify(true);
+
+        // [GIVEN] Create Inventory Receipt Line and update Unit of Measure Code other than Base Unit of Measure Code
+        LibraryInventory.CreateInvtDocumentLine(
+        InvtDocumentHeader, InvtDocumentLine, Item."No.", Item."Unit Cost", LibraryRandom.RandDec(10, 2));
+        InvtDocumentLine.Validate("Unit of Measure Code", ItemUnitOfMeasure[1].Code);
+        InvtDocumentLine.Modify(true);
+
+        // [VERIFY] Verify: Unit Cost will when Unit Of Measure Code 1 applied.
+        Assert.AreEqual(Item."Unit Cost" * ItemUnitOfMeasure[1]."Qty. per Unit of Measure", InvtDocumentLine."Unit Cost", UnitCostErr);
+
+        // [THEN] Update Unit of Measure Code on Inventory Receipt Line as 2.
+        InvtDocumentLine.Validate("Unit of Measure Code", ItemUnitOfMeasure[2].Code);
+        InvtDocumentLine.Modify(true);
+
+        // [VERIFY] Verify: Unit Cost will update when Unit Of Measure Code 2 applied.
+        Assert.AreEqual(Item."Unit Cost" * ItemUnitOfMeasure[2]."Qty. per Unit of Measure", InvtDocumentLine."Unit Cost", UnitCostErr);
     end;
 
     local procedure Initialize()

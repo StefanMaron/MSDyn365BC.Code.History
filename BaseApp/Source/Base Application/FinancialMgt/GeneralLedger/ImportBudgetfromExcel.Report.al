@@ -58,6 +58,7 @@ report 81 "Import Budget from Excel"
 
                 InsertGLBudgetDimensions(BudgetBuf);
                 GLBudgetEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
+                OnBudgetBufOnAfterGetRecordOnBeforeGLBudgetEntryInsert(GLBudgetEntry);
                 GLBudgetEntry.Insert(true);
                 EntryNo := EntryNo + 1;
             end;
@@ -80,6 +81,7 @@ report 81 "Import Budget from Excel"
             trigger OnPreDataItem()
             var
                 ConfirmManagement: Codeunit "Confirm Management";
+                IsHandled: Boolean;
             begin
                 RecNo := 0;
 
@@ -91,20 +93,26 @@ report 81 "Import Budget from Excel"
                     GLBudgetName.Name := ToGLBudgetName;
                     GLBudgetName.Insert();
                 end else begin
-                    if GLBudgetName.Blocked then begin
-                        Message(Text002,
-                          GLBudgetEntry.FieldCaption("Budget Name"), ToGLBudgetName);
-                        CurrReport.Break();
-                    end;
+                    IsHandled := false;
+                    OnBeforeCheckGLBudgetNameBlacked(GLBudgetName, IsHandled);
+                    if not IsHandled then
+                        if GLBudgetName.Blocked then begin
+                            Message(Text002, GLBudgetEntry.FieldCaption("Budget Name"), ToGLBudgetName);
+                            CurrReport.Break();
+                        end;
                     if not ConfirmManagement.GetResponseOrDefault(
                          StrSubstNo(Text003, LowerCase(Format(SelectStr(ImportOption + 1, Text027))), ToGLBudgetName), true)
                     then
                         CurrReport.Break();
                 end;
 
-                GLBudgetEntry3.LockTable();
-                LastEntryNoBeforeImport := GLBudgetEntry3.GetLastEntryNo();
-                EntryNo := LastEntryNoBeforeImport + 1;
+                IsHandled := false;
+                OnBeforeGetLastEntryNoBeforeImport(GLBudgetEntry3, LastEntryNoBeforeImport, IsHandled);
+                if not IsHandled then begin
+                    GLBudgetEntry3.LockTable();
+                    LastEntryNoBeforeImport := GLBudgetEntry3.GetLastEntryNo();
+                    EntryNo := LastEntryNoBeforeImport + 1;
+                end;
             end;
         }
     }
@@ -652,6 +660,21 @@ report 81 "Import Budget from Excel"
 
     [IntegrationEvent(false, false)]
     local procedure OnAnalyzeDataOnBeforeCombinationMustBeUniqueError(var BudgetBuf: Record "Budget Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetLastEntryNoBeforeImport(var GLBudgetEntry3: Record "G/L Budget Entry"; var LastEntryNoBeforeImport: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGLBudgetNameBlacked(GLBudgetName: Record "G/L Budget Name"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBudgetBufOnAfterGetRecordOnBeforeGLBudgetEntryInsert(var GLBudgetEntry: Record "G/L Budget Entry")
     begin
     end;
 }

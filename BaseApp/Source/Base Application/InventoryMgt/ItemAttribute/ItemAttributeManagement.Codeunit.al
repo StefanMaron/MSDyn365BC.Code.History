@@ -191,7 +191,12 @@ codeunit 7500 "Item Attribute Management"
     var
         TempItemAttributeValueToInsert: Record "Item Attribute Value" temporary;
         TempItemAttributeValueToDelete: Record "Item Attribute Value" temporary;
+        IsHandled: Boolean;
     begin
+        OnBeforeInheritAttributesFromItemCategory(Item, NewItemCategoryCode, OldItemCategoryCode, IsHandled);
+        if IsHandled then
+            exit;
+
         GenerateAttributesToInsertAndToDelete(
           TempItemAttributeValueToInsert, TempItemAttributeValueToDelete, NewItemCategoryCode, OldItemCategoryCode);
 
@@ -204,6 +209,8 @@ codeunit 7500 "Item Attribute Management"
 
         if not TempItemAttributeValueToInsert.IsEmpty() then
             InsertItemAttributeValueMapping(Item, TempItemAttributeValueToInsert);
+
+        OnAfterInheritAttributesFromItemCategory(Item, NewItemCategoryCode, OldItemCategoryCode);
     end;
 
     procedure UpdateCategoryAttributesAfterChangingParentCategory(ItemCategoryCode: Code[20]; NewParentItemCategory: Code[20]; OldParentItemCategory: Code[20])
@@ -492,6 +499,16 @@ codeunit 7500 "Item Attribute Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSearchCategoryItemsForAttributeOnBeforeSearchByParentCategory(CategoryCode: Code[20]; AttributeID: Integer; var IsHandled: Boolean; var ReturnValue: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInheritAttributesFromItemCategory(Item: Record Item; NewItemCategoryCode: Code[20]; OldItemCategoryCode: Code[20]; var Handle: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInheritAttributesFromItemCategory(Item: Record Item; NewItemCategoryCode: Code[20]; OldItemCategoryCode: Code[20])
     begin
     end;
 }

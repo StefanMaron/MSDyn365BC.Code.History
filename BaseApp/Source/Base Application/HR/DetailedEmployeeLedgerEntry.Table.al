@@ -197,28 +197,41 @@ table 5223 "Detailed Employee Ledger Entry"
             "Debit Amount (LCY)" := 0;
             "Credit Amount (LCY)" := -"Amount (LCY)";
         end;
+
+        OnAfterUpdateDebitCredit(Rec, Correction);
     end;
 
     procedure SetZeroTransNo(TransactionNo: Integer)
     var
-        DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry";
+        DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry";
         ApplicationNo: Integer;
     begin
-        DtldEmplLedgEntry.SetCurrentKey("Transaction No.");
-        DtldEmplLedgEntry.SetRange("Transaction No.", TransactionNo);
-        if DtldEmplLedgEntry.FindSet(true) then begin
-            ApplicationNo := DtldEmplLedgEntry."Entry No.";
-                                                    repeat
-                                                        DtldEmplLedgEntry."Transaction No." := 0;
-                                                        DtldEmplLedgEntry."Application No." := ApplicationNo;
-                                                        DtldEmplLedgEntry.Modify();
-                                                    until DtldEmplLedgEntry.Next() = 0;
+        DetailedEmployeeLedgerEntry.SetCurrentKey("Transaction No.");
+        DetailedEmployeeLedgerEntry.SetRange("Transaction No.", TransactionNo);
+        if DetailedEmployeeLedgerEntry.FindSet(true) then begin
+            ApplicationNo := DetailedEmployeeLedgerEntry."Entry No.";
+            repeat
+                DetailedEmployeeLedgerEntry."Transaction No." := 0;
+                DetailedEmployeeLedgerEntry."Application No." := ApplicationNo;
+                OnSetZeroTransNoOnBeforeDetailedVendorLedgEntryModify(DetailedEmployeeLedgerEntry);
+                DetailedEmployeeLedgerEntry.Modify();
+            until DetailedEmployeeLedgerEntry.Next() = 0;
         end;
     end;
 
     local procedure SetLedgerEntryAmount()
     begin
         "Ledger Entry Amount" := not ("Entry Type" = "Entry Type"::Application);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDebitCredit(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry"; Correction: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetZeroTransNoOnBeforeDetailedVendorLedgEntryModify(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
+    begin
     end;
 }
 

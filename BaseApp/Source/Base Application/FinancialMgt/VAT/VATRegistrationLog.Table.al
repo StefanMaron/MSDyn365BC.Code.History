@@ -154,6 +154,7 @@ table 249 "VAT Registration Log"
         VATRegistrationLog."Account No." := AccountNo;
         VATRegistrationLog."Country/Region Code" := CountryCode;
         VATRegistrationLog."VAT Registration No." := VATRegNo;
+        OnAfterInitVATRegLog(VATRegistrationLog, CountryCode, AcountType, AccountNo, VATRegNo);
     end;
 
     procedure OpenModifyDetails()
@@ -165,7 +166,13 @@ table 249 "VAT Registration Log"
         VendContUpdate: Codeunit "VendCont-Update";
         UpdateCustVendBank: Codeunit "CustVendBank-Update";
         RecordRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenModifyDetails(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetAccountRecordRef(RecordRef);
         if OpenDetailsForRecRef(RecordRef) then begin
             RecordRef.Modify();
@@ -229,7 +236,14 @@ table 249 "VAT Registration Log"
     end;
 
     local procedure ShowDetailsUpdatedMessage(TableID: Integer);
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDetailsUpdatedMessage(TableID, IsHandled);
+        if IsHandled then
+            exit;
+
         if GuiAllowed() then
             case TableID of
                 Database::Customer:
@@ -259,13 +273,19 @@ table 249 "VAT Registration Log"
             ConfigValidateManagement.EvaluateValueWithValidate(FieldRef, CopyStr(Value, 1, FieldRef.Length()), false);
     end;
 
-    procedure GetAccountRecordRef(var RecordRef: RecordRef): Boolean
+    procedure GetAccountRecordRef(var RecordRef: RecordRef) Result: Boolean
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
         Contact: Record Contact;
         CompanyInformation: Record "Company Information";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetAccountRecordRef(Rec, RecordRef, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         Clear(RecordRef);
         case "Account Type" of
             "Account Type"::Customer:
@@ -403,6 +423,26 @@ table 249 "VAT Registration Log"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateField(var RecordRef: RecordRef; FieldName: Text; var Value: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDetailsUpdatedMessage(TableId: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenModifyDetails(var VATRegistrationLog: Record "VAT Registration Log"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitVATRegLog(var VATRegistrationLog: Record "VAT Registration Log"; CountryCode: Code[10]; AcountType: Option; AccountNo: Code[20]; VATRegNo: Text[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAccountRecordRef(var VATRegistrationLog: Record "VAT Registration Log"; var RecordRef: RecordRef; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 }

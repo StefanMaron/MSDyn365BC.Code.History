@@ -422,8 +422,12 @@ codeunit 5601 "FA Insert G/L Account"
     local procedure CalculateNoOfEmptyLines(var GenJnlLine: Record "Gen. Journal Line"; NumberOfEntries: Integer)
     var
         GenJnlLine2: Record "Gen. Journal Line";
+        IsHandled: Boolean;
     begin
-        OnBeforeCalculateNoOfEmptyLines(GenJnlLine, TempFAGLPostBuf);
+        IsHandled := false;
+        OnBeforeCalculateNoOfEmptyLines(GenJnlLine, TempFAGLPostBuf, NextLineNo, NoOfEmptyLines, NoOfEmptyLines2, NumberOfEntries, IsHandled);
+        if IsHandled then
+            exit;
 
         GenJnlLine2."Journal Template Name" := GenJnlLine."Journal Template Name";
         GenJnlLine2."Journal Batch Name" := GenJnlLine."Journal Batch Name";
@@ -787,7 +791,7 @@ codeunit 5601 "FA Insert G/L Account"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateNoOfEmptyLines(var GenJnlLine: Record "Gen. Journal Line"; var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary)
+    local procedure OnBeforeCalculateNoOfEmptyLines(var GenJnlLine: Record "Gen. Journal Line"; var TempFAGLPostingBuffer: Record "FA G/L Posting Buffer" temporary; var NextLineNo: Integer; var NoOfEmptyLines: Integer; var NoOfEmptyLines2: Integer; var NumberOfEntries: Integer; var IsHandled: Boolean)
     begin
     end;
 }

@@ -135,6 +135,71 @@ codeunit 136109 "Service Posting - Consumption"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('PostAsShipAndConsumeHandler,ErrorMessagesPageHandler')]
+    procedure CheckInventoryAdjmAccountMissingWhenPostingConsumption()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+        ItemForConsumption: Record Item;
+        GeneralPostingSetup: Record "General Posting Setup";
+        InventoryAdjmtAccount: Code[20];
+    begin
+        // [SCENARIO 469181] if ship and consume ServiceOrder, it should throw error if GeneralPostingSetup."Inventory Adjmt. Account" is missing
+
+        Initialize();
+
+        // [GIVEN] Consumption item
+        LibraryInventory.CreateItem(ItemForConsumption);
+
+        // [GIVEN] Created Service Order with Service Item Line and Service Line
+        CreateServiceHeader(ServiceHeader);
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        CreateServiceLineWithQuantity(
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemForConsumption."No.", LibraryRandom.RandInt(10));
+        ServiceLine."Service Item Line No." := ServiceItemLine."Line No.";
+        ServiceLine.Modify();
+
+        // [GIVEN] "General Posting Setup" is without "Inventory Adjmt. Account" set
+        GeneralPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group");
+        InventoryAdjmtAccount := GeneralPostingSetup."Inventory Adjmt. Account";
+        GeneralPostingSetup."Inventory Adjmt. Account" := '';
+        GeneralPostingSetup.Modify();
+
+        // [GIVEN] Service Line "Qty. to Consume" is set
+        UpdatePriceAndQtyToConsume(ServiceLine, ServiceLine.Quantity);
+        Assert.AreEqual(ServiceLine.Quantity, ServiceLine."Qty. to Consume", UnknownError);
+
+        // [WHEN],  try to post Service Order (same like from page)
+        ServiceHeader.SendToPost(Codeunit::"Service-Post (Yes/No)");
+
+        //[THEN] System should not post anything
+        CheckServiceOrderIsNotPosted(ServiceHeader);
+
+        //return setup to an original state
+        GeneralPostingSetup."Inventory Adjmt. Account" := InventoryAdjmtAccount;
+        GeneralPostingSetup.Modify();
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ErrorMessagesPageHandler(var ErrorMessages: TestPage "Error Messages")
+    begin
+        //Inventory Adjmt. Account is missing in General Posting Setup Gen. Bus. Posting Group: DOMESTIC, Gen. Prod. Posting Group: MISC.
+    end;
+
+    local procedure CheckServiceOrderIsNotPosted(ServiceHeader: Record "Service Header")
+    var
+        ServiceHeader2: Record "Service Header";
+        ServiceShipmentHeader: Record "Service Shipment Header";
+    begin
+        ServiceHeader2.Get(ServiceHeader."Document Type", ServiceHeader."No.");
+        ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
+        Assert.IsTrue(ServiceShipmentHeader.IsEmpty, UnknownError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CostConsumptionWithLineDiscount()
     var
         ServiceHeader: Record "Service Header";

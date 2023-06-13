@@ -446,6 +446,8 @@
             end;
         until ItemChargeAssignmentSales.Next() = 0;
 
+        OnAssignByAmountOnBeforeModifyItemChargeAssignmentSalesLoop(ItemChargeAssignmentSales, TempItemChargeAssgntSales, TotalAppliesToDocLineAmount, SalesHeader, TotalQtyToAssign, TotalAmtToAssign);
+
         if TempItemChargeAssgntSales.FindSet(true) then
             repeat
                 ItemChargeAssignmentSales.Get(
@@ -817,6 +819,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateShptChargeAssgnt(var FromSalesShptLine: Record "Sales Shipment Line"; var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByAmountOnBeforeModifyItemChargeAssignmentSalesLoop(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; var TempItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; var TotalAppliesToDocLineAmount: Decimal; SalesHeader: Record "Sales Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal)
     begin
     end;
 }

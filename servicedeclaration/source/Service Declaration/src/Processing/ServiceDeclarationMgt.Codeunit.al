@@ -25,6 +25,13 @@ codeunit 5012 "Service Declaration Mgt."
         OnAfterCheckFeatureEnabled(IsEnabled);
     end;
 
+    internal procedure IsFeatureEnabledWithoutSetup() IsEnabled: Boolean
+    var
+        FeatureMgtFacade: Codeunit "Feature Management Facade";
+    begin
+        IsEnabled := FeatureMgtFacade.IsEnabled(GetServiceDeclarationFeatureKeyId());
+    end;
+
     procedure IsServTransTypeEnabled(): Boolean
     var
         ServDeclSetup: Record "Service Declaration Setup";

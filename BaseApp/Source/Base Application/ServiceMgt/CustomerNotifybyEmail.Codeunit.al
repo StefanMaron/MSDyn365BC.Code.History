@@ -28,6 +28,9 @@ codeunit 5915 "Customer-Notify by Email"
             ServEmailQueue."To Address" := ServHeader."Ship-to E-Mail";
         if ServEmailQueue."To Address" = '' then
             ServEmailQueue."To Address" := ServHeader."E-Mail";
+
+        OnGetEmailForNotifyByEMailWhenServiceIsDone(ServHeader, ServEmailQueue."To Address");
+
         if ServEmailQueue."To Address" = '' then
             exit;
 
@@ -43,6 +46,12 @@ codeunit 5915 "Customer-Notify by Email"
         Message(
           Text002,
           ServHeader."No.", ServHeader.Status);
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetEmailForNotifyByEMailWhenServiceIsDone(ServiceHeader: Record "Service Header"; var EmailAddress: Text[80])
+    begin
     end;
 }
 

@@ -264,6 +264,8 @@ table 1706 "Deferral Posting Buffer"
         "VAT Prod. Posting Group" := SalesLine."VAT Prod. Posting Group";
         "Gen. Posting Type" := "Gen. Posting Type"::Sale;
         "Deferral Line No." := DeferralLineNo;
+
+        OnAfterPrepareRemainderSales(Rec, SalesLine);
     end;
 
     procedure PrepareRemainderPurchase(PurchaseLine: Record "Purchase Line"; NewAmountLCY: Decimal; NewAmount: Decimal; GLAccount: Code[20]; DeferralAccount: Code[20]; DeferralLineNo: Integer)
@@ -275,6 +277,8 @@ table 1706 "Deferral Posting Buffer"
         "VAT Prod. Posting Group" := PurchaseLine."VAT Prod. Posting Group";
         "Gen. Posting Type" := "Gen. Posting Type"::Purchase;
         "Deferral Line No." := DeferralLineNo;
+
+        OnAfterPrepareRemainderPurchase(Rec, PurchaseLine);
     end;
 
 #if not CLEAN20
@@ -447,6 +451,16 @@ table 1706 "Deferral Posting Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateOnBeforeDeferralPostBufferInsert(var ToDeferralPostingBuffer: Record "Deferral Posting Buffer"; FromDeferralPostingBuffer: Record "Deferral Posting Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareRemainderPurchase(var DeferralPostingBuffer: Record "Deferral Posting Buffer"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareRemainderSales(var DeferralPostingBuffer: Record "Deferral Posting Buffer"; SalesLine: Record "Sales Line")
     begin
     end;
 }

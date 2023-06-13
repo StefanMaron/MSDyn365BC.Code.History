@@ -465,6 +465,8 @@ codeunit 5920 ServItemManagement
         ServInvoiceLine.SetRange("Document No.", ServItemLine."Document No.");
         ServInvoiceLine.SetRange("Service Item Line No.", ServItemLine."Line No.");
         ServInvoiceLine.ModifyAll("Service Item No.", ServItemLine."Service Item No.");
+
+        OnAfterCreateServItemOnServItemLine(ServItemLine);
     end;
 
     procedure CalcAmountLCY(FCAmount: Decimal; CurrencyFactor: Decimal; CurrencyCode: Code[10]; CurrencyDate: Date): Decimal
@@ -525,6 +527,8 @@ codeunit 5920 ServItemManagement
         SalesLine: Record "Sales Line";
         DummySalesShptLine: Record "Sales Shipment Line";
     begin
+        OnBeforeCreateServItemOnSalesInvoice(SalesHeader, SalesLine);
+
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         if SalesLine.FindSet() then
@@ -720,6 +724,16 @@ codeunit 5920 ServItemManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateServItemOnSalesLineShptOnAfterInsertServiceItem(var ServiceItem: Record "Service Item"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line"; var TempReservEntry: Record "Reservation Entry" temporary; ServItemWithSerialNoExist: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateServItemOnServItemLine(ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateServItemOnSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
 }

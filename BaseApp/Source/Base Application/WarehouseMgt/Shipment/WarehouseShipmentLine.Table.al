@@ -1131,8 +1131,12 @@
         InventorySetup: Record "Inventory Setup";
         TransferHeader: Record "Transfer Header";
     begin
+        if "Source Type" <> Database::"Transfer Line" then
+            exit(false);
+
         InventorySetup.Get();
         if InventorySetup."Direct Transfer Posting" = InventorySetup."Direct Transfer Posting"::"Direct Transfer" then begin
+            TransferHeader.SetLoadFields("Direct Transfer");
             TransferHeader.Get(Rec."Source No.");
             if DoCheck then
                 TransferHeader.TestField("Direct Transfer", DirectTransfer)

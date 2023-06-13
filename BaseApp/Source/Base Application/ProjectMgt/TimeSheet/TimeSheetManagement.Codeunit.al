@@ -1022,7 +1022,12 @@ codeunit 950 "Time Sheet Management"
         TimeSheetLine: Record "Time Sheet Line";
         ServiceLine: Record "Service Line";
         QtyToPost: Decimal;
+        IsHandled: Boolean;
     begin
+        OnBeforeAddServLinesFromTSDetail(ServiceHeader, TimeSheetDetail, LineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         QtyToPost := TimeSheetDetail.GetMaxQtyToPost();
         if QtyToPost <> 0 then begin
             ServiceLine.Init();
@@ -1156,6 +1161,11 @@ codeunit 950 "Time Sheet Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetActivityInfoCaseTypeElse(var TimeSheetLine: Record "Time Sheet Line"; var ActivityCaption: Text[30]; var ActivityID: Code[20]; var ActivitySubCaption: Text[30]; var ActivitySubID: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddServLinesFromTSDetail(ServiceHeader: Record "Service Header"; var TimeSheetDetail: Record "Time Sheet Detail"; LineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

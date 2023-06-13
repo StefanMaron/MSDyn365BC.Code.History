@@ -131,9 +131,15 @@ codeunit 5357 "Int. Rec. Uncouple Invoke"
         IntegrationTableUid: Variant;
         DestinationTableID: Integer;
         Removed: Boolean;
+        IsHandled: Boolean;
     begin
-        if CRMIntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
-            exit(false);
+        OnRemoveIntegrationTableCoupling(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, IntegrationTableConnectionType, IsHandled, Removed);
+        if IsHandled then
+            exit(Removed);
+
+        if IntegrationTableMapping.Type = IntegrationTableMapping.Type::Dataverse then
+            if CRMIntegrationManagement.IsIntegrationRecordChild(IntegrationTableMapping."Table ID") then
+                exit(false);
 
         IntegrationTableUidFieldRef := IntegrationRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
         IntegrationTableUid := IntegrationTableUidFieldRef.Value();
@@ -198,6 +204,11 @@ codeunit 5357 "Int. Rec. Uncouple Invoke"
 
     [IntegrationEvent(false, false)]
     local procedure OnErrorWhenUncouplingRecord(IntegrationTableMapping: Record "Integration Table Mapping"; var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRemoveIntegrationTableCoupling(var IntegrationTableMapping: Record "Integration Table Mapping"; var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef; var IntegrationTableConnectionType: TableConnectionType; var IsHandled: Boolean; var Removed: Boolean)
     begin
     end;
 }

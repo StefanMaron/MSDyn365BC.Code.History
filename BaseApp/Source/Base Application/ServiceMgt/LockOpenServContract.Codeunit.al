@@ -26,10 +26,16 @@ codeunit 5943 "Lock-OpenServContract"
         with ServContractHeader do begin
             if "Change Status" = "Change Status"::Locked then
                 exit;
-            CalcFields("Calcd. Annual Amount");
-            TestField("Annual Amount", "Calcd. Annual Amount");
-            if "Annual Amount" < 0 then
-                Error(Text003);
+
+            IsHandled := false;
+            OnLockServContractOnBeforeCheckAmounts(ServContractHeader, IsHandled);
+            if not IsHandled then begin
+                CalcFields("Calcd. Annual Amount");
+                TestField("Annual Amount", "Calcd. Annual Amount");
+                if "Annual Amount" < 0 then
+                    Error(Text003);
+            end;
+
             IsHandled := false;
             OnLockServContractOnBeforeCheckZeroAnnualAmount(ServContractHeader, IsHandled);
             if not IsHandled then
@@ -38,31 +44,32 @@ codeunit 5943 "Lock-OpenServContract"
                         Error(Text004);
 
             LockTable();
-            if ("Contract Type" = "Contract Type"::Contract) and
-               (Status = Status::Signed)
-            then begin
-                ServContractLine.Reset();
-                ServContractLine.SetRange("Contract Type", "Contract Type");
-                ServContractLine.SetRange("Contract No.", "Contract No.");
-                ServContractLine.SetRange("Line Amount", 0);
-                ServContractLine.SetFilter("Line Discount %", '<%1', 100);
-                RaiseError := not ServContractLine.IsEmpty();
-                OnErrorIfServContractLinesHaveZeroAmount(ServContractHeader, ServContractLine, RaiseError);
-                if RaiseError then
-                    Error(Text000, Status, "Contract Type", ServContractLine.FieldCaption("Line Amount"));
-                ServContractLine.Reset();
-                ServContractLine.SetRange("Contract Type", "Contract Type");
-                ServContractLine.SetRange("Contract No.", "Contract No.");
-                ServContractLine.SetRange("New Line", true);
-                if not ServContractLine.IsEmpty() then
-                    SignServContract(ServContractHeader);
-            end;
+            IsHandled := false;
+            OnLockServContractOnAfterLockTable(ServContractHeader, IsHandled);
+            if not IsHandled then
+                if ("Contract Type" = "Contract Type"::Contract) and (Status = Status::Signed) then begin
+                    ServContractLine.Reset();
+                    ServContractLine.SetRange("Contract Type", "Contract Type");
+                    ServContractLine.SetRange("Contract No.", "Contract No.");
+                    ServContractLine.SetRange("Line Amount", 0);
+                    ServContractLine.SetFilter("Line Discount %", '<%1', 100);
+                    RaiseError := not ServContractLine.IsEmpty();
+                    OnErrorIfServContractLinesHaveZeroAmount(ServContractHeader, ServContractLine, RaiseError);
+                    if RaiseError then
+                        Error(Text000, Status, "Contract Type", ServContractLine.FieldCaption("Line Amount"));
+                    ServContractLine.Reset();
+                    ServContractLine.SetRange("Contract Type", "Contract Type");
+                    ServContractLine.SetRange("Contract No.", "Contract No.");
+                    ServContractLine.SetRange("New Line", true);
+                    if not ServContractLine.IsEmpty() then
+                        SignServContract(ServContractHeader);
+                end;
             Get(FromServContractHeader."Contract Type", FromServContractHeader."Contract No.");
             "Change Status" := "Change Status"::Locked;
             Modify();
         end;
 
-        OnAfterLockServContract(ServContractHeader);
+        OnAfterLockServContract(ServContractHeader, FromServContractHeader);
     end;
 
     procedure OpenServContract(ServContractHeader: Record "Service Contract Header")
@@ -110,7 +117,7 @@ codeunit 5943 "Lock-OpenServContract"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLockServContract(var ServiceContractHeader: Record "Service Contract Header")
+    local procedure OnAfterLockServContract(var ServiceContractHeader: Record "Service Contract Header"; var FromServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 
@@ -126,6 +133,16 @@ codeunit 5943 "Lock-OpenServContract"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSignServContract(ServContractHeader: Record "Service Contract Header"; var AutoSign: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLockServContractOnBeforeCheckAmounts(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLockServContractOnAfterLockTable(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 }

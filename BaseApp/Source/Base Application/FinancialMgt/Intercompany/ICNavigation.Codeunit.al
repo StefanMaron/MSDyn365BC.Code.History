@@ -10,11 +10,11 @@ codeunit 437 "IC Navigation"
         NavigateToDocument(HandledICInboxTrans."Document No.", Enum::"IC Direction Type"::Incoming, HandledICInboxTrans."IC Partner Code", HandledICInboxTrans."Document Type", HandledICInboxTrans."Source Type");
     end;
 
-    procedure NavigateToDocument(HandledICOutboxTrans: Record "IC Outbox Transaction")
+    procedure NavigateToDocument(ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
-        if HandledICOutboxTrans.IsEmpty() then
+        if ICOutboxTransaction.IsEmpty() then
             exit;
-        NavigateToDocument(HandledICOutboxTrans."Document No.", Enum::"IC Direction Type"::Outgoing, HandledICOutboxTrans."IC Partner Code", HandledICOutboxTrans."Document Type", HandledICOutboxTrans."Source Type");
+        NavigateToDocument(ICOutboxTransaction."Document No.", Enum::"IC Direction Type"::Outgoing, ICOutboxTransaction."IC Partner Code", ICOutboxTransaction."Document Type", ICOutboxTransaction."Source Type");
     end;
 
     procedure NavigateToDocument(HandledICOutboxTrans: Record "Handled IC Outbox Trans.")
@@ -74,16 +74,16 @@ codeunit 437 "IC Navigation"
         // We first attempt to find the Sales Order
         case ICDirectionType of
             ICDirectionType::Outgoing:
-            begin
-                SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-                SalesHeader.SetRange("No.", DocumentNo);
-            end;
+                begin
+                    SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+                    SalesHeader.SetRange("No.", DocumentNo);
+                end;
             ICDirectionType::Incoming:
-            begin
-                SalesHeader.SetRange("External Document No.", DocumentNo);
-                SalesHeader.SetRange("IC Direction", ICDirectionType);
-                SalesHeader.SetRange("Sell-to IC Partner Code", ICPartnerCode);
-            end;
+                begin
+                    SalesHeader.SetRange("External Document No.", DocumentNo);
+                    SalesHeader.SetRange("IC Direction", ICDirectionType);
+                    SalesHeader.SetRange("Sell-to IC Partner Code", ICPartnerCode);
+                end;
         end;
         if SalesHeader.FindFirst() then begin
             SalesOrder.SetRecord(SalesHeader);
@@ -96,7 +96,7 @@ codeunit 437 "IC Navigation"
 
     local procedure NavigateToSalesDocument(DocumentNo: Code[20]; ICDirectionType: Enum "IC Direction Type"; ICPartnerCode: Code[20]; DocumentType: Enum "IC Transaction Document Type"): Boolean
     begin
-        case DocumentType of 
+        case DocumentType of
             DocumentType::Order:
                 exit(NavigateToSalesOrderDocument(DocumentNo, ICDirectionType, ICPartnerCode));
             DocumentType::Invoice:
@@ -153,12 +153,11 @@ codeunit 437 "IC Navigation"
         Vendor.SetRange("IC Partner Code", ICPartnerCode);
         if not Vendor.FindSet() then
             exit(false);
-        repeat 
+        repeat
             PurchaseHeader.SetRange("IC Direction", PurchaseHeader."IC Direction"::Incoming);
             PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
             PurchaseHeader.SetRange("Vendor Invoice No.", DocumentNo);
-            if PurchaseHeader.FindFirst() then
-            begin
+            if PurchaseHeader.FindFirst() then begin
                 PurchaseInvoice.SetRecord(PurchaseHeader);
                 PurchaseInvoice.Run();
                 exit(true);
@@ -180,16 +179,16 @@ codeunit 437 "IC Navigation"
         // We first attempt to find the Sales Order
         case ICDirectionType of
             ICDirectionType::Outgoing:
-            begin
-                PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
-                PurchaseHeader.SetRange("No.", DocumentNo);
-            end;
+                begin
+                    PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
+                    PurchaseHeader.SetRange("No.", DocumentNo);
+                end;
             ICDirectionType::Incoming:
-            begin
-                PurchaseHeader.SetRange("Vendor Order No.", DocumentNo);
-                PurchaseHeader.SetRange("IC Direction", ICDirectionType);
-                PurchaseHeader.SetRange("Buy-from IC Partner Code", ICPartnerCode);
-            end;
+                begin
+                    PurchaseHeader.SetRange("Vendor Order No.", DocumentNo);
+                    PurchaseHeader.SetRange("IC Direction", ICDirectionType);
+                    PurchaseHeader.SetRange("Buy-from IC Partner Code", ICPartnerCode);
+                end;
         end;
         if PurchaseHeader.FindFirst() then begin
             PurchaseOrder.SetRecord(PurchaseHeader);
@@ -201,17 +200,23 @@ codeunit 437 "IC Navigation"
     end;
 
     local procedure NavigateToPurchaseDocument(DocumentNo: Code[20]; ICDirectionType: Enum "IC Direction Type"; ICPartnerCode: Code[20]; DocumentType: Enum "IC Transaction Document Type"): Boolean
+    var
+        OpenDoc: Boolean;
     begin
-        case DocumentType of 
+        case DocumentType of
             DocumentType::Order:
                 exit(NavigateToPurchaseOrderDocument(DocumentNo, ICDirectionType, ICPartnerCode));
             DocumentType::Invoice:
                 exit(NavigateToPurchaseInvoiceDocument(DocumentNo, ICPartnerCode));
+            else begin
+                OnNavigateToPurchaseDocumentOnDocumentTypeCaseElse(DocumentNo, ICDirectionType, ICPartnerCode, DocumentType, OpenDoc);
+                exit(OpenDoc);
+            end;
         end;
         exit(false);
     end;
 
-    local procedure NavigateToDocument(DocumentNo: Code[20]; ICDirectionType: Enum "IC Direction Type"; ICPartnerCode: Code[20]; DocumentType: Enum "IC Transaction Document Type"; SourceType: Option "Journal Line", "Sales Document", "Purchase Document")
+    local procedure NavigateToDocument(DocumentNo: Code[20]; ICDirectionType: Enum "IC Direction Type"; ICPartnerCode: Code[20]; DocumentType: Enum "IC Transaction Document Type"; SourceType: Option "Journal Line","Sales Document","Purchase Document")
     var
         Succeeded: Boolean;
     begin
@@ -225,4 +230,8 @@ codeunit 437 "IC Navigation"
             Error(UnableToNavigateToSpecifiedDocumentMsg);
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnNavigateToPurchaseDocumentOnDocumentTypeCaseElse(DocumentNo: Code[20]; ICDirectionType: Enum "IC Direction Type"; ICPartnerCode: Code[20]; DocumentType: Enum "IC Transaction Document Type"; var OpenDoc: Boolean)
+    begin
+    end;
 }

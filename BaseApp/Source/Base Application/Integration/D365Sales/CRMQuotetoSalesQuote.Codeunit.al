@@ -321,10 +321,16 @@ codeunit 5348 "CRM Quote to Sales Quote"
         exit(Customer.Get(NAVCustomerRecordId));
     end;
 
-    procedure GetCRMAccountOfCRMQuote(CRMQuote: Record "CRM Quote"; var CRMAccount: Record "CRM Account"): Boolean
+    procedure GetCRMAccountOfCRMQuote(CRMQuote: Record "CRM Quote"; var CRMAccount: Record "CRM Account") Result: Boolean
     var
         CRMContact: Record "CRM Contact";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCRMAccountOfCRMQuote(CRMQuote, CRMAccount, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if CRMQuote.CustomerIdType = CRMQuote.CustomerIdType::account then
             if CRMAccount.Get(CRMQuote.CustomerId) then
                 if CRMAccount.CustomerTypeCode <> CRMAccount.CustomerTypeCode::Customer then begin
@@ -675,6 +681,11 @@ codeunit 5348 "CRM Quote to Sales Quote"
 
     [IntegrationEvent(false, false)]
     local procedure OnHideQuoteDiscountsDialog(var Hide: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCRMAccountOfCRMQuote(CRMQuote: Record "CRM Quote"; var CRMAccount: Record "CRM Account"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -264,7 +264,7 @@ table 4812 "Intrastat Report Line"
         }
         field(29; "Partner VAT ID"; Text[50])
         {
-            Caption = 'Partner VAT ID';
+            Caption = 'VAT Reg. No.';
         }
         field(30; "Location Code"; Code[10])
         {

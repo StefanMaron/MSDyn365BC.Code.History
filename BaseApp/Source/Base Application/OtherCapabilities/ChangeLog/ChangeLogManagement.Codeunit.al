@@ -21,6 +21,7 @@ codeunit 423 "Change Log Management"
         MonitorSensitiveFieldData: Codeunit "Monitor Sensitive Field Data";
         ChangeLogSetupRead: Boolean;
         MonitorSensitiveFieldSetupRead: Boolean;
+        CannotSelectTableErr: Label 'Change log cannot be enabled for the table %1.', Comment = '%1: Table caption.';
 
     procedure GetDatabaseTableTriggerSetup(TableID: Integer; var LogInsert: Boolean; var LogModify: Boolean; var LogDelete: Boolean; var LogRename: Boolean)
     var
@@ -527,6 +528,24 @@ codeunit 423 "Change Log Management"
         end;
 
         exit(false);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Change Log Setup (Table)", 'OnBeforeInsertEvent', '', false, false)]
+    local procedure OnBeforeInsertChangeLogSetup(var Rec: Record "Change Log Setup (Table)"; RunTrigger: Boolean)
+    begin
+        if Rec."Table No." = Database::"Change Log Entry" then begin
+            Rec.CalcFields("Table Caption");
+            Error(CannotSelectTableErr, ChangeLogSetupTable."Table Caption");
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Change Log Setup (Table)", 'OnBeforeRenameEvent', '', false, false)]
+    local procedure OnBeforeRenameChangeLogSetup(var Rec: Record "Change Log Setup (Table)"; var xRec: Record "Change Log Setup (Table)"; RunTrigger: Boolean)
+    begin
+        if Rec."Table No." = Database::"Change Log Entry" then begin
+            Rec.CalcFields("Table Caption");
+            Error(CannotSelectTableErr, ChangeLogSetupTable."Table Caption");
+        end;
     end;
 
     [IntegrationEvent(false, false)]

@@ -347,8 +347,10 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
                     until not PriceSourceList.Next(PriceSource);
 
         FoundLines := not TempPriceListLine.IsEmpty();
-        if Not FoundLines then
+        if not FoundLines then
             PriceCalculationBufferMgt.FillBestLine(AmountType, TempPriceListLine);
+
+        OnAfterFindLines(AmountType, TempPriceListLine, PriceCalculationBufferMgt, ShowAll, FoundLines);
     end;
 
     procedure CopyLinesBySource(
@@ -473,6 +475,11 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterCalcBestAmount(AmountType: Enum "Price Amount Type"; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; var PriceListLine: Record "Price List Line"; var FoundBestPrice: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindLines(AmountType: Enum "Price Amount Type"; var TempPriceListLine: Record "Price List Line" temporary; var PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt."; ShowAll: Boolean; var FoundLines: Boolean)
     begin
     end;
 }

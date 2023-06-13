@@ -788,7 +788,6 @@ codeunit 134321 "General Journal Batch Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ApprovalRequestSentToFirstQualifiedApproverSalesPersonGenJnlLine()
     var

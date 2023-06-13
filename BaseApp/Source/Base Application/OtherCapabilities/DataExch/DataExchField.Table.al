@@ -41,7 +41,7 @@ table 1221 "Data Exch. Field"
         }
         field(11; "Data Exch. Def Code"; Code[20])
         {
-            CalcFormula = Lookup ("Data Exch."."Data Exch. Def Code" WHERE("Entry No." = FIELD("Data Exch. No.")));
+            CalcFormula = Lookup("Data Exch."."Data Exch. Def Code" WHERE("Entry No." = FIELD("Data Exch. No.")));
             Caption = 'Data Exch. Def Code';
             FieldClass = FlowField;
         }
@@ -89,6 +89,7 @@ table 1221 "Data Exch. Field"
         SetValueWithoutModifying(NodeValue);
         Validate("Parent Node ID", ParentNodeId);
         Validate("Data Exch. Line Def Code", DataExchLineDefCode);
+        OnInsertRecXMLFieldWithParentNodeIDOnBeforeInsert(Rec, NodeValue);
         Insert();
     end;
 
@@ -149,6 +150,11 @@ table 1221 "Data Exch. Field"
             exit;
         "Value BLOB".CreateOutStream(OutStream, TEXTENCODING::Windows);
         OutStream.WriteText(NewValue);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertRecXMLFieldWithParentNodeIDOnBeforeInsert(var DataExchField: Record "Data Exch. Field"; var NodeValue: Text)
+    begin
     end;
 }
 

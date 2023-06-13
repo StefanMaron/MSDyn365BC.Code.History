@@ -46,6 +46,8 @@ table 207 "Res. Journal Line"
                 Res.Get("Resource No.");
                 Res.CheckResourcePrivacyBlocked(false);
                 Res.TestField(Blocked, false);
+                OnValidateResourceNoOnAfterChecks(Res, Rec, xRec);
+
                 Description := Res.Name;
                 "Direct Unit Cost" := Res."Direct Unit Cost";
                 "Unit Cost" := Res."Unit Cost";
@@ -935,6 +937,11 @@ table 207 "Res. Journal Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateResourceNoOnAfterChecks(var Resource: Record Resource; var ResJournalLine: Record "Res. Journal Line"; xResJournalLine: Record "Res. Journal Line")
     begin
     end;
 

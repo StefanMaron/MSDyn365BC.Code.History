@@ -414,9 +414,48 @@ codeunit 5817 "Undo Posting Management"
 
         with PostedInvtPickLine do begin
             SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            if not IsEmpty() then
+            if ShouldThrowErrorForPostedInvtPickLine(PostedInvtPickLine, UndoType, UndoID) then
                 Error(Text010, UndoLineNo);
         end;
+    end;
+
+    local procedure ShouldThrowErrorForPostedInvtPickLine(var PostedInvtPickLine: Record "Posted Invt. Pick Line"; UndoType: Integer; UndoID: Code[20]): Boolean
+    var
+        PostedInvtPickHeader: Record "Posted Invt. Pick Header";
+        CheckedPostedInvtPickHeaderList: List of [Text];        
+    begin
+        if PostedInvtPickLine.IsEmpty() then
+            exit(false);
+
+        if not (UndoType in [Database::"Sales Shipment Line"]) then
+            exit(true);
+
+        PostedInvtPickLine.SetLoadFields("No.");
+        if PostedInvtPickLine.FindSet() then
+            repeat
+                if not CheckedPostedInvtPickHeaderList.Contains(PostedInvtPickLine."No.") then begin
+                    CheckedPostedInvtPickHeaderList.Add(PostedInvtPickLine."No.");
+
+                    PostedInvtPickHeader.SetLoadFields("Source Type", "Source No.");
+                    if not PostedInvtPickHeader.Get(PostedInvtPickLine."No.") then
+                        exit(true);
+
+                    case UndoType of
+                        Database::"Sales Shipment Line":
+                            begin
+                                if PostedInvtPickHeader."Source Type" <> Database::"Sales Shipment Header" then
+                                    exit(true);
+
+                                if PostedInvtPickHeader."Source No." = UndoID then
+                                    exit(true);
+                            end;
+                        else
+                            exit(true);
+                    end;
+                end;
+            until PostedInvtPickLine.Next() = 0;
+
+        exit(false);
     end;
 
     local procedure TestItemChargeAssignmentPurch(UndoType: Integer; UndoLineNo: Integer; SourceID: Code[20]; SourceRefNo: Integer)

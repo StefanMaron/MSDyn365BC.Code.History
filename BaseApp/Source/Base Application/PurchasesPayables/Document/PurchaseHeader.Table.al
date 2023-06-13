@@ -354,7 +354,12 @@
                       ShipToAddr.Name, ShipToAddr."Name 2", ShipToAddr.Address, ShipToAddr."Address 2",
                       ShipToAddr.City, ShipToAddr."Post Code", ShipToAddr.County, ShipToAddr."Country/Region Code");
                     "Ship-to Contact" := ShipToAddr.Contact;
-                    "Shipment Method Code" := ShipToAddr."Shipment Method Code";
+                    if ShipToAddr."Shipment Method Code" <> '' then
+                        "Shipment Method Code" := ShipToAddr."Shipment Method Code"
+                    else
+                        if "Sell-to Customer No." <> '' then
+                            if Cust.Get("Sell-to Customer No.") then
+                                "Shipment Method Code" := Cust."Shipment Method Code";
                     if ShipToAddr."Location Code" <> '' then
                         Validate("Location Code", ShipToAddr."Location Code");
                     OnValidateShipToCodeOnAfterCopyFromShipToAddr(Rec, ShipToAddr);
@@ -447,6 +452,7 @@
             trigger OnValidate()
             var
                 SkipJobCurrFactorUpdate: Boolean;
+		        NeedUpdateCurrencyFactor: Boolean;
             begin
                 TestField("Posting Date");
                 TestNoSeriesDate(
@@ -470,11 +476,14 @@
                 OnValidatePostingDateOnBeforeResetInvoiceDiscountValue(Rec, xRec, CurrFieldNo);
                 ResetInvoiceDiscountValue();
 
-                if "Currency Code" <> '' then begin
+                NeedUpdateCurrencyFactor := "Currency Code" <> '';
+                OnValidatePostingDateOnBeforeCheckNeedUpdateCurrencyFactor(Rec, xRec, Confirmed, NeedUpdateCurrencyFactor);
+                if NeedUpdateCurrencyFactor then begin
                     UpdateCurrencyFactor();
                     if ("Currency Factor" <> xRec."Currency Factor") and not GetCalledFromWhseDoc() then
                         SkipJobCurrFactorUpdate := not ConfirmCurrencyFactorUpdate();
                 end;
+                OnValidatePostingDateOnAfterCheckNeedUpdateCurrencyFactor(Rec, xRec, SkipJobCurrFactorUpdate);
 
                 if "Posting Date" <> xRec."Posting Date" then
                     if DeferralHeadersExist() then
@@ -725,7 +734,7 @@
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidatePricesIncludingVAT(Rec, PurchLine, IsHandled);
+                OnBeforeValidatePricesIncludingVAT(Rec, PurchLine, IsHandled, xRec);
                 if IsHandled then
                     exit;
 
@@ -1173,7 +1182,16 @@
                 Vendor: Record Vendor;
                 LookupStateManager: Codeunit "Lookup State Manager";
                 StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBuyFromVendorName(Rec, Vendor, IsHandled);
+                if IsHandled then begin
+                    if LookupStateManager.IsRecordSaved() then
+                        LookupStateManager.ClearSavedRecord();
+                    exit;
+                end;
+
                 if LookupStateManager.IsRecordSaved() then begin
                     Vendor := LookupStateManager.GetSavedRecord();
                     if Vendor."No." <> '' then begin
@@ -2488,7 +2506,13 @@
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeOnInsert(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         InitInsert();
 
         if GetFilter("Buy-from Vendor No.") <> '' then
@@ -2648,11 +2672,14 @@
 
     procedure InitRecord()
     var
-        IsHandled: Boolean;
+        IsHandled, SkipInitialization : Boolean;
     begin
         GetPurchSetup();
         IsHandled := false;
-        OnBeforeInitRecord(Rec, IsHandled, xRec, PurchSetup, GLSetup);
+        SkipInitialization := false;
+        OnBeforeInitRecord(Rec, IsHandled, xRec, PurchSetup, GLSetup, SkipInitialization);
+        if SkipInitialization then
+            exit;
         if not IsHandled then
             InitPostingNoSeries();
 
@@ -2966,7 +2993,15 @@
     end;
 
     procedure PurchLinesExist(): Boolean
+    var
+        IsHandled, Result: Boolean;
     begin
+        IsHandled := false;
+        Result := false;
+        OnBeforePurchLinesExist(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         PurchLine.Reset();
         PurchLine.ReadIsolation := IsolationLevel::ReadUncommitted;
         PurchLine.SetRange("Document Type", "Document Type");
@@ -3360,7 +3395,13 @@
     var
         ConfirmManagement: Codeunit "Confirm Management";
         MessageText: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePriceMessageIfPurchLinesExist(Rec, ChangedFieldName, IsHandled);
+        if IsHandled then
+            exit;
+
         if PurchLinesExist() and not GetHideValidationDialog() then begin
             MessageText := StrSubstNo(LinesNotUpdatedDateMsg, ChangedFieldName);
             if "Currency Code" <> '' then
@@ -3417,6 +3458,7 @@
             Validate("Currency Factor")
         else
             "Currency Factor" := xRec."Currency Factor";
+        OnAfterConfirmUpdateCurrencyFactor(Rec, HideValidationDialog);
         exit(Confirmed);
     end;
 
@@ -5267,6 +5309,11 @@
         DummyReportSelections: Record "Report Selections";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintRecords(Rec, ShowRequestForm, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckMixedDropShipment();
         OnPrintRecordsOnAfterCheckMixedDropShipment(Rec);
 
@@ -5283,6 +5330,11 @@
         ReportDistributionMgt: Codeunit "Report Distribution Management";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendProfile(Rec, DocumentSendingProfile, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckMixedDropShipment();
         IsHandled := false;
         OnSendProfileOnBeforeSendVendor(Rec, IsHandled);
@@ -6734,7 +6786,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeConfirmUpdateCurrencyFactor(PurchaseHeader: Record "Purchase Header"; var HideValidationDialog: Boolean)
+    local procedure OnAfterConfirmUpdateCurrencyFactor(var PurchaseHeader: Record "Purchase Header"; var HideValidationDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmUpdateCurrencyFactor(var PurchaseHeader: Record "Purchase Header"; var HideValidationDialog: Boolean)
     begin
     end;
 
@@ -6784,7 +6841,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; xPurchaseHeader: Record "Purchase Header"; PurchSetup: Record "Purchases & Payables Setup"; GLSetup: Record "General Ledger Setup")
+    local procedure OnBeforeInitRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; xPurchaseHeader: Record "Purchase Header"; PurchSetup: Record "Purchases & Payables Setup"; GLSetup: Record "General Ledger Setup"; var SkipInitialization: Boolean)
     begin
     end;
 
@@ -6934,6 +6991,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(var PurchaseHeader: Record "Purchase Header"; ShowRequestForm: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendProfile(var PurchaseHeader: Record "Purchase Header"; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDefaultPurchaser(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -7004,7 +7071,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidatePricesIncludingVAT(var PurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnBeforeValidatePricesIncludingVAT(var PurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean; var xPurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -7560,6 +7627,36 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckVendorPostingGroupChange(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchLinesExist(var Rec: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePostingDateOnBeforeCheckNeedUpdateCurrencyFactor(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsConfirmed: Boolean; var NeedUpdateCurrencyFactor: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePostingDateOnAfterCheckNeedUpdateCurrencyFactor(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var SkipJobCurrFactorUpdate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBuyFromVendorName(var PurchaseHeader: Record "Purchase Header"; var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePriceMessageIfPurchLinesExist(var PurchaseHeader: Record "Purchase Header"; ChangedFieldName: Text[100]; var IsHandled: Boolean)
     begin
     end;
 }

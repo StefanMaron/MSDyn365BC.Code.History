@@ -22,7 +22,10 @@ codeunit 136357 "UT T Job WIP Total"
         LibrarySales: Codeunit "Library - Sales";
         LibraryJob: Codeunit "Library - Job";
         LibraryERM: Codeunit "Library - ERM";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
         IsInitialized: Boolean;
+        JobTaskTotalingLbl: Label '..%1', Comment = '%1 = Job Task No.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2', Comment = '%1 = Caption , %2 = Expected Amount';
 
     local procedure Initialize()
     var
@@ -700,6 +703,120 @@ codeunit 136357 "UT T Job WIP Total"
         JobPage.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerMultipleResponses,MessageHandler,TransferToInvoiceHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyTotalWIPSalesAmountForJobWithPerJobLedgerEntry()
+    var
+        Job: Record Job;
+        JobWIPMethod: Record "Job WIP Method";
+        JobJournalLine: Record "Job Journal Line";
+        JobPlanningLine: Record "Job Planning Line";
+        ExpectedTotalWIPSalesAmount: Integer;
+        BillableResourceUnitPrice: Integer;
+        BudgetResourceUnitPrice: Integer;
+        NoOfJobTask: Integer;
+        Quantity: Integer;
+    begin
+        // [SCENARIO 473135] Verify the Total WIP Sales Amount Per Job Ledger Entry when running Job WIP.
+        Initialize();
+
+        // [GIVEN] Create a Job WIP Method.
+        LibraryJob.CreateJobWIPMethod(JobWIPMethod);
+
+        // [GIVEN] Update Recognized Costs and Recognized Sales in the Job WIP Method.
+        UpdateRecognizedCostsAndRecognizedSales(
+            JobWIPMethod,
+            "Job WIP Recognized Costs Type"::"Usage (Total Cost)",
+            "Job WIP Recognized Sales Type"::"Usage (Total Price)");
+
+        // [GIVEN] Create a new Job.
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Update the WIP Method and WIP Posting Method in the Job.
+        Job.Validate("WIP Method", JobWIPMethod.Code);
+        Job.Validate("WIP Posting Method", Job."WIP Posting Method"::"Per Job Ledger Entry");
+        Job.Modify(true);
+
+        // [GIVEN] Generate a random no. of Job Task, Quantity, Billable and Budget Unit Price.
+        Quantity := LibraryRandom.RandIntInRange(1, 10);
+        NoOfJobTask := LibraryRandom.RandIntInRange(2, 10);
+        BudgetResourceUnitPrice := LibraryRandom.RandIntInRange(250, 300);
+        BillableResourceUnitPrice := LibraryRandom.RandIntInRange(1000, 2000);
+
+        // [GIVEN] Create Multiple Job Tasks for Job Task Type Posting.
+        CreateMultipleJobTasksForJobTaskTypePosting(Job, NoOfJobTask);
+
+        // [GIVEN] Create a Job Task for Job Task Type Total.
+        CreateJobTaskForJobTaskTypeTotal(Job);
+
+        // [GIVEN] Create Job Planning Lines for Multiple Job Task with Billable Resources, Qty., Resource Unit Cost and Unit Price.
+        CreateJobPlanningLinesForMultipleJobTaskTypePosting(
+            Job,
+            Quantity,
+            LibraryRandom.RandIntInRange(100, 200),
+            BillableResourceUnitPrice);
+
+        // [GIVEN] Save the Transaction.
+        Commit();
+
+        // [THEN] Find the Job Planning Line.
+        JobPlanningLine.SetRange("Job No.", Job."No.");
+        JobPlanningLine.FindSet();
+
+        // [THEN] Create a Sales Invoice and Post it.
+        CreateAndPostSalesInvoice(JobPlanningLine);
+
+        // [WHEN] Calculate WIP.
+        LibraryVariableStorage.Enqueue(false);
+        RunJobCalculateWIP(Job);
+
+        // [GIVEN] Calculate Expected Total WIP Sales Amount.
+        ExpectedTotalWIPSalesAmount := BillableResourceUnitPrice * Quantity * NoOfJobTask;
+
+        // [VERIFY] Verify the Total WIP Sales Amount.
+        Job.CalcFields("Total WIP Sales Amount");
+        Assert.AreEqual(
+            ExpectedTotalWIPSalesAmount,
+            Job."Total WIP Sales Amount",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                Job.FieldCaption("Total WIP Sales Amount"),
+                ExpectedTotalWIPSalesAmount));
+
+        // [GIVEN] Create Job Journal Lines for Multiple Job Task with Budget Resource, Qty., Resource Unit Cost and Unit Price.
+        CreateJobJournalLinesForMultipleJobTaskTypePosting(
+            Job,
+            Quantity,
+            LibraryRandom.RandIntInRange(100, 200),
+            BudgetResourceUnitPrice);
+
+        // [THEN] Find the Job Journal Lines.
+        JobJournalLine.SetRange("Job No.", Job."No.");
+        JobJournalLine.FindSet();
+
+        // [GIVEN] Post the Job Journal Lines.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [WHEN] Calculate WIP
+        LibraryVariableStorage.Enqueue(false);
+        RunJobCalculateWIP(Job);
+
+        // [GIVEN] Calculate Expected Total WIP Sales Amount.
+        ExpectedTotalWIPSalesAmount -= BudgetResourceUnitPrice * Quantity * NoOfJobTask;
+
+        // [VERIFY] Verify the Total WIP Sales Amount.
+        Job.CalcFields("Total WIP Sales Amount");
+        Assert.AreEqual(
+            ExpectedTotalWIPSalesAmount,
+            Job."Total WIP Sales Amount",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                Job.FieldCaption("Total WIP Sales Amount"),
+                ExpectedTotalWIPSalesAmount));
+    end;
+
     local procedure GetSalesDocument(JobPlanningLine: Record "Job Planning Line"; DocumentType: Enum "Sales Document Type"; var SalesHeader: Record "Sales Header")
     var
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
@@ -740,6 +857,94 @@ codeunit 136357 "UT T Job WIP Total"
         JobPostWIPToGL.SetTableView(Job);
         JobPostWIPToGL.UseRequestPage(false);
         JobPostWIPToGL.Run();
+    end;
+
+    local procedure UpdateRecognizedCostsAndRecognizedSales(
+        var JobWIPMethod: Record "Job WIP Method";
+        JobWIPRecognizedCostsType: Enum "Job WIP Recognized Costs Type";
+        JobWIPRecognizedSalesType: Enum "Job WIP Recognized Sales Type")
+    begin
+        JobWIPMethod.Validate("Recognized Costs", JobWIPRecognizedCostsType);
+        JobWIPMethod.Validate("Recognized Sales", JobWIPRecognizedSalesType);
+        JobWIPMethod.Modify(true);
+    end;
+
+    local procedure CreateMultipleJobTasksForJobTaskTypePosting(Job: Record Job; NoOfJobTask: Integer)
+    var
+        JobTask: Record "Job Task";
+        Counter: Integer;
+    begin
+        for Counter := 1 to NoOfJobTask do
+            LibraryJob.CreateJobTask(Job, JobTask);
+    end;
+
+    local procedure CreateJobTaskForJobTaskTypeTotal(Job: Record Job)
+    var
+        JobTask: Record "Job Task";
+    begin
+        LibraryJob.CreateJobTask(Job, JobTask);
+        JobTask.Validate("Job Task Type", JobTask."Job Task Type"::Total);
+        JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
+        JobTask.Validate(Totaling, StrSubstNo(JobTaskTotalingLbl, JobTask."Job Task No."));
+        JobTask.Modify(true);
+    end;
+
+    local procedure CreateJobPlanningLinesForMultipleJobTaskTypePosting(
+        Job: Record Job;
+        Quantity: Integer;
+        ResourceUnitCost: Integer;
+        ResourceUnitPrice: Integer)
+    var
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        JobTask.SetRange("Job No.", Job."No.");
+        JobTask.SetRange("Job Task Type", JobTask."Job Task Type"::Posting);
+        if JobTask.FindSet() then
+            repeat
+                LibraryJob.CreateJobPlanningLine(
+                    "Job planning Line Line Type"::Billable,
+                    "Job Planning Line Type"::Resource,
+                    JobTask,
+                    JobPlanningLine);
+
+                JobPlanningLine.Validate(Quantity, Quantity);
+                JobPlanningLine.Validate("Unit Cost", ResourceUnitCost);
+                JobPlanningLine.Validate("Unit Price", ResourceUnitPrice);
+                JobPlanningLine.Modify(true);
+            until JobTask.Next() = 0;
+    end;
+
+    local procedure CreateAndPostSalesInvoice(var JobPlanningLine: Record "Job Planning Line")
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+        GetSalesDocument(JobPlanningLine, "Sales Document Type"::Invoice, SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure CreateJobJournalLinesForMultipleJobTaskTypePosting(
+        Job: Record Job;
+        Quantity: Integer;
+        ResourceUnitCost: Integer;
+        ResourceUnitPrice: Integer)
+    var
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+    begin
+        JobTask.SetRange("Job No.", Job."No.");
+        JobTask.SetRange("Job Task Type", JobTask."Job Task Type"::Posting);
+        if JobTask.FindSet() then
+            repeat
+                LibraryJob.CreateJobJournalLine("Job Line Type"::Budget, JobTask, JobJournalLine);
+                JobJournalLine.Validate(Type, JobJournalLine.Type::Resource);
+                JobJournalLine.Validate("No.", LibraryResource.CreateResourceNo());
+                JobJournalLine.Validate(Quantity, Quantity);
+                JobJournalLine.Validate("Unit Cost", ResourceUnitCost);
+                JobJournalLine.Validate("Unit Price", ResourceUnitPrice);
+                JobJournalLine.Modify(true);
+            until JobTask.Next() = 0;
     end;
 
     [RequestPageHandler]

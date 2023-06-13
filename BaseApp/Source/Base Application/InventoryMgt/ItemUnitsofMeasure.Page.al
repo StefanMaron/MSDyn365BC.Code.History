@@ -304,10 +304,17 @@ page 5404 "Item Units of Measure"
 
     local procedure SetStyle()
     begin
-        if Code = ItemBaseUOM then
+        if Rec.Code = ItemBaseUOM then
             StyleName := 'Strong'
         else
             StyleName := '';
+
+        OnAfterSetStyle(StyleName, ItemBaseUOM, Item);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetStyle(var StyleName: Text; ItemBaseUOM: Code[10]; Item: Record Item)
+    begin
     end;
 }
 

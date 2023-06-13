@@ -1,11 +1,11 @@
 {
   "settings": {
-    "al.enableCodeAnalysis": false,
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeActions": false,
-    "allint.enabled": false
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false,
+    "al.enableCodeActions": false
   },
   "folders": [
     {
@@ -55,6 +55,9 @@
     },
     {
       "path": "./recommendedapps/test/Recommended Apps Tests"
+    },
+    {
+      "path": "./ExternalEvents/test/_Exclude_Business_Events_Test"
     },
     {
       "path": "./ReportLayouts/test/Report Layouts Tests"

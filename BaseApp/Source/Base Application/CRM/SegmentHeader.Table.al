@@ -615,7 +615,7 @@ table 5076 "Segment Header"
                 SegHistMgt.InsertLine("No.", SegLine."Contact No.", SegLine."Line No.");
             until InteractLogEntry.Next() = 0;
 
-        OnAfterReuseLogged(Rec);
+        OnAfterReuseLogged(Rec, LoggedSeg);
     end;
 
     procedure ReuseCriteria()
@@ -948,7 +948,7 @@ table 5076 "Segment Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterReuseLogged(var SegmentHeader: Record "Segment Header")
+    local procedure OnAfterReuseLogged(var SegmentHeader: Record "Segment Header"; LoggedSegment: Record "Logged Segment")
     begin
     end;
 

@@ -10,9 +10,11 @@ codeunit 134277 "Country/Region UT"
 
     var
         Assert: Codeunit Assert;
+        LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
         ASCIILetterErr: Label 'must contain ASCII letters only';
         NumericErr: Label 'must contain numbers only';
-        LibraryApplicationArea: Codeunit "Library - Application Area";
 
     [Test]
     [Scope('OnPrem')]
@@ -93,6 +95,108 @@ codeunit 134277 "Country/Region UT"
         CountryRegion.Find();
         CountryRegion.TestField("ISO Code", 'ZZ');
         CountryRegion.TestField("ISO Numeric Code", '999');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetCountryNameTranslationTest()
+    var
+        CountryRegion: Record "Country/Region";
+        CountryRegionTranslation: Record "Country/Region Translation";
+        ActualTranslation: Text[50];
+    begin
+        // [FEATURE] [Country/Region Translation]
+        // [SCENARIO] The procedure GetTranslatedName in Country/Region table returns the translation of the name in the given language
+
+        // [GIVEN] One Country/Region with one specific translation
+        CreateCountryRegion(CountryRegion);
+        LibraryERM.CreateCountryRegionTranslation(CountryRegion.Code, CountryRegionTranslation);
+
+        // [WHEN] Translation is calculated
+        ActualTranslation := CountryRegion.GetTranslatedName(CountryRegionTranslation."Language Code");
+
+        // [THEN] Verify Translation
+        Assert.AreEqual(CountryRegionTranslation.Name, ActualTranslation, CountryRegionTranslation.FieldCaption(Name));
+    end;
+
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetTranslatedNameWithNoTranslationSetupTest()
+    var
+        CountryRegion: Record "Country/Region";
+        CountryRegionTranslation: Record "Country/Region Translation";
+        ActualTranslation: Text[50];
+    begin
+        // [FEATURE] [Country/Region Translation]
+        // [SCENARIO] The procedure GetTranslatedName in Country/Region table returns name if no translation is setup
+
+        // [GIVEN] One Country/Region with no translation
+        CreateCountryRegion(CountryRegion);
+
+        // [WHEN] GetTranslatedName is called for language with not translation
+        ActualTranslation := CountryRegion.GetTranslatedName(LibraryERM.GetAnyLanguageDifferentFromCurrent());
+
+        // [THEN] Verify that the name of the country/region is returned
+        Assert.AreEqual(CountryRegion.Name, ActualTranslation, CountryRegion.FieldCaption(Name));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TranslateCountryRegionNameTest()
+    var
+        CountryRegion: Record "Country/Region";
+        CountryRegionTranslation: Record "Country/Region Translation";
+        ActualTranslation: Text[50];
+    begin
+        // [FEATURE] [Country/Region Translation]
+        // [SCENARIO] The procedure TranslateName in Country/Region table updates the name with the translation in the given language
+
+        // [GIVEN] One Country/Region with one specific translation
+        CreateCountryRegion(CountryRegion);
+        LibraryERM.CreateCountryRegionTranslation(CountryRegion.Code, CountryRegionTranslation);
+
+        // [WHEN] Translation is calculated
+        CountryRegion.TranslateName(CountryRegionTranslation."Language Code");
+
+        // [THEN] The name of the Country/Region record is updated to the translation value
+        Assert.AreEqual(CountryRegionTranslation.Name, CountryRegion.Name, CountryRegion.FieldCaption(Name));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FormatAddressWithCountryRegionTranslationTest()
+    var
+        CountryRegion: Record "Country/Region";
+        CountryRegionTranslation: Record "Country/Region Translation";
+        FormatAddress: Codeunit "Format Address";
+        CountryLineNo: Integer;
+        ActualTranslation: Text[50];
+        AddrArray: array[8] of Text[100];
+        WrongValueInAddressArrayErr: Label 'Address Array at position %1', Comment = '%1 = Country/Region Position';
+    begin
+        // [FEATURE] [Country/Region Translation]
+        // [SCENARIO] Test Country/Region Translation is used for address formatting in codeunit "Format Address"
+
+        // [GIVEN] One Country/Region with one specific translation
+        CreateCountryRegion(CountryRegion);
+        LibraryERM.CreateCountryRegionTranslation(CountryRegion.Code, CountryRegionTranslation);
+
+        // [WHEN] FormatAddress is initialized with one language where a country/region translation exists
+        FormatAddress.SetLanguageCode(CountryRegionTranslation."Language Code");
+        FormatAddress.FormatAddr(AddrArray, 'Name', 'Name2', 'Contact', 'Addr', 'Addr2', 'City', 'PostCode', 'County', CountryRegion.Code);
+
+        // [THEN] Verify that the translation of the country/region name is used
+        CountryLineNo := 8; // Country Name should be at position 8 of the array, since everything is filled
+        Assert.AreEqual(CountryRegionTranslation.Name, AddrArray[CountryLineNo], StrSubstNo(WrongValueInAddressArrayErr, CountryLineNo));
+    end;
+
+    local procedure CreateCountryRegion(var CountryRegion: Record "Country/Region")
+    begin
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion.Validate(Name, CopyStr(LibraryRandom.RandText(MaxStrLen(CountryRegion.Name)), 1, MaxStrLen(CountryRegion.Name)));
+        CountryRegion.Modify(true);
     end;
 }
 

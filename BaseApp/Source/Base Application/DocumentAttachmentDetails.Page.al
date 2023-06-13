@@ -336,7 +336,7 @@ page 1173 "Document Attachment Details"
         PurchaseDocumentFlow := DocumentAttachmentMgmt.IsPurchaseDocumentFlow(RecRef.Number);
         FlowFieldsEditable := DocumentAttachmentMgmt.IsFlowFieldsEditable(RecRef.Number);
 
-        DocumentAttachmentMgmt.SetDocumentAttachmentFiltersForRecRefInternal(Rec, RecRef);
+        DocumentAttachmentMgmt.SetDocumentAttachmentFiltersForRecRefInternal(Rec, RecRef, false);
 
         OnAfterOpenForRecRef(Rec, RecRef, FlowFieldsEditable);
     end;

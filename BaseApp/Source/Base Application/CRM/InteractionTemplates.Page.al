@@ -331,12 +331,18 @@ page 5075 "Interaction Templates"
                     CompanyInformation: Record "Company Information";
                     WordTemplateInteractions: Codeunit "Word Template Interactions";
                     WordTemplatesCreationWizard: Page "Word Template Creation Wizard";
+                    IncludeFields: List of [Text[30]];
                 begin
                     WordTemplatesCreationWizard.SetTableNo(Database::"Interaction Merge Data");
                     WordTemplatesCreationWizard.SetRelatedTable(Database::"Contact", InteractionMergeData.FieldNo("Contact No."), 'CONTA');
                     WordTemplatesCreationWizard.SetRelatedTable(Database::"Salesperson/Purchaser", InteractionMergeData.FieldNo("Salesperson Code"), 'SALES');
                     if CompanyInformation.FindFirst() then
                         WordTemplatesCreationWizard.SetUnrelatedTable(Database::"Company Information", CompanyInformation.SystemId, 'COMPA');
+
+                    IncludeFields.Add(CopyStr(CompanyInformation.FieldName("Post Code"), 1, 30));
+                    IncludeFields.Add(CopyStr(CompanyInformation.FieldName(IBAN), 1, 30));
+                    IncludeFields.Add(CopyStr(CompanyInformation.FieldName("SWIFT Code"), 1, 30));
+                    WordTemplatesCreationWizard.SetFieldsToBeIncluded(Database::"Company Information", IncludeFields);
 
                     WordTemplateInteractions.OnBeforeCreateInteractionWordTemplate(WordTemplatesCreationWizard);
                     WordTemplatesCreationWizard.RunModal();

@@ -27,6 +27,7 @@ codeunit 7580 "Onboarding Signal"
             NavApp.GetCallerModuleInfo(CallerModuleInfo);
 
             OnboardingSignal.Init();
+            OnboardingSignal."No." := 0;
             OnboardingSignal."Company Name" := CompanyName;
             OnboardingSignal."Onboarding Signal Type" := OnboardingSignalType;
             OnboardingSignal."Onboarding Completed" := false;
@@ -37,7 +38,7 @@ codeunit 7580 "Onboarding Signal"
 
             AddOnboardingSignalDimensions(OnboardingSignal, CustomDimensions);
 
-            Telemetry.LogMessage('0000EIW', 'Onboarding Signal Started', Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, CustomDimensions);
+            Telemetry.LogMessage('0000EIW', 'Onboarding Signal Started: ' + Format(OnboardingSignal."Onboarding Signal Type"), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, CustomDimensions);
         end;
     end;
 
@@ -76,7 +77,7 @@ codeunit 7580 "Onboarding Signal"
 
                     AddOnboardingSignalDimensions(OnboardingSignal, CustomDimensions);
 
-                    Telemetry.LogMessage('0000EIV', 'Onboarding Signal Completed', Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, CustomDimensions);
+                    Telemetry.LogMessage('0000EIV', 'Onboarding Signal Completed: ' + Format(OnboardingSignal."Onboarding Signal Type"), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, CustomDimensions);
                 end;
             until OnboardingSignal.Next() = 0;
     end;
@@ -106,6 +107,23 @@ codeunit 7580 "Onboarding Signal"
         end;
     end;
 
+    /// <summary>
+    /// Get all Onboarding Signals with Read access
+    /// </summary>
+    /// <param name="OnboardingSignalBuffer"> The variable holds all the onboarding signals </param>
+    procedure GetOnboardingSignals(var OnboardingSignalBuffer: Record "Onboarding Signal Buffer" temporary)
+    var
+        OnboardingSignal: Record "Onboarding Signal";
+    begin
+        OnboardingSignalBuffer.DeleteAll();
+
+        if OnboardingSignal.FindSet() then
+            repeat
+                OnboardingSignalBuffer.TransferFields(OnboardingSignal);
+                OnboardingSignalBuffer.Insert();
+            until OnboardingSignal.Next() = 0;
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::Company, 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnAfterDeleteCompany(Rec: Record Company)
     var
@@ -119,10 +137,10 @@ codeunit 7580 "Onboarding Signal"
 
     local procedure AddOnboardingSignalDimensions(OnboardingSignal: Record "Onboarding Signal"; var CustomDimensions: Dictionary of [Text, Text])
     begin
-        CustomDimensions.Set('Start Date', Format(OnboardingSignal."Onboarding Start Date"));
-        CustomDimensions.Set('Complete Date', Format(OnboardingSignal."Onboarding Complete Date"));
-        CustomDimensions.Set('Criteria Name', Format(OnboardingSignal."Onboarding Signal Type"));
-        CustomDimensions.Set('Criteria ID', Format(OnboardingSignal."Onboarding Signal Type".AsInteger()));
-        CustomDimensions.Set('Register Extension ID', Format(OnboardingSignal."Extension ID"));
+        CustomDimensions.Set('StartDate', Format(OnboardingSignal."Onboarding Start Date"));
+        CustomDimensions.Set('CompleteDate', Format(OnboardingSignal."Onboarding Complete Date"));
+        CustomDimensions.Set('CriteriaName', Format(OnboardingSignal."Onboarding Signal Type"));
+        CustomDimensions.Set('CriteriaId', Format(OnboardingSignal."Onboarding Signal Type".AsInteger()));
+        CustomDimensions.Set('RegisterExtensionId', Format(OnboardingSignal."Extension ID"));
     end;
 }

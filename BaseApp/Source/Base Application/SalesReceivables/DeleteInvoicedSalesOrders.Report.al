@@ -50,7 +50,10 @@ report 299 "Delete Invoiced Sales Orders"
                             if not SalesOrderLine.Find('-') then begin
                                 SalesOrderLine.SetRange("Qty. Shipped Not Invoiced");
 
-                                ArchiveManagement.AutoArchiveSalesDocument("Sales Header");
+                                IsHandled := false;
+                                OnSalesHeaderOnAfterGetRecordOnBeforeAutoArchiveSalesDocument(IsHandled, "Sales Header");
+                                if not IsHandled then
+                                    ArchiveManagement.AutoArchiveSalesDocument("Sales Header");
 
                                 OnBeforeDeleteSalesLinesLoop("Sales Header", SalesOrderLine);
                                 if SalesOrderLine.Find('-') then
@@ -66,8 +69,12 @@ report 299 "Delete Invoiced Sales Orders"
                                             end;
                                             if SalesOrderLine.Type = SalesOrderLine.Type::Item then
                                                 ATOLink.DeleteAsmFromSalesLine(SalesOrderLine);
-                                            if SalesOrderLine.HasLinks then
-                                                SalesOrderLine.DeleteLinks();
+
+                                            IsHandled := false;
+                                            OnSalesHeaderOnAfterGetRecordOnBeforeSalesOrderLineDeleteLinks(IsHandled, SalesOrderLine);
+                                            if not IsHandled then
+                                                if SalesOrderLine.HasLinks then
+                                                    SalesOrderLine.DeleteLinks();
                                             SalesOrderLine.Delete();
                                             OnAfterDeleteSalesLine(SalesOrderLine);
                                         end else
@@ -95,11 +102,15 @@ report 299 "Delete Invoiced Sales Orders"
 
                                     ApprovalsMgmt.DeleteApprovalEntries(RecordId);
 
-                                    if HasLinks then
-                                        DeleteLinks();
+                                    IsHandled := false;
+                                    OnSalesHeaderOnAfterGetRecordOnBeforeDeleteLinks(IsHandled, Invoice);
+                                    if not IsHandled then
+                                        if HasLinks then
+                                            DeleteLinks();
 
                                     OnBeforeDeleteSalesHeader("Sales Header");
                                     Delete();
+                                    OnAfterDeleteSalesHeader("Sales Header");
                                 end;
                                 Commit();
                             end;
@@ -225,6 +236,26 @@ report 299 "Delete Invoiced Sales Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAssociatedPurchOrder(var SalesOrderLine: Record "Sales Line"; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesHeaderOnAfterGetRecordOnBeforeAutoArchiveSalesDocument(var IsHandled: Boolean; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesHeaderOnAfterGetRecordOnBeforeSalesOrderLineDeleteLinks(var IsHandled: Boolean; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesHeaderOnAfterGetRecordOnBeforeDeleteLinks(var IsHandled: Boolean; var Invoice: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteSalesHeader(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

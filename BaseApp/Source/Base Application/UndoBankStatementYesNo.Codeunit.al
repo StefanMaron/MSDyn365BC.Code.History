@@ -75,6 +75,7 @@ codeunit 1340 "Undo Bank Statement (Yes/No)"
                     BankAccReconciliationLine.Validate("Statement Type", BankAccReconciliationLine."Statement Type"::"Bank Reconciliation");
                     OnUndoBankAccountStatementOnBeforeBankAccReconciliationLineInsert(BankAccReconciliationLine);
                     BankAccReconciliationLine.Insert();
+                    OnUndoBankAccountStatementOnAfterBankAccReconciliationLineInsert(BankAccountStatementLine, BankAccReconciliationLine);
                 end;
 
                 UndoBankAccountLedgerEntries(BankAccountStatementLine, BankAccReconciliation."Statement No.", CreateBankRec);
@@ -213,6 +214,11 @@ codeunit 1340 "Undo Bank Statement (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnUndoBankAccountLedgerEntryOnBeforeCheckLedgerEntryModify(var CheckLedgerEntry: Record "Check Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUndoBankAccountStatementOnAfterBankAccReconciliationLineInsert(var BankAccountStatementLine: Record "Bank Account Statement Line"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
     end;
 }

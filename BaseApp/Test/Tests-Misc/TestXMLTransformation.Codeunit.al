@@ -398,7 +398,7 @@ codeunit 139149 "Test XML Transformation"
         OutStr.WriteText('<title>Empire Burlesque</title>');
         OutStr.WriteText('<artist>Bob Dylan</artist>');
         OutStr.WriteText('<country>USA</country>');
-        OutStr.WriteText('<company>Columbia</company>');
+        OutStr.WriteText('<company>Colombia</company>');
         OutStr.WriteText('<price>10.90</price>');
         OutStr.WriteText('<year>1985</year>');
         OutStr.WriteText('</cd>');

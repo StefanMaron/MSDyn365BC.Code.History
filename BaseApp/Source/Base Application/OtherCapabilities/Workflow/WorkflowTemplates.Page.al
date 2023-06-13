@@ -77,6 +77,22 @@ page 1505 "Workflow Templates"
                     CopyWorkflow(Rec)
                 end;
             }
+            action("Reset Templates")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Reset Microsoft Templates';
+                Visible = NOT IsLookupMode;
+                Image = ResetStatus;
+                ToolTip = 'Recreate all Microsoft templates';
+
+                trigger OnAction()
+                var
+                    WorkflowSetup: Codeunit "Workflow Setup";
+                begin
+                    WorkflowSetup.ResetWorkflowTemplates();
+                    Initialize();
+                end;
+            }
         }
         area(Promoted)
         {
@@ -113,16 +129,21 @@ page 1505 "Workflow Templates"
 
     trigger OnOpenPage()
     begin
-        WorkflowSetup.InitWorkflow();
-        InitBufferForTemplates(Rec);
-        IsLookupMode := CurrPage.LookupMode;
-        if FindFirst() then;
+        Initialize();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CurrPage.LookupMode and (CloseAction = ACTION::LookupOK) and ("Workflow Code" = '') then
             Error(QueryClosePageLookupErr);
+    end;
+
+    local procedure Initialize()
+    begin
+        WorkflowSetup.InitWorkflow();
+        Rec.InitBufferForTemplates(Rec);
+        IsLookupMode := CurrPage.LookupMode;
+        if Rec.FindFirst() then;
     end;
 
     var

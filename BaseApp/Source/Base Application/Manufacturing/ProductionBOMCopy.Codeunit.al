@@ -115,7 +115,7 @@ codeunit 99000768 "Production BOM-Copy"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyBOM(BOMHeaderNo: Code[20]; CurrentBOMHeader: Record "Production BOM Header"; FromVersionCode: Code[20]; ToVersionCode: Code[20])
+    local procedure OnAfterCopyBOM(BOMHeaderNo: Code[20]; var CurrentBOMHeader: Record "Production BOM Header"; FromVersionCode: Code[20]; ToVersionCode: Code[20])
     begin
     end;
 

@@ -3815,6 +3815,37 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseActivityLine.TestField("Bin Code", PickBin.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('BinContentsListModalPageHandler')]
+    procedure S469775_WhseReclassificationJournal_FromBinCodeLookupOpensBinContentPage()
+    var
+        Location: Record Location;
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WhseReclassificationJournal: TestPage "Whse. Reclassification Journal";
+    begin
+        // [FEATURE] [Whse. Reclassification Journal] [From Bin Code] [Bin Contents List]
+        // [SCENARIO 469775] Warehouse Reclassification Journal - From Bin Code lookup opens Bin Contents List page.
+        Initialize();
+
+        // [GIVEN] Create Location with "Directed Put-away and Pick" and set Warehouse Employee for Location as default.
+        CreateFullWarehouseSetup(Location);
+
+        // [GIVEN] Create Warehouse Reclassification Journal.
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, "Warehouse Journal Template Type"::Reclassification, Location.Code);
+        Commit();
+
+        // [GIVEN] Open Warehouse Reclassification Journal.
+        WhseReclassificationJournal.OpenEdit;
+        WhseReclassificationJournal.CurrentLocationCode.SetValue(Location.Code);
+        WhseReclassificationJournal.CurrentJnlBatchName.SetValue(WarehouseJournalBatch.Name);
+        WhseReclassificationJournal."Whse. Document No.".SetValue(WarehouseJournalBatch.Name);
+
+        // [WHEN] Run "From Bin Code" field lookup.
+        WhseReclassificationJournal."From Bin Code".Lookup(); // Uses BinContentsListModalPageHandler.
+
+        // [THEN] Bin Contents List Modal Page is opened on "From Bin Code" field lookup.
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6125,6 +6156,12 @@ codeunit 137408 "SCM Warehouse VI"
     begin
         WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
         WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueInteger);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure BinContentsListModalPageHandler(var BinContentsList: TestPage "Bin Contents List")
+    begin
     end;
 
     [RequestPageHandler]

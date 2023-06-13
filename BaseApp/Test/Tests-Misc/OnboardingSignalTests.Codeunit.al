@@ -109,6 +109,39 @@ codeunit 139323 "Onboarding Signal Tests"
         Assert.IsTrue(LibraryOnboardingSignal.IsOnboardingCompleted(Company.Name, OnboardingSignalType::Company), 'The Company Signal should be True');
     end;
 
+    [Test]
+    procedure TestGetOnboardingSignal()
+    var
+        Company: Record Company;
+        OnboardingSignalBuffer: Record "Onboarding Signal Buffer" temporary;
+        OnboardingSignalImpl: Codeunit "Onboarding Signal";
+        OnboardingSignalType: Enum "Onboarding Signal Type";
+    begin
+        // [SCENARIO] Test if procedure GetOnboardingSignals is working as expected
+        LibraryOnboardingSignal.InitializeOnboardingSignalTestingEnv();
+        LibraryLowerPermissions.SetO365Basic();
+
+        Company.Get(CompanyName());
+
+        // [GIVEN] Register Company Signal
+        OnboardingSignalImpl.RegisterNewOnboardingSignal(Company.Name, OnboardingSignalType::Company);
+
+        // [GIVEN] Register a new test onboarding signal
+        OnboardingSignalImpl.RegisterNewOnboardingSignal(Company.Name, OnboardingSignalType::"Test Signal");
+
+        OnboardingSignalImpl.GetOnboardingSignals(OnboardingSignalBuffer);
+
+        // [THEN] There should be two signals already registered
+        Assert.AreEqual(2, OnboardingSignalBuffer.Count(), 'There should be two signals already registered');
+
+        // [GIVEN] Select the Company signal
+        OnboardingSignalBuffer.SetRange("Onboarding Signal Type", OnboardingSignalType::Company);
+        OnboardingSignalBuffer.FindFirst();
+
+        // [THEN] The value inside onboarding signals should be properly set
+        Assert.AreEqual(Today(), OnboardingSignalBuffer."Onboarding Start Date", 'The start date of a signal should be correctly copied to buffer table');
+    end;
+
     local procedure PopulateOnboardingSignals(CompanyName: Text[30]; IsCompleted: Boolean)
     var
         OnboardingSignal: Record "Onboarding Signal";

@@ -7401,6 +7401,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sec. Group Permissions Part - Control Role ID - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 1108212613 - Control 1918310387 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Permission Set</source>
+          <target state="translated">Ensemble d’autorisations</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Sec. Group Permissions Part - Control Role ID - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1108212613 - Control 3997336476 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the company that the permission set applies to.</source>
           <target state="translated">Spécifie la société à laquelle s’applique l’ensemble d’autorisations.</target>
@@ -15185,6 +15191,18 @@
           <target state="translated">Spécifie le type d’extension de messagerie utilisé pour envoyer l’e-mail.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Sent Emails - Control ConnectorType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 761349018 - Control 100492085 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the size of the attachment</source>
+          <target state="translated">Spécifie la taille du document joint</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Control FileSize - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 761349018 - Control 100492085 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>File Size</source>
+          <target state="translated">Taille du fichier</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Email Attachments - Control FileSize - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 761349018 - Control 989751795 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the attachment</source>

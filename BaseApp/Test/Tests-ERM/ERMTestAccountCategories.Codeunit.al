@@ -19,6 +19,7 @@ codeunit 134444 "ERM Test Account Categories"
         IsInitialized: Boolean;
         MoreThanOneLineErr: Label 'Account schedule %1 must have more than one line.', Comment = '%1 - account schedule name';
         NumbeOfLinesOneErr: Label 'Account schedule %1 can only have one line.', Comment = '%1 - account schedule name';
+        TotalAccountErr: Label 'Account Schedue Totalling Type are not matched.';
 
     [Test]
     [HandlerFunctions('AccSchedReportRequestPageHandler')]
@@ -287,6 +288,44 @@ codeunit 134444 "ERM Test Account Categories"
         GLSetup.TestField("Fin. Rep. for Retained Earn.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('OptionDialogForGenerateAccountSchedules')]
+    procedure CreateAccScheduleWithTotalingType()
+    var
+        GLSetup: Record "General Ledger Setup";
+        GLAccount: Record "G/L Account";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        GLAccountCategory: Record "G/L Account Category";
+        GLAccountCategories: TestPage "G/L Account Categories";
+        GLAccountNo: Code[20];
+    begin
+        // [SCENARIO 469362] Creating Financial Report Row definition from G/L account categories the system does not set the right Totaling Type.
+        Initialize();
+
+        // [GIVEN] Create G/L Account Categories and update Account Category as Equity.
+        CreateGLAccountCategory(GLAccountCategory);
+        GLAccountCategory.Validate("Account Category", GLAccountCategory."Account Category"::Equity);
+        GLAccountCategory.Modify();
+
+        // [GIVEN] Create G/L Account with G/L Account Categories
+        CreateGLAccountNoTypeTotalWithGLAccountCat(GLAccount, GLAccountCategory."Entry No.");
+
+        // [WHEN] Action "Generate Account Schedules" is being run from page "G/L Account Categories" with option "Overwrite existent"
+        LibraryVariableStorage.Enqueue(2);
+        GLAccountCategories.OpenEdit();
+        GLAccountCategories.GenerateAccSched.Invoke();
+
+        // [THEN] Find AccScheduleLine which have created.
+        GLSetup.Get();
+        AccScheduleLine.SetRange("Schedule Name", GLSetup."Fin. Rep. for Balance Sheet");
+        AccScheduleLine.SetRange(Description, GLAccountCategory.Description);
+        AccScheduleLine.FindFirst();
+
+        // [VERIFY] Verify Totaling Type as "Total Accounts" on Account Schedule Line.
+        Assert.AreEqual(AccScheduleLine."Totaling Type"::"Total Accounts", AccScheduleLine."Totaling Type", TotalAccountErr);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -394,6 +433,16 @@ codeunit 134444 "ERM Test Account Categories"
     begin
         Assert.AreEqual(1, GetNumberOfAccSchedLines(AccScheduleName), StrSubstNo(NumbeOfLinesOneErr, AccScheduleName));
     end;
+
+    local procedure CreateGLAccountNoTypeTotalWithGLAccountCat(var GLAccount: Record "G/L Account"; EntryNo: Integer)
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Account Type", GLAccount."Account Type"::Total);
+        GLAccount.Validate("Account Category", GLAccount."Account Category"::Equity);
+        GLAccount.Validate("Account Subcategory Entry No.", EntryNo);
+        GLAccount.Modify()
+    end;
+
 
     [ModalPageHandler]
     [Scope('OnPrem')]

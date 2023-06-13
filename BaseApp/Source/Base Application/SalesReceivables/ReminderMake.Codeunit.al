@@ -151,7 +151,7 @@ codeunit 392 "Reminder-Make"
             if not ReminderLevel.FindLast() then
                 ReminderLevel.Init();
             ShouldMakeDoc := MakeDoc and (CustAmount > 0) and (CustAmountLCY(CurrencyCode, CustAmount) >= ReminderTerms."Minimum Amount (LCY)");
-            OnMakeReminderOnAfterCalcShouldMakeDoc(ReminderHeaderReq, ReminderHeader, Cust, ShouldMakeDoc);
+            OnMakeReminderOnAfterCalcShouldMakeDoc(ReminderHeaderReq, ReminderHeader, Cust, ShouldMakeDoc, MakeDoc);
             if ShouldMakeDoc then begin
                 if CheckCustomerIsBlocked(Cust) then
                     exit(false);
@@ -736,7 +736,7 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMakeReminderOnAfterCalcShouldMakeDoc(ReminderHeaderReq: Record "Reminder Header"; ReminderHeader: Record "Reminder Header"; Customer: Record Customer; var ShouldMakeDoc: Boolean)
+    local procedure OnMakeReminderOnAfterCalcShouldMakeDoc(ReminderHeaderReq: Record "Reminder Header"; ReminderHeader: Record "Reminder Header"; Customer: Record Customer; var ShouldMakeDoc: Boolean; MakeDoc: Boolean)
     begin
     end;
 

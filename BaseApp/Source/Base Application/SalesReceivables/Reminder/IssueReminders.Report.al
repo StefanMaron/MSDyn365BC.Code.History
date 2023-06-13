@@ -17,6 +17,7 @@ report 190 "Issue Reminders"
                 ShouldConfirmInvoiceRounding: Boolean;
             begin
                 InvoiceRoundingAmount := GetInvoiceRoundingAmount();
+                OnAfterGetRecordReminderHeaderOnAfterGetInvoiceRoundingAmount("Reminder Header", InvoiceRoundingAmount);
                 ShouldConfirmInvoiceRounding := InvoiceRoundingAmount <> 0;
                 OnReminderHeaderOnAfterGetRecordOnAfterCalcShouldConfirmInvoiceRounding("Reminder Header", InvoiceRoundingAmount, ShouldConfirmInvoiceRounding);
                 if ShouldConfirmInvoiceRounding then
@@ -67,7 +68,7 @@ report 190 "Issue Reminders"
                         repeat
                             IssuedReminderHeaderPrint := TempIssuedReminderHeader;
                             IsHandled := false;
-                            OnBeforePrintIssuedReminderHeader(IssuedReminderHeaderPrint, IsHandled);
+                            OnBeforePrintIssuedReminderHeader(IssuedReminderHeaderPrint, IsHandled, PrintEmailDocument, HideDialog);
                             if not IsHandled then begin
                                 IssuedReminderHeaderPrint.SetRecFilter();
                                 IssuedReminderHeaderPrint.PrintRecords(false, PrintEmailDocument = PrintEmailDocument::Email, HideDialog);
@@ -285,7 +286,7 @@ report 190 "Issue Reminders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintIssuedReminderHeader(var IssuedReminderHeader: Record "Issued Reminder Header"; var IsHandled: Boolean)
+    local procedure OnBeforePrintIssuedReminderHeader(var IssuedReminderHeader: Record "Issued Reminder Header"; var IsHandled: Boolean; PrintDoc: Option " ",Print,Email; HideDialog: Boolean)
     begin
     end;
 
@@ -301,6 +302,11 @@ report 190 "Issue Reminders"
 
     [IntegrationEvent(false, false)]
     local procedure OnReminderHeaderOnAfterGetRecordOnAfterReminderIssueSetParams(var ReminderHeader: Record "Reminder Header"; var ReminderIssue: Codeunit "Reminder-Issue"; PrintDoc: Option)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetRecordReminderHeaderOnAfterGetInvoiceRoundingAmount(var ReminderHeader: Record "Reminder Header"; var InvoiceRoundingAmount: Decimal)
     begin
     end;
 }

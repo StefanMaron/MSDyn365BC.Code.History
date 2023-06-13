@@ -432,12 +432,29 @@ codeunit 6200 "Non-Deductible VAT"
     end;
 
     /// <summary>
+    /// Throws the error about prepayment not compatible with Non-Deductible VAT if VAT Posting Setup contains Non-Deductible VAT
+    /// </summary>
+    /// <param name="PurchaseLine">The current purchase line</param>
+    procedure CheckPrepmtVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        NonDedVATImpl.CheckPrepmtVATPostingSetup(VATPostingSetup);
+    end;
+
+    /// <summary>
     /// Throws an error if current VAT posting setup contains unrealized VAT and Non-Deductible VAT
     /// </summary>
     /// <param name="VATPostingSetup">The current VAT posting setup</param>
     procedure CheckUnrealizedVATWithNonDeductibleVATInVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup")
     begin
         NonDedVATImpl.CheckUnrealizedVATWithNonDeductibleVATInVATPostingSetup(VATPostingSetup);
+    end;
+
+    /// <summary>
+    /// Check that a certain change of the VAT Posting Setup is allowed
+    /// </summary>
+    procedure CheckVATPostingSetupChangeIsAllowed(VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        NonDedVATImpl.CheckVATPostingSetupChangeIsAllowed(VATPostingSetup);
     end;
 
     /// <summary>
@@ -500,6 +517,15 @@ codeunit 6200 "Non-Deductible VAT"
     procedure Reverse(var GLEntry: Record "G/L Entry"; GLEntryToReverse: Record "G/L Entry")
     begin
         NonDedVATImpl.Reverse(GLEntry, GLEntryToReverse);
+    end;
+
+    /// <summary>
+    /// Reverse Non-Deductible amount in the VAT Entry
+    /// </summary>
+    /// <param name="VATEntry">The VAT Entry to set the reversed amount</param>
+    procedure Reverse(var VATEntry: Record "VAT Entry")
+    begin
+        NonDedVATImpl.Reverse(VATEntry);
     end;
 
     /// <summary>
@@ -884,6 +910,11 @@ codeunit 6200 "Non-Deductible VAT"
 
     [IntegrationEvent(false, false)]
     internal procedure OnBeforeCopyNonDedVATFromPurchCrMemoLineToVATAmountLine(var VATAmountLine: Record "VAT Amount Line"; PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [InternalEvent(false, false)]
+    internal procedure OnBeforeCheckVATPostingSetupChangeIsAllowed(VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
     begin
     end;
 }

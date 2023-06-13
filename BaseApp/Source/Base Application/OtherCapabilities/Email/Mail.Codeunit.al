@@ -50,10 +50,15 @@ codeunit 397 Mail
     end;
 
     procedure CreateMessage(ToAddresses: Text; CcAddresses: Text; BccAddresses: Text; Subject: Text; Body: Text; ShowNewMailDialogOnSend: Boolean; RunModal: Boolean)
+    var
+        IsHandled: Boolean;
     begin
         Initialize();
 
-        OnBeforeCreateMessage(ToAddresses, CcAddresses, BccAddresses, Subject, Body);
+        IsHandled := false;
+        OnBeforeCreateMessage(ToAddresses, CcAddresses, BccAddresses, Subject, Body, ShowNewMailDialogOnSend, RunModal, IsHandled);
+        if IsHandled then
+            exit;
 
         OutlookMessageHelper.Recipients := ToAddresses;
         OutlookMessageHelper.CarbonCopyRecipients := CcAddresses;
@@ -332,7 +337,7 @@ codeunit 397 Mail
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateMessage(var ToAddresses: Text; var CcAddresses: Text; var BccAddresses: Text; var Subject: Text; var Body: Text)
+    local procedure OnBeforeCreateMessage(var ToAddresses: Text; var CcAddresses: Text; var BccAddresses: Text; var Subject: Text; var Body: Text; ShowNewMailDialogOnSend: Boolean; RunModal: Boolean; var IsHandled: Boolean)
     begin
     end;
 

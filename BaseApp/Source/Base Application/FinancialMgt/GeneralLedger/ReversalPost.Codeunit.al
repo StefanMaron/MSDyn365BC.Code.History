@@ -23,6 +23,9 @@ codeunit 179 "Reversal-Post"
             Txt := Text004 + WarningText + '\' + Text005
         else
             Txt := Text004 + WarningText + '\' + Text002;
+
+        OnRunOnAfterCreateTxt(PrintRegister, Txt, WarningText);
+
         if not Rec.FindFirst() then
             Error(Text006);
 
@@ -40,6 +43,7 @@ codeunit 179 "Reversal-Post"
             ReversalEntry.SetReverseFilter(Rec."Transaction No.", Rec."Reversal Type")
         else
             ReversalEntry.SetReverseFilter(Rec."G/L Register No.", Rec."Reversal Type");
+        OnRunOnBeforeCheckEntries(Rec);
         ReversalEntry.CheckEntries();
         Rec.Get(1);
         if Rec."Reversal Type" = Rec."Reversal Type"::Register then
@@ -106,6 +110,16 @@ codeunit 179 "Reversal-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterConfirm(var ReversalEntry: Record "Reversal Entry"; var Handled: Boolean; PrintRegister: Boolean; HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterCreateTxt(PrintRegister: Boolean; var Txt: Text[1024]; WarningText: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCheckEntries(var ReversalEntry: Record "Reversal Entry")
     begin
     end;
 }

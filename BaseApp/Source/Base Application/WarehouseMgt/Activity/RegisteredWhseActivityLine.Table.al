@@ -155,7 +155,7 @@ table 5773 "Registered Whse. Activity Line"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
+                ItemTrackingManagement.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Serial No.", "Serial No.");
             end;
         }
         field(6501; "Lot No."; Code[50])
@@ -164,7 +164,7 @@ table 5773 "Registered Whse. Activity Line"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
+                ItemTrackingManagement.LookupTrackingNoInfo("Item No.", "Variant Code", ItemTrackingType::"Lot No.", "Lot No.");
             end;
         }
         field(6502; "Warranty Date"; Date)
@@ -182,7 +182,7 @@ table 5773 "Registered Whse. Activity Line"
 
             trigger OnLookup()
             begin
-                ItemTrackingMgt.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
+                ItemTrackingManagement.LookupTrackingNoInfo("Item No.", "Variant Code", "Item Tracking Type"::"Package No.", "Package No.");
             end;
         }
         field(7300; "Bin Code"; Code[20])
@@ -304,54 +304,54 @@ table 5773 "Registered Whse. Activity Line"
     }
 
     var
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
         ItemTrackingType: Enum "Item Tracking Type";
 
     procedure ShowRegisteredActivityDoc()
     var
-        RegisteredWhseActivHeader: Record "Registered Whse. Activity Hdr.";
+        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
         RegisteredPickCard: Page "Registered Pick";
         RegisteredPutAwayCard: Page "Registered Put-away";
-        RegisteredMovCard: Page "Registered Movement";
+        RegisteredMovement: Page "Registered Movement";
     begin
-        RegisteredWhseActivHeader.SetRange(Type, "Activity Type");
-        RegisteredWhseActivHeader.SetRange("No.", "No.");
-        RegisteredWhseActivHeader.FindFirst();
+        RegisteredWhseActivityHdr.SetRange(Type, "Activity Type");
+        RegisteredWhseActivityHdr.SetRange("No.", "No.");
+        RegisteredWhseActivityHdr.FindFirst();
         case "Activity Type" of
             "Activity Type"::Pick:
                 begin
-                    RegisteredPickCard.SetRecord(RegisteredWhseActivHeader);
-                    RegisteredPickCard.SetTableView(RegisteredWhseActivHeader);
+                    RegisteredPickCard.SetRecord(RegisteredWhseActivityHdr);
+                    RegisteredPickCard.SetTableView(RegisteredWhseActivityHdr);
                     RegisteredPickCard.RunModal();
                 end;
             "Activity Type"::"Put-away":
                 begin
-                    RegisteredPutAwayCard.SetRecord(RegisteredWhseActivHeader);
-                    RegisteredPutAwayCard.SetTableView(RegisteredWhseActivHeader);
+                    RegisteredPutAwayCard.SetRecord(RegisteredWhseActivityHdr);
+                    RegisteredPutAwayCard.SetTableView(RegisteredWhseActivityHdr);
                     RegisteredPutAwayCard.RunModal();
                 end;
             "Activity Type"::Movement:
                 begin
-                    RegisteredMovCard.SetRecord(RegisteredWhseActivHeader);
-                    RegisteredMovCard.SetTableView(RegisteredWhseActivHeader);
-                    RegisteredMovCard.RunModal();
+                    RegisteredMovement.SetRecord(RegisteredWhseActivityHdr);
+                    RegisteredMovement.SetTableView(RegisteredWhseActivityHdr);
+                    RegisteredMovement.RunModal();
                 end;
         end;
     end;
 
     procedure ShowWhseDoc()
     var
-        WhseShptHeader: Record "Warehouse Shipment Header";
-        PostedWhseRcptHeader: Record "Posted Whse. Receipt Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        PostedWhseReceiptHeader: Record "Posted Whse. Receipt Header";
         WhseInternalPickHeader: Record "Whse. Internal Pick Header";
         WhseInternalPutawayHeader: Record "Whse. Internal Put-away Header";
-        RelProdOrder: Record "Production Order";
+        ProductionOrder: Record "Production Order";
         AssemblyHeader: Record "Assembly Header";
-        WhseShptCard: Page "Warehouse Shipment";
-        PostedWhseRcptCard: Page "Posted Whse. Receipt";
+        WarehouseShipment: Page "Warehouse Shipment";
+        PostedWhseReceipt: Page "Posted Whse. Receipt";
         WhseInternalPickCard: Page "Whse. Internal Pick";
         WhseInternalPutawayCard: Page "Whse. Internal Put-away";
-        RelProdOrderCard: Page "Released Production Order";
+        ReleasedProductionOrder: Page "Released Production Order";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -362,15 +362,15 @@ table 5773 "Registered Whse. Activity Line"
         case "Whse. Document Type" of
             "Whse. Document Type"::Shipment:
                 begin
-                    WhseShptHeader.SetRange("No.", "Whse. Document No.");
-                    WhseShptCard.SetTableView(WhseShptHeader);
-                    WhseShptCard.RunModal();
+                    WarehouseShipmentHeader.SetRange("No.", "Whse. Document No.");
+                    WarehouseShipment.SetTableView(WarehouseShipmentHeader);
+                    WarehouseShipment.RunModal();
                 end;
             "Whse. Document Type"::Receipt:
                 begin
-                    PostedWhseRcptHeader.SetRange("No.", "Whse. Document No.");
-                    PostedWhseRcptCard.SetTableView(PostedWhseRcptHeader);
-                    PostedWhseRcptCard.RunModal();
+                    PostedWhseReceiptHeader.SetRange("No.", "Whse. Document No.");
+                    PostedWhseReceipt.SetTableView(PostedWhseReceiptHeader);
+                    PostedWhseReceipt.RunModal();
                 end;
             "Whse. Document Type"::"Internal Pick":
                 begin
@@ -390,10 +390,10 @@ table 5773 "Registered Whse. Activity Line"
                 end;
             "Whse. Document Type"::Production:
                 begin
-                    RelProdOrder.SetRange(Status, "Source Subtype");
-                    RelProdOrder.SetRange("No.", "Source No.");
-                    RelProdOrderCard.SetTableView(RelProdOrder);
-                    RelProdOrderCard.RunModal();
+                    ProductionOrder.SetRange(Status, "Source Subtype");
+                    ProductionOrder.SetRange("No.", "Source No.");
+                    ReleasedProductionOrder.SetTableView(ProductionOrder);
+                    ReleasedProductionOrder.RunModal();
                 end;
             "Whse. Document Type"::Assembly:
                 begin
@@ -406,25 +406,22 @@ table 5773 "Registered Whse. Activity Line"
 
     procedure ShowWhseEntries(RegisterDate: Date)
     var
-        WhseEntry: Record "Warehouse Entry";
-        WhseEntries: Page "Warehouse Entries";
+        WarehouseEntry: Record "Warehouse Entry";
+        WarehouseEntries: Page "Warehouse Entries";
     begin
-        WhseEntry.SetCurrentKey("Reference No.", "Registering Date");
-        WhseEntry.SetRange("Reference No.", "No.");
-        WhseEntry.SetRange("Registering Date", RegisterDate);
+        WarehouseEntry.SetCurrentKey("Reference No.", "Registering Date");
+        WarehouseEntry.SetRange("Reference No.", "No.");
+        WarehouseEntry.SetRange("Registering Date", RegisterDate);
         case "Activity Type" of
             "Activity Type"::"Put-away":
-                WhseEntry.SetRange(
-                  "Reference Document", WhseEntry."Reference Document"::"Put-away");
+                WarehouseEntry.SetRange("Reference Document", "Whse. Reference Document Type"::"Put-away");
             "Activity Type"::Pick:
-                WhseEntry.SetRange(
-                  "Reference Document", WhseEntry."Reference Document"::Pick);
+                WarehouseEntry.SetRange("Reference Document", "Whse. Reference Document Type"::Pick);
             "Activity Type"::Movement:
-                WhseEntry.SetRange(
-                  "Reference Document", WhseEntry."Reference Document"::Movement);
+                WarehouseEntry.SetRange("Reference Document", "Whse. Reference Document Type"::Movement);
         end;
-        WhseEntries.SetTableView(WhseEntry);
-        WhseEntries.RunModal();
+        WarehouseEntries.SetTableView(WarehouseEntry);
+        WarehouseEntries.RunModal();
     end;
 
     procedure SetSourceFilter(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; SetKey: Boolean)
@@ -438,6 +435,8 @@ table 5773 "Registered Whse. Activity Line"
         SetRange("Source Line No.", SourceLineNo);
         if SourceSubLineNo >= 0 then
             SetRange("Source Subline No.", SourceSubLineNo);
+
+        OnAfterSetSourceFilter(Rec, SourceType, SourceSubtype, SourceNo, SourceLineNo, SourceSubLineNo, SetKey);
     end;
 
     procedure ClearSourceFilter()
@@ -473,12 +472,12 @@ table 5773 "Registered Whse. Activity Line"
         OnAfterSetTrackingFilterFromSpec(Rec, TrackingSpecification);
     end;
 
-    procedure SetTrackingFilterFromWhseActivityLine(WhseActivLine: Record "Warehouse Activity Line")
+    procedure SetTrackingFilterFromWhseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
-        SetRange("Serial No.", WhseActivLine."Serial No.");
-        SetRange("Lot No.", WhseActivLine."Lot No.");
+        SetRange("Serial No.", WarehouseActivityLine."Serial No.");
+        SetRange("Lot No.", WarehouseActivityLine."Lot No.");
 
-        OnAfterSetTrackingFilterFromWhseActivityLine(Rec, WhseActivLine);
+        OnAfterSetTrackingFilterFromWhseActivityLine(Rec, WarehouseActivityLine);
     end;
 
     procedure SetTrackingFilterFromWhseSpec(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
@@ -516,6 +515,11 @@ table 5773 "Registered Whse. Activity Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowWhseDoc(RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceFilter(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; SetKey: Boolean)
     begin
     end;
 }

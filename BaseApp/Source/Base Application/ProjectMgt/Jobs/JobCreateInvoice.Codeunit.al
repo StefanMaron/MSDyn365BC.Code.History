@@ -28,7 +28,6 @@ codeunit 1002 "Job Create-Invoice"
         Text010: Label 'The currency dates on all planning lines will be updated based on the invoice posting date because there is a difference in currency exchange rates. Recalculations will be based on the Exch. Calculation setup for the Cost and Price values for the job. Do you want to continue?';
         Text011: Label 'The currency exchange rate on all planning lines will be updated based on the exchange rate on the sales invoice. Do you want to continue?';
         Text012: Label 'The %1 %2 does not exist anymore. A printed copy of the document was created before the document was deleted.', Comment = 'The Sales Invoice Header 103001 does not exist in the system anymore. A printed copy of the document was created before deletion.';
-        QuantityNegativeErr: Label 'must be positive to create Sales Invoice';
 
     procedure CreateSalesInvoice(var JobPlanningLine: Record "Job Planning Line"; CrMemo: Boolean)
     var
@@ -100,7 +99,7 @@ codeunit 1002 "Job Create-Invoice"
         LineCounter: Integer;
         LastError: Text;
     begin
-        OnBeforeCreateSalesInvoiceLines(JobPlanningLineSource, InvoiceNo, NewInvoice, PostingDate, CreditMemo);
+        OnBeforeCreateSalesInvoiceLines(JobPlanningLineSource, InvoiceNo, NewInvoice, PostingDate, CreditMemo, NoOfSalesLinesCreated);
 
         ClearAll();
         Job.Get(JobNo);
@@ -109,12 +108,15 @@ codeunit 1002 "Job Create-Invoice"
             Job.TestBlocked();
         if Job."Currency Code" = '' then
             JobInvCurrency := Job."Invoice Currency Code" <> '';
+        OnCreateSalesInvoiceLinesOnAfterSetJobInvCurrency(Job, JobInvCurrency);
         CheckJobBillToCustomer(JobPlanningLineSource, Job);
 
         if CreditMemo then
             SalesHeader2."Document Type" := SalesHeader2."Document Type"::"Credit Memo"
         else
             SalesHeader2."Document Type" := SalesHeader2."Document Type"::Invoice;
+
+        OnCreateSalesInvoiceLinesOnAfterSetSalesDocumentType(SalesHeader2);
 
         if not NewInvoice then
             SalesHeader.Get(SalesHeader2."Document Type", InvoiceNo);
@@ -456,10 +458,13 @@ codeunit 1002 "Job Create-Invoice"
             if JobPlanningLine."Bin Code" <> '' then
                 SalesLine."Bin Code" := JobPlanningLine."Bin Code";
             if JobInvCurrency then begin
-                Currency.Get(SalesLine."Currency Code");
-                SalesLine.Validate("Unit Price",
-                  Round(JobPlanningLine."Unit Price" * SalesHeader."Currency Factor",
-                    Currency."Unit-Amount Rounding Precision"));
+                OnCreateSalesLineOnBeforeValidateCurrencyCode(IsHandled, SalesLine, JobPlanningLine);
+                if not IsHandled then begin
+                    Currency.Get(SalesLine."Currency Code");
+                    SalesLine.Validate("Unit Price",
+                      Round(JobPlanningLine."Unit Price" * SalesHeader."Currency Factor",
+                        Currency."Unit-Amount Rounding Precision"));
+                end;
             end else
                 SalesLine.Validate("Unit Price", JobPlanningLine."Unit Price");
             SalesLine.Validate("Unit Cost (LCY)", JobPlanningLine."Unit Cost (LCY)");
@@ -539,20 +544,18 @@ codeunit 1002 "Job Create-Invoice"
 
     local procedure TransferLine(var JobPlanningLine: Record "Job Planning Line"): Boolean
     var
-        IsHandled: Boolean;
+        IsHandled, Result : Boolean;
     begin
         IsHandled := false;
-        OnBeforeTransferLine(JobPlanningLine, IsHandled);
+        OnBeforeTransferLine(JobPlanningLine, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
-        with JobPlanningLine do begin
-            if not "Contract Line" then
-                exit(false);
-            if Type = Type::Text then
-                exit(true);
-            exit("Qty. to Transfer to Invoice" <> 0);
-        end;
+        if not JobPlanningLine."Contract Line" then
+            exit(false);
+        if JobPlanningLine.Type = JobPlanningLine.Type::Text then
+            exit(true);
+        exit(JobPlanningLine."Qty. to Transfer to Invoice" <> 0);
     end;
 
     local procedure GetNextLineNo(SalesLine: Record "Sales Line"): Integer
@@ -946,9 +949,6 @@ codeunit 1002 "Job Create-Invoice"
         OnBeforeCheckJobPlanningLineIsNegative(JobPlanningLine, IsHandled);
         if IsHandled then
             exit;
-
-        if JobPlanningLine.Quantity < 0 then
-            JobPlanningLine.FieldError(Quantity, QuantityNegativeErr);
     end;
 
     [IntegrationEvent(false, false)]
@@ -982,7 +982,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSalesInvoiceLines(var JobPlanningLine: Record "Job Planning Line"; InvoiceNo: Code[20]; NewInvoice: Boolean; PostingDate: Date; CreditMemo: Boolean)
+    local procedure OnBeforeCreateSalesInvoiceLines(var JobPlanningLine: Record "Job Planning Line"; InvoiceNo: Code[20]; NewInvoice: Boolean; PostingDate: Date; CreditMemo: Boolean; var NoOfSalesLinesCreated: Integer)
     begin
     end;
 
@@ -1037,7 +1037,7 @@ codeunit 1002 "Job Create-Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferLine(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    local procedure OnBeforeTransferLine(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -1199,6 +1199,21 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckJobPlanningLineIsNegative(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceLinesOnAfterSetJobInvCurrency(Job: Record Job; var JobInvCurrency: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLineOnBeforeValidateCurrencyCode(var IsHandled: Boolean; SalesLine: Record "Sales Line"; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceLinesOnAfterSetSalesDocumentType(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

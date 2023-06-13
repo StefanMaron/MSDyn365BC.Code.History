@@ -2879,11 +2879,15 @@
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        DisableAggregateTableUpdate: Codeunit "Disable Aggregate Table Update";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryYourReferenceUpdateTag()) then
             exit;
+
+        BindSubscription(DisableAggregateTableUpdate);
+        DisableAggregateTableUpdate.SetDisableAllRecords(true);
 
         SalesInvoiceHeader.SetLoadFields("Your Reference");
         SalesInvoiceHeader.SetFilter("Your Reference", '<>%1', '');
@@ -2902,6 +2906,8 @@
                 CustLedgerEntry.SetRange("Document No.", SalesCrMemoHeader."No.");
                 CustLedgerEntry.ModifyAll("Your Reference", SalesCrMemoHeader."Your Reference");
             until SalesCrMemoHeader.Next() = 0;
+
+        UnbindSubscription(DisableAggregateTableUpdate);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryYourReferenceUpdateTag());
     end;

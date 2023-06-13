@@ -113,12 +113,14 @@ codeunit 139085 "Exchange Sync Credentials Test"
     var
         BookingSync: Record "Booking Sync";
         LibraryO365Sync: Codeunit "Library - O365 Sync";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         Clear(LibraryAzureADAuthFlow);
         LibraryAzureADAuthFlow.SetTokenAvailable(FreshTokenAvailable);
         LibraryAzureADAuthFlow.SetCachedTokenAvailable(CachedTokenAvailable);
         BindSubscription(LibraryAzureADAuthFlow);
         SetAuthFlowProvider(CODEUNIT::"Library - Azure AD Auth Flow");
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         if Initialized then
             exit;

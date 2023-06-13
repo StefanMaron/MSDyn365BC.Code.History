@@ -9,6 +9,17 @@ codeunit 7582 "Register Company Signal"
     Subtype = Install;
 
     trigger OnInstallAppPerCompany()
+    begin
+        RegisterCompanySignal();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
+    local procedure OnCompanyInitialize()
+    begin
+        RegisterCompanySignal();
+    end;
+
+    local procedure RegisterCompanySignal()
     var
         Company: Record Company;
         OnboardingSignal: Codeunit "Onboarding Signal";

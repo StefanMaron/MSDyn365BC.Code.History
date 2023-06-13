@@ -94,7 +94,7 @@ page 9155 "My Time Sheets"
 #endif
     begin
 #if not CLEAN22
-        if TimeSheetMgt.TimeSheetV2Enabled() then begin
+        if not TimeSheetMgt.TimeSheetV2Enabled() then begin
             TimeSheetMgt.SetTimeSheetNo("Time Sheet No.", TimeSheetLine);
             PAGE.Run(PAGE::"Time Sheet", TimeSheetLine);
             exit;

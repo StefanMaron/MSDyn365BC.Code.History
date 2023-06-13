@@ -928,7 +928,10 @@
         ReadGLSetup();
         GetItem();
         if GetSKU() then
-            UnitCost := SKU."Unit Cost"
+            if Item."Base Unit of Measure" <> "Unit of Measure Code" then
+                UnitCost := SKU."Unit Cost" * "Qty. per Unit of Measure"
+            else
+                UnitCost := SKU."Unit Cost"
         else
             UnitCost := Item."Unit Cost" * "Qty. per Unit of Measure";
 

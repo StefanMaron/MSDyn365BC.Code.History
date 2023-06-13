@@ -32,6 +32,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryTemplates: Codeunit "Library - Templates";
         Initialized: Boolean;
         WrongDimJobLedgerEntryErr: Label 'Wrong Dim on Job Ledger entry %1! Expected ID: %2, Actual ID: %3.';
         FieldErr: Label '%1 must be equal  %2 in %3.';
@@ -3267,6 +3268,49 @@ codeunit 136302 "Job Consumption Purchase"
         VerifyJobLedgerEntry(PurchLine, DocumentNo, PurchLine.Quantity);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyBudgetTotalCostOnJobTaskAfterPostingPurchaseInvoiceWithLinkedJobPlanningLine()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        DocumentNo: Code[20];
+        No: Code[20];
+    begin
+        // [SCENARIO 473670] Incorrect clearing of Budget Total Cost field when posting a Purchase Invoice linked to a Job Planning Line with New Sales Pricing Feature applied in Feature Management
+        Initialize();
+
+        // [GIVEN] Job with Planning Line - "Usage Link" and G/L Account "X"
+        LibraryTemplates.EnableTemplatesFeature();
+        No := LibraryERM.CreateGLAccountWithPurchSetup();
+        CreateJobAndJobPlanningLineWithGLAccount(JobPlanningLine, JobTask, No, 1);
+        JobPlanningLine.Validate("Unit Cost", 10);
+        JobPlanningLine.Modify(true);
+
+        // [GIVEN] Purchase Invoice with G/L Account "X", Job ("Job Planning Line No." is defined to make link to Job)
+        CreatePurchaseDocumentWithGLAccountLinkToJobPlanningLine(
+            PurchLine, 
+            JobPlanningLine, 
+            PurchHeader."Document Type"::Invoice, 
+            JobPlanningLine."No.");
+
+        // [WHEN] Post Purchase Order 
+        PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+
+        // [THEN] Get Job Task and Calculate Budget (Total Cost)
+        JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+        JobTask.CalcFields("Schedule (Total Cost)");
+
+        // [VERIFY] Verify: Job Task Budget (Total Cost) updated after posting Purchase Invoice
+        Assert.AreEqual(
+            PurchLine.Quantity * JobPlanningLine."Unit Cost",
+            JobTask."Schedule (Total Cost)",
+            StrSubstNo(ValueMustMatchErr, JobTask.FieldCaption("Schedule (Total Cost)"), PurchLine.Quantity * JobPlanningLine."Unit Cost"));
+    end;
+
     local procedure Initialize()
     var
 #if not CLEAN21
@@ -5418,6 +5462,49 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         GetPurchaseLines(PurchaseHeader, PurchaseLine);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateJobAndJobPlanningLineWithGLAccount(
+        var JobPlanningLine: Record "Job Planning Line";
+        var JobTask: Record "Job Task";
+        GLAccountNo: Code[20];
+        Quantity: Decimal)
+    begin
+        CreateJobWithJobTask(JobTask);
+        CreateJobPlanningLine(
+            JobPlanningLine,
+            JobTask,
+            JobPlanningLine.Type::"G/L Account",
+            GLAccountNo,
+            Quantity,
+            true);
+    end;
+
+    local procedure CreatePurchaseDocumentWithGLAccountLinkToJobPlanningLine(
+        var PurchaseLine: Record "Purchase Line";
+        JobPlanningLine: Record "Job Planning Line";
+        DocumentType: Enum "Purchase Document Type";
+        No: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, '');
+
+        // Create Purchase Line with Random Quantity and Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::"G/L Account",
+            No,
+            LibraryRandom.RandInt(10));
+
+        // Update Job Planning Line Details to Purchase Line
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("Job No.", JobPlanningLine."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobPlanningLine."Job Task No.");
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::Budget);
+        PurchaseLine.Validate("Job Planning Line No.", JobPlanningLine."Line No.");
         PurchaseLine.Modify(true);
     end;
 

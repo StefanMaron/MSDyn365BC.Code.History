@@ -2309,6 +2309,45 @@ CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", Te
         Assert.AreEqual(Contact[1]."Contact Business Relation", "Contact Business Relation"::Multiple, BussRelationErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure VerifyContactsCanBeMergedIfTheyContainLookupContactNo()
+    var
+        ContDuplicateSearchString: Record "Cont. Duplicate Search String";
+        TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
+        Contact: array[3] of Record Contact;
+    begin
+        // [SCENARIO 470241] Verify contacts can be merged if they contain lookup contact no.
+        Initialize();
+
+        // [GIVEN] Remove conflicting records in ContDuplicateSearchString
+        ContDuplicateSearchString.DeleteAll();
+
+        // [GIVEN] Create two person contacts 'A' and 'B'
+        LibraryMarketing.CreatePersonContact(Contact[1]);
+        LibraryMarketing.CreatePersonContact(Contact[2]);
+
+        // [GIVEN] Create company contact 'C'
+        LibraryMarketing.CreateCompanyContact(Contact[3]);
+
+        // [GIVEN] Connect company contact 'C' to person contact 'A' and 'B'
+        Contact[1].Validate("Company No.", Contact[3]."No.");
+        Contact[1].Modify(true);
+        Contact[2].Validate("Company No.", Contact[3]."No.");
+        Contact[2].Modify(true);
+
+        // [GIVEN] Create temp record for merge
+        TempMergeDuplicatesBuffer."Table ID" := Database::Contact;
+        TempMergeDuplicatesBuffer.Current := Contact[1]."No.";
+
+        // [WHEN] CollectFieldData
+        TempMergeDuplicatesBuffer.Validate(Duplicate, Contact[2]."No.");
+        TempMergeDuplicatesBuffer.Insert();
+
+        // [THEN] Verify that the merge is successful
+        TempMergeDuplicatesBuffer.Merge;
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Merge Duplicates");

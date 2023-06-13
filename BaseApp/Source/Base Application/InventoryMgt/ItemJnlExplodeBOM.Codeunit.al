@@ -39,6 +39,7 @@ codeunit 246 "Item Jnl.-Explode BOM"
 
         ToItemJnlLine := Rec;
         FromBOMComp.SetFilter("No.", '<>%1', '');
+        OnAfterFromBOMCompSetFilters(FromBomComp);
         if FromBOMComp.Find('-') then
             repeat
                 Item.Get(FromBOMComp."No.");
@@ -147,6 +148,11 @@ codeunit 246 "Item Jnl.-Explode BOM"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeToItemJnlLineInsert(var ToItemJournalLine: Record "Item Journal Line"; FromItemJournalLine: Record "Item Journal Line"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFromBOMCompSetFilters(var FromBOMComponent: Record "BOM Component")
     begin
     end;
 }

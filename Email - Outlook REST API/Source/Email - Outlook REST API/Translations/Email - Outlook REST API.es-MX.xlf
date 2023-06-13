@@ -69,6 +69,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - OAuth Client - NamedType CouldNotGetAccessTokenErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 571534387 - NamedType 2364649794" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Multi-Factor Authentication is enabled on this account but the user did not complete the setup. Please sign in to the account and try again.</source>
+          <target state="translated">La autenticación multifactor está habilitada en esta cuenta, pero el usuario no completó la instalación. Inicie sesión en la cuenta e inténtelo de nuevo.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType ExternalSecurityChallengeNotSatisfiedMsg</note>
+        </trans-unit>
         <trans-unit id="Codeunit 571534387 - NamedType 68286719" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not send the email message. Try again later.</source>
           <target state="translated">No se pudo enviar el mensaje de correo electrónico. Inténtelo de nuevo más tarde.</target>

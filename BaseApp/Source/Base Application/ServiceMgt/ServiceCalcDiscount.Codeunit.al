@@ -34,7 +34,7 @@ codeunit 5950 "Service-Calc. Discount"
         SalesSetup: Record "Sales & Receivables Setup";
         DiscountNotificationMgt: Codeunit "Discount Notification Mgt.";
         ServiceChargeLineNo: Integer;
-        ApplyServiceCharge: Boolean;
+        ApplyServiceCharge, IsHandled : Boolean;
     begin
         OnBeforeCalcServDiscount(ServHeader);
 
@@ -85,6 +85,8 @@ codeunit 5950 "Service-Calc. Discount"
             CustInvDisc.GetRec(
               ServHeader."Invoice Disc. Code", ServHeader."Currency Code", CurrencyDate, ChargeBase);
 
+            OnCalculateInvoiceDiscountOnBeforeApplyServiceCharge(CustInvDisc, ServHeader, CurrencyDate, ChargeBase, ApplyServiceCharge);
+
             if ApplyServiceCharge then
                 if CustInvDisc."Service Charge" <> 0 then begin
                     Currency.Initialize(ServHeader."Currency Code");
@@ -131,8 +133,10 @@ codeunit 5950 "Service-Calc. Discount"
                 end else
                     if ServiceChargeLineNo <> 0 then begin
                         ServiceLine2.Get("Document Type", "Document No.", ServiceChargeLineNo);
-                        OnCalculateInvoiceDiscountOnBeforeServiceLine2Delete(ServiceLine2);
-                        ServiceLine2.Delete(true);
+                        IsHandled := false;
+                        OnCalculateInvoiceDiscountOnBeforeServiceLine2Delete(ServiceLine2, TemporaryHeader, IsHandled);
+                        if not IsHandled then
+                            ServiceLine2.Delete(true);
                     end;
 
             if CustInvDiscRecExists(ServHeader."Invoice Disc. Code") then begin
@@ -159,7 +163,7 @@ codeunit 5950 "Service-Calc. Discount"
             end;
         end;
 
-        OnAfterCalcServDiscount(ServHeader);
+        OnAfterCalcServDiscount(ServHeader, TempVATAmountLine, ServiceLine2);
     end;
 
     local procedure CustInvDiscRecExists(InvDiscCode: Code[20]): Boolean
@@ -223,7 +227,7 @@ codeunit 5950 "Service-Calc. Discount"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcServDiscount(var ServiceHeader: Record "Service Header")
+    local procedure OnAfterCalcServDiscount(var ServiceHeader: Record "Service Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var ServiceLine: Record "Service Line")
     begin
     end;
 
@@ -233,7 +237,7 @@ codeunit 5950 "Service-Calc. Discount"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateInvoiceDiscountOnBeforeServiceLine2Delete(var ServiceLine: Record "Service Line")
+    local procedure OnCalculateInvoiceDiscountOnBeforeServiceLine2Delete(var ServiceLine: Record "Service Line"; TemporaryHeader: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -244,6 +248,12 @@ codeunit 5950 "Service-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeServiceLineInsert(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeApplyServiceCharge(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var ServiceHeader: Record "Service Header"; CurrencyDate: Date; ChargeBase: Decimal; var ApplyServiceCharge: Boolean)
     begin
     end;
 }

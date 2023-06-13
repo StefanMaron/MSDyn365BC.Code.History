@@ -130,7 +130,7 @@ codeunit 1201 "Process Data Exch."
 
         TransformedValue := DelChr(DataExchField.GetValue(), '>'); // We shoud use the trim transformation rule instead of this
         if TransformationRule.Get(DataExchFieldMapping."Transformation Rule") then
-            TransformedValue := TransformationRule.TransformText(DataExchField.Value);
+            TransformedValue := TransformationRule.TransformText(DataExchField.GetValue());
 
         IsHandled := false;
         OnBeforeFormatFieldValue(TransformedValue, DataExchField, DataExchFieldMapping, FieldRef, DataExchColumnDef, IsHandled);

@@ -232,6 +232,7 @@ codeunit 5944 SignServContractDoc
         ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", FromServContractHeader."Contract Type");
         ServContractLine.SetRange("Contract No.", FromServContractHeader."Contract No.");
+        OnSignContractOnBeforeFindServContractLine(ServContractLine, FromServContractHeader);
         if ServContractLine.FindSet() then
             repeat
                 ServContractLine."Contract Status" := ServContractLine."Contract Status"::Signed;
@@ -263,6 +264,7 @@ codeunit 5944 SignServContractDoc
 
         OnBeforeServContractHeaderModify(ServContractHeader, FromServContractHeader);
         ServContractHeader.Modify();
+        OnSignContractOnAfterServContractHeaderModify(ServContractHeader, FromServContractHeader);
 
         ServContractLine.Reset();
         ServContractLine.SetRange("Contract Type", ServContractHeader."Contract Type");
@@ -286,6 +288,8 @@ codeunit 5944 SignServContractDoc
         if not HideDialog then
             if ServHeaderNo <> '' then
                 Message(Text016, ServHeaderNo);
+
+        OnAfterSignContract(ServContractHeader);
     end;
 
     procedure AddendumToContract(ServContractHeader: Record "Service Contract Header")
@@ -635,7 +639,7 @@ codeunit 5944 SignServContractDoc
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetInvoicing(ServContractHeader, IsHandled, InvoiceNow);
+        OnBeforeSetInvoicing(ServContractHeader, IsHandled, InvoiceNow, InvoiceFrom, InvoiceTo, InvoicingStartingPeriod, GoOut, HideDialog);
         if IsHandled then
             exit;
 
@@ -1172,7 +1176,7 @@ codeunit 5944 SignServContractDoc
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetInvoicing(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean; var InvoiceNow: Boolean)
+    local procedure OnBeforeSetInvoicing(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean; var InvoiceNow: Boolean; var InvoiceFrom: Date; var InvoiceTo: Date; var InvoicingStartingPeriod: Boolean; var GoOut: Boolean; HideDialog: Boolean)
     begin
     end;
 
@@ -1253,6 +1257,21 @@ codeunit 5944 SignServContractDoc
 
     [IntegrationEvent(false, false)]
     local procedure OnSignContractOnAfterServContractLineNewLineFalse(var ServContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSignContractOnBeforeFindServContractLine(var ServiceContractLine: Record "Service Contract Line"; var FromServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSignContractOnAfterServContractHeaderModify(var ServiceContractHeader: Record "Service Contract Header"; FromServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSignContract(var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 }

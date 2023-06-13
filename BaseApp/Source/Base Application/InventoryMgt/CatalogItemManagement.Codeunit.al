@@ -230,7 +230,7 @@ codeunit 5703 "Catalog Item Management"
         if CheckLicensePermission(DATABASE::"Item Reference") then
             NonstockItemReference(NonStock);
 
-        OnNonStockSalesOnBeforeProgWindowClose(NonStock, NewItem);
+        OnNonStockSalesOnBeforeProgWindowClose(NonStock, NewItem, SalesLine2, IsHandled);
         ProgWindow.Close();
     end;
 
@@ -254,7 +254,14 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     procedure DelNonStockPurch(var PurchLine2: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDelNonStockPurch(PurchLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         if PurchLine2.Nonstock = false then
             exit;
 
@@ -785,6 +792,11 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDelNonStockPurch(var PurchaseLine2: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteCreatedFromNonstockItem(var NewItem: Record Item; var NonStock: Record "Nonstock Item"; var IsHandled: Boolean)
     begin
     end;
@@ -859,7 +871,7 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnNonStockSalesOnBeforeProgWindowClose(var NonStockItem: Record "Nonstock Item"; var NewItem: Record Item)
+    local procedure OnNonStockSalesOnBeforeProgWindowClose(var NonStockItem: Record "Nonstock Item"; var NewItem: Record Item; SalesLine2: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 

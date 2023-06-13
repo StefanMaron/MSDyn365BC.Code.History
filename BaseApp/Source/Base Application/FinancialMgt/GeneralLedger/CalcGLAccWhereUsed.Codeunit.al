@@ -108,6 +108,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
                         Evaluate(FAAlloc."Line No.", "Key 3");
                         FAAlloc.SetRange(Code, FAAlloc.Code);
                         FAAlloc.SetRange("Allocation Type", FAAlloc."Allocation Type");
+                        OnShowSetupFormOnBeforeFAAllocationRunPage(FAAlloc, GLAccWhereUsed);
                         PAGE.Run(0, FAAlloc);
                     end;
                 DATABASE::"Inventory Posting Setup":
@@ -150,6 +151,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         GLSetup.Get();
         if GLSetup."Check G/L Account Usage" then begin
             CheckPostingGroups(GLAccNo);
+            OnDeleteGLNoOnBeforeTempGLAccWhereUsedFindFirst(TempGLAccWhereUsed);
             if TempGLAccWhereUsed.FindFirst() then begin
                 Commit();
                 if ConfirmManagement.GetResponse(StrSubstNo(ShowWhereUsedQst, GLAcc.TableCaption()), true) then
@@ -373,6 +375,16 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowGLAccWhereUsed(var GLAccountWhereUsed: Record "G/L Account Where-Used")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowSetupFormOnBeforeFAAllocationRunPage(var FAAllocation: Record "FA Allocation"; var GLAccountWhereUsed: Record "G/L Account Where-Used")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteGLNoOnBeforeTempGLAccWhereUsedFindFirst(var TempGLAccountWhereUsed: Record "G/L Account Where-Used" temporary)
     begin
     end;
 }

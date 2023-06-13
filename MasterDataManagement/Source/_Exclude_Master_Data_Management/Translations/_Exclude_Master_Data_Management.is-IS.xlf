@@ -69,6 +69,12 @@
           <note from="Developer" annotates="general" priority="2">%1 and %2 area captions of tables such as Customer and CRM Account, %3 = Business Central product name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType BothRecordsModifiedBiDirectionalConflictMsg</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 1397072557" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your license does not allow you to set up Master Data Management. To view details about your permissions, see the Effective Permissions page.</source>
+          <target state="translated">Leyfið heimilar ekki uppsetningu stjórnunar aðalgagna. Til að skoða upplýsingar um heimildir notanda skal skoða síðuna „Virkar heimildir“.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType NoPermissionToSetUpErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1724665409 - NamedType 1401058103" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The integration record for entity %1 was not found.</source>
           <target state="translated">Samþættingarfærsla fyrir einingu %1 fannst ekki.</target>
@@ -201,6 +207,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType SyncNowSkippedMsg</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 3650943473" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your license does not allow you to use Master Data Management. To view details about your permissions, see the Effective Permissions page.</source>
+          <target state="translated">Leyfið heimilar ekki notkun stjórnunar aðalgagna. Til að skoða upplýsingar um heimildir notanda skal skoða síðuna „Virkar heimildir“.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType NoPermissionToUseErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1724665409 - NamedType 371451318" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The uncoupling has been scheduled for %1 of %4 records. %2 records failed. %3 records were skipped.</source>
           <target state="translated">Aftengingin hefur verið tímasett fyrir %1 af %4 færslum. %2 færslur mistókust. %3 færslum var sleppt.</target>
@@ -260,6 +272,12 @@
           <target state="translated">Búið er að tímasetja tenginguna.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType CouplingScheduledMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 992787618" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your license does not allow you to schedule a background task. To view details about your permissions, see the Effective Permissions page.</source>
+          <target state="translated">Leyfið heimilar ekki áætlun bakgrunnsverks. Til að skoða upplýsingar um heimildir notanda skal skoða síðuna „Virkar heimildir“.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType NoPermissionToScheduleJobErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2266395223 - NamedType 112073631" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The only supported direction for the data synchronization is %1.</source>

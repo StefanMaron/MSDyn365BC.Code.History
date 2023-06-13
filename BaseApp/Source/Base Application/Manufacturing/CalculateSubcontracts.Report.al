@@ -205,6 +205,7 @@ report 99001015 "Calculate Subcontracts"
                     "Action Message" := "Action Message"::"Resched. & Chg. Qty.";
                 "Accept Action Message" := true;
             end else begin
+                "Replenishment System" := "Replenishment System"::"Prod. Order";
                 "Ref. Order No." := ProdOrderLine."Prod. Order No.";
                 "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
                 "Ref. Order Status" := ProdOrderLine.Status.AsInteger();

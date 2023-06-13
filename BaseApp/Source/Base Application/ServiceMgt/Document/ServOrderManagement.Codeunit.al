@@ -53,33 +53,35 @@ codeunit 5900 ServOrderManagement
             NewResponseTime := ServItemLine."Response Time";
         end;
 
-        ServItemLine2.Reset();
-        ServItemLine2.SetRange("Document Type", ServItemLine."Document Type");
-        ServItemLine2.SetRange("Document No.", ServItemLine."Document No.");
-        ServItemLine2.SetFilter("Line No.", '<>%1', ServItemLine."Line No.");
-        if ServItemLine2.Find('-') then begin
-            if Deleting then begin
-                NewResponseDate := ServItemLine2."Response Date";
-                NewResponseTime := ServItemLine2."Response Time";
-            end;
-            repeat
-                if ServItemLine2."Response Date" < NewResponseDate then begin
+        IsHandled := false;
+        OnUpdateResponseDateTimeOnBeforeNewResponseDate(ServItemLine, IsHandled);
+        if not IsHandled then begin
+            ServItemLine2.Reset();
+            ServItemLine2.SetRange("Document Type", ServItemLine."Document Type");
+            ServItemLine2.SetRange("Document No.", ServItemLine."Document No.");
+            ServItemLine2.SetFilter("Line No.", '<>%1', ServItemLine."Line No.");
+            if ServItemLine2.Find('-') then begin
+                if Deleting then begin
                     NewResponseDate := ServItemLine2."Response Date";
-                    NewResponseTime := ServItemLine2."Response Time"
-                end else
-                    if (ServItemLine2."Response Date" = NewResponseDate) and
-                       (ServItemLine2."Response Time" < NewResponseTime)
-                    then
-                        NewResponseTime := ServItemLine2."Response Time";
-            until ServItemLine2.Next() = 0;
-        end;
+                    NewResponseTime := ServItemLine2."Response Time";
+                end;
+                repeat
+                    if ServItemLine2."Response Date" < NewResponseDate then begin
+                        NewResponseDate := ServItemLine2."Response Date";
+                        NewResponseTime := ServItemLine2."Response Time"
+                    end else
+                        if (ServItemLine2."Response Date" = NewResponseDate) and
+                        (ServItemLine2."Response Time" < NewResponseTime)
+                        then
+                            NewResponseTime := ServItemLine2."Response Time";
+                until ServItemLine2.Next() = 0;
+            end;
 
-        if (ServHeader."Response Date" <> NewResponseDate) or
-           (ServHeader."Response Time" <> NewResponseTime)
-        then begin
-            ServHeader."Response Date" := NewResponseDate;
-            ServHeader."Response Time" := NewResponseTime;
-            ServHeader.Modify();
+            if (ServHeader."Response Date" <> NewResponseDate) or (ServHeader."Response Time" <> NewResponseTime) then begin
+                ServHeader."Response Date" := NewResponseDate;
+                ServHeader."Response Time" := NewResponseTime;
+                ServHeader.Modify();
+            end;
         end;
     end;
 
@@ -756,6 +758,11 @@ codeunit 5900 ServOrderManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertServCostOnCostTypeOneOnAfterServCostGet(var ServHeader: Record "Service Header"; var ServCost: Record "Service Cost")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateResponseDateTimeOnBeforeNewResponseDate(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
 }

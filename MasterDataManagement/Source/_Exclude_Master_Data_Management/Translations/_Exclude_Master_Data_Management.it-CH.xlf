@@ -69,6 +69,12 @@
           <note from="Developer" annotates="general" priority="2">%1 and %2 area captions of tables such as Customer and CRM Account, %3 = Business Central product name</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType BothRecordsModifiedBiDirectionalConflictMsg</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 1397072557" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your license does not allow you to set up Master Data Management. To view details about your permissions, see the Effective Permissions page.</source>
+          <target state="translated">La licenza non consente di configurare la gestione dati master. Per visualizzare i dettagli sulle autorizzazioni, vedere la pagina Autorizzazioni effettive.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType NoPermissionToSetUpErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1724665409 - NamedType 1401058103" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The integration record for entity %1 was not found.</source>
           <target state="translated">Impossibile trovare il record di integrazione per l'entità %1.</target>
@@ -201,6 +207,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType SyncNowSkippedMsg</note>
         </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 3650943473" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your license does not allow you to use Master Data Management. To view details about your permissions, see the Effective Permissions page.</source>
+          <target state="translated">La licenza non consente di usare la gestione dati master. Per visualizzare i dettagli sulle autorizzazioni, vedere la pagina Autorizzazioni effettive.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType NoPermissionToUseErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 1724665409 - NamedType 371451318" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The uncoupling has been scheduled for %1 of %4 records. %2 records failed. %3 records were skipped.</source>
           <target state="translated">Annullamento dell'associazione programmato per %1 di %4 record. %2 record non riusciti. %3 record ignorati.</target>
@@ -260,6 +272,12 @@
           <target state="translated">L'associazione è stata programmata.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType CouplingScheduledMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1724665409 - NamedType 992787618" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Your license does not allow you to schedule a background task. To view details about your permissions, see the Effective Permissions page.</source>
+          <target state="translated">La licenza non consente di pianificare il task in background. Per visualizzare i dettagli sulle autorizzazioni, vedere la pagina Autorizzazioni valide.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Master Data Management - NamedType NoPermissionToScheduleJobErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2266395223 - NamedType 112073631" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The only supported direction for the data synchronization is %1.</source>

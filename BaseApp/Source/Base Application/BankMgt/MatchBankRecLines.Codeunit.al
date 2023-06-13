@@ -667,6 +667,7 @@ codeunit 1252 "Match Bank Rec. Lines"
         AdditionalText: Text;
         TotalCount: Integer;
         MatchedCount: Integer;
+        IsHandled: Boolean;
     begin
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
@@ -679,7 +680,10 @@ codeunit 1252 "Match Bank Rec. Lines"
         if MatchedCount < TotalCount then
             AdditionalText := StrSubstNo(MissingMatchMsg, Format(GetMatchLengthTreshold()));
         FinalText := StrSubstNo(MatchSummaryMsg, MatchedCount, TotalCount) + AdditionalText;
-        Message(FinalText);
+        IsHandled := false;
+        OnShowMatchSummaryOnAfterSetFinalText(BankAccReconciliation, FinalText, IsHandled);
+        if not IsHandled then
+            Message(FinalText);
     end;
 
     procedure GetDescriptionMatchScore(BankRecDescription: Text; BankEntryDescription: Text; DocumentNo: Code[20]; ExternalDocumentNo: Code[35]): Integer
@@ -742,5 +746,10 @@ codeunit 1252 "Match Bank Rec. Lines"
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowMatchSummaryOnAfterSetFinalText(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; FinalText: Text; var IsHandled: Boolean)
+    begin
+    end;
 }
 

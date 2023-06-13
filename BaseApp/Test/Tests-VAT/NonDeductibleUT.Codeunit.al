@@ -15,7 +15,9 @@ codeunit 134282 "Non-Deductible UT"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
+        Assert: Codeunit Assert;
         isInitialized: Boolean;
+        DifferentNonDedVATRatesSameVATIdentifierErr: Label 'You cannot set different Non-Deductible VAT % for the combinations of business and product groups with the same VAT identifier.\The following combination with the same VAT identifier has different Non-Deductible VAT %: business group %1, product group %2', Comment = '%1, %2 - codes';
 
     [Test]
     procedure NonDeductibleAmountsInPurchLineEndToEnd()
@@ -103,6 +105,49 @@ codeunit 134282 "Non-Deductible UT"
             PurchLine, NonDeductibleVATPct,
             Round(PurchLine.Amount * NonDeductibleVATPct / 100),
             Round((PurchLine."Amount Including VAT" - PurchLine.Amount) * NonDeductibleVATPct / 100));
+    end;
+
+    [Test]
+    procedure SetDiffNonDedVATPercentInVATPostingSetupWithDiffVATIdentifiers()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        NonDedVATPercent: Decimal;
+    begin
+        // [SCENARIO 474024] Stan can create VAT Posting Setup with the different Non-Deductible VAT percents and different VAT identifiers
+
+        Initialize();
+        // [GIVEN] VAT Posting Setup "V1" with "VAT Identifier" = "X", "Allow Non-Deductible VAT" is enabled and "Non-Deductible VAT %" = 10
+        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
+        NonDedVATPercent := VATPostingSetup."Non-Deductible VAT %";
+        // [GIVEN] VAT Posting Setup "V2" with "VAT Identifier" = "Y", "Allow Non-Deductible VAT" is enabled and "Non-Deductible VAT %" = 10
+        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
+        // [WHEN] Set "Non-Deductible VAT %" = 11 in "V2"
+        NonDedVATPercent += 1;
+        VATPostingSetup.Validate("Non-Deductible VAT %", NonDedVATPercent);
+        VATPostingSetup.Modify(true);
+        // [THEN] The changes are saved in V2 without error
+        VATPostingSetup.Find();
+        VATPostingSetup.TestField("Non-Deductible VAT %", NonDedVATPercent);
+    end;
+
+    [Test]
+    procedure CannotSetDiffNonDedVATPercentInVATPostingSetupWithSameVATIdentifiers()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetupCopy: Record "VAT Posting Setup";
+    begin
+        // [SCENARIO 474024] Stan cannot create VAT Posting Setup with the different Non-Deductible VAT percenst and same VAT identifiers
+
+        Initialize();
+        // [GIVEN] VAT Posting Setup "V1" with "VAT Identifier" = "X", "Allow Non-Deductible VAT" is enabled and "Non-Deductible VAT %" = 10
+        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
+        VATPostingSetupCopy := VATPostingSetup;
+        // [GIVEN] VAT Posting Setup "V2" with "VAT Identifier" = "Y", "Allow Non-Deductible VAT" is enabled and "Non-Deductible VAT %" = 20
+        LibraryNonDeductibleVAT.CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
+        // [GIVEN] Set "VAT Identifier" = "X" to "V1"
+        asserterror VATPostingSetup.Validate("VAT Identifier", VATPostingSetupCopy."VAT Identifier");
+        // [THEN] An error message thrown that it is not possible and the same setup exists for "V1"
+        Assert.ExpectedError(StrSubstNo(DifferentNonDedVATRatesSameVATIdentifierErr, VATPostingSetupCopy."VAT Bus. Posting Group", VATPostingSetupCopy."VAT Prod. Posting Group"));
     end;
 
     local procedure Initialize()

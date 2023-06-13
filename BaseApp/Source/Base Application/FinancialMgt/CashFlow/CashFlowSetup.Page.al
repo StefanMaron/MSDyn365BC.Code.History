@@ -119,6 +119,13 @@ page 846 "Cash Flow Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of period that you want to see the forecast by.';
+                    trigger OnValidate();
+                    var
+                        CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                    begin
+                        if not xRec."Azure AI Enabled" and Rec."Azure AI Enabled" then
+                            Rec."Azure AI Enabled" := CustomerConsentMgt.ConfirmUserConsentToMicrosoftService();
+                    end;
                 }
                 field("Historical Periods"; Rec."Historical Periods")
                 {

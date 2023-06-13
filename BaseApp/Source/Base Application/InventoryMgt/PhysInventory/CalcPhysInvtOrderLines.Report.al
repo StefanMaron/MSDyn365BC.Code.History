@@ -24,6 +24,7 @@ report 5880 "Calc. Phys. Invt. Order Lines"
 
             trigger OnPostDataItem()
             begin
+                OnAfterCreatePhysInvtOrderLines(PhysInvtOrderHeader, Item, ItemsBlocked, LineCount, NextLineNo);
                 if not HideValidationDialog then begin
                     Window.Close();
                     if ItemsBlocked then
@@ -329,6 +330,11 @@ report 5880 "Calc. Phys. Invt. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetWhseEntryFilters(var WhseEntry: Record "Warehouse Entry"; ItemLedgEntry: Record "Item Ledger Entry"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreatePhysInvtOrderLines(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Item: Record Item; var ItemBlocked: Boolean; var LineCount: Integer; var NextLineNo: Integer)
     begin
     end;
 }

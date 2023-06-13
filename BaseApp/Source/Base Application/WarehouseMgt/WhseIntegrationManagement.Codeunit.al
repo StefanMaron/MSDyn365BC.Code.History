@@ -24,6 +24,11 @@ codeunit 7317 "Whse. Integration Management"
         ServiceLine: Record "Service Line";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnStartCheckBinTypeCode(SourceTable, BinCodeFieldCaption, LocationCode, BinCode, AdditionalIdentifier, IsHandled);
+        if IsHandled then
+            exit;
+
         Location.Get(LocationCode);
         Location.TestField("Bin Mandatory");
 
@@ -228,6 +233,11 @@ codeunit 7317 "Whse. Integration Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBinTypeCode(Location: Record Location; Bin: Record Bin; BinType: Record "Bin Type"; SourceTable: Integer; BinCodeFieldCaption: Text[30]; AdditionalIdentifier: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartCheckBinTypeCode(SourceTable: Integer; BinCodeFieldCaption: Text[30]; LocationCode: Code[10]; BinCode: Code[20]; AdditionalIdentifier: Option; var IsHandled: Boolean);
     begin
     end;
 }

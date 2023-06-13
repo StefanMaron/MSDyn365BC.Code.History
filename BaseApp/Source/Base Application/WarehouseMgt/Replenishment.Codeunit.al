@@ -23,7 +23,13 @@ codeunit 7308 Replenishment
     procedure ReplenishBin(ToBinContent: Record "Bin Content"; AllowBreakBulk: Boolean)
     var
         ExcludedQtyBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReplenishBin(ToBinContent, IsHandled, RemainQtyToReplenishBase, AllowBreakBulk);
+        if IsHandled then
+            exit;
+
         with ToBinContent do begin
             if not Fixed then
                 FieldError(Fixed, StrSubstNo(Text000, FieldCaption(Fixed)));
@@ -350,6 +356,11 @@ codeunit 7308 Replenishment
 
     [IntegrationEvent(false, false)]
     local procedure OnReplenishBinOnAfterAssignExcludedQtyBase(ToBinContent: Record "Bin Content"; var ExcludedQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeReplenishBin(ToBinContent: Record "Bin Content"; var IsHandled: Boolean; RemainQtyToReplenishBase: Decimal; AllowBreakBulk: Boolean)
     begin
     end;
 }

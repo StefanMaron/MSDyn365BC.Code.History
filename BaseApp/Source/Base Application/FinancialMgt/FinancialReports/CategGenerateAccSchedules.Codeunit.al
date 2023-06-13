@@ -311,6 +311,8 @@ codeunit 571 "Categ. Generate Acc. Schedules"
     local procedure AddAccSchedLinesDetail(var AccScheduleLine: Record "Acc. Schedule Line"; var RowNo: Integer; ParentGLAccountCategory: Record "G/L Account Category"; Indentation: Integer)
     var
         GLAccountCategory: Record "G/L Account Category";
+        GLAccount: Record "G/L Account";
+        AccScheduleTotType: Enum "Acc. Schedule Line Totaling Type";
         FromRowNo: Integer;
         TotalingFilter: Text;
     begin
@@ -345,8 +347,16 @@ codeunit 571 "Categ. Generate Acc. Schedules"
                 TotalingFilter += GetIncomeStmtAccFilter();
             end;
 
+            AccScheduleTotType := AccScheduleLine."Totaling Type"::"Posting Accounts";
+            if (StrPos(TotalingFilter, '..') = 0) and (StrPos(TotalingFilter, '|') = 0) then begin
+                GLAccount.SetRange("No.", TotalingFilter);
+                GLAccount.SetRange("Account Type", GLAccount."Account Type"::Total);
+                if not GLAccount.IsEmpty() then
+                    AccScheduleTotType := AccScheduleLine."Totaling Type"::"Total Accounts";
+            end;
+
             AddAccShedLine(
-              AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::"Posting Accounts",
+              AccScheduleLine, RowNo, AccScheduleTotType,
               ParentGLAccountCategory.Description, CopyStr(TotalingFilter, 1, 250),
               Indentation = 0, false, not ParentGLAccountCategory.PositiveNormalBalance(), Indentation);
             OnAfterAddAccSchedLine(AccScheduleLine, ParentGLAccountCategory, RowNo);

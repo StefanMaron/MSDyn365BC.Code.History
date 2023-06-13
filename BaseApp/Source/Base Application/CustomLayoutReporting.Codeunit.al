@@ -1376,6 +1376,7 @@ codeunit 8800 "Custom Layout Reporting"
             exit(PredefinedRequestParameters);
 
         SavedParameters := GetReportRequestPageParameters(ReportId);
+        OnRunRequestPageOnBeforeReportRunRequestPage(ReportId, SavedParameters);
         exit(REPORT.RunRequestPage(ReportId, SavedParameters));
     end;
 
@@ -1713,6 +1714,11 @@ codeunit 8800 "Custom Layout Reporting"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSendToEmailIDFromSource(var CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunRequestPageOnBeforeReportRunRequestPage(ReportId: Integer; var SavedParameters: Text)
     begin
     end;
 }

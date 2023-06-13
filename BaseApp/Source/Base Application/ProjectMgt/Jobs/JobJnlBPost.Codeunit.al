@@ -15,7 +15,7 @@ codeunit 1023 "Job Jnl.-B.Post"
         JobJnlLine: Record "Job Journal Line";
         JobJnlPostbatch: Codeunit "Job Jnl.-Post Batch";
         JnlWithErrors: Boolean;
-
+        IsHandled: Boolean;
         Text000: Label 'Do you want to post the journals?';
         Text001: Label 'The journals were successfully posted.';
         Text002: Label 'It was not possible to post all of the journals. ';
@@ -27,8 +27,11 @@ codeunit 1023 "Job Jnl.-B.Post"
             JobJnlTemplate.Get("Journal Template Name");
             JobJnlTemplate.TestField("Force Posting Report", false);
 
-            if not Confirm(Text000) then
-                exit;
+            IsHandled := false;
+            OnCodeOnBeforeConfirm(IsHandled, JobJnlBatch, JobJnlTemplate);
+            if not IsHandled then
+                if not Confirm(Text000) then
+                    exit;
 
             Find('-');
             repeat
@@ -64,6 +67,11 @@ codeunit 1023 "Job Jnl.-B.Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeJobJnlPostBatchRun(var JobJournalLine: Record "Job Journal Line"; var JobJournalBatch: Record "Job Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeConfirm(var IsHandled: Boolean; JobJournalBatch: Record "Job Journal Batch"; JobJournalTemplate: Record "Job Journal Template")
     begin
     end;
 }

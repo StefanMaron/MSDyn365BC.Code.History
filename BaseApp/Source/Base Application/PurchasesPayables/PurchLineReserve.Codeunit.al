@@ -95,6 +95,8 @@ codeunit 99000834 "Purch. Line-Reserve"
           PurchLine."Document Type"::"Credit Memo":
                 QtyToReserve := PurchLine."Outstanding Qty. (Base)";
         end;
+
+        OnAfterReservQuantity(PurchLine, QtyToReserve);
     end;
 
     procedure Caption(PurchLine: Record "Purchase Line") CaptionText: Text
@@ -121,6 +123,11 @@ codeunit 99000834 "Purch. Line-Reserve"
         HasError: Boolean;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyChange(NewPurchLine, OldPurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if (NewPurchLine.Type <> NewPurchLine.Type::Item) and (OldPurchLine.Type <> OldPurchLine.Type::Item) then
             exit;
         if Blocked then
@@ -218,7 +225,7 @@ codeunit 99000834 "Purch. Line-Reserve"
             exit;
 
         IsHandled := false;
-        OnBeforeVerifyQuantity(NewPurchLine, IsHandled);
+        OnBeforeVerifyQuantity(NewPurchLine, IsHandled, OldPurchLine);
         if IsHandled then
             exit;
 
@@ -859,7 +866,7 @@ codeunit 99000834 "Purch. Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeVerifyQuantity(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnBeforeVerifyQuantity(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; OldPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -925,6 +932,16 @@ codeunit 99000834 "Purch. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCallItemTracking(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReservQuantity(PurchaseLine: Record "Purchase Line"; var QtyToReserve: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyChange(var NewPurchaseLine: Record "Purchase Line"; var OldPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -222,6 +222,8 @@ page 7021 "Suggest Price Lines"
         Result += GetDefaults(TempDefaultsPriceListHeader.FieldCaption("Currency Code"), TempDefaultsPriceListHeader."Currency Code", false);
         Result += GetDefaults(TempDefaultsPriceListHeader.FieldCaption("Starting Date"), format(TempDefaultsPriceListHeader."Starting Date"), false);
         Result += GetDefaults(TempDefaultsPriceListHeader.FieldCaption("Ending Date"), format(TempDefaultsPriceListHeader."Ending Date"), false);
+
+        OnAfterGetDefaults(Result, TempDefaultsPriceListHeader);
     end;
 
     local procedure GetDefaults(FldName: Text; FldValue: Text; ShowBlank: Boolean): Text;
@@ -269,5 +271,10 @@ page 7021 "Suggest Price Lines"
             Defaults := GetDefaults();
             CurrPage.Update(true);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDefaults(var Result: Text; TempDefaultsPriceListHeader: Record "Price List Header")
+    begin
     end;
 }

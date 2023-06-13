@@ -190,7 +190,13 @@ codeunit 1005 "Job Calculate Batches"
     var
         Job: Record Job;
         JT: Record "Job Task";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateJT(IsHandled, JobPlanningLine);
+        if IsHandled then
+            exit;
+
         with JobPlanningLine do begin
             if Type = Type::Text then
                 exit;
@@ -251,6 +257,7 @@ codeunit 1005 "Job Calculate Batches"
                 JobLedgEntry.SetRange("Variant Code", JobDiffBuffer[1]."Variant Code");
                 JobLedgEntry.SetRange("Unit of Measure Code", JobDiffBuffer[1]."Unit of Measure code");
                 JobLedgEntry.SetRange("Work Type Code", JobDiffBuffer[1]."Work Type Code");
+                OnPostDiffBufferOnAfterSetFilters(JobLedgEntry, JobDiffBuffer[1]);
                 if JobLedgEntry.Find('-') then
                     repeat
                         JobDiffBuffer[1].Quantity := JobDiffBuffer[1].Quantity - JobLedgEntry.Quantity;
@@ -375,6 +382,8 @@ codeunit 1005 "Job Calculate Batches"
 
     local procedure InsertDiffBuffer(var JobLedgEntry: Record "Job Ledger Entry"; var JobPlanningLine: Record "Job Planning Line"; LineType: Option Schedule,Usage; CurrencyType: Option LCY,FCY)
     begin
+        OnBeforeInsertDiffBuffer(JobLedgEntry, JobPlanningLine, JobDiffBuffer, LineType, CurrencyType);
+
         if LineType = LineType::Schedule then
             with JobPlanningLine do begin
                 if Type = Type::Text then
@@ -436,6 +445,8 @@ codeunit 1005 "Job Calculate Batches"
                 end else
                     JobDiffBuffer[1].Insert();
             end;
+
+        OnAfterInsertDiffBuffer(JobLedgEntry, JobPlanningLine, JobDiffBuffer, LineType, CurrencyType);
     end;
 
     procedure GetCurrencyCode(var Job: Record Job; Type: Option "0","1","2","3"; CurrencyType: Option "Local Currency","Foreign Currency"): Text[50]
@@ -491,6 +502,26 @@ codeunit 1005 "Job Calculate Batches"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostDiffBufferOnBeforeModify(var JobLedgEntry: Record "Job Ledger Entry"; var JobDiffBuffer: Record "Job Difference Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDiffBufferOnAfterSetFilters(var JobLedgerEntry: Record "Job Ledger Entry"; var JobDifferenceBuffer: Record "Job Difference Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateJT(var IsHanlded: Boolean; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertDiffBuffer(var JobLedgerEntry: Record "Job Ledger Entry"; var JobPlanningLine: Record "Job Planning Line"; var JobDiffBuffer: array[2] of Record "Job Difference Buffer" temporary; LineType: Option Schedule,Usage; CurrencyType: Option LCY,FCY)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertDiffBuffer(var JobLedgerEntry: Record "Job Ledger Entry"; var JobPlanningLine: Record "Job Planning Line"; var JobDiffBuffer: array[2] of Record "Job Difference Buffer" temporary; LineType: Option Schedule,Usage; CurrencyType: Option LCY,FCY)
     begin
     end;
 }
