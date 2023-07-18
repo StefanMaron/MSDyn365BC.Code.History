@@ -50,6 +50,12 @@ page 7383 "Invt. Movement Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description of the item on the line.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;

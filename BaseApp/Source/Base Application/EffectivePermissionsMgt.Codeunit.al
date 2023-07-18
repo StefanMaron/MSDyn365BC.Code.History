@@ -8,6 +8,7 @@ codeunit 9852 "Effective Permissions Mgt."
     var
         UserAccountHelper: DotNet NavUserAccountHelper;
         DialogFormatMsg: Label 'Reading objects...@1@@@@@@@@@@@@@@@@@@';
+        CannotViewEffectivePermissionsForOtherUserErr: Label 'Only users with the SUPER or the SECURITY permission set can view effective permissions for other users.';
         ChangeAffectsOthersMsg: Label 'Your change in permission set %1 will affect other users that the permission set is assigned to.', Comment = '%1 = permission set ID that was changed';
         ChangeAffectsOthersNameTxt: Label 'Changing permission sets for other users';
         ChangeAffectsOthersDescTxt: Label 'Show a warning when changing a permission set that is assigned to other users.';
@@ -26,6 +27,15 @@ codeunit 9852 "Effective Permissions Mgt."
     begin
         EffectivePermissions.SetUserSID(UserSID);
         EffectivePermissions.Run();
+    end;
+
+    procedure DisallowViewingEffectivePermissionsForNonAdminUsers(OtherUserSecurityId: Guid)
+    var
+        UserPermissions: Codeunit "User Permissions";
+    begin
+        if not UserPermissions.CanManageUsersOnTenant(UserSecurityId()) then
+            if OtherUserSecurityId <> UserSecurityId() then
+                Error(CannotViewEffectivePermissionsForOtherUserErr);
     end;
 
     local procedure GetPlanId(PlanOrRole: Enum Licenses): guid
@@ -266,15 +276,13 @@ codeunit 9852 "Effective Permissions Mgt."
     procedure PopulatePermissionBuffer(var PermissionBuffer: Record "Permission Buffer"; PassedUserID: Guid; PassedCompanyName: Text[50]; PassedObjectType: Integer; PassedObjectId: Integer)
     var
         AccessControl: Record "Access Control";
+        EffectivePermission: Record Permission;
         ExpandedPermission: Record "Expanded Permission";
         PermissionSetBuffer: Record "Permission Set Buffer";
         EnvironmentInfo: Codeunit "Environment Information";
         PermissionCommaStr: Text;
-        Read: Integer;
-        Insert: Integer;
-        Modify: Integer;
-        Delete: Integer;
-        Execute: Integer;
+        Read, Insert, Modify, Delete, Execute : Integer;
+        AssignedRead, AssignedInsert, AssignedModify, AssignedDelete, AssignedExecute : Integer;
     begin
         PermissionBuffer.Reset();
         PermissionBuffer.DeleteAll();
@@ -290,24 +298,33 @@ codeunit 9852 "Effective Permissions Mgt."
                 // do not show permission sets for hidden extensions
                 if StrPos(UpperCase(AccessControl."App Name"), UpperCase('_Exclude_')) <> 1 then begin
                     PermissionBuffer.Init();
-                    PermissionBuffer.Source := PermissionBuffer.Source::Normal;
                     PermissionBuffer."Permission Set" := AccessControl."Role ID";
                     PermissionBuffer.Type := PermissionSetBuffer.GetType(AccessControl.Scope, AccessControl."App ID");
+
+                    if AccessControl."User Security ID" = PassedUserID then
+                        PermissionBuffer.Source := PermissionBuffer.Source::Normal
+                    else
+                        PermissionBuffer.Source := PermissionBuffer.Source::"Security Group";
 
                     if AccessControl.Scope = AccessControl.Scope::System then
                         ExpandedPermission.SetRange(Scope, ExpandedPermission.Scope::System)
                     else
                         ExpandedPermission.SetRange(Scope, ExpandedPermission.Scope::Tenant);
 
-
                     ExpandedPermission.SetRange("App ID", AccessControl."App ID");
                     ExpandedPermission.SetRange("Role ID", AccessControl."Role ID");
                     if ExpandedPermission.FindFirst() then begin
                         FillPermissionBufferFromExpandedPermission(PermissionBuffer, ExpandedPermission);
+                        SetHighestAssignedPermission(PermissionBuffer, AssignedRead, AssignedInsert, AssignedModify, AssignedDelete, AssignedExecute);
+                        PermissionBuffer.Order := PermissionBuffer.Source;
                         if PermissionBuffer.Insert() then; // avoid errors in case the user was assigned same role both a specific company and globally
                     end;
                 end;
             until AccessControl.Next() = 0;
+
+        // find inherent permissions
+        PopulatePermissionRecordWithEffectivePermissionsForObject(EffectivePermission, PassedUserID, PassedCompanyName, PassedObjectType, PassedObjectId);
+        PopulatePermissionBufferWithInherentPermission(AssignedRead, AssignedInsert, AssignedModify, AssignedDelete, AssignedExecute, EffectivePermission, PermissionBuffer);
 
         // find entitlement permission
         if not EnvironmentInfo.IsSaaS() then
@@ -323,7 +340,69 @@ codeunit 9852 "Effective Permissions Mgt."
         PermissionBuffer."Modify Permission" := Modify;
         PermissionBuffer."Delete Permission" := Delete;
         PermissionBuffer."Execute Permission" := Execute;
+        PermissionBuffer.Order := 10000; // order entitlement last
         PermissionBuffer.Insert();
+    end;
+
+    local procedure PopulatePermissionBufferWithInherentPermission(AssignedRead: Integer; AssignedInsert: Integer; AssignedModify: Integer; AssignedDelete: Integer; AssignedExecute: Integer; var EffectivePermission: Record Permission; var PermissionBuffer: Record "Permission Buffer")
+    begin
+        if (EffectivePermission."Read Permission" > AssignedRead) or
+           (EffectivePermission."Insert Permission" > AssignedInsert) or
+           (EffectivePermission."Modify Permission" > AssignedModify) or
+           (EffectivePermission."Delete Permission" > AssignedDelete) or
+           (EffectivePermission."Execute Permission" > AssignedExecute)
+            then begin
+            PermissionBuffer.Init();
+            PermissionBuffer.Source := PermissionBuffer.Source::Inherent;
+            PermissionBuffer."Permission Set" := '';
+            PermissionBuffer.Type := PermissionBuffer.Type::System;
+            PermissionBuffer.Order := PermissionBuffer.Source;
+
+            if EffectivePermission."Read Permission" > AssignedRead then
+                PermissionBuffer."Read Permission" := EffectivePermission."Read Permission"
+            else
+                PermissionBuffer."Read Permission" := EffectivePermission."Read Permission"::" ";
+
+            if EffectivePermission."Insert Permission" > AssignedInsert then
+                PermissionBuffer."Insert Permission" := EffectivePermission."Insert Permission"
+            else
+                PermissionBuffer."Insert Permission" := EffectivePermission."Insert Permission"::" ";
+
+            if EffectivePermission."Modify Permission" > AssignedModify then
+                PermissionBuffer."Modify Permission" := EffectivePermission."Modify Permission"
+            else
+                PermissionBuffer."Modify Permission" := EffectivePermission."Modify Permission"::" ";
+
+            if EffectivePermission."Delete Permission" > AssignedDelete then
+                PermissionBuffer."Delete Permission" := EffectivePermission."Delete Permission"
+            else
+                PermissionBuffer."Delete Permission" := EffectivePermission."Delete Permission"::" ";
+
+            if EffectivePermission."Execute Permission" > AssignedExecute then
+                PermissionBuffer."Execute Permission" := EffectivePermission."Execute Permission"
+            else
+                PermissionBuffer."Execute Permission" := EffectivePermission."Execute Permission"::" ";
+
+            PermissionBuffer.Insert();
+        end;
+    end;
+
+    local procedure SetHighestAssignedPermission(PermissionBuffer: Record "Permission Buffer"; var AssignedRead: Integer; var AssignedInsert: Integer; var AssignedModify: Integer; var AssignedDelete: Integer; var AssignedExecute: Integer)
+    begin
+        if PermissionBuffer."Read Permission" > AssignedRead then
+            AssignedRead := PermissionBuffer."Read Permission";
+
+        if PermissionBuffer."Insert Permission" > AssignedInsert then
+            AssignedInsert := PermissionBuffer."Insert Permission";
+
+        if PermissionBuffer."Modify Permission" > AssignedModify then
+            AssignedModify := PermissionBuffer."Modify Permission";
+
+        if PermissionBuffer."Delete Permission" > AssignedDelete then
+            AssignedDelete := PermissionBuffer."Delete Permission";
+
+        if PermissionBuffer."Execute Permission" > AssignedExecute then
+            AssignedExecute := PermissionBuffer."Execute Permission";
     end;
 
     local procedure GetAccessControlFilterForUser(UserSecId: Guid): Text
@@ -424,6 +503,7 @@ codeunit 9852 "Effective Permissions Mgt."
         PermissionBuffer."Modify Permission" := ExpandedPermission."Modify Permission";
         PermissionBuffer."Delete Permission" := ExpandedPermission."Delete Permission";
         PermissionBuffer."Execute Permission" := ExpandedPermission."Execute Permission";
+        PermissionBuffer."Security Filter" := ExpandedPermission."Security Filter";
     end;
 
     local procedure MarkAllObjFromPermissionSet(var AllObj: Record AllObj; PermissionSetID: Code[20]; AppID: Guid; ObjScope: Option)

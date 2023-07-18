@@ -1323,6 +1323,41 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Assert.RecordIsEmpty(ReminderLine);
     end;
 
+    [Test]
+    [HandlerFunctions('BatchCancelIssuedRemindersRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CancelIssuedReminderMultipleTimesWithInterestAmount()
+    var
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        ReminderTerms: Record "Reminder Terms";
+        Customer: Record Customer;
+        CancelDocumentCount: Integer;
+        DocumentDate: Date;
+    begin
+        // [SCENARIO 474463] Verify and cancel the issued reminder multiple times with the interest amount.
+        Initialize();
+
+        // [GIVEN] Create Reminder Terms and Reminder Level With Calculate Interest.
+        CreateReminderTermsAndLevelWithCalculateInterest(ReminderTerms, true);
+
+        // [GIVEN] Create a customer with finance charge terms, reminder terms and an interest rate.
+        CreateCustomerWithFinanceChargeTermsAndInterestRate(Customer, ReminderTerms.Code);
+
+        // [GIVEN] Post the sales invoice and save a document date.
+        DocumentDate := CreateAndPostSalesInvoice(Customer."No.") + LibraryRandom.RandInt(1000);
+
+        // [GIVEN] Generate and save the cancelled document count.
+        CancelDocumentCount := LibraryRandom.RandIntInRange(2, 10);
+
+        // [WHEN] Create and cancel the issued reminder with interest amount.
+        CreateAndCancelIssuedReminder(Customer."No.", DocumentDate, CancelDocumentCount);
+
+        // [VERIFY] Verify that cancelled issued reminder multiple times with the interest amount.
+        IssuedReminderHeader.SetRange("Customer No.", Customer."No.");
+        IssuedReminderHeader.SetRange(Canceled, true);
+        Assert.RecordCount(IssuedReminderHeader, CancelDocumentCount);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2204,6 +2239,45 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
             FinanceChargeMemoLine.TestField("Document No.", IssuedFinChargeMemoLine."Document No.");
             FinanceChargeMemoLine.Next();
         until IssuedFinChargeMemoLine.Next() = 0;
+    end;
+
+    local procedure CreateReminderTermsAndLevelWithCalculateInterest(var ReminderTerms: Record "Reminder Terms"; CalculateInterest: Boolean)
+    var
+        ReminderLevel: Record "Reminder Level";
+    begin
+        LibraryERM.CreateReminderTerms(ReminderTerms);
+
+        LibraryERM.CreateReminderLevel(ReminderLevel, ReminderTerms.Code);
+        ReminderLevel.Validate("Calculate Interest", CalculateInterest);
+        ReminderLevel.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithFinanceChargeTermsAndInterestRate(var Customer: Record Customer; ReminderTermsCode: Code[20])
+    var
+        FinanceChargeInterestRate: Record "Finance Charge Interest Rate";
+        FinanceChargeTerms: Record "Finance Charge Terms";
+    begin
+        LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
+
+        FinanceChargeInterestRate.Init();
+        FinanceChargeInterestRate.Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
+        FinanceChargeInterestRate.Validate("Start Date", WorkDate() - LibraryRandom.RandInt(1000));
+        FinanceChargeInterestRate.Validate("Interest Rate", LibraryRandom.RandInt(10));
+        FinanceChargeInterestRate.Validate("Interest Period (Days)", LibraryRandom.RandInt(100));
+        FinanceChargeInterestRate.Insert();
+
+        CreateCustomer(Customer, FinanceChargeTerms.Code, '', ReminderTermsCode);
+    end;
+
+    local procedure CreateAndCancelIssuedReminder(CustomerNo: Code[20]; DocumentDate: Date; CancelDocumentCount: Integer)
+    var
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        i: Integer;
+    begin
+        for i := 1 to CancelDocumentCount do begin
+            IssuedReminderHeader.Get(IssueReminder(CreateReminder(CustomerNo, DocumentDate), WorkDate()));
+            RunCancelIssuedReminder(IssuedReminderHeader);
+        end;
     end;
 
     [RequestPageHandler]

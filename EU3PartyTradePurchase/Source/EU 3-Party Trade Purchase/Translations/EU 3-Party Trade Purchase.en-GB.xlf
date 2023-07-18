@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="en-GB" original="EU 3-Party Trade Purchase">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 533784770 - NamedType 1427565258" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Records in the %1, %2, %3 and %4 tables will be updated. Please review affected data as the data update can take longer in case of large amount of records. </source>
+          <target state="translated">Records in the %1, %2, %3 and %4 tables will be updated. Please review affected data as the data update can take longer in case of large amount of records. </target>
+          <note from="Developer" annotates="general" priority="2">%1, %2, %3, %4 - table captions</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit EU3 Feature Data Update - NamedType DescriptionTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1361837681 - Method 3027138208 - NamedType 2536919358" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 on %2 %3 is %4.\Do you wish to change %5 on %6 %7 from %8 to %9?</source>
+          <target state="translated">%1 on %2 %3 is %4.\Do you wish to change %5 on %6 %7 from %8 to %9?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = EU 3-Party Trade field caption, %2 = Sales Header table name, %3 = EU 3-Party Trade field value, %4 = Field Caption of EU 3 Party Trade in Purchase Header, %5 = Table caption, %6 = Purchase Header number, %7 = Field value, %8 = Field value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit EU3 Purch.-Get Drop Shpt Sbscr - Method OnCodeOnBeforeModify - NamedType ConfirmSameEU3PartyTradeMsg</note>
+        </trans-unit>
+        <trans-unit id="Enum 1085350149 - EnumValue 3567015579 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>non-EU3</source>
+          <target state="translated">non-EU3</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum EU3 Party Trade Filter - EnumValue non-EU3 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1085350149 - EnumValue 3703598467 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All</source>
+          <target state="translated">All</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum EU3 Party Trade Filter - EnumValue All - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 1085350149 - EnumValue 556188445 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>EU3</source>
+          <target state="translated">EU3</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum EU3 Party Trade Filter - EnumValue EU3 - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1841401869 - Control 4064467861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</source>
+          <target state="translated">Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3321822267</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1983597881 - Control 4064467861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</source>
+          <target state="translated">Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 387971303</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2130568868 - Control 4064467861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</source>
+          <target state="translated">Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2437096118</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 230048855 - Control 4064467861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</source>
+          <target state="translated">Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3848276462</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 259538527 - Control 4064467861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</source>
+          <target state="translated">Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1555938241</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2649311880 - Control 4064467861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</source>
+          <target state="translated">Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4042331808</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2776026299 - Control 4064467861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</source>
+          <target state="translated">Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 4048657685</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 2872593656 - Control 4064467861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</source>
+          <target state="translated">Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2965669802</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3076689569 - Control 2850481918 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether EU 3 Trade Party Purchase functionality is enabled.</source>
+          <target state="translated">Specifies whether EU 3 Trade Party Purchase functionality is enabled.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1985924896</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 379051879 - Control 4064467861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</source>
+          <target state="translated">Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2854365759</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 4097181623 - Control 4064467861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</source>
+          <target state="translated">Specifies whether or not totals for transactions involving EU 3-party trades are displayed in the VAT Statement.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 1770625610</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 1072025877 - Field 4064467861 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>EU 3-Party Trade Filter</source>
+          <target state="translated">EU 3-Party Trade Filter</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 1273487196</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 1275555072 - Field 4064467861 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>EU 3-Party Trade</source>
+          <target state="translated">EU 3-Party Trade</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2271228953</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2542742843 - Field 4064467861 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>EU 3-Party Trade</source>
+          <target state="translated">EU 3-Party Trade</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 1592379974</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3076689569 - Field 205377230 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Enable EU 3-Party Purchase</source>
+          <target state="translated">Enable EU 3-Party Purchase</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 1985924896</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 573854281 - Field 4064467861 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>EU 3-Party Trade</source>
+          <target state="translated">EU 3-Party Trade</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2072992664</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

@@ -2502,6 +2502,78 @@ codeunit 137400 "SCM Inventory - Orders"
         Assert.ExpectedError(QtyToInvoiceMustHaveValueErr);
     end;
 
+#if not CLEAN21
+    [Test]
+    [HandlerFunctions('GetLastUnitPriceHandler')]
+    [Scope('OnPrem')]
+    procedure VerifySelectedUnitPriceFromGetPriceIsUpdatedInSalesOrderLine()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        SalesPrice: Record "Sales Price";
+        NewSalesPrice: Record "Sales Price";
+        SalesHeader: Record "Sales Header";
+        UpdatedUnitPrice: Decimal;
+    begin
+        // [SCENARIO 470284] Verify Selected Unit Price From Get Price is Updated in Sales Order Line 
+        // When the Lines Subform is sorted on Unit Price Excl. Tax
+        Initialize(false);
+
+        // [GIVEN] Create a new Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create an Item with a Unit Price and a Unit Cost.
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandInt(200), LibraryRandom.RandInt(200));
+
+        // [GIVEN] Create a Sales Price for an item.
+        LibrarySales.CreateSalesPrice(
+            SalesPrice,
+            Item."No.",
+            SalesPrice."Sales Type"::Customer,
+            Customer."No.",
+            0D,
+            '',
+            '',
+            Item."Base Unit of Measure",
+            LibraryRandom.RandInt(0),
+            LibraryRandom.RandIntInRange(300, 400));
+
+        // [GIVEN] Create a new Sales Price for an item.
+        LibrarySales.CreateSalesPrice(
+            NewSalesPrice,
+            Item."No.",
+            NewSalesPrice."Sales Type"::Customer,
+            Customer."No.",
+            0D,
+            '',
+            '',
+            Item."Base Unit of Measure",
+            LibraryRandom.RandIntInRange(2, 3),
+            LibraryRandom.RandIntInRange(400, 500));
+
+        // [GIVEN] Create a Sales Order for the new Customer.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create a sales line for each item.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(4, 10));
+
+        // [WHEN] Update the new sales price of the item.
+        LibraryVariableStorage.Enqueue(NewSalesPrice."Minimum Quantity");
+        UpdatedUnitPrice := SortUnitPriceInSalesOrderLineAndGetUpdatedUnitPrice(SalesHeader);
+
+        // [VERIFY] Verify Selected Unit Price from Get Price is Updated in Sales Order Line.
+        Assert.AreEqual(
+            NewSalesPrice."Unit Price",
+            UpdatedUnitPrice,
+            StrSubstNo(
+                CostError,
+                SalesLine.FieldCaption("Unit Price"),
+                NewSalesPrice."Unit Price",
+                SalesLine.TableCaption()));
+    end;
+#endif
+
     local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3686,6 +3758,21 @@ codeunit 137400 "SCM Inventory - Orders"
         end;
     end;
 
+#if not CLEAN21
+    local procedure SortUnitPriceInSalesOrderLineAndGetUpdatedUnitPrice(SalesHeader: Record "Sales Header"): Decimal
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesOrder.SalesLines.Filter.SetCurrentKey("Unit Price");
+        SalesOrder.SalesLines.Filter.Ascending(true);
+        SalesOrder.SalesLines.GetPrice.Invoke();
+
+        exit(SalesOrder.SalesLines."Unit Price".AsDecimal());
+    end;
+#endif
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BatchPostSalesReturnOrderHandler(var BatchPostSalesReturnOrders: TestRequestPage "Batch Post Sales Return Orders")
@@ -3867,5 +3954,16 @@ codeunit 137400 "SCM Inventory - Orders"
         SelectItemTemplList.First();
         SelectItemTemplList.OK().Invoke();
     end;
+
+#if not CLEAN21
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetLastUnitPriceHandler(var GetSalesPrice: TestPage "Get Sales Price")
+    begin
+        GetSalesPrice.Last();
+        GetSalesPrice.OK().Invoke();
+    end;
+#endif
+
 }
 

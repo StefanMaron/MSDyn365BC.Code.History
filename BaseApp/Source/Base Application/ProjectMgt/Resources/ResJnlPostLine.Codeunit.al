@@ -42,6 +42,7 @@ codeunit 212 "Res. Jnl.-Post Line"
                     exit;
 
                 ResJnlCheckLine.RunCheck(ResJournalLineGlobal);
+                OnCodeOnAfterRunCheck(ResJournalLineGlobal);
 
                 if NextEntryNo = 0 then begin
                     ResLedgerEntry.LockTable();
@@ -204,6 +205,11 @@ codeunit 212 "Res. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResourceRegisterModify(var ResJournalLine: Record "Res. Journal Line"; var ResourceRegister: Record "Resource Register")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCodeOnAfterRunCheck(var ResJournalLine: Record "Res. Journal Line")
     begin
     end;
 }

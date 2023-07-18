@@ -3,7 +3,7 @@ codeunit 7017 "Price List Management"
     var
         PriceIsFound: Boolean;
         SearchIfPriceExists: Boolean;
-        AllLinesVerifiedMsg: Label 'All price list lines are verified.';
+        AllLinesVerifiedMsg: Label 'All price list lines which were modified by you were verified.';
         EmptyPriceSourceErr: Label 'You must specify what the price applies to.';
         ImplementPricesMsg: Label 'Implementing price changes: inserted - %1, modified - %2, skipped - %3', Comment = '%1, %2, %3 are numbers';
         VerifyLinesLbl: Label 'Verify lines';

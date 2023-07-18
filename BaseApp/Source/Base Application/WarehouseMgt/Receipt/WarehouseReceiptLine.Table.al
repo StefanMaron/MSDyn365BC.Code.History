@@ -759,7 +759,7 @@ table 7317 "Warehouse Receipt Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOverReceiptProcessing(Rec, Result, IsHandled);
+        OnBeforeOverReceiptProcessing(Rec, Result, IsHandled, xRec);
         if IsHandled then
             exit(Result);
 
@@ -872,7 +872,7 @@ table 7317 "Warehouse Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOverReceiptProcessing(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeOverReceiptProcessing(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var Result: Boolean; var IsHandled: Boolean; xWarehouseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;
 

@@ -51,6 +51,15 @@ report 7318 "Whse.-Shipment - Create Pick"
                     end;
                 }
 
+                trigger OnAfterGetRecord()
+                var
+                    IsHandled: Boolean;
+                begin
+                    OnBeforeOnAfterGetRecordAssemblyHeader("Assembly Header", IsHandled);
+                    if IsHandled then
+                        CurrReport.Skip();
+                end;
+
                 trigger OnPreDataItem()
                 var
                     SalesLine: Record "Sales Line";
@@ -102,6 +111,8 @@ report 7318 "Whse.-Shipment - Create Pick"
                             CreatePick.SetTempWhseItemTrkgLine(
                               "No.", DATABASE::"Warehouse Shipment Line",
                               '', 0, "Line No.", "Location Code");
+
+                            OnAfterGetRecordWarehouseShipmentLineOnBeforeCreatePickTempLine("Warehouse Shipment Line");
                             CreatePick.CreateTempLine(
                               "Location Code", "Item No.", "Variant Code", "Unit of Measure Code",
                               '', "Bin Code", "Qty. per Unit of Measure", "Qty. Rounding Precision",
@@ -360,6 +371,8 @@ report 7318 "Whse.-Shipment - Create Pick"
                     Message(
                       StrSubstNo(MultipleActivCreatedMsg, Format(WhseActivHeader.Type),
                         FirstActivityNo, LastActivityNo, CannotBeHandledReason));
+
+            OnGetResultMessageOnAfterShowResultMessage();
         end;
         exit(EverythingHandled);
     end;
@@ -434,6 +447,21 @@ report 7318 "Whse.-Shipment - Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnAssemblyLineDataItemOnBeforeOnAfterGetRecord(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var AssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterGetRecordAssemblyHeader(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetResultMessageOnAfterShowResultMessage()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordWarehouseShipmentLineOnBeforeCreatePickTempLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 }

@@ -309,7 +309,14 @@ table 7320 "Warehouse Shipment Header"
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnInsert(Rec, xRec, WhseSetup, NoSeriesMgt, Location, IsHandled);
+        if IsHandled then
+            exit;
+
         WhseSetup.Get();
         if "No." = '' then begin
             WhseSetup.TestField("Whse. Ship Nos.");
@@ -781,6 +788,11 @@ table 7320 "Warehouse Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMeetsCriteria(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var xWarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseSetup: Record "Warehouse Setup"; var NoSeriesMgt: Codeunit NoSeriesManagement; var Location: Record Location; var IsHandled: Boolean)
     begin
     end;
 }

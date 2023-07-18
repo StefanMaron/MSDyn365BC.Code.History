@@ -386,6 +386,29 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         exit(RecordState::NotFound);
     end;
 
+    internal procedure FindCoupledRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var IsDestinationDeleted: Boolean; IntegrationTableConnectionType: TableConnectionType): Integer
+    var
+        IntegrationRecordManagement: Codeunit "Integration Record Management";
+        IDFieldRef: FieldRef;
+        RecordIDValue: RecordID;
+        RecordState: Option NotFound,Coupled,Decoupled;
+        RecordFound: Boolean;
+    begin
+        if SourceRecordRef.Number = IntegrationTableMapping."Table ID" then
+            RecordFound := FindIntegrationTableRecord(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, IsDestinationDeleted, IntegrationTableConnectionType)
+        else begin
+            IDFieldRef := SourceRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
+            RecordFound := IntegrationRecordManagement.FindRecordIdByIntegrationTableUid(IntegrationTableConnectionType, IDFieldRef.Value, IntegrationTableMapping."Table ID", RecordIDValue);
+            if RecordFound then
+                IsDestinationDeleted := not DestinationRecordRef.Get(RecordIDValue);
+        end;
+
+        if RecordFound then
+            exit(RecordState::Coupled);
+
+        exit(RecordState::NotFound);
+    end;
+
     local procedure FindAndCoupleDestinationRecord(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var DestinationIsDeleted: Boolean; IntegrationTableConnectionType: TableConnectionType) DestinationFound: Boolean
     begin
         OnFindUncoupledDestinationRecord(

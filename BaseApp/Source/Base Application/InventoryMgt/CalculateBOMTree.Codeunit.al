@@ -226,12 +226,18 @@ codeunit 5870 "Calculate BOM Tree"
         BOMComp: Record "BOM Component";
         ParentBOMBuffer: Record "BOM Buffer";
         UOMMgt: Codeunit "Unit of Measure Management";
+        IsHandled: Boolean;
     begin
         ParentBOMBuffer := BOMBuffer;
         with BOMComp do begin
             SetRange("Parent Item No.", ParentItem."No.");
             if FindSet() then begin
                 if ParentItem."Replenishment System" <> ParentItem."Replenishment System"::Assembly then
+                    exit(true);
+
+                IsHandled := false;
+                OnGenerateBOMCompSubTreeOnBeforeLoopBOMComponents(ParentItem, IsHandled);
+                if IsHandled then
                     exit(true);
                 repeat
                     if ("No." <> '') and ((Type = Type::Item) or (TreeType in [TreeType::" ", TreeType::Cost])) then begin
@@ -251,7 +257,6 @@ codeunit 5870 "Calculate BOM Tree"
                     end;
                 until Next() = 0;
                 BOMBuffer := ParentBOMBuffer;
-
                 exit(true);
             end;
         end;
@@ -1168,6 +1173,11 @@ codeunit 5870 "Calculate BOM Tree"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitItemAvailDatesOnBeforeCalcAvailableQty(var BOMItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateBOMCompSubTreeOnBeforeLoopBOMComponents(ParentItem: Record Item; var IsHandled: Boolean)
     begin
     end;
 }

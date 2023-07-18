@@ -153,6 +153,11 @@ page 9842 "User Group by Plan"
         GetUserGroupPlanParameters();
     end;
 
+    trigger OnInit()
+    begin
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
+    end;
+
     trigger OnOpenPage()
     var
         AzureADPlan: Codeunit "Azure AD Plan";

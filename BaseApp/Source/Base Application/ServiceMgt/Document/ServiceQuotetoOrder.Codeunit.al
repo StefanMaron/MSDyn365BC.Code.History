@@ -25,11 +25,15 @@ codeunit 5923 "Service-Quote to Order"
         ServOrderHeader."Document Type" := "Document Type"::Order;
         OnRunOnAfterGetServMgtSetup(ServOrderHeader, Rec);
         Customer.Get("Customer No.");
-        Customer.CheckBlockedCustOnDocs(Customer, DocType::Quote, false, false);
-        if "Customer No." <> "Bill-to Customer No." then begin
-            Customer.Get("Bill-to Customer No.");
+        IsHandled := false;
+        OnRunOnBeforeCheckBlockedCustOnDocs(ServOrderHeader, Rec, IsHandled);
+        if not IsHandled then begin
             Customer.CheckBlockedCustOnDocs(Customer, DocType::Quote, false, false);
-        end;
+            if "Customer No." <> "Bill-to Customer No." then begin
+                Customer.Get("Bill-to Customer No.");
+                Customer.CheckBlockedCustOnDocs(Customer, DocType::Quote, false, false);
+            end;
+        end;    
 
         ValidateSalesPersonOnServiceHeader(Rec, true, false);
 
@@ -333,6 +337,11 @@ codeunit 5923 "Service-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterGetServMgtSetup(var ServOrderHeader: Record "Service Header"; Rec: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCheckBlockedCustOnDocs(var ServiceHeaderOrder: Record "Service Header"; var ServiceHeader: Record "Service Header"; var IsHandled: Boolean);
     begin
     end;
 }

@@ -925,13 +925,8 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
 
     procedure InsertFromTempAttachmentEntityBufferToDocumentAttachment(var DocumentAttachment: Record "Document Attachment"; var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary)
     var
-        LastDocumentAttachment: Record "Document Attachment";
         FileManagement: Codeunit "File Management";
     begin
-        if LastDocumentAttachment.FindLast() then
-            DocumentAttachment.ID := LastDocumentAttachment.ID + 1
-        else
-            DocumentAttachment.ID := 1;
         DocumentAttachment."Attached Date" := CurrentDateTime();
 
         if HasRegisteredField(TempAttachmentEntityBuffer.FieldNo("Line No."), TempFieldBuffer) then

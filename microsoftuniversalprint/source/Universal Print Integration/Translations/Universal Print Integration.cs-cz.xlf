@@ -662,7 +662,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Change 2224783030 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source> Email Print</source>
-          <target state="translated"> Tisk e-mailem</target>
+          <target state="translated"> Tisk emailem</target>
           <note from="Developer" annotates="general" priority="2">Generated from the PromotedActionCategories property index 4.</note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>
@@ -697,7 +697,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 2333910860 - Property 2019332006" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>New, Process, Report, Manage, Email Print, Universal Print</source>
-          <target state="translated">Nové, Proces, Sestava, Spravovat, E-mailová tiskárna, Univerzální tisk</target>
+          <target state="translated">Nové, Proces, Sestava, Spravovat, Emailová tiskárna, Univerzální tisk</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 1215073847</note>

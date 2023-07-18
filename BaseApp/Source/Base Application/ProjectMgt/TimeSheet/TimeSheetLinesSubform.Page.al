@@ -537,6 +537,7 @@ page 974 "Time Sheet Lines Subform"
                 TimeSheetDetail.Delete()
             else begin
                 TimeSheetDetail.Quantity := CellData[ColumnNo];
+                OnValidateQuantityOnBeforeModifyTimeSheetDetail(TimeSheetDetail, Rec);
                 TimeSheetDetail.Modify(true);
             end;
         end else
@@ -771,6 +772,11 @@ page 974 "Time Sheet Lines Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRejectLines(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateQuantityOnBeforeModifyTimeSheetDetail(var TimeSheetDetail: Record "Time Sheet Detail"; TimeSheetLine: Record "Time Sheet Line");
     begin
     end;
 }

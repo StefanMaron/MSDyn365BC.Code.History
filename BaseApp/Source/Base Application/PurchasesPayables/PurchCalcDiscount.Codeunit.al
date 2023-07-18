@@ -41,7 +41,7 @@ codeunit 70 "Purch.-Calc.Discount"
         PurchSetup.Get();
 
         IsHandled := false;
-        OnBeforeCalcPurchaseDiscount(PurchHeader, IsHandled, PurchLine2, UpdateHeader);
+        OnBeforeCalcPurchaseDiscount(PurchHeader, IsHandled, PurchLine2, UpdateHeader, PurchLine);
         if IsHandled then
             exit;
 
@@ -252,7 +252,7 @@ codeunit 70 "Purch.-Calc.Discount"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcPurchaseDiscount(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var PurchaseLine: Record "Purchase Line"; UpdateHeader: Boolean)
+    local procedure OnBeforeCalcPurchaseDiscount(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var PurchaseLine: Record "Purchase Line"; UpdateHeader: Boolean; var GlobalPurchaseLine: Record "Purchase Line")
     begin
     end;
 

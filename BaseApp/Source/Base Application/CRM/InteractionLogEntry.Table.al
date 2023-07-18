@@ -218,6 +218,14 @@ table 5065 "Interaction Log Entry"
         {
             DataClassification = CustomerContent;
         }
+        field(47; Merged; Boolean)
+        {
+            DataClassification = SystemMetadata;
+        }
+        field(48; "Modified Word Template"; Integer)
+        {
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -391,6 +399,7 @@ table 5065 "Interaction Log Entry"
         "Contact Via" := SegLine."Contact Via";
         "Opportunity No." := SegLine."Opportunity No.";
         "Word Template Code" := SegLine."Word Template Code";
+        Merged := SegLine.Merged;
 
         OnAfterCopyFromSegment(Rec, SegLine);
     end;
@@ -426,9 +435,9 @@ table 5065 "Interaction Log Entry"
     procedure OpenAttachment()
     var
         Attachment: Record Attachment;
-        SegLine: Record "Segment Line";
+        SegmentLine: Record "Segment Line";
         WebRequestHelper: Codeunit "Web Request Helper";
-        IStream: InStream;
+        InStream: InStream;
         EmailMessageUrl: Text;
         IsHandled: Boolean;
     begin
@@ -443,23 +452,23 @@ table 5065 "Interaction Log Entry"
             exit;
 
         if Attachment."Storage Type" <> Attachment."Storage Type"::"Exchange Storage" then begin
-            SegLine."Contact No." := "Contact No.";
-            SegLine."Salesperson Code" := "Salesperson Code";
-            SegLine."Contact Alt. Address Code" := "Contact Alt. Address Code";
-            SegLine.Date := Date;
-            SegLine."Campaign No." := "Campaign No.";
-            SegLine."Segment No." := "Segment No.";
-            SegLine."Line No." := "Entry No.";
-            SegLine.Description := Description;
-            SegLine.Subject := Subject;
-            SegLine."Language Code" := "Interaction Language Code";
-            OnOpenAttachmentOnBeforeShowAttachment(Rec, SegLine, Attachment);
-            Attachment.ShowAttachment(SegLine, Format("Entry No.") + ' ' + Description);
+            SegmentLine."Contact No." := "Contact No.";
+            SegmentLine."Salesperson Code" := "Salesperson Code";
+            SegmentLine."Contact Alt. Address Code" := "Contact Alt. Address Code";
+            SegmentLine.Date := Date;
+            SegmentLine."Campaign No." := "Campaign No.";
+            SegmentLine."Segment No." := "Segment No.";
+            SegmentLine."Line No." := "Entry No.";
+            SegmentLine.Description := Description;
+            SegmentLine.Subject := Subject;
+            SegmentLine."Language Code" := "Interaction Language Code";
+            OnOpenAttachmentOnBeforeShowAttachment(Rec, SegmentLine, Attachment);
+            Attachment.ShowAttachment(SegmentLine, Format("Entry No.") + ' ' + Description);
         end else begin
             Attachment.CalcFields("Email Message Url");
             if Attachment."Email Message Url".HasValue() then begin
-                Attachment."Email Message Url".CreateInStream(IStream);
-                IStream.Read(EmailMessageUrl);
+                Attachment."Email Message Url".CreateInStream(InStream);
+                InStream.Read(EmailMessageUrl);
                 if WebRequestHelper.IsHttpUrl(EmailMessageUrl) then begin
                     if Confirm(OpenMessageQst, true) then
                         HyperLink(EmailMessageUrl);
@@ -469,7 +478,7 @@ table 5065 "Interaction Log Entry"
             Attachment.DisplayInOutlook();
         end;
 
-        OnAfterOpenAttachment(Rec, Attachment, SegLine);
+        OnAfterOpenAttachment(Rec, Attachment, SegmentLine);
     end;
 
     procedure ToggleCanceledCheckmark()

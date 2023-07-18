@@ -159,6 +159,11 @@ table 6550 "Whse. Item Tracking Line"
         field(80; "New Serial No."; Code[50])
         {
             Caption = 'New Serial No.';
+
+            trigger OnValidate()
+            begin
+                CheckSerialNoQty();
+            end;
         }
         field(81; "New Lot No."; Code[50])
         {
@@ -302,7 +307,7 @@ table 6550 "Whse. Item Tracking Line"
     var
         IsHandled: Boolean;
     begin
-        if "Serial No." = '' then
+        if ("Serial No." = '') and ("New Serial No." = '') then
             exit;
 
         IsHandled := false;

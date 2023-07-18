@@ -83,13 +83,13 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer''s market type to link business transactions to.';
-                    Visible = IsAllowMultiplePostingGroupsVisible;
+                    Visible = false;
                 }
                 field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if multiple posting groups can be used for posting business transactions for this customer.';
-                    Visible = false;
+                    Visible = IsAllowMultiplePostingGroupsVisible;
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {

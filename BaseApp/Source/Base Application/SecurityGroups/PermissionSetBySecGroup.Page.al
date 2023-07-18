@@ -333,6 +333,7 @@ page 9874 "Permission Set By Sec. Group"
     var
         AccessControl: Record "Access Control";
     begin
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
         CanManageUsersOnTenant := AccessControl.WritePermission();
     end;
 

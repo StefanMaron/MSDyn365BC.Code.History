@@ -21,6 +21,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         LibraryCF: Codeunit "Library - Cash Flow";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryFA: Codeunit "Library - Fixed Asset";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
@@ -32,6 +33,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFSourceExistsInJnlErr: Label '%1 exists in Cash Flow Journal.';
         ManualPmtRevExpNeedsUpdateMsg: Label 'There are one or more Cash Flow Manual Revenues/Expenses with a Recurring Frequency';
         UnexpectedMessageErr: Label 'Unexpected message.';
+        CashFlowWorkSheetLineCountErr: Label 'Cash Flow WorkSheet Lines are not equal.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2110,6 +2112,44 @@ codeunit 134551 "ERM Cash Flow Filling I"
         VerifyDefaultDimension(DimensionValue[2], DATABASE::"Cash Flow Manual Expense", CashFlowManualExpense.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyCasFlowForecastForBudgetedFixedAsset()
+    var
+        CashFlowForecast: Record "Cash Flow Forecast";
+        FixedAsset: Record "Fixed Asset";
+        CFWorksheetLine: Record "Cash Flow Worksheet Line";
+        FASetup: Record "FA Setup";
+        ExpectedDueAndCFDate: Date;
+        InvestmentAmount: Decimal;
+        ConsiderSource: array[16] of Boolean;
+    begin
+        // [SCENARIO] 473911 Budgeted Fixed Asset do not appear correctly in Cash Flow Forecast
+        CFWorksheetLine.DeleteAll();
+
+        // [GIVEN] Create Cash Flow Forecast Default.
+        CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
+
+        // [GIVEN] Create Amount 
+        InvestmentAmount := LibraryRandom.RandDec(2000, 2);
+
+        // [GIVEN] Create Fixed Asset and Post two FA Journal Line
+        FASetup.Get();
+        CreateFixedAssetAndPostTwoFAJournalLine(FixedAsset, FASetup."Default Depr. Book", InvestmentAmount);
+
+        // [WHEN] Using Suggest WorkSheet Lines, create Cash Flow Worksheet Lines.
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Budget".AsInteger()] := true;
+        FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
+
+        // [WHEN] Filter Cash Flow WorkSheet Lines to created Cash Flow Forecast and Fixed Asset.
+        CFWorksheetLine.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
+        CFWorkSheetLine.SetRange("Document No.", FixedAsset."No.");
+        CFWorksheetLine.FindSet();
+
+        // [VERIFY] Verify 2 lines created for created Fixed Asset
+        Assert.AreEqual(2, CFWorksheetLine.Count, CashFlowWorkSheetLineCountErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2553,6 +2593,47 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateJobPlanningLine(Job, JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine);
         JobPlanningLine.Validate("Planning Date", NewDate);
         JobPlanningLine.Modify(true);
+    end;
+
+    local procedure CreateFixedAssetAndPostTwoFAJournalLine(var FixedAsset: Record "Fixed Asset"; DepreciationBookCode: Code[10]; InvestmentAmount: Decimal)
+    var
+        FADepreciationBook: Record "FA Depreciation Book";
+        FAJournalTemplate: Record "FA Journal Template";
+        FAJournalBatch: Record "FA Journal Batch";
+        FAJournalLine: Record "FA Journal Line";
+        NoSeries: Record "No. Series";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        LibraryFA.CreateFixedAsset(FixedAsset);
+        FixedAsset.Validate("Budgeted Asset", true);
+        FixedAsset.Modify(true);
+
+        LibraryFA.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBookCode);
+        FAJournalTemplate.SetRange(Recurring, false);
+        LibraryFA.FindFAJournalTemplate(FAJournalTemplate);
+        LibraryFA.CreateFAJournalBatch(FAJournalBatch, FAJournalTemplate.Name);
+        FAJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        FAJournalBatch.Modify(true);
+
+        LibraryFA.CreateFAJournalLine(FAJournalLine, FAJournalTemplate.Name, FAJournalBatch.Name);
+        NoSeries.Get(FAJournalBatch."No. Series");
+        FAJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
+        FAJournalLine.Validate("FA No.", FixedAsset."No.");
+        FAJournalLine.Validate("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
+        FAJournalLine.Validate(Amount, InvestmentAmount);
+        FAJournalLine.Validate("FA Posting Date", CalcDate('<-2M>', WorkDate()));
+        FAJournalLine.Modify(true);
+        LibraryFA.PostFAJournalLine(FAJournalLine);
+
+        LibraryFA.CreateFAJournalLine(FAJournalLine, FAJournalTemplate.Name, FAJournalBatch.Name);
+        NoSeries.Get(FAJournalBatch."No. Series");
+        FAJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
+        FAJournalLine.Validate("FA No.", FixedAsset."No.");
+        FAJournalLine.Validate("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
+        FAJournalLine.Validate(Amount, InvestmentAmount + 100);
+        FAJournalLine.Validate("FA Posting Date", CalcDate('<-1M>', WorkDate()));
+        FAJournalLine.Modify(true);
+        LibraryFA.PostFAJournalLine(FAJournalLine);
     end;
 }
 

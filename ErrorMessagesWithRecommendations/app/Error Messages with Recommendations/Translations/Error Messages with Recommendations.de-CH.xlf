@@ -1,0 +1,368 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="de-CH" original="Error Messages with Recommendations">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 2044235233 - NamedType 2517744059" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 %2 isn't valid.</source>
+          <target state="translated">%1 %2 ist ungültig.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = "Dimension Value Code" caption, %2 = Dim Code</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Dimension Code Must Be Blank - NamedType DimensionMismatchTitleErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2044235233 - NamedType 2915766382" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The %1 is cleared.</source>
+          <target state="translated">%1 wird gelöscht.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = "Dimension Value Code" caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Dimension Code Must Be Blank - NamedType DimSetEntryFixMustBeBlankAckTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2044235233 - NamedType 3371211530" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Clear the value</source>
+          <target state="translated">Wert löschen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Dimension Code Must Be Blank - NamedType DimensionUseRequiredActionLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 238548698 - NamedType 1618299912" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All of your selections were processed.</source>
+          <target state="translated">Alle Auswahlen wurden verarbeitet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ErrorMessagesActionHandlerImpl - NamedType FixedAllAckLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 238548698 - NamedType 1854628773" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1?</source>
+          <target state="translated">%1?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Set value to HOME</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ErrorMessagesActionHandlerImpl - NamedType ConfirmationPrefixQuestionLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 238548698 - NamedType 2882013966" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The recommendations will be applied to %1 out of %2 selected error messages. \\Do you want to continue?</source>
+          <target state="translated">Die Empfehlungen werden auf %1 von %2 ausgewählten Fehlermeldungen angewandt. \\Möchten Sie fortfahren?</target>
+          <note from="Developer" annotates="general" priority="2">%1 - count of actionable error messages, %2 = Total selected count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ErrorMessagesActionHandlerImpl - NamedType AcceptRecommendationPartialTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 238548698 - NamedType 3373926666" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommendations applied: %1 \Failed to apply the recommendation: %2</source>
+          <target state="translated">Angewandte Empfehlungen: %1 \Fehlgeschlagene Anwendung der Empfehlung: %2</target>
+          <note from="Developer" annotates="general" priority="2">%1=Fixed Count, %2=Failed to fix count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ErrorMessagesActionHandlerImpl - NamedType FixedPartialAckLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 238548698 - NamedType 4112164427" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The recommendations will be applied to %1 error messages. \\Do you want to continue?</source>
+          <target state="translated">Die Empfehlungen werden auf %1 Fehlermeldungen angewandt. \\Möchten Sie fortfahren?</target>
+          <note from="Developer" annotates="general" priority="2">%1 - selected count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ErrorMessagesActionHandlerImpl - NamedType AcceptRecommendationTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2739762693 - NamedType 2517744059" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A dimension set is required.</source>
+          <target state="translated">Ein Dimensionssatz ist erforderlich.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Dim. Code Same But Missing Err - NamedType DimensionMismatchTitleErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2739762693 - NamedType 3246857144" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The %1 %2 with %3 %4 is added.</source>
+          <target state="translated">Die %1 %2 mit %3 %4 wird hinzugefügt.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = "Dimension Code" caption, %2 = "Dimension Code" value, %3 = "Dimension Value Code" caption, %4 = "Dimension Value Code" value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Dim. Code Same But Missing Err - NamedType DimSetEntryFixUseSameCodeAckTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2739762693 - NamedType 3371211530" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Add %1 dimension set</source>
+          <target state="translated">Dimensionssatz %1 hinzufügen</target>
+          <note from="Developer" annotates="general" priority="2">%1 = "Dimension Code" value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Dim. Code Same But Missing Err - NamedType DimensionUseRequiredActionLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3740411537 - NamedType 2517744059" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 %2 isn't valid.</source>
+          <target state="translated">%1 %2 ist ungültig.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = "Dimension Value Code" caption, %2 = "Dimension Value Code" value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Dimension Code Same Error - NamedType DimensionMismatchTitleErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3740411537 - NamedType 3246857144" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The %1 is set to %2.</source>
+          <target state="translated">„%1“ wird auf „%2“ festgelegt.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = "Dimension Value Code" caption, %2 = "Dimension Value Code" Value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Dimension Code Same Error - NamedType DimSetEntryFixUseSameCodeAckTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3740411537 - NamedType 3371211530" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set the value to %1</source>
+          <target state="translated">Den Wert auf %1 setzen</target>
+          <note from="Developer" annotates="general" priority="2">%1 = "Dimension Value Code" Value</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Dimension Code Same Error - NamedType DimensionUseRequiredActionLbl</note>
+        </trans-unit>
+        <trans-unit id="Enum 2241984937 - EnumValue 1371923692 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> </source>
+          <target state="translated"> </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Error Message Status - EnumValue   - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2241984937 - EnumValue 1592819753 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to fix</source>
+          <target state="translated">Behebung fehlgeschlagen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Error Message Status - EnumValue Failed to fix - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Enum 2241984937 - EnumValue 744835066 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Fixed</source>
+          <target state="translated">Behoben</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Enum Error Message Status - EnumValue Fixed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 1294804992 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The time of error occurrence.</source>
+          <target state="translated">Der Zeitpunkt des Auftretens eines Fehlers.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control TimeOfError - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 1294804992 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Timestamp</source>
+          <target state="translated">Zeitstempel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control TimeOfError - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 172443893 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the field name from where the error occurred.</source>
+          <target state="translated">Gibt den Namen des Felds an, in dem der Fehler aufgetreten ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Sub-Context Field Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 172443893 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Name</source>
+          <target state="translated">Feldname</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Sub-Context Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 219684862 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the field where the error occurred.</source>
+          <target state="translated">Gibt das Feld an, in dem der Fehler aufgetreten ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Context Field Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 219684862 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Name</source>
+          <target state="translated">Feldname</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Context Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 2397723431 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the record source of the error.</source>
+          <target state="translated">Gibt die Datensatzquelle des Fehlers an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Source - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 2397723431 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record</source>
+          <target state="translated">Datensatz</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Source - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 2444778289 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Support</source>
+          <target state="translated">Support</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Support - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 2812070225 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Context</source>
+          <target state="translated">Kontext</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Context_Group - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 2951585809 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the context record.</source>
+          <target state="translated">Gibt den Kontextdatensatz an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Context - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 2951585809 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record</source>
+          <target state="translated">Datensatz</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Context - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 3070320983 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the field where the error occurred.</source>
+          <target state="translated">Gibt das Feld an, in dem der Fehler aufgetreten ist.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Field Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 3070320983 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Name</source>
+          <target state="translated">Feldname</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 3093145114 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the location of the error.</source>
+          <target state="translated">Gibt den Speicherort des Fehlers an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Sub-Context Record ID - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 3093145114 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record</source>
+          <target state="translated">Datensatz</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Sub-Context Record ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 3691089605 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error Location</source>
+          <target state="translated">Fehlerspeicherort</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control SubContext_Group - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 3864084727 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies more information than the information shown in the Description field.</source>
+          <target state="translated">Gibt zusätzliche Informationen zu denen im Feld „Beschreibung“ an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Additional Information - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 648968784 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the URL of an external web site that offers additional support.</source>
+          <target state="translated">Gibt die URL einer externen Website an, die zusätzliche Unterstützung bietet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Support Url - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 648968784 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Help &amp; Documentation</source>
+          <target state="translated">Hilfe &amp; Dokumentation</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Support Url - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Control 868386727 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source</source>
+          <target state="translated">Quelle</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Control Source_Group - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - NamedType 2938128749" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Read</source>
+          <target state="translated">Lesen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - NamedType HelpLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 521072269 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Details</source>
+          <target state="translated">Details</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Error Messages Card Part - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1293078068 - Action 1122426095 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Apply filter on message status to hide all the fixed error messages.</source>
+          <target state="translated">Filter auf den Nachrichtenstatus anwenden, um alle Meldungen zu behobenen Fehlern auszublenden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2497559836</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1293078068 - Action 1122426095 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Hide fixed errors</source>
+          <target state="translated">Behobene Fehler ausblenden</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2497559836</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1293078068 - Action 1315773971 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Apply filter on message status to show all the error messages including fixed error messages.</source>
+          <target state="translated">Filter auf den Nachrichtenstatus anwenden, um alle Fehlermeldungen, einschliesslich zu behobenen Fehlern, auszublenden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2497559836</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1293078068 - Action 1315773971 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Show all errors</source>
+          <target state="translated">Alle Fehler anzeigen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2497559836</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1293078068 - Action 3126841845 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Use this action to apply the recommended action for selected error messages.</source>
+          <target state="translated">Verwenden Sie diese Aktion, um die empfohlene Aktion für ausgewählte Fehlermeldungen zu übernehmen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2497559836</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1293078068 - Action 3126841845 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Accept recommended action</source>
+          <target state="translated">Empfohlene Aktion annehmen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2497559836</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1293078068 - Action 4160399077 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Filter errors</source>
+          <target state="translated">Fehler filtern</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2497559836</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1293078068 - Control 3645559853 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This is the recommended action by the system for the error message.</source>
+          <target state="translated">Dies ist die empfohlene Aktion des Systems für die Fehlermeldung.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2497559836</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1293078068 - Control 3645559853 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommended action</source>
+          <target state="translated">Empfohlene Aktion</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2497559836</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1293078068 - Control 3696383513 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>This shows the status of the error message based on the execution of recommended action.</source>
+          <target state="translated">Dies zeigt den Status der Fehlermeldung auf Grundlage der Ausführung der empfohlenen Aktion an.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2497559836</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1293078068 - Control 3696383513 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <target state="translated">Status</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2497559836</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2864634720 - Field 2057940895 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Recommended action caption</source>
+          <target state="translated">Beschriftung empfohlene Aktion</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2852966117</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2864634720 - Field 2126425910 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Error fix implementation</source>
+          <target state="translated">Implementierung der Fehlerbehebung</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2852966117</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2864634720 - Field 3093145114 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sub-Context Record ID</source>
+          <target state="translated">Subkontextdatensatz-ID</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2852966117</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2864634720 - Field 3170822905 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sub-Context Field Number</source>
+          <target state="translated">Subkontext-Feldnummer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2852966117</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2864634720 - Field 329424276 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Title</source>
+          <target state="translated">Titel</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2852966117</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 2864634720 - Field 3696383513 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Status</source>
+          <target state="translated">Status</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2852966117</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

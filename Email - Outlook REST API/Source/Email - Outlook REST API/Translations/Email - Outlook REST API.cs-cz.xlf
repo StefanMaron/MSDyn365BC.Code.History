@@ -5,7 +5,7 @@
       <group id="body">
         <trans-unit id="Table 923233499 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email - Outlook Account</source>
-          <target state="translated">E-mail – účet Outlooku</target>
+          <target state="translated">Email – účet Outlooku</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Property Caption</note>
         </trans-unit>
@@ -29,13 +29,13 @@
         </trans-unit>
         <trans-unit id="Table 923233499 - Field 72161626 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Outlook API Email Connector</source>
-          <target state="translated">Konektor e-mailu rozhraní API aplikace Outlook</target>
+          <target state="translated">Konektor emailu rozhraní API aplikace Outlook</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook Account - Field Outlook API Email Connector - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3074962881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email - Outlook API Setup</source>
-          <target state="translated">E-mail – nastavení rozhraní API outlooku</target>
+          <target state="translated">Email – Outlook nastavení rozhraní API</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email - Outlook API Setup - Property Caption</note>
         </trans-unit>
@@ -77,19 +77,19 @@
         </trans-unit>
         <trans-unit id="Codeunit 571534387 - NamedType 68286719" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not send the email message. Try again later.</source>
-          <target state="translated">E-mailovou zprávu nelze odeslat. Zkuste to znovu později.</target>
+          <target state="translated">Emailovou zprávu nelze odeslat. Zkuste to znovu později.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType SendEmailErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 571534387 - NamedType 2917787611" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not send the email because the user is external.</source>
-          <target state="translated">E-mail nelze odeslat, protože uživatel je externí.</target>
+          <target state="translated">Email nelze odeslat, protože uživatel je externí.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType SendEmailExternalUserErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 571534387 - NamedType 2078957562" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Failed to send email. Error:\\%1</source>
-          <target state="translated">Odeslání e-mailu se nezdařilo. Chyba:\\%1</target>
+          <target state="translated">Odeslání emailu se nezdařilo. Chyba:\\%1</target>
           <note from="Developer" annotates="general" priority="2">%1 = Error message</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Client - NamedType SendEmailMessageErr</note>
         </trans-unit>
@@ -107,7 +107,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1049555962 - NamedType 1683059839" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Client ID or Client secret is not set up on the Email Application AAD Registration page.</source>
-          <target state="translated">ID klienta nebo tajný klíč klienta není nastaven na stránce Registrace AAD e-mailové aplikace.</target>
+          <target state="translated">ID klienta nebo tajný klíč klienta není nastaven na stránce Registrace AAD emailové aplikace.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType CannotConnectToMailServerErr</note>
         </trans-unit>
@@ -119,13 +119,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 1049555962 - NamedType 3435643268" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>To connect to your email account you must create an App registration in Azure Active Directory and then enter information about the registration on the Email Application AAD Registration Page in Business Central. Do you want to do that now?</source>
-          <target state="translated">Chcete-li se připojit ke svému e-mailovému účtu, musíte vytvořit registraci aplikace ve službě Azure Active Directory a potom zadat informace o registraci na stránce registrace AAD e-mailové aplikace v Business Central. Chcete to udělat teď?</target>
+          <target state="translated">Chcete-li se připojit ke svému emailovému účtu, musíte vytvořit registraci aplikace ve službě Azure Active Directory a potom zadat informace o registraci na stránce registrace AAD emailové aplikace v Business Central. Chcete to udělat teď?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email - Outlook API Helper - NamedType SetupOutlookAPIQst</note>
         </trans-unit>
         <trans-unit id="Page 3074962881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Application AAD Registration</source>
-          <target state="translated">Registrace e-mailové aplikace AAD</target>
+          <target state="translated">Registrace emailové aplikace AAD</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Property Caption</note>
         </trans-unit>
@@ -149,7 +149,7 @@
         </trans-unit>
         <trans-unit id="Page 3074962881 - NamedType 680356195" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>If you clear the app registration on this page, users will not be able to send email messages from their Exchange accounts. Do you want to continue?</source>
-          <target state="translated">Pokud na této stránce vymažete registraci aplikace, uživatelé nebudou moct odesílat e-mailové zprávy ze svých účtů Exchange. Chcete pokračovat?</target>
+          <target state="translated">Pokud na této stránce vymažete registraci aplikace, uživatelé nebudou moct odesílat emailové zprávy ze svých účtů Exchange. Chcete pokračovat?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - NamedType ThisWillClearTheFieldsTxt</note>
         </trans-unit>
@@ -167,7 +167,7 @@
         </trans-unit>
         <trans-unit id="Page 3074962881 - Control 3123527090 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must already have registered your application in Azure Active Directory and granted certain permissions. Use the client ID and secret from that registration to authenticate the email account.</source>
-          <target state="translated">Musíte již zaregistrovat aplikaci ve službě Azure Active Directory a udělit určitá oprávnění. Pomocí ID klienta a tajného klíče od této registrace ověřte e-mailový účet.</target>
+          <target state="translated">Musíte již zaregistrovat aplikaci ve službě Azure Active Directory a udělit určitá oprávnění. Pomocí ID klienta a tajného klíče od této registrace ověřte emailový účet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Control Info - Property InstructionalText</note>
         </trans-unit>
@@ -263,7 +263,7 @@
         </trans-unit>
         <trans-unit id="Page 3074962881 - Action 273330248 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Change the email account that is associated with the email app registration for the current user.</source>
-          <target state="translated">Změňte e-mailový účet, který je spojen s registrací e-mailové aplikace pro aktuálního uživatele.</target>
+          <target state="translated">Změňte emailový účet, který je spojen s registrací emailové aplikace pro aktuálního uživatele.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email - Outlook API Setup - Action SingInAgain - Property ToolTip</note>
         </trans-unit>
@@ -287,19 +287,19 @@
         </trans-unit>
         <trans-unit id="PermissionSet 143312419 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email - Outlook REST API - Edit</source>
-          <target state="translated">E-mail - Outlook REST API - Upravit</target>
+          <target state="translated">Email - Outlook REST API - Upravit</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email ORA - Edit - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 65726293 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email - Outlook REST API - Objects</source>
-          <target state="translated">E-mail – Outlook REST API - Objekty</target>
+          <target state="translated">Email – Outlook REST API - Objekty</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email ORA - Objects - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 1262931937 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email - Outlook REST API - Read</source>
-          <target state="translated">E-mail - Outlook REST API - Čtení</target>
+          <target state="translated">Email - Outlook REST API - Čtení</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email ORA - Read - Property Caption</note>
         </trans-unit>

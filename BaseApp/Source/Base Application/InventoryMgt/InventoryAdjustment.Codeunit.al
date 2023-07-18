@@ -672,6 +672,7 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
             InbndItemLedgEntry.Get("Item Ledger Entry No.");
             InbndValueEntry.SetCurrentKey("Item Ledger Entry No.", "Document No.");
             InbndValueEntry.SetRange("Item Ledger Entry No.", "Item Ledger Entry No.");
+            OnAdjustAppliedInbndEntriesOnAfterSetFilter(InbndValueEntry);
             InbndValueEntry.FindSet();
             repeat
                 if (InbndValueEntry."Entry Type" = InbndValueEntry."Entry Type"::"Direct Cost") and
@@ -3054,6 +3055,11 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitializeAdjmtOnAfterGetPostingDate(var PostingDateForClosedPeriod: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAdjustAppliedInbndEntriesOnAfterSetFilter(var InbndValueEntry: Record "Value Entry")
     begin
     end;
 }

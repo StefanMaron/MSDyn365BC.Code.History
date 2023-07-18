@@ -712,6 +712,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Control Is Enabled - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1217273708 - Control 1474520838 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if the starting of the synchronization jobs should be delayed until a licensed user starts them explicitly from Job Queue Entries list.</source>
+          <target state="translated">Specifies if the starting of the synchronisation jobs should be delayed until a licensed user starts them explicitly from Job Queue Entries list.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Master Data Management Setup - Control Delay Job Scheduling - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 1217273708 - Control 3997336476 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the cource company that you synchronize data from.</source>
           <target state="translated">Specifies the name of the cource company that you synchronise data from.</target>
@@ -1281,6 +1287,12 @@
           <target state="translated">Synchronisation Enabled</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Management Setup - Field Is Enabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1217273708 - Field 1474520838 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Delay Synchronization Job Scheduling</source>
+          <target state="translated">Delay Synchronisation Job Scheduling</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Management Setup - Field Delay Job Scheduling - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 1217273708 - Field 1663593181 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Primary Key</source>

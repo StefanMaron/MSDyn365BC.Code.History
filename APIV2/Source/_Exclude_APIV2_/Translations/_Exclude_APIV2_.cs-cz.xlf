@@ -3390,12 +3390,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control defaultDimensions - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 1180930185 - Control 460507951 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>DisplayName</source>
-          <target state="translated">ZobrazovanýNázev</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control displayName - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Page 1180930185 - Control 2481309022 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>General Product Posting Group</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3900,12 +3894,6 @@
           <target state="translated">Příležitost</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Opportunities - Property EntityCaption</note>
-        </trans-unit>
-        <trans-unit id="Page 3402555058 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Oportunities</source>
-          <target state="translated">Příležitosti</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Opportunities - Property EntitySetCaption</note>
         </trans-unit>
         <trans-unit id="Page 3402555058 - NamedType 1481825406" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The "contactNumber of a Won or Lost Opportunity cannot be changed</source>

@@ -15,6 +15,10 @@ codeunit 265 "Feature Key Management"
         ModernActionBarLbl: Label 'ModernActionBar', Locked = true;
 #endif
 
+#if not CLEAN23
+        EU3PartyTradePurchaseTxt: Label 'EU3PartyTradePurchase', Locked = true;
+#endif
+
     procedure IsAllowMultipleCustVendPostingGroupsEnabled(): Boolean
     begin
         exit(FeatureManagementFacade.IsEnabled(GetAllowMultipleCustVendPostingGroupsFeatureKey()));
@@ -47,6 +51,13 @@ codeunit 265 "Feature Key Management"
         exit(FeatureManagementFacade.IsEnabled(GetSIEAuditFileExportFeatureKeyId()));
     end;
 
+#if not CLEAN23
+    procedure IsEU3PartyTradePurchaseEnabled(): Boolean
+    begin
+        exit(FeatureManagementFacade.IsEnabled(GetEU3PartyTradePurchaseFeatureKeyId()));
+    end;
+#endif
+
     local procedure GetAllowMultipleCustVendPostingGroupsFeatureKey(): Text[50]
     begin
         exit(AllowMultipleCustVendPostingGroupsLbl);
@@ -71,6 +82,12 @@ codeunit 265 "Feature Key Management"
     begin
         exit(SIEAuditFileExportTxt);
     end;
+#if not CLEAN23
+    local procedure GetEU3PartyTradePurchaseFeatureKeyId(): Text[50]
+    begin
+        exit(EU3PartyTradePurchaseTxt);
+    end;
+#endif
 
 #if not CLEAN21
     local procedure GetModernActionBarFeatureKey(): Text[50]
@@ -116,6 +133,10 @@ codeunit 265 "Feature Key Management"
                 FeatureTelemetry.LogUptake('0000JRA', ExtensibleInvoicePostingEngineLbl, Enum::"Feature Uptake Status"::Discovered);
             AllowMultipleCustVendPostingGroupsLbl:
                 FeatureTelemetry.LogUptake('0000JRB', AllowMultipleCustVendPostingGroupsLbl, Enum::"Feature Uptake Status"::Discovered);
+#if not CLEAN23
+            EU3PartyTradePurchaseTxt:
+                FeatureTelemetry.LogUptake('0000JRC', EU3PartyTradePurchaseTxt, Enum::"Feature Uptake Status"::Discovered);
+#endif
         end;
     end;
 

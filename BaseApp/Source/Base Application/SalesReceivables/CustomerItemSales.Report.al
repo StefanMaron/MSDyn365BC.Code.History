@@ -143,6 +143,8 @@ report 113 "Customer/Item Sales"
                         TempValueEntryBuffer."Cost Amount (Actual)" += ValueEntry."Cost Amount (Actual)";
                     end;
 
+                    OnAfterGetValueEntryOnBeforeTempValueEntryBufferInsertModify("Value Entry", TempValueEntryBuffer);
+
                     if EntryInBufferExists then
                         TempValueEntryBuffer.Modify()
                     else
@@ -292,6 +294,11 @@ report 113 "Customer/Item Sales"
     procedure InitializeRequest(NewPagePerCustomer: Boolean)
     begin
         PrintOnlyOnePerPage := NewPagePerCustomer;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetValueEntryOnBeforeTempValueEntryBufferInsertModify(ValueEntry: Record "Value Entry"; var TempValueEntry: Record "Value Entry" temporary)
+    begin
     end;
 }
 

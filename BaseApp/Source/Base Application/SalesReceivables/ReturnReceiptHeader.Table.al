@@ -451,7 +451,15 @@ table 6660 "Return Receipt Header"
         {
             Caption = 'Received-from Country/Region Code';
             TableRelation = "Country/Region";
-        }        
+            ObsoleteState = Removed;
+            ObsoleteReason = 'Use new field on range 181';
+            ObsoleteTag = '23.0';
+        }
+        field(181; "Rcvd.-from Count./Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -695,7 +703,7 @@ table 6660 "Return Receipt Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeEmailRecords(var ReturnRcptHeader: Record "Return Receipt Header"; ShowDialog: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeEmailRecords(var ReturnRcptHeader: Record "Return Receipt Header"; var ShowDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 

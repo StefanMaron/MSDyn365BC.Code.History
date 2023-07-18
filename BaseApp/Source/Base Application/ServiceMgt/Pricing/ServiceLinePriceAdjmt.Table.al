@@ -69,8 +69,16 @@ table 6084 "Service Line Price Adjmt."
             Caption = 'New Amount';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 GetServHeader();
+
+                IsHandled := false;
+                OnValidateNewAmountOnAfterGetServHeader(Rec, Currency, ServHeader, IsHandled);
+                if IsHandled then
+                    exit;
+
                 "New Unit Price" :=
                   Round(("New Amount" * 100 / (100 - "Discount %")) / Quantity, Currency."Unit-Amount Rounding Precision");
                 if ServHeader."Prices Including VAT" then
@@ -230,6 +238,11 @@ table 6084 "Service Line Price Adjmt."
     begin
         GetServHeader();
         exit(ServHeader."Currency Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNewAmountOnAfterGetServHeader(var ServiceLinePriceAdjmt: Record "Service Line Price Adjmt."; Currency: Record Currency; ServHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

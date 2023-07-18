@@ -135,12 +135,6 @@
           <note from="Developer" annotates="general" priority="2">%1 is the item name, %2 is the quantity sold</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType MostPopularItemPayloadTxt</note>
         </trans-unit>
-        <trans-unit id="Codeunit 3892878374 - NamedType 967194017" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>&lt;-%1D&gt;</source>
-          <target state="translated">&lt;-%1D&gt;</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Number of days</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Essential Bus. Headline Mgt. - NamedType NoDaysAgoFilterTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 3892878374 - NamedType 2645967220" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your VAT return is due %1 (in %2 days)</source>
           <target state="translated">La devolución de IVA vence %1 (en %2 días)</target>

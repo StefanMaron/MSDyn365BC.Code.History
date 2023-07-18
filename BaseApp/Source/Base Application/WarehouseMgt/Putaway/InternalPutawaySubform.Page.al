@@ -36,6 +36,12 @@ page 7355 "Internal Put-away Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the description of the item on the line.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;

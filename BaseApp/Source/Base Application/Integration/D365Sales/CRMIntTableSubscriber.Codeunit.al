@@ -534,9 +534,9 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             'Sales Invoice Line-CRM Invoicedetail':
                 UpdateCRMInvoiceDetailsAfterInsertRecord(SourceRecordRef, DestinationRecordRef);
             'Item Unit of Measure-CRM Uom':
-                UpdateCRMUomFromItemAfterInsertRecord(SourceRecordRef);
+                UpdateCRMUomFromItemAfterInsertRecord(SourceRecordRef, DestinationRecordRef);
             'Resource Unit of Measure-CRM Uom':
-                UpdateCRMUomFromResourceAfterInsertRecord(SourceRecordRef);
+                UpdateCRMUomFromResourceAfterInsertRecord(SourceRecordRef, DestinationRecordRef);
             'Sales Header-CRM Salesorder':
                 if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
                     ResetCRMSalesorderdetailFromSalesOrderLine(SourceRecordRef, DestinationRecordRef);
@@ -1838,12 +1838,13 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         DestinationRecordRef.GetTable(CRMProduct);
     end;
 
-    local procedure UpdateCRMUomFromItemAfterInsertRecord(SourceRecordRef: RecordRef)
+    local procedure UpdateCRMUomFromItemAfterInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
     var
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMProduct: Record "CRM Product";
+        CRMUom: Record "CRM Uom";
         ItemRecordRef: RecordRef;
         SourceFieldRef: FieldRef;
         CRMProductId: Guid;
@@ -1851,17 +1852,19 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         SourceFieldRef := SourceRecordRef.Field(ItemUnitOfMeasure.FieldNo("Item No."));
         Item.Get(Format(SourceFieldRef.Value()));
         ItemRecordRef.GetTable(Item);
+        DestinationRecordRef.SetTable(CRMUom);
         if CRMIntegrationRecord.FindIDFromRecordRef(ItemRecordRef, CRMProductId) then
             if CRMProduct.Get(CRMProductId) then
-                CRMSynchHelper.UpdateCRMPriceListItems(CRMProduct);
+                CRMSynchHelper.UpdateCRMPriceListItemForUom(CRMProduct, CRMUom);
     end;
 
-    local procedure UpdateCRMUomFromResourceAfterInsertRecord(SourceRecordRef: RecordRef)
+    local procedure UpdateCRMUomFromResourceAfterInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
     var
         Resource: Record Resource;
         ResourceUnitOfMeasure: Record "Resource Unit of Measure";
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMProduct: Record "CRM Product";
+        CRMUom: Record "CRM Uom";
         ResourceRecordRef: RecordRef;
         SourceFieldRef: FieldRef;
         CRMProductId: Guid;
@@ -1869,9 +1872,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         SourceFieldRef := SourceRecordRef.Field(ResourceUnitOfMeasure.FieldNo("Resource No."));
         Resource.Get(Format(SourceFieldRef.Value()));
         ResourceRecordRef.GetTable(Resource);
+        DestinationRecordRef.SetTable(CRMUom);
         if CRMIntegrationRecord.FindIDFromRecordRef(ResourceRecordRef, CRMProductId) then
             if CRMProduct.Get(CRMProductId) then
-                CRMSynchHelper.UpdateCRMPriceListItems(CRMProduct);
+                CRMSynchHelper.UpdateCRMPriceListItemForUom(CRMProduct, CRMUom)
     end;
 
     local procedure UpdateCRMProductBeforeInsertRecord(var DestinationRecordRef: RecordRef)
@@ -2111,9 +2115,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         end;
 
         ItemRecordRef.GetTable(Item);
+        DestinationRecordRef.SetTable(CRMUom);
         if CRMIntegrationRecord.FindIDFromRecordRef(ItemRecordRef, CRMProductId) then
             if CRMProduct.Get(CRMProductId) then
-                if CRMSynchHelper.UpdateCRMPriceListItems(CRMProduct) then
+                if CRMSynchHelper.UpdateCRMPriceListItemForUom(CRMProduct, CRMUom) then
                     AdditionalFieldsWereModified := true;
 
         exit(AdditionalFieldsWereModified);
@@ -2157,9 +2162,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         end;
 
         ResourceRecordRef.GetTable(Resource);
+        DestinationRecordRef.SetTable(CRMUom);
         if CRMIntegrationRecord.FindIDFromRecordRef(ResourceRecordRef, CRMProductId) then
             if CRMProduct.Get(CRMProductId) then
-                if CRMSynchHelper.UpdateCRMPriceListItems(CRMProduct) then
+                if CRMSynchHelper.UpdateCRMPriceListItemForUom(CRMProduct, CRMUom) then
                     AdditionalFieldsWereModified := true;
 
         exit(AdditionalFieldsWereModified);
@@ -2522,11 +2528,8 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         CRMInvoiceId: Guid;
     begin
         SourceRecordRef.SetTable(SalesInvHeader);
-        SalesInvHeader.CalcFields("Coupled to Dataverse");
 
         // if invoice is coupled already, then skip this check
-        if SalesInvHeader."Coupled to Dataverse" then
-            exit;
         if CRMIntegrationRecord.FindIDFromRecordID(SalesInvHeader.RecordId(), CRMInvoiceId) then
             exit;
 
@@ -3082,6 +3085,21 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         if TableID = Database::"Sales Header Archive" then
             if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
                 isIntegrationRecord := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnIsIntegrationRecordChild', '', false, false)]
+    local procedure HandleOnIsIntegrationRecordChild(TableId: Integer; var Handled: Boolean; var ReturnValue: Boolean)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+    begin
+        if not CRMConnectionSetup.IsEnabled() then
+            exit;
+
+        if TableId = Database::"Sales Line" then
+            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                Handled := true;
+                ReturnValue := false;
+            end;
     end;
 
     [IntegrationEvent(false, false)]

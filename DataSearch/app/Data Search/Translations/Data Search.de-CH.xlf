@@ -201,12 +201,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Data Search - NamedType StatusLbl</note>
         </trans-unit>
-        <trans-unit id="Page 3130159978 - NamedType 3848749407" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Data Search started. No. of search words: %1. No. of tables to search: %2.</source>
-          <target state="translated">Datensuche wurde gestartet. Anzahl der Suchwörter: %1. Anzahl der zu durchsuchenden Tabellen: %2.</target>
-          <note from="Developer" annotates="general" priority="2">%1 and %2 are integer numbers equal to or greater than 1</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Data Search - NamedType TelemetryLbl</note>
-        </trans-unit>
         <trans-unit id="Page 3130159978 - Control 3906556071 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Results</source>
           <target state="translated">Ergebnisse</target>

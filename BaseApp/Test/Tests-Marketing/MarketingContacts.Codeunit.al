@@ -18,6 +18,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryDimension: Codeunit "Library - Dimension";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryNotificationMgt: codeunit "Library - Notification Mgt.";
@@ -434,6 +435,50 @@ codeunit 136201 "Marketing Contacts"
 
         // 4. Cleanup: Input the original value of the field Bus. Rel. Code for Bank Accs. in Marketing Setup.
         ChangeBusinessRelationCodeForBankAccount(BusRelCodeForBankAccs);
+    end;
+
+    [Test]
+    //[HandlerFunctions('ConfirmHandlerTrue,CustomerTempModalFormHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateCustomerFromCustTemplateWithDefaultDimensions()
+    var
+        CustomerPriceGroup: Record "Customer Price Group";
+        CustomerTemplate: Record "Customer Templ.";
+        Customer: Record Customer;
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+    begin
+        // [FEATURE] [Customer] [Customer Template] [Default Dimensions]
+        // [SCENARIO 475121] Using template when creating Custmer -> all default dimension setups should be copied also                  
+        Initialize();
+
+        // [GIVEN] Create a new Customer Price Group and link it with a new Customer Template.
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        CreateCustomerTemplate(CustomerTemplate, CustomerPriceGroup.Code);
+
+        // [GIVEN] Customer Template is created with default dimensions.
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, DATABASE::"Customer Templ.", CustomerTemplate.Code, DimensionValue."Dimension Code", DimensionValue.Code);
+        DefaultDimension.TestField("Allowed Values Filter", '');
+        DefaultDimension."Value Posting" := DefaultDimension."Value Posting"::"Code Mandatory";
+        DefaultDimension."Allowed Values Filter" := DimensionValue.Code;
+        DefaultDimension.Modify();
+
+        // [WHEN] Create a new Customer from the Customer Template.
+        Customer.Init();
+        Customer.Insert(true);
+        CustomerTemplMgt.ApplyCustomerTemplate(Customer, CustomerTemplate);
+
+        // [THEN] Check that the default dimensions are copied to the new Customer.
+        DefaultDimension.Reset();
+        DefaultDimension.SetRange("Table ID", DATABASE::Customer);
+        DefaultDimension.SetRange("No.", Customer."No.");
+        DefaultDimension.SetRange("Dimension Code", Dimension.Code);
+        DefaultDimension.FindFirst();
+        Assert.AreEqual(DefaultDimension."Allowed Values Filter", DefaultDimension."Dimension Value Code", 'Issue with the customer default dimension - field Allowed Values Filter');
     end;
 
     [Test]
@@ -5276,7 +5321,7 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
-    [HandlerFunctions('CreateInteractModalPageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('CreateInteractModalPageHandler')]
     [Scope('OnPrem')]
     procedure CreateInterationDefaultSPFromUserSetup()
     var

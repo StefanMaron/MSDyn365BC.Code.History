@@ -5,7 +5,7 @@
       <group id="body">
         <trans-unit id="Table 3925836548 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Logging using Graph API</source>
-          <target state="translated">Protokolování e-mailů pomocí rozhraní Graph API</target>
+          <target state="translated">Protokolování emailů pomocí rozhraní Graph API</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Logging Setup - Property Caption</note>
         </trans-unit>
@@ -35,7 +35,7 @@
         </trans-unit>
         <trans-unit id="Table 3925836548 - Field 2228666639 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Batch Size</source>
-          <target state="translated">Velikost dávky e-mailu</target>
+          <target state="translated">Velikost dávky emailu</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Email Logging Setup - Field Email Batch Size - Property Caption</note>
         </trans-unit>
@@ -101,37 +101,37 @@
         </trans-unit>
         <trans-unit id="Codeunit 2165751579 - NamedType 3791449231" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email logging is not enabled.</source>
-          <target state="translated">Protokolování e-mailů není povoleno.</target>
+          <target state="translated">Protokolování emailů není povoleno.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Helper - NamedType DisabledErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2165751579 - NamedType 520866582" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must provide an email address.</source>
-          <target state="translated">Musíte zadat e-mailovou adresu.</target>
+          <target state="translated">Musíte zadat emailovou adresu.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Helper - NamedType EmptyEmailAddressErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2165751579 - NamedType 2355372627" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email logging is not set up.</source>
-          <target state="translated">Protokolování e-mailů není nastaveno.</target>
+          <target state="translated">Protokolování emailů není nastaveno.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging API Helper - NamedType SetupNotFoundErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 419282697 - NamedType 2295013642" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Archiving email message</source>
-          <target state="translated">Archivace e-mailové zprávy</target>
+          <target state="translated">Archivace emailové zprávy</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType ContextArchiveMessageTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 419282697 - NamedType 3447063239" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Deleting email message</source>
-          <target state="translated">Odstranění e-mailové zprávy</target>
+          <target state="translated">Odstranění emailové zprávy</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType ContextDeleteMessageTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 419282697 - NamedType 3966901435" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Get email messages</source>
-          <target state="translated">Získat e-mailové zprávy</target>
+          <target state="translated">Získat emailové zprávy</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType ContextGetMessagesTxt</note>
         </trans-unit>
@@ -143,7 +143,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 419282697 - NamedType 1146285529" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Process email message</source>
-          <target state="translated">Zpracování e-mailové zprávy</target>
+          <target state="translated">Zpracování emailové zprávy</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType ContextProcessMessageTxt</note>
         </trans-unit>
@@ -161,13 +161,13 @@
         </trans-unit>
         <trans-unit id="Codeunit 419282697 - NamedType 292613421" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>There is no link to the email because the email could not be moved to the Archive folder.</source>
-          <target state="translated">Neexistuje žádný odkaz na e-mail, protože e-mail nelze přesunout do složky Archiv.</target>
+          <target state="translated">Neexistuje žádný odkaz na email, protože email nelze přesunout do složky Archiv.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType NoLinkAttachmentMessageTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 419282697 - NamedType 3802208139" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>There is no link to the email because the email could not be moved.</source>
-          <target state="translated">Neexistuje žádný odkaz na e-mail, protože e-mail nelze přesunout.</target>
+          <target state="translated">Neexistuje žádný odkaz na email, protože email nelze přesunout.</target>
           <note from="Developer" annotates="general" priority="2">Max 80 chars</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Invoke - NamedType NoLinkCommentMessageTxt</note>
         </trans-unit>
@@ -179,43 +179,43 @@
         </trans-unit>
         <trans-unit id="Codeunit 2120671752 - NamedType 3452571438" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Email Logging Using the Microsoft Graph API feature is not enabled.</source>
-          <target state="translated">Protokolování e-mailů pomocí rozhraní Microsoft Graph API není povoleno.</target>
+          <target state="translated">Protokolování emailů pomocí rozhraní Microsoft Graph API není povoleno.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmailLoggingDisabledErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2120671752 - NamedType 719120474" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Log email interactions between salespeople and contacts.</source>
-          <target state="translated">Protokolujte e-mailové interakce mezi prodejci a kontakty.</target>
+          <target state="translated">Protokolujte emailové interakce mezi prodejci a kontakty.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmailLoggingJobDescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2120671752 - NamedType 1228041154" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Track email exchanges between your sales team and your customers and prospects, and then turn the emails into actionable opportunities.</source>
-          <target state="translated">Sledujte e-mailové komunikace mezi prodejním týmem a zákazníky a potenciálními zákazníky, a pak je proměňte v příležitosti.</target>
+          <target state="translated">Sledujte emailové komunikace mezi prodejním týmem a zákazníky a potenciálními zákazníky, a pak je proměňte v příležitosti.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmailLoggingSetupDescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2120671752 - NamedType 1892638790" maxwidth="50" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up email logging</source>
-          <target state="translated">Nastavit protokolování e-mailu</target>
+          <target state="translated">Nastavit protokolování emailu</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmailLoggingSetupShortTitleTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2120671752 - NamedType 4210870252" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set up the Email Logging Using the Microsoft Graph API feature.</source>
-          <target state="translated">Nastavte protokolování e-mailů pomocí funkce Rozhraní MICROSOFT Graph API.</target>
+          <target state="translated">Nastavte protokolování emailů pomocí funkce Rozhraní MICROSOFT Graph API.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmailLoggingSetupTitleTxt</note>
         </trans-unit>
         <trans-unit id="Codeunit 2120671752 - NamedType 520866582" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email address is empty.</source>
-          <target state="translated">E-mailová adresa je prázdná.</target>
+          <target state="translated">Emailová adresa je prázdná.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType EmptyEmailAddressErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 2120671752 - NamedType 1164843116" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Your license does not allow you to schedule the email logging task or register interaction log entries. To view details about your permissions, see the Effective Permissions page.</source>
-          <target state="translated">Vaše licence neumožňuje naplánovat úlohu protokolování e-mailu ani zaregistrovat položky protokolu interakce. Podrobnosti o oprávněních najdete na stránce Platná oprávnění.</target>
+          <target state="translated">Vaše licence neumožňuje naplánovat úlohu protokolování emailu ani zaregistrovat položky protokolu interakce. Podrobnosti o oprávněních najdete na stránce Platná oprávnění.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType NoPermissionsForJobErr</note>
         </trans-unit>
@@ -227,7 +227,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 2120671752 - NamedType 2543942014" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify a size for the email batch.</source>
-          <target state="translated">Pro e-mailovou dávku je nutné zadat velikost.</target>
+          <target state="translated">Pro emailovou dávku je nutné zadat velikost.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging Management - NamedType ZeroEmailBatchSizeErr</note>
         </trans-unit>
@@ -251,19 +251,19 @@
         </trans-unit>
         <trans-unit id="Codeunit 3366432307 - NamedType 2400741151" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Authentication using the client ID and secret for email logging is not enabled.</source>
-          <target state="translated">Ověřování pomocí ID klienta a tajného klíče pro protokolování e-mailů není povoleno.</target>
+          <target state="translated">Ověřování pomocí ID klienta a tajného klíče pro protokolování emailů není povoleno.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Email Logging OAuth Client - NamedType ThirdPartyAppOnlyErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 1641602404 - NamedType 1427565258" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email logging done through public folders in Exchange Online will be disabled and the corresponding job queue entry will be deleted. Administrators can then set up email logging to use a shared mailbox in Exchange.</source>
-          <target state="translated">Protokolování e-mailů provedené prostřednictvím veřejných složek v Exchange Online bude zakázáno a odpovídající položka fronty úloh bude odstraněna. Správci pak můžou nastavit protokolování e-mailů tak, aby používalo sdílenou poštovní schránku v Exchange.</target>
+          <target state="translated">Protokolování emailů provedené prostřednictvím veřejných složek v Exchange Online bude zakázáno a odpovídající položka fronty úloh bude odstraněna. Správci pak můžou nastavit protokolování emailů tak, aby používalo sdílenou poštovní schránku v Exchange.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Feature Email Log. Using Graph - NamedType DescriptionTxt</note>
         </trans-unit>
         <trans-unit id="Page 3925836548 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Logging</source>
-          <target state="translated">Protokolování e-mailů</target>
+          <target state="translated">Protokolování emailů</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Property Caption</note>
         </trans-unit>
@@ -275,13 +275,13 @@
         </trans-unit>
         <trans-unit id="Page 3925836548 - NamedType 4171123882" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This clears the settings in your email logging setup. Do you want to continue?</source>
-          <target state="translated">Tím se vymaže nastavení v nastavení protokolování e-mailů. Chcete pokračovat?</target>
+          <target state="translated">Tím se vymaže nastavení v nastavení protokolování emailů. Chcete pokračovat?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType ClearSetupTxt</note>
         </trans-unit>
         <trans-unit id="Page 3925836548 - NamedType 685980417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This feature requires that you are using Microsoft Exchange Online. By enabling this feature, you consent to sharing some of your organization's data in Office 365 with Business Central. Business Central will access details about email messages in the shared mailbox that your administrator created for email logging. The details include the message’s IDs, whether it is a draft, the dates and times it was sent and received, the text from the Subject line, a link to the message in Exchange Online, and the email addresses of the sender and the recipients on the To and Cc lines.\\Business Central will store only the IDs, dates, subject, and weblink. We do not store the content of the messages, but there is a link that will open the email message in Outlook Online.\\Do you want to continue?</source>
-          <target state="translated">Tato funkce vyžaduje, abyste používali Microsoft Exchange Online. Povolením této funkce souhlasíte se sdílením některých dat vaší organizace v Office 365 s Business Central. Business Central bude mít přístup k podrobnostem o e-mailových zprávách ve sdílené poštovní schránce, kterou správce vytvořil pro protokolování e-mailů. Podrobnosti zahrnují ID zprávy, ať už se jedná o koncept, data a časy, kdy byla odeslána a přijata, text z řádku Předmět, odkaz na zprávu v Exchange Online a e-mailové adresy odesílatele a příjemců na řádcích Komu a Kopie.\\Business Central uloží pouze ID,  data, předmět a webový odkaz. Obsah zpráv neukládáme, ale existuje odkaz, který otevře e-mailovou zprávu v aplikaci Outlook Online.\\Chcete pokračovat?</target>
+          <target state="translated">Tato funkce vyžaduje, abyste používali Microsoft Exchange Online. Povolením této funkce souhlasíte se sdílením některých dat vaší organizace v Office 365 s Business Central. Business Central bude mít přístup k podrobnostem o emailových zprávách ve sdílené poštovní schránce, kterou správce vytvořil pro protokolování emailů. Podrobnosti zahrnují ID zprávy, ať už se jedná o koncept, data a časy, kdy byla odeslána a přijata, text z řádku Předmět, odkaz na zprávu v Exchange Online a emailové adresy odesílatele a příjemců na řádcích Komu a Kopie.\\Business Central uloží pouze ID,  data, předmět a webový odkaz. Obsah zpráv neukládáme, ale existuje odkaz, který otevře emailovou zprávu v aplikaci Outlook Online.\\Chcete pokračovat?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType DataHandlingConsentQst</note>
         </trans-unit>
@@ -293,13 +293,13 @@
         </trans-unit>
         <trans-unit id="Page 3925836548 - NamedType 486941607" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The setup for email logging is ready to use.</source>
-          <target state="translated">Nastavení pro protokolování e-mailů je připraveno k použití.</target>
+          <target state="translated">Nastavení pro protokolování emailů je připraveno k použití.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType SetupValidatedTxt</note>
         </trans-unit>
         <trans-unit id="Page 3925836548 - NamedType 1079936952" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must sign in with an Exchange Online account that the scheduled job will use to connect to the shared mailbox and process emails. Do you want to continue?</source>
-          <target state="translated">Musíte se přihlásit pomocí účtu Exchange Online, který naplánovaná úloha použije k připojení ke sdílené poštovní schránce a zpracování e-mailů. Chcete pokračovat?</target>
+          <target state="translated">Musíte se přihlásit pomocí účtu Exchange Online, který naplánovaná úloha použije k připojení ke sdílené poštovní schránce a zpracování emailů. Chcete pokračovat?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - NamedType SignInTxt</note>
         </trans-unit>
@@ -317,31 +317,31 @@
         </trans-unit>
         <trans-unit id="Page 3925836548 - Control 90141998 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the email address of the shared mailbox in Exchange Online that was created for email logging. The shared mailbox must be in the same tenant as Business Central.</source>
-          <target state="translated">Určuje e-mailovou adresu sdílené poštovní schránky v Exchange Online, která byla vytvořena pro protokolování e-mailů. Sdílená poštovní schránka musí být ve stejném tenantovi jako Business Central.</target>
+          <target state="translated">Určuje emailovou adresu sdílené poštovní schránky v Exchange Online, která byla vytvořena pro protokolování emailů. Sdílená poštovní schránka musí být ve stejném tenantovi jako Business Central.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Email Address - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3925836548 - Control 90141998 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shared Mailbox Email</source>
-          <target state="translated">E-mail se sdílenou poštovní schránkou</target>
+          <target state="translated">Email se sdílenou poštovní schránkou</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Email Address - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3925836548 - Control 2228666639 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of email messages that the job queue entry for email logging will get from Exchange Online in one run. By balancing this number with how often the job queue entry runs you can fine tune the process. If a message is not logged in the current run it will be in the next one.</source>
-          <target state="translated">Určuje počet e-mailových zpráv, které položka fronty úloh pro protokolování e-mailů získá z Exchange Online v jednom spuštění. Vyvážením tohoto čísla s tím, jak často se spouští položka fronty úloh, můžete proces doladit. Pokud zpráva není přihlášena v aktuálním spuštění, bude v dalším spuštění.</target>
+          <target state="translated">Určuje počet emailových zpráv, které položka fronty úloh pro protokolování emailů získá z Exchange Online v jednom spuštění. Vyvážením tohoto čísla s tím, jak často se spouští položka fronty úloh, můžete proces doladit. Pokud zpráva není přihlášena v aktuálním spuštění, bude v dalším spuštění.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Email Batch Size - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3925836548 - Control 2228666639 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Batch Size</source>
-          <target state="translated">Velikost dávky e-mailu</target>
+          <target state="translated">Velikost dávky emailu</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Email Batch Size - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 3925836548 - Control 2891538263 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies whether email logging is enabled.</source>
-          <target state="translated">Určuje, zda je povoleno protokolování e-mailů.</target>
+          <target state="translated">Určuje, zda je povoleno protokolování emailů.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Control Enabled - Property ToolTip</note>
         </trans-unit>
@@ -389,7 +389,7 @@
         </trans-unit>
         <trans-unit id="Page 3925836548 - Action 2678035379 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View the status and any errors that occurred while processing email messages and creating interaction log entries.</source>
-          <target state="translated">Zobrazte stav a všechny chyby, ke kterým došlo při zpracování e-mailových zpráv a vytváření záznamů protokolu interakcí.</target>
+          <target state="translated">Zobrazte stav a všechny chyby, ke kterým došlo při zpracování emailových zpráv a vytváření záznamů protokolu interakcí.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action ActivityLog - Property ToolTip</note>
         </trans-unit>
@@ -413,7 +413,7 @@
         </trans-unit>
         <trans-unit id="Page 3925836548 - Action 2990248934 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>View the job queue entry that processes email messages and creates interaction log entries.</source>
-          <target state="translated">Zobrazte položku fronty úloh, která zpracovává e-mailové zprávy a vytváří položky protokolu interakce.</target>
+          <target state="translated">Zobrazte položku fronty úloh, která zpracovává emailové zprávy a vytváří položky protokolu interakce.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action Job Queue Entry - Property ToolTip</note>
         </trans-unit>
@@ -437,7 +437,7 @@
         </trans-unit>
         <trans-unit id="Page 3925836548 - Action 807937578 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Clear all settings for email logging.</source>
-          <target state="translated">Zrušte všechna nastavení pro protokolování e-mailů.</target>
+          <target state="translated">Zrušte všechna nastavení pro protokolování emailů.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action ClearSetup - Property ToolTip</note>
         </trans-unit>
@@ -449,7 +449,7 @@
         </trans-unit>
         <trans-unit id="Page 3925836548 - Action 1339347432 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Recreate the job queue entry that processes email messages and creates interaction log entries.</source>
-          <target state="translated">Znovu vytvořte položku fronty úloh, která zpracovává e-mailové zprávy a vytváří položky protokolu interakce.</target>
+          <target state="translated">Znovu vytvořte položku fronty úloh, která zpracovává emailové zprávy a vytváří položky protokolu interakce.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action RecreateJob - Property ToolTip</note>
         </trans-unit>
@@ -461,7 +461,7 @@
         </trans-unit>
         <trans-unit id="Page 3925836548 - Action 22890876 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Renew the token for connecting to the shared mailbox. You must sign in with an Exchange Online account that the scheduled job will use to connect to the shared mailbox and process emails. Use this to change the user, or if the token has expired.</source>
-          <target state="translated">Obnovte token pro připojení ke sdílené poštovní schránce. Musíte se přihlásit pomocí účtu Exchange Online, který naplánovaná úloha použije k připojení ke sdílené poštovní schránce a zpracování e-mailů. Použijte tuto hodnotu ke změně uživatele nebo pokud platnost tokenu vypršela.</target>
+          <target state="translated">Obnovte token pro připojení ke sdílené poštovní schránce. Musíte se přihlásit pomocí účtu Exchange Online, který naplánovaná úloha použije k připojení ke sdílené poštovní schránce a zpracování emailů. Použijte tuto hodnotu ke změně uživatele nebo pokud platnost tokenu vypršela.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action RenewToken - Property ToolTip</note>
         </trans-unit>
@@ -473,7 +473,7 @@
         </trans-unit>
         <trans-unit id="Page 3925836548 - Action 2570329715 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Validate the settings for email logging.</source>
-          <target state="translated">Ověřte nastavení pro protokolování e-mailů.</target>
+          <target state="translated">Ověřte nastavení pro protokolování emailů.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup - Action ValidateSetup - Property ToolTip</note>
         </trans-unit>
@@ -485,7 +485,7 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Set Up Email Logging</source>
-          <target state="translated">Nastavení protokolování e-mailů</target>
+          <target state="translated">Nastavení protokolování emailů</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Property Caption</note>
         </trans-unit>
@@ -521,13 +521,13 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - NamedType 2937150220" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Learn how to set up a shared mailbox for email logging</source>
-          <target state="translated">Přečtěte si, jak nastavit sdílenou poštovní schránku pro protokolování e-mailů</target>
+          <target state="translated">Přečtěte si, jak nastavit sdílenou poštovní schránku pro protokolování emailů</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType LearnHowToSetupMailboxForEmailLoggingTxt</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - NamedType 1147111024" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email logging is not set up. \\Are you sure that you want to exit?</source>
-          <target state="translated">Protokolování e-mailů není nastaveno. \\Jste si jisti, že chcete ukončit?</target>
+          <target state="translated">Protokolování emailů není nastaveno. \\Jste si jisti, že chcete ukončit?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - NamedType NotSetUpQst</note>
         </trans-unit>
@@ -592,7 +592,7 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 2226295909 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The Email Logging Using the Microsoft Graph API feature is not enabled. To continue, open the Feature Management page and enable the feature.</source>
-          <target state="translated">Protokolování e-mailů pomocí rozhraní Microsoft Graph API není povoleno. Chcete-li pokračovat, otevřete stránku Správa funkcí a povolte ho.</target>
+          <target state="translated">Protokolování emailů pomocí rozhraní Microsoft Graph API není povoleno. Chcete-li pokračovat, otevřete stránku Správa funkcí a povolte ho.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control FeatureHeader - Property InstructionalText</note>
         </trans-unit>
@@ -603,13 +603,13 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 1403432667 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Welcome to Email Logging Setup</source>
-          <target state="translated">Vítá vás nastavení protokolování e-mailů</target>
+          <target state="translated">Vítá vás nastavení protokolování emailů</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Welcome to Email Logging Setup - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 700962840 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This guide will help you set up email logging using the Microsoft Graph API to connect to a shared mailbox.</source>
-          <target state="translated">Tato příručka vám pomůže nastavit protokolování e-mailů pomocí Microsoft Graph API pro připojení ke sdílené poštovní schránce.</target>
+          <target state="translated">Tento průvodce vám pomůže nastavit protokolování emailů pomocí Microsoft Graph API pro připojení ke sdílené poštovní schránce.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Control3 - Property InstructionalText</note>
         </trans-unit>
@@ -620,7 +620,7 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 3889445925 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>To learn more about how to set up shared mailboxes and rules so that your organization can track email communication between sales people and external contacts, choose the link below.</source>
-          <target state="translated">Chcete-li se dozvědět více o tom, jak nastavit sdílené poštovní schránky a pravidla, aby vaše organizace mohla sledovat e-mailovou komunikaci mezi obchodníky a externími kontakty, vyberte odkaz níže.</target>
+          <target state="translated">Chcete-li se dozvědět více o tom, jak nastavit sdílené poštovní schránky a pravidla, aby vaše organizace mohla sledovat emailovou komunikaci mezi obchodníky a externími kontakty, vyberte odkaz níže.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Control4 - Property InstructionalText</note>
         </trans-unit>
@@ -697,37 +697,37 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 1003846730 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Provide the email address of the shared mailbox that is configured for email logging. The shared mailbox must be in the same tenant as Business Central.</source>
-          <target state="translated">Zadejte e-mailovou adresu sdílené poštovní schránky, která je nakonfigurovaná pro protokolování e-mailů. Sdílená poštovní schránka musí být ve stejném tenantovi jako Business Central.</target>
+          <target state="translated">Zadejte emailovou adresu sdílené poštovní schránky, která je nakonfigurovaná pro protokolování emailů. Sdílená poštovní schránka musí být ve stejném tenantovi jako Business Central.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Step4 - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 357018923 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Enter the number of email messages that the job queue entry for email logging will get from Exchange Online in one run. By balancing this number with how often the job queue entry runs you can fine tune the process. If a message is not logged in the current run it will be in the next one.</source>
-          <target state="translated">Zadejte počet e-mailových zpráv, které položka fronty úloh pro protokolování e-mailů obdrží z Exchange Online v jednom spuštění. Vyrovnáním tohoto čísla s četností spouštění záznamu fronty úloh můžete proces doladit. Pokud zpráva není přihlášena v aktuálním běhu, bude v následujícím.</target>
+          <target state="translated">Zadejte počet emailových zpráv, které položka fronty úloh pro protokolování emailů obdrží z Exchange Online v jednom spuštění. Vyrovnáním tohoto čísla s četností spouštění záznamu fronty úloh můžete proces doladit. Pokud zpráva není přihlášena v aktuálním běhu, bude v následujícím.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control AdvancedHeader - Property InstructionalText</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 2269421455 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of email messages that the job queue entry for email logging will get from Exchange Online in one run. By balancing this number with how often the job queue entry runs you can fine tune the process. If a message is not logged in the current run it will be in the next one.</source>
-          <target state="translated">Určuje počet e-mailových zpráv, které položka fronty úloh pro protokolování e-mailů získá z Exchange Online v jednom spuštění. Vyvážením tohoto čísla s tím, jak často se spouští položka fronty úloh, můžete proces doladit. Pokud zpráva není přihlášena v aktuálním spuštění, bude v dalším spuštění.</target>
+          <target state="translated">Určuje počet emailových zpráv, které položka fronty úloh pro protokolování emailů získá z Exchange Online v jednom spuštění. Vyvážením tohoto čísla s tím, jak často se spouští položka fronty úloh, můžete proces doladit. Pokud zpráva není přihlášena v aktuálním spuštění, bude v dalším spuštění.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control EmailBatchSize - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 2269421455 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Batch Size</source>
-          <target state="translated">Velikost dávky e-mailu</target>
+          <target state="translated">Velikost dávky emailu</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control EmailBatchSize - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 90141998 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the email address of the shared mailbox. The shared mailbox must be in the same tenant as Business Central.</source>
-          <target state="translated">Určuje e-mailovou adresu sdílené poštovní schránky. Sdílená poštovní schránka musí být ve stejném tenantovi jako Business Central.</target>
+          <target state="translated">Určuje emailovou adresu sdílené poštovní schránky. Sdílená poštovní schránka musí být ve stejném tenantovi jako Business Central.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Email Address - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 90141998 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shared Mailbox Email</source>
-          <target state="translated">E-mail se sdílenou poštovní schránkou</target>
+          <target state="translated">Email se sdílenou poštovní schránkou</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control Email Address - Property Caption</note>
         </trans-unit>
@@ -757,7 +757,7 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 1830144250 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Click the link below to test the connection to the shared mailbox. You will need to sign in with an Exchange Online account that the scheduled job will use to connect to the shared mailbox and process emails.</source>
-          <target state="translated">Kliknutím na níže uvedený odkaz otestujte připojení ke sdílené poštovní schránce. Budete se muset přihlásit pomocí účtu Exchange Online, který plánovaná úloha použije k připojení ke sdílené poštovní schránce a zpracování e-mailů.</target>
+          <target state="translated">Kliknutím na níže uvedený odkaz otestujte připojení ke sdílené poštovní schránce. Budete se muset přihlásit pomocí účtu Exchange Online, který plánovaná úloha použije k připojení ke sdílené poštovní schránce a zpracování emailů.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control ValidateMailboxThirdPartyApp - Property InstructionalText</note>
         </trans-unit>
@@ -786,19 +786,19 @@
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 1611996399 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create Email Logging Job Queue</source>
-          <target state="translated">Vytvoření fronty úloh protokolování e-mailů</target>
+          <target state="translated">Vytvoření fronty úloh protokolování emailů</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control CreateEmailLoggingJobQueue - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 1611996399 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create Email Logging Job Queue</source>
-          <target state="translated">Vytvoření fronty úloh protokolování e-mailů</target>
+          <target state="translated">Vytvoření fronty úloh protokolování emailů</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control CreateEmailLoggingJobQueue - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 580021373 - Control 1133024549 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Logging requires correctly configured Interaction Template Setup.</source>
-          <target state="translated">Protokolování e-mailů vyžaduje správně nakonfigurované nastavení šablony interakce.</target>
+          <target state="translated">Protokolování emailů vyžaduje správně nakonfigurované nastavení šablony interakce.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Email Logging Setup Wizard - Control InvalidInteractionTemplateSetupGroup - Property InstructionalText</note>
         </trans-unit>
@@ -876,7 +876,7 @@
         </trans-unit>
         <trans-unit id="PageExtension 34130476 - NamedType 685980417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>This feature requires that you are using Microsoft Exchange Online. By enabling this feature, you consent to sharing some of your organization's data in Office 365 with Business Central. Business Central will access details about email messages in the shared mailbox that your administrator created for email logging. The details include the message’s IDs, whether it is a draft, the dates and times it was sent and received, the text from the Subject line, a link to the message in Exchange Online, and the email addresses of the sender and the recipients on the To and Cc lines.\\Business Central will store only the IDs, dates, subject, and weblink. We do not store the content of the messages, but there is a link that will open the email message in Outlook Online.\\Do you want to continue?</source>
-          <target state="translated">Tato funkce vyžaduje, abyste používali Microsoft Exchange Online. Povolením této funkce souhlasíte se sdílením některých dat vaší organizace v Office 365 s Business Central. Business Central bude mít přístup k podrobnostem o e-mailových zprávách ve sdílené poštovní schránce, kterou správce vytvořil pro protokolování e-mailů. Podrobnosti zahrnují ID zprávy, ať už se jedná o koncept, data a časy, kdy byla odeslána a přijata, text z řádku Předmět, odkaz na zprávu v Exchange Online a e-mailové adresy odesílatele a příjemců na řádcích Komu a Kopie.\\Business Central uloží pouze ID,  data, předmět a webový odkaz. Obsah zpráv neukládáme, ale existuje odkaz, který otevře e-mailovou zprávu v aplikaci Outlook Online.\\Chcete pokračovat?</target>
+          <target state="translated">Tato funkce vyžaduje, abyste používali Microsoft Exchange Online. Povolením této funkce souhlasíte se sdílením některých dat vaší organizace v Office 365 s Business Central. Business Central bude mít přístup k podrobnostem o emailových zprávách ve sdílené poštovní schránce, kterou správce vytvořil pro protokolování emailů. Podrobnosti zahrnují ID zprávy, ať už se jedná o koncept, data a časy, kdy byla odeslána a přijata, text z řádku Předmět, odkaz na zprávu v Exchange Online a emailové adresy odesílatele a příjemců na řádcích Komu a Kopie.\\Business Central uloží pouze ID,  data, předmět a webový odkaz. Obsah zpráv neukládáme, ale existuje odkaz, který otevře emailovou zprávu v aplikaci Outlook Online.\\Chcete pokračovat?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">PageExtension 34130476</note>

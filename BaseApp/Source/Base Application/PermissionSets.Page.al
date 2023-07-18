@@ -122,6 +122,7 @@ page 9802 "Permission Sets"
                 SubPageLink = "Role ID" = field("Role ID"), "App ID" = field("App ID"), Scope = field(Scope);
                 AboutTitle = 'Permission set assignments';
                 AboutText = 'View or edit the list of users who are assigned a permission set.';
+                Visible = not CanManageUsersOnTenant;
             }
         }
     }

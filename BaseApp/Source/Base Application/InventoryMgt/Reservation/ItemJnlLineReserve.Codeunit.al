@@ -95,8 +95,13 @@
         ItemTrackingManagement: Codeunit "Item Tracking Management";
         ShowError: Boolean;
         HasError: Boolean;
-        PointerChanged: Boolean;
+        PointerChanged, IsHandled : Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyChange(NewItemJournalLine, OldItemJournalLine, ReservationManagement, Blocked, IsHandled);
+        if IsHandled then
+            exit;
+
         if Blocked then
             exit;
         if NewItemJournalLine."Line No." = 0 then
@@ -615,6 +620,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCallItemTrackingOnBeforeCallItemJnlLineItemTracking(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyChange(var NewItemJournalLine: Record "Item Journal Line"; OldItemJournalLine: Record "Item Journal Line"; var ReservationManagement: Codeunit "Reservation Management"; var Blocked: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

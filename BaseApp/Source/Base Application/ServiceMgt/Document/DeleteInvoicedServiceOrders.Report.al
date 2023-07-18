@@ -17,8 +17,12 @@ report 5914 "Delete Invoiced Service Orders"
             trigger OnAfterGetRecord()
             var
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                IsHandled: Boolean;
             begin
-                OnBeforeServiceHeaderOnAfterGetRecord("Service Header");
+                IsHandled := false;
+                OnBeforeServiceHeaderOnAfterGetRecord("Service Header", IsHandled);
+                if IsHandled then
+                    CurrReport.Skip();
 
                 if GuiAllowed() then
                     Window.Update(1, "No.");
@@ -143,7 +147,7 @@ report 5914 "Delete Invoiced Service Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceHeaderOnAfterGetRecord(var ServiceHeader: Record "Service Header")
+    local procedure OnBeforeServiceHeaderOnAfterGetRecord(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -17,7 +17,11 @@ codeunit 137617 "Production & Assembly Costing"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryDimension: Codeunit "Library - Dimension";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        Assert: Codeunit Assert;
         isInitialized: Boolean;
+        ValueMustBeEqualErr: Label '%1 must be equal to %2', Comment = '%1 = Field Caption , %2 = Expected Value';
 
     [Test]
     [Scope('OnPrem')]
@@ -789,6 +793,90 @@ codeunit 137617 "Production & Assembly Costing"
         VerifyItemEntriesCost(FinalItem."No.", ItemLedgerEntry."Entry Type"::Output, CompUnitCost);
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandlerForDimensionSetID')]
+    [Scope('OnPrem')]
+    procedure VerifyDimensionSetIDForEntryTypeConsumptionInProductionJournal()
+    var
+        ComponentItem: Record Item;
+        ProducedItem: Record Item;
+        Location: Record Location;
+        ManufacturingSetUp: Record "Manufacturing Setup";
+        DefaultDimension: Record "Default Dimension";
+        DefaultDimension2: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        DimensionValue2: Record "Dimension Value";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        // [SCENARIO 476262] Verify "Dimension Set ID" for "Entry Type" Consumption in Production Journal.
+        Initialize();
+
+        // [GIVEN] Create two Dimensions with its Dimension Values.
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue2);
+
+        // [GIVEN] Create a Location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Update "Components at Location" in Manufacturing Setup.
+        ManufacturingSetUp.Get();
+        ManufacturingSetUp.Validate("Components at Location", Location.Code);
+        ManufacturingSetUp.Modify(true);
+
+        // [GIVEN] Create a Default Dimension for Location.
+        LibraryDimension.CreateDefaultDimension(
+            DefaultDimension,
+            Database::Location,
+            Location.Code,
+            DimensionValue."Dimension Code",
+            DimensionValue.Code);
+
+        // [GIVEN] Create Component and Produced Item.
+        LibraryInventory.CreateItem(ComponentItem);
+        LibraryInventory.CreateItem(ProducedItem);
+
+        // [GIVEN] Create a Default Dimension for Produced Item.
+        LibraryDimension.CreateDefaultDimension(
+            DefaultDimension2,
+            Database::Item,
+            ProducedItem."No.",
+            DimensionValue2."Dimension Code",
+            DimensionValue2.Code);
+
+        // [GIVEN] Create a Production BOM.
+        CreateProductionBOM(ProducedItem, ComponentItem);
+
+        // [GIVEN] Create a Production Order.
+        LibraryManufacturing.CreateProductionOrder(
+            ProductionOrder,
+            ProductionOrder.Status::Released,
+            ProductionOrder."Source Type"::Item,
+            ProducedItem."No.",
+            1);
+
+        // [GIVEN] Update Location Code in Production Order.
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+
+        // [WHEN] Refresh a Production Order.
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] Store Component Item No. and Dimension Set ID.
+        LibraryVariableStorage.Enqueue(ComponentItem."No.");
+        FindProdOrderLine(ProdOrderLine, ProductionOrder, ProducedItem."No.");
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [VERIFY] Verify "Dimension Set ID" for "Entry Type" Consumption in Production Journal.
+        Assert.AreEqual(
+            ProductionOrder."Dimension Set ID",
+            LibraryVariableStorage.DequeueInteger(),
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                ProductionOrder.FieldCaption("Dimension Set ID"),
+                ProductionOrder."Dimension Set ID"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1047,6 +1135,17 @@ codeunit 137617 "Production & Assembly Costing"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalModalPageHandlerForDimensionSetID(var ProductionJournal: TestPage "Production Journal")
+    var
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        ItemJnlLine.SetRange("Item No.", LibraryVariableStorage.DequeueText());
+        ItemJnlLine.FindFirst();
+        LibraryVariableStorage.Enqueue(ItemJnlLine."Dimension Set ID");
     end;
 }
 

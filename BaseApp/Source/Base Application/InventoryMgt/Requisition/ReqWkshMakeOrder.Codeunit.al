@@ -90,6 +90,8 @@ codeunit 333 "Req. Wksh.-Make Order"
             exit;
         Code(ReqLine);
         ReqLine2 := ReqLine;
+
+        OnAfterCarryOutBatchAction(ReqLine2);
     end;
 
     procedure Set(NewPurchOrderHeader: Record "Purchase Header"; NewEndingOrderDate: Date; NewPrintPurchOrder: Boolean)
@@ -1761,6 +1763,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertHeaderOnBeforeSetShipToForSpecOrder(var PurchaseHeader: Record "Purchase Header"; RequisitionLine: Record "Requisition Line"; var ShouldSetShipToForSpecOrder: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCarryOutBatchAction(var RequisitionLine2: Record "Requisition Line")
     begin
     end;
 }

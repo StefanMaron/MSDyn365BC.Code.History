@@ -111,7 +111,13 @@ codeunit 99000842 "Service Line-Reserve"
         ServiceLine: Record "Service Line";
         ShowError: Boolean;
         HasError: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyChange(NewServiceLine, OldServiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if (NewServiceLine.Type <> NewServiceLine.Type::Item) and (OldServiceLine.Type <> OldServiceLine.Type::Item) then
             exit;
 
@@ -709,6 +715,11 @@ codeunit 99000842 "Service Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var ServiceLine: Record "Service Line"; var ItemTrackingLines: Page "Item Tracking Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyChange(var NewServiceLine: Record "Service Line"; var OldServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 }

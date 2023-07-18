@@ -565,7 +565,6 @@ codeunit 900 "Assembly-Post"
             ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Assembly;
             ItemJnlLine."Order No." := "Document No.";
             ItemJnlLine."Order Line No." := "Line No.";
-            ItemJnlLine."Dimension Set ID" := "Dimension Set ID";
             ItemJnlLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
             ItemJnlLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
             ItemJnlLine."Source Type" := ItemJnlLine."Source Type"::Item;
@@ -587,6 +586,7 @@ codeunit 900 "Assembly-Post"
             ItemJnlLine."Variant Code" := "Variant Code";
             ItemJnlLine.Description := Description;
             ItemJnlLine.Validate("Location Code", "Location Code");
+            ItemJnlLine."Dimension Set ID" := "Dimension Set ID";
             ItemJnlLine."Bin Code" := "Bin Code";
             ItemJnlLine."Unit Cost" := "Unit Cost";
             ItemJnlLine.Correction := IsCorrection;
@@ -1321,7 +1321,13 @@ codeunit 900 "Assembly-Post"
         PostedAsmLine: Record "Posted Assembly Line";
         AsmLine: Record "Assembly Line";
         TempItemLedgEntry: Record "Item Ledger Entry" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPossibleToUndo(PostedAsmHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PostedAsmHeader do begin
             TestField(Reversed, false);
             UndoPostingMgt.TestAsmHeader(PostedAsmHeader);
@@ -1770,6 +1776,11 @@ codeunit 900 "Assembly-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateWhseJnlLine(Location: Record Location; var WarehouseJournalLine: Record "Warehouse Journal Line"; AssemblyHeader: Record "Assembly Header"; ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPossibleToUndo(PostedAssemblyHeader: Record "Posted Assembly Header"; var IsHandled: Boolean)
     begin
     end;
 }

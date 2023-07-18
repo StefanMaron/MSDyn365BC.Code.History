@@ -146,6 +146,7 @@ codeunit 9081 "Check Gen. Jnl. Line. Backgr."
         if TempLineErrorMessage.FindSet() then
             repeat
                 TempErrorMessage.TransferFields(TempLineErrorMessage);
+                TempErrorMessage.SetErrorCallStack(TempLineErrorMessage.GetErrorCallStack());
                 TempErrorMessage.ID := ID;
                 TempErrorMessage.Insert();
                 ID += 1;

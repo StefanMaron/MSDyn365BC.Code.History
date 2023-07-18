@@ -245,7 +245,6 @@ page 9837 "Permission Set by User Group"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy Permission Set';
                 Ellipsis = true;
-                Enabled = CanManageUsersOnTenant;
                 Image = Copy;
                 ToolTip = 'Create a copy of the selected permission set with a name that you specify.';
 
@@ -357,10 +356,8 @@ page 9837 "Permission Set by User Group"
     end;
 
     trigger OnInit()
-    var
-        UserPermissions: Codeunit "User Permissions";
     begin
-        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
     end;
 
     trigger OnOpenPage()
@@ -374,7 +371,6 @@ page 9837 "Permission Set by User Group"
     var
         PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
         AllGroupsHavePermission: Boolean;
-        CanManageUsersOnTenant: Boolean;
         NoOfRecords: Integer;
         UserGroupCodeArr: array[10] of Code[20];
         UserGroupHasPermissionSet: array[10] of Boolean;

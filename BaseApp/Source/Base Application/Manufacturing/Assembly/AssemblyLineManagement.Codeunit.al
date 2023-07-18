@@ -282,7 +282,7 @@ codeunit 905 "Assembly Line Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateAssemblyLines(AsmHeader, OldAsmHeader, FieldNum, ReplaceLinesFromBOM, CurrFieldNo, CurrentFieldNum, IsHandled);
+        OnBeforeUpdateAssemblyLines(AsmHeader, OldAsmHeader, FieldNum, ReplaceLinesFromBOM, CurrFieldNo, CurrentFieldNum, IsHandled, HideValidationDialog);
         if IsHandled then
             exit;
 
@@ -571,7 +571,7 @@ codeunit 905 "Assembly Line Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShowAvailability(TempAssemblyHeader, TempAssemblyLine, ShowPageEvenIfEnoughComponentsAvailable, IsHandled, Rollback);
+        OnBeforeShowAvailability(TempAssemblyHeader, TempAssemblyLine, ShowPageEvenIfEnoughComponentsAvailable, IsHandled, Rollback, WarningModeOff);
         if IsHandled then
             exit(Rollback);
 
@@ -801,12 +801,12 @@ codeunit 905 "Assembly Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShowAvailability(var TempAssemblyHeader: Record "Assembly Header" temporary; var TempAssemblyLine: Record "Assembly Line" temporary; ShowPageEvenIfEnoughComponentsAvailable: Boolean; var IsHandled: Boolean; var RollBack: Boolean)
+    local procedure OnBeforeShowAvailability(var TempAssemblyHeader: Record "Assembly Header" temporary; var TempAssemblyLine: Record "Assembly Line" temporary; ShowPageEvenIfEnoughComponentsAvailable: Boolean; var IsHandled: Boolean; var RollBack: Boolean; WarningModeOff: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateAssemblyLines(var AsmHeader: Record "Assembly Header"; OldAsmHeader: Record "Assembly Header"; FieldNum: Integer; ReplaceLinesFromBOM: Boolean; CurrFieldNo: Integer; CurrentFieldNum: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateAssemblyLines(var AsmHeader: Record "Assembly Header"; OldAsmHeader: Record "Assembly Header"; FieldNum: Integer; ReplaceLinesFromBOM: Boolean; CurrFieldNo: Integer; CurrentFieldNum: Integer; var IsHandled: Boolean; HideValidationDialog: Boolean)
     begin
     end;
 

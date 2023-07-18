@@ -50,6 +50,7 @@ codeunit 242 "Item Jnl.-Post+Print"
             TempJnlBatchName := "Journal Batch Name";
 
             ItemJnlPostBatch.SetSuppressCommit(SuppressCommit);
+            OnCodeOnBeforeItemJnlPostBatchRun(ItemJnlLine);
             ItemJnlPostBatch.Run(ItemJnlLine);
 
             OnAfterPostJournalBatch(ItemJnlLine);
@@ -128,6 +129,11 @@ codeunit 242 "Item Jnl.-Post+Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintWhseRegister(WarehouseRegister: Record "Warehouse Register"; ItemJournalTemplate: Record "Item Journal Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeItemJnlPostBatchRun(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 }

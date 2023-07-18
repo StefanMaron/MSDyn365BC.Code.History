@@ -168,7 +168,14 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
     end;
 
     procedure SetPrice(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPrice(RequisitionLine, PriceListLine, AmountType, IsHandled, CurrPriceType);
+        if IsHandled then
+            exit;
+
         if AmountType = AmountType::Discount then
             RequisitionLine."Line Discount %" := PriceListLine."Line Discount %"
         else begin
@@ -221,6 +228,11 @@ codeunit 7025 "Requisition Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVerify(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPrice(var RequisitionLine: Record "Requisition Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean; CurrPriceType: Enum "Price Type")
     begin
     end;
 }

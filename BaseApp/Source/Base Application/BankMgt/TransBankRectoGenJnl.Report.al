@@ -16,6 +16,7 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                 trigger OnAfterGetRecord()
                 var
                     SourceCodeSetup: Record "Source Code Setup";
+                    MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
                 begin
                     if Difference = 0 then
                         CurrReport.Skip();
@@ -56,8 +57,10 @@ report 1497 "Trans. Bank Rec. to Gen. Jnl."
                     GenJnlLine.Description := Description;
                     GenJnlLine."Keep Description" := true;
                     OnBeforeGenJnlLineInsert(GenJnlLine, "Bank Acc. Reconciliation Line");
-                    GenJnlLine."Linked Table ID" := Database::"Bank Acc. Reconciliation Line";
-                    GenJnlLine."Linked System ID" := "Bank Acc. Reconciliation Line".SystemId;
+                    if not MatchBankRecLines.BankReconciliationLineInManyToOne("Bank Acc. Reconciliation Line") then begin
+                        GenJnlLine."Linked Table ID" := Database::"Bank Acc. Reconciliation Line";
+                        GenJnlLine."Linked System ID" := "Bank Acc. Reconciliation Line".SystemId;
+                    end;
                     GenJnlLine.Insert();
                 end;
 

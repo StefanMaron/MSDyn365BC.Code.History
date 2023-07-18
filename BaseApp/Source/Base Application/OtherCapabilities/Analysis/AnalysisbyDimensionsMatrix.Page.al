@@ -729,10 +729,14 @@ page 9249 "Analysis by Dimensions Matrix"
         InitRecord(TempDimensionCodeBuffer, AnalysisByDimParameters."Column Dim Option");
 
         if (LineDimCode = '') and (ColumnDimCode = '') then begin
-            if GLAccountSource then
-                LineDimCode := GLAcc.TableCaption
-            else
-                LineDimCode := CashFlowForecast.TableCaption();
+            case AnalysisByDimParameters."Analysis Account Source" of
+                AnalysisByDimParameters."Analysis Account Source"::"G/L Account":
+                    LineDimCode := GLAcc.TableCaption;
+                AnalysisByDimParameters."Analysis Account Source"::"Cash Flow Account":
+                    LineDimCode := CashFlowForecast.TableCaption();
+                else
+                    OnOpenPageOnAccountSourceElseCase(AnalysisView, LineDimCode);
+            end;
             ColumnDimCode := Text000;
         end;
 
@@ -768,7 +772,6 @@ page 9249 "Analysis by Dimensions Matrix"
         MATRIX_NoOfMatrixColumns: Integer;
         ColumnCaptions: array[32] of Text[250];
         RoundingFactorFormatString: Text;
-        GLAccountSource: Boolean;
         [InDataSet]
         Field1Visible: Boolean;
         [InDataSet]
@@ -1329,16 +1332,13 @@ page 9249 "Analysis by Dimensions Matrix"
             Error(Text002);
         AnalysisViewCode := AnalysisView.Code;
 
-        case AnalysisByDimParameters."Analysis Account Source" of
-            AnalysisByDimParameters."Analysis Account Source"::"G/L Account":
-                GLAccountSource := true;
-            AnalysisByDimParameters."Analysis Account Source"::"Cash Flow Account":
-                GLAccountSource := false;
-            else begin
-                AnalysisView.OnGetAnalysisViewSupported(AnalysisView, IsSupported);
-                if not IsSupported then
-                    Error(Text003, AnalysisView."Account Source");
-            end;
+        if not (AnalysisByDimParameters."Analysis Account Source" in
+            [AnalysisByDimParameters."Analysis Account Source"::"G/L Account",
+            AnalysisByDimParameters."Analysis Account Source"::"Cash Flow Account"])
+        then begin
+            AnalysisView.OnGetAnalysisViewSupported(AnalysisView, IsSupported);
+            if not IsSupported then
+                Error(Text003, AnalysisView."Account Source");
         end;
     end;
 
@@ -1695,6 +1695,11 @@ page 9249 "Analysis by Dimensions Matrix"
 
     [IntegrationEvent(true, false)]
     local procedure OnLookupDimCodeOnCaseElse(DimOption: Enum "Analysis Dimension Option"; var "Code": Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnAccountSourceElseCase(AnalysisView: Record "Analysis View"; var LineDimCode: Text[30])
     begin
     end;
 }

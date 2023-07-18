@@ -14,8 +14,13 @@ enum 5076 "Correspondence Type"
     {
         Caption = 'Email';
     }
+#if not CLEAN23
     value(3; Fax)
     {
+        ObsoleteReason = 'Not supported since moving to WebClient.';
+        ObsoleteState = Pending;
+        ObsoleteTag = '23.0';
         Caption = 'Fax';
     }
+#endif
 }

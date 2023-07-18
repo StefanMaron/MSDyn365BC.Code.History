@@ -37,8 +37,12 @@ page 700 "Error Messages"
                     Caption = 'Context';
                     ToolTip = 'Specifies the context record.';
                     trigger OnDrillDown()
+                    var
+                        IsHandled: Boolean;
                     begin
-                        HandleDrillDown(Rec.FieldNo("Context Record ID"));
+                        OnDrillDownSource(Rec, Rec.FieldNo("Context Record ID"), IsHandled);
+                        if not IsHandled then
+                            Rec.HandleDrillDown(Rec.FieldNo("Context Record ID"));
                     end;
                 }
                 field("Context Field Name"; Rec."Context Field Name")
@@ -55,8 +59,12 @@ page 700 "Error Messages"
                     ToolTip = 'Specifies the record source of the error.';
 
                     trigger OnDrillDown()
+                    var
+                        IsHandled: Boolean;
                     begin
-                        HandleDrillDown(Rec.FieldNo("Record ID"));
+                        OnDrillDownSource(Rec, Rec.FieldNo("Record ID"), IsHandled);
+                        if not IsHandled then
+                            Rec.HandleDrillDown(Rec.FieldNo("Record ID"));
                     end;
                 }
                 field("Field Name"; Rec."Field Name")
@@ -106,7 +114,7 @@ page 700 "Error Messages"
             action(OpenRelatedRecord)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Open Related Record';
+                Caption = 'Open related record';
                 Enabled = EnableOpenRelatedEntity;
                 Image = View;
                 ToolTip = 'Open the record that is associated with this error message.';
@@ -151,7 +159,6 @@ page 700 "Error Messages"
         StyleText: Text[20];
         CallStack: Text;
         EnableOpenRelatedEntity: Boolean;
-        ErrorContextNotFoundErr: Label 'Error context not found: %1', Comment = '%1 - Record Id';
 
     procedure SetRecords(var TempErrorMessage: Record "Error Message" temporary)
     begin
@@ -179,48 +186,6 @@ page 700 "Error Messages"
     begin
         RecID := "Record ID";
         EnableOpenRelatedEntity := RecID.TableNo <> 0;
-    end;
-
-    local procedure HandleDrillDown(SourceFieldNo: Integer)
-    var
-        RecRef: RecordRef;
-        IsHandled: Boolean;
-    begin
-        OnDrillDownSource(Rec, SourceFieldNo, IsHandled);
-        if not IsHandled then
-            case SourceFieldNo of
-                FieldNo("Context Record ID"):
-                    begin
-                        if not RecRef.Get("Context Record ID") then
-                            error(ErrorContextNotFoundErr, Format("Context Record ID"));
-                        PageManagement.PageRunAtField("Context Record ID", "Context Field Number", false);
-                    end;
-                FieldNo("Record ID"):
-                    if IsDimSetEntryInconsistency() then
-                        RunDimSetEntriesPage()
-                    else
-                        PageManagement.PageRunAtField("Record ID", "Field Number", false);
-            end
-    end;
-
-    local procedure IsDimSetEntryInconsistency(): Boolean
-    var
-        DimensionSetEntry: Record "Dimension Set Entry";
-        RecId: RecordId;
-    begin
-        RecId := "Record ID";
-        exit((RecId.TableNo = Database::"Dimension Set Entry") and ("Field Number" = DimensionSetEntry.FieldNo("Global Dimension No.")));
-    end;
-
-    local procedure RunDimSetEntriesPage()
-    var
-        DimensionSetEntry: Record "Dimension Set Entry";
-        DimensionSetEntries: Page "Dimension Set Entries";
-    begin
-        DimensionSetEntry.Get("Record ID");
-        DimensionSetEntries.SetRecord(DimensionSetEntry);
-        DimensionSetEntries.SetUpdDimSetGlblDimNoVisible();
-        DimensionSetEntries.Run();
     end;
 
     [IntegrationEvent(false, false)]

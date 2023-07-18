@@ -307,19 +307,21 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
             SetRange("Routing No.", InvtAdjmtEntryOrder."Routing No.");
             SetRange("Routing Reference No.", InvtAdjmtEntryOrder."Routing Reference No.");
             SetRange("Item No.", InvtAdjmtEntryOrder."Item No.");
-            OnCalcActualCapacityCostsOnAfterSetFilters(CapLedgEntry, InvtAdjmtEntryOrder);
-            if Find('-') then
-                repeat
-                    CalcFields("Direct Cost", "Direct Cost (ACY)", "Overhead Cost", "Overhead Cost (ACY)");
-                    if Subcontracting then
-                        InvtAdjmtEntryOrder.AddSingleLvlSubcontrdCost("Direct Cost" * ShareOfTotalCapCost, "Direct Cost (ACY)" *
-                          ShareOfTotalCapCost)
-                    else
-                        InvtAdjmtEntryOrder.AddSingleLvlCapacityCost(
-                          "Direct Cost" * ShareOfTotalCapCost, "Direct Cost (ACY)" * ShareOfTotalCapCost);
-                    InvtAdjmtEntryOrder.AddSingleLvlCapOvhdCost(
-                      "Overhead Cost" * ShareOfTotalCapCost, "Overhead Cost (ACY)" * ShareOfTotalCapCost);
-                until Next() = 0;
+            IsHandled := false;
+            OnCalcActualCapacityCostsOnAfterSetFilters(CapLedgEntry, InvtAdjmtEntryOrder, IsHandled, ShareOfTotalCapCost);
+            if not IsHandled then
+                if Find('-') then
+                    repeat
+                        CalcFields("Direct Cost", "Direct Cost (ACY)", "Overhead Cost", "Overhead Cost (ACY)");
+                        if Subcontracting then
+                            InvtAdjmtEntryOrder.AddSingleLvlSubcontrdCost("Direct Cost" * ShareOfTotalCapCost, "Direct Cost (ACY)" *
+                              ShareOfTotalCapCost)
+                        else
+                            InvtAdjmtEntryOrder.AddSingleLvlCapacityCost(
+                              "Direct Cost" * ShareOfTotalCapCost, "Direct Cost (ACY)" * ShareOfTotalCapCost);
+                        InvtAdjmtEntryOrder.AddSingleLvlCapOvhdCost(
+                          "Overhead Cost" * ShareOfTotalCapCost, "Overhead Cost (ACY)" * ShareOfTotalCapCost);
+                    until Next() = 0;            
         end;
     end;
 
@@ -457,7 +459,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcActualCapacityCostsOnAfterSetFilters(var CapLedgEntry: Record "Capacity Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    local procedure OnCalcActualCapacityCostsOnAfterSetFilters(var CapLedgEntry: Record "Capacity Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean; ShareOfTotalCapCost: Decimal)
     begin
     end;
 

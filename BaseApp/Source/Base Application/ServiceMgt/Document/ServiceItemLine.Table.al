@@ -71,8 +71,10 @@ table 5901 "Service Item Line"
                     exit;
                 end;
 
+                OnValidateServiceItemNoOnAfterValidateWarrantyPartsLaborDates(Rec);
+
                 ServContractExist := false;
-                ServHeader.Get("Document Type", "Document No.");
+                ServHeader.Get(Rec."Document Type", Rec."Document No.");
                 if ServItem.Get("Service Item No.") then begin
                     CheckServItemCustomer(ServHeader, ServItem);
 
@@ -82,6 +84,9 @@ table 5901 "Service Item Line"
                         ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                         ServContractLine.SetRange("Contract No.", ServHeader."Contract No.");
                         ServContractLine.SetRange("Service Item No.", "Service Item No.");
+
+                        OnValidateServiceItemNoOnAfterSetFilterServContractLine(Rec, ServContractLine);
+
                         if not ServContractLine.FindFirst() then
                             Error(Text050, ServHeader."Contract No.", "Service Item No.");
                         IsHandled := false;
@@ -92,7 +97,7 @@ table 5901 "Service Item Line"
                     end;
 
                     ShouldFindServContractLine := ServHeader."Contract No." = '';
-                    OnValidateServiceItemNoOnBeforeEmptyContractNoFindServContractLine(Rec, ServHeader, ServItem, ShouldFindServContractLine);
+                    OnValidateServiceItemNoOnBeforeEmptyContractNoFindServContractLine(Rec, ServHeader, ServItem, ShouldFindServContractLine, ServContractExist, ServContractLine);
 
                     if ShouldFindServContractLine then begin
                         ServContractLine.Reset();
@@ -139,10 +144,13 @@ table 5901 "Service Item Line"
                     "Ship-to Code" := ServItem."Ship-to Code";
                     SetServItemInfo(ServItem);
 
-                    if ServContractExist then
-                        Validate("Contract No.", ServContractLine."Contract No.")
-                    else
-                        Validate("Contract No.", '');
+                    IsHandled := false;
+                    OnValidateServiceItemNoOnBeforeCheckServContractExist(ServContractLine, ServItem, ServHeader, ServContractExist, Rec, IsHandled);
+                    if not IsHandled then
+                        if ServContractExist then
+                            Validate("Contract No.", ServContractLine."Contract No.")
+                        else
+                            Validate("Contract No.", '');
 
                     if "Contract No." = '' then
                         Validate("Service Price Group Code", ServItem."Service Price Group Code");
@@ -154,6 +162,7 @@ table 5901 "Service Item Line"
                     UseServItemLineAsxRec := true;
                     Modify(true);
                 end;
+                OnAfterValidateServiceItemNoOnBeforeUpdateResponseTimeHours(Rec, xRec);
                 UpdateResponseTimeHours();
                 CreateDimFromDefaultDim(0);
             end;
@@ -382,6 +391,9 @@ table 5901 "Service Item Line"
                         ServHeader2.SetValidatingFromLines(true);
                         if ServHeader2."Finishing Date" = 0D then
                             ServHeader2.Validate("Finishing Date", "Finishing Date");
+
+                        OnValidateRepairStatusCodeOnBeforeValidateStatus(Rec, ServHeader2);
+
                         ServHeader2.Validate(Status, RepairStatus."Service Order Status");
                         if not (ServHeader2.Status = ServHeader2.Status::Finished) then begin
                             ServHeader2."Finishing Date" := 0D;
@@ -593,7 +605,14 @@ table 5901 "Service Item Line"
             Caption = 'Warranty Starting Date (Parts)';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateWarrantyStartingDateParts(Rec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Service Item No." <> '' then begin
                     ServItem.Get("Service Item No.");
                     if "Warranty Starting Date (Parts)" <> ServItem."Warranty Starting Date (Parts)" then
@@ -615,7 +634,14 @@ table 5901 "Service Item Line"
             Caption = 'Warranty Ending Date (Parts)';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateWarrantyEndingDateParts(Rec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Service Item No." <> '' then begin
                     ServItem.Get("Service Item No.");
                     if "Warranty Ending Date (Parts)" <> ServItem."Warranty Ending Date (Parts)" then
@@ -734,7 +760,14 @@ table 5901 "Service Item Line"
             Caption = 'Warranty Starting Date (Labor)';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateWarrantyStartingDateLabor(Rec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Service Item No." <> '' then begin
                     ServItem.Get("Service Item No.");
                     if "Warranty Starting Date (Labor)" <> ServItem."Warranty Starting Date (Labor)" then
@@ -757,7 +790,14 @@ table 5901 "Service Item Line"
             Caption = 'Warranty Ending Date (Labor)';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateWarrantyEndingDateLabor(Rec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Service Item No." <> '' then begin
                     ServItem.Get("Service Item No.");
                     if "Warranty Ending Date (Labor)" <> ServItem."Warranty Ending Date (Labor)" then
@@ -775,8 +815,14 @@ table 5901 "Service Item Line"
                 ServHeader: Record "Service Header";
                 ServContractLine: Record "Service Contract Line";
                 ServContractList: Page "Serv. Contr. List (Serv. Item)";
+                IsHandled: Boolean;
             begin
-                ServHeader.Get("Document Type", "Document No.");
+                IsHandled := false;
+                OnBeforeValidateContractNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
+                ServHeader.Get(Rec."Document Type", Rec."Document No.");
                 if "Contract No." <> '' then begin
                     ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                     ServContractLine.SetRange("Contract No.", "Contract No.");
@@ -936,7 +982,13 @@ table 5901 "Service Item Line"
                 ServPriceGrSetup: Record "Serv. Price Group Setup";
                 ServPriceMgmt: Codeunit "Service Price Management";
                 ConfirmManagement: Codeunit "Confirm Management";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateServicePriceGroupCode(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 GetServHeader();
                 if ("Service Price Group Code" <> '') and
                    (("Contract No." <> '') or (ServHeader."Contract No." <> ''))
@@ -1367,40 +1419,53 @@ table 5901 "Service Item Line"
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
-        ServMgtSetup.Get();
-        ServItemLine.Reset();
-        ServItemLine.SetRange("Document Type", "Document Type");
-        ServItemLine.SetRange("Document No.", "Document No.");
-        FirstServItemLine := not ServItemLine.Find('-');
-        if ServMgtSetup."One Service Item Line/Order" then
-            if not FirstServItemLine then
-                Error(Text000, ServMgtSetup.TableCaption(), ServItemLine.TableCaption(), ServHeader.TableCaption());
+        IsHandled := false;
+        OnInsertOnBeforeCheckFirstServItemLine(Rec, IsHandled);
+        if not IsHandled then begin
+            ServMgtSetup.Get();
+            ServItemLine.Reset();
+            ServItemLine.SetRange("Document Type", "Document Type");
+            ServItemLine.SetRange("Document No.", "Document No.");
+            FirstServItemLine := not ServItemLine.Find('-');
+            if ServMgtSetup."One Service Item Line/Order" then
+                if not FirstServItemLine then
+                    Error(Text000, ServMgtSetup.TableCaption(), ServItemLine.TableCaption(), ServHeader.TableCaption());
+        end;
 
         GetServHeader();
+        OnInsertOnAfterGetServHeader(Rec, ServHeader);
         CheckCustomerNo();
 
         "Responsibility Center" := ServHeader."Responsibility Center";
         "Customer No." := ServHeader."Customer No.";
-        if ServHeader."Contract No." <> '' then
-            if "Service Item No." = '' then
-                "Contract No." := ServHeader."Contract No."
-            else begin
-                ServContractLine.Reset();
-                ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
-                ServContractLine.SetRange("Contract No.", ServHeader."Contract No.");
-                ServContractLine.SetRange("Service Item No.", "Service Item No.");
-                ServContractLine.SetRange("Contract Status", ServContractLine."Contract Status"::Signed);
-                ServContractLine.SetFilter("Starting Date", '<=%1', ServHeader."Order Date");
-                ServContractLine.SetFilter("Contract Expiration Date", '>%1 | =%2', ServHeader."Order Date", 0D);
-                if ServContractLine.FindFirst() then
-                    "Contract No." := ServHeader."Contract No.";
-            end;
+        IsHandled := false;
+        OnInsertOnBeforeSetContractNo(Rec, ServHeader, IsHandled);
+        if not IsHandled then
+            if ServHeader."Contract No." <> '' then
+                if "Service Item No." = '' then
+                    "Contract No." := ServHeader."Contract No."
+                else begin
+                    ServContractLine.Reset();
+                    ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
+                    ServContractLine.SetRange("Contract No.", ServHeader."Contract No.");
+                    ServContractLine.SetRange("Service Item No.", "Service Item No.");
+                    ServContractLine.SetRange("Contract Status", ServContractLine."Contract Status"::Signed);
+                    ServContractLine.SetFilter("Starting Date", '<=%1', ServHeader."Order Date");
+                    ServContractLine.SetFilter("Contract Expiration Date", '>%1 | =%2', ServHeader."Order Date", 0D);
+                    if ServContractLine.FindFirst() then
+                        "Contract No." := ServHeader."Contract No.";
+                end;
         if ("Contract No." <> '') and ("Service Price Group Code" <> '') then
             Validate("Service Price Group Code", '');
 
-        ServOrderAllocMgt.CreateAllocationEntry(
-          "Document Type".AsInteger(), "Document No.", "Line No.", "Service Item No.", "Serial No.");
+        IsHandled := false;
+        OnInsertOnBeforeCreateAllocationEntry(Rec, ServHeader, IsHandled);
+        if not IsHandled then
+            ServOrderAllocMgt.CreateAllocationEntry(
+              "Document Type".AsInteger(), "Document No.", "Line No.", "Service Item No.", "Serial No.");
 
         Clear(ServLogMgt);
         ServLogMgt.ServItemToServOrder(Rec);
@@ -1408,7 +1473,10 @@ table 5901 "Service Item Line"
         if (ServHeader."Quote No." = '') and ("Response Time (Hours)" = 0) then
             UpdateResponseTimeHours();
         ServOrderMgt.UpdateResponseDateTime(Rec, false);
-        ServOrderMgt.UpdatePriority(Rec, false);
+        IsHandled := false;
+        OnInsertOnBeforeUpdatePriority(Rec, IsHandled);
+        if not IsHandled then
+            ServOrderMgt.UpdatePriority(Rec, false);
 
         if "Line No." = 0 then
             LendLoanerWithConfirmation(false);
@@ -1633,9 +1701,13 @@ table 5901 "Service Item Line"
     procedure CheckWarranty(Date: Date)
     var
         WarrantyLabor: Boolean;
-        WarrantyParts: Boolean;
-        IsHandled: Boolean;
+        WarrantyParts, IsHandled : Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckWarranty(Rec, xRec, Date, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Warranty Starting Date (Parts)" > "Warranty Ending Date (Parts)" then begin
             Validate("Warranty Starting Date (Parts)", 0D);
             Validate("Warranty Starting Date (Labor)", 0D);
@@ -2300,7 +2372,14 @@ table 5901 "Service Item Line"
     end;
 
     procedure UpdateServiceOrderChangeLog(var OldServItemLine: Record "Service Item Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateServiceOrderChangeLog(Rec, OldServItemLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Response Date" <> OldServItemLine."Response Date" then
             ServLogMgt.ServItemLineResponseDateChange(Rec, OldServItemLine);
 
@@ -2458,15 +2537,19 @@ table 5901 "Service Item Line"
     var
         ConfirmManagement: Codeunit "Confirm Management";
         NewDimSetID: Integer;
+        IsHandled: Boolean;
     begin
         // Update all lines with changed dimensions.
 
         if NewParentDimSetID = OldParentDimSetID then
             exit;
 
-        if not HideDialogBox and GuiAllowed then
-            if not ConfirmManagement.GetResponseOrDefault(Text060, true) then
-                exit;
+        IsHandled := false;
+        OnUpdateAllLineDimOnBeforeGetResponse(Rec, NewParentDimSetID, OldParentDimSetID, IsHandled);
+        if not IsHandled then
+            if not HideDialogBox and GuiAllowed then
+                if not ConfirmManagement.GetResponseOrDefault(Text060, true) then
+                    exit;
 
         ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
@@ -2485,7 +2568,14 @@ table 5901 "Service Item Line"
     end;
 
     procedure SetServItemInfo(ServItem: Record "Service Item")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetServItemInfo(Rec, ServItem, IsHandled);
+        if IsHandled then
+            exit;
+
         "Item No." := ServItem."Item No.";
         "Serial No." := ServItem."Serial No.";
         "Variant Code" := ServItem."Variant Code";
@@ -2826,7 +2916,7 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateServiceItemNoOnBeforeEmptyContractNoFindServContractLine(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; ServiceItem: Record "Service Item"; var ShouldFindServContractLine: Boolean)
+    local procedure OnValidateServiceItemNoOnBeforeEmptyContractNoFindServContractLine(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; ServiceItem: Record "Service Item"; var ShouldFindServContractLine: Boolean; var ServContractExist: Boolean; var ServiceContractLine: Record "Service Contract Line")
     begin
     end;
 
@@ -2846,12 +2936,112 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemNoOnBeforeCheckServContractExist(var ServiceContractLine: Record "Service Contract Line"; ServiceItem: Record "Service Item"; ServiceHeader: Record "Service Header"; var ServContractExist: Boolean; var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnShowDimensionsOnBeforeServiceItemLineModify(var ServiceItemLine: Record "Service Item Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckFinishingTime(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforeGetResponse(var ServiceItemLine: Record "Service Item Line"; NewParentDimSetID: Integer; OldParentDimSetID: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeCheckFirstServItemLine(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnAfterGetServHeader(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeSetContractNo(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeCreateAllocationEntry(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeUpdatePriority(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemNoOnAfterValidateWarrantyPartsLaborDates(var ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemNoOnAfterSetFilterServContractLine(var ServiceItemLine: Record "Service Item Line"; var ServiceContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateServiceItemNoOnBeforeUpdateResponseTimeHours(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRepairStatusCodeOnBeforeValidateStatus(var ServiceItemLine: Record "Service Item Line"; var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateWarrantyStartingDateParts(var ServiceItemLine: Record "Service Item Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateWarrantyEndingDateParts(var ServiceItemLine: Record "Service Item Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateWarrantyStartingDateLabor(var ServiceItemLine: Record "Service Item Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateWarrantyEndingDateLabor(var ServiceItemLine: Record "Service Item Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateServicePriceGroupCode(var ServiceItemLine: Record "Service Item Line"; var xServiceItemLine: Record "Service Item Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWarranty(var ServiceItemLine: Record "Service Item Line"; var xServiceItemLine: Record "Service Item Line"; Date: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateServiceOrderChangeLog(var ServiceItemLine: Record "Service Item Line"; var OldServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetServItemInfo(var ServiceItemLine: Record "Service Item Line"; ServiceItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateContractNo(var ServiceItemLine: Record "Service Item Line"; var xServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
 }

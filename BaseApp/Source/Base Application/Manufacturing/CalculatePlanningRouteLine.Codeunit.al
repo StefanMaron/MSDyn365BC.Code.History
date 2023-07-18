@@ -1295,7 +1295,10 @@ codeunit 99000810 "Calculate Planning Route Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFinitelyLoadCapForward(PlanningRoutingLine, TimeType, ProdStartingDate, ProdStartingTime, IsHandled);
+        OnBeforeFinitelyLoadCapForward(PlanningRoutingLine, TimeType, ProdStartingDate, ProdStartingTime, IsHandled,
+            ConstrainedCapacity, ResourceIsConstrained, ParentWorkCenter, ParentIsConstrained, ProdEndingTime, ProdEndingDate,
+            ConCurrCap, CalendarEntry, RemainNeedQty, WorkCenter, CurrentTimeFactor, CurrentRounding, CalculateRoutingLine,
+             ReqLine, FirstInBatch, FirstEntry, NextCapNeedLineNo, LotSize, PlanningResiliency, TempPlanningErrorLog);
         if IsHandled then
             exit;
 
@@ -1697,7 +1700,7 @@ codeunit 99000810 "Calculate Planning Route Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFinitelyLoadCapForward(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var ProdStartingDate: Date; var ProdStartingTime: Time; var IsHandled: Boolean)
+    local procedure OnBeforeFinitelyLoadCapForward(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var ProdStartingDate: Date; var ProdStartingTime: Time; var IsHandled: Boolean; ConstrainedCapacity: Record "Capacity Constrained Resource"; ResourceIsConstrained: Boolean; ParentWorkCenter: Record "Capacity Constrained Resource"; ParentIsConstrained: Boolean; var ProdEndingTime: Time; var ProdEndingDate: Date; var ConCurrCap: Decimal; var CalendarEntry: Record "Calendar Entry"; var RemainNeedQty: Decimal; var WorkCenter: Record "Work Center"; var CurrentTimeFactor: Decimal; var CurrentRounding: Decimal; var CalculateRoutingLine: Codeunit "Calculate Routing Line"; var ReqLine: Record "Requisition Line"; var FirstInBatch: Boolean; var FirstEntry: Boolean; var NextCapNeedLineNo: Integer; var LotSize: Decimal; var PlanningResiliency: Boolean; var TempPlanningErrorLog: Record "Planning Error Log" temporary)
     begin
     end;
 }

@@ -1215,7 +1215,7 @@
         TestField(Status, Status::Released);
         TestField("Posting Date");
 
-        OnAfterCheckBeforeTransferPost(TransHeader);
+        OnAfterCheckBeforeTransferPost(Rec);
     end;
 
     local procedure CheckTransferFromAndToCodesNotTheSame()

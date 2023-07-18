@@ -225,6 +225,7 @@ codeunit 5510 "Production Journal Mgt"
             ConsumptionItemJnlLineValidateQuantity(ProdOrderComp, NeededQty, Item, NeededQty < OriginalNeededQty);
 
             ItemJnlLine.Validate("Location Code", "Location Code");
+            ItemJnlLine.Validate("Dimension Set ID", "Dimension Set ID");
             if "Bin Code" <> '' then
                 ItemJnlLine."Bin Code" := "Bin Code";
 
@@ -339,6 +340,7 @@ codeunit 5510 "Production Journal Mgt"
             ItemJnlLine.Validate("Item No.", "Item No.");
             ItemJnlLine.Validate("Variant Code", "Variant Code");
             ItemJnlLine.Validate("Location Code", "Location Code");
+            ItemJnlLine.Validate("Dimension Set ID", "Dimension Set ID");
             if "Bin Code" <> '' then
                 ItemJnlLine.Validate("Bin Code", "Bin Code");
             ItemJnlLine.Validate("Routing No.", "Routing No.");

@@ -343,6 +343,8 @@ codeunit 5804 ItemCostManagement
             AverageCost := CostAmt / AverageQty;
             AverageCostACY := CostAmtACY / AverageQty;
 
+            OnCalculateAverageCostOnAfterCalculateAverage(Item, AverageCost, AverageCostACY);
+
             if AverageCost < 0 then
                 AverageCost := 0;
             if AverageCostACY < 0 then
@@ -704,6 +706,11 @@ codeunit 5804 ItemCostManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateUnitCostSKUOnAfterSetSKUUnitCosts(var SKU: Record "Stockkeeping Unit"; var Item: Record Item; var InvoicedQty: Decimal; var LastDirectCost: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateAverageCostOnAfterCalculateAverage(var Item: Record Item; var AverageCost: Decimal; var AverageCostACY: Decimal)
     begin
     end;
 }

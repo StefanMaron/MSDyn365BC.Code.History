@@ -73,6 +73,9 @@ codeunit 1798 "Data Migration Mgt."
         GoThereNowTxt: Label 'Go there now';
         MoreInfoTxt: Label 'Learn more';
         DataMigrationHelpTopicURLTxt: Label 'https://go.microsoft.com/fwlink/?linkid=859445', Locked = true;
+        CustomersEmptyListNotificationNameTxt: Label 'Show a suggestion to import customers when none exists.';
+        VendorsEmptyListNotificationNameTxt: Label 'Show a suggestion to import vendors when none exists.';
+        ItemsEmptyListNotificationNameTxt: Label 'Show a suggestion to import items when none exists.';
         CustomerContactNotificationNameTxt: Label 'Show a suggestion to create contacts for newly created customers.';
         VendorContactNotificationNameTxt: Label 'Show a suggestion to create contacts for newly created vendors.';
         CustContactNotificationDescTxt: Label 'Show a suggestion to create contacts for customers.';
@@ -532,6 +535,21 @@ codeunit 1798 "Data Migration Mgt."
         exit('08DB77DB-1F41-4379-8615-1B581A0225FA');
     end;
 
+    internal procedure GetItemListEmptyNotificationId(): Guid
+    begin
+        exit('91ec9d2f-5328-4543-a4bb-565910ad168f');
+    end;
+
+    internal procedure GetCustomerListEmptyNotificationId(): Guid
+    begin
+        exit('ce4f84ea-a382-433a-a908-e2b22799321a');
+    end;
+
+    internal procedure GetVendorListEmptyNotificationId(): Guid
+    begin
+        exit('920c72f6-4771-4984-a223-5f941951cd40');
+    end;
+
     local procedure IsGlobalNotificationEnabled(): Boolean
     var
         MyNotifications: Record "My Notifications";
@@ -547,6 +565,9 @@ codeunit 1798 "Data Migration Mgt."
         MyNotifications.InsertDefault(GetGlobalNotificationId(), DataMigrationNotificationNameTxt, DataMigrationNotificationDescTxt, true);
         InsertDefaultCustomerContactNotification(true);
         InsertDefaultVendorContactNotification(true);
+        InsertDefaultCustomerListEmptyNotification(true);
+        InsertDefaultVendorListEmptyNotification(true);
+        InsertDefaultItemListEmptyNotification(true);
     end;
 
     procedure ShowDataMigrationOverviewFromNotification(Notification: Notification)
@@ -617,14 +638,14 @@ codeunit 1798 "Data Migration Mgt."
                     exit(not ItemJournalLine.IsEmpty());
                 end;
             else begin
-                    DataMigrationFacade.OnFindBatchForAccountTransactions(DataMigrationStatus, JournalBatchName);
-                    if JournalBatchName = '' then
-                        exit(false);
-                    GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-                    GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
-                    GenJournalLine.SetFilter("Account No.", '<>%1', '');
-                    exit(not GenJournalLine.IsEmpty());
-                end;
+                DataMigrationFacade.OnFindBatchForAccountTransactions(DataMigrationStatus, JournalBatchName);
+                if JournalBatchName = '' then
+                    exit(false);
+                GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
+                GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
+                GenJournalLine.SetFilter("Account No.", '<>%1', '');
+                exit(not GenJournalLine.IsEmpty());
+            end;
         end;
     end;
 
@@ -674,6 +695,30 @@ codeunit 1798 "Data Migration Mgt."
     begin
         MyNotifications.InsertDefault(
           GetVendorContactNotificationId(), VendorContactNotificationNameTxt, VendContactNotificationDescTxt, Enabled);
+    end;
+
+    procedure InsertDefaultCustomerListEmptyNotification(Enabled: Boolean)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.InsertDefault(
+          GetCustomerListEmptyNotificationId(), CustomersEmptyListNotificationNameTxt, '', Enabled);
+    end;
+
+    procedure InsertDefaultVendorListEmptyNotification(Enabled: Boolean)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.InsertDefault(
+          GetVendorListEmptyNotificationId(), VendorsEmptyListNotificationNameTxt, '', Enabled);
+    end;
+
+    procedure InsertDefaultItemListEmptyNotification(Enabled: Boolean)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.InsertDefault(
+          GetItemListEmptyNotificationId(), ItemsEmptyListNotificationNameTxt, '', Enabled);
     end;
 
     procedure UpdateMigrationStatus(var DataMigrationStatus: Record "Data Migration Status")

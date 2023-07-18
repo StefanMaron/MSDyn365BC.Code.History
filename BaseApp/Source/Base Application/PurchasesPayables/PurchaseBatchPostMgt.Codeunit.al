@@ -121,8 +121,8 @@ codeunit 1372 "Purchase Batch Post Mgt."
     local procedure PreparePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var BatchConfirm: Option)
     var
         CalcInvoiceDiscont: Boolean;
-        ReplacePostingDate, ReplaceVATDate: Boolean;
-        PostingDate, VATDate: Date;
+        ReplacePostingDate, ReplaceVATDate : Boolean;
+        PostingDate, VATDate : Date;
     begin
         BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Calculate Invoice Discount", CalcInvoiceDiscont);
         BatchProcessingMgt.GetBooleanParameter(PurchaseHeader.RecordId, Enum::"Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate);
@@ -264,11 +264,16 @@ codeunit 1372 "Purchase Batch Post Mgt."
     end;
 
     local procedure ReleasePurchaseHeader(var PurchaseHeader: Record "Purchase Header"): Boolean
+    var
+        Result: Boolean;
     begin
         if PurchaseHeader.Status = PurchaseHeader.Status::Open then
             if not Codeunit.Run(Codeunit::"Release Purchase Document", PurchaseHeader) then
                 exit(false);
-        exit(true);
+
+        Result := true;
+        OnAfterReleasePurchaseHeader(PurchaseHeader, Result);
+        exit(Result);
     end;
 
     local procedure PrepareJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
@@ -347,6 +352,11 @@ codeunit 1372 "Purchase Batch Post Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnGetICBatchFileName(var Result: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReleasePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean);
     begin
     end;
 

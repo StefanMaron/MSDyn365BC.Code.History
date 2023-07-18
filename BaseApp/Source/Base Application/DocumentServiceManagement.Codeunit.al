@@ -1,8 +1,7 @@
 ﻿codeunit 9510 "Document Service Management"
 {
     // Provides functions for the storage of documents to online services such as O365 (Office 365).
-    Permissions = tabledata "Document Service Cache" = rimd,
-                  tabledata "Tenant Media" = rimd;
+    Permissions = tabledata "Tenant Media" = rimd;
 
     trigger OnRun()
     begin
@@ -109,7 +108,9 @@
         CheckError();
     end;
 
+#if not CLEAN23
     [Scope('OnPrem')]
+    [Obsolete('Replaced with an overload that uses "Doc. Sharing Conflict Behavior" enum from System Application.', '23.0')]
     procedure SaveFile(SourcePath: Text; TargetName: Text; ConflictBehavior: Enum "Doc. Service Conflict Behavior"): Text
     var
         SourceFile: File;
@@ -136,7 +137,38 @@
 
         SourceFile.CreateInStream(SourceStream);
 
-        exit(SaveStream(SourceStream, TargetName, ConflictBehavior));
+        exit(SaveStream(SourceStream, TargetName, ConflictBehavior.AsInteger()));
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure SaveFile(SourcePath: Text; TargetName: Text; ConflictBehavior: Enum "Doc. Sharing Conflict Behavior"): Text
+    var
+        SourceFile: File;
+        SourceInStream: InStream;
+    begin
+        // Saves a file to the Document Service using the configured location specified in Dynamics NAV.
+        // SourcePath: The path to a physical file on the Dynamics NAV server.
+        // TargetName: The name which will be given to the file saved to the Document Service.
+        // Overwrite: TRUE if the target file should be overwritten.
+        // - An error is shown if Overwrite is FALSE and a file with that name already exists.
+        // Returns: A URI to the file on the Document Service.
+
+        if SourcePath = '' then
+            Error(RequiredSourceNameErr);
+
+        if TargetName = '' then
+            Error(RequiredTargetNameErr);
+
+        if not IsConfigured() then
+            Error(NoConfigErr);
+
+        if not SourceFile.Open(SourcePath) then
+            Error(SourceFileNotFoundErr, SourcePath, GetLastErrorText);
+
+        SourceFile.CreateInStream(SourceInStream);
+
+        exit(SaveStream(SourceInStream, TargetName, ConflictBehavior));
     end;
 
     procedure RunDocumentServiceSetup(Notification: Notification)
@@ -250,7 +282,6 @@
                 if Location <> '' then begin
                     SetDocumentService();
                     SetProperties(true, DocumentServiceRec);
-                    EnsureDocumentServiceCache(DocumentServiceRec, true);
                     IsValid := DocumentService.IsValidUri(TargetURI);
                     CheckError();
                     exit(IsValid);
@@ -455,7 +486,6 @@
     [NonDebuggable]
     local procedure SetProperties(GetTokenFromCache: Boolean; var DocumentServiceRec: Record "Document Service")
     var
-        DocumentServiceCache: Record "Document Service Cache";
         DocumentServiceHelper: DotNet NavDocumentServiceHelper;
         AccessToken: Text;
     begin
@@ -473,10 +503,6 @@
                 DocumentService.Properties.SetProperty(FieldName(Password), Password);
                 DocumentService.Credentials := DocumentServiceHelper.ProvideCredentials();
             end else begin
-                if DocumentServiceCache.Get(SystemId) then
-                    if GetTokenFromCache then
-                        GetTokenFromCache := DocumentServiceCache."Use Cached Token";
-
                 GetAccessToken(Location, AccessToken, GetTokenFromCache);
                 DocumentService.Properties.SetProperty('Token', AccessToken);
             end;
@@ -845,7 +871,7 @@
     end;
 
     [TryFunction]
-    local procedure TrySaveStreamFromRec(Stream: InStream; TargetName: Text; ConflictBehavior: Enum "Doc. Service Conflict Behavior"; var DocumentServiceRec: Record "Document Service"; var DocumentUri: Text; var UploadedFileName: Text)
+    local procedure TrySaveStreamFromRec(InStream: InStream; TargetName: Text; ConflictBehavior: Enum "Doc. Sharing Conflict Behavior"; var DocumentServiceRec: Record "Document Service"; var DocumentUri: Text; var UploadedFileName: Text)
     var
         LocalDocumentService: Record "Document Service";
         DotNetConflictBehavior: DotNet ConflictBehavior;
@@ -863,16 +889,14 @@
             if not LocalDocumentService.FindFirst() then
                 Error(NoConfigErr);
 
-            if LocalDocumentService."Authentication Type" = LocalDocumentService."Authentication Type"::OAuth2 then begin
+            if LocalDocumentService."Authentication Type" = LocalDocumentService."Authentication Type"::OAuth2 then
                 SetResourceLocation(LocalDocumentService);
-                EnsureDocumentServiceCache(LocalDocumentService, true);
-            end;
 
             SetProperties(true, LocalDocumentService);
         end;
 
         DotNetConflictBehavior := ConflictBehavior.AsInteger();
-        DotNetUploadedDocument := DocumentService.Save(Stream, TargetName, DotNetConflictBehavior);
+        DotNetUploadedDocument := DocumentService.Save(InStream, TargetName, DotNetConflictBehavior);
         CheckError();
 
         UploadedFileName := TargetName;
@@ -884,7 +908,7 @@
         end;
     end;
 
-    local procedure SaveStream(Stream: InStream; TargetName: Text; ConflictBehavior: Enum "Doc. Service Conflict Behavior") DocumentUri: Text
+    local procedure SaveStream(InStream: InStream; TargetName: Text; ConflictBehavior: Enum "Doc. Sharing Conflict Behavior") DocumentUri: Text
     var
         DocumentServiceRec: Record "Document Service";
         TempDocumentServiceRec: Record "Document Service" temporary;
@@ -893,9 +917,9 @@
     begin
         if IsOneDriveEnabled() then begin
             InitTempDocumentServiceRecord(TempDocumentServiceRec, DocumentSharingSource::App);
-            TrySaveStreamFromRec(Stream, TargetName, ConflictBehavior, TempDocumentServiceRec, DocumentUri, UploadedFileName);
+            TrySaveStreamFromRec(InStream, TargetName, ConflictBehavior, TempDocumentServiceRec, DocumentUri, UploadedFileName);
         end else
-            TrySaveStreamFromRec(Stream, TargetName, ConflictBehavior, DocumentServiceRec, DocumentUri, UploadedFileName);
+            TrySaveStreamFromRec(InStream, TargetName, ConflictBehavior, DocumentServiceRec, DocumentUri, UploadedFileName);
     end;
 
     [NonDebuggable]
@@ -1119,25 +1143,13 @@
     var
         DocumentServiceScenario: Record "Document Service Scenario";
         DocumentServiceRec: Record "Document Service";
-        DocumentServiceCache: Record "Document Service Cache";
         ResultJson: JsonObject;
-        GetTokenFromCache: Boolean;
         Token: Text;
         Result: Text;
     begin
         if DocumentServiceScenario.IsEmpty() then begin
-            // legacy flow
-            if DocumentServiceRec.FindFirst() and DocumentServiceCache.Get(DocumentServiceRec.SystemId) then
-                GetTokenFromCache := DocumentServiceCache."Use Cached Token"
-            else
-                GetTokenFromCache := true;
-
-            GetAccessToken(Location, Token, GetTokenFromCache);
+            GetAccessToken(Location, Token, true);
             Session.SetDocumentServiceToken(Token);
-
-            if (not IsNullGuid(DocumentServiceRec.SystemId)) and (not DocumentServiceCache."Use Cached Token") then
-                EnsureDocumentServiceCache(DocumentServiceRec, true);
-            exit;
         end;
 
         if Location = '' then
@@ -1153,24 +1165,6 @@
         Session.SetDocumentServiceToken(Result);
     end;
 
-    local procedure CreateDocumentServiceCache(var DocumentServiceCache: Record "Document Service Cache"; DocumentService: Record "Document Service"; UseCache: Boolean)
-    begin
-        DocumentServiceCache."Document Service Id" := DocumentService.SystemId;
-        DocumentServiceCache."Use Cached Token" := UseCache;
-        DocumentServiceCache.Insert();
-    end;
-
-    local procedure EnsureDocumentServiceCache(DocumentService: Record "Document Service"; UseCache: Boolean)
-    var
-        DocumentServiceCache: Record "Document Service Cache";
-    begin
-        DocumentServiceCache.Init();
-        DocumentServiceCache."Document Service Id" := DocumentService.SystemId;
-        DocumentServiceCache."Use Cached Token" := UseCache;
-        if not DocumentServiceCache.Modify() then
-            DocumentServiceCache.Insert();
-    end;
-
     procedure OpenInOneDrive(FileName: Text; FileExtension: Text; InStream: InStream)
     var
         DocumentSharing: Codeunit "Document Sharing";
@@ -1179,6 +1173,11 @@
     end;
 
     procedure EditInOneDrive(FileName: Text; FileExtension: Text; var TempBlob: Codeunit "Temp Blob"): Boolean
+    begin
+        exit(EditInOneDrive(FileName, FileExtension, Enum::"Doc. Sharing Conflict Behavior"::Ask, TempBlob));
+    end;
+
+    procedure EditInOneDrive(FileName: Text; FileExtension: Text; DocSharingConflictBehavior: Enum "Doc. Sharing Conflict Behavior"; var TempBlob: Codeunit "Temp Blob"): Boolean
     var
         TempDocumentSharing: Record "Document Sharing" temporary;
         DocumentSharing: Codeunit "Document Sharing";
@@ -1191,6 +1190,7 @@
         TempDocumentSharing.Name := CopyStr(FileName, 1, MaxStrLen(TempDocumentSharing.Name));
         TempDocumentSharing.Extension := CopyStr(FileExtension, 1, MaxStrLen(TempDocumentSharing.Extension));
         TempDocumentSharing."Document Sharing Intent" := Enum::"Document Sharing Intent"::Edit;
+        TempDocumentSharing."Conflict Behavior" := DocSharingConflictBehavior;
 
         TempBlob.CreateInStream(InStream);
         TempDocumentSharing.Data.CreateOutStream(OutStream);
@@ -1329,41 +1329,6 @@
         exit(DocumentServiceCategoryLbl);
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Document Service", 'OnAfterModifyEvent', '', false, false)]
-    local procedure OnAfterModifyDocumentService(var Rec: Record "Document Service"; var xRec: Record "Document Service"; RunTrigger: Boolean)
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        EnsureDocumentServiceCache(Rec, false);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Document Service", 'OnAfterInsertEvent', '', false, false)]
-    local procedure OnAfterInsertDocumentService(var Rec: Record "Document Service"; RunTrigger: Boolean)
-    var
-        DocumentServiceCache: Record "Document Service Cache";
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        if DocumentServiceCache.Get(Rec.SystemId) then
-            exit;
-
-        CreateDocumentServiceCache(DocumentServiceCache, Rec, false);
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Document Service", 'OnAfterDeleteEvent', '', false, false)]
-    local procedure OnAfterDeleteDocumentService(var Rec: Record "Document Service"; RunTrigger: Boolean)
-    var
-        DocumentServiceCache: Record "Document Service Cache";
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        if DocumentServiceCache.Get(Rec.SystemId) then
-            DocumentServiceCache.Delete();
-    end;
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Sharing", 'OnCanUploadDocument', '', false, false)]
     local procedure OnCanUploadDocument(var CanUpload: Boolean)
     var
@@ -1435,25 +1400,28 @@
         DocumentSharing.Data.CreateInStream(InStr);
 
         if not GuiAllowed() then
-            TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Fail, TempDocumentServiceRec, DocumentUri, UploadedFileName)
+            TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Sharing Conflict Behavior"::Fail, TempDocumentServiceRec, DocumentUri, UploadedFileName)
         else
-            if not TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Fail, TempDocumentServiceRec, DocumentUri, UploadedFileName)
+            if not TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Sharing Conflict Behavior"::Fail, TempDocumentServiceRec, DocumentUri, UploadedFileName)
                 or (DocumentUri = '')
             then
-                case StrMenu(SharePointFileExistsOptionsTxt, 0, StrSubstNo(SharePointFileExistsInstructionsTxt, DocumentSharing.Name, ProductName.Short())) of
-                    0: // Cancel
-                        begin
-                            Handled := false;
-                            exit;
-                        end;
-                    1: // Reuse
-                        TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Reuse, TempDocumentServiceRec, DocumentUri, UploadedFileName);
-                    2: // Replace
-                        TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Replace, TempDocumentServiceRec, DocumentUri, UploadedFileName);
-                    3: // Keep both
-                        TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Rename, TempDocumentServiceRec, DocumentUri, UploadedFileName);
-                end;
-        EnsureDocumentServiceCache(TempDocumentServiceRec, true);
+                // Use given behavior if not behavior "Ask"
+                if DocumentSharing."Conflict Behavior" <> Enum::"Doc. Sharing Conflict Behavior"::Ask then
+                    TrySaveStreamFromRec(InStr, DocumentSharing.Name, DocumentSharing."Conflict Behavior", TempDocumentServiceRec, DocumentUri, UploadedFileName)
+                else
+                    case StrMenu(SharePointFileExistsOptionsTxt, 0, StrSubstNo(SharePointFileExistsInstructionsTxt, DocumentSharing.Name, ProductName.Short())) of
+                        0: // Cancel
+                            begin
+                                Handled := false;
+                                exit;
+                            end;
+                        1: // Reuse
+                            TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Sharing Conflict Behavior"::Reuse, TempDocumentServiceRec, DocumentUri, UploadedFileName);
+                        2: // Replace
+                            TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Sharing Conflict Behavior"::Replace, TempDocumentServiceRec, DocumentUri, UploadedFileName);
+                        3: // Keep both
+                            TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Sharing Conflict Behavior"::Rename, TempDocumentServiceRec, DocumentUri, UploadedFileName);
+                    end;
 
         DocumentSharing.Name := CopyStr(UploadedFileName, 1, MaxStrLen(DocumentSharing.Name));
         DocumentSharing.DocumentUri := CopyStr(DocumentUri, 1, MaxStrLen(DocumentSharing.DocumentUri));

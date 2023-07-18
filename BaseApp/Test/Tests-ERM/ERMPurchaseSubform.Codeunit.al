@@ -26,6 +26,7 @@ codeunit 134394 "ERM Purchase Subform"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryResource: Codeunit "Library - Resource";
+        LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         isInitialized: Boolean;
         ChangeConfirmMsg: Label 'Do you want';
         CalculateInvoiceDiscountQst: Label 'Do you want to calculate the invoice discount?';
@@ -4247,6 +4248,153 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseReturnOrder.PurchLines.FilteredTypeField.AssertEquals(PurchaseLineType[2]);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure ValidateDescriptionAfterEditPurchaseLineItemDescriptionWhenPayToVendorUpdated()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchLineDesc: Text;
+    begin
+        // [SCENARIO 474288] After changing Pay-To Vendor on a Purchase Order and you edit a line Description, you receive an error: "The requested operation is not supported. Page New - Purchase order - xxx -xxx - has to close"
+        Initialize();
+
+        // [GIVEN] Purchase Order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+
+        // [GIVEN] Purchase Line
+        CreateItem(Item, LibraryRandom.RandIntInRange(100, 1000));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        // [WHEN] Pay-To Vendor Updated
+        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Description is updated in Purchase Order Subform
+        PurchLineDesc := SetDescriptionInPurchOrderSubPage(PurchaseHeader."No.");
+
+        // [VERIFY] Verify: Purchase Line Description updated
+        VerifyDescriptionInPurchOrderSubpage(PurchaseHeader."No.", PurchLineDesc);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure ValidateDescriptionAfterEditPurchaseLineGLAccDescriptionWhenPayToVendorUpdated()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchLineDesc: Text;
+    begin
+        // [SCENARIO 474288] After changing Pay-To Vendor on a Purchase Order and you edit a line Description, you receive an error: "The requested operation is not supported. Page New - Purchase order - xxx -xxx - has to close"
+        Initialize();
+
+        // [GIVEN] Purchase Order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+
+        // [GIVEN] Purchase Line
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
+
+        // [WHEN] Pay-To Vendor Updated
+        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Description is updated in Purchase Order Subform
+        PurchLineDesc := SetDescriptionInPurchOrderSubPage(PurchaseHeader."No.");
+
+        // [VERIFY] Verify: Purchase Line Description updated
+        VerifyDescriptionInPurchOrderSubpage(PurchaseHeader."No.", PurchLineDesc);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure ValidateDescriptionAfterEditPurchaseLineResourceDescriptionWhenPayToVendorUpdated()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchLineDesc: Text;
+    begin
+        // [SCENARIO 474288] After changing Pay-To Vendor on a Purchase Order and you edit a line Description, you receive an error: "The requested operation is not supported. Page New - Purchase order - xxx -xxx - has to close"
+        Initialize();
+
+        // [GIVEN] Purchase Order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+
+        // [GIVEN] Purchase Line
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, LibraryResource.CreateResourceNo(), LibraryRandom.RandInt(10));
+
+        // [WHEN] Pay-To Vendor Updated
+        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Description is updated in Purchase Order Subform
+        PurchLineDesc := SetDescriptionInPurchOrderSubPage(PurchaseHeader."No.");
+
+        // [VERIFY] Verify: Purchase Line Description updated
+        VerifyDescriptionInPurchOrderSubpage(PurchaseHeader."No.", PurchLineDesc);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure ValidateDescriptionAfterEditPurchaseLineFixedAssetDescriptionWhenPayToVendorUpdated()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchLineDesc: Text;
+    begin
+        // [SCENARIO 474288] After changing Pay-To Vendor on a Purchase Order and you edit a line Description, you receive an error: "The requested operation is not supported. Page New - Purchase order - xxx -xxx - has to close"
+        Initialize();
+
+        // [GIVEN] Purchase Order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+
+        // [GIVEN] Purchase Line
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", '', LibraryRandom.RandInt(10));
+
+        // [WHEN] Pay-To Vendor Updated
+        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Description is updated in Purchase Order Subform
+        PurchLineDesc := SetDescriptionInPurchOrderSubPage(PurchaseHeader."No.");
+
+        // [VERIFY] Verify: Purchase Line Description updated
+        VerifyDescriptionInPurchOrderSubpage(PurchaseHeader."No.", PurchLineDesc);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure ValidateDescriptionAfterEditPurchaseLineChargeItemDescriptionWhenPayToVendorUpdated()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchLineDesc: Text;
+    begin
+        // [SCENARIO 474288] After changing Pay-To Vendor on a Purchase Order and you edit a line Description, you receive an error: "The requested operation is not supported. Page New - Purchase order - xxx -xxx - has to close"
+        Initialize();
+
+        // [GIVEN] Purchase Order
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+
+        // [GIVEN] Purchase Line With Charge (Item)
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(10));
+
+        // [WHEN] Pay-To Vendor Updated
+        PurchaseHeader.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Description is updated in Purchase Order Subform
+        PurchLineDesc := SetDescriptionInPurchOrderSubPage(PurchaseHeader."No.");
+
+        // [VERIFY] Verify: Purchase Line Description updated
+        VerifyDescriptionInPurchOrderSubpage(PurchaseHeader."No.", PurchLineDesc);
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -5096,6 +5244,27 @@ codeunit 134394 "ERM Purchase Subform"
     local procedure AnswerYesToAllConfirmDialogs()
     begin
         AnswerYesToConfirmDialogs(10);
+    end;
+
+    local procedure SetDescriptionInPurchOrderSubPage(DocNo: Code[20]) PurchLineDesc: Text
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+        PurchaseOrderSubform: TestPage "Purchase Order Subform";
+        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
+    begin
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.SetFilter("No.", DocNo);
+        PurchLineDesc := LibraryRandom.RandText(100);
+        PurchaseOrder.PurchLines.Description.SetValue(PurchLineDesc);
+    end;
+
+    local procedure VerifyDescriptionInPurchOrderSubpage(DocNo: Code[20]; PurchLineDesc: Text)
+    var
+        PurchaseOrderSubform: TestPage "Purchase Order Subform";
+    begin
+        PurchaseOrderSubform.OpenEdit;
+        PurchaseOrderSubform.FILTER.SetFilter("Document No.", DocNo);
+        PurchaseOrderSubform.Description.AssertEquals(PurchLineDesc);
     end;
 
     [ConfirmHandler]

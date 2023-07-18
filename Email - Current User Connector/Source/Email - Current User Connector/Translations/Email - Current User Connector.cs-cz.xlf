@@ -5,7 +5,7 @@
       <group id="body">
         <trans-unit id="Codeunit 1506430813 - NamedType 1293915263" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Users send emails from their sign-in account.</source>
-          <target state="translated">Uživatelé odesílají e-maily ze svého přihlašovacího účtu.</target>
+          <target state="translated">Uživatelé odesílají emaily ze svého přihlašovacího účtu.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - NamedType ConnectorDescriptionTxt</note>
         </trans-unit>
@@ -17,7 +17,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 1506430813 - NamedType 56622739" maxwidth="250" size-unit="char" translate="yes" xml:space="preserve">
           <source>Current User's Email Address</source>
-          <target state="translated">E-mailová adresa aktuálního uživatele</target>
+          <target state="translated">Emailová adresa aktuálního uživatele</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Current User Connector - NamedType CurrentUsersEmailAddressTok</note>
         </trans-unit>
@@ -66,7 +66,7 @@
         </trans-unit>
         <trans-unit id="Page 1036501575 - Control 1205826660 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>An email account of this type is already set up for you. You can only use one account at a time.</source>
-          <target state="translated">E-mailový účet tohoto typu je již nastaven pro vás. Najednou můžete používat pouze jeden účet.</target>
+          <target state="translated">Emailový účet tohoto typu je již nastaven pro vás. Najednou můžete používat pouze jeden účet.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control OnlyOne - Property InstructionalText</note>
         </trans-unit>
@@ -100,7 +100,7 @@
         </trans-unit>
         <trans-unit id="Page 1036501575 - Control 3123527090 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Everyone will send email messages from their own email account.</source>
-          <target state="translated">Každý bude posílat e-mailové zprávy z vlastního e-mailového účtu.</target>
+          <target state="translated">Každý bude posílat emailové zprávy z vlastního emailového účtu.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Control Info - Property InstructionalText</note>
         </trans-unit>
@@ -117,13 +117,13 @@
         </trans-unit>
         <trans-unit id="Page 1036501575 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Current User Email Account</source>
-          <target state="translated">E-mailový účet aktuálního uživatele</target>
+          <target state="translated">Emailový účet aktuálního uživatele</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Current User Email Account - Property Caption</note>
         </trans-unit>
         <trans-unit id="PermissionSet 3536309230 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email Current User Connector - Objects</source>
-          <target state="translated">Objekty - Konektor aktuálního uživatele e-mailu</target>
+          <target state="translated">Objekty - Konektor aktuálního uživatele emailu</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet EmailCurUser-Objects - Property Caption</note>
         </trans-unit>

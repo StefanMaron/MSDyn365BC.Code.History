@@ -1,11 +1,11 @@
 {
   "settings": {
+    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
     },
-    "al.enableCodeAnalysis": false,
     "allint.enabled": false,
-    "al.enableCodeActions": false
+    "al.enableCodeAnalysis": false
   },
   "folders": [
     {
@@ -28,6 +28,9 @@
     },
     {
       "path": "./salesandinventoryforecast/test/Sales and Inventory Forecast Tests"
+    },
+    {
+      "path": "./ErrorMessagesWithRecommendations/test/Error Messages with Recommendations Tests"
     },
     {
       "path": "./ReviewGLEntries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
@@ -115,6 +118,9 @@
     },
     {
       "path": "./PlanConfiguration/Test/_Exclude_PlanConfiguration_ Tests"
+    },
+    {
+      "path": "./EU3PartyTradePurchase/test/EU 3-Party Trade Purchase Tests"
     },
     {
       "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"

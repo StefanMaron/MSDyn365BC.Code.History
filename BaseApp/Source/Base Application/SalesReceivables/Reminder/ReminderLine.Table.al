@@ -783,6 +783,8 @@ table 296 "Reminder Line"
         ReminderEntry.SetCurrentKey("Customer Entry No.");
         ReminderEntry.SetRange("Customer Entry No.", EntryNo);
         ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
+        ReminderEntry.SetRange("Reminder Level", CustLedgEntry."Last Issued Reminder Level");
+        ReminderEntry.SetRange(Canceled, false);
         OnGetNoOfReminderForCustLedgEntryOnAfterReminderEntrySetFilters(ReminderEntry);
         if ReminderEntry.FindLast() then
             NoOfReminders := ReminderEntry."Reminder Level";

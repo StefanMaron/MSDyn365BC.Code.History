@@ -16,12 +16,13 @@
         Text003: Label '%1 is not an available %2 for that dimension.';
         DefaultDimensionsValueCodeEmptyTxt: Label 'The %1 dimension is the default dimension, and it must have a value. You can set the value on the %2 page.', Comment = '%1 = the value of Dimension Code; %2 = page caption of Default Dimensions';
         Text005: Label 'Select a %1 for the %2 %3 for %4 %5.';
-        Text006: Label 'Select %1 %2 for the %3 %4.';
-        Text007: Label 'Select %1 %2 for the %3 %4 for %5 %6.';
+        SameCodeWrongDimOrNoCode01Err: Label 'The %1 must be %2 for %3 %4. Currently it''s %5.', Comment = '%1 = "Dimension value code" caption, %2 = expected "Dimension value code" value, %3 = "Dimension code" caption, %4 = "Dimension Code" value, %5 = current "Dimension value code" value';
+        SameCodeWrongDimOrNoCode02Err: Label 'The %1 must be %2 for %3 %4 for %5 %6. Currently it''s %7.', Comment = '%1 = "Dimension value code" caption, %2 = expected "Dimension value code" value, %3 = "Dimension code" caption, %4 = "Dimension Code" value, %5 = Table caption (Vendor), %6 = Table value (XYZ), %7 = current "Dimension value code" value';
+        BlankValueLbl: Label 'blank', Comment = 'This can be used with SameCodeWrongDimOrNoCode02Err. Example: The Dimension Value Code must be blank for Dimension code SALESCAMPAIGN for Vendor 10000. Currently it''s SUMMER.';
+        SameCodeMissingDim01Err: Label 'The %1 %2 with %3 %4 is required.', Comment = '%1 = "Dimension code" caption, %2= "Dimension Code" value, %3 = "Dimension value code" caption, %4 = "Dimension value code" value';
+        SameCodeMissingDim02Err: Label 'The %1 %2 with %3 %4 is required for %5 %6.', Comment = '%1 = "Dimension code" caption, %2= "Dimension Code" value, %3 = "Dimension value code" caption, %4 = "Dimension value code" value, %5 = Table caption (Vendor), %6 = Table value (XYZ)';
         Text008: Label '%1 %2 must be blank.';
         Text009: Label '%1 %2 must be blank for %3 %4.';
-        Text010: Label '%1 %2 must not be mentioned.';
-        Text011: Label '%1 %2 must not be mentioned for %3 %4.';
         Text012: Label 'A %1 used in %2 has not been used in %3.';
         Text013: Label '%1 for %2 %3 is not the same in %4 and %5.';
         Text014: Label '%1 %2 is blocked.';
@@ -396,16 +397,18 @@
                                     LogError(RecordId, FieldNo("Value Posting"), GetMissedMandatoryDimErr(TempDefaultDim), '');
                             "Value Posting"::"Same Code":
                                 if "Dimension Value Code" <> '' then begin
-                                    if not DimSetEntry.FindFirst() or
-                                       ("Dimension Value Code" <> DimSetEntry."Dimension Value Code")
-                                    then
-                                        LogError(RecordId, FieldNo("Value Posting"), GetSameCodeWrongDimErr(TempDefaultDim), '');
+                                    if DimSetEntry.FindFirst() then begin
+                                        if "Dimension Value Code" <> DimSetEntry."Dimension Value Code" then
+                                            LogSameCodeWrongDimErrWithSubContext(TempDefaultDim, DimSetEntry);
+                                    end
+                                    else
+                                        LogSameCodeMissingDimErrWithSubContext(TempDefaultDim, DimSetID);
                                 end else
                                     if DimSetEntry.FindFirst() then
                                         LogError(RecordId, FieldNo("Value Posting"), GetSameCodeBlankDimErr(TempDefaultDim), '');
                             "Value Posting"::"No Code":
                                 if DimSetEntry.FindFirst() then
-                                    LogError(RecordId, FieldNo("Value Posting"), GetNoCodeFilledDimErr(TempDefaultDim), '');
+                                    LogNoCodeFilledDimErrWithSubContext(TempDefaultDim, DimSetEntry);
                         end;
                         if DimValuePerAccount.Get("Table ID", "No.", "Dimension Code", DimSetEntry."Dimension Value Code") then
                             if not DimValuePerAccount.Allowed then
@@ -581,24 +584,6 @@
             DefaultDim."No."));
     end;
 
-    local procedure GetNoCodeFilledDimErr(DefaultDim: Record "Default Dimension"): Text
-    var
-        ObjectTranslation: Record "Object Translation";
-    begin
-        if DefaultDim."No." = '' then
-            exit(
-              StrSubstNo(
-                Text010,
-                DefaultDim.FieldCaption("Dimension Code"), DefaultDim."Dimension Code"));
-        exit(
-          StrSubstNo(
-            Text011,
-            DefaultDim.FieldCaption("Dimension Code"),
-            DefaultDim."Dimension Code",
-            ObjectTranslation.TranslateTable(DefaultDim."Table ID"),
-            DefaultDim."No."));
-    end;
-
     local procedure GetSameCodeBlankDimErr(DefaultDim: Record "Default Dimension"): Text
     var
         ObjectTranslation: Record "Object Translation";
@@ -617,25 +602,51 @@
             DefaultDim."No."));
     end;
 
-    local procedure GetSameCodeWrongDimErr(DefaultDim: Record "Default Dimension"): Text
+    local procedure LogSameCodeWrongDimOrNoCodeErr(DefaultDim: Record "Default Dimension"; LineDimensionValueCode: Code[20]; RequiredDimValueCode: Text[20])
     var
         ObjectTranslation: Record "Object Translation";
+        Message: Text;
     begin
         if DefaultDim."No." = '' then
-            exit(
-              StrSubstNo(
-                Text006,
-                DefaultDim.FieldCaption("Dimension Value Code"), DefaultDim."Dimension Value Code",
-                DefaultDim.FieldCaption("Dimension Code"), DefaultDim."Dimension Code"));
-        exit(
-          StrSubstNo(
-            Text007,
-            DefaultDim.FieldCaption("Dimension Value Code"),
-            DefaultDim."Dimension Value Code",
-            DefaultDim.FieldCaption("Dimension Code"),
-            DefaultDim."Dimension Code",
-            ObjectTranslation.TranslateTable(DefaultDim."Table ID"),
-            DefaultDim."No."));
+            Message := StrSubstNo(SameCodeWrongDimOrNoCode01Err, DefaultDim.FieldCaption("Dimension Value Code"), RequiredDimValueCode, DefaultDim.FieldCaption("Dimension Code"), DefaultDim."Dimension Code", LineDimensionValueCode)
+        else
+            Message := StrSubstNo(SameCodeWrongDimOrNoCode02Err, DefaultDim.FieldCaption("Dimension Value Code"), RequiredDimValueCode, DefaultDim.FieldCaption("Dimension Code"), DefaultDim."Dimension Code", ObjectTranslation.TranslateTable(DefaultDim."Table ID"), DefaultDim."No.", LineDimensionValueCode);
+
+        LogError(DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), Message, '');
+    end;
+
+    local procedure LogSameCodeMissingDimErr(DefaultDim: Record "Default Dimension")
+    var
+        ObjectTranslation: Record "Object Translation";
+        Message: Text;
+    begin
+        if DefaultDim."No." = '' then
+            Message := StrSubstNo(SameCodeMissingDim01Err, DefaultDim.FieldCaption("Dimension Code"), DefaultDim."Dimension Code", DefaultDim.FieldCaption("Dimension Value Code"), DefaultDim."Dimension Value Code")
+        else
+            Message := StrSubstNo(SameCodeMissingDim02Err, DefaultDim.FieldCaption("Dimension Code"), DefaultDim."Dimension Code", DefaultDim.FieldCaption("Dimension Value Code"), DefaultDim."Dimension Value Code", ObjectTranslation.TranslateTable(DefaultDim."Table ID"), DefaultDim."No.");
+
+        LogError(DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), Message, '');
+    end;
+
+    local procedure LogSameCodeWrongDimErrWithSubContext(DefaultDim: Record "Default Dimension"; DimSetEntry: Record "Dimension Set Entry")
+    begin
+        LogSameCodeWrongDimOrNoCodeErr(DefaultDim, DimSetEntry."Dimension Value Code", DefaultDim."Dimension Value Code");
+
+        ErrorMessageMgt.AddSubContextToLastErrorMessage('DimensionCodeSameError', DimSetEntry);
+    end;
+
+    local procedure LogSameCodeMissingDimErrWithSubContext(DefaultDim: Record "Default Dimension"; DimSetID: Integer)
+    begin
+        LogSameCodeMissingDimErr(DefaultDim);
+
+        ErrorMessageMgt.AddSubContextToLastErrorMessage('DimensionCodeSameMissingDimCodeError', DimSetID);
+    end;
+
+    local procedure LogNoCodeFilledDimErrWithSubContext(DefaultDim: Record "Default Dimension"; DimSetEntry: Record "Dimension Set Entry")
+    begin
+        LogSameCodeWrongDimOrNoCodeErr(DefaultDim, DimSetEntry."Dimension Value Code", BlankValueLbl);
+
+        ErrorMessageMgt.AddSubContextToLastErrorMessage('DimensionCodeMustBeBlank', DimSetEntry);
     end;
 
     procedure GetNotAllowedDimValuePerAccount(DefaultDim: Record "Default Dimension"; DimValueCode: Code[20]): Text
@@ -1279,15 +1290,18 @@
                                         exit(false);
                                     end;
                                 DefaultDim."Value Posting"::"Same Code":
-                                    if DefaultDim."Dimension Value Code" <> '' then begin
-                                        if (not TempDimBuf.FindFirst()) or
-                                           (DefaultDim."Dimension Value Code" <> TempDimBuf."Dimension Value Code")
-                                        then begin
-                                            LogError(
-                                                DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetSameCodeWrongDimErr(DefaultDim), '');
+                                    if DefaultDim."Dimension Value Code" <> '' then
+                                        if TempDimBuf.FindFirst() then begin
+                                            if DefaultDim."Dimension Value Code" <> TempDimBuf."Dimension Value Code" then begin
+                                                LogSameCodeWrongDimOrNoCodeErr(DefaultDim, TempDimBuf."Dimension Value Code", DefaultDim."Dimension Value Code");
+                                                exit(false);
+                                            end;
+                                        end
+                                        else begin
+                                            LogSameCodeMissingDimErr(DefaultDim);
                                             exit(false);
                                         end
-                                    end else
+                                    else
                                         if TempDimBuf.FindFirst() then begin
                                             LogError(
                                                 DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetSameCodeBlankDimErr(DefaultDim), '');
@@ -1295,8 +1309,7 @@
                                         end;
                                 DefaultDim."Value Posting"::"No Code":
                                     if TempDimBuf.FindFirst() then begin
-                                        LogError(
-                                            DefaultDim.RecordId, DefaultDim.FieldNo("Value Posting"), GetNoCodeFilledDimErr(DefaultDim), '');
+                                        LogSameCodeWrongDimOrNoCodeErr(DefaultDim, TempDimBuf."Dimension Value Code", BlankValueLbl);
                                         exit(false);
                                     end;
                             end;
@@ -2039,7 +2052,13 @@
     var
         JobTaskDimension: Record "Job Task Dimension";
         JobTaskDimension2: Record "Job Task Dimension";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyJobTaskDimToJobTaskDim(JobNo, JobTaskNo, NewJobNo, NewJobTaskNo, IsHandled);
+        if IsHandled then
+            exit;
+
         JobTaskDimension.Reset();
         JobTaskDimension.SetRange("Job No.", JobNo);
         JobTaskDimension.SetRange("Job Task No.", JobTaskNo);
@@ -3460,6 +3479,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterUseShortcutDims(var DimVisible1: Boolean; var DimVisible2: Boolean; var DimVisible3: Boolean; var DimVisible4: Boolean; var DimVisible5: Boolean; var DimVisible6: Boolean; var DimVisible7: Boolean; var DimVisible8: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyJobTaskDimToJobTaskDim(JobNo: Code[20]; JobTaskNo: Code[20]; NewJobNo: Code[20]; NewJobTaskNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

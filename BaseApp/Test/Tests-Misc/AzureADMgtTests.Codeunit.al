@@ -19,7 +19,6 @@ codeunit 139086 "Azure AD Mgt. Tests"
         ValidResourceUrlTxt: Label 'http://contoso.com/a/valid/resource', Locked = true;
         ValidResourceNameTxt: Label 'Azure Service', Locked = true;
         ValidGuestTenantTxt: Label 'fabrikam.contoso.biz', Locked = true;
-        CouldNotGetAccessTokenErr: Label 'Could not get access token.';
 
     [Test]
     [Scope('OnPrem')]
@@ -130,11 +129,8 @@ codeunit 139086 "Azure AD Mgt. Tests"
         Initialize(false, false, false, true, true);
 
         // [WHEN] The user invokes GetAccessToken method.
-        // [THEN] An error occurs.
-        asserterror AzureAdMgt.GetAccessToken(ValidResourceUrlTxt, ValidResourceNameTxt, false);
-        
-        // [THEN] The error message is as expected.
-        Assert.ExpectedError(CouldNotGetAccessTokenErr);
+        // [THEN] The return value is empty.
+        Assert.AreEqual('', AzureAdMgt.GetAccessToken(ValidResourceUrlTxt, ValidResourceNameTxt, false), 'Expected the access token to be empty.');
     end;
 
     [Test]

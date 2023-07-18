@@ -71,6 +71,7 @@
         DocLineNo: Integer;
         DeleteServItems: Boolean;
         PostedWhseShptLineFound: Boolean;
+        IsHandled: Boolean;
     begin
         with SalesShipmentLine do begin
             Clear(ItemJnlPostLine);
@@ -105,16 +106,19 @@
                 if not HideDialog then
                     WindowDialog.Open(Text001);
 
-                if Type = Type::Item then begin
-                    PostedWhseShptLineFound :=
-                    WhseUndoQuantity.FindPostedWhseShptLine(
-                        PostedWhseShipmentLine, DATABASE::"Sales Shipment Line", "Document No.",
-                        DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.");
+                IsHandled := false;
+                OnCodeOnBeforeProcessItemShptEntry(ItemShptEntryNo, DocLineNo, SalesShipmentLine, IsHandled);
+                If not IsHandled then
+                    if Type = Type::Item then begin
+                        PostedWhseShptLineFound :=
+                        WhseUndoQuantity.FindPostedWhseShptLine(
+                            PostedWhseShipmentLine, DATABASE::"Sales Shipment Line", "Document No.",
+                            DATABASE::"Sales Line", SalesLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.");
 
-                    Clear(ItemJnlPostLine);
-                    ItemShptEntryNo := PostItemJnlLine(SalesShipmentLine, DocLineNo);
-                end else
-                    DocLineNo := GetCorrectionLineNo(SalesShipmentLine);
+                        Clear(ItemJnlPostLine);
+                        ItemShptEntryNo := PostItemJnlLine(SalesShipmentLine, DocLineNo);
+                    end else
+                        DocLineNo := GetCorrectionLineNo(SalesShipmentLine);
 
                 InsertNewShipmentLine(SalesShipmentLine, ItemShptEntryNo, DocLineNo);
                 OnAfterInsertNewShipmentLine(SalesShipmentLine, PostedWhseShipmentLine, PostedWhseShptLineFound, DocLineNo, ItemShptEntryNo);
@@ -759,6 +763,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetInvoicedShptEntriesOnAfterSetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; SalesShipmentLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeProcessItemShptEntry(var ItemShptEntryNo: Integer; var DocLineNo: Integer; var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

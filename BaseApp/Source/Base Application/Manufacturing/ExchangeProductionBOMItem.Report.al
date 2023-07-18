@@ -145,7 +145,7 @@ report 99001043 "Exchange Production BOM Item"
                                         ProdBOMLine."Ending Date" := StartingDate - 1;
                                         ProdBOMLine.Modify();
                                     end;
-                                    OnBeforeInsertNewProdBOMLine(ProdBOMLine2, ProdBOMLine3, QtyMultiply);
+                                    OnBeforeInsertNewProdBOMLine(ProdBOMLine2, ProdBOMLine, QtyMultiply);
                                     ProdBOMLine2.Insert();
                                 end;
                         end;
@@ -163,22 +163,30 @@ report 99001043 "Exchange Production BOM Item"
             end;
 
             trigger OnAfterGetRecord()
+            var
+                IsHandled: Boolean;
             begin
                 if Recertify then begin
                     ProdBOMHeader.MarkedOnly(true);
-                    if ProdBOMHeader.Find('-') then
-                        repeat
-                            ProdBOMHeader.Validate(Status, ProdBOMHeader.Status::Certified);
-                            ProdBOMHeader.Modify();
-                        until ProdBOMHeader.Next() = 0;
+                    IsHandled := false;
+                    OnRecertifyLoopOnBeforeLoopProdBOMHeader(ProdBOMHeader, IsHandled);
+                    if not IsHandled then
+                        if ProdBOMHeader.Find('-') then
+                            repeat
+                                ProdBOMHeader.Validate(Status, ProdBOMHeader.Status::Certified);
+                                ProdBOMHeader.Modify();
+                            until ProdBOMHeader.Next() = 0;
 
                     ProdBOMVersionList.SetRange("Production BOM No.");
                     ProdBOMVersionList.MarkedOnly(true);
-                    if ProdBOMVersionList.Find('-') then
-                        repeat
-                            ProdBOMVersionList.Validate(Status, ProdBOMVersionList.Status::Certified);
-                            ProdBOMVersionList.Modify();
-                        until ProdBOMVersionList.Next() = 0;
+                    IsHandled := false;
+                    OnRecertifyLoopOnBeforeLoopProdBOMVersionList(ProdBOMVersionList, IsHandled);
+                    if not IsHandled then
+                        if ProdBOMVersionList.Find('-') then
+                            repeat
+                                ProdBOMVersionList.Validate(Status, ProdBOMVersionList.Status::Certified);
+                                ProdBOMVersionList.Modify();
+                            until ProdBOMVersionList.Next() = 0;
                 end;
             end;
         }
@@ -524,6 +532,16 @@ report 99001043 "Exchange Production BOM Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnInitReport(var CreateNewVersion: Boolean; var StartingDate: Date; var DeleteExcComp: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecertifyLoopOnBeforeLoopProdBOMHeader(var ProductionBOMHeader: Record "Production BOM Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecertifyLoopOnBeforeLoopProdBOMVersionList(var ProductionBOMVersion: Record "Production BOM Version"; var IsHandled: Boolean)
     begin
     end;
 }

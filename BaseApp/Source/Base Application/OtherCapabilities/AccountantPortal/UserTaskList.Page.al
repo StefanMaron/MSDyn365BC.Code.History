@@ -175,6 +175,7 @@ page 1170 "User Task List"
         Found: Boolean;
     begin
         FilteredUserTask := Rec;
+        FilteredUserTask.SetView(Rec.GetView(false));
         Found := FilteredUserTask.find(Which);
         if Found then
             Rec := FilteredUserTask;

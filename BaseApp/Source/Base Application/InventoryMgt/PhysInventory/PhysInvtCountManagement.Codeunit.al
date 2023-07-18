@@ -297,30 +297,30 @@ codeunit 7380 "Phys. Invt. Count.-Management"
                     NextCountingEndDate := Periods[i + 1] - 1;
                 end;
             else begin
-                    Calendar.Reset();
-                    Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
-                    Calendar.SetRange("Period Start", StartDate, YearEndDate);
-                    Calendar.SetRange("Period No.");
-                    Days := (Calendar.Count div CountFrequency);
-                    if NextCountingStartDate <> 0D then
-                        case LastCountDate of
-                            0D .. NextCountingStartDate - 1:
-                                StartDate := LastCountDate + Days;
-                            NextCountingStartDate .. NextCountingEndDate:
+                Calendar.Reset();
+                Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
+                Calendar.SetRange("Period Start", StartDate, YearEndDate);
+                Calendar.SetRange("Period No.");
+                Days := (Calendar.Count div CountFrequency);
+                if NextCountingStartDate <> 0D then
+                    case LastCountDate of
+                        0D .. NextCountingStartDate - 1:
+                            StartDate := LastCountDate + Days;
+                        NextCountingStartDate .. NextCountingEndDate:
+                            StartDate := NextCountingEndDate + 1;
+                        (NextCountingEndDate + 1) .. DMY2Date(31, 12, 9998):
+                            begin
                                 StartDate := NextCountingEndDate + 1;
-                            (NextCountingEndDate + 1) .. DMY2Date(31, 12, 9998):
-                                begin
-                                    StartDate := NextCountingEndDate + 1;
-                                    while StartDate < LastCountDate do
-                                        StartDate := StartDate + Days;
-                                end;
-                        end
-                    else
-                        StartDate := LastCountDate + Days;
+                                while StartDate < LastCountDate do
+                                    StartDate := StartDate + Days;
+                            end;
+                    end
+                else
+                    StartDate := LastCountDate + Days;
 
-                    NextCountingStartDate := StartDate;
-                    NextCountingEndDate := StartDate + Days - 1;
-                end;
+                NextCountingStartDate := StartDate;
+                NextCountingEndDate := StartDate + Days - 1;
+            end;
         end;
     end;
 
@@ -616,6 +616,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
                 Item.SetRange("Location Filter", TempPhysInvtItemSelection."Location Code");
             end;
             CalcPhysInvtOrderLinesRep.SetTableView(Item);
+            OnCreatePhysInvtOrderLinesOnBeforeCalcPhysInvtOrderLinesRunModal(CalcPhysInvtOrderCountRep, ZeroQty, CalcQtyExpected, Item, CalcPhysInvtOrderLinesRep);
             CalcPhysInvtOrderLinesRep.RunModal();
             Clear(CalcPhysInvtOrderLinesRep);
         until TempPhysInvtItemSelection.Next() = 0;
@@ -723,6 +724,11 @@ codeunit 7380 "Phys. Invt. Count.-Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSKUPhysInvtCount(var SKU: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePhysInvtOrderLinesOnBeforeCalcPhysInvtOrderLinesRunModal(var CalcPhysInvtOrderCount: Report "Calc. Phys. Invt. Order Count"; ZeroQty: Boolean; CalcQtyExpected: Boolean; var Item: Record Item; var CalcPhysInvtOrderLines: Report "Calc. Phys. Invt. Order Lines")
     begin
     end;
 }

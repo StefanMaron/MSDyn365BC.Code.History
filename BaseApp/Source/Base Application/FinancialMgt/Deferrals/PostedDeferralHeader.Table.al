@@ -33,6 +33,8 @@ table 1704 "Posted Deferral Header"
         {
             Caption = 'Deferral Code';
             NotBlank = true;
+            TableRelation = "Deferral Template"."Deferral Code";
+            ValidateTableRelation = false;
         }
         field(8; "Amount to Defer"; Decimal)
         {

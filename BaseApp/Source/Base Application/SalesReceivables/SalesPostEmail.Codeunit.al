@@ -57,6 +57,7 @@ codeunit 89 "Sales-Post + Email"
             case "Document Type" of
                 "Document Type"::Invoice:
                     begin
+                        OnSendDocumentReportOnBeforeSendInvoice(SalesInvHeader);
                         if "Last Posting No." = '' then
                             SalesInvHeader."No." := "No."
                         else
@@ -118,6 +119,11 @@ codeunit 89 "Sales-Post + Email"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostAndEMail(var SalesHeader: Record "Sales Header"; var HideDialog: Boolean; var IsHandled: Boolean; var HideMailDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendDocumentReportOnBeforeSendInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 }

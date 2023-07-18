@@ -123,6 +123,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyBillToInformationIfNotEmpty(CRMSalesorder, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         // If the Bill-To fields in CRM are all empty, then let NAV keep its standard behavior (takes Bill-To from the Customer information)
         if ((CRMSalesorder.BillTo_Line1 = '') and
             (CRMSalesorder.BillTo_Line2 = '') and
@@ -916,6 +921,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetSalesHeaderPaymentDiscountFromCRM(var SalesHeader: Record "Sales Header"; var CRMSalesOrder: Record "CRM Salesorder"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyBillToInformationIfNotEmpty(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

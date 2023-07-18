@@ -123,18 +123,23 @@ page 554 "Analysis by Dimensions"
                         GLAccList: Page "G/L Account List";
                         CFAccList: Page "Cash Flow Account List";
                     begin
-                        if GLAccountSource then begin
-                            GLAccList.LookupMode(true);
-                            if not (GLAccList.RunModal() = ACTION::LookupOK) then
-                                exit(false);
-
-                            Text := GLAccList.GetSelectionFilter();
-                        end else begin
-                            CFAccList.LookupMode(true);
-                            if not (CFAccList.RunModal() = ACTION::LookupOK) then
-                                exit(false);
-
-                            Text := CFAccList.GetSelectionFilter();
+                        case AnalysisView."Account Source" of
+                            AnalysisView."Account Source"::"G/L Account":
+                                begin
+                                    GLAccList.LookupMode(true);
+                                    if not (GLAccList.RunModal() = ACTION::LookupOK) then
+                                        exit(false);
+                                    Text := GLAccList.GetSelectionFilter();
+                                end;
+                            AnalysisView."Account Source"::"Cash Flow Account":
+                                begin
+                                    CFAccList.LookupMode(true);
+                                    if not (CFAccList.RunModal() = ACTION::LookupOK) then
+                                        exit(false);
+                                    Text := CFAccList.GetSelectionFilter();
+                                end;
+                            else
+                                OnLookupAccountFilterOnAccountSourceElseCase(Rec, AnalysisView);
                         end;
                         exit(true);
                     end;
@@ -493,9 +498,14 @@ page 554 "Analysis by Dimensions"
 
         "Line Dim Option" := DimCodeToDimOption(LineDimCode);
         "Column Dim Option" := DimCodeToDimOption(ColumnDimCode);
-        if GLAccountSource then begin
-            Field.Get(DATABASE::"G/L Account", 42);
-            BusUnitFilterCaption := Field."Field Caption";
+        case Rec."Analysis Account Source" of
+            Rec."Analysis Account Source"::"G/L Account":
+                begin
+                    Field.Get(DATABASE::"G/L Account", 42);
+                    BusUnitFilterCaption := Field."Field Caption";
+                end;
+            else
+                OnOpenPageOnGetBusUnitFilterCaptionElseCase(Rec, AnalysisView, BusUnitFilterCaption);
         end;
 
         FindPeriod('');
@@ -1362,6 +1372,16 @@ page 554 "Analysis by Dimensions"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetAnalysisViewDimensionOption(var AnalysisView: Record "Analysis View"; var Result: enum "Analysis Dimension Option"; DimCode: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAccountFilterOnAccountSourceElseCase(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; AnalysisView: Record "Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnGetBusUnitFilterCaptionElseCase(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; AnalysisView: Record "Analysis View"; var BusUnitFilterCaption: Text[80])
     begin
     end;
 }

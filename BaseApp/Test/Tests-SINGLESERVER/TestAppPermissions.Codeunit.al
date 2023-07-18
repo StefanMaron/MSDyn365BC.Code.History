@@ -104,6 +104,19 @@ codeunit 134614 "Test App Permissions"
         LibraryPermissions.AddTenantPermission(AppGUIDs[2], AppPermissionRoles[2], TenantPermission."Object Type"::Table, PAGE::"Vendor Statistics");
     end;
 
+    local procedure AssignSuperToCurrentUser()
+    var
+        AccessControl: Record "Access Control";
+    begin
+        AccessControl.SetRange("User Security ID", UserSecurityId());
+        AccessControl.SetRange("Role ID", 'SUPER');
+        if not AccessControl.IsEmpty() then
+            exit;
+        AccessControl."User Security ID" := UserSecurityId();
+        AccessControl."Role ID" := 'SUPER';
+        AccessControl.Insert(true);
+    end;
+
     local procedure CreateSuperUser(): Guid
     var
         LibraryPermissions: Codeunit "Library - Permissions";
@@ -228,6 +241,9 @@ codeunit 134614 "Test App Permissions"
         // Init
         InitializeData;
 
+        // User is SUPER
+        AssignSuperToCurrentUser();
+
         // Execute
         PermissionSetByUser.OpenView;
 
@@ -262,6 +278,9 @@ codeunit 134614 "Test App Permissions"
         // Test that the aggregate permission sets are viewable in the Permission Sets By Security Group page
         // Init
         InitializeData;
+
+        // User is SUPER
+        AssignSuperToCurrentUser();
 
         // Execute
         PermissionSetBySecurityGroup.OpenView;
@@ -320,6 +339,9 @@ codeunit 134614 "Test App Permissions"
         // Init
         InitializeData;
 
+        // User is SUPER
+        AssignSuperToCurrentUser();
+
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
         AggregatePermissionSet.FindFirst();
@@ -359,6 +381,9 @@ codeunit 134614 "Test App Permissions"
         // Test that permissions can be added to Nav App permissions in the Permission Sets By User page by selecting the item to select all
         // Init
         InitializeData;
+
+        // User is SUPER
+        AssignSuperToCurrentUser();
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
@@ -413,6 +438,9 @@ codeunit 134614 "Test App Permissions"
         // Init
         InitializeData;
 
+        // User is SUPER
+        AssignSuperToCurrentUser();
+
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
         AggregatePermissionSet.FindFirst();
@@ -455,6 +483,9 @@ codeunit 134614 "Test App Permissions"
         // Test that permissions can be added to Nav App permissions in the Permission Sets By User page by selecting the item to select all
         // Init
         InitializeData;
+
+        // User is SUPER
+        AssignSuperToCurrentUser();
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
@@ -511,6 +542,9 @@ codeunit 134614 "Test App Permissions"
         // Init
         InitializeData;
 
+        // User is SUPER
+        AssignSuperToCurrentUser();
+
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
         AggregatePermissionSet.FindFirst();
@@ -557,6 +591,9 @@ codeunit 134614 "Test App Permissions"
         // Test that permissions can be added to Nav App permissions in the Permission Sets By User page by selecting the item to select all
         // Init
         InitializeData;
+
+        // User is SUPER
+        AssignSuperToCurrentUser();
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
@@ -622,6 +659,10 @@ codeunit 134614 "Test App Permissions"
         // [Scenario] User is not able to remove the SUPER permission set from all users.
         // Init
         InitializeData();
+
+        // User is SUPER
+        AssignSuperToCurrentUser();
+
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // Find SUPER permission set
@@ -681,6 +722,9 @@ codeunit 134614 "Test App Permissions"
         // Init
         InitializeData;
 
+        // User is SUPER
+        AssignSuperToCurrentUser();
+
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
         AggregatePermissionSet.FindFirst();
@@ -734,6 +778,9 @@ codeunit 134614 "Test App Permissions"
         // Test that permissions can be added to Nav App permissions in the Permission Sets By User page by selecting the item to select all
         // Init
         InitializeData;
+
+        // User is SUPER
+        AssignSuperToCurrentUser();
 
         AggregatePermissionSet.SetRange("App ID", AppGUIDs[1]);
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::Tenant);
@@ -804,6 +851,10 @@ codeunit 134614 "Test App Permissions"
         LastSecurityGroupCode: Text;
     begin
         CreateUsersAndPermissionSets();
+
+        // User is SUPER
+        AssignSuperToCurrentUser();
+
         LibraryPermissions.GetMyUser(User);
         // Execute
         PermissionSetBySecurityGroup.OpenEdit;

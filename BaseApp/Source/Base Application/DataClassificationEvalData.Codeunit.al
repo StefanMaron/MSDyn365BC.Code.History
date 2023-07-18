@@ -189,6 +189,7 @@
         ClassifyServiceHeader();
         ClassifyDetailedVendorLedgEntry();
         ClassifyDetailedCustLedgEntry();
+        ClassifyDetailedCVLedgEntryBuffer();
         ClassifyPostedPaymentReconLine();
         ClassifyAppliedPaymentEntry();
         ClassifySelectedDimension();
@@ -4213,6 +4214,17 @@
         SetFieldToCompanyConfidential(TableNo, DummyDetailedCustLedgEntry.FieldNo("Entry Type"));
         SetFieldToCompanyConfidential(TableNo, DummyDetailedCustLedgEntry.FieldNo("Cust. Ledger Entry No."));
         SetFieldToCompanyConfidential(TableNo, DummyDetailedCustLedgEntry.FieldNo("Entry No."));
+    end;
+
+    local procedure ClassifyDetailedCVLedgEntryBuffer()
+    var
+        DummyDetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Detailed CV Ledg. Entry Buffer";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, DummyDetailedCVLedgEntryBuffer.FieldNo("Non-Deductible VAT Amount LCY"));
+        SetFieldToCompanyConfidential(TableNo, DummyDetailedCVLedgEntryBuffer.FieldNo("Non-Deductible VAT Amount ACY"));
     end;
 
     local procedure ClassifyPostedPaymentReconLine()

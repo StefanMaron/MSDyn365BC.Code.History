@@ -233,6 +233,7 @@ page 47 "Sales Invoice Subform"
                     trigger OnValidate()
                     begin
                         DeltaUpdateTotals();
+                        CurrPage.Update();
                     end;
                 }
                 field("Bin Code"; Rec."Bin Code")

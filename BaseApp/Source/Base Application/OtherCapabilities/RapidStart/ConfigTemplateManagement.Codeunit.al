@@ -211,9 +211,11 @@ codeunit 8612 "Config. Template Management"
         for KeyFieldCount := 1 to KeyRef.FieldCount do begin
             FieldRef := KeyRef.FieldIndex(KeyFieldCount);
             ConfigTemplateLine.SetRange("Field ID", FieldRef.Number);
-            if ConfigTemplateLine.FindFirst() then
+            if ConfigTemplateLine.FindFirst() then begin
+                OnInsertRecordWithKeyFieldsOnBeforeValidateFieldValue(ConfigTemplateHeader, ConfigTemplateLine);
                 ConfigValidateMgt.ValidateFieldValue(
-                  RecRef, FieldRef, ConfigTemplateLine."Default Value", false, ConfigTemplateLine."Language ID")
+                  RecRef, FieldRef, ConfigTemplateLine."Default Value", false, ConfigTemplateLine."Language ID");
+            end
             else
                 if KeyRef.FieldCount <> 1 then
                     Error(KeyFieldValueErr, FieldRef.Name);
@@ -288,6 +290,7 @@ codeunit 8612 "Config. Template Management"
                 if ConfigTemplateLine.Type = ConfigTemplateLine.Type::Field then
                     if RecordRef.FieldExist(ConfigTemplateLine."Field ID") then begin
                         FieldRef := RecordRef.Field(ConfigTemplateLine."Field ID");
+                        OnApplyTemplateLinesWithoutValidationOnBeforeValidateFieldValue(ConfigTemplateHeader, ConfigTemplateLine);
                         ConfigValidateMgt.ValidateFieldValue(
                           RecordRef, FieldRef, ConfigTemplateLine."Default Value", true, ConfigTemplateLine."Language ID");
                         RecordRef.Modify(false);
@@ -614,6 +617,16 @@ codeunit 8612 "Config. Template Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertRecordWithKeyFields(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertRecordWithKeyFieldsOnBeforeValidateFieldValue(var ConfigTemplateHeader: Record "Config. Template Header"; var ConfigTemplateLine: Record "Config. Template Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyTemplateLinesWithoutValidationOnBeforeValidateFieldValue(var ConfigTemplateHeader: Record "Config. Template Header"; var ConfigTemplateLine: Record "Config. Template Line")
     begin
     end;
 }

@@ -769,7 +769,7 @@ table 7001 "Price List Line"
             "Starting Date" := PriceSource."Starting Date";
             "Ending Date" := PriceSource."Ending Date";
         end;
-        OnAfterCopyFromPriceSource(PriceSource);
+        OnAfterCopyFromPriceSource(PriceSource, Rec);
     end;
 
     procedure CopyFrom(PriceAsset: Record "Price Asset")
@@ -1086,16 +1086,22 @@ table 7001 "Price List Line"
                 begin
                     Item.Get("Asset No.");
                     Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+
+                    OnCopyFromAssetTypeOnAfterCopyFromAssetTypeItem(Item, Rec);
                 end;
             "Asset Type"::"G/L Account":
                 begin
                     GLAccount.Get("Asset No.");
                     Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
+
+                    OnCopyFromAssetTypeOnAfterCopyFromAssetTypeGLAccount(GLAccount, Rec);
                 end;
             "Asset Type"::Resource:
                 begin
                     Resource.Get("Asset No.");
                     Validate("VAT Prod. Posting Group", Resource."VAT Prod. Posting Group");
+
+                    OnCopyFromAssetTypeOnAfterCopyFromAssetTypeResource(Resource, Rec);
                 end;
             else begin
                 OnCopyFromAssetTypeElseCase(Rec, IsHandled);
@@ -1116,7 +1122,7 @@ table 7001 "Price List Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterCopyFromPriceSource(PriceSource: Record "Price Source")
+    local procedure OnAfterCopyFromPriceSource(PriceSource: Record "Price Source"; var PriceListLine: Record "Price List Line")
     begin
     end;
 
@@ -1182,6 +1188,21 @@ table 7001 "Price List Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromAssetTypeElseCase(var PriceListLine: Record "Price List Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromAssetTypeOnAfterCopyFromAssetTypeItem(Item: Record Item; var PriceListLine: Record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromAssetTypeOnAfterCopyFromAssetTypeGLAccount(GLAccount: Record "G/L Account"; var PriceListLine: Record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromAssetTypeOnAfterCopyFromAssetTypeResource(Resource: Record Resource; var PriceListLine: Record "Price List Line")
     begin
     end;
 }

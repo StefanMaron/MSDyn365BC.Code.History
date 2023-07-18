@@ -120,6 +120,17 @@ codeunit 6200 "Non-Deductible VAT"
     end;
 
     /// <summary>
+    /// Returns the non-deductible VAT base from the VAT entry in both LCY and ACY
+    /// </summary>
+    /// <param name="NonDedVATBase">The Non-Deductible VAT base</param>
+    /// <param name="NonDedVATBaseACY">The Non-Deductible VAT base in additional currency</param>
+    /// <param name="VATEntry">The current purchase line</param>
+    procedure GetNonDeductibleVATBaseBothCurrencies(var NonDedVATBase: Decimal; var NonDedVATBaseACY: Decimal; VATEntry: Record "VAT Entry")
+    begin
+        NonDedVATImpl.GetNonDeductibleVATBaseBothCurrencies(NonDedVATBase, NonDedVATBaseACY, VATEntry);
+    end;
+
+    /// <summary>
     /// Sets the non-deductible VAT percent in the purchase line
     /// </summary>
     /// <param name="PurchaseLine">The current purchase line</param>
@@ -151,6 +162,28 @@ codeunit 6200 "Non-Deductible VAT"
     procedure SetNonDedVATAmountDiffInPurchLine(var PurchaseLine: Record "Purchase Line"; var VATAmountLineRemainder: Record "VAT Amount Line"; var VATDifference: Decimal; VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; Part: Decimal; Total: Decimal)
     begin
         NonDedVATImpl.SetNonDedVATAmountDiffInPurchLine(PurchaseLine, VATAmountLineRemainder, VATDifference, VATAmountLine, Currency, Part, Total);
+    end;
+
+    /// <summary>
+    /// Set Non-Deductible VAT base in the VAT Entry
+    /// </summary>
+    /// <param name="VATEntry">The current VAT Entry to be updated</param>
+    /// <param name="NonDedVATAmount">Non-Deductible VAT amount</param>
+    /// <param name="NonDedVATAmountACY">Non-Deductible VAT amount in additional currency</param>
+    procedure SetNonDeductibleVATAmount(var VATEntry: Record "VAT Entry"; NonDedVATAmount: Decimal; NonDedVATAmountACY: Decimal)
+    begin
+        NonDedVATImpl.SetNonDeductibleVATAmount(VATEntry, NonDedVATAmount, NonDedVATAmountACY);
+    end;
+
+    /// <summary>
+    /// Set Non-Deductible VAT amount in the VAT Entry
+    /// </summary>
+    /// <param name="VATEntry">The current VAT Entry to be updated</param>
+    /// <param name="NonDedVATBase">Non-Deductible VAT base</param>
+    /// <param name="NonDedVATBaseACY">Non-Deductible VAT base in additional currency</param>
+    procedure SetNonDeductibleVATBase(var VATEntry: Record "VAT Entry"; NonDedVATBase: Decimal; NonDedVATBaseACY: Decimal)
+    begin
+        NonDedVATImpl.SetNonDeductibleVATBase(VATEntry, NonDedVATBase, NonDedVATBaseACY);
     end;
 
     /// <summary>

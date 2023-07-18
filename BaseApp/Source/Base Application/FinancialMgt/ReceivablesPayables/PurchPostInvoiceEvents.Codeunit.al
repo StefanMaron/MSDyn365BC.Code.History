@@ -246,6 +246,16 @@
     begin
     end;
 
+    procedure RunOnPostBalancingEntryOnAfterInitNewLine(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header")
+    begin
+        OnPostBalancingEntryOnAfterInitNewLine(GenJnlLine, PurchHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostBalancingEntryOnAfterInitNewLine(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
     procedure RunOnPostBalancingEntryOnAfterGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line"; var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line"; PreviewMode: Boolean; SuppressCommit: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
         OnPostBalancingEntryOnAfterGenJnlPostLine(GenJnlLine, PurchHeader, TotalPurchLine, TotalPurchLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
@@ -553,4 +563,17 @@
     local procedure OnCalcDeferralAmountsOnBeforeTempDeferralHeaderInsert(var TempDeferralHeader: Record "Deferral Header" temporary; DeferralHeader: Record "Deferral Header"; PurchaseLine: Record "Purchase Line")
     begin
     end;
+
+    // CheckItemQuantityPurchCredit
+
+    procedure RunOnBeforeCheckItemQuantityPurchCredit(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckItemQuantityPurchCredit(PurchaseHeader, PurchaseLine, IsHandled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemQuantityPurchCredit(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
 }

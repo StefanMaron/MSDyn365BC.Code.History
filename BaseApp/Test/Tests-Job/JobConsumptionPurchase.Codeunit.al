@@ -23,8 +23,8 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         JobTaskBlankErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.', Comment = '%1=Field name,%2=Table name,%3=Field name,%4=Field value,%5=Field name,%6=Field value,%7=Field name,%8=Field value';
         CodeMandatoryDimensionErr: Label 'The dimensions used in Order %1, line no. %2 are invalid (Error: Select a %3 for the %4 %5 for Job %6.).', Comment = '%1=Field value,%2=Field value,%3=Field value,%4=Field name,%5=Field name,%6=Field name';
-        SameCodeDimensionErr: Label 'The dimensions used in Order %1, line no. %2 are invalid (Error: Select %3 %4 for the %5 %6 for Job %7.).', Comment = '%1=Field value,%2=Field value,%3=Field value,%4=Field value,%5=Field name,%6=Field name,%7=Field name';
-        NoCodeDimensionErr: Label 'The dimensions used in Order %1, line no. %2 are invalid (Error: %3 %4 must not be mentioned for Job %5.).', Comment = '%1=Field value,%2=Field value,%3=Field value,%4=Field value,%5=Field name';
+        SameCodeOrNoCodeDimensionErr: Label 'The dimensions used in Order %1, line no. %2 are invalid (Error: The %3 must be %4 for %5 %6 for %7 %8. Currently it''s %9.', Comment = '%1=Field value,%2=Field value, %3 = "Dimension value code" caption, %4 = expected "Dimension value code" value, %5 = "Dimension code" caption, %6 = "Dimension Code" value, %7 = Table caption (Vendor), %8 = Table value (XYZ), %9 = current "Dimension value code" value';
+        BlankLbl: Label 'blank';
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPlanning: Codeunit "Library - Planning";
@@ -409,6 +409,8 @@ codeunit 136302 "Job Consumption Purchase"
         DefaultDimension: Record "Default Dimension";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        Job: Record Job;
         ExpectedError: Text;
     begin
         // [SCENARIO] The error if dimension on Purchase Line are different from those on Job for 'Same Code'.
@@ -420,11 +422,14 @@ codeunit 136302 "Job Consumption Purchase"
         Assert.IsFalse(PurchaseHeader.SendToPosting(CODEUNIT::"Purch.-Post"), 'Posting should fail');
 
         // [THEN] Check that the application generates an error if dimensions are not selected correctly on Purchase Line.
+        LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, PurchaseLine."Dimension Set ID");
         ExpectedError :=
           StrSubstNo(
-            SameCodeDimensionErr, PurchaseHeader."No.", PurchaseLine."Line No.",
+            SameCodeOrNoCodeDimensionErr, PurchaseHeader."No.", PurchaseLine."Line No.",
             DefaultDimension.FieldCaption("Dimension Value Code"), DefaultDimension."Dimension Value Code",
-            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code", PurchaseLine."Job No.");
+            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code",
+            Job.TableCaption(), PurchaseLine."Job No.",
+            DimensionSetEntry."Dimension Value Code");
         VerifyDimensionErrorMessage(ExpectedError);
     end;
 
@@ -436,6 +441,8 @@ codeunit 136302 "Job Consumption Purchase"
         DefaultDimension: Record "Default Dimension";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        Job: Record Job;
         ExpectedError: Text;
     begin
         // [SCENARIO] The error if dimension value has been specified on Purchase Line having Job with 'No Code'.
@@ -447,10 +454,15 @@ codeunit 136302 "Job Consumption Purchase"
         Assert.IsFalse(PurchaseHeader.SendToPosting(CODEUNIT::"Purch.-Post"), 'Posting should fail');
 
         // [THEN] Check that the application generates an error if dimensions are not selected correctly on Purchase Line.
+        LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, PurchaseLine."Dimension Set ID");
         ExpectedError :=
           StrSubstNo(
-            NoCodeDimensionErr, PurchaseHeader."No.", PurchaseLine."Line No.",
-            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code", PurchaseLine."Job No.");
+            SameCodeOrNoCodeDimensionErr, PurchaseHeader."No.", PurchaseLine."Line No.",
+            DefaultDimension.FieldCaption("Dimension Value Code"), BlankLbl,
+            DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code",
+            Job.TableCaption(), PurchaseLine."Job No.",
+            DimensionSetEntry."Dimension Value Code");
+
         VerifyDimensionErrorMessage(ExpectedError);
     end;
 

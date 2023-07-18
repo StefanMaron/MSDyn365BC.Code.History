@@ -9,7 +9,7 @@ codeunit 1802 "Data Migration Notifier"
         DataTypeManagement: Codeunit "Data Type Management";
         DataMigrationMgt: Codeunit "Data Migration Mgt.";
 
-        ListEmptyMsg: Label 'Want to import entries?';
+        ListEmptyMsg: Label 'There isn''t data here yet. Want to import %1?', Comment = '%1 - Type of records to import. Either Customers, Vendors or Items';
         OpenDataMigrationTxt: Label 'Open Data Migration';
         ListSuggestCreateContactsCustomersMsg: Label 'You can create contacts automatically from newly created customers.';
         ListSuggestCreateContactsVendorsMsg: Label 'You can create contacts automatically from newly created vendors.';
@@ -19,26 +19,36 @@ codeunit 1802 "Data Migration Notifier"
 
     [EventSubscriber(ObjectType::Page, Page::"Customer List", 'OnOpenPageEvent', '', false, false)]
     local procedure OnCustomerListOpen(var Rec: Record Customer)
+    var
+        CustomerListPage: Page "Customer List";
     begin
-        ShowListEmptyNotification(Rec);
+        ShowListEmptyNotification(Rec, CustomerListPage.Caption());
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Vendor List", 'OnOpenPageEvent', '', false, false)]
     local procedure OnVendorListOpen(var Rec: Record Vendor)
+    var
+        VendorListPage: Page "Vendor List";
     begin
-        ShowListEmptyNotification(Rec);
+        ShowListEmptyNotification(Rec, VendorListPage.Caption());
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Item List", 'OnOpenPageEvent', '', false, false)]
     local procedure OnItemListOpen(var Rec: Record Item)
+    var
+        ItemListPage: Page "Item List";
     begin
-        ShowListEmptyNotification(Rec);
+        ShowListEmptyNotification(Rec, ItemListPage.Caption());
     end;
 
-    local procedure ShowListEmptyNotification(RecordVariant: Variant)
+    local procedure ShowListEmptyNotification(RecordVariant: Variant; PageCaption: Text)
     var
+        MyNotifications: Record "My Notifications";
         RecRef: RecordRef;
-        NullGUID: Guid;
+        NotificationId: Guid;
+        NotificationMsg: Text;
+        NotificationRemoveFunction: Text;
+        SkipNotification: Boolean;
     begin
         DataTypeManagement.GetRecordRef(RecordVariant, RecRef);
 
@@ -46,7 +56,60 @@ codeunit 1802 "Data Migration Notifier"
 
         if not RecRef.IsEmpty() then
             exit;
-        CreateNotification(NullGUID, ListEmptyMsg, NOTIFICATIONSCOPE::LocalScope, OpenDataMigrationTxt, 'OpenDataMigrationWizard', '');
+
+        SkipListEmptyNotification(RecRef.Number(), SkipNotification);
+        if SkipNotification then
+            exit;
+
+        case RecRef.Number() of
+            DATABASE::Customer:
+                begin
+                    NotificationId := DataMigrationMgt.GetCustomerListEmptyNotificationId();
+                    NotificationRemoveFunction := 'RemoveCustomerEmptyListNotification'
+                end;
+            DATABASE::Vendor:
+                begin
+                    NotificationId := DataMigrationMgt.GetVendorListEmptyNotificationId();
+                    NotificationRemoveFunction := 'RemoveVendorEmptyListNotification'
+                end;
+            DATABASE::Item:
+                begin
+                    NotificationId := DataMigrationMgt.GetItemListEmptyNotificationId();
+                    NotificationRemoveFunction := 'RemoveItemEmptyListNotification'
+                end;
+            else
+                exit;
+        end;
+
+        if not MyNotifications.IsEnabled(NotificationId) then
+            exit;
+
+        NotificationMsg := StrSubstNo(ListEmptyMsg, PageCaption);
+        CreateNotification(NotificationId, NotificationMsg, NOTIFICATIONSCOPE::LocalScope, OpenDataMigrationTxt, 'OpenDataMigrationWizard', NotificationRemoveFunction);
+    end;
+
+    procedure RemoveCustomerEmptyListNotification(ListEmptyNotification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if not MyNotifications.Disable(DataMigrationMgt.GetCustomerListEmptyNotificationId()) then
+            DataMigrationMgt.InsertDefaultCustomerListEmptyNotification(false);
+    end;
+
+    procedure RemoveVendorEmptyListNotification(ListEmptyNotification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if not MyNotifications.Disable(DataMigrationMgt.GetVendorListEmptyNotificationId()) then
+            DataMigrationMgt.InsertDefaultVendorListEmptyNotification(false);
+    end;
+
+    procedure RemoveItemEmptyListNotification(ListEmptyNotification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if not MyNotifications.Disable(DataMigrationMgt.GetItemListEmptyNotificationId()) then
+            DataMigrationMgt.InsertDefaultItemListEmptyNotification(false);
     end;
 
     procedure OpenDataMigrationWizard(ListEmptyNotification: Notification)
@@ -223,6 +286,11 @@ codeunit 1802 "Data Migration Notifier"
 
     [IntegrationEvent(false, false)]
     local procedure SkipShowingCustomerContactCreationNotification(var SkipNotification: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure SkipListEmptyNotification(TableId: Integer; var SkipNotification: Boolean)
     begin
     end;
 }

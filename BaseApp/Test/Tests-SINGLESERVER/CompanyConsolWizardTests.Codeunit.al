@@ -26,7 +26,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         Text004Err: Label 'Enter the starting date for the consolidation period.';
         Text005Err: Label 'Enter the ending date for the consolidation period.';
         GLEntryErrTagTok: Label 'ErrorText_Number__Control23';
-        GLEntryDimensionErr: Label 'G/L Entry %1: Select Dimension Value Code %2 for the Dimension Code %3 for G/L Account %4.', Comment = '%1 = G/L Entry No., %2 = Expected Dimension Value, %3 = Dimension Code, %4 = G/L Account No.';
+        GLEntryDimensionErr: Label 'G/L Entry %1: The %2 must be %3 for %4 %5 for %6 %7. Currently it''s %8.', Comment = '%1 = G/L Entry No., %2 = "Dimension value code" caption, %3 = expected "Dimension value code" value, %4 = "Dimension code" caption, %5 = "Dimension Code" value, %6 = Table caption (Vendor), %7 = Table value (XYZ), %8 = current "Dimension value code" value';
         EmptyCompanyNameErr: Label 'You must choose a company.';
         Text017Txt: Label '%1 %2 in %3 has a %4 %5 that doesn''t exist in %6.', Comment = '%1=Field caption for Dimension Code field.;%2=Dimension Code value.;%3=Current Company Name value.;%4=Field caption for Consolidation Code.;%5=Consolidation Code value.;%6=Current Company name.';
         IsInitialized: Boolean;
@@ -241,6 +241,7 @@ codeunit 139317 "Company Consol. Wizard Tests"
         GLAccount: Record "G/L Account";
         BusinessUnit: Record "Business Unit";
         DefaultDimension: Record "Default Dimension";
+        DimSetEntry: Record "Dimension Set Entry";
         DimSetID: Integer;
         GLEntryNo: Integer;
     begin
@@ -263,11 +264,12 @@ codeunit 139317 "Company Consol. Wizard Tests"
         RunConsolidationTestReport;
 
         // [THEN] G/L Account = "X" is printed
+        LibraryDimension.FindDimensionSetEntry(DimSetEntry, DimSetID);
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementTagWithValueExists(
           GLEntryErrTagTok,
           StrSubstNo(
-            GLEntryDimensionErr, GLEntryNo, DefaultDimension."Dimension Value Code", DefaultDimension."Dimension Code", GLAccount."No."));
+            GLEntryDimensionErr, GLEntryNo, DefaultDimension.FieldCaption("Dimension Value Code"), DefaultDimension."Dimension Value Code", DefaultDimension.FieldCaption("Dimension Code"), DefaultDimension."Dimension Code", GLAccount.TableCaption, GLAccount."No.", DimSetEntry."Dimension Value Code"));
     end;
 
     [Test]

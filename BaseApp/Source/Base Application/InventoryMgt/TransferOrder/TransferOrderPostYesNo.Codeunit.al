@@ -63,7 +63,13 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
     local procedure GetPostingOptions(var DefaultNumber: Integer; var Selection: Option " ",Shipment,Receipt; var PostShipment: boolean; var PostReceipt: boolean; var PostTransfer: boolean)
     var
         InventorySetup: Record "Inventory Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPostingOptions(TransHeader, Selection, PostShipment, PostReceipt, IsHandled);
+        if IsHandled then
+            exit;
+
         InventorySetup.Get();
 
         case true of
@@ -160,6 +166,11 @@ codeunit 5706 "TransferOrder-Post (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforePostTransferOrder(var TransHeader: Record "Transfer Header"; var DefaultNumber: Integer; var Selection: Option; var IsHandled: Boolean; var PostBatch: Boolean; var TransferOrderPost: Enum "Transfer Order Post")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPostingOptions(TransferHeader: Record "Transfer Header"; Selection: Option; var PostShipment: Boolean; var PostReceipt: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

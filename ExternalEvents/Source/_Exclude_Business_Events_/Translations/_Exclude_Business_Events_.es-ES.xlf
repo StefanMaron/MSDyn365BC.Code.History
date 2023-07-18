@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="es-ES" original="_Exclude_Business_Events_">
+    <body>
+      <group id="body">
+        <trans-unit id="EnumExtension 1073648014 - EnumValue 1406942772 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales</source>
+          <target state="translated">Ventas</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 1178123344</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 1073648014 - EnumValue 1554716946 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchasing</source>
+          <target state="translated">Compra</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 1178123344</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 1073648014 - EnumValue 2503257466 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Accounts Receivable</source>
+          <target state="translated">Cobros</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 1178123344</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 1073648014 - EnumValue 2780231548 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Accounts Payable</source>
+          <target state="translated">Cuentas por pagar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 1178123344</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 1073648014 - EnumValue 516772649 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Opportunities</source>
+          <target state="translated">Oportunidades</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 1178123344</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

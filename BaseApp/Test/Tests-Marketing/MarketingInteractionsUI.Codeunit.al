@@ -93,7 +93,7 @@ codeunit 136215 "Marketing Interactions UI"
     end;
 
     [Test]
-    [HandlerFunctions('ModalHandlerGetContactNameFromCreateInteraction,ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('ModalHandlerGetContactNameFromCreateInteraction')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure InteractionContactCanBeDefinedByName()
@@ -120,7 +120,7 @@ codeunit 136215 "Marketing Interactions UI"
     end;
 
     [Test]
-    [HandlerFunctions('ModalHandlerGetContactNameFromCreateInteraction,ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('ModalHandlerGetContactNameFromCreateInteraction')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure InteractionContactBlankIfNameNotExists()
@@ -147,7 +147,7 @@ codeunit 136215 "Marketing Interactions UI"
     end;
 
     [Test]
-    [HandlerFunctions('ModalHandlerGetContactNameEditableFromCreateInteraction,ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('ModalHandlerGetContactNameEditableFromCreateInteraction')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure InteractionContactNameNotEditableIfCalledFromContact()
@@ -169,7 +169,7 @@ codeunit 136215 "Marketing Interactions UI"
     end;
 
     [Test]
-    [HandlerFunctions('ModalHandlerCreateInteractionFromContact,ModalHandlerOpportunityList,ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('ModalHandlerCreateInteractionFromContact,ModalHandlerOpportunityList')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure InteractionOpportunitiesExcludeClosedOpportunities()
@@ -201,7 +201,7 @@ codeunit 136215 "Marketing Interactions UI"
     end;
 
     [Test]
-    [HandlerFunctions('ModalHandlerCreateInteractionFromSalesPerson,ModalHandlerOpportunityList,ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('ModalHandlerCreateInteractionFromSalesPerson,ModalHandlerOpportunityList')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure InteractionOpportunitiesFilteredToCompanyContactAndSalesperson()
@@ -232,7 +232,7 @@ codeunit 136215 "Marketing Interactions UI"
     end;
 
     [Test]
-    [HandlerFunctions('ModalHandlerCreateInteractionFromContact,ModalHandlerOpportunityList,ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('ModalHandlerCreateInteractionFromContact,ModalHandlerOpportunityList')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure InteractionOpportunitiesFilteredToPersonContactAndSalesperson()
@@ -570,7 +570,7 @@ codeunit 136215 "Marketing Interactions UI"
     end;
 
     [Test]
-    [HandlerFunctions('ModalHandlerGetTimeFromCreateInteraction,ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('ModalHandlerGetTimeFromCreateInteraction')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SegmentLineDefaultTimeShouldBeNOWRoundedUpToNextMinute()
@@ -640,7 +640,7 @@ codeunit 136215 "Marketing Interactions UI"
     end;
 
     [Test]
-    [HandlerFunctions('ModalHandlerCreateInteractionSetTemplate,ConfirmHandlerNo')]
+    [HandlerFunctions('ModalHandlerCreateInteractionSetTemplate')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure CreateInteractionIgnoreContactCorresType()
@@ -862,7 +862,9 @@ codeunit 136215 "Marketing Interactions UI"
         CreateInteractionPage."Interaction Template Code".SetValue(LibraryVariableStorage.DequeueText);
         CreateInteractionPage."Salesperson Code".SetValue(LibraryVariableStorage.DequeueText);
         CreateInteractionPage."Opportunity Description".AssertEquals('');
-        CreateInteractionPage.OK.Invoke;
+        CreateInteractionPage.NextInteraction.Invoke();
+        CreateInteractionPage.NextInteraction.Invoke();
+        CreateInteractionPage.FinishInteraction.Invoke();
     end;
 
     [ModalPageHandler]
@@ -872,7 +874,6 @@ codeunit 136215 "Marketing Interactions UI"
         CreateInteractionPage."Salesperson Code".SetValue(LibraryVariableStorage.DequeueText);
         CreateInteractionPage."Opportunity Description".AssistEdit;
         // handled by ModalHandlerOpportunityList
-        CreateInteractionPage.Cancel.Invoke;
     end;
 
     [ModalPageHandler]
@@ -882,7 +883,6 @@ codeunit 136215 "Marketing Interactions UI"
         CreateInteractionPage."Wizard Contact Name".SetValue(LibraryVariableStorage.DequeueText);
         CreateInteractionPage."Opportunity Description".AssistEdit;
         // handled by ModalHandlerOpportunityList
-        CreateInteractionPage.Cancel.Invoke;
     end;
 
     [ModalPageHandler]
@@ -891,7 +891,6 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         CreateInteractionPage."Wizard Contact Name".SetValue(LibraryVariableStorage.DequeueText);
         LibraryVariableStorage.Enqueue(Format(CreateInteractionPage."Wizard Contact Name".Value));
-        CreateInteractionPage.Cancel.Invoke;
     end;
 
     [ModalPageHandler]
@@ -899,7 +898,6 @@ codeunit 136215 "Marketing Interactions UI"
     procedure ModalHandlerGetContactNameEditableFromCreateInteraction(var CreateInteractionPage: TestPage "Create Interaction")
     begin
         LibraryVariableStorage.Enqueue(CreateInteractionPage."Wizard Contact Name".Editable);
-        CreateInteractionPage.Cancel.Invoke;
     end;
 
     [ModalPageHandler]
@@ -907,7 +905,6 @@ codeunit 136215 "Marketing Interactions UI"
     procedure ModalHandlerGetTimeFromCreateInteraction(var CreateInteractionPage: TestPage "Create Interaction")
     begin
         LibraryVariableStorage.Enqueue(Format(CreateInteractionPage."Time of Interaction".AsTime, 0, 9));
-        CreateInteractionPage.Cancel.Invoke;
     end;
 
     [ModalPageHandler]
@@ -924,7 +921,9 @@ codeunit 136215 "Marketing Interactions UI"
     begin
         CreateInteractionPage."Interaction Template Code".SetValue(LibraryVariableStorage.DequeueText());
         CreateInteractionPage."Correspondence Type".SetValue(LibraryVariableStorage.DequeueInteger());
-        CreateInteractionPage.OK().Invoke();
+        CreateInteractionPage.NextInteraction.Invoke();
+        CreateInteractionPage.NextInteraction.Invoke();
+        CreateInteractionPage.FinishInteraction.Invoke();
     end;
 
     [ModalPageHandler]

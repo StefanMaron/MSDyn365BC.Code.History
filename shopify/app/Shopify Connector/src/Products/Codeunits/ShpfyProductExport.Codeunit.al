@@ -193,6 +193,8 @@ codeunit 30178 "Shpfy Product Export"
     var
         TempShopifyVariant: Record "Shpfy Variant" temporary;
     begin
+        if OnlyUpdatePrice then
+            exit;
         Clear(TempShopifyVariant);
         TempShopifyVariant."Product Id" := ProductId;
         FillInProductVariantData(TempShopifyVariant, Item, ItemVariant);

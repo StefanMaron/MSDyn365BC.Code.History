@@ -256,6 +256,11 @@ codeunit 28 "Error Message Management"
     begin
     end;
 
+    [InternalEvent(false, false)]
+    local procedure OnGetLastErrorMessageRecord(var ErrorMessage: Record "Error Message" temporary)
+    begin
+    end;
+
     procedure LogError(SourceVariant: Variant; ErrorMessage: Text; HelpArticleCode: Code[30])
     var
         ContextErrorMessage: Record "Error Message";
@@ -502,6 +507,22 @@ codeunit 28 "Error Message Management"
             ParseErrorText(ErrorText, TempErrorMessage);
     end;
 
+    local procedure GetLastErrorMessage(var TempErrorMessage: Record "Error Message" temporary): Boolean
+    begin
+        OnGetLastErrorMessageRecord(TempErrorMessage);
+        if TempErrorMessage.ID > 0 then
+            exit(true);
+    end;
+
+    procedure AddSubContextToLastErrorMessage(Tag: Text; VariantRec: Variant)
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+    begin
+        if IsActive() then
+            if GetLastErrorMessage(TempErrorMessage) then
+                OnAddSubContextToLastErrorMessage(Tag, VariantRec, TempErrorMessage); //Use tag to identify the message in the subscriber
+    end;
+
     procedure ParseErrorText(JSON: Text; var TempErrorMessage: Record "Error Message" temporary)
     var
         RecordIDText: Text;
@@ -546,6 +567,7 @@ codeunit 28 "Error Message Management"
             TempErrorMessage."Additional Information" := CopyStr(AdditionalInfo, 1, MaxStrLen(TempErrorMessage."Additional Information"));
             TempErrorMessage."Support Url" := CopyStr(SupportURL, 1, MaxStrLen(TempErrorMessage."Support Url"));
             TempErrorMessage.SetErrorCallStack(CallStack);
+            OnAddToErrorMessageFromJSON(TempErrorMessage, JObject);
             TempErrorMessage.Insert();
         end;
     end;
@@ -573,6 +595,7 @@ codeunit 28 "Error Message Management"
         JObject.Add('SupportURL', ErrorMessage."Support Url");
         JObject.Add('CallStack', ErrorMessage.GetErrorCallStack());
         JObject.Add('Duplicate', ErrorMessage.Duplicate);
+        OnAddToJsonFromErrorMessage(JObject, ErrorMessage);
         JObject.WriteTo(JSON);
     end;
 
@@ -731,6 +754,21 @@ codeunit 28 "Error Message Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetContextRecID(ContextVariant: Variant; var ContextRecID: RecordID; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddToJsonFromErrorMessage(var JObject: JsonObject; var ErrorMessage: Record "Error Message" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddToErrorMessageFromJson(var ErrorMessage: Record "Error Message" temporary; var JObject: JsonObject)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddSubContextToLastErrorMessage(Tag: Text; VariantRec: Variant; var ErrorMessage: Record "Error Message" temporary)
     begin
     end;
 }

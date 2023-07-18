@@ -284,7 +284,7 @@ page 672 "Job Queue Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Run the current Job Queue Entry now';
-                    Image = Delete;
+                    Image = DebugNext;
                     ToolTip = 'Schedules the current Job Queue Entry for immediate execution.';
 
                     trigger OnAction()

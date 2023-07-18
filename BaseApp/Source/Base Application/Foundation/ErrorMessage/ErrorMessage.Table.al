@@ -148,6 +148,10 @@ table 700 "Error Message"
             // Description and Message fields are sync'd with database events in "Error Message Management"
 #endif
         }
+        field(23; "Reg. Err. Msg. System ID"; Guid) // Link temporary error message with registered (committed) error message.
+        {
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -195,6 +199,7 @@ table 700 "Error Message"
         IfEqualToErr: Label '''%1'' in ''%2'' must not be equal to %3.', Comment = '%1=caption of a field, %2=key of record, %3=integer';
         IfNotEqualToErr: Label '''%1'' in ''%2'' must be equal to %3.', Comment = '%1=caption of a field, %2=key of record, %3=integer';
         HasErrorsMsg: Label 'One or more errors were found. You must resolve all the errors before you can proceed.';
+        ErrorContextNotFoundErr: Label 'Error context not found: %1', Comment = '%1 - Record Id';
 
     trigger OnInsert()
     begin
@@ -203,6 +208,49 @@ table 700 "Error Message"
             CachedLastID := ID;
             CachedRegisterID := "Register ID";
         end;
+    end;
+
+    procedure HandleDrillDown(SourceFieldNo: Integer)
+    var
+        PageManagement: Codeunit "Page Management";
+        RecRef: RecordRef;
+        IsHandled: Boolean;
+    begin
+        OnDrillDownSource(Rec, SourceFieldNo, IsHandled);
+        if not IsHandled then
+            case SourceFieldNo of
+                FieldNo("Context Record ID"):
+                    begin
+                        if not RecRef.Get("Context Record ID") then
+                            error(ErrorContextNotFoundErr, Format("Context Record ID"));
+                        PageManagement.PageRunAtField("Context Record ID", "Context Field Number", false);
+                    end;
+                FieldNo("Record ID"):
+                    if IsDimSetEntryInconsistency() then
+                        RunDimSetEntriesPage()
+                    else
+                        PageManagement.PageRunAtField("Record ID", "Field Number", false);
+            end
+    end;
+
+    local procedure IsDimSetEntryInconsistency(): Boolean
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        RecId: RecordId;
+    begin
+        RecId := "Record ID";
+        exit((RecId.TableNo = Database::"Dimension Set Entry") and ("Field Number" = DimensionSetEntry.FieldNo("Global Dimension No.")));
+    end;
+
+    local procedure RunDimSetEntriesPage()
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        DimensionSetEntries: Page "Dimension Set Entries";
+    begin
+        DimensionSetEntry.Get("Record ID");
+        DimensionSetEntries.SetRecord(DimensionSetEntry);
+        DimensionSetEntries.SetUpdDimSetGlblDimNoVisible();
+        DimensionSetEntries.Run();
     end;
 
     procedure LogIfEmpty(RecRelatedVariant: Variant; FieldNumber: Integer; MessageType: Option): Integer
@@ -762,6 +810,7 @@ table 700 "Error Message"
                 TempID += 1;
                 TempErrorMessage := Rec;
                 TempErrorMessage.ID := TempID;
+                TempErrorMessage."Reg. Err. Msg. System ID" := Rec.SystemId;
                 TempErrorMessage.Insert();
             end;
         until Next() = 0;
@@ -867,6 +916,11 @@ table 700 "Error Message"
 
     [IntegrationEvent(false, false)]
     local procedure OnLogIfNotEmptyOnAfterCheckEmptyValue(FieldRef: FieldRef; EmptyFieldRef: FieldRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDrillDownSource(ErrorMessage: Record "Error Message"; SourceFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

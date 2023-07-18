@@ -917,6 +917,158 @@ codeunit 137034 "SCM Production Journal"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure CheckAllocatedCapacityTimeCalculation()
+    var
+        WorkCenter: Record "Work Center";
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        OperationNo: array[4] of Code[10];
+        ItemNo: Code[20];
+        OldThirdRouthingLineEndDateTime: DateTime;
+        EndDateTime: DateTime;
+    begin
+        // [FEATURE] [Routing] [Production Order] [Prod. Order Capacity Need]
+        // [SCENARIO 466208] Allocated capacity on schedule manually routing line should be updated according new ending date-time
+
+        Initialize();
+        // [GIVEN] Work Center with capacity unit of measure "Minutes" and 100% efficiency
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        //CreateWorkCenterSetup(WorkCenter, CapacityUnitOfMeasure.Type::Minutes, 100000T, 165959T);
+        //CreateCapacityConstrainedResource(WorkCenter."No.");
+
+        OperationNo[1] := '100';
+        OperationNo[2] := '200';
+        OperationNo[3] := '300';
+        OperationNo[4] := '400';
+
+        // [GIVEN] Serial routing "R" with 4 operations: "100", "200", "300" and "400" and random activiti times
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLineSetNextOperation(RoutingLine, RoutingHeader, WorkCenter."No.", OperationNo[1], OperationNo[2]);
+        UpdateRoutingLine(RoutingLine, Random(10), Random(10), 0);
+        CreateRoutingLineSetNextOperation(RoutingLine, RoutingHeader, WorkCenter."No.", OperationNo[2], OperationNo[3]);
+        UpdateRoutingLine(RoutingLine, Random(10), Random(10), 0);
+        CreateRoutingLineSetNextOperation(RoutingLine, RoutingHeader, WorkCenter."No.", OperationNo[3], OperationNo[4]);
+        UpdateRoutingLine(RoutingLine, Random(10), Random(10), 0);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', OperationNo[4], RoutingLine.Type::"Work Center", WorkCenter."No.");
+        UpdateRoutingLine(RoutingLine, Random(10), Random(10), 0);
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Item with the routing "R", released production order for that item
+        ItemNo := CreateItemWithRouting(RoutingHeader."No.");
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo, 1);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [GIVEN] check "300" routing line ending time
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder.Status, ProductionOrder."No.", OperationNo[3]);
+        OldThirdRouthingLineEndDateTime := ProdOrderRoutingLine."Ending Date-Time";
+
+        // [GIVEN] Change the "Schedule Manually" of the operation "200" in the production order routing to "TRUE" and increase ending date-time
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder.Status, ProductionOrder."No.", OperationNo[2]);
+        GetLastProdOrderCapacityNeed(ProdOrderCapacityNeed, ProdOrderRoutingLine);
+        EndDateTime := ProdOrderCapacityNeed."Ending Date-Time";
+
+        ProdOrderRoutingLine.Validate("Schedule Manually", true);
+        ProdOrderRoutingLine.Validate("Ending Date-Time", OldThirdRouthingLineEndDateTime + LibraryRandom.RandIntInRange(2, 20) * 60000);
+        ProdOrderRoutingLine.Modify();
+
+        // [WHEN] Check Allocated capacity lines for operation "200"
+        GetLastProdOrderCapacityNeed(ProdOrderCapacityNeed, ProdOrderRoutingLine);
+
+        // [THEN] Allocated capacity line for operation "200" is updated according new ending date-time
+        CheckValues(ProdOrderCapacityNeed, ProdOrderRoutingLine, EndDateTime, OldThirdRouthingLineEndDateTime);
+    end;
+
+    local procedure GetLastProdOrderCapacityNeed(var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"): Boolean
+    begin
+        ProdOrderCapacityNeed.Reset();
+        ProdOrderCapacityNeed.SetRange(Status, ProdOrderRoutingLine.Status);
+        ProdOrderCapacityNeed.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+        ProdOrderCapacityNeed.SetRange("Requested Only", false);
+        ProdOrderCapacityNeed.SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+        ProdOrderCapacityNeed.SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+        ProdOrderCapacityNeed.SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+        exit(ProdOrderCapacityNeed.FindLast());
+    end;
+
+    local procedure CheckValues(var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; EndDateTime: DateTime; OldThirdRouthingLineEndDateTime: DateTime)
+    var
+        ProdOrderCapacityNeedTimeCalcError: Label 'Prod. Order Capacity Need Time Calc. Error';
+    begin
+        Assert.IsTrue(ProdOrderCapacityNeed."Ending Date-Time" > EndDateTime, ProdOrderCapacityNeedTimeCalcError);
+        Assert.IsTrue(ProdOrderCapacityNeed."Ending Date-Time" > OldThirdRouthingLineEndDateTime, ProdOrderCapacityNeedTimeCalcError);
+        Assert.IsTrue(ProdOrderRoutingLine."Ending Date-Time" >= ProdOrderCapacityNeed."Ending Date-Time", ProdOrderCapacityNeedTimeCalcError);
+    end;
+
+    local procedure CreateWorkCenterSetup(var WorkCenter: Record "Work Center"; CapacityType: Enum "Capacity Type"; StartTime: Time; EndTime: Time)
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
+        LibraryERM: Codeunit "Library - ERM";
+    begin
+        CapacityUnitOfMeasure.SetRange(Type, CapacityType);
+        CapacityUnitOfMeasure.FindFirst();
+        LibraryERM.FindGenPostingSetupWithDefVAT(GeneralPostingSetup);
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        WorkCenter.Validate("Unit of Measure Code", CapacityUnitOfMeasure.Code);
+        WorkCenter.Validate("Shop Calendar Code", UpdateShopCalendarWorkingDays(StartTime, EndTime));
+        WorkCenter.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        WorkCenter.Validate(Capacity, 1);
+        WorkCenter.Validate(Efficiency, 100);
+        WorkCenter.Modify(true);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-2M>', WorkDate()), CalcDate('<2M>', WorkDate()));
+    end;
+
+    local procedure UpdateShopCalendarWorkingDays(StartTime: Time; EndTime: Time): Code[10]
+    var
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        ShopCalendar: Record "Shop Calendar";
+        WorkShift: Record "Work Shift";
+        ShopCalendarCode: Code[10];
+        WorkShiftCode: Code[10];
+    begin
+        // Create Shop Calendar Working Days using with boundary values daily work shift.
+        ShopCalendarCode := LibraryManufacturing.CreateShopCalendarCode(ShopCalendar);
+        WorkShiftCode := LibraryManufacturing.CreateWorkShiftCode(WorkShift);
+        ShopCalendarWorkingDays.SetRange("Shop Calendar Code", ShopCalendarCode);
+
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Monday, WorkShiftCode, StartTime, EndTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Tuesday, WorkShiftCode, StartTime, EndTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Wednesday, WorkShiftCode, StartTime, EndTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Thursday, WorkShiftCode, StartTime, EndTime);
+        LibraryManufacturing.CreateShopCalendarWorkingDays(
+          ShopCalendarWorkingDays, ShopCalendarCode, ShopCalendarWorkingDays.Day::Friday, WorkShiftCode, StartTime, EndTime);
+        exit(ShopCalendarCode);
+    end;
+
+    local procedure CreateCapacityConstrainedResource(WorkCenterNo: Code[20])
+    var
+        CapacityConstrainedResource: Record "Capacity Constrained Resource";
+    begin
+        LibraryManufacturing.CreateCapacityConstrainedResource(
+          CapacityConstrainedResource, CapacityConstrainedResource."Capacity Type"::"Work Center", WorkCenterNo);
+        CapacityConstrainedResource.Validate("Critical Load %", 100);
+        CapacityConstrainedResource.Modify(true);
+    end;
+
+    local procedure UpdateRoutingLine(var RoutingLine: Record "Routing Line"; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal)
+    begin
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Validate("Wait Time", WaitTime);
+        RoutingLine.Modify(true);
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerOptional')]
     [Scope('OnPrem')]
     procedure OutputQtyOnFinishedOperationValidatedAfterConfirm()

@@ -236,8 +236,8 @@ page 193 "Incoming Doc. Attach. FactBox"
         if not IncomingDocumentFound then
             exit(false);
 
-        InsertFromIncomingDocument(IncomingDocument, Rec);
-        exit(true);
+        Rec.InsertFromIncomingDocument(IncomingDocument, Rec);
+        exit(not Rec.IsEmpty());
     end;
 
     local procedure FindIncomingDocumentFromFilters(var IncomingDocument: Record "Incoming Document"): Boolean

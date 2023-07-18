@@ -514,7 +514,7 @@ table 7354 Bin
         ResultValue: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckWhseClass(Rec, ItemNo, ResultValue, IsHandled);
+        OnBeforeCheckWhseClass(Rec, ItemNo, ResultValue, IsHandled, IgnoreError);
         if IsHandled then
             exit(ResultValue);
 
@@ -678,7 +678,7 @@ table 7354 Bin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckWhseClass(Bin: Record Bin; ItemNo: Code[20]; var ResultValue: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCheckWhseClass(Bin: Record Bin; ItemNo: Code[20]; var ResultValue: Boolean; var IsHandled: Boolean; IgnoreError: Boolean)
     begin
     end;
 

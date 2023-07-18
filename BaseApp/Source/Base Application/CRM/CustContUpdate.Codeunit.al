@@ -55,10 +55,7 @@ codeunit 5056 "CustCont-Update"
             ContNo := Cont."No.";
             NoSeries := Cont."No. Series";
             Cont.Validate("E-Mail", Cust."E-Mail");
-            if (Cont."VAT Registration No." <> Cust."VAT Registration No.") and CustVATLogExist(Cust) then begin
-                Cont.Validate("Country/Region Code", Cust."Country/Region Code");
-                Cont.Validate("VAT Registration No.", Cust."VAT Registration No.");
-            end;
+
             Cont.TransferFields(Cust);
             Cont."No." := ContNo;
             Cont."No. Series" := NoSeries;
@@ -211,23 +208,6 @@ codeunit 5056 "CustCont-Update"
                 exit(true);
             exit(Contact.Name = '');
         end;
-    end;
-
-    local procedure CustVATLogExist(Customer: Record Customer): Boolean
-    var
-        VATRegistrationLog: Record "VAT Registration Log";
-        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
-    begin
-        if Customer."VAT Registration No." = '' then
-            exit(false);
-        if not VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then
-            exit(false);
-
-        VATRegistrationLog.SetRange("Account Type", VATRegistrationLog."Account Type"::Customer);
-        VATRegistrationLog.SetRange("Account No.", Customer."No.");
-        VATRegistrationLog.SetRange("VAT Registration No.", Customer."VAT Registration No.");
-        if not VATRegistrationLog.IsEmpty() then
-            exit(true);
     end;
 
     [IntegrationEvent(false, false)]

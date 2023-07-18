@@ -83,11 +83,15 @@ codeunit 232 "Gen. Jnl.-Post+Print"
                 if not HideDialog then
                     if "Line No." = 0 then
                         Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
-                    else
-                        if TempJnlBatchName = "Journal Batch Name" then
-                            Message(Text003)
-                        else
-                            Message(Text004, "Journal Batch Name");
+                    else begin
+                        IsHandled := false;
+                        OnCodeOnBeforeLinesSuccessfullyPostedMessage(GenJnlLine, IsHandled);
+                        if not IsHandled then
+                            if TempJnlBatchName = "Journal Batch Name" then
+                                Message(Text003)
+                            else
+                                Message(Text004, "Journal Batch Name");
+                    end;
             end;
 
             if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") or GeneralLedgerSetup."Post & Print with Job Queue" then begin
@@ -127,6 +131,11 @@ codeunit 232 "Gen. Jnl.-Post+Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnGenJnlLineSetFilter(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeLinesSuccessfullyPostedMessage(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

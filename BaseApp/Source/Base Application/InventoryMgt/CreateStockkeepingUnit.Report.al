@@ -166,7 +166,7 @@ report 5706 "Create Stockkeeping Unit"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateSKU(Item2, LocationCode, VariantCode, ItemInInventoryOnly, IsHandled);
+        OnBeforeCreateSKU(Item2, LocationCode, VariantCode, ItemInInventoryOnly, IsHandled, SKUCreationMethod);
         if IsHandled then
             exit;
 
@@ -186,7 +186,7 @@ report 5706 "Create Stockkeeping Unit"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSKU(var Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; ItemInInventoryOnly: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCreateSKU(var Item: Record Item; LocationCode: Code[10]; VariantCode: Code[10]; ItemInInventoryOnly: Boolean; var IsHandled: Boolean; SKUCreationMethod: Option Location,Variant,"Location & Variant")
     begin
     end;
 

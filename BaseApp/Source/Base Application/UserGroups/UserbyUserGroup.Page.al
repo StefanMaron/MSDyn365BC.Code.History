@@ -283,6 +283,11 @@ page 9838 "User by User Group"
         FindUserGroups();
     end;
 
+    trigger OnInit()
+    begin
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
+    end;
+
     trigger OnOpenPage()
     var
         UserGroup: Record "User Group";

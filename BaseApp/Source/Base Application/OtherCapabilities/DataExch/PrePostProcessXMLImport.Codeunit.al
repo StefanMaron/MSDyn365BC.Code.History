@@ -67,15 +67,21 @@ codeunit 1262 "Pre & Post Process XML Import"
         GLSetup: Record "General Ledger Setup";
         DataExchFieldDetails: Query "Data Exch. Field Details";
         StatementCurrencyCode: Code[10];
+        Confirmed: Boolean;
+        IsHandled: Boolean;
     begin
         GLSetup.Get();
 
         DataExchFieldDetails.SetFilter(FieldValue, '<>%1&<>%2', '', GLSetup."LCY Code");
-        if HasDataExchFieldValue(DataExchFieldDetails, DataExch."Entry No.", CurrencyCodePathFilter) then
-            if not Confirm(StrSubstNo(DiffCurrQst, GenJournalLineTemplate.FieldCaption("Currency Code"),
-                   DataExchFieldDetails.FieldValue, GLSetup.FieldCaption("LCY Code"), GLSetup."LCY Code"))
-            then
+        if HasDataExchFieldValue(DataExchFieldDetails, DataExch."Entry No.", CurrencyCodePathFilter) then begin
+            IsHandled := false;
+            OnPreProcessGLAccountOnBeforeConfirm(DataExch, DataExchFieldDetails, GenJournalLineTemplate, CurrencyCodePathFilter, IsHandled, Confirmed);
+            if not IsHandled then
+                Confirmed := Confirm(StrSubstNo(DiffCurrQst, GenJournalLineTemplate.FieldCaption("Currency Code"),
+                   DataExchFieldDetails.FieldValue, GLSetup.FieldCaption("LCY Code"), GLSetup."LCY Code"));
+            if not Confirmed then
                 Error('');
+        end;
 
         DataExchFieldDetails.SetRange(FieldValue);
         if HasDataExchFieldValue(DataExchFieldDetails, DataExch."Entry No.", CurrencyCodePathFilter) then begin
@@ -213,6 +219,11 @@ codeunit 1262 "Pre & Post Process XML Import"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckBankAccNo(var Handled: Boolean; var CheckedResult: Boolean; DataExchFieldDetails: Query "Data Exch. Field Details"; BankAccount: Record "Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreProcessGLAccountOnBeforeConfirm(DataExch: Record "Data Exch."; DataExchFieldDetails: Query "Data Exch. Field Details"; GenJournalLine: Record "Gen. Journal Line"; CurrencyCodePathFilter: Text; var IsHandled: Boolean; var Confirmed: Boolean)
     begin
     end;
 }

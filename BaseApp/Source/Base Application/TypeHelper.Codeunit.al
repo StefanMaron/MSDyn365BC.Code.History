@@ -181,16 +181,25 @@ codeunit 10 "Type Helper"
         exit(DotNet_DateTime.ToString(DotNet_DateTimeFormatInfo));
     end;
 
-    procedure FormatDateWithCurrentCulture(DateToFormat: Date): Text
+    procedure FormatDate(DateToFormat: Date; Format: Text; CultureName: Text): Text
     var
         DotNet_CultureInfo: Codeunit DotNet_CultureInfo;
         DotNet_DateTimeFormatInfo: Codeunit DotNet_DateTimeFormatInfo;
         DotNet_DateTime: Codeunit DotNet_DateTime;
     begin
-        DotNet_CultureInfo.GetCultureInfoByName(GetCultureName());
+        if CultureName = '' then
+            DotNet_CultureInfo.InvariantCulture()
+        else
+            DotNet_CultureInfo.GetCultureInfoByName(CultureName);
+
         DotNet_CultureInfo.DateTimeFormat(DotNet_DateTimeFormatInfo);
         DotNet_DateTime.DateTime(Date2DMY(DateToFormat, 3), Date2DMY(DateToFormat, 2), Date2DMY(DateToFormat, 1));
-        exit(DotNet_DateTime.ToString(DotNet_DateTimeFormatInfo));
+        exit(DotNet_DateTime.ToString(Format, DotNet_DateTimeFormatInfo));
+    end;
+
+    procedure FormatDateWithCurrentCulture(DateToFormat: Date): Text
+    begin
+        exit(FormatDate(DateToFormat, 'd', GetCultureName()));
     end;
 
     procedure GetHMSFromTime(var Hour: Integer; var Minute: Integer; var Second: Integer; TimeSource: Time)

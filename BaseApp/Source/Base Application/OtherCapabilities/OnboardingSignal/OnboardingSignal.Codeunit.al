@@ -27,7 +27,6 @@ codeunit 7580 "Onboarding Signal"
             NavApp.GetCallerModuleInfo(CallerModuleInfo);
 
             OnboardingSignal.Init();
-            OnboardingSignal."No." := 0;
             OnboardingSignal."Company Name" := CompanyName;
             OnboardingSignal."Onboarding Signal Type" := OnboardingSignalType;
             OnboardingSignal."Onboarding Completed" := false;
@@ -137,8 +136,8 @@ codeunit 7580 "Onboarding Signal"
 
     local procedure AddOnboardingSignalDimensions(OnboardingSignal: Record "Onboarding Signal"; var CustomDimensions: Dictionary of [Text, Text])
     begin
-        CustomDimensions.Set('StartDate', Format(OnboardingSignal."Onboarding Start Date"));
-        CustomDimensions.Set('CompleteDate', Format(OnboardingSignal."Onboarding Complete Date"));
+        CustomDimensions.Set('StartDate', Format(OnboardingSignal."Onboarding Start Date", 10, 9));
+        CustomDimensions.Set('CompleteDate', Format(OnboardingSignal."Onboarding Complete Date", 10, 9));
         CustomDimensions.Set('CriteriaName', Format(OnboardingSignal."Onboarding Signal Type"));
         CustomDimensions.Set('CriteriaId', Format(OnboardingSignal."Onboarding Signal Type".AsInteger()));
         CustomDimensions.Set('RegisterExtensionId', Format(OnboardingSignal."Extension ID"));

@@ -221,7 +221,7 @@
         </trans-unit>
         <trans-unit id="Table 3572587406 - Field 2525374026 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Payer E-mail</source>
-          <target state="translated">E-mail plátce</target>
+          <target state="translated">Email plátce</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table MS - PayPal Transaction - Field Payer E-mail - Property Caption</note>
         </trans-unit>
@@ -449,7 +449,7 @@
         </trans-unit>
         <trans-unit id="Page 4244671604 - Control 2170401387 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Enter your email address for PayPal payments.</source>
-          <target state="translated">Zadejte svou e-mailovou adresu pro platby PayPal.</target>
+          <target state="translated">Zadejte svou emailovou adresu pro platby PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Settings - Control PayPal Information - Property InstructionalText</note>
         </trans-unit>
@@ -461,7 +461,7 @@
         </trans-unit>
         <trans-unit id="Page 4244671604 - Control 1807660456 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the PayPal email.</source>
-          <target state="translated">Určuje e-mail PayPal.</target>
+          <target state="translated">Určuje email PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Settings - Control AccountID - Property ToolTip</note>
         </trans-unit>
@@ -539,7 +539,7 @@
         </trans-unit>
         <trans-unit id="Page 4268182158 - Control 629845928 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the email or the Merchant account ID of the PayPal account</source>
-          <target state="translated">Určuje e-mail nebo ID účtu obchodníka pro účet PayPal</target>
+          <target state="translated">Určuje email nebo ID účtu obchodníka pro účet PayPal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page MS - PayPal Standard Setup - Control Account ID - Property ToolTip</note>
         </trans-unit>
@@ -702,14 +702,14 @@
         </trans-unit>
         <trans-unit id="PageExtension 1655671086 - Control 2725778290 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the PayPal email address.</source>
-          <target state="translated">Určuje e-mailovou adresu PayPal.</target>
+          <target state="translated">Určuje emailovou adresu PayPal.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>
         </trans-unit>
         <trans-unit id="PageExtension 1655671086 - Control 2725778290 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>PayPal email address</source>
-          <target state="translated">E-mailová adresa PayPal</target>
+          <target state="translated">Emailová adresa PayPal</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3" />
           <note from="ObjectTarget" annotates="general" priority="5">Page 202177750</note>

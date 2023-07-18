@@ -383,15 +383,19 @@ codeunit 5350 "CRM Statistics Job"
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMInvoice: Record "CRM Invoice";
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        SalesInvHeader: Record "Sales Invoice Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
         CRMSynchHelper: Codeunit "CRM Synch. Helper";
     begin
         if CustLedgerEntry.Get(CustLedgEntryNo) then
             if CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Invoice then
-                if SalesInvHeader.Get(CustLedgerEntry."Document No.") then
-                    if CRMIntegrationRecord.FindByRecordID(SalesInvHeader.RecordId) then
-                        if TryGetCRMInvoice(CRMInvoice, CRMIntegrationRecord."CRM ID", UnexpectedErrorDetected) then
-                            exit(CRMSynchHelper.UpdateCRMInvoiceStatusFromEntry(CRMInvoice, CustLedgerEntry));
+                if SalesInvoiceHeader.Get(CustLedgerEntry."Document No.") then
+                    if SalesInvoiceHeader.CalcFields(Cancelled) then
+                        if CRMIntegrationRecord.FindByRecordID(SalesInvoiceHeader.RecordId) then
+                            if TryGetCRMInvoice(CRMInvoice, CRMIntegrationRecord."CRM ID", UnexpectedErrorDetected) then
+                                if SalesInvoiceHeader.Cancelled then
+                                    exit(CRMSynchHelper.CancelCRMInvoice(CRMInvoice))
+                                else
+                                    exit(CRMSynchHelper.UpdateCRMInvoiceStatusFromEntry(CRMInvoice, CustLedgerEntry));
     end;
 
     local procedure TryGetCRMInvoice(var CRMInvoice: Record "CRM Invoice"; CRMId: Guid; var UnexpectedErrorDetected: Boolean): Boolean

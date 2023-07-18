@@ -671,6 +671,39 @@ codeunit 136361 "UT C Copy Job"
         Assert.AreEqual(PriceAsset."Work Type Code", PriceListLine[2]."Work Type Code", StrSubstNo(TestFieldValueErr, PriceListLine[2].FieldCaption("Work Type Code"), Format(PriceListLine[2]."Work Type Code")));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PriceFromItemAndResourceWhenCopyJob()
+    var
+        SourceJob: Record Job;
+        SourceJobTask: Record "Job Task";
+        SourceJobPlanningLine: Record "Job Planning Line";
+        TargetJob: Record Job;
+        TargetJobTask: Record "Job Task";
+        TargetJobPlanningLine: Record "Job Planning Line";
+        CopyJob: Codeunit "Copy Job";
+    begin
+        // [SCENARIO 472435] Job prices get copied although the "Copy Job" action is used with the parameter "Copy Job Prices" = false
+        Initialize();
+
+        // [GIVEN] Create Source Job, Job Task, and Job Planning Lines with Item and Resourc
+        JobSetUpWithItemAndResource(SourceJob, SourceJobTask);
+
+        // [THEN] Initialize Target Job, Job Task
+        InitJobTask(TargetJob, SourceJob."Bill-to Customer No.", '');
+        TargetJobTask.Init();
+        TargetJobTask."Job No." := TargetJob."No.";
+        TargetJobTask."Job Task No." := SourceJobTask."Job Task No.";
+        TargetJobTask.Insert();
+
+        // [WHEN] Use Copy Job codeunit to copy all the Job Planning Line when Parameter "Copy Job Prices" is set to false
+        CopyJob.SetCopyOptions(false, true, true, 0, 0, 0);
+        CopyJob.CopyJobPlanningLines(SourceJobTask, TargetJobTask);
+
+        // [VERIFY] Verify: Unit Cost and Price of Target Job Planning Lines with Item and Resource
+        VerifyUnitCostAndPriceOnJobPlanningLine(SourceJobTask, TargetJobTask);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1114,6 +1147,69 @@ codeunit 136361 "UT C Copy Job"
             Count += 1;
         until JobTaskDimension.Next() = 0;
         VerifyJobTaskDimensionCount(TargetJobNo, TaskNo, Count);
+    end;
+
+    local procedure JobSetUpWithItemAndResource(var SourceJob: Record Job; var SourceJobTask: Record "Job Task")
+    var
+        SourceJobPlanningLine: Record "Job Planning Line";
+    begin
+        LibraryJob.CreateJob(SourceJob);
+
+        LibraryJob.CreateJobTask(SourceJob, SourceJobTask);
+
+        LibraryJob.CreateJobPlanningLine(
+            SourceJobPlanningLine."Line Type"::"Both Budget and Billable",
+            SourceJobPlanningLine.Type::Item,
+            SourceJobTask,
+            SourceJobPlanningLine);
+
+        SourceJobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(1000));
+        SourceJobPlanningLine.Validate("Unit Cost", LibraryRandom.RandInt(1000));
+        SourceJobPlanningLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
+        SourceJobPlanningLine.Modify();
+
+        LibraryJob.CreateJobPlanningLine(
+            SourceJobPlanningLine."Line Type"::"Both Budget and Billable",
+            SourceJobPlanningLine.Type::Resource,
+            SourceJobTask,
+            SourceJobPlanningLine);
+
+        SourceJobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(1000));
+        SourceJobPlanningLine.Validate("Unit Cost", LibraryRandom.RandInt(1000));
+        SourceJobPlanningLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
+        SourceJobPlanningLine.Modify();
+    end;
+
+    local procedure VerifyUnitCostAndPriceOnJobPlanningLine(SourceJobTask: Record "Job Task"; TargetJobTask: Record "Job Task")
+    var
+        SourceJobPlanningLine: Record "Job Planning Line";
+        TargetJobPlanningLine: Record "Job Planning Line";
+        Item: Record Item;
+        Resource: Record Resource;
+    begin
+        SourceJobPlanningLine.SetRange("Job No.", SourceJobTask."Job No.");
+        SourceJobPlanningLine.SetRange("Job Task No.", SourceJobTask."Job Task No.");
+        SourceJobPlanningLine.FindSet();
+        repeat
+            TargetJobPlanningLine.Get(TargetJobTask."Job No.", TargetJobTask."Job Task No.", SourceJobPlanningLine."Line No.");
+            Assert.IsFalse(SourceJobPlanningLine."Unit Cost" = TargetJobPlanningLine."Unit Cost", '');
+            Assert.IsFalse(SourceJobPlanningLine."Unit Price" = TargetJobPlanningLine."Unit Price", '');
+
+            case TargetJobPlanningLine.Type of
+                TargetJobPlanningLine.Type::Item:
+                    begin
+                        Item.Get(TargetJobPlanningLine."No.");
+                        Assert.IsTrue(TargetJobPlanningLine."Unit Cost" = Item."Unit Cost", '');
+                        Assert.IsTrue(TargetJobPlanningLine."Unit Price" = Item."Unit Price", '');
+                    end;
+                TargetJobPlanningLine.Type::Resource:
+                    begin
+                        Resource.Get(TargetJobPlanningLine."No.");
+                        Assert.IsTrue(TargetJobPlanningLine."Unit Cost" = Resource."Unit Cost", '');
+                        Assert.IsTrue(TargetJobPlanningLine."Unit Price" = Resource."Unit Price", '');
+                    end;
+            end;
+        until SourceJobPlanningLine.Next() = 0;
     end;
 
     [ConfirmHandler]

@@ -1856,6 +1856,7 @@ codeunit 6500 "Item Tracking Management"
                         RemoveUntrackedSurplus(ReservEntry2);
                         ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Drop Shipment");
                     end;
+                OnSynchronizeItemTracking2OnBeforeRegisterItemTrackingLines(ItemTrackingLines, TempSourceSpec, TempTrkgSpec3, FromReservEntry, ReservEntry2);
                 ItemTrackingLines.RegisterItemTrackingLines(TempSourceSpec, AvailabilityDate, TempTrkgSpec3);
             end;
         end;
@@ -4091,6 +4092,11 @@ codeunit 6500 "Item Tracking Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnRegisterNewItemTrackingLinesOnBeforeCannotMatchItemTrackingErr(var empTrackingSpecification: Record "Tracking Specification" temporary; var tyToHandleToNewRegister: Decimal; var QtyToHandleInItemTrackin: Decimal; varQtyToHandleOnSourceDocLine: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSynchronizeItemTracking2OnBeforeRegisterItemTrackingLines(var ItemTrackingLines: Page "Item Tracking Lines"; var TempSourceSpec: Record "Tracking Specification" temporary; var TempTrkgSpec3: Record "Tracking Specification" temporary; var FromReservEntry: Record "Reservation Entry"; ReservEntry2: Record "Reservation Entry")
     begin
     end;
 }

@@ -465,7 +465,14 @@ codeunit 6520 "Item Tracing Mgt."
     end;
 
     procedure InitSearchCriteria(SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitSearchCriteria(SearchCriteria, SerialNoFilter, LotNoFilter, PackageNoFilter, ItemNoFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         if (SerialNoFilter = '') and (LotNoFilter = '') and (ItemNoFilter = '') and (PackageNoFilter = '') then
             SearchCriteria := SearchCriteria::None
         else
@@ -1114,6 +1121,11 @@ codeunit 6520 "Item Tracing Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnSetRecordIDOnBeforeProcessServiceDocument(ItemLedgEntry: Record "Item Ledger Entry"; var TrackingEntry: Record "Item Tracing Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitSearchCriteria(var SearchCriteria: Option "None",Lot,Serial,Both,Item,Package; SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; var IsHandled: Boolean)
     begin
     end;
 }

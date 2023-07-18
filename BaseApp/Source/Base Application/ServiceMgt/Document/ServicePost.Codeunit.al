@@ -181,7 +181,7 @@
             PassedServHeader := ServiceHeader;
         end;
 
-        OnAfterPostWithLines(PassedServHeader);
+        OnAfterPostWithLines(PassedServHeader, IsHandled);
     end;
 
     local procedure UpdateWhseDocuments()
@@ -611,7 +611,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostWithLines(var PassedServiceHeader: Record "Service Header")
+    local procedure OnAfterPostWithLines(var PassedServiceHeader: Record "Service Header"; IsHandled: Boolean)
     begin
     end;
 

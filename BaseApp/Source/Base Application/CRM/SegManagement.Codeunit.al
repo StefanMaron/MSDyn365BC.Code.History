@@ -8,24 +8,23 @@
     end;
 
     var
-        InteractionTmplSetup: Record "Interaction Template Setup";
-
+        InteractionTemplateSetup: Record "Interaction Template Setup";
         InterTemplateSalesInvoicesNotSpecifiedErr: Label 'The Invoices field on the Sales FastTab in the Interaction Template Setup window must be filled in.';
         SegmentSendContactEmailFaxMissingErr: Label 'Make sure that the %1 field is specified for either contact no. %2 or the contact alternative address.', Comment = '%1 - Email or Fax No. field caption, %2 - Contact No.';
-        Text000: Label '%1 for Segment No. %2 already exists.';
-        Text001: Label 'Segment %1 is empty.';
-        Text002: Label 'Follow-up on segment %1';
-        Text003: Label 'Interaction Template %1 has assigned Interaction Template Language %2.\It is not allowed to have languages assigned to templates used for system document logging.';
-        Text004: Label 'Interactions';
+        LoggedSegmentExistsErr: Label '%1 for Segment No. %2 already exists.', Comment = '%1 - Logged Segment Table Caption, %2 - Segment No.';
+        EmptySegmentErr: Label 'Segment %1 is empty.', Comment = '%1 - Segment No.';
+        FollowUpOnSegmentLbl: Label 'Follow-up on segment %1', Comment = '%1 - Segment No.';
+        InteractionTemplateAssignedLanguageErr: Label 'Interaction Template %1 has assigned Interaction Template Language %2.\It is not allowed to have languages assigned to templates used for system document logging.', Comment = '%1 - Interaction Template Code, %2 - Interaction Template Language Code';
+        InteractionsLbl: Label 'Interactions';
 
     [Scope('OnPrem')]
     procedure LogSegment(SegmentHeader: Record "Segment Header"; Deliver: Boolean; Followup: Boolean)
     var
         SegmentLine: Record "Segment Line";
         LoggedSegment: Record "Logged Segment";
-        InteractLogEntry: Record "Interaction Log Entry";
+        InteractionLogEntry: Record "Interaction Log Entry";
         Attachment: Record Attachment;
-        InteractTemplate: Record "Interaction Template";
+        InteractionTemplate: Record "Interaction Template";
         TempDeliverySorter: Record "Delivery Sorter" temporary;
         AttachmentManagement: Codeunit AttachmentManagement;
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
@@ -41,7 +40,7 @@
         ShowIsNotEmptyError := not LoggedSegment.IsEmpty();
         OnLogSegmentOnAfterCalcShowIsNotEmptyError(LoggedSegment, Deliver, ShowIsNotEmptyError);
         if ShowIsNotEmptyError then
-            Error(Text000, LoggedSegment.TableCaption(), SegmentHeader."No.");
+            Error(LoggedSegmentExistsErr, LoggedSegment.TableCaption(), SegmentHeader."No.");
 
         SegmentHeader.TestField(Description);
 
@@ -51,7 +50,7 @@
         LoggedSegment."Segment No." := SegmentHeader."No.";
         LoggedSegment.Description := SegmentHeader.Description;
         LoggedSegment."Creation Date" := Today;
-        LoggedSegment."User ID" := UserId();
+        LoggedSegment."User ID" := CopyStr(UserId(), 1, MaxStrLen(LoggedSegment."User ID"));
         OnBeforeLoggedSegmentInsert(LoggedSegment);
         LoggedSegment.Insert();
         OnLogSegmentOnAfterLoggedSegmentInsert(LoggedSegment, SegmentHeader);
@@ -72,39 +71,54 @@
         SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
         SegmentLine.SetFilter("Contact No.", '<>%1', '');
 
-        if SegmentLine.FindSet() then begin
-            if InteractTemplate.Get(SegmentHeader."Interaction Template Code") then;
+        SegmentHeader.CalcFields("Modified Word Template");
+        if SegmentHeader."Modified Word Template" > 0 then begin
+            Attachment.Get(SegmentHeader."Modified Word Template");
+            Attachment."Read Only" := true;
+            Attachment.Modify(true);
+        end;
+
+        if SegmentLine.FindSet() then
             repeat
+                if InteractionTemplate.Get(SegmentLine."Interaction Template Code") then;
                 CheckSegmentLine(SegmentLine, Deliver);
-                InteractLogEntry.Init();
-                InteractLogEntry."Entry No." := SequenceNoMgt.GetNextSeqNo(DATABASE::"Interaction Log Entry");
-                InteractLogEntry."Logged Segment Entry No." := LoggedSegment."Entry No.";
-                InteractLogEntry.CopyFromSegment(SegmentLine);
-                InteractLogEntry.InsertRecord();
+                InteractionLogEntry.Init();
+                InteractionLogEntry."Entry No." := SequenceNoMgt.GetNextSeqNo(DATABASE::"Interaction Log Entry");
+                InteractionLogEntry."Logged Segment Entry No." := LoggedSegment."Entry No.";
+
+                InteractionLogEntry.CopyFromSegment(SegmentLine);
+                SegmentHeader.CalcFields("Modified Word Template");
+                if SegmentLine."Attachment No." = 0 then
+                    InteractionLogEntry."Modified Word Template" := SegmentHeader."Modified Word Template";
+                InteractionLogEntry."Word Template Code" := SegmentLine."Word Template Code";
+                InteractionLogEntry.InsertRecord();
 
                 // Unwrap the attachment custom layout if only code is specified in the blob
                 UnwrapAttachmentCustomLayout(SegmentLine);
 
                 if Deliver and
-                   ((SegmentLine."Correspondence Type".AsInteger() <> 0) or (InteractTemplate."Correspondence Type (Default)".AsInteger() <> 0))
+                   ((SegmentLine."Correspondence Type".AsInteger() <> 0) or (InteractionTemplate."Correspondence Type (Default)".AsInteger() <> 0))
                 then begin
-                    InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::"In Progress";
-                    if InteractLogEntry."Word Template Code" = '' then
+                    InteractionLogEntry."Delivery Status" := InteractionLogEntry."Delivery Status"::"In Progress";
+                    if InteractionLogEntry."Word Template Code" = '' then
                         SegmentLine.TestField("Attachment No.");
-                    TempDeliverySorter."No." := InteractLogEntry."Entry No.";
-                    TempDeliverySorter."Attachment No." := InteractLogEntry."Attachment No.";
-                    TempDeliverySorter."Correspondence Type" := InteractLogEntry."Correspondence Type";
-                    TempDeliverySorter.Subject := InteractLogEntry.Subject;
-                    TempDeliverySorter."Send Word Docs. as Attmt." := InteractLogEntry."Send Word Docs. as Attmt.";
+                    TempDeliverySorter."No." := InteractionLogEntry."Entry No.";
+                    if InteractionLogEntry."Modified Word Template" > 0 then
+                        TempDeliverySorter."Attachment No." := InteractionLogEntry."Modified Word Template"
+                    else
+                        TempDeliverySorter."Attachment No." := InteractionLogEntry."Attachment No.";
+                    TempDeliverySorter."Correspondence Type" := InteractionLogEntry."Correspondence Type";
+                    TempDeliverySorter.Subject := InteractionLogEntry.Subject;
+                    TempDeliverySorter."Send Word Docs. as Attmt." := InteractionLogEntry."Send Word Docs. as Attmt.";
                     TempDeliverySorter."Language Code" := SegmentLine."Language Code";
-                    TempDeliverySorter."Word Template Code" := InteractLogEntry."Word Template Code";
-                    TempDeliverySorter."Wizard Action" := InteractTemplate."Wizard Action";
+                    TempDeliverySorter."Word Template Code" := InteractionLogEntry."Word Template Code";
+                    TempDeliverySorter."Wizard Action" := InteractionTemplate."Wizard Action";
                     OnBeforeDeliverySorterInsert(TempDeliverySorter, SegmentLine);
                     TempDeliverySorter.Insert();
                 end;
-                OnBeforeInteractLogEntryInsert(InteractLogEntry, SegmentLine);
-                InteractLogEntry.Modify();
-                OnLogSegmentOnAfterInteractLogEntryInsert(InteractLogEntry, SegmentLine);
+                OnBeforeInteractLogEntryInsert(InteractionLogEntry, SegmentLine);
+                InteractionLogEntry.Modify();
+                OnLogSegmentOnAfterInteractLogEntryInsert(InteractionLogEntry, SegmentLine);
                 Attachment.LockTable();
                 ShouldModifyAttachment := Attachment.Get(SegmentLine."Attachment No.") and (not Attachment."Read Only");
                 OnLogSegmentOnAfterCalcShouldModifyAttachment(Attachment, SegmentLine, SegmentHeader, ShouldModifyAttachment);
@@ -112,9 +126,9 @@
                     Attachment."Read Only" := true;
                     Attachment.Modify(true);
                 end;
-            until SegmentLine.Next() = 0;
-        end else
-            Error(Text001, SegmentHeader."No.");
+            until SegmentLine.Next() = 0
+        else
+            Error(EmptySegmentErr, SegmentHeader."No.");
 
         OnLogSegmentOnAfterCreateInteractionLogEntries(SegmentHeader, LoggedSegment);
 
@@ -125,7 +139,7 @@
         if Followup then begin
             Clear(SegmentHeader);
             SegmentHeader."Campaign No." := CampaignNo;
-            SegmentHeader.Description := CopyStr(StrSubstNo(Text002, SegmentNo), 1, 50);
+            SegmentHeader.Description := CopyStr(StrSubstNo(FollowUpOnSegmentLbl, SegmentNo), 1, 50);
             OnLogSegmentOnBeforeFollowupSegmentHeaderInsert(SegmentHeader, LoggedSegment);
             SegmentHeader.Insert(true);
             SegmentHeader.ReuseLogged(LoggedSegment."Entry No.");
@@ -135,19 +149,25 @@
         if Deliver then
             AttachmentManagement.Send(TempDeliverySorter);
 
-        OnAfterLogSegment(TempDeliverySorter, LoggedSegment, SegmentHeader, SegmentNo, InteractLogEntry."Entry No.");
+        OnAfterLogSegment(TempDeliverySorter, LoggedSegment, SegmentHeader, SegmentNo, InteractionLogEntry."Entry No.");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Attachment, 'OnAfterDeleteEvent', '', false, false)]
+    local procedure OnAfterDeleteAttachment(var Rec: Record Attachment)
+    begin
+        Rec."No." := Rec."No.";
     end;
 
     procedure LogInteraction(SegmentLine: Record "Segment Line"; var AttachmentTemp: Record Attachment; var TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line"; Deliver: Boolean; Postponed: Boolean) NextInteractLogEntryNo: Integer
     var
         InteractionTemplate: Record "Interaction Template";
-        InteractLogEntry: Record "Interaction Log Entry";
+        InteractionLogEntry: Record "Interaction Log Entry";
         Attachment: Record Attachment;
         MarketingSetup: Record "Marketing Setup";
         TempDeliverySorter: Record "Delivery Sorter" temporary;
         InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
         AttachmentManagement: Codeunit AttachmentManagement;
-        FileMgt: Codeunit "File Management";
+        FileManagement: Codeunit "File Management";
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         WizardAction: Enum "Interaction Template Wizard Action";
         FileName: Text;
@@ -179,7 +199,7 @@
                 if Attachment."No." <> 0 then begin
                     FileName := Attachment.ConstDiskFileName();
                     if FileName <> '' then begin
-                        FileMgt.DeleteServerFile(FileName);
+                        FileManagement.DeleteServerFile(FileName);
                         FileExported := AttachmentTemp.ExportAttachmentToServerFile(FileName);
                     end;
                 end;
@@ -194,21 +214,21 @@
         if SegmentLine."Line No." = 0 then begin
             NextInteractLogEntryNo := SequenceNoMgt.GetNextSeqNo(DATABASE::"Interaction Log Entry");
 
-            InteractLogEntry.Init();
-            InteractLogEntry."Entry No." := NextInteractLogEntryNo;
-            InteractLogEntry.CopyFromSegment(SegmentLine);
-            InteractLogEntry.Postponed := Postponed;
-            OnLogInteractionOnBeforeInteractionLogEntryInsert(InteractLogEntry, Attachment, SegmentLine);
-            InteractLogEntry.InsertRecord();
-            NextInteractLogEntryNo := InteractLogEntry."Entry No.";
+            InteractionLogEntry.Init();
+            InteractionLogEntry."Entry No." := NextInteractLogEntryNo;
+            InteractionLogEntry.CopyFromSegment(SegmentLine);
+            InteractionLogEntry.Postponed := Postponed;
+            OnLogInteractionOnBeforeInteractionLogEntryInsert(InteractionLogEntry, Attachment, SegmentLine);
+            InteractionLogEntry.InsertRecord();
+            NextInteractLogEntryNo := InteractionLogEntry."Entry No.";
         end else begin
-            InteractLogEntry.Get(SegmentLine."Line No.");
-            OnLogInteractionOnAfterGetInteractLogEntryFromSegmentLine(InteractLogEntry, SegmentLine, Postponed);
-            InteractLogEntry.CopyFromSegment(SegmentLine);
-            InteractLogEntry.Postponed := Postponed;
-            OnLogInteractionOnBeforeInteractionLogEntryModify(InteractLogEntry);
-            InteractLogEntry.Modify();
-            InterLogEntryCommentLine.SetRange("Entry No.", InteractLogEntry."Entry No.");
+            InteractionLogEntry.Get(SegmentLine."Line No.");
+            OnLogInteractionOnAfterGetInteractLogEntryFromSegmentLine(InteractionLogEntry, SegmentLine, Postponed);
+            InteractionLogEntry.CopyFromSegment(SegmentLine);
+            InteractionLogEntry.Postponed := Postponed;
+            OnLogInteractionOnBeforeInteractionLogEntryModify(InteractionLogEntry);
+            InteractionLogEntry.Modify();
+            InterLogEntryCommentLine.SetRange("Entry No.", InteractionLogEntry."Entry No.");
             InterLogEntryCommentLine.DeleteAll();
         end;
 
@@ -216,27 +236,27 @@
             repeat
                 InterLogEntryCommentLine.Init();
                 InterLogEntryCommentLine := TempInterLogEntryCommentLine;
-                InterLogEntryCommentLine."Entry No." := InteractLogEntry."Entry No.";
+                InterLogEntryCommentLine."Entry No." := InteractionLogEntry."Entry No.";
                 OnLogInteractionOnBeforeInterLogEntryCommentLineInsert(InterLogEntryCommentLine);
                 InterLogEntryCommentLine.Insert();
             until TempInterLogEntryCommentLine.Next() = 0;
 
         if Deliver and (SegmentLine."Correspondence Type".AsInteger() <> 0) and (not Postponed) then begin
-            InteractLogEntry."Delivery Status" := InteractLogEntry."Delivery Status"::"In Progress";
+            InteractionLogEntry."Delivery Status" := InteractionLogEntry."Delivery Status"::"In Progress";
 
-            TempDeliverySorter."Word Template Code" := InteractLogEntry."Word Template Code";
-            TempDeliverySorter."No." := InteractLogEntry."Entry No.";
+            TempDeliverySorter."Word Template Code" := InteractionLogEntry."Word Template Code";
+            TempDeliverySorter."No." := InteractionLogEntry."Entry No.";
             TempDeliverySorter."Attachment No." := Attachment."No.";
-            TempDeliverySorter."Correspondence Type" := InteractLogEntry."Correspondence Type";
-            TempDeliverySorter.Subject := InteractLogEntry.Subject;
+            TempDeliverySorter."Correspondence Type" := InteractionLogEntry."Correspondence Type";
+            TempDeliverySorter.Subject := InteractionLogEntry.Subject;
             TempDeliverySorter."Send Word Docs. as Attmt." := false;
             TempDeliverySorter."Language Code" := SegmentLine."Language Code";
             TempDeliverySorter."Wizard Action" := WizardAction;
-            OnLogInteractionOnBeforeTempDeliverySorterInsert(TempDeliverySorter, SegmentLine, InteractLogEntry);
+            OnLogInteractionOnBeforeTempDeliverySorterInsert(TempDeliverySorter, SegmentLine, InteractionLogEntry);
             TempDeliverySorter.Insert();
             AttachmentManagement.Send(TempDeliverySorter);
         end;
-        OnAfterLogInteraction(SegmentLine, InteractLogEntry, Deliver, Postponed);
+        OnAfterLogInteraction(SegmentLine, InteractionLogEntry, Deliver, Postponed);
     end;
 
     local procedure TestFieldsFromLogInteraction(var SegmentLine: Record "Segment Line"; Deliver: Boolean; Postponed: Boolean)
@@ -254,12 +274,12 @@
 
     procedure LogDocument(DocumentType: Integer; DocumentNo: Code[20]; DocNoOccurrence: Integer; VersionNo: Integer; AccountTableNo: Integer; AccountNo: Code[20]; SalespersonCode: Code[20]; CampaignNo: Code[20]; Description: Text[100]; OpportunityNo: Code[20]): Integer
     var
-        InteractTmpl: Record "Interaction Template";
+        InteractionTemplate: Record "Interaction Template";
         TempSegmentLine: Record "Segment Line" temporary;
-        ContBusRel: Record "Contact Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
         Attachment: Record Attachment;
-        Cont: Record Contact;
-        InteractTmplLanguage: Record "Interaction Tmpl. Language";
+        Contact: Record Contact;
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
         TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line" temporary;
         InteractTmplCode: Code[10];
         ContNo: Code[20];
@@ -269,34 +289,34 @@
         if InteractTmplCode = '' then
             exit;
 
-        InteractTmpl.Get(InteractTmplCode);
+        InteractionTemplate.Get(InteractTmplCode);
 
-        InteractTmplLanguage.SetRange("Interaction Template Code", InteractTmplCode);
-        if InteractTmplLanguage.FindFirst() then
-            Error(Text003, InteractTmplCode, InteractTmplLanguage."Language Code");
+        InteractionTmplLanguage.SetRange("Interaction Template Code", InteractTmplCode);
+        if InteractionTmplLanguage.FindFirst() then
+            Error(InteractionTemplateAssignedLanguageErr, InteractTmplCode, InteractionTmplLanguage."Language Code");
 
         if Description = '' then
-            Description := InteractTmpl.Description;
+            Description := InteractionTemplate.Description;
 
         case AccountTableNo of
             DATABASE::Customer:
                 begin
-                    ContNo := FindContactFromContBusRelation(ContBusRel."Link to Table"::Customer, AccountNo);
+                    ContNo := FindContactFromContBusRelation(ContactBusinessRelation."Link to Table"::Customer, AccountNo);
                     if ContNo = '' then
                         exit;
                 end;
             DATABASE::Vendor:
                 begin
-                    ContNo := FindContactFromContBusRelation(ContBusRel."Link to Table"::Vendor, AccountNo);
+                    ContNo := FindContactFromContBusRelation(ContactBusinessRelation."Link to Table"::Vendor, AccountNo);
                     if ContNo = '' then
                         exit;
                 end;
             DATABASE::Contact:
                 begin
-                    if not Cont.Get(AccountNo) then
+                    if not Contact.Get(AccountNo) then
                         exit;
                     if SalespersonCode = '' then
-                        SalespersonCode := Cont."Salesperson Code";
+                        SalespersonCode := Contact."Salesperson Code";
                     ContNo := AccountNo;
                 end;
             else begin
@@ -374,113 +394,115 @@
 
     procedure FindInteractionTemplateCode(DocumentType: Enum "Interaction Log Entry Document Type") InteractTmplCode: Code[10]
     begin
-        if not InteractionTmplSetup.ReadPermission then
+        if not InteractionTemplateSetup.ReadPermission then
             exit('');
-        if InteractionTmplSetup.Get() then
+        if InteractionTemplateSetup.Get() then
             case DocumentType of
                 "Interaction Log Entry Document Type"::"Sales Qte.":
-                    InteractTmplCode := InteractionTmplSetup."Sales Quotes";
+                    InteractTmplCode := InteractionTemplateSetup."Sales Quotes";
                 "Interaction Log Entry Document Type"::"Sales Blnkt. Ord":
-                    InteractTmplCode := InteractionTmplSetup."Sales Blnkt. Ord";
+                    InteractTmplCode := InteractionTemplateSetup."Sales Blnkt. Ord";
                 "Interaction Log Entry Document Type"::"Sales Ord. Cnfrmn.":
-                    InteractTmplCode := InteractionTmplSetup."Sales Ord. Cnfrmn.";
+                    InteractTmplCode := InteractionTemplateSetup."Sales Ord. Cnfrmn.";
                 "Interaction Log Entry Document Type"::"Sales Inv.":
-                    InteractTmplCode := InteractionTmplSetup."Sales Invoices";
+                    InteractTmplCode := InteractionTemplateSetup."Sales Invoices";
                 "Interaction Log Entry Document Type"::"Sales Shpt. Note":
-                    InteractTmplCode := InteractionTmplSetup."Sales Shpt. Note";
+                    InteractTmplCode := InteractionTemplateSetup."Sales Shpt. Note";
                 "Interaction Log Entry Document Type"::"Sales Cr. Memo":
-                    InteractTmplCode := InteractionTmplSetup."Sales Cr. Memo";
+                    InteractTmplCode := InteractionTemplateSetup."Sales Cr. Memo";
                 "Interaction Log Entry Document Type"::"Sales Stmnt.":
-                    InteractTmplCode := InteractionTmplSetup."Sales Statement";
+                    InteractTmplCode := InteractionTemplateSetup."Sales Statement";
                 "Interaction Log Entry Document Type"::"Sales Rmdr.":
-                    InteractTmplCode := InteractionTmplSetup."Sales Rmdr.";
+                    InteractTmplCode := InteractionTemplateSetup."Sales Rmdr.";
                 "Interaction Log Entry Document Type"::"Serv. Ord. Create":
-                    InteractTmplCode := InteractionTmplSetup."Serv Ord Create";
+                    InteractTmplCode := InteractionTemplateSetup."Serv Ord Create";
                 "Interaction Log Entry Document Type"::"Serv. Ord. Post":
-                    InteractTmplCode := InteractionTmplSetup."Serv Ord Post";
+                    InteractTmplCode := InteractionTemplateSetup."Serv Ord Post";
                 "Interaction Log Entry Document Type"::"Purch.Qte.":
-                    InteractTmplCode := InteractionTmplSetup."Purch. Quotes";
+                    InteractTmplCode := InteractionTemplateSetup."Purch. Quotes";
                 "Interaction Log Entry Document Type"::"Purch. Blnkt. Ord.":
-                    InteractTmplCode := InteractionTmplSetup."Purch Blnkt Ord";
+                    InteractTmplCode := InteractionTemplateSetup."Purch Blnkt Ord";
                 "Interaction Log Entry Document Type"::"Purch. Ord.":
-                    InteractTmplCode := InteractionTmplSetup."Purch. Orders";
+                    InteractTmplCode := InteractionTemplateSetup."Purch. Orders";
                 "Interaction Log Entry Document Type"::"Purch. Inv.":
-                    InteractTmplCode := InteractionTmplSetup."Purch Invoices";
+                    InteractTmplCode := InteractionTemplateSetup."Purch Invoices";
                 "Interaction Log Entry Document Type"::"Purch. Rcpt.":
-                    InteractTmplCode := InteractionTmplSetup."Purch. Rcpt.";
+                    InteractTmplCode := InteractionTemplateSetup."Purch. Rcpt.";
                 "Interaction Log Entry Document Type"::"Purch. Cr. Memo":
-                    InteractTmplCode := InteractionTmplSetup."Purch Cr Memos";
+                    InteractTmplCode := InteractionTemplateSetup."Purch Cr Memos";
                 "Interaction Log Entry Document Type"::"Cover Sheet":
-                    InteractTmplCode := InteractionTmplSetup."Cover Sheets";
+                    InteractTmplCode := InteractionTemplateSetup."Cover Sheets";
                 "Interaction Log Entry Document Type"::"Sales Return Order":
-                    InteractTmplCode := InteractionTmplSetup."Sales Return Order";
+                    InteractTmplCode := InteractionTemplateSetup."Sales Return Order";
                 "Interaction Log Entry Document Type"::"Sales Finance Charge Memo":
-                    InteractTmplCode := InteractionTmplSetup."Sales Finance Charge Memo";
+                    InteractTmplCode := InteractionTemplateSetup."Sales Finance Charge Memo";
                 "Interaction Log Entry Document Type"::"Sales Return Receipt":
-                    InteractTmplCode := InteractionTmplSetup."Sales Return Receipt";
+                    InteractTmplCode := InteractionTemplateSetup."Sales Return Receipt";
                 "Interaction Log Entry Document Type"::"Purch. Return Shipment":
-                    InteractTmplCode := InteractionTmplSetup."Purch. Return Shipment";
+                    InteractTmplCode := InteractionTemplateSetup."Purch. Return Shipment";
                 "Interaction Log Entry Document Type"::"Purch. Return Ord. Cnfrmn.":
-                    InteractTmplCode := InteractionTmplSetup."Purch. Return Ord. Cnfrmn.";
+                    InteractTmplCode := InteractionTemplateSetup."Purch. Return Ord. Cnfrmn.";
                 "Interaction Log Entry Document Type"::"Service Contract":
-                    InteractTmplCode := InteractionTmplSetup."Service Contract";
+                    InteractTmplCode := InteractionTemplateSetup."Service Contract";
                 "Interaction Log Entry Document Type"::"Service Contract Quote":
-                    InteractTmplCode := InteractionTmplSetup."Service Contract Quote";
+                    InteractTmplCode := InteractionTemplateSetup."Service Contract Quote";
                 "Interaction Log Entry Document Type"::"Service Quote":
-                    InteractTmplCode := InteractionTmplSetup."Service Quote";
+                    InteractTmplCode := InteractionTemplateSetup."Service Quote";
                 "Interaction Log Entry Document Type"::"Sales Draft Invoice":
-                    InteractTmplCode := InteractionTmplSetup."Sales Draft Invoices";
+                    InteractTmplCode := InteractionTemplateSetup."Sales Draft Invoices";
             end;
 
 #if not CLEAN22
-        OnAfterFindInteractTmplCode(DocumentType, InteractionTmplSetup, InteractTmplCode);
+        OnAfterFindInteractTmplCode(DocumentType, InteractionTemplateSetup, InteractTmplCode);
 #endif
-        OnAfterFindInteractTemplateCode(DocumentType, InteractionTmplSetup, InteractTmplCode);
+        OnAfterFindInteractTemplateCode(DocumentType, InteractionTemplateSetup, InteractTmplCode);
 
         exit(InteractTmplCode);
     end;
 
     procedure CheckSegmentLine(var SegmentLine: Record "Segment Line"; Deliver: Boolean)
     var
-        Cont: Record Contact;
+        Contact: Record Contact;
         Campaign: Record Campaign;
-        InteractTmpl: Record "Interaction Template";
-        ContAltAddr: Record "Contact Alt. Address";
+        InteractionTemplate: Record "Interaction Template";
+        ContactAltAddress: Record "Contact Alt. Address";
     begin
         with SegmentLine do begin
             TestField(Date);
             TestField("Contact No.");
-            Cont.Get("Contact No.");
+            Contact.Get("Contact No.");
             CheckSalesperson(SegmentLine);
             TestField("Interaction Template Code");
-            InteractTmpl.Get("Interaction Template Code");
+            InteractionTemplate.Get("Interaction Template Code");
             if "Campaign No." <> '' then
                 Campaign.Get("Campaign No.");
             case "Correspondence Type" of
                 "Correspondence Type"::Email:
-                    AssignCorrespondenceTypeForEmail(SegmentLine, Cont, ContAltAddr, Deliver);
+                    AssignCorrespondenceTypeForEmail(SegmentLine, Contact, ContactAltAddress, Deliver);
+#if not CLEAN23
                 "Correspondence Type"::Fax:
                     begin
-                        if Cont."Fax No." = '' then
+                        if Contact."Fax No." = '' then
                             "Correspondence Type" := "Correspondence Type"::" ";
 
-                        if ContAltAddr.Get("Contact No.", "Contact Alt. Address Code") then begin
-                            if ContAltAddr."Fax No." <> '' then
+                        if ContactAltAddress.Get("Contact No.", "Contact Alt. Address Code") then begin
+                            if ContactAltAddress."Fax No." <> '' then
                                 "Correspondence Type" := "Correspondence Type"::Fax;
                         end else
-                            if (Deliver and (Cont."Fax No." = '')) then
-                                Error(SegmentSendContactEmailFaxMissingErr, Cont.FieldCaption("Fax No."), Cont."No.")
+                            if (Deliver and (Contact."Fax No." = '')) then
+                                Error(SegmentSendContactEmailFaxMissingErr, Contact.FieldCaption("Fax No."), Contact."No.")
 
                     end;
+#endif
                 else
-                    OnTestFieldsOnSegmentLineCorrespondenceTypeCaseElse(SegmentLine, Cont);
+                    OnTestFieldsOnSegmentLineCorrespondenceTypeCaseElse(SegmentLine, Contact);
             end;
         end;
     end;
 
     local procedure CheckSalesperson(var SegmentLine: Record "Segment Line")
     var
-        Salesperson: Record "Salesperson/Purchaser";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -488,27 +510,26 @@
         if IsHandled then
             exit;
 
-        with SegmentLine do
-            if "Document Type" = "Document Type"::" " then begin
-                TestField("Salesperson Code");
-                Salesperson.Get("Salesperson Code");
-            end;
+        if SegmentLine."Document Type" = SegmentLine."Document Type"::" " then begin
+            SegmentLine.TestField("Salesperson Code");
+            SalespersonPurchaser.Get(SegmentLine."Salesperson Code");
+        end;
     end;
 
-    local procedure AssignCorrespondenceTypeForEmail(var SegmentLine: Record "Segment Line"; var Contact: Record Contact; var ContactAltAddr: Record "Contact Alt. Address"; Deliver: Boolean)
+    local procedure AssignCorrespondenceTypeForEmail(var SegmentLine: Record "Segment Line"; var Contact: Record Contact; var ContactAltAddress: Record "Contact Alt. Address"; Deliver: Boolean)
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAssignCorrespondenceTypeForEmail(SegmentLine, Contact, ContactAltAddr, IsHandled);
+        OnBeforeAssignCorrespondenceTypeForEmail(SegmentLine, Contact, ContactAltAddress, IsHandled);
         if IsHandled then
             exit;
 
         if Contact."E-Mail" = '' then
             SegmentLine."Correspondence Type" := "Correspondence Type"::" ";
 
-        if ContactAltAddr.Get(SegmentLine."Contact No.", SegmentLine."Contact Alt. Address Code") then begin
-            if ContactAltAddr."E-Mail" <> '' then
+        if ContactAltAddress.Get(SegmentLine."Contact No.", SegmentLine."Contact Alt. Address Code") then begin
+            if ContactAltAddress."E-Mail" <> '' then
                 SegmentLine."Correspondence Type" := "Correspondence Type"::Email;
         end else
             if (Deliver and (Contact."E-Mail" = '')) then
@@ -527,77 +548,77 @@
             CampaignEntry.Description :=
               CopyStr(FindInteractTmplSetupCaption(SegmentLine."Document Type"), 1, MaxStrLen(CampaignEntry.Description));
             if CampaignEntry.Description = '' then
-                CampaignEntry.Description := Text004;
+                CampaignEntry.Description := InteractionsLbl;
         end;
     end;
 
     local procedure FindInteractTmplSetupCaption(DocumentType: Enum "Interaction Log Entry Document Type") InteractTmplSetupCaption: Text[80]
     begin
-        InteractionTmplSetup.Get();
+        InteractionTemplateSetup.Get();
         case DocumentType of
             "Interaction Log Entry Document Type"::"Sales Qte.":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Quotes");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Sales Quotes"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Sales Blnkt. Ord":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Blnkt. Ord");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Sales Blnkt. Ord"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Sales Ord. Cnfrmn.":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Ord. Cnfrmn.");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Sales Ord. Cnfrmn."), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Sales Inv.":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Invoices");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Sales Invoices"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Sales Shpt. Note":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Shpt. Note");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Sales Shpt. Note"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Sales Cr. Memo":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Cr. Memo");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Sales Cr. Memo"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Sales Stmnt.":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Statement");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Sales Statement"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Sales Rmdr.":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Rmdr.");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Sales Rmdr."), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Serv. Ord. Create":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Serv Ord Create");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Serv Ord Create"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Serv. Ord. Post":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Serv Ord Post");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Serv Ord Post"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Purch.Qte.":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Purch. Quotes");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Purch. Quotes"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Purch. Blnkt. Ord.":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Purch Blnkt Ord");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Purch Blnkt Ord"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Purch. Ord.":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Purch. Orders");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Purch. Orders"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Purch. Inv.":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Purch Invoices");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Purch Invoices"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Purch. Rcpt.":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Purch. Rcpt.");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Purch. Rcpt."), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Purch. Cr. Memo":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Purch Cr Memos");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Purch Cr Memos"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Cover Sheet":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Cover Sheets");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Cover Sheets"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Sales Return Order":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Return Order");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Sales Return Order"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Sales Finance Charge Memo":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Finance Charge Memo");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Sales Finance Charge Memo"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Sales Return Receipt":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Sales Return Receipt");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Sales Return Receipt"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Purch. Return Shipment":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Purch. Return Shipment");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Purch. Return Shipment"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Purch. Return Ord. Cnfrmn.":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Purch. Return Ord. Cnfrmn.");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Purch. Return Ord. Cnfrmn."), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Service Contract":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Service Contract");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Service Contract"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Service Contract Quote":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Service Contract Quote");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Service Contract Quote"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Service Quote":
-                InteractTmplSetupCaption := InteractionTmplSetup.FieldCaption("Service Quote");
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Service Quote"), 1, MaxStrLen(InteractTmplSetupCaption));
             "Interaction Log Entry Document Type"::"Sales Draft Invoice":
-                InteractTmplSetupCaption := CopyStr(InteractionTmplSetup.FieldCaption("Sales Draft Invoices"), 1, 80);
+                InteractTmplSetupCaption := CopyStr(InteractionTemplateSetup.FieldCaption("Sales Draft Invoices"), 1, MaxStrLen(InteractTmplSetupCaption));
         end;
 
-        OnAfterFindInteractTmplSetupCaption(DocumentType.AsInteger(), InteractionTmplSetup, InteractTmplSetupCaption);
+        OnAfterFindInteractTmplSetupCaption(DocumentType.AsInteger(), InteractionTemplateSetup, InteractTmplSetupCaption);
         exit(InteractTmplSetupCaption);
     end;
 
     local procedure FindContactFromContBusRelation(LinkToTable: Enum "Contact Business Relation Link To Table"; AccountNo: Code[20]): Code[20]
     var
-        ContBusRel: Record "Contact Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
     begin
-        with ContBusRel do begin
+        with ContactBusinessRelation do begin
             SetRange("Link to Table", LinkToTable);
             SetRange("No.", AccountNo);
             if FindFirst() then
@@ -605,44 +626,44 @@
         end;
     end;
 
-    procedure CreateCampaignEntryOnSalesInvoicePosting(SalesInvHeader: Record "Sales Invoice Header")
+    procedure CreateCampaignEntryOnSalesInvoicePosting(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         Campaign: Record Campaign;
-        CampaignTargetGr: Record "Campaign Target Group";
-        ContBusRel: Record "Contact Business Relation";
+        CampaignTargetGroup: Record "Campaign Target Group";
+        ContactBusinessRelation: Record "Contact Business Relation";
         InteractionLogEntry: Record "Interaction Log Entry";
-        InteractTemplate: Record "Interaction Template";
+        InteractionTemplate: Record "Interaction Template";
         InteractionTemplateCode: Code[10];
         ContNo: Code[20];
     begin
-        with SalesInvHeader do begin
-            CampaignTargetGr.SetRange(Type, CampaignTargetGr.Type::Customer);
-            CampaignTargetGr.SetRange("No.", "Bill-to Customer No.");
-            if not CampaignTargetGr.FindFirst() then
+        with SalesInvoiceHeader do begin
+            CampaignTargetGroup.SetRange(Type, CampaignTargetGroup.Type::Customer);
+            CampaignTargetGroup.SetRange("No.", "Bill-to Customer No.");
+            if not CampaignTargetGroup.FindFirst() then
                 exit;
 
-            Campaign.Get(CampaignTargetGr."Campaign No.");
+            Campaign.Get(CampaignTargetGroup."Campaign No.");
             if ("Posting Date" < Campaign."Starting Date") or ("Posting Date" > Campaign."Ending Date") then
                 exit;
 
-            ContNo := FindContactFromContBusRelation(ContBusRel."Link to Table"::Customer, "Bill-to Customer No.");
+            ContNo := FindContactFromContBusRelation(ContactBusinessRelation."Link to Table"::Customer, "Bill-to Customer No.");
 
             // Check if Interaction Log Entry already exist for initial Sales Order
             InteractionTemplateCode := FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Inv.");
             if InteractionTemplateCode = '' then
                 Error(InterTemplateSalesInvoicesNotSpecifiedErr);
-            InteractTemplate.Get(InteractionTemplateCode);
+            InteractionTemplate.Get(InteractionTemplateCode);
             InteractionLogEntry.SetRange("Contact No.", ContNo);
             InteractionLogEntry.SetRange("Document Type", "Interaction Log Entry Document Type"::"Sales Inv.");
             InteractionLogEntry.SetRange("Document No.", "Order No.");
-            InteractionLogEntry.SetRange("Interaction Group Code", InteractTemplate."Interaction Group Code");
+            InteractionLogEntry.SetRange("Interaction Group Code", InteractionTemplate."Interaction Group Code");
             if not InteractionLogEntry.IsEmpty() then
                 exit;
 
             LogDocument(
               "Interaction Log Entry Document Type"::"Sales Inv.".AsInteger(),
               "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
-              CampaignTargetGr."Campaign No.", "Posting Description", '');
+              CampaignTargetGroup."Campaign No.", "Posting Description", '');
         end;
     end;
 

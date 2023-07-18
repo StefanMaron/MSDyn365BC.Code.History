@@ -3,6 +3,14 @@ table 9551 "Document Service Cache"
     DataPerCompany = false;
     Extensible = false;
     ReplicateData = false;
+    ObsoleteReason = 'No longer required';
+#if not CLEAN23
+    ObsoleteState = Pending;
+    ObsoleteTag = '23.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '26.0';
+#endif
 
     fields
     {

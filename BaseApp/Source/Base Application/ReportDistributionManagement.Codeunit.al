@@ -172,7 +172,7 @@ codeunit 452 "Report Distribution Management"
 
         TranslationHelper.RestoreGlobalLanguage();
 
-        OnAfterGetFullDocumentTypeText(DocumentVariant, DocumentTypeText);
+        OnAfterGetFullDocumentTypeText(DocumentVariant, DocumentTypeText, DocumentRecordRef);
     end;
 
     procedure GetDocumentLanguageCode(DocumentVariant: Variant) LanguageCode: Code[10]
@@ -624,7 +624,7 @@ codeunit 452 "Report Distribution Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetFullDocumentTypeText(DocumentVariant: Variant; var DocumentTypeText: Text[50])
+    local procedure OnAfterGetFullDocumentTypeText(DocumentVariant: Variant; var DocumentTypeText: Text[50]; var DocumentRecordRef: RecordRef)
     begin
     end;
 

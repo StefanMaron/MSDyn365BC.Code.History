@@ -260,15 +260,21 @@ report 6037 "Change Customer in Contract"
     end;
 
     local procedure VerifyCustNo(CustNo: Code[20]; ShiptoCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
         if CustNo <> '' then begin
             Cust.Get(CustNo);
-            if Cust."Privacy Blocked" then
-                Error(Cust.GetPrivacyBlockedGenericErrorText(Cust));
-            if Cust.Blocked = Cust.Blocked::All then
-                Error(Text010);
-            if not ShipToAddr.Get(CustNo, ShiptoCode) then
-                NewShiptoCode := '';
+            IsHandled := false;
+            OnVerifyCustNoOnBeforeCheck(CustNo, IsHandled);
+            if not IsHandled then begin
+                if Cust."Privacy Blocked" then
+                    Error(Cust.GetPrivacyBlockedGenericErrorText(Cust));
+                if Cust.Blocked = Cust.Blocked::All then
+                    Error(Text010);
+                if not ShipToAddr.Get(CustNo, ShiptoCode) then
+                    NewShiptoCode := '';
+            end;
         end;
     end;
 
@@ -276,6 +282,11 @@ report 6037 "Change Customer in Contract"
     begin
         NewCustomerNo := NewCustomerNoFrom;
         NewShiptoCode := NewShipToCodeFrom;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVerifyCustNoOnBeforeCheck(CustNo: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }
 

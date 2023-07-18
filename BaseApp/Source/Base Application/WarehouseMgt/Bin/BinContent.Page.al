@@ -192,8 +192,8 @@ page 7304 "Bin Content"
     begin
         if xRec."Location Code" <> '' then
             "Location Code" := xRec."Location Code";
-        if xRec."Bin Code" <> '' then
-            "Bin Code" := xRec."Bin Code";
+        if xRec."Unit of Measure Code" <> '' then
+            "Unit of Measure Code" := xRec."Unit of Measure Code";
         SetUpNewLine();
     end;
 }

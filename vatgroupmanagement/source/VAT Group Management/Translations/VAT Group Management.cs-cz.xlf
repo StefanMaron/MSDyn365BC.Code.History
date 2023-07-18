@@ -1585,7 +1585,7 @@
         </trans-unit>
         <trans-unit id="Table 1626420089 - Field 4012802731 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Contact Person Email</source>
-          <target state="translated">E-mail kontaktní osoby</target>
+          <target state="translated">Email kontaktní osoby</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table VAT Group Approved Member - Field Contact Person Email - Property Caption</note>
         </trans-unit>

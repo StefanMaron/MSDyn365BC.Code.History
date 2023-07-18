@@ -118,6 +118,8 @@ codeunit 29 "Error Message Handler"
             ErrorMessage."Register ID" := RegisterID;
             ErrorMessage.ID := 0; // autoincrement
             ErrorMessage.Insert();
+            TempErrorMessage."Reg. Err. Msg. System ID" := ErrorMessage.SystemId;// This is used to link the temporary error messages with the registered (committed) error messages.
+            TempErrorMessage.Modify(false);
         until TempErrorMessage.Next() = 0;
     end;
 
@@ -220,6 +222,13 @@ codeunit 29 "Error Message Handler"
             ID := TempErrorMessage.GetLastID();
             ErrorMessage := CopyStr(TempErrorMessage."Message", 1, MaxStrLen(ErrorMessage));
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnGetLastErrorMessageRecord', '', false, false)]
+    local procedure OnGetLastErrorMessageRecord(var ErrorMessage: Record "Error Message" temporary)
+    begin
+        if Active then
+            ErrorMessage.Copy(TempErrorMessage, true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Error Message Management", 'OnGetCachedLastErrorID', '', false, false)]

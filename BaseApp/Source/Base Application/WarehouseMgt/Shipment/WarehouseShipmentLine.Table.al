@@ -861,6 +861,7 @@
             WhseShipmentCreatePick.SetWhseShipmentLine(WhseShptLine, WhseShptHeader);
             WhseShipmentCreatePick.SetHideValidationDialog(HideValidationDialog);
             WhseShipmentCreatePick.UseRequestPage(not HideValidationDialog);
+            OnCreatePickDocFromWhseShptOnBeforeRunWhseShipmentCreatePick(WhseShipmentCreatePick);
             WhseShipmentCreatePick.RunModal();
             WhseShipmentCreatePick.GetResultMessage();
             Clear(WhseShipmentCreatePick);
@@ -1302,6 +1303,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetItemData(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePickDocFromWhseShptOnBeforeRunWhseShipmentCreatePick(var WhseShipmentCreatePick: Report "Whse.-Shipment - Create Pick")
     begin
     end;
 }

@@ -135,12 +135,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType RestartExportQst</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2528467593 - NamedType 4058060278" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1%2</source>
-          <target state="translated">%1%2</target>
-          <note from="Developer" annotates="general" priority="2">%1, %2 - two strings to concatenate</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit File Export Mgt. - NamedType TwoStringsTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2528467593 - NamedType 4069002805" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Do you want to restart the export for this line?</source>
           <target state="translated">Wilt u de export voor deze regel opnieuw starten?</target>

@@ -71,6 +71,12 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies either the name of, or the description of, the item, general ledger account, or item charge.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Return Reason Code"; Rec."Return Reason Code")
                 {
                     ApplicationArea = SalesReturnOrder;

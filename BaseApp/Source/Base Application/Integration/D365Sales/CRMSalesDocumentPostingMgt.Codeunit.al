@@ -11,8 +11,10 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         CRMSalesOrderId: Guid;
         DeletedCoupledOrderNo: Code[20];
         DeletedCoupledOrderYourReference: Text[35];
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CRMOrderHasBeenPostedMsg: Label '%1 ''%2'' has been posted in %3.', Comment = '%1=Document Type;%2=Document Id;%3=The name of our product';
         CRMInvoiceHasBeenPostedMsg: Label 'Invoice ''%1'' for order ''%2'' has been posted in %3.', Comment = '%1=Invoice number;%2=Order number;%3=The name of our product';
+        FailedToCreatePostErr: Label 'Failed to create a post on the entity wall of %1 with id %2.', Locked = true;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnBeforeDeleteAfterPosting', '', false, false)]
     local procedure SetSalesOrderIdsOnSalesHeaderDeletion(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var SkipDelete: Boolean; CommitIsSuppressed: Boolean; EverythingInvoiced: Boolean; var TempSalesLineGlobal: Record "Sales Line" temporary)
@@ -97,7 +99,6 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
 
     local procedure AddPostToCRMEntityWall(TargetRecordID: RecordID; Message: Text)
     var
-        CRMPost: Record "CRM Post";
         CRMAccount: Record "CRM Account";
         CRMIntegrationRecord: Record "CRM Integration Record";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
@@ -118,6 +119,15 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
                 exit;
             end;
 
+        if not TryCreatePost(EntityTypeName, EntityID, Message) then
+            Session.LogMessage('0000KOV', StrSubstNo(FailedToCreatePostErr, EntityTypeName, EntityID), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+    end;
+
+    [TryFunction]
+    local procedure TryCreatePost(EntityTypeName: Text; EntityID: Guid; Message: Text)
+    var
+        CRMPost: Record "CRM Post";
+    begin
         Clear(CRMPost);
         Evaluate(CRMPost.RegardingObjectTypeCode, EntityTypeName);
         CRMPost.RegardingObjectId := EntityID;

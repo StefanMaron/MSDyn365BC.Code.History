@@ -934,10 +934,8 @@
     var
         SalesLine: Record "Sales Line";
         ICDocDim: Record "IC Document Dimension";
-        Currency: Record Currency;
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ICMapping: Codeunit "IC Mapping";
-        Precision: Decimal;
         DimensionSetIDArr: array[10] of Integer;
         IsHandled: Boolean;
     begin
@@ -1011,15 +1009,6 @@
             SalesLine.Description := ICInboxSalesLine.Description;
             SalesLine."Description 2" := ICInboxSalesLine."Description 2";
             if (SalesLine.Type <> SalesLine.Type::" ") and (ICInboxSalesLine.Quantity <> 0) then begin
-                if Currency.Get(SalesHeader."Currency Code") then
-                    Precision := Currency."Unit-Amount Rounding Precision"
-                else begin
-                    GLSetup.Get();
-                    if GLSetup."Unit-Amount Rounding Precision" <> 0 then
-                        Precision := GLSetup."Unit-Amount Rounding Precision"
-                    else
-                        Precision := 0.01;
-                end;
                 ValidateQuantityFromICInboxSalesLine(SalesLine, ICInboxSalesLine);
                 IsHandled := false;
                 OnCreateSalesLinesOnBeforeValidateUnitOfMeasureCode(SalesLine, ICInboxSalesLine, IsHandled);
@@ -1028,10 +1017,7 @@
                 IsHandled := false;
                 OnCreateSalesLinesOnBeforeCalcPriceAndAmounts(SalesHeader, SalesLine, IsHandled);
                 if not IsHandled then begin
-                    if SalesHeader."Prices Including VAT" then
-                        SalesLine.Validate("Unit Price", Round(ICInboxSalesLine."Amount Including VAT" / ICInboxSalesLine.Quantity, Precision))
-                    else
-                        SalesLine.Validate("Unit Price", ICInboxSalesLine."Unit Price");
+                    SalesLine.Validate("Unit Price", ICInboxSalesLine."Unit Price");
                     SalesLine."Amount Including VAT" := ICInboxSalesLine."Amount Including VAT";
                     SalesLine.Validate("Line Discount %", ICInboxSalesLine."Line Discount %");
                     SalesLine.UpdateAmounts();

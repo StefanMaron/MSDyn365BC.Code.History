@@ -59,7 +59,13 @@ table 99000779 "Production BOM Version"
                 PlanningAssignment: Record "Planning Assignment";
                 ProdBOMCheck: Codeunit "Production BOM-Check";
                 SkipCommit: Boolean;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeOnValidateStatus(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if (Status <> xRec.Status) and (Status = Status::Certified) then begin
                     ProdBOMCheck.ProdBOMLineCheck("Production BOM No.", "Version Code");
                     TestField("Unit of Measure Code");
@@ -170,6 +176,11 @@ table 99000779 "Production BOM Version"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateStatusBeforeCommit(var ProductionBOMVersion: Record "Production BOM Version"; var SkipCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnValidateStatus(var ProductionBOMVersion: Record "Production BOM Version"; var xProductionBOMVersion: Record "Production BOM Version"; var IsHandled: Boolean)
     begin
     end;
 }

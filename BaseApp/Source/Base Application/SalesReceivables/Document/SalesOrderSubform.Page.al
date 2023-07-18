@@ -1908,6 +1908,7 @@
     procedure ShowPrices()
     begin
         PickPrice();
+        UpdateForm(true);
     end;
 
     procedure ShowLineDisc()

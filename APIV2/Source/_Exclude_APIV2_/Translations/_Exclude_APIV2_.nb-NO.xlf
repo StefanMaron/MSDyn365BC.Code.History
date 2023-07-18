@@ -3748,10 +3748,16 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control defaultDimensions - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 460507951 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>DisplayName</source>
-          <target state="translated">DisplayName</target>
+          <source>Display Name</source>
+          <target state="translated">Visningsnavn</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control displayName - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1180930185 - Control 3638048721 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Display Name 2</source>
+          <target state="translated">Visningsnavn 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Items - Control displayName2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1180930185 - Control 750067815 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Document Attachments</source>
@@ -4294,7 +4300,7 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Opportunities - Property EntityCaption</note>
         </trans-unit>
         <trans-unit id="Page 3402555058 - Property 631549417" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Oportunities</source>
+          <source>Opportunities</source>
           <target state="translated">Salgsmuligheter</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Opportunities - Property EntitySetCaption</note>
@@ -4706,6 +4712,12 @@
           <target state="translated">Beskrivelse</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purch Receipt Lines - Control description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 257135376 - Control 2762750464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description 2</source>
+          <target state="translated">Beskrivelse 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purch Receipt Lines - Control description2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 257135376 - Control 252685889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension Set Lines</source>
@@ -5523,6 +5535,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - Control description - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2715273378 - Control 2762750464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description 2</source>
+          <target state="translated">Beskrivelse 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Invoice Lines - Control description2 - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2715273378 - Control 252685889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension Set Lines</source>
           <target state="translated">Dimensjonssettlinjer</target>
@@ -6146,6 +6164,12 @@
           <target state="translated">Beskrivelse</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1779564587 - Control 2762750464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description 2</source>
+          <target state="translated">Beskrivelse 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Purchase Order Lines - Control description2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 1779564587 - Control 252685889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension Set Lines</source>
@@ -7101,6 +7125,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - Control description - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 1420007888 - Control 2762750464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description 2</source>
+          <target state="translated">Beskrivelse 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Credit Mem Lines - Control description2 - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 1420007888 - Control 252685889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension Set Lines</source>
           <target state="translated">Dimensjonssettlinjer</target>
@@ -7778,6 +7808,12 @@
           <target state="translated">Beskrivelse</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - Control description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2529413663 - Control 2762750464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description 2</source>
+          <target state="translated">Beskrivelse 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Invoice Lines - Control description2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2529413663 - Control 252685889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension Set Lines</source>
@@ -8505,6 +8541,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - Control description - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 957521806 - Control 2762750464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description 2</source>
+          <target state="translated">Beskrivelse 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Order Lines - Control description2 - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 957521806 - Control 252685889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension Set Lines</source>
           <target state="translated">Dimensjonssettlinjer</target>
@@ -9195,6 +9237,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - Control description - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 505573178 - Control 2762750464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description 2</source>
+          <target state="translated">Beskrivelse 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Quote Lines - Control description2 - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 505573178 - Control 252685889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension Set Lines</source>
           <target state="translated">Dimensjonssettlinjer</target>
@@ -9788,6 +9836,12 @@
           <target state="translated">Beskrivelse</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipment Lines - Control description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2511651920 - Control 2762750464 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description 2</source>
+          <target state="translated">Beskrivelse 2</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page APIV2 - Sales Shipment Lines - Control description2 - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2511651920 - Control 252685889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Dimension Set Lines</source>

@@ -1044,7 +1044,7 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     [Test]
-    [HandlerFunctions('CreateInteraction_VerifyHTMLContentVisibility_MPH,ConfirmHandlerNo')]
+    [HandlerFunctions('CreateInteraction_VerifyHTMLContentVisibility_MPH')]
     [Scope('OnPrem')]
     procedure CreateInteraction_HTMLContentIsNotVisible_NotEmailMergeTemplate()
     var
@@ -1064,7 +1064,7 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     [Test]
-    [HandlerFunctions('CreateInteraction_VerifyHTMLContentVisibility_MPH,ConfirmHandlerNo')]
+    [HandlerFunctions('CreateInteraction_VerifyHTMLContentVisibility_MPH')]
     [Scope('OnPrem')]
     procedure CreateInteraction_HTMLContentIsVisibleFor_EmailMergeTemplate()
     var
@@ -1084,7 +1084,7 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     [Test]
-    [HandlerFunctions('CreateInteraction_ValidateLanguageCode_MPH,ConfirmHandlerNo')]
+    [HandlerFunctions('CreateInteraction_ValidateLanguageCode_MPH')]
     [Scope('OnPrem')]
     procedure CreateInteraction_HTMLContentIsNotVisible_NotEmailMergeLangTmpl()
     var
@@ -1109,7 +1109,7 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     [Test]
-    [HandlerFunctions('CreateInteraction_ValidateLanguageCode_MPH,ConfirmHandlerNo')]
+    [HandlerFunctions('CreateInteraction_ValidateLanguageCode_MPH')]
     [Scope('OnPrem')]
     procedure CreateInteraction_HTMLContentIsVisible_EmailMergeLangTmpl()
     var
@@ -1134,7 +1134,7 @@ codeunit 136208 "Marketing Interaction"
     end;
 
     [Test]
-    [HandlerFunctions('CreateInteraction_ValidateHTMLContent_MPH,ContentPreviewMPH,ConfirmHandlerNo')]
+    [HandlerFunctions('CreateInteraction_ValidateHTMLContent_MPH,ContentPreviewMPH')]
     [Scope('OnPrem')]
     procedure CreateInteraction_ValidateAndPreviewHTMLContent()
     var
@@ -1392,8 +1392,10 @@ codeunit 136208 "Marketing Interaction"
         VerifyBlankCorrespondenceTypeOnInteractionLogEntryForContact(SalesHeader."Bill-to Contact No.", SalesHeader."No.");
     end;
 
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
+    [Obsolete('Correspondence Type Fax will no longer be supported.', '23.0')]
     procedure LogDocumentNoFax()
     var
         SalesHeader: Record "Sales Header";
@@ -1416,6 +1418,7 @@ codeunit 136208 "Marketing Interaction"
         // [THEN] The interaction is logged with blank correspondence type
         VerifyBlankCorrespondenceTypeOnInteractionLogEntryForContact(SalesHeader."Bill-to Contact No.", SalesHeader."No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2396,9 +2399,11 @@ codeunit 136208 "Marketing Interaction"
         Assert.RecordCount(InteractionLogEntry, 0);
     end;
 
+#if not CLEAN23
     [Test]
     [HandlerFunctions('ModalReportHandler')]
     [Scope('OnPrem')]
+    [Obsolete('Correspondence Type Fax will no longer be supported.', '23.0')]
     procedure LogSegmentFaxCorrTypeContNoFax()
     var
         SegmentHeader: Record "Segment Header";
@@ -2441,6 +2446,7 @@ codeunit 136208 "Marketing Interaction"
         InteractionLogEntry.SetRange("Contact No.", Contact."No.");
         Assert.RecordCount(InteractionLogEntry, 0);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('LogSegmentDeliverFalseHandler,MessageHandler')]
@@ -2486,9 +2492,11 @@ codeunit 136208 "Marketing Interaction"
         Assert.RecordCount(InteractionLogEntry, 1);
     end;
 
+#if not CLEAN23
     [Test]
     [HandlerFunctions('LogSegmentDeliverFalseHandler,MessageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('Correspondence Type Fax will no longer be supported.', '23.0')]
     procedure LogSegmentFaxCorrTypeContNoFaxNoDeliver()
     var
         SegmentHeader: Record "Segment Header";
@@ -2530,6 +2538,7 @@ codeunit 136208 "Marketing Interaction"
         InteractionLogEntry.SetRange("Contact No.", Contact."No.");
         Assert.RecordCount(InteractionLogEntry, 1);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -3827,7 +3836,7 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
         LibraryVariableStorage.Enqueue(CreateInteraction.FILTER.GetFilter("Salesperson Code"));
         LibraryVariableStorage.Enqueue(CreateInteraction.FILTER.GetFilter("Campaign No."));
         LibraryVariableStorage.Enqueue(CreateInteraction.FILTER.GetFilter("Opportunity No."));
-        CreateInteraction.Cancel.Invoke;
+        CreateInteraction.CancelInteraction.Invoke();
     end;
 
     [ModalPageHandler]
@@ -3835,7 +3844,7 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
     procedure CreateInteraction_GetContactName_MPH(var CreateInteraction: TestPage "Create Interaction")
     begin
         LibraryVariableStorage.Enqueue(CreateInteraction."Wizard Contact Name".Value);
-        CreateInteraction.Cancel.Invoke;
+        CreateInteraction.CancelInteraction.Invoke;
     end;
 
     [ModalPageHandler]

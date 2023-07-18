@@ -2943,12 +2943,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stor. Serv. Auth. Shared Key - Method GetSharedKeySignature - NamedType SecretCanNotBeEmptyErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1603529812 - Method 3982220544 - NamedType 2190545488" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1:%2</source>
-          <target state="translated">%1:%2</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Key; %2 = Value</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stor. Serv. Auth. Shared Key - Method GetCanonicalizedResource - NamedType KeyValuePairLbl</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2127254391 - Method 3022268586 - NamedType 1467098217" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>"%1" %2 %3%4%5</source>
           <target state="translated">"%1" %2 %3%4%5</target>
@@ -3014,12 +3008,6 @@
           <target state="translated">Intern serverfejl. Kontakt systemadministratoren.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Record Link Impl. - Method RemoveLinks - NamedType NotARecordErr</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 790992369 - Method 3087343453 - NamedType 2760667186" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>%1=%2</source>
-          <target state="translated">%1 = %2</target>
-          <note from="Developer" annotates="general" priority="2">%1 = Key; %2 = Value</note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Stor. Serv. Auth. SAS - Method CreateSasUrlString - NamedType KeyValueLbl</note>
         </trans-unit>
         <trans-unit id="Enum 1678783276 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Guided Experience Type</source>
@@ -16086,6 +16074,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Feature Management - NamedType TryItOutStartedMsg</note>
         </trans-unit>
+        <trans-unit id="Page 4123539893 - NamedType 649750004" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Extensions</source>
+          <target state="translated">Udvidelser</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - NamedType ExtensionsLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 4123539893 - NamedType 714901129" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Manual Setup</source>
+          <target state="translated">Manuel opsætning</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Advanced Settings - NamedType ManualSetupLbl</note>
+        </trans-unit>
         <trans-unit id="Page 4182844942 - NamedType 1302452339" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The selected media does not have any content.</source>
           <target state="translated">Det valgte medie har ikke noget indhold.</target>
@@ -20704,6 +20704,12 @@
           <target state="translated">Navn</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Document Sharing - Field Name - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3706825753 - Field 3236919006 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Conflict Behavior</source>
+          <target state="translated">Konfliktadfærd</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Document Sharing - Field Conflict Behavior - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 3706825753 - Field 3979136067 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Extension</source>

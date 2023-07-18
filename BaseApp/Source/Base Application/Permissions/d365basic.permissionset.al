@@ -149,7 +149,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "Cash Flow Availability Buffer" = RIMD,
                   tabledata "Cash Flow Azure AI Buffer" = Rimd,
                   tabledata "Cash Flow Chart Setup" = R,
-                  tabledata "Cash Flow Setup" = R,
+                  tabledata "Cash Flow Setup" = Ri,
                   tabledata "CDS Connection Setup" = R,
                   tabledata "Change Global Dim. Header" = R,
                   tabledata "Change Global Dim. Log Entry" = R,
@@ -274,7 +274,9 @@ permissionset 207 "D365 BASIC"
                   tabledata "Document Entry" = RIMD,
                   tabledata "Document Search Result" = RIMD,
                   tabledata "Document Sending Profile" = RIMD,
+#if not CLEAN23
                   tabledata "Document Service Cache" = Rimd,
+#endif
                   tabledata "Drop Shpt. Post. Buffer" = RIMD,
                   tabledata "Dtld. Price Calculation Setup" = Rim,
                   tabledata "Duplicate Price Line" = Rim,

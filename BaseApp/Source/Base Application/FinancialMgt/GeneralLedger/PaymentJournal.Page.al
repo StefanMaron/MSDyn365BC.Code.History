@@ -1040,7 +1040,7 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Lines with Issues';
                     Image = Error;
-                    Visible = BackgroundErrorCheck;
+                    Visible = BackgroundErrorCheck and not ShowAllLinesEnabled;
                     Enabled = not ShowAllLinesEnabled;
                     ToolTip = 'View a list of journal lines that have issues before you post the journal.';
 
@@ -1054,7 +1054,7 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
                     Image = ExpandAll;
-                    Visible = BackgroundErrorCheck;
+                    Visible = BackgroundErrorCheck and ShowAllLinesEnabled;
                     Enabled = ShowAllLinesEnabled;
                     ToolTip = 'View all journal lines, including lines with and without issues.';
 
@@ -1452,15 +1452,6 @@ page 256 "Payment Journal"
                     Caption = 'Post/Print', Comment = 'Generated from the PromotedActionCategories property index 7.';
                     ShowAs = SplitButton;
 
-#if not CLEAN21
-                    actionref("Remove From Job Queue_Promoted"; "Remove From Job Queue")
-                    {
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                        ObsoleteTag = '21.0';
-                    }
-#endif
                     actionref(Post_Promoted; Post)
                     {
                     }
@@ -1483,6 +1474,27 @@ page 256 "Payment Journal"
                 actionref(Reconcile_Promoted; Reconcile)
                 {
                 }
+                group(ShowLinesWithErrors_Group)
+                {
+                    ShowAs = SplitButton;
+                    Caption = 'Filter lines with issues';
+
+                    actionref(ShowLinesWithErrors_Promoted; ShowLinesWithErrors)
+                    {
+                    }
+                    actionref(ShowAllLines_Promoted; ShowAllLines)
+                    {
+                    }
+                }
+#if not CLEAN21
+                actionref("Remove From Job Queue_Promoted"; "Remove From Job Queue")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
             }
             group(Category_Category5)
             {
@@ -1629,12 +1641,6 @@ page 256 "Payment Journal"
                 Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 6.';
 
                 actionref(EditInExcel_Promoted; EditInExcel)
-                {
-                }
-                actionref(ShowLinesWithErrors_Promoted; ShowLinesWithErrors)
-                {
-                }
-                actionref(ShowAllLines_Promoted; ShowAllLines)
                 {
                 }
             }

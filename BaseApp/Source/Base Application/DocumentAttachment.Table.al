@@ -456,12 +456,12 @@ table 1173 "Document Attachment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSaveAttachment(var DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef; FileName: Text; var TempBlob: Codeunit "Temp Blob")
+    local procedure OnBeforeSaveAttachment(var DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef; var FileName: Text; var TempBlob: Codeunit "Temp Blob")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSaveAttachmentFromStream(var DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef; FileName: Text; var DocStream: InStream)
+    local procedure OnBeforeSaveAttachmentFromStream(var DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef; var FileName: Text; var DocStream: InStream)
     begin
     end;
 

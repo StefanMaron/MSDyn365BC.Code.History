@@ -248,6 +248,62 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     end;
 
     [Test]
+    [HandlerFunctions('ItemTrackingDropShipmentPageHandler,SalesListPageHandler,SynchronizeItemTrackingConfirmHandler,PostedLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderWithDropShipmentItemLotNoAndOrderTrackingPolicy()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        ItemJournalLine: Record "Item Journal Line";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 475023] For Drop Shipment Purchase Order, when setting Lot No and want to sync tracking with related sales lines, system freezes  
+        Initialize();
+
+        // [GIVEN] New item with LOT tracking and Order Tracking Policy = Lot-for-Lot and Order Tracking Policy = Tracking & Action Msg.
+        CreateItem(Item, ItemTrackingCodeLotSpecific.Code);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
+        Item."Order Tracking Policy" := Item."Order Tracking Policy"::"Tracking & Action Msg.";
+        Item.Modify();
+
+        // [GIVEN] several existing  released Sales Orders.
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", '', 1, false);
+        Clear(SalesHeader);
+        Clear(SalesLine);
+        CreateAndReleaseSalesOrder(SalesHeader, SalesLine, Item."No.", '', 2, false);
+        Clear(SalesHeader);
+        Clear(SalesLine);
+
+        // [GIVEN] Item on stock - Item Journal with positive adjustment.
+        CreateAndPostItemJournalLineWithTracking(
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", '', 100, 0, AssignTracking::LotNo);
+
+        // [GIVEN] Sales Order with new item and purchasing code.
+        Quantity := 10 * LibraryRandom.RandInt(10);
+        CreateSalesOrderWithPurchasingCode(SalesHeader, SalesLine, Item."No.", '', Quantity, false);  // Multiple line as false.
+        QuantityBase := Quantity;  // Assign Global Variable for Page Handler.
+
+        // [GIVEN] Purchase Order with Drop Shipment.
+        CreatePurchaseHeaderAndGetDropShipment(PurchaseHeader, SalesHeader."Sell-to Customer No.");
+        SetGlobalValue(Item."No.", false, false, false, AssignTracking::LotNo, 0);  // Assign Global variable for Page Handler. Assign Tracking as Lot No.
+        AssignTrackingOnPurchaseLine(PurchaseHeader."No.");  // Assign Tracking line on page handler ItemTrackingDropShipmentPageHandler.
+
+        // [GIVEN] Post Sales Order.
+        PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", true, false);
+        PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.", false, true);
+
+        // [WHEN] Post Purchase Order as Invoice.
+        PostPurchaseDocument(PurchaseHeader."Document Type", PurchaseHeader."No.", false, true);
+
+        // [THEN] Verify Lot No in Posted Sales Invoice and Purchase Invoice.
+        SetGlobalValue(Item."No.", false, false, false, AssignTracking::LotNo, 0);
+        VerifyTrackingOnPostedSalesInvoice(SalesHeader."No.");
+        VerifyTrackingOnPostedPurchaseInvoice(PurchaseHeader."No.");
+    end;
+
+    [Test]
     [HandlerFunctions('ItemTrackingDropShipmentPageHandler,SalesListPageHandler,QuantityToCreatePageHandler,SynchronizeItemTrackingConfirmHandler,PostedLinesPageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseOrderWithMultipleLinesDropShipmentPartialSerialNoLotNo()

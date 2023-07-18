@@ -574,6 +574,9 @@ codeunit 1173 "Document Attachment Mgmt"
         if Rec.IsTemporary() then
             exit;
 
+        if Rec.Type <> Rec.Type::Item then
+            exit;
+
         // Skipping if the parent sales header came from a quote
         if SalesHeader.Get(Rec."Document Type", Rec."Document No.") then
             if SalesHeader."Quote No." <> '' then
@@ -762,6 +765,9 @@ codeunit 1173 "Document Attachment Mgmt"
             exit;
 
         if Rec.IsTemporary() then
+            exit;
+
+        if Rec.Type <> Rec.Type::Item then
             exit;
 
         if not Item.Get(Rec."No.") then

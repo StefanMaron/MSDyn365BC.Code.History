@@ -28,6 +28,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         NoDataOutputErr: Label 'No data exists for the specified report filters.';
         PlatformEmptyErr: Label 'The error, The report couldn’t be generated, because it was empty. Adjust your filters and try again.';
         TargetEmailAddressErr: Label 'The target email address has not been specified on the document layout for';
+        TargetEmailAddressNotValidErr: Label 'The target email address "%1" is not valid on the document layout for';
         ReqParametersTemplatesTok: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Standard Statement" id="1316"><Options><Field name="StartDate">%1</Field><Field name="EndDate">%2</Field><Field name="PrintEntriesDue">false</Field><Field name="PrintAllHavingEntry">false</Field><Field name="PrintAllHavingBal">true</Field><Field name="PrintReversedEntries">false</Field><Field name="PrintUnappliedEntries">false</Field><Field name="IncludeAgingBand">false</Field><Field name="PeriodLength">1M+CM</Field><Field name="DateChoice">0</Field><Field name="LogInteraction">true</Field><Field name="SupportedOutputMethod">%3</Field><Field name="ChosenOutputMethod">%4</Field><Field name="PrintIfEmailIsMissing">%5</Field></Options><DataItems><DataItem name="Customer">VERSION(1) SORTING(Field1) WHERE(Field1=1(%6))</DataItem><DataItem name="Integer">VERSION(1) SORTING(Field1)</DataItem><DataItem name="CurrencyLoop">VERSION(1) SORTING(Field1)</DataItem><DataItem name="CustLedgEntryHdr">VERSION(1) SORTING(Field1)</DataItem><DataItem name="DtldCustLedgEntries">VERSION(1) SORTING(Field9,Field4,Field3,Field10)</DataItem><DataItem name="CustLedgEntryFooter">VERSION(1) SORTING(Field1)</DataItem><DataItem name="OverdueVisible">VERSION(1) SORTING(Field1)</DataItem><DataItem name="CustLedgEntry2">VERSION(1) SORTING(Field3,Field36,Field43,Field37,Field11)</DataItem><DataItem name="OverdueEntryFooder">VERSION(1) SORTING(Field1)</DataItem><DataItem name="AgingBandVisible">VERSION(1) SORTING(Field1)</DataItem><DataItem name="AgingCustLedgEntry">VERSION(1) SORTING(Field3,Field36,Field43,Field37,Field11)</DataItem><DataItem name="AgingBandLoop">VERSION(1) SORTING(Field1)</DataItem><DataItem name="LetterText">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>';
         StandardStatementReportOutputType: Option Print,Preview,Word,PDF,Email,XML;
         ConfirmStartJobQueueQst: Label 'Do you want to set the job queue entry up to run immediately?';
@@ -63,6 +64,35 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         RunReportFromCard(Customer, StandardStatementReportOutputType::Email, false);
 
         AddExpectedErrorMessage(TempErrorMessage, TargetEmailAddressErr);
+        AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
+        AssertErrorsOnErrorMessagesPage(ErrorMessages, TempErrorMessage);
+
+        Customer.Find();
+        Customer.TestField("Last Statement No.", 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardStatementOKRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Email_SingleCustomer_InvalidAddress()
+    var
+        Customer: Record Customer;
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessages: TestPage "Error Messages";
+        InvalidEmail: Text;
+    begin
+        // [FEATURE] [Email]
+        // [SCENARIO 465138] Send email when Customer "A" with entries, invalid email is specified and Customer "B" does not exist. "Print Remaining" = FALSE
+        Initialize();
+        InvalidEmail := 'notgood)1@e.com; ok@e.com; notgood)2@e.com';
+
+        PrepareCustomerWithEntries(Customer, InvalidEmail, GetStandardStatementReportID);
+        Commit();
+
+        ErrorMessages.Trap;
+        RunReportFromCard(Customer, StandardStatementReportOutputType::Email, false);
+
+        AddExpectedErrorMessage(TempErrorMessage, StrSubstNo(TargetEmailAddressNotValidErr, InvalidEmail));
         AddExpectedErrorMessage(TempErrorMessage, NoDataOutputErr);
         AssertErrorsOnErrorMessagesPage(ErrorMessages, TempErrorMessage);
 

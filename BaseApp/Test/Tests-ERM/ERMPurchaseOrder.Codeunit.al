@@ -7737,6 +7737,56 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
     end;
 
+    [Test]
+    procedure VerifyUpdateQuantityOnPurchaseOrderWithMultiplePartialReceiveAndAdditionalItemUnitOfMeasure()
+    var
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        DocumentType: Enum "Purchase Document Type";
+    begin
+        // [SCENARIO 476242] Verify Update Quantity on Purchase Order with multiple partial Receive and additional Item Unit of Measure
+        Initialize();
+
+        // [GIVEN] Create Item and Item Unit of Measure Code
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Item Unit of Measure Code
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 58.70198);
+
+        // [GIVEN] Create Purchase Document
+        LibraryPurchase.CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseLine, DocumentType::Order, LibraryPurchase.CreateVendorNo(), Item."No.", 50000, '', WorkDate());
+
+        // [GIVEN] Set Qty. to Receive on Purchase Line and Post Receive
+        UpdateQtyToReceiveOnPurchaseLineAndPostReceive(PurchaseHeader, PurchaseLine, 817.68);
+
+        // [GIVEN] Set Qty. to Receive on Purchase Line and Post Receive
+        UpdateQtyToReceiveOnPurchaseLineAndPostReceive(PurchaseHeader, PurchaseLine, 817.68);
+
+        // [GIVEN] Set Qty. to Receive on Purchase Line and Post Receive
+        UpdateQtyToReceiveOnPurchaseLineAndPostReceive(PurchaseHeader, PurchaseLine, 817.68);
+
+        // [GIVEN] Set Qty. to Receive on Purchase Line and Post Receive
+        UpdateQtyToReceiveOnPurchaseLineAndPostReceive(PurchaseHeader, PurchaseLine, 1022.10);
+
+        // [GIVEN] Set Qty. to Receive on Purchase Line and Post Receive
+        UpdateQtyToReceiveOnPurchaseLineAndPostReceive(PurchaseHeader, PurchaseLine, 1022.10);
+
+        // [GIVEN] Set Qty. to Receive on Purchase Line and Post Receive
+        UpdateQtyToReceiveOnPurchaseLineAndPostReceive(PurchaseHeader, PurchaseLine, 204.42);
+
+        // [WHEN] Reopen Purchase Order
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+
+        // [THEN] Verify update Quantity on Purchase Line
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.Validate(Quantity, 4701.66);
+        PurchaseLine.Modify(true);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -10338,7 +10388,7 @@ codeunit 134327 "ERM Purchase Order"
                 ItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type"::Sale);
                 ItemLedgEntry.SetRange("Document No.", DocNo[i]);
                 ItemLedgEntry.FindLast();
-                SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Purchase);
+                SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Sale);
                 SetRange("Entry Type", "Entry Type"::"Direct Cost");
                 SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
                 SetRange("Item Charge No.", ItemChargeNo);
@@ -11022,6 +11072,14 @@ codeunit 134327 "ERM Purchase Order"
           PurchaseLineItemCharge, PurchHeader, PurchaseLineItemCharge.Type::"Charge (Item)", ItemChargeNo, 1);
         PurchaseLineItemCharge.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLineItemCharge.Modify(true);
+    end;
+
+    local procedure UpdateQtyToReceiveOnPurchaseLineAndPostReceive(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; QtyToReceive: Decimal)
+    begin
+        PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
+        PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
 #if not CLEAN21

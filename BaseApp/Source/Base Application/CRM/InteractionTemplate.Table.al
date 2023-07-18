@@ -74,11 +74,13 @@ table 5064 "Interaction Template"
             trigger OnValidate()
             var
                 Attachment: Record Attachment;
+#if not CLEAN23
                 ErrorText: Text[80];
+#endif
             begin
                 if not Attachment.Get("Attachment No.") then
                     exit;
-
+#if not CLEAN23
                 ErrorText := Attachment.CheckCorrespondenceType("Correspondence Type (Default)");
                 if ErrorText <> '' then
                     Error(
@@ -89,6 +91,7 @@ table 5064 "Interaction Template"
                           TableCaption,
                           Code),
                         ErrorText));
+#endif
             end;
         }
         field(13; "Date Filter"; Date)
@@ -175,12 +178,15 @@ table 5064 "Interaction Template"
                 if IsHandled then
                     exit;
 
-                if InteractionTmplLanguage.Get(Code, "Language Code (Default)") then
+                if InteractionTmplLanguage.Get(Code, "Language Code (Default)") then begin
+                    Rec.CalcFields("Attachment No.");
                     if ((InteractionTmplLanguage."Custom Layout Code" <> '') and ("Wizard Action" <> "Wizard Action"::Merge) and ("Word Template Code" = '')) or
                        ((InteractionTmplLanguage."Custom Layout Code" = '') and ("Wizard Action" = "Wizard Action"::Merge) and ("Word Template Code" = '')) or
-                       (("Word Template Code" <> '') and ("Wizard Action" = "Wizard Action"::Import))
+                       (("Word Template Code" <> '') and ("Wizard Action" = "Wizard Action"::Import)) or
+                       (("Attachment No." = 0) and ("Word Template Code" = '') and ("Wizard Action" = "Wizard Action"::Merge))
                     then
                         Error(Text003, FieldCaption("Wizard Action"), "Wizard Action", TableCaption(), Code);
+                end
             end;
         }
         field(19; "Ignore Contact Corres. Type"; Boolean)
@@ -203,6 +209,10 @@ table 5064 "Interaction Template"
                         Rec."Word Template Code" := '';
                         exit;
                     end;
+
+                if "Word Template Code" <> '' then
+                    if "Wizard Action" = "Wizard Action"::Import then
+                        Error(WordTemplateCodeCannotBeSetForImportActionErr, FieldCaption("Word Template Code"), "Word Template Code", FieldCaption("Wizard Action"), "Wizard Action");
 
                 if InteractTmplLanguage.Get(Rec.Code, Rec."Language Code (Default)") then begin
                     InteractTmplLanguage."Word Template Code" := Rec."Word Template Code";
@@ -239,23 +249,24 @@ table 5064 "Interaction Template"
 
     trigger OnDelete()
     var
-        InteractTmplLanguage: Record "Interaction Tmpl. Language";
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
     begin
-        InteractTmplLanguage.SetRange("Interaction Template Code", Code);
-        InteractTmplLanguage.DeleteAll(true);
+        InteractionTmplLanguage.SetRange("Interaction Template Code", Code);
+        InteractionTmplLanguage.DeleteAll(true);
     end;
 
     local procedure RemoveAttachment()
     var
-        InteractTmplLanguage: Record "Interaction Tmpl. Language";
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
     begin
-        if InteractTmplLanguage.Get(Code, "Language Code (Default)") then
-            InteractTmplLanguage.RemoveAttachment(false);
+        if InteractionTmplLanguage.Get(Code, "Language Code (Default)") then
+            InteractionTmplLanguage.RemoveAttachment(false);
     end;
 
     var
         Text003: Label '%1 = %2 can not be specified for %3 %4.', Comment = '%1 = Wizard Action caption, %2= Wizard Action, %3 = Interaction Template, %4 = Code ';
         Text004: Label 'Do you want to create %1 %2?';
+        WordTemplateCodeCannotBeSetForImportActionErr: Label '%1 = %2 can not be specified for %3 %4.', Comment = '%1 = Word Template Code caption, %2= Word Template Code, %3 = Wizard Action, %4 = Action';
         RemoveAttachmentQst: Label 'You cannot use a Word template when an attachment is specified. Do you want to remove the attachment?';
 
     [IntegrationEvent(false, false)]

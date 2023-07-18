@@ -19,6 +19,11 @@ page 6565 "Invt. Shipment Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item.';
+
+                    trigger OnValidate()
+                    begin
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
+                    end;
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
@@ -324,7 +329,7 @@ page 6565 "Invt. Shipment Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()

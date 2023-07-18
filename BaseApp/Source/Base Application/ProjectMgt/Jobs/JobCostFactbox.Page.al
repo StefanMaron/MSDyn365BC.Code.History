@@ -164,8 +164,13 @@ page 1030 "Job Cost Factbox"
                     ToolTip = 'Specifies the total billable price of resources associated with this job.';
 
                     trigger OnDrillDown()
+                    var
+                        IsHandled: Boolean;
                     begin
-                        JobCalcStatistics.ShowPlanningLine(1, false);
+                        IsHandled := false;
+                        OnBeforeOnDrillDownBillablePriceLCY(Rec, IsHandled);
+                        if not IsHandled then
+                            JobCalcStatistics.ShowPlanningLine(1, false);
                     end;
                 }
                 field(BillablePriceLCYItem; PL[10])
@@ -176,8 +181,13 @@ page 1030 "Job Cost Factbox"
                     ToolTip = 'Specifies the total billable price of items associated with this job.';
 
                     trigger OnDrillDown()
+                    var
+                        IsHandled: Boolean;
                     begin
-                        JobCalcStatistics.ShowPlanningLine(2, false);
+                        IsHandled := false;
+                        OnBeforeOnDrillDownBillablePriceLCYItem(Rec, IsHandled);
+                        if not IsHandled then
+                            JobCalcStatistics.ShowPlanningLine(2, false);
                     end;
                 }
                 field(BillablePriceLCYGLAcc; PL[11])
@@ -188,8 +198,13 @@ page 1030 "Job Cost Factbox"
                     ToolTip = 'Specifies the total billable price for job planning lines of type G/L account.';
 
                     trigger OnDrillDown()
+                    var
+                        IsHandled: Boolean;
                     begin
-                        JobCalcStatistics.ShowPlanningLine(3, false);
+                        IsHandled := false;
+                        OnBeforeOnDrillDownBillablePriceLCYGLAcc(Rec, IsHandled);
+                        if not IsHandled then
+                            JobCalcStatistics.ShowPlanningLine(3, false);
                     end;
                 }
                 field(BillablePriceLCYTotal; PL[12])
@@ -202,8 +217,13 @@ page 1030 "Job Cost Factbox"
                     ToolTip = 'Specifies the total billable price used for a job.';
 
                     trigger OnDrillDown()
+                    var
+                        IsHandled: Boolean;
                     begin
-                        JobCalcStatistics.ShowPlanningLine(0, false);
+                        IsHandled := false;
+                        OnBeforeOnDrillDownBillablePriceLCYTotal(Rec, IsHandled);
+                        if not IsHandled then
+                            JobCalcStatistics.ShowPlanningLine(0, false);
                     end;
                 }
             }
@@ -226,8 +246,13 @@ page 1030 "Job Cost Factbox"
                     ToolTip = 'Specifies the total invoiced price of resources associated with this job.';
 
                     trigger OnDrillDown()
+                    var
+                        IsHandled: Boolean;
                     begin
-                        JobCalcStatistics.ShowLedgEntry(1, false);
+                        IsHandled := false;
+                        OnBeforeOnDrillDownInvoicedPriceLCY(Rec, IsHandled);
+                        if not IsHandled then
+                            JobCalcStatistics.ShowLedgEntry(1, false);
                     end;
                 }
                 field(InvoicedPriceLCYItem; PL[14])
@@ -238,8 +263,13 @@ page 1030 "Job Cost Factbox"
                     ToolTip = 'Specifies the total invoiced price of items associated with this job.';
 
                     trigger OnDrillDown()
+                    var
+                        IsHandled: Boolean;
                     begin
-                        JobCalcStatistics.ShowLedgEntry(2, false);
+                        IsHandled := false;
+                        OnBeforeOnDrillDownInvoicedPriceLCYItem(Rec, IsHandled);
+                        if not IsHandled then
+                            JobCalcStatistics.ShowLedgEntry(2, false);
                     end;
                 }
                 field(InvoicedPriceLCYGLAcc; PL[15])
@@ -250,8 +280,13 @@ page 1030 "Job Cost Factbox"
                     ToolTip = 'Specifies the total invoiced price of general journal entries associated with this job.';
 
                     trigger OnDrillDown()
+                    var
+                        IsHandled: Boolean;
                     begin
-                        JobCalcStatistics.ShowLedgEntry(3, false);
+                        IsHandled := false;
+                        OnBeforeOnDrillDownInvoicedPriceLCYGLAcc(Rec, IsHandled);
+                        if not IsHandled then
+                            JobCalcStatistics.ShowLedgEntry(3, false);
                     end;
                 }
                 field(InvoicedPriceLCYTotal; PL[16])
@@ -264,8 +299,13 @@ page 1030 "Job Cost Factbox"
                     ToolTip = 'Specifies the total invoiced price of a job.';
 
                     trigger OnDrillDown()
+                    var
+                        IsHandled: Boolean;
                     begin
-                        JobCalcStatistics.ShowLedgEntry(0, false);
+                        IsHandled := false;
+                        OnBeforeOnDrillDownInvoicedPriceLCYTotal(Rec, IsHandled);
+                        if not IsHandled then
+                            JobCalcStatistics.ShowLedgEntry(0, false);
                     end;
                 }
             }
@@ -295,5 +335,44 @@ page 1030 "Job Cost Factbox"
     begin
         PAGE.Run(PAGE::"Job Card", Rec);
     end;
-}
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnDrillDownBillablePriceLCY(var Job: Record Job; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnDrillDownBillablePriceLCYTotal(var Job: Record Job; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnDrillDownBillablePriceLCYGLAcc(var Job: Record Job; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnDrillDownBillablePriceLCYItem(var Job: Record Job; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnDrillDownInvoicedPriceLCYGLAcc(var Job: Record Job; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnDrillDownInvoicedPriceLCYTotal(var Job: Record Job; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnDrillDownInvoicedPriceLCYItem(var Job: Record Job; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnDrillDownInvoicedPriceLCY(var Job: Record Job; var IsHandled: Boolean);
+    begin
+    end;
+}

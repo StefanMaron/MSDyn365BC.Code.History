@@ -180,8 +180,12 @@ page 1291 "Pmt. Recon. Journal Overview"
     end;
 
     trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
-        SetFilter(Difference, '<>0');
+        FeatureTelemetry.LogUptake('0000KMB', Rec.GetPaymentRecJournalTelemetryFeatureName(), Enum::"Feature Uptake Status"::Discovered);
+        FeatureTelemetry.LogUptake('0000KMC', Rec.GetPaymentRecJournalTelemetryFeatureName(), Enum::"Feature Uptake Status"::"Set up");
+        Rec.SetFilter(Difference, '<>0');
     end;
 
     var

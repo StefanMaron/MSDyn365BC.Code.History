@@ -305,6 +305,7 @@ codeunit 5944 SignServContractDoc
         NoOfMonthsAndMParts: Decimal;
         CreateInvoiceConfirmed: Boolean;
         ShouldCreateServHeader: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeAddendumToContract(ServContractHeader);
 
@@ -427,7 +428,10 @@ codeunit 5944 SignServContractDoc
                 if InvoicePrepaid and (LastPrepaidPostingDate <> 0D)
                 then
                     TempDate := LastPrepaidPostingDate;
-                CreateInvoiceConfirmed := ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text015, StartingDate, TempDate), true);
+                IsHandled := false;
+                OnAddendumToContractOnBeforeConfirmCalcCreateInvoice(ServContractHeader, ServContractHeader, CreateInvoiceConfirmed, IsHandled);
+                if not IsHandled then
+                    CreateInvoiceConfirmed := ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text015, StartingDate, TempDate), true);
                 OnAddendumToContractOnAfterCalcCreateInvoiceConfirmed(ServContractHeader, CreateInvoiceConfirmed);
                 if CreateInvoiceConfirmed then
                     InvoiceNow := true
@@ -1272,6 +1276,11 @@ codeunit 5944 SignServContractDoc
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSignContract(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddendumToContractOnBeforeConfirmCalcCreateInvoice(FromServiceContractHeader: Record "Service Contract Header"; ServiceContractHeader: Record "Service Contract Header"; var CreateInvoiceConfirmed: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

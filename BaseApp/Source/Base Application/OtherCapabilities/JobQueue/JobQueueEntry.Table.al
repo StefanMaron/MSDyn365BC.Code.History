@@ -481,9 +481,14 @@ table 472 "Job Queue Entry"
             Caption = 'Recovery Task Id';
             Editable = false;
             DataClassification = SystemMetadata;
+#if not CLEAN19
             ObsoleteState = Pending;
-            ObsoleteReason = 'The recovery job is no longer needed.';
             ObsoleteTag = '19.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'The recovery job is no longer needed.';
         }
     }
 

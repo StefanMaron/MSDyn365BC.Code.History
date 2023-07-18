@@ -110,10 +110,17 @@ table 1237 "Transformation Rule"
             Caption = 'Length';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if "Transformation Type" = "Transformation Type"::Substring then
                     if Length < 0 then
                         Error(MustBeGreaterThanZeroErr);
+
+                IsHandled := false;
+                OnValidateLengthOnBeforeTestTransformationType(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
 
                 if Length <> 0 then begin
                     TestField("Transformation Type", "Transformation Type"::Substring);
@@ -780,6 +787,11 @@ table 1237 "Transformation Rule"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeIsDataFormatUpdateAllowed(FieldNumber: Integer; var DataFormatUpdateAllowed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnValidateLengthOnBeforeTestTransformationType(var TransformationRule: Record "Transformation Rule"; xTransformationRule: Record "Transformation Rule"; var IsHandled: Boolean)
     begin
     end;
 

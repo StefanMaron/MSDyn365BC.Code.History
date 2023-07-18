@@ -34,9 +34,9 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
                 WhseEntry.SetRange("Bin Code", Code);
                 if WhseEntry.Find('-') then
                     repeat
-                        if Item.Get(WhseEntry."Item No.") then 
+                        if Item.Get(WhseEntry."Item No.") then
                             if not Item.Blocked then begin
-                                if IsNewWhseEntryGroup() then begin
+                                if IsNewWhseEntryGroup(Item) then begin
                                     LastWhseEntry := WhseEntry;
                                     IsHandled := false;
                                     OnBeforeCreateNewPhysInvtOrderLineForWhseEntry(
@@ -186,14 +186,14 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
         end;
     end;
 
-    local procedure IsNewWhseEntryGroup() Result: Boolean
+    local procedure IsNewWhseEntryGroup(Item: Record Item) Result: Boolean
     begin
         Result :=
             (LastWhseEntry."Location Code" <> WhseEntry."Location Code") or
             (LastWhseEntry."Bin Code" <> WhseEntry."Bin Code") or
             (LastWhseEntry."Item No." <> WhseEntry."Item No.") or
             (LastWhseEntry."Variant Code" <> WhseEntry."Variant Code");
-        OnAfterIsNewWhseEntryGroup(WhseEntry, LastWhseEntry, Result);
+        OnAfterIsNewWhseEntryGroup(WhseEntry, LastWhseEntry, Result, Item);
     end;
 
     [IntegrationEvent(false, false)]
@@ -222,7 +222,7 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterIsNewWhseEntryGroup(WhseEntry: Record "Warehouse Entry"; LastWhseEntry: Record "Warehouse Entry"; var Result: Boolean)
+    local procedure OnAfterIsNewWhseEntryGroup(WhseEntry: Record "Warehouse Entry"; LastWhseEntry: Record "Warehouse Entry"; var Result: Boolean; Item: Record Item)
     begin
     end;
 }

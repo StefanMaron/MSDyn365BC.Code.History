@@ -1815,7 +1815,9 @@ codeunit 136203 "Marketing Task Management"
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         CreateInteraction."Interaction Template Code".SetValue(InteractionTemplate.Code);
         CreateInteraction.Description.SetValue(InteractionTemplate.Code);
-        CreateInteraction.OK.Invoke;
+        CreateInteraction.NextInteraction.Invoke();
+        CreateInteraction.NextInteraction.Invoke();
+        CreateInteraction.FinishInteraction.Invoke();
     end;
 
     [ModalPageHandler]

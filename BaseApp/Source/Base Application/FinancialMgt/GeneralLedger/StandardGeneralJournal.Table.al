@@ -132,6 +132,8 @@ table 750 "Standard General Journal"
         OnAfterCopyGenJnlFromStdJnl(GenJnlLine, StdGenJnlLine);
         GenJnlLine.Insert(true);
 
+        OnCopyGenJnlFromStdJnlOnAfterInsertGenJnlLineFrmStandard(GenJnlLine, StdGenJnlLine);
+
         LastGenJnlLine := GenJnlLine;
     end;
 
@@ -200,5 +202,10 @@ table 750 "Standard General Journal"
     local procedure OnCopyGenJnlFromStdJnlOnBeforeGenJnlLineTransferFields(var GenJournalLine: Record "Gen. Journal Line"; var StdGenJournalLine: Record "Standard General Journal Line")
     begin
     end;
+    
+    [IntegrationEvent(false, false)] 
+    local procedure OnCopyGenJnlFromStdJnlOnAfterInsertGenJnlLineFrmStandard(var GenJournalLine: Record "Gen. Journal Line"; StdGenJournalLine: Record "Standard General Journal Line")
+    begin
+    end;    
 }
 

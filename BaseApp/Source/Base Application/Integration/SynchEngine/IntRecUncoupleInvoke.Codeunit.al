@@ -74,9 +74,9 @@ codeunit 5357 "Int. Rec. Uncouple Invoke"
         end;
 
         if LocalRecordRef.Number() <> 0 then
-            RecordState := IntegrationRecSynchInvoke.FindRecord(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, IntegrationRecordDeleted, IntegrationTableConnectionType)
+            RecordState := IntegrationRecSynchInvoke.FindCoupledRecord(IntegrationTableMapping, LocalRecordRef, IntegrationRecordRef, IntegrationRecordDeleted, IntegrationTableConnectionType)
         else
-            RecordState := IntegrationRecSynchInvoke.FindRecord(IntegrationTableMapping, IntegrationRecordRef, LocalRecordRef, LocalRecordDeleted, IntegrationTableConnectionType);
+            RecordState := IntegrationRecSynchInvoke.FindCoupledRecord(IntegrationTableMapping, IntegrationRecordRef, LocalRecordRef, LocalRecordDeleted, IntegrationTableConnectionType);
         if RecordState <> RecordState::Coupled then begin
             SynchAction := SynchActionType::Skip;
             Session.LogMessage('0000DEC', StrSubstNo(UnexpectedRecordStateTxt, GetTableCaption(IntegrationTableMapping."Integration Table ID"), RecordState, RecordState::Coupled), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);

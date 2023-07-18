@@ -34,6 +34,12 @@ page 649 "Handled IC Inbox Sales Lines"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies a description of the entry. The description depends on what you chose in the Type field. If you did not choose Blank, the program will fill in the field when you enter something in the No. field.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Intercompany;

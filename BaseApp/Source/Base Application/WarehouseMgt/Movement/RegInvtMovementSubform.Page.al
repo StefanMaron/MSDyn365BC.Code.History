@@ -50,6 +50,12 @@ page 7385 "Reg. Invt. Movement Subform"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the same as the field with the same name in the Registered Whse. Activity Line table.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;

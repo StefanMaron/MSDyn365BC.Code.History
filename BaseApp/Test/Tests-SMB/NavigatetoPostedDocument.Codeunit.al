@@ -47,6 +47,110 @@ codeunit 138047 "Navigate to Posted Document"
     [Test]
     [HandlerFunctions('ConfirmHandlerYes,MyNotificationsModalPageHandler')]
     [Scope('OnPrem')]
+    procedure S475203_TestPostSalesInvoiceWithNavigate_EqualNoSeries()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        xSalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoice: TestPage "Sales Invoice";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+    begin
+        // [FEATURE] [UI] [Customer] [Sales Invoice] [Posted Sales Invoice] [Notification on Posting Document]
+        // [SCENARIO 475203] Notification on Posting Document is shown when posting Sales Invoice with equal No. Series and Posting No. Series.
+
+        // [GIVEN] Set "Posted Invoice Nos." to be the same as "Invoice Nos.".
+        SalesReceivablesSetup.Get();
+        xSalesReceivablesSetup := SalesReceivablesSetup;
+        SalesReceivablesSetup.Validate("Posted Invoice Nos.", SalesReceivablesSetup."Invoice Nos.");
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] a sales invoice, and "Confirm After Posting Documents" enabled in "My Settings" window
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
+        DisableConfirmAfterPosting(); // This is needed in order to make enabled.
+        EnableConfirmAfterPosting();
+
+        // [WHEN] the user posts the sales invoice
+        SalesInvoice.OpenEdit();
+        SalesInvoice.GotoRecord(SalesHeader);
+        PostedSalesInvoice.Trap();
+        SalesInvoice.Post.Invoke();
+
+        // [THEN] the user will get a confirmation dialog to open the posted sales invoice
+        SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
+        SalesInvoiceHeader.FindLast();
+        PostedSalesInvoice."No.".AssertEquals(SalesInvoiceHeader."No.");
+        PostedSalesInvoice.Close();
+
+        // [Teardown] Reverse "Posted Invoice Nos." to the original value.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posted Invoice Nos.", xSalesReceivablesSetup."Posted Invoice Nos.");
+        SalesReceivablesSetup.Modify(true);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MyNotificationsModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure S475203_TestPostSalesInvoiceWithNavigate_RepeatPreAssignedNo()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoice: TestPage "Sales Invoice";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        LastNoUsedToRepeat: Code[20];
+        InvoiceNoToRepeat: Code[20];
+        FirstPostedSalesInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [UI] [Customer] [Sales Invoice] [Posted Sales Invoice] [Notification on Posting Document] [Number Series]
+        // [SCENARIO 475203] Notification on Posting Document is shows 2nd Posted Sales Invoice when Pre-Assigned No. is repeated.
+
+        // [GIVEN] Find last No. Series Line for "Invoice Nos.".
+        SalesReceivablesSetup.Get();
+        NoSeries.Get(SalesReceivablesSetup."Invoice Nos.");
+        NoSeries.FindNoSeriesLineToShow(NoSeriesLine);
+        LastNoUsedToRepeat := NoSeriesLine.GetLastNoUsed();
+
+        // [GIVEN] Create 1st Sales Invoice and post it.
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
+        InvoiceNoToRepeat := SalesHeader."No.";
+        FirstPostedSalesInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [GIVEN] Set "Last No. Used" to be the same as before 1st Sales Invoice.
+        NoSeriesLine.GetBySystemId(NoSeriesLine.SystemId);
+        NoSeriesLine.Validate("Last No. Used", LastNoUsedToRepeat);
+        NoSeriesLine.Modify(true);
+
+        // [WHEN] Create 2nd Sales Invoice.
+        Clear(SalesHeader);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
+
+        // [THEN] Check that "No." is the same as for 1st Sales Invoice.
+        SalesHeader.TestField("No.", InvoiceNoToRepeat);
+
+        // [GIVEN] "Confirm After Posting Documents" enabled in "My Settings" window
+        DisableConfirmAfterPosting(); // This is needed in order to make enabled.
+        EnableConfirmAfterPosting();
+
+        // [WHEN] the user posts the sales invoice
+        SalesInvoice.OpenEdit();
+        SalesInvoice.GotoRecord(SalesHeader);
+        PostedSalesInvoice.Trap();
+        SalesInvoice.Post.Invoke();
+
+        // [THEN] the user will get a confirmation dialog to open the posted sales invoice
+        SalesInvoiceHeader.SetFilter("No.", '<>%1', FirstPostedSalesInvoiceNo);
+        SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
+        SalesInvoiceHeader.FindLast();
+        PostedSalesInvoice."No.".AssertEquals(SalesInvoiceHeader."No.");
+        PostedSalesInvoice.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MyNotificationsModalPageHandler')]
+    [Scope('OnPrem')]
     procedure TestPostSalesInvoiceWithoutNavigate()
     var
         SalesHeader: Record "Sales Header";

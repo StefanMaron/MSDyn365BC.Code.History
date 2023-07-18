@@ -314,8 +314,11 @@ codeunit 86 "Sales-Quote to Order"
                         SalesOrderLine."Prepayment %" := Customer."Prepayment %";
                     PrepmtMgt.SetSalesPrepaymentPct(SalesOrderLine, SalesOrderHeader."Posting Date");
                     SalesOrderLine.Validate("Prepayment %");
-                    if SalesOrderLine."No." <> '' then
-                        SalesOrderLine.DefaultDeferralCode();
+                    IsHandled := false;
+                    OnTransferQuoteToOrderLinesOnBeforeDefaultDeferralCode(SalesOrderLine, SalesOrderHeader, SalesQuoteLine, IsHandled);
+                    if not IsHandled then
+                        if SalesOrderLine."No." <> '' then
+                            SalesOrderLine.DefaultDeferralCode();
                     OnBeforeInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, SalesQuoteLine, SalesQuoteHeader);
                     SalesOrderLine.Insert();
                     OnAfterInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, SalesQuoteLine, SalesQuoteHeader);
@@ -459,6 +462,11 @@ codeunit 86 "Sales-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferQuoteToOrderLinesOnBeforeUpdatePrepaymentPct(var SalesQuoteLine: Record "Sales Line"; var SalesQuoteHeader: Record "Sales Header"; var SalesOrderLine: Record "Sales Line"; var SalesOrderHeader: Record "Sales Header"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferQuoteToOrderLinesOnBeforeDefaultDeferralCode(var SalesLineOrder: Record "Sales Line"; var SalesHeaderOrder: Record "Sales Header"; var SalesLineQuote: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -12,7 +12,7 @@ report 5185 "Log Segment"
             trigger OnAfterGetRecord()
             begin
                 OnBeforeLogSegment("Segment Header");
-                SegManagement.LogSegment("Segment Header", Send, FollowUp);
+                SegManagement.LogSegment("Segment Header", Send, FollowUpValue);
             end;
 
             trigger OnPreDataItem()
@@ -39,7 +39,7 @@ report 5185 "Log Segment"
                         Enabled = DeliverEnable;
                         ToolTip = 'Specifies if you want to deliver the attachments and send them by e-mail or fax, or print them when you choose OK.';
                     }
-                    field(FollowUp; FollowUp)
+                    field(FollowUp; FollowUpValue)
                     {
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Create Follow-up Segment';
@@ -64,7 +64,7 @@ report 5185 "Log Segment"
         begin
             SegLine.SetRange("Segment No.", SegmentNo);
             SegLine.SetFilter("Correspondence Type", '<>0');
-            Send := SegLine.FindFirst();
+            Send := not SegLine.IsEmpty();
             DeliverEnable := Send;
         end;
     }
@@ -77,7 +77,7 @@ report 5185 "Log Segment"
         SegManagement: Codeunit SegManagement;
         SegmentNo: Code[20];
         Send: Boolean;
-        FollowUp: Boolean;
+        FollowUpValue: Boolean;
         [InDataSet]
         DeliverEnable: Boolean;
 
@@ -89,7 +89,7 @@ report 5185 "Log Segment"
     procedure InitializeRequest(SendFrom: Boolean; FollowUpFrom: Boolean)
     begin
         Send := SendFrom;
-        FollowUp := FollowUpFrom;
+        FollowUpValue := FollowUpFrom;
     end;
 
     [IntegrationEvent(false, false)]

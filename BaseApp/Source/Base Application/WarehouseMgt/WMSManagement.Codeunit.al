@@ -1987,6 +1987,7 @@ then begin
         Item: Record Item;
         Family: Record Family;
         SalesHeader: Record "Sales Header";
+        DestinationEntityName: Text[100];
     begin
         case DestinationType of
             DestinationType::Customer:
@@ -2007,6 +2008,11 @@ then begin
             DestinationType::"Sales Order":
                 if SalesHeader.Get(SalesHeader."Document Type"::Order, DestNo) then
                     exit(SalesHeader."Sell-to Customer Name");
+            else begin
+                DestinationEntityName := '';
+                OnGetDestinationEntityName(DestinationType, DestNo, DestinationEntityName);
+                exit(DestinationEntityName);
+            end;
         end;
     end;
 
@@ -2533,6 +2539,11 @@ then begin
     
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcCubageAndWeight(ItemNo: Code[20]; UOMCode: Code[10]; Qty: Decimal; var Cubage: Decimal; var Weight: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDestinationEntityName(DestinationType: Enum "Warehouse Destination Type"; DestNo: Code[20]; var DestinationName: Text[100])
     begin
     end;
 }

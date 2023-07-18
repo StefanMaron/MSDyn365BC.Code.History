@@ -224,7 +224,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Cash Flow Manual Expense" = RM,
                   tabledata "Cash Flow Manual Revenue" = RM,
                   tabledata "Cash Flow Report Selection" = RM,
-                  tabledata "Cash Flow Setup" = RM,
+                  tabledata "Cash Flow Setup" = Ri,
                   tabledata "Cash Flow Worksheet Line" = RM,
                   tabledata "Cause of Absence" = RM,
                   tabledata "Cause of Inactivity" = RM,
@@ -473,7 +473,9 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Document Entry" = RM,
                   tabledata "Document Search Result" = RM,
                   tabledata "Document Sending Profile" = RM,
+#if not CLEAN23
                   tabledata "Document Service Cache" = Rm,
+#endif
                   tabledata "Drop Shpt. Post. Buffer" = RM,
                   tabledata "Dtld. Price Calculation Setup" = RIMD,
                   tabledata "Duplicate Price Line" = RIMD,

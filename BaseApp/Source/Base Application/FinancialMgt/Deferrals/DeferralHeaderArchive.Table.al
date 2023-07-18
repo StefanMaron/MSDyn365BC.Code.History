@@ -24,6 +24,8 @@ table 5127 "Deferral Header Archive"
         {
             Caption = 'Deferral Code';
             NotBlank = true;
+            TableRelation = "Deferral Template"."Deferral Code";
+            ValidateTableRelation = false;
         }
         field(8; "Amount to Defer"; Decimal)
         {

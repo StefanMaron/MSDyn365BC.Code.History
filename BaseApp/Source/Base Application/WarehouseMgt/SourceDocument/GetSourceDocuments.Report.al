@@ -74,12 +74,13 @@
 
                     trigger OnPostDataItem()
                     begin
+                        OnBeforeOnPostDataItemSalesLine(WhseReceiptHeader, RequestType, OneHeaderCreated, WhseHeaderCreated, LineCreated, HideDialog);
                         if OneHeaderCreated or WhseHeaderCreated then begin
                             UpdateReceiptHeaderStatus();
                             CheckFillQtyToHandle();
                         end;
 
-                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
+                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader, OneHeaderCreated, WhseHeaderCreated);
                     end;
 
                     trigger OnPreDataItem()
@@ -183,12 +184,13 @@
 
                     trigger OnPostDataItem()
                     begin
+                        OnBeforeOnPostDataItemPurchaseLine(WhseReceiptHeader, RequestType, OneHeaderCreated, WhseHeaderCreated, LineCreated, HideDialog);
                         if OneHeaderCreated or WhseHeaderCreated then begin
                             UpdateReceiptHeaderStatus();
                             CheckFillQtyToHandle();
                         end;
 
-                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
+                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader, OneHeaderCreated, WhseHeaderCreated);
                     end;
 
                     trigger OnPreDataItem()
@@ -283,7 +285,7 @@
                             CheckFillQtyToHandle();
                         end;
 
-                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
+                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader, OneHeaderCreated, WhseHeaderCreated);
                     end;
 
                     trigger OnPreDataItem()
@@ -493,7 +495,7 @@
 
     trigger OnPostReport()
     begin
-        OnBeforePostReport("Warehouse Request", RequestType, OneHeaderCreated, WhseShptHeader, WhseHeaderCreated, ErrorOccured, LineCreated, ActivitiesCreated, Location, WhseShptLine, WhseReceiptHeader, HideDialog);
+        OnBeforePostReport("Warehouse Request", RequestType, OneHeaderCreated, WhseShptHeader, WhseHeaderCreated, ErrorOccured, LineCreated, ActivitiesCreated, Location, WhseShptLine, WhseReceiptHeader, HideDialog, WhseReceiptLine);
         if not HideDialog then
             case RequestType of
                 RequestType::Receive:
@@ -528,13 +530,18 @@
         ErrorOccured: Boolean;
         SuppressCommit: Boolean;
 
-        Text000: Label 'There are no Warehouse Receipt Lines created.';
-        Text001: Label '%1 %2 has been created.';
-        Text002: Label '%1 Warehouse Receipts have been created.';
-        Text003: Label 'There are no Warehouse Shipment Lines created.';
-        Text004: Label '%1 Warehouse Shipments have been created.';
-        Text005: Label 'One or more of the lines on this %1 require special warehouse handling. The %2 for such lines has been set to blank.';
-        CustomerIsBlockedMsg: Label '%1 source documents were not included because the customer is blocked.';
+        Text000Err: Label 'There are no Warehouse Receipt Lines created.';
+        Text001Msg: Label '%1 %2 has been created.', comment = '%1 = ActivitiesCreated %2 = WhseReceiptHeader.TableCaption() + SpecialHandlingMessage';
+        Text002Msg: Label '%1 Warehouse Receipts have been created.', comment = '%1 = ActivitiesCreated + SpecialHandlingMessage';
+        Text003Err: Label 'There are no Warehouse Shipment Lines created.';
+        Text004Msg: Label '%1 Warehouse Shipments have been created.', comment = '%1 = ActivitiesCreated + SpecialHandlingMessage';
+        Text005Err: Label 'One or more of the lines on this %1 require special warehouse handling. The %2 for such lines has been set to blank.', comment = '%1 = WhseReceiptHeader.TableCaption, %2 = WhseReceiptLine.FieldCaption("Bin Code")';
+        Text006Err: Label 'This usually happens when warehouse receipt lines have already been created for a purchase order. Or if there were no changes to the purchase order quantities since you last created the warehouse receipt lines.';
+        Text007Err: Label 'There are no new warehouse receipt lines to create';
+        Text009Err: Label 'This usually happens when Warehouse Shipment Lines have already been created for a sales %1. Or there were no changes to sales %1 quantities since you last created the warehouse shipment lines.', Comment = '%1 = Sales Order Type';
+        Text010Err: Label 'There are no new warehouse shipment lines to create';
+        NoWhseShipmLinesActionCaptionMsg: Label 'Show open lines';
+        CustomerIsBlockedMsg: Label '%1 source documents were not included because the customer is blocked.', Comment = '%1 = no. of source documents.';
 
     protected var
         WhseReceiptHeader: Record "Warehouse Receipt Header";
@@ -748,18 +755,33 @@
     var
         SpecialHandlingMessage: Text[1024];
         IsHandled: Boolean;
+        ErrorNoLinesToCreate: ErrorInfo;
     begin
         IsHandled := false;
         OnBeforeShowReceiptDialog(IsHandled, ErrorOccured, ActivitiesCreated, LineCreated);
         if IsHandled then
             exit;
 
-        if not LineCreated then
-            Error(Text000);
+        if not LineCreated then begin
+            ErrorNoLinesToCreate.Title := Text007Err;
+            ErrorNoLinesToCreate.Message := StrSubstNo(Text006Err);
+            ErrorNoLinesToCreate.PageNo := Page::"Whse. Receipt Lines";
+            ErrorNoLinesToCreate.CustomDimensions.Add('Source Type', Format(Database::"Purchase Line"));
+            ErrorNoLinesToCreate.CustomDimensions.Add('Source Subtype', Format("Purchase Header"."Document Type"));
+            ErrorNoLinesToCreate.CustomDimensions.Add('Source No.', Format("Purchase Header"."No."));
+            ErrorNoLinesToCreate.AddAction(NoWhseShipmLinesActionCaptionMsg, 5753, 'ReturnListofPurchaseReceipts');
+            WhseReceiptLine.SetRange("Source No.", "Purchase Header"."No.");
+            if WhseReceiptLine.FindFirst() then begin
+                ErrorNoLinesToCreate.RecordId(WhseReceiptLine.RecordId());
+                Error(ErrorNoLinesToCreate);
+            end
+            else
+                Error(Text000Err);
+        end;
 
         if ErrorOccured then
             SpecialHandlingMessage :=
-              ' ' + StrSubstNo(Text005, WhseReceiptHeader.TableCaption(), WhseReceiptLine.FieldCaption("Bin Code"));
+              ' ' + StrSubstNo(Text005Err, WhseReceiptHeader.TableCaption(), WhseReceiptLine.FieldCaption("Bin Code"));
         if (ActivitiesCreated = 0) and LineCreated and ErrorOccured then
             Message(SpecialHandlingMessage);
         if ActivitiesCreated = 1 then
@@ -771,13 +793,29 @@
     procedure ShowShipmentDialog()
     var
         SpecialHandlingMessage: Text[1024];
+        ErrorNoLinesToCreate: ErrorInfo;
+
     begin
-        if not LineCreated then
-            Error(Text003);
+        if not LineCreated then begin
+            ErrorNoLinesToCreate.Title := Text010Err;
+            ErrorNoLinesToCreate.Message := StrSubstNo(Text009Err, "Sales Header"."Document Type");
+            ErrorNoLinesToCreate.PageNo := Page::"Warehouse Shipment List";
+            WhseShptLine.SetRange("Source No.", "Sales Header"."No.", "Sales Header"."No.");
+            ErrorNoLinesToCreate.CustomDimensions.Add('Source Type', Format(Database::"Sales Line"));
+            ErrorNoLinesToCreate.CustomDimensions.Add('Source Subtype', Format("Sales Header"."Document Type"));
+            ErrorNoLinesToCreate.CustomDimensions.Add('Source No.', Format("Sales Header"."No."));
+            ErrorNoLinesToCreate.AddAction(NoWhseShipmLinesActionCaptionMsg, 5753, 'ReturnListofWhseShipments');
+            if WhseShptLine.FindFirst() then begin
+                ErrorNoLinesToCreate.PageNo := Page::"Warehouse Shipment List";
+                Error(ErrorNoLinesToCreate);
+            end
+            else
+                Error(Text003Err);
+        end;
 
         if ErrorOccured then
             SpecialHandlingMessage :=
-              ' ' + StrSubstNo(Text005, WhseShptHeader.TableCaption(), WhseShptLine.FieldCaption("Bin Code"));
+              ' ' + StrSubstNo(Text005Err, WhseShptHeader.TableCaption(), WhseShptLine.FieldCaption("Bin Code"));
         if (ActivitiesCreated = 0) and LineCreated and ErrorOccured then
             Message(SpecialHandlingMessage);
         if ActivitiesCreated = 1 then
@@ -823,7 +861,7 @@
         if IsHandled then
             exit;
 
-        Message(StrSubstNo(Text001, ActivitiesCreated, WhseReceiptHeader.TableCaption()) + SpecialHandlingMessage);
+        Message(StrSubstNo(Text001Msg, ActivitiesCreated, WhseReceiptHeader.TableCaption()) + SpecialHandlingMessage);
     end;
 
     local procedure ShowMultipleWhseReceiptHeaderCreatedMessage(SpecialHandlingMessage: Text[1024])
@@ -835,7 +873,7 @@
         if IsHandled then
             exit;
 
-        Message(StrSubstNo(Text002, ActivitiesCreated) + SpecialHandlingMessage);
+        Message(StrSubstNo(Text002Msg, ActivitiesCreated) + SpecialHandlingMessage);
     end;
 
     local procedure ShowSingleWhseShptHeaderCreatedMessage(SpecialHandlingMessage: Text[1024])
@@ -847,7 +885,7 @@
         if IsHandled then
             exit;
 
-        Message(StrSubstNo(Text001, ActivitiesCreated, WhseShptHeader.TableCaption()) + SpecialHandlingMessage);
+        Message(StrSubstNo(Text001Msg, ActivitiesCreated, WhseShptHeader.TableCaption()) + SpecialHandlingMessage);
     end;
 
     local procedure ShowMultipleWhseShptHeaderCreatedMessage(SpecialHandlingMessage: Text[1024])
@@ -859,7 +897,7 @@
         if IsHandled then
             exit;
 
-        Message(StrSubstNo(Text004, ActivitiesCreated) + SpecialHandlingMessage);
+        Message(StrSubstNo(Text004Msg, ActivitiesCreated) + SpecialHandlingMessage);
     end;
 
     [IntegrationEvent(false, false)]
@@ -888,7 +926,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterProcessDocumentLine(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; var LineCreated: Boolean; WarehouseReceiptHeader: Record "Warehouse Receipt Header")
+    local procedure OnAfterProcessDocumentLine(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; var LineCreated: Boolean; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; OneHeaderCreated: Boolean; WhseHeaderCreated: Boolean)
     begin
     end;
 
@@ -1108,7 +1146,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostReport(WhseRequest: Record "Warehouse Request"; RequestType: Option; OneHeaderCreated: Boolean; var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var ErrorOccured: Boolean; var LineCreated: Boolean; var ActivitiesCreated: Integer; Location: record Location; var WhseShptLine: record "Warehouse Shipment Line"; var WhseReceiptHeader: Record "Warehouse Receipt Header"; var HideDialog: Boolean)
+    local procedure OnBeforePostReport(WhseRequest: Record "Warehouse Request"; RequestType: Option; OneHeaderCreated: Boolean; var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var ErrorOccured: Boolean; var LineCreated: Boolean; var ActivitiesCreated: Integer; Location: record Location; var WhseShptLine: record "Warehouse Shipment Line"; var WhseReceiptHeader: Record "Warehouse Receipt Header"; var HideDialog: Boolean; var WarehouseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;
 
@@ -1154,6 +1192,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSalesLineOnAfterGetRecordOnBeforeCheckCustBlocked(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPostDataItemSalesLine(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; RequestType: Option Receive,Ship; OneHeaderCreated: Boolean; WhseHeaderCreated: Boolean; LineCreated: Boolean; HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPostDataItemPurchaseLine(var WhseReceiptHeader: Record "Warehouse Receipt Header"; RequestType: Option Receive,Ship; OneHeaderCreated: Boolean; WhseHeaderCreated: Boolean; LineCreated: Boolean; HideDialog: Boolean)
     begin
     end;
 }

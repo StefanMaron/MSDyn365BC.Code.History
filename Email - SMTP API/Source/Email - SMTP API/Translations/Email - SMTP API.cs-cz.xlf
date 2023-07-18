@@ -27,12 +27,6 @@
           <note from="Developer" annotates="general" priority="2">%1=The email address</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Message Impl - NamedType FromEmailParseFailureErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 1512706315 - NamedType 3863949532" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The name or address has changed.</source>
-          <target state="translated">Jméno nebo adresa se změnily.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SMTP Message Impl - NamedType FromNameOrEmailHasChangedTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 1512706315 - NamedType 3677629754" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Could not add recipient %1.</source>
           <target state="translated">Nelze přidat příjemce %1.</target>
@@ -41,7 +35,7 @@
         </trans-unit>
         <trans-unit id="PermissionSet 3506008068 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Email - SMTP API - Objects</source>
-          <target state="translated">E-mail - SMTP API - Objekty</target>
+          <target state="translated">Email - SMTP API - Objekty</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">PermissionSet Email - SMTP API - Objects - Property Caption</note>
         </trans-unit>

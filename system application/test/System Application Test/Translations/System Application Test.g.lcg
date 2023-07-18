@@ -1355,6 +1355,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Filter Tokens Test - Method OnResolveTimeTokenFromDateTimeFilter - NamedType LunchTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3201562394 - NamedType 3442607917" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Guided Experience record count error.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Guided Experience Test - NamedType GuidedExperienceRecordCountErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3236220933 - NamedType 2078097563" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Hi, %1!]]></Val>
