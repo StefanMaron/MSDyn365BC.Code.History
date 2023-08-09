@@ -423,7 +423,7 @@
         </trans-unit>
         <trans-unit id="Page 2694828564 - Action 4149417275 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Register</source>
-          <target state="translated">Žurnál</target>
+          <target state="translated">Zapsat</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Accounts Journal - Action Register - Property Caption</note>
         </trans-unit>
@@ -1227,7 +1227,7 @@
         </trans-unit>
         <trans-unit id="Page 1472770300 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Statistical Account Ledger Entries</source>
-          <target state="translated">Položka statistického účtu</target>
+          <target state="translated">Položky statistického účtu</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Statistical Ledger Entry List - Property Caption</note>
         </trans-unit>

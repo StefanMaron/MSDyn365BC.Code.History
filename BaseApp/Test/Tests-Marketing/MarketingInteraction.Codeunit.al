@@ -3341,6 +3341,8 @@ codeunit 136208 "Marketing Interaction"
     begin
         LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
         CreateInteractionTmplLangWithoutAttachment(InteractionTmplLanguage, InteractionTemplate.Code);
+        InteractionTemplate."Wizard Action" := InteractionTemplate."Wizard Action"::Merge;
+        InteractionTemplate.Modify();
     end;
 
     local procedure PrepareInteractionTmplLangCodeWithEmailMergeAttachment(var InteractionTmplLanguage: Record "Interaction Tmpl. Language")
@@ -3634,6 +3636,7 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
     begin
         HTMLMode := LibraryVariableStorage.DequeueBoolean;
         CreateInteraction."Interaction Template Code".SetValue(LibraryVariableStorage.DequeueText);
+        CreateInteraction.NextInteraction.Invoke();
 
         Assert.AreEqual(HTMLMode, CreateInteraction.HTMLContentBodyText.Visible, CreateInteraction.Caption);
         Assert.AreEqual(HTMLMode, CreateInteraction.Preview.Visible, CreateInteraction.Caption);
@@ -3650,6 +3653,7 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
         NewLanguageCode := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(NewLanguageCode));
         CreateInteraction."Interaction Template Code".SetValue(LibraryVariableStorage.DequeueText);
         CreateInteraction."Language Code".SetValue(NewLanguageCode);
+        CreateInteraction.NextInteraction.Invoke();
 
         Assert.AreEqual(HTMLMode, CreateInteraction.HTMLContentBodyText.Visible, CreateInteraction.Caption);
         Assert.AreEqual(HTMLMode, CreateInteraction.Preview.Visible, CreateInteraction.Caption);

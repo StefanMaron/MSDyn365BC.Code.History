@@ -2537,7 +2537,7 @@
         </trans-unit>
         <trans-unit id="Codeunit 4071864290 - NamedType 947604962" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Looking for your checklist to set up Business Central?</source>
-          <target state="translated">Vous recherchez votre liste de vérification pour configurer Business central?</target>
+          <target state="translated">Vous recherchez votre liste de vérification pour configurer Business Central?</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Checklist Implementation - NamedType ChangeBannerVisibilityLbl</note>
         </trans-unit>
@@ -2872,8 +2872,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Table Information Cache Impl. - NamedType CrossCompanyDataLbl</note>
         </trans-unit>
         <trans-unit id="Codeunit 870156837 - NamedType 1334027089" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>A completion could not be generated.\The error code returned was %1.\Open the Azure OpenAI settings page and verify the settings, or try again later.</source>
-          <target state="translated">Impossible de générer un achèvement.\Le code d’erreur retourné était %1.\Ouvrez la page des paramètres Azure OpenAI et vérifiez les paramètres ou réessayez plus tard.</target>
+          <source>A suggestion couldn't be generated. Review the information provided, consider your choice of words, and try again.\The error code returned was %1.</source>
+          <target state="translated">Impossible de générer une suggestion. Examinez les informations fournies, étudiez votre choix de mots et réessayez.\Le code d’erreur retourné était %1.</target>
           <note from="Developer" annotates="general" priority="2">%1 is the http status code of the failed request (e.g. 401)</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure OpenAi Impl. - NamedType RequestFailedErr</note>
         </trans-unit>
@@ -2908,8 +2908,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure OpenAi Impl. - NamedType FeatureDisabledErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 870156837 - NamedType 3471054969" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>A completion could not be generated.\Open the Azure OpenAI settings page and verify the settings, or try again later.</source>
-          <target state="translated">Impossible de générer un achèvement.\Ouvrez la page Paramètres Azure OpenAI et vérifiez les paramètres, ou réessayez plus tard.</target>
+          <source>A suggestion couldn't be generated. Review the information provided, consider your choice of words, and try again.</source>
+          <target state="translated">Impossible de générer une suggestion. Examinez les informations fournies, étudiez votre choix de mots et réessayez.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Azure OpenAi Impl. - NamedType RequestFailedUnknownErr</note>
         </trans-unit>
@@ -5626,10 +5626,16 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Security Group Permission Sets - Action SelectPermissionSets - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2674634765 - Action 21227494 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Select Permission Sets</source>
-          <target state="translated">Sélectionner des ensembles d’autorisations</target>
+          <source>Add multiple</source>
+          <target state="translated">Ajouter plusieurs</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Security Group Permission Sets - Action SelectPermissionSets - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2674634765 - Action 278110413 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>New</source>
+          <target state="translated">Nouveau</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Security Group Permission Sets - Action Category_New - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2693243134 - Action 2982186347 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Manage translations for the short title</source>
@@ -5666,6 +5672,18 @@
           <target state="translated">Gérer les traductions pour la description</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Administration - Action DescriptionTranslation - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2753250980 - Action 3238504282 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Removes the selected updates.</source>
+          <target state="translated">Supprime les mises à jour sélectionnées.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Updates Part - Action Remove - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2753250980 - Action 3238504282 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Remove</source>
+          <target state="translated">Supprimer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Updates Part - Action Remove - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 2817068111 - Action 2466022207 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Create a daily recurrence.</source>
@@ -10165,6 +10183,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Tenant Permission Subform - Control Delete Permission - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 2622225351 - Control 3811799877 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the caption of the object that the permissions apply to.</source>
+          <target state="translated">Spécifie le libellé de l'objet auquel les autorisations s'appliquent.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Tenant Permission Subform - Control Object Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2622225351 - Control 3811799877 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Object Caption</source>
+          <target state="translated">Légende objet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Tenant Permission Subform - Control Object Caption - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2622225351 - Control 4054402322 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a security filter that applies to this permission set to limit the access that this permission set has to the data contained in this table.</source>
           <target state="translated">Spécifie un filtre de sécurité qui s'applique à cet ensemble d'autorisations pour limiter l'accès dudit ensemble aux données stockées dans cette table.</target>
@@ -10225,6 +10255,18 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Expanded Permissions - Control Delete Permission - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 2624121137 - Control 3811799877 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the caption of the object that the permissions apply to.</source>
+          <target state="translated">Spécifie le libellé de l'objet auquel les autorisations s'appliquent.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Expanded Permissions - Control Object Caption - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2624121137 - Control 3811799877 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Object Caption</source>
+          <target state="translated">Légende objet</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Expanded Permissions - Control Object Caption - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 2624121137 - Control 4054402322 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies a security filter that applies to this permission set to limit the access that this permission set has to the data contained in this table.</source>
           <target state="translated">Spécifie un filtre de sécurité qui s'applique à cet ensemble d'autorisations pour limiter l'accès dudit ensemble aux données stockées dans cette table.</target>
@@ -10280,8 +10322,8 @@
           <note from="Xliff Generator" annotates="general" priority="3">Page Security Group Permission Sets - Control Role Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 2674634765 - Control 2507467933 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Description</source>
-          <target state="translated">Description</target>
+          <source>Name</source>
+          <target state="translated">Nom</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Security Group Permission Sets - Control Role Name - Property Caption</note>
         </trans-unit>
@@ -10392,6 +10434,42 @@
           <target state="translated">Spécifie les conditions d’achèvement de l’élément de la liste de vérification.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Administration - Control Completion Requirements - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2753250980 - Control 1260872790 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the current value of the target user information before the update.</source>
+          <target state="translated">Spécifie la valeur actuelle des informations de l’utilisateur cible avant la mise à jour.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Updates Part - Control Current Value - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2753250980 - Control 2432660905 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the new value of the target user information after the update.</source>
+          <target state="translated">Spécifie la nouvelle valeur des informations de l’utilisateur cible après la mise à jour.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Updates Part - Control New Value - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2753250980 - Control 2578412327 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the display name of the user who the update relates to.</source>
+          <target state="translated">Spécifie le nom d’affichage de l’utilisateur auquel la mise à jour fait référence.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Updates Part - Control Display Name - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2753250980 - Control 3439090987 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of update.</source>
+          <target state="translated">Spécifie le type de mise à jour.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Updates Part - Control Update Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2753250980 - Control 419426744 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the user information that will be updated. Updates related to Contact Email, Full Name and Language ID are optional and may be removed.</source>
+          <target state="translated">Spécifie les informations utilisateur qui seront mises à jour. Les mises à jour portant sur Courriel du contact, Nom complet et Code langue sont facultatives et peuvent être supprimées.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Updates Part - Control Information - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2753250980 - Control 969389916 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the AAD user ID of the user who the update relates to.</source>
+          <target state="translated">Spécifie le code utilisateur AAD de l’utilisateur auquel la mise à jour fait référence.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Updates Part - Control Authentication Object ID - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 277020636 - Control 1695122201 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the model to use.</source>
@@ -14754,12 +14832,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control No Updates - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 523480673 - Control 1260872790 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The current value</source>
-          <target state="translated">Valeur actuelle</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Current Value - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 523480673 - Control 1673237505 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>It can take up to 72 hours for a change in Microsoft 365 to become available to Business Central.</source>
           <target state="translated">Les modifications apportées à Microsoft 365 peuvent prendre jusqu’à 72 heures pour devenir disponibles dans Business Central.</target>
@@ -14784,18 +14856,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Total Updates To Confirm - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 523480673 - Control 2432660905 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The value to replace the user information</source>
-          <target state="translated">Valeur de remplacement des informations utilisateur</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control New Value - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 523480673 - Control 2578412327 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The display name</source>
-          <target state="translated">Nom complet</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Display Name - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 523480673 - Control 293070022 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Good work!</source>
           <target state="translated">Bon travail !</target>
@@ -14813,12 +14873,6 @@
           <target state="translated">Nouveau plan</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NewLicense - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 523480673 - Control 3439090987 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The type of update</source>
-          <target state="translated">Type de mise à jour</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Update Type - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 3491181912 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>For each update with Select in the Action column, you must either choose Keep current to disregard the updated permissions, or Append to update the user permissions.</source>
@@ -14850,12 +14904,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ListOfChanges - Property InstructionalText</note>
         </trans-unit>
-        <trans-unit id="Page 523480673 - Control 3616446514 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>List of changes</source>
-          <target state="translated">Liste des modifications</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ListOfChanges - Property Caption</note>
-        </trans-unit>
         <trans-unit id="Page 523480673 - Control 3800514526 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Welcome to user updates</source>
           <target state="translated">Bienvenue dans les mises à jour utilisateur</target>
@@ -14886,12 +14934,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Total Updates Ready To Apply - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 523480673 - Control 419426744 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The user information that will be updated</source>
-          <target state="translated">Informations utilisateur qui seront mises à jour</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Information - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 523480673 - Control 4204185145 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You might want to configure custom permissions for each license type to speed up how you configure users.</source>
           <target state="translated">Vous pouvez configurer des autorisations personnalisées pour chaque type de licence afin d’accélérer la configuration des utilisateurs.</target>
@@ -14915,12 +14957,6 @@
           <target state="translated">Description</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control HeaderText - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 523480673 - Control 969389916 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The AAD user ID</source>
-          <target state="translated">Code utilisateur AAD</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Authentication Object ID - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 970269932 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Configure permissions per license so you won't have to manually configure every user.</source>
@@ -15653,6 +15689,18 @@
           <target state="translated">Le nombre doit être supérieur à 0.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Administration - NamedType OrderGreaterThanZeroErr</note>
+        </trans-unit>
+        <trans-unit id="Page 2753250980 - NamedType 1366439146" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to remove the selected updates? Only updates related to Contact Email, Full Name and Language ID will be removed.</source>
+          <target state="translated">Souhaitez-vous supprimer les mises à jour sélectionnées? Seules les mises à jour portant sur Courriel du contact, Nom complet et Code langue seront supprimées.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Updates Part - NamedType RemoveRowsExpandedQst</note>
+        </trans-unit>
+        <trans-unit id="Page 2753250980 - NamedType 3254379851" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Do you want to remove the selected updates?</source>
+          <target state="translated">Voulez-vous supprimer les mises à jour sélectionnées ?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Updates Part - NamedType RemoveRowsQst</note>
         </trans-unit>
         <trans-unit id="Page 2817068111 - NamedType 3764383116" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Some months have fewer than %1 days. These months will not be included in the recurrence.\\Do you want to continue?</source>
@@ -16804,6 +16852,12 @@
           <target state="translated">Administration de la liste de vérification</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Checklist Administration - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2753250980 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Updates</source>
+          <target state="translated">Mises à jour</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Updates Part - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 277020636 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Azure OpenAI Settings</source>

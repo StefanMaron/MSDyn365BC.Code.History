@@ -237,24 +237,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType OutOfLimitErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - NamedType 3494735008" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Set up and enable the Sales and Inventory Forecast service.</source>
-          <target state="translated">Setja upp og virkja þjónustuna „Sölu- og birgðaspár“.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastBusinessSetupDescriptionTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - NamedType 3760830540" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sales,Inventory,Forecast</source>
-          <target state="translated">Sala,Birgðir,Spá</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastBusinessSetupKeywordsTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - NamedType 586424512" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sales and Inventory Forecast</source>
-          <target state="translated">Sölu- og birgðaspár</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastNameTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2836764293 - NamedType 3120113686" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Let Business Central analyze historical data to predict future demand, so you can base procurement decisions on accurate and reliable forecasts, and help your company avoid lost revenue, optimize shipping costs, discover trends, and boost your brand reputation by always delivering on orders. Set it up now.</source>
           <target state="translated">Látið Business Central greina söguleg gögn til að spá fyrir um eftirspurn í framtíðinni svo hægt sé að byggja ákvarðanir um innkaup á nákvæmum og áreiðanlegum spám, koma í veg fyrir tekjutap, draga úr sendingarkostnaði, sjá þróun og auka orðspor vörumerkisins með því að standa við allar pantanir. Setja upp núna.</target>

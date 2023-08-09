@@ -18,12 +18,17 @@ codeunit 5201 "Employee/Salesperson Update"
     end;
 
     local procedure ShouldRunUpdate(OldEmployee: Record Employee; Employee: Record Employee) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
-        Result := (Employee."Salespers./Purch. Code" <> '') and
-                   ((OldEmployee."Salespers./Purch. Code" <> Employee."Salespers./Purch. Code") or
-                    (OldEmployee."First Name" <> Employee."First Name") or
-                    (OldEmployee."Middle Name" <> Employee."Middle Name") or
-                    (OldEmployee."Last Name" <> Employee."Last Name"));
+        IsHandled := false;
+        OnBeforeShouldRunUpdate(OldEmployee, Employee, Result, IsHandled);
+        if not IsHandled then
+            Result := (Employee."Salespers./Purch. Code" <> '') and
+                       ((OldEmployee."Salespers./Purch. Code" <> Employee."Salespers./Purch. Code") or
+                        (OldEmployee."First Name" <> Employee."First Name") or
+                        (OldEmployee."Middle Name" <> Employee."Middle Name") or
+                        (OldEmployee."Last Name" <> Employee."Last Name"));
         OnAfterShouldRunUpdate(OldEmployee, Employee, Result);
     end;
 
@@ -42,6 +47,11 @@ codeunit 5201 "Employee/Salesperson Update"
 
     [IntegrationEvent(true, false)]
     local procedure OnSalesPersonUpdateOnBeforeModify(Employee: Record Employee; var SalespersonPurchaser: Record "Salesperson/Purchaser")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeShouldRunUpdate(OldEmployee: Record Employee; Employee: Record Employee; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

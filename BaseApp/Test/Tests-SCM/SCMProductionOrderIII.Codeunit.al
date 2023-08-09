@@ -5141,6 +5141,58 @@ codeunit 137079 "SCM Production Order III"
         ValueEntry.TestField("Cost Amount (Actual)", 24000);
     end;
 
+    [Test]
+    procedure VerifyFinishedProdOrderLineDataForFamilySourceTypeAndRoutingWithBackwardFlushingOnWorkCenter()
+    var
+        Item: Record Item;
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Family: Record Family;
+        FamilyLine: Record "Family Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        // [SCENARIO 477400] Verify finished production order line data for family source type and routing with backward flushing on work center.
+        Initialize();
+
+        // [GIVEN] Create Item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Work Center
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        WorkCenter.Validate("Flushing Method", WorkCenter."Flushing Method"::"Backward");
+        WorkCenter.Modify(true);
+
+        // [GIVEN] Create Routing and certified it
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Setup Time", 1);
+        RoutingLine.Validate("Run Time", 1);
+        RoutingLine.Modify(true);
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Create Family and Family Line
+        LibraryManufacturing.CreateFamily(Family);
+        Family.Validate("Routing No.", RoutingHeader."No.");
+        Family.Modify(true);
+        LibraryManufacturing.CreateFamilyLine(FamilyLine, Family."No.", Item."No.", 1);
+
+        // [GIVEN] Create and refresh a Released Production Order
+        CreateAndRefreshProductionOrderWithSourceTypeFamily(
+          ProductionOrder, ProductionOrder.Status::Released, Family."No.", 1);
+
+        // [WHEN] Change Production Order Status from Released to Finished
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [THEN] Verify results
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status::Finished);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.TestField("Finished Quantity", ProductionOrder.Quantity);
+        ProdOrderLine.TestField("Finished Qty. (Base)", ProductionOrder.Quantity);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");

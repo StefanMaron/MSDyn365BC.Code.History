@@ -8,7 +8,14 @@ codeunit 5606 "FA Check Consistency"
     TableNo = "FA Ledger Entry";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("FA Posting Category" <> "FA Posting Category"::" ") or
            ("FA Posting Type" = "FA Posting Type"::"Gain/Loss") or
            ("FA Posting Type" = "FA Posting Type"::"Book Value on Disposal")
@@ -39,10 +46,15 @@ codeunit 5606 "FA Check Consistency"
                     FAPostingTypeSetup.Get(
                       DeprBookCode, FAPostingTypeSetup."FA Posting Type"::"Custom 2");
             end;
-            if "FA Posting Type" = "FA Posting Type"::"Proceeds on Disposal" then
+            IsHandled := false;
+            OnRunOnBeforeCheckSalesPostingCheckOther(FALedgEntry, IsHandled);
+            if IsHandled then
                 CheckSalesPosting()
             else
-                CheckNormalPosting();
+                if "FA Posting Type" = "FA Posting Type"::"Proceeds on Disposal" then
+                    CheckSalesPosting()
+                else
+                    CheckNormalPosting();
         end;
         SetFAPostingDate(FALedgEntry2, true);
         CheckInsuranceIntegration();
@@ -75,6 +87,8 @@ codeunit 5606 "FA Check Consistency"
         SalvageValueErr: Label 'There is a reclassification salvage amount that must be posted first. Open the FA Journal page, and then post the relevant reclassification entry.';
 
     local procedure CheckNormalPosting()
+    var
+        IsHandled: Boolean;
     begin
         with FALedgEntry do begin
             CheckDisposalDate(FADeprBook, FA);
@@ -88,52 +102,67 @@ codeunit 5606 "FA Check Consistency"
                 if not FADeprBook."Use FA Ledger Check" then
                     DeprBook.TestField("Use FA Ledger Check", false)
                 else begin
-                    SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value", "FA Posting Date");
-                    SetRange("Part of Book Value", true);
-                    SetRange("FA Posting Date", 0D, FAPostingDate - 1);
-                    OnCheckNormalPostingOnBeforeCalcSumsForBookValue(FALedgEntry, FAPostingDate);
-                    CalcSums(Amount);
-                    BookValue := Amount;
-                    SetRange("Part of Book Value");
-                    SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Depreciable Basis", "FA Posting Date");
-                    SetRange("Part of Depreciable Basis", true);
-                    CalcSums(Amount);
-                    DeprBasis := Amount;
-                    SetRange("Part of Depreciable Basis");
-                    SetCurrentKey(
-                      "FA No.", "Depreciation Book Code",
-                      "FA Posting Category", "FA Posting Type", "FA Posting Date");
-                    SetRange("FA Posting Category", "FA Posting Category"::" ");
-                    SetRange("FA Posting Type", "FA Posting Type"::"Salvage Value");
-                    CalcSums(Amount);
-                    SalvageValue := Amount;
-                    SetRange("FA Posting Type", FALedgEntry2."FA Posting Type");
-                    CalcSums(Amount);
-                    NewAmount := Amount;
-                    SetRange("FA Posting Type");
-                    SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
-                    SetFilter("FA Posting Date", '%1..', FAPostingDate);
-                    SetRange(Reversed, false);
-                    OnCheckNormalPostingOnBeforeFind(FALedgEntry, FAPostingDate);
-                    if Find('-') then
-                        repeat
-                            if "Part of Book Value" then
-                                BookValue := BookValue + Amount;
-                            if "Part of Depreciable Basis" then
-                                DeprBasis := DeprBasis + Amount;
-                            if "FA Posting Type" = "FA Posting Type"::"Salvage Value" then
-                                SalvageValue := SalvageValue + Amount;
-                            if "FA Posting Type" = FALedgEntry2."FA Posting Type" then
-                                NewAmount := NewAmount + Amount;
-                            CheckForError();
-                        until Next() = 0;
+                    IsHandled := false;
+                    OnCheckNormalPostingOnCalcValues(FANo, DeprBookCode, FALedgEntry, FALedgEntry2, FAPostingDate, BookValue, DeprBasis, SalvageValue, NewAmount, IsHandled);
+                    if not IsHandled then begin
+                        SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value", "FA Posting Date");
+                        SetRange("Part of Book Value", true);
+                        SetRange("FA Posting Date", 0D, FAPostingDate - 1);
+                        OnCheckNormalPostingOnBeforeCalcSumsForBookValue(FALedgEntry, FAPostingDate);
+                        CalcSums(Amount);
+                        BookValue := Amount;
+                        SetRange("Part of Book Value");
+                        SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Depreciable Basis", "FA Posting Date");
+                        SetRange("Part of Depreciable Basis", true);
+                        CalcSums(Amount);
+                        DeprBasis := Amount;
+                        SetRange("Part of Depreciable Basis");
+                        SetCurrentKey(
+                          "FA No.", "Depreciation Book Code",
+                          "FA Posting Category", "FA Posting Type", "FA Posting Date");
+                        SetRange("FA Posting Category", "FA Posting Category"::" ");
+                        SetRange("FA Posting Type", "FA Posting Type"::"Salvage Value");
+                        CalcSums(Amount);
+                        SalvageValue := Amount;
+                        SetRange("FA Posting Type", FALedgEntry2."FA Posting Type");
+                        CalcSums(Amount);
+                        NewAmount := Amount;
+                        SetRange("FA Posting Type");
+                        SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
+                        SetFilter("FA Posting Date", '%1..', FAPostingDate);
+                        SetRange(Reversed, false);
+                        OnCheckNormalPostingOnBeforeFind(FALedgEntry, FAPostingDate);
+                        if Find('-') then
+                            repeat
+                                IsHandled := false;
+                                OnCheckNormalPostingOnCalcValuesFinal(FANo, DeprBookCode, FALedgEntry, FALedgEntry2, FAPostingDate, BookValue, DeprBasis, SalvageValue, NewAmount, IsHandled);
+                                if not IsHandled then begin
+                                    if "Part of Book Value" then
+                                        BookValue := BookValue + Amount;
+                                    if "Part of Depreciable Basis" then
+                                        DeprBasis := DeprBasis + Amount;
+                                end;
+                                if "FA Posting Type" = "FA Posting Type"::"Salvage Value" then
+                                    SalvageValue := SalvageValue + Amount;
+                                if "FA Posting Type" = FALedgEntry2."FA Posting Type" then
+                                    NewAmount := NewAmount + Amount;
+                                CheckForError();
+                            until Next() = 0;
+                    end;
                 end;
             end;
         end;
     end;
 
     local procedure CheckSalesPosting()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSalesPostingIgnore(FALedgEntry, FANo, DeprBookCode, IsHandled);
+        if IsHandled then
+            exit;
+
         with FALedgEntry do begin
             if FADeprBook."Acquisition Date" = 0D then
                 CreateAcquisitionCostError();
@@ -176,6 +205,7 @@ codeunit 5606 "FA Check Consistency"
         MaxDate: Date;
         MinDate: Date;
         GLDate: Date;
+        IsHandled: Boolean;
     begin
         with FALedgEntry2 do
             if not LocalCall then begin
@@ -195,26 +225,34 @@ codeunit 5606 "FA Check Consistency"
                 MaxDate := "FA Posting Date"
             else
                 MaxDate := 0D;
-            case FALedgEntry2."FA Posting Type" of
-                FALedgEntry2."FA Posting Type"::"Acquisition Cost",
-              FALedgEntry2."FA Posting Type"::"Proceeds on Disposal":
-                    if Find('-') then
-                        MinDate := "FA Posting Date"
-                    else
-                        MinDate := 0D;
-            end;
-            case FALedgEntry2."FA Posting Type" of
-                FALedgEntry2."FA Posting Type"::"Acquisition Cost":
-                    begin
-                        SetCurrentKey(
-                          "FA No.", "Depreciation Book Code",
-                          "FA Posting Category", "FA Posting Type", "Posting Date");
+
+            IsHandled := false;
+            OnSetFAPostingDateOnBeforeSetMinDate(FANo, DeprBookCode, FALedgEntry, FALedgEntry2, MinDate, IsHandled);
+            if not IsHandled then
+                case FALedgEntry2."FA Posting Type" of
+                    FALedgEntry2."FA Posting Type"::"Acquisition Cost",
+                  FALedgEntry2."FA Posting Type"::"Proceeds on Disposal":
                         if Find('-') then
-                            GLDate := "Posting Date"
+                            MinDate := "FA Posting Date"
                         else
-                            GLDate := 0D;
-                    end;
-            end;
+                            MinDate := 0D;
+                end;
+
+            IsHandled := false;
+            OnSetFAPostingDateOnBeforeSetGLDate(FANo, DeprBookCode, FALedgEntry, FALedgEntry2, GLDate, IsHandled);
+            if not IsHandled then
+                case FALedgEntry2."FA Posting Type" of
+                    FALedgEntry2."FA Posting Type"::"Acquisition Cost":
+                        begin
+                            SetCurrentKey(
+                              "FA No.", "Depreciation Book Code",
+                              "FA Posting Category", "FA Posting Type", "Posting Date");
+                            if Find('-') then
+                                GLDate := "Posting Date"
+                            else
+                                GLDate := 0D;
+                        end;
+                end;
         end;
         with FALedgEntry2 do
             case "FA Posting Type" of
@@ -317,7 +355,14 @@ codeunit 5606 "FA Check Consistency"
     end;
 
     local procedure CreateAcquisitionCostError()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateAcquisitionCostError(FAJnlLine, FALedgEntry2, IsHandled);
+        if IsHandled then
+            exit;
+
         FAJnlLine."FA Posting Type" := FAJnlLine."FA Posting Type"::"Acquisition Cost";
         Error(Text000,
           FAName(), FAJnlLine."FA Posting Type");
@@ -360,7 +405,14 @@ codeunit 5606 "FA Check Consistency"
     end;
 
     local procedure CreateBookValueError()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateBookValueError(FALedgEntry2, BookValue, SalvageValue, IsHandled);
+        if IsHandled then
+            exit;
+
         FAJnlLine."FA Posting Type" := FAJnlLine."FA Posting Type"::"Salvage Value";
         Error(
           Text006,
@@ -368,7 +420,14 @@ codeunit 5606 "FA Check Consistency"
     end;
 
     local procedure CreateDeprBasisError()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDeprBasisError(FALedgEntry2, DeprBasis, IsHandled);
+        if IsHandled then
+            exit;
+
         Error(
           Text007, FAName(), FADeprBook.FieldCaption("Depreciable Basis"), FALedgEntry."FA Posting Date");
     end;
@@ -429,6 +488,56 @@ codeunit 5606 "FA Check Consistency"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePostingTypeError(FAJnlLine: Record "FA Journal Line"; FALedgEntry2: Record "FA Ledger Entry"; DeprBook: Record "Depreciation Book"; var IsHandled: Boolean; NewAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFAPostingDateOnBeforeSetGLDate(FANo: Code[20]; DepreciationBookCode: Code[10]; var FALedgerEntry: Record "FA Ledger Entry"; var FALedgerEntry2: Record "FA Ledger Entry"; var GLDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFAPostingDateOnBeforeSetMinDate(FANo: Code[20]; DepreciationBookCode: Code[10]; var FALedgerEntry: Record "FA Ledger Entry"; var FALedgerEntry2: Record "FA Ledger Entry"; var MinDate: Date; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateAcquisitionCostError(FAJournalLine: Record "FA Journal Line"; var FALedgerEntry2: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateBookValueError(FALedgerEntry2: Record "FA Ledger Entry"; BookValue: Decimal; SalvageValue: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesPostingIgnore(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DepreciationBookCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDeprBasisError(FALedgerEntry2: Record "FA Ledger Entry"; DeprBasis: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCheckSalesPostingCheckOther(var FALedgerEntry: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckNormalPostingOnCalcValues(FANo: Code[20]; DepreciationBookCode: Code[10]; var FALedgerEntry: Record "FA Ledger Entry"; var FALedgerEntry2: Record "FA Ledger Entry"; FAPostingDate: Date; var BookValue: Decimal; var DeprBasis: Decimal; var SalvageValue: Decimal; var NewAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckNormalPostingOnCalcValuesFinal(FANo: Code[20]; DepreciationBookCode: Code[10]; var FALedgerEntry: Record "FA Ledger Entry"; var FALedgerEntry2: Record "FA Ledger Entry"; FAPostingDate: Date; var BookValue: Decimal; var DeprBasis: Decimal; var SalvageValue: Decimal; var NewAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRun(var FALedgerEntry: Record "FA Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

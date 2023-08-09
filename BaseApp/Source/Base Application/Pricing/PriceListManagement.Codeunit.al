@@ -16,6 +16,7 @@ codeunit 7017 "Price List Management"
         CompleteSourceGroupUpgradeLbl: Label 'Complete the upgrade process for setting the Source Group field in price list lines.';
         DefaultPriceListTok: Label 'Default price list.';
         FixTok: Label 'Fix';
+        PriceListHeaderHasToExistErr: Label 'Lines cannot be added because the price list header does not exist.';
 
     procedure AddLines(var PriceListHeader: Record "Price List Header")
     var
@@ -24,7 +25,12 @@ codeunit 7017 "Price List Management"
     begin
         PriceLineFilters.Worksheet := PriceListHeader.IsTemporary();
         if PriceLineFilters.Worksheet then
-            SuggestPriceLine.SetDefaults(PriceListHeader);
+            SuggestPriceLine.SetDefaults(PriceListHeader)
+        else begin
+            if IsNullGuid(PriceListHeader.SystemId) then
+                Error(PriceListHeaderHasToExistErr);
+            PriceListHeader.TestField(Code);
+        end;
         PriceLineFilters.Initialize(PriceListHeader, false);
         SuggestPriceLine.SetRecord(PriceLineFilters);
         if SuggestPriceLine.RunModal() = Action::OK then begin
@@ -150,6 +156,9 @@ codeunit 7017 "Price List Management"
 
     procedure CopyLines(var ToPriceListHeader: Record "Price List Header")
     begin
+        if IsNullGuid(ToPriceListHeader.SystemId) then
+            Error(PriceListHeaderHasToExistErr);
+        ToPriceListHeader.TestField(Code);
         CopyLines(ToPriceListHeader, true)
     end;
 

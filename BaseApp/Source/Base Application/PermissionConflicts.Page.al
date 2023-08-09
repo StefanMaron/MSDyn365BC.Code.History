@@ -1,6 +1,7 @@
 page 5557 "Permission Conflicts"
 {
     PageType = List;
+    Caption = 'Permission Conflicts';
     Extensible = false;
     SourceTable = "Permission Conflicts";
     SourceTableTemporary = true;

@@ -56,7 +56,13 @@ page 9126 "Lot Numbers by Bin FactBox"
     local procedure FillTempTable()
     var
         LotNosByBinCode: Query "Lot Numbers by Bin";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFillTempTable(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         LotNosByBinCode.SetRange(Item_No, GetRangeMin("Item No."));
         LotNosByBinCode.SetRange(Variant_Code, GetRangeMin("Variant Code"));
         LotNosByBinCode.SetRange(Location_Code, GetRangeMin("Location Code"));
@@ -92,6 +98,11 @@ page 9126 "Lot Numbers by Bin FactBox"
 
     [IntegrationEvent(false, false)]
     local procedure OnFillTempTableOnAfterPopulateLotNosByBinCodeFields(var LotBinBuffer: record "Lot Bin Buffer"; var LotNosByBinCode: query "Lot Numbers by Bin")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillTempTable(var LotBinBuffer: Record "Lot Bin Buffer"; var IsHandled: Boolean)
     begin
     end;
 }

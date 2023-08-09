@@ -95,12 +95,19 @@ codeunit 437 "IC Navigation"
     end;
 
     local procedure NavigateToSalesDocument(DocumentNo: Code[20]; ICDirectionType: Enum "IC Direction Type"; ICPartnerCode: Code[20]; DocumentType: Enum "IC Transaction Document Type"): Boolean
+    var
+        ShouldNavigateToDoc: Boolean;
     begin
         case DocumentType of
             DocumentType::Order:
                 exit(NavigateToSalesOrderDocument(DocumentNo, ICDirectionType, ICPartnerCode));
             DocumentType::Invoice:
                 exit(NavigateToSalesInvoice(DocumentNo));
+            else begin
+                ShouldNavigateToDoc := false;
+                OnNavigateToSalesDocumentOnAfterCheckDocumentType(DocumentNo, ICDirectionType, ICPartnerCode, DocumentType, ShouldNavigateToDoc);
+                exit(ShouldNavigateToDoc);
+            end;
         end;
     end;
 
@@ -234,4 +241,10 @@ codeunit 437 "IC Navigation"
     local procedure OnNavigateToPurchaseDocumentOnDocumentTypeCaseElse(DocumentNo: Code[20]; ICDirectionType: Enum "IC Direction Type"; ICPartnerCode: Code[20]; DocumentType: Enum "IC Transaction Document Type"; var OpenDoc: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNavigateToSalesDocumentOnAfterCheckDocumentType(DocumentNo: Code[20]; ICDirectionType: Enum "IC Direction Type"; ICPartnerCode: Code[20]; ICTransactionDocumentType: Enum "IC Transaction Document Type"; var ShouldNavigateToDoc: Boolean)
+    begin
+    end;
 }
+

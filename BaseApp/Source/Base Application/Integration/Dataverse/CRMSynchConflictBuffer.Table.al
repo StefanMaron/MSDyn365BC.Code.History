@@ -43,6 +43,7 @@ table 5374 "CRM Synch. Conflict Buffer"
                 RecRef: RecordRef;
                 FieldRef: FieldRef;
                 TableID: Integer;
+                IsHandled: Boolean;
             begin
                 if CRMIntegrationRecord.FindByCRMID("CRM ID") then begin
                     if CRMIntegrationRecord.GetLatestError(IntegrationSynchJobErrors) then begin
@@ -50,23 +51,27 @@ table 5374 "CRM Synch. Conflict Buffer"
                         "Failed On" := IntegrationSynchJobErrors."Date/Time";
                     end;
                     TableID := CRMIntegrationRecord.GetTableID();
-                    if TableID <> 0 then begin
-                        "Int. Table ID" := CRMSetupDefaults.GetCRMTableNo(TableID);
-                        if CRMIntegrationRecord.GetCRMRecordRef("Int. Table ID", RecRef) then begin
-                            FieldRef := RecRef.Field(CRMSetupDefaults.GetNameFieldNo(RecRef.Number));
-                            "Int. Record ID" := RecRef.RecordId;
-                            "Int. Description" := FieldRef.Value;
-                            "Int. Record Exists" := true;
 
-                            IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
-                            IntegrationTableMapping.SetRange("Table ID", "Table ID");
-                            if IntegrationTableMapping.FindFirst() then begin
-                                FieldRef := RecRef.Field(IntegrationTableMapping."Int. Tbl. Modified On Fld. No.");
-                                "Int. Modified On" := FieldRef.Value;
+                    IsHandled := false;
+                    OnValidateCRMIDOnBeforeGetCRMIntegrationRecord(TableID, Rec, IsHandled);
+                    if not IsHandled then
+                        if TableID <> 0 then begin
+                            "Int. Table ID" := CRMSetupDefaults.GetCRMTableNo(TableID);
+                            if CRMIntegrationRecord.GetCRMRecordRef("Int. Table ID", RecRef) then begin
+                                FieldRef := RecRef.Field(CRMSetupDefaults.GetNameFieldNo(RecRef.Number));
+                                "Int. Record ID" := RecRef.RecordId;
+                                "Int. Description" := FieldRef.Value;
+                                "Int. Record Exists" := true;
+
+                                IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
+                                IntegrationTableMapping.SetRange("Table ID", "Table ID");
+                                if IntegrationTableMapping.FindFirst() then begin
+                                    FieldRef := RecRef.Field(IntegrationTableMapping."Int. Tbl. Modified On Fld. No.");
+                                    "Int. Modified On" := FieldRef.Value;
+                                end;
+                                RecRef.Close();
                             end;
-                            RecRef.Close();
                         end;
-                    end;
                 end;
             end;
         }
@@ -652,6 +657,11 @@ table 5374 "CRM Synch. Conflict Buffer"
                 TempCRMSynchConflictBuffer.DeleteAll();
             until CRMOptionMapping.Next() = 0;
         exit(Count);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCRMIDOnBeforeGetCRMIntegrationRecord(TableID: Integer; var CRMSynchConflictBuffer: Record "CRM Synch. Conflict Buffer"; var IsHandled: Boolean)
+    begin
     end;
 }
 

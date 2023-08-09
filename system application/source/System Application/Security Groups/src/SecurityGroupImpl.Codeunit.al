@@ -518,20 +518,6 @@ codeunit 9871 "Security Group Impl."
             exit(CopyStr(GroupName, 1, 20));
     end;
 
-    procedure LookupPermissionSet(AllowMultiselect: Boolean; var AccessControl: Record "Access Control"; var PermissionSetLookupRecord: Record "Aggregate Permission Set"): Boolean
-    var
-        PermissionSetRelation: Codeunit "Permission Set Relation";
-    begin
-        if PermissionSetRelation.LookupPermissionSet(AllowMultiselect, PermissionSetLookupRecord) then begin
-            AccessControl."Role ID" := PermissionSetLookupRecord."Role ID";
-            AccessControl.Scope := PermissionSetLookupRecord.Scope;
-            AccessControl."App ID" := PermissionSetLookupRecord."App ID";
-            AccessControl.CalcFields("Role Name");
-            exit(true);
-        end;
-        exit(false);
-    end;
-
     [InternalEvent(false)]
     local procedure OnIsWindowsAuthentication(var IsWindowsAuthentication: Boolean; var Handled: Boolean)
     begin

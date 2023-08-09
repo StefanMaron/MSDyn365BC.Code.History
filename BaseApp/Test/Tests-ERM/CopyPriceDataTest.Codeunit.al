@@ -730,7 +730,6 @@ codeunit 134167 "Copy Price Data Test"
         Currency: Record Currency;
         Item: Record Item;
         ItemUnitofMeasure: Record "Item Unit of Measure";
-        UnitofMeasure: Record "Unit of Measure";
         ItemVariant: Record "Item Variant";
         Job: Record Job;
         JobTask: Record "Job Task";
@@ -742,6 +741,11 @@ codeunit 134167 "Copy Price Data Test"
         JobItemPrice.DeleteAll();
         PriceListLine.DeleteAll();
         PriceListHeader.DeleteAll();
+
+        // [GIVEN] 1 JobItemPrice, without "Item No."
+        CreateJobItemPrice(JobItemPrice, true, true);
+        JobItemPrice.Rename(JobItemPrice."Job No.", JobItemPrice."Job Task No.", '', JobItemPrice."Variant Code", JobItemPrice."Unit of Measure Code", JobItemPrice."Currency Code");
+
         // [GIVEN] 6 JobItemPrices, where "Apply Job Price" is true, "Apply Job Discount" is true.
         CreateJobItemPrice(JobItemPrice, true, true);
         Job.Get(JobItemPrice."Job No.");
@@ -925,6 +929,11 @@ codeunit 134167 "Copy Price Data Test"
         JobGLAccountPrice.DeleteAll();
         PriceListLine.DeleteAll();
         PriceListHeader.DeleteAll();
+
+        // [GIVEN] 1 JobItemPrice, without "G/L Account No."
+        CreateJobGLAccPrice(JobGLAccountPrice, 1, LibraryRandom.RandDec(50, 2), 0);
+        JobGLAccountPrice.Rename(JobGLAccountPrice."Job No.", JobGLAccountPrice."Job Task No.", '', JobGLAccountPrice."Currency Code");
+
         // [GIVEN] 4 JobItemPrices, where Discount is set
         CreateJobGLAccPrice(JobGLAccountPrice, 1, LibraryRandom.RandDec(50, 2), 0);
         Job.Get(JobGLAccountPrice."Job No.");
@@ -1137,6 +1146,11 @@ codeunit 134167 "Copy Price Data Test"
         JobResourcePrice.DeleteAll();
         PriceListLine.DeleteAll();
         PriceListHeader.DeleteAll();
+
+        // [GIVEN] 1 JobResourcePrice, without "Resource Code"
+        CreateJobResourcePrice(JobResourcePrice, true, true);
+        JobResourcePrice.Rename(JobResourcePrice."Job No.", JobResourcePrice."Job Task No.", JobResourcePrice.Type, '', JobResourcePrice."Work Type Code", JobResourcePrice."Currency Code");
+
         // [GIVEN] 5 JobResourcePrices, where "Apply Job Price" is true, "Apply Job Discount" is true.
         CreateJobResourcePrice(JobResourcePrice, true, true);
         Job.Get(JobResourcePrice."Job No.");
@@ -1210,12 +1224,16 @@ codeunit 134167 "Copy Price Data Test"
         ResourcePrice: Record "Resource Price";
         PriceListHeader: Record "Price List Header";
         PriceListLine: Record "Price List Line";
-        PriceListCode: Code[20];
     begin
         Initialize();
         ResourcePrice.DeleteAll();
         PriceListLine.DeleteAll();
         PriceListHeader.DeleteAll();
+
+        // [GIVEN] 1 ResourcePrice, without "Resource Code"
+        CreateResourcePrice(ResourcePrice);
+        ResourcePrice.Rename(ResourcePrice.Type, '', ResourcePrice."Work Type Code", ResourcePrice."Currency Code");
+
         // [GIVEN] 3 ResourcePrice
         CreateResourcePrice(ResourcePrice);
         Resource.Get(ResourcePrice.Code);
@@ -1600,12 +1618,18 @@ codeunit 134167 "Copy Price Data Test"
         ResourceCost.DeleteAll();
         PriceListLine.DeleteAll();
         PriceListHeader.DeleteAll();
+
         // [GIVEN] Resource 'X', where "Resource Group No." is 'A'
         CreateResourceGroup(Resource[1], ResourceGroup[1]);
         Resource[1]."Unit Cost" := LibraryRandom.RandDec(200, 2);
         Resource[1]."Direct Unit Cost" := LibraryRandom.RandDec(200, 2);
         Resource[1].Modify();
         CreateResourceGroup(Resource[2], ResourceGroup[2]);
+
+        // [GIVEN] 1 ResourceCost, without "Resource Code"
+        CreateResourceCost(ResourceCost, ResType::Resource, Resource[2]."No.");
+        ResourceCost.Rename(ResourceCost.Type, '', ResourceCost."Work Type Code");
+
         // [GIVEN] 4 ResourceCost for Resource Group 'A', where "Work Type Code" is 'WT'
         CreateResourceCost(ResourceCost, ResType::"Group(Resource)", ResourceGroup[1]."No.");
         CreateResourceCost(ResourceCost, ResType::"Group(Resource)", ResourceGroup[2]."No.");
@@ -1618,6 +1642,7 @@ codeunit 134167 "Copy Price Data Test"
         ResourceCost."Cost Type" := ResourceCost."Cost Type"::"% Extra";
         ResourceCost.Modify();
         WorkType[2].Get(ResourceCost."Work Type Code");
+
         // [GIVEN] Resource Group, Work type are deleted
         Resource[1].Delete();
         ResourceGroup[1].Delete();

@@ -67,6 +67,7 @@ codeunit 411 "Dimension Buffer Management"
         TempDimBuf.SetRange("Table ID", DimBuf."Table ID");
         TempDimBuf.SetRange("Dimension Code", DimBuf."Dimension Code");
         TempDimBuf.SetRange("Dimension Value Code", DimBuf."Dimension Value Code");
+        OnFindDimensionsKnownDimBufCountBeforeProcessingLinesOnAfterFilterTempDimBuf(TempDimBuf, DimBuf);
         if not TempDimBuf.Find('-') then begin
             TempDimBuf.Reset();
             exit(0);
@@ -84,6 +85,7 @@ codeunit 411 "Dimension Buffer Management"
             repeat
                 TempDimBuf.SetRange("Dimension Code", DimBuf."Dimension Code");
                 TempDimBuf.SetRange("Dimension Value Code", DimBuf."Dimension Value Code");
+                OnFindDimensionsKnownDimBufCountOnAfterFilterTempDimBuf(TempDimBuf, DimBuf);
                 EndOfTempDimBuf := not TempDimBuf.Find('-');
                 if not EndOfTempDimBuf then
                     EndOfDimBuf := DimBuf.Next() = 0;
@@ -230,6 +232,16 @@ codeunit 411 "Dimension Buffer Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertDimensionsUsingEntryNoOnBeforeTempDimBufInsert(var TempDimBuf: Record "Dimension Buffer"; var DimBuf: Record "Dimension Buffer"; EntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindDimensionsKnownDimBufCountBeforeProcessingLinesOnAfterFilterTempDimBuf(var TempDimensionBuffer: Record "Dimension Buffer"; DimensionBuffer: Record "Dimension Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindDimensionsKnownDimBufCountOnAfterFilterTempDimBuf(var TempDimensionBuffer: Record "Dimension Buffer"; DimensionBuffer: Record "Dimension Buffer")
     begin
     end;
 }

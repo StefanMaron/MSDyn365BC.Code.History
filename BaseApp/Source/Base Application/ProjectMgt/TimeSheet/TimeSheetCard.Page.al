@@ -12,6 +12,7 @@ page 973 "Time Sheet Card"
         {
             group(General)
             {
+                Caption = 'General';
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Jobs;

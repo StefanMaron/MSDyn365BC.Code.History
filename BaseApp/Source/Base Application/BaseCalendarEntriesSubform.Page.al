@@ -147,7 +147,7 @@ page 7604 "Base Calendar Entries Subform"
         CurrPage.Update();
     end;
 
-    local procedure UpdateBaseCalendarChanges()
+    procedure UpdateBaseCalendarChanges()
     var
         BaseCalendarChange: Record "Base Calendar Change";
     begin

@@ -61,7 +61,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
                 trigger OnAfterGetRecord()
                 begin
-                    ProcessNextLine(ReceiptIntrastatJnlLine);
+                    if ReceiptExists then
+                        ProcessNextLine(ReceiptIntrastatJnlLine);
                 end;
 
                 trigger OnPostDataItem()
@@ -90,7 +91,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
                 trigger OnAfterGetRecord()
                 begin
-                    ProcessNextLine(ShipmentIntrastatJnlLine);
+                    if ShipmentExists then
+                        ProcessNextLine(ShipmentIntrastatJnlLine);
                 end;
 
                 trigger OnPostDataItem()
@@ -115,6 +117,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
             begin
                 TestField(Reported, false);
                 TestField("Statistics Period");
+                ReceiptExists := false;
+                ShipmentExists := false;
                 IntraReferenceNo := "Statistics Period" + '000000';
                 IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
                 SetBatchIsExported("Intrastat Jnl. Batch");

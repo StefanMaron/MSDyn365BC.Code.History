@@ -47,18 +47,26 @@ page 9821 "Inherited Permission Sets Part"
 
     trigger OnOpenPage()
     begin
-        Refresh();
+        if Rec.IsEmpty() then
+            Refresh();
     end;
 
-    internal procedure Refresh()
+    local procedure Refresh()
     var
         SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
+        SecurityGroup: Codeunit "Security Group";
+    begin
+        SecurityGroup.GetMembers(SecurityGroupMemberBuffer);
+        Refresh(SecurityGroupMemberBuffer);
+    end;
+
+    internal procedure Refresh(var SecurityGroupMemberBuffer: Record "Security Group Member Buffer")
+    var
         AccessControl: Record "Access Control";
         TempDummyAccessControl: Record "Access Control" temporary;
         SecurityGroup: Codeunit "Security Group";
         GroupUserSecId: Guid;
     begin
-        SecurityGroup.GetMembers(SecurityGroupMemberBuffer);
         if not SecurityGroupMemberBuffer.FindSet() then
             exit;
 

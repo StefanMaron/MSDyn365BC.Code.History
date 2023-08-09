@@ -39,6 +39,8 @@ codeunit 134394 "ERM Purchase Subform"
         NotEditableErr: Label '%1 should NOT be editable';
         ChangeCurrencyConfirmQst: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.';
         ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
+        MustMatchErr: Label '%1 and %2 must match.';
+        InvoiceDiscPct: Label 'Invoice Disc. Pct.';
 
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsModalHandler')]
@@ -4395,6 +4397,89 @@ codeunit 134394 "ERM Purchase Subform"
         VerifyDescriptionInPurchOrderSubpage(PurchaseHeader."No.", PurchLineDesc);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure UpdateInvoiceDiscountPercentOnPurchaseOrderPage()
+    var
+        Vendor: Record Vendor;
+        Item1: Record Item;
+        Item2: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        VendorInvoiceDisc: Record "Vendor Invoice Disc.";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseOrder: TestPage "Purchase Order";
+        PurchaseOrderSubform: TestPage "Purchase Order Subform";
+        MinAmount1: Decimal;
+        MinAmount2: Decimal;
+        InvDiscPct: Decimal;
+    begin
+        // [SCENARIO 477664] Invoice Discount % field is not calculated correctly in documents.
+        Initialize();
+
+        // [GIVEN] Disable Calc. Inv. Discount on Purchases & Payables Setup.
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Calc. Inv. Discount", false);
+        PurchasesPayablesSetup.Modify(true);
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create two variables & save Minimum Amount values.
+        MinAmount1 := LibraryRandom.RandIntInRange(1000, 1000);
+        MinAmount2 := LibraryRandom.RandIntInRange(2000, 2000);
+
+        // [GIVEN] Create two Invoice Discounts for Vendor.
+        CreateInvoiceDiscForVendorWithDiscPctAndMinValue(Vendor, LibraryRandom.RandInt(0), MinAmount1);
+        CreateInvoiceDiscForVendorWithDiscPctAndMinValue(Vendor, LibraryRandom.RandIntInRange(2, 2), MinAmount2);
+
+        // [GIVEN] Create an Item 1.
+        LibraryInventory.CreateItem(Item1);
+
+        // [GIVEN] Create an Item 2.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create a Purchase Line for Item 1 & Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item1."No.", LibraryRandom.RandInt(0));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1900, 1999, 0));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Create a Purchase Line for Item 2 & Validate Direct Unit Cost.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::Item, Item2."No.", LibraryRandom.RandInt(0));
+        PurchaseLine2.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(500, 501, 0));
+        PurchaseLine2.Modify(true);
+
+        // [GIVEN] Open Purchase Order Page & Calculate Invoice Discount.
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseLine."Document No.");
+        PurchaseOrder.CalculateInvoiceDiscount.Invoke();
+
+        // [GIVEN] Trap Purchase Order Page.
+        PurchaseOrder.Trap();
+
+        // [GIVEN] Open Purchase Order Subform Page & save Invoice Discount Percent value in a variable.
+        PurchaseOrderSubform.OpenView();
+        PurchaseOrderSubform.Filter.SetFilter("Document No.", PurchaseLine."Document No.");
+        InvDiscPct := PurchaseOrderSubform."Invoice Disc. Pct.".AsDecimal();
+        PurchaseOrderSubform.Close();
+
+        // [WHEN] Find Vendor Invoice Discount.
+        VendorInvoiceDisc.SetRange(Code, Vendor."No.");
+        VendorInvoiceDisc.SetRange("Minimum Amount", MinAmount2);
+        VendorInvoiceDisc.FindFirst();
+
+        // [VERIFY] Verify Invoice Discount Percent applied on Purchase Order is correct.
+        Assert.AreEqual(
+            VendorInvoiceDisc."Discount %",
+            InvDiscPct,
+            StrSubstNo(MustMatchErr, VendorInvoiceDisc.FieldCaption("Discount %"), InvoiceDiscPct));
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -5265,6 +5350,16 @@ codeunit 134394 "ERM Purchase Subform"
         PurchaseOrderSubform.OpenEdit;
         PurchaseOrderSubform.FILTER.SetFilter("Document No.", DocNo);
         PurchaseOrderSubform.Description.AssertEquals(PurchLineDesc);
+    end;
+
+    local procedure CreateInvoiceDiscForVendorWithDiscPctAndMinValue(var Vendor: Record Vendor; DiscountPct: Decimal; MinValue: Decimal)
+    var
+        VendorInvoiceDisc: Record "Vendor Invoice Disc.";
+    begin
+        LibraryERM.CreateInvDiscForVendor(
+          VendorInvoiceDisc, Vendor."No.", Vendor."Currency Code", MinValue);
+        VendorInvoiceDisc.Validate("Discount %", DiscountPct);
+        VendorInvoiceDisc.Modify(true);
     end;
 
     [ConfirmHandler]

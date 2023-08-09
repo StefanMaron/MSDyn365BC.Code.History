@@ -593,8 +593,6 @@ report 99001020 "Carry Out Action Msg. - Plan."
                     end;
             end;
 
-            ReqLine2.SetCurrentKey(
-              "User ID", "Demand Type", "Demand Subtype", "Demand Order No.", "Demand Line No.", "Demand Ref. No.");
             ReqLine2.SetFilter("User ID", '<>%1', UserId);
             ReqLine2.SetRange("Demand Type", "Demand Type");
             ReqLine2.SetRange("Demand Subtype", "Demand Subtype");

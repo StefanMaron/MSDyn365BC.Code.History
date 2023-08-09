@@ -645,6 +645,13 @@
                                 xRec.DeleteBinContent("Warehouse Action Type"::Place.AsInteger());
                             end;
                         end;
+
+                        if "Action Type" = "Action Type"::Place then
+                            if (("Whse. Document Type" = "Whse. Document Type"::Receipt) and (Bin."Bin Type Code" <> '')) then
+                                if BinType.Get(Bin."Bin Type Code") then
+                                    if BinType.Receive then
+                                        BinType.TestField(Receive, false);
+
                         Dedicated := Bin.Dedicated;
                         "Bin Ranking" := Bin."Bin Ranking";
                         "Zone Code" := Bin."Zone Code";

@@ -47,10 +47,14 @@ codeunit 5979 "Service-Post and Send"
     var
         Customer: Record Customer;
         DocumentSendingProfile: Record "Document Sending Profile";
+        IsHandled: Boolean;
     begin
         Customer.Get(ServiceHeader."Bill-to Customer No.");
-        if not DocumentSendingProfile.Get(Customer."Document Sending Profile") then
-            DocumentSendingProfile.GetDefault(DocumentSendingProfile);
+        IsHandled := false;
+        OnConfirmPostAndSendOnBeforeGetDocumentSendingProfile(ServiceHeader, Customer, DocumentSendingProfile, IsHandled);
+        if not IsHandled then
+            if not DocumentSendingProfile.Get(Customer."Document Sending Profile") then
+                DocumentSendingProfile.GetDefault(DocumentSendingProfile);
 
         Commit();
         TempDocumentSendingProfile.Copy(DocumentSendingProfile);
@@ -98,6 +102,11 @@ codeunit 5979 "Service-Post and Send"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConfirmPostAndSendOnBeforeGetDocumentSendingProfile(ServiceHeader: Record "Service Header"; Customer: Record Customer; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
     begin
     end;
 }

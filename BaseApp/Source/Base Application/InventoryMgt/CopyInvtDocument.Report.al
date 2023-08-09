@@ -198,6 +198,8 @@ report 5850 "Copy Invt. Document"
                         DocNo := FromInvtShptHeader."No.";
                 end;
         end;
+
+        OnLookupDocNoOnBeforeValidateDocNo(InvtDocHeader, DocType, DocNo);
         ValidateDocNo();
     end;
 
@@ -207,15 +209,31 @@ report 5850 "Copy Invt. Document"
     end;
 
     local procedure ConvertInvtDocumentTypeFrom(InvtDocumentTypeFrom: Enum "Invt. Doc. Document Type From"): Enum "Invt. Doc. Document Type"
+    var
+        IsHandled: Boolean;
     begin
         case InvtDocumentTypeFrom of
             "Invt. Doc. Document Type From"::Receipt:
                 exit("Invt. Doc. Document Type"::Receipt);
             "Invt. Doc. Document Type From"::Shipment:
                 exit("Invt. Doc. Document Type"::Shipment);
-            else
-                error(ConvertInvtDocumentTypeFromErr, InvtDocumentTypeFrom);
+            else begin
+                IsHandled := false;
+                OnConvertInvtDocumentTypeFromOnCaseElse(InvtDocumentTypeFrom, IsHandled);
+                if not IsHandled then
+                    error(ConvertInvtDocumentTypeFromErr, InvtDocumentTypeFrom);
+            end;
         end;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnLookupDocNoOnBeforeValidateDocNo(var InvtDocumentHeader: Record "Invt. Document Header"; InvtDocDocumentTypeFrom: Enum "Invt. Doc. Document Type From"; var FromDocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConvertInvtDocumentTypeFromOnCaseElse(InvtDocDocumentTypeFrom: Enum "Invt. Doc. Document Type From"; var IsHandled: Boolean)
+    begin
     end;
 }
 

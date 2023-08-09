@@ -198,7 +198,7 @@ page 5850 "Posted Sales Document Lines"
         FromReturnRcptLine: Record "Return Receipt Line";
         IsHandled: Boolean;
     begin
-        OnBeforeCopyLineToDoc(CopyDocMgt);
+        OnBeforeCopyLineToDoc(CopyDocMgt, CurrentMenuType);
 
         ToSalesHeader.TestField(Status, ToSalesHeader.Status::Open);
         LinesNotCopied := 0;
@@ -364,7 +364,7 @@ page 5850 "Posted Sales Document Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyLineToDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt.")
+    local procedure OnBeforeCopyLineToDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt."; CurrentMenuType: Integer)
     begin
     end;
 

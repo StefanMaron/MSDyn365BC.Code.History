@@ -535,6 +535,8 @@ table 5802 "Value Entry"
 
     procedure AddCost(InvtAdjmtBuffer: Record "Inventory Adjustment Buffer")
     begin
+        OnBeforeAddCost(Rec, InvtAdjmtBuffer);
+
         "Cost Amount (Expected)" := "Cost Amount (Expected)" + InvtAdjmtBuffer."Cost Amount (Expected)";
         "Cost Amount (Expected) (ACY)" := "Cost Amount (Expected) (ACY)" + InvtAdjmtBuffer."Cost Amount (Expected) (ACY)";
         "Cost Amount (Actual)" := "Cost Amount (Actual)" + InvtAdjmtBuffer."Cost Amount (Actual)";
@@ -625,7 +627,13 @@ table 5802 "Value Entry"
         CostAmtActualACY: Decimal;
         CostAmtExpected: Decimal;
         CostAmtExpectedACY: Decimal;
+        IsHandled: Boolean;
     begin
+        Ishandled := false;
+        OnBeforeCalcItemLedgEntryCost(Rec, ItemLedgEntryNo, Expected, IsHandled);
+        if IsHandled then
+            exit;
+
         Reset();
         SetCurrentKey("Item Ledger Entry No.");
         SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
@@ -826,6 +834,16 @@ table 5802 "Value Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowGLOnBeforeCopyToTempGLEntry(var GLEntry: Record "G/L Entry"; var GLItemLedgRelation: Record "G/L - Item Ledger Relation");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcItemLedgEntryCost(var ValueEntry: Record "Value Entry"; ItemLedgEntryNo: Integer; Expected: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddCost(var ValueEntry: Record "Value Entry"; InvtAdjmtBuffer: Record "Inventory Adjustment Buffer")
     begin
     end;
 }

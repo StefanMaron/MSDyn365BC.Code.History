@@ -27,6 +27,9 @@ codeunit 134378 "ERM Sales Order"
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        WorkflowSetup: Codeunit "Workflow Setup";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         isInitialized: Boolean;
         VATAmountErr: Label 'VAT Amount must be %1 in %2.', Comment = '%1 = value, %2 = field';
         FieldErr: Label 'Number of Lines for %1 and %2  must be Equal.', Comment = '%1,%2 = table name';
@@ -5015,6 +5018,67 @@ codeunit 134378 "ERM Sales Order"
         SalesLine.TestField(Amount, ServiceChargeAmt[2]);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,SalesCreditMemoPageHandler')]
+    [Scope('OnPrem')]
+    procedure UpdateSalesOrderQuantityWhenUsingCancelInvoiceifSalesCrMemoWorkflowIsEnabled()
+    var
+        Workflow: Record Workflow;
+        UserSetup: Record "User Setup";
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+        SalesHeaderCrMemo: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        PostedSalesInvoices: TestPage "Posted Sales Invoices";
+    begin
+        // [SCENARIO 474642] Verify Sales Order Quantities are updated back when using Cancel funtion in Sales Invoice 
+        // If there is a workflow for Sales Credit Memo enabled.
+        Initialize();
+
+        // [GIVEN] Create User Setup.
+        LibraryDocumentApprovals.CreateUserSetup(UserSetup, CopyStr(UserId(), 1, 50), '');
+        UserSetup."Approval Administrator" := true;
+        UserSetup.Modify();
+
+        // [GIVEN] Create and enable the Sales Credit Memo workflow.
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
+
+        // [GIVEN] Create Sales Document.
+        CreateSalesDocument(
+            SalesHeader,
+            SalesLine,
+            SalesHeader."Document Type"::Order,
+            CreateCustomer(),
+            CreateItem());
+
+        // [GIVEN] Update Qty To Ship in Sales Line.
+        SalesLine.Validate("Qty. to Ship", LibraryRandom.RandIntInRange(1, 2));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post the partial sales order.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Cancel an Invoice.
+        PostedSalesInvoices.OpenView();
+        PostedSalesInvoices.GotoRecord(SalesInvoiceHeader);
+        PostedSalesInvoices.CancelInvoice.Invoke();
+
+        // [GIVEN] Send the approval request and Post the Sales Credit Memo.
+        SalesHeaderCrMemo.Get(SalesHeaderCrMemo."Document Type"::"Credit Memo", LibraryVariableStorage.DequeueText());
+        SalesCreditMemo.OpenView();
+        SalesCreditMemo.GotoRecord(SalesHeaderCrMemo);
+        SalesCreditMemo.SendApprovalRequest.Invoke();
+        SalesCreditMemo.Post.Invoke();
+
+        // [WHEN] Find the Sales Order Line 
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+
+        // [VERIFY] Verify Sales Order Quantities are updated in the sales line.
+        Assert.Equal(SalesLine.Quantity, SalesLine."Outstanding Qty. (Base)");
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -7173,6 +7237,12 @@ codeunit 134378 "ERM Sales Order"
         ShipToCode := LibraryVariableStorage.DequeueText();
         ShipToAddressList.Filter.SetFilter(Code, ShipToCode);
         ShipToAddressList.OK.Invoke;
+    end;
+
+    [PageHandler]
+    procedure SalesCreditMemoPageHandler(var SalesCreditMemo: TestPage "Sales Credit Memo")
+    begin
+        LibraryVariableStorage.Enqueue(SalesCreditMemo."No.".Value());
     end;
 }
 

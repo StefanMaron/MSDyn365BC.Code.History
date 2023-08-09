@@ -650,7 +650,7 @@ codeunit 137931 "SCM - Movement"
         BinContent.SetRange("Bin Code", Bin.Code);
 
         LibraryWarehouse.WhseGetBinContent(
-		    BinContent, WhseWorksheetLine, WhseInternalPutawayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
+            BinContent, WhseWorksheetLine, WhseInternalPutawayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
 
         // [WhEN] Verify item tracking in warehouse worksheet line
         WhseWorksheetLine.SetRange("Item No.", Item."No.");
@@ -1060,6 +1060,68 @@ codeunit 137931 "SCM - Movement"
         WarehouseActivityLine.TestField("Expiration Date", ExpirationDate);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesModalPageHandlerMultipleEntries')]
+    [Scope('OnPrem')]
+    procedure ValidateBinCodeForActionTypePlaceShouldNotUpdateWhenBinTypeRecieve()
+    var
+        PutAwayBin: Record Bin;
+        PickBin: Record Bin;
+        BinContent: Record "Bin Content";
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LocationCode: Code[10];
+        ItemNo: Code[20];
+        MinQty: Integer;
+        LotNo: array[4] of Code[50];
+        ExpirationDate: array[4] of Date;
+        Qty: array[4] of Integer;
+        Index: Integer;
+    begin
+        // [SCENARIO 472665] DP&P Location and we allow you to change the Place line of a Put away into a "Receive" Bin Type. Now you cannot pick from it or move it via reclass or movement.
+
+        // [GIVEN] Initialize Setup, create Location, and sete initial values for Quantity, Lot, and Expiration Date
+        Initialize();
+        LocationCode := CreateFullWMSLocation(1, true);
+        InitQtys(MinQty, Qty, 2, 2, 10, 6);
+        for Index := 1 to ArrayLen(LotNo) do begin
+            LotNo[Index] := LibraryUtility.GenerateGUID();
+            ExpirationDate[Index] := CalcDate(StrSubstNo('<%1M>', Index), WorkDate());
+        end;
+
+        // [GIVEN] Item had Item Tracking Code with Lot Tracking and Man. Expir. Date Entry Reqd.
+        ItemNo := CreateItemWithItemTrackingCode(true, true, false, false, true);
+
+        // [GIVEN] Pick Bin and 3 Put-away Bins "B1", "B2" and "B3", Bin Ranking was higher for Pick Bin
+        // [GIVEN] Fixed Bin Content for Pick Bin with the Item, Min Qty = 10, Max Qty = 30
+        LibraryWarehouse.FindBin(PutAwayBin, LocationCode, FindZone(LocationCode, FindBinType(false, false, false, true)), 1);
+        LibraryWarehouse.CreateNumberOfBins(LocationCode, PutAwayBin."Zone Code", PutAwayBin."Bin Type Code", 2, false);
+        LibraryWarehouse.FindBin(PickBin, LocationCode, FindZone(LocationCode, FindBinType(false, false, false, true)), 1);
+        SetBinRanking(PickBin, PutAwayBin."Bin Ranking" + LibraryRandom.RandInt(10));
+        LibraryWarehouse.CreateBinContent(
+          BinContent, LocationCode, PickBin."Zone Code", PickBin.Code, ItemNo, '', GetItemBaseUoM(ItemNo));
+        UpdateBinContentForReplenishment(BinContent, MinQty, 3 * MinQty, PickBin."Bin Ranking", PickBin."Bin Type Code");
+
+        // [THEN] Released Purchase Order with Item Tracking
+        CreatePurchaseOrderWithLocationAndItem(PurchaseHeader, LocationCode, ItemNo, 2 * MinQty);
+        PrepareItemTrackingLinesPurchase(PurchaseHeader, LotNo, ExpirationDate, Qty);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Posted Whse Receipt
+        PostWhseReceipt(PurchaseHeader);
+
+        // [THEN] Find PutAway, Bin, Warehouse Activity Line, and Update Zone Code
+        FindPutAway(WarehouseActivityHeader, ItemNo);
+        FilterWhseActivityLines(WarehouseActivityLine, WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Place);
+        LibraryWarehouse.FindBin(PutAwayBin, LocationCode, PutAwayBin."Zone Code", 0);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Zone Code", PutAwayBin."Zone Code");
+
+        // [Verify] Error should occur while validating Bin Code for Put-away Place Lines
+        asserterror WarehouseActivityLine.Validate("Bin Code", PutAwayBin.Code);
     end;
 
     local procedure Initialize()

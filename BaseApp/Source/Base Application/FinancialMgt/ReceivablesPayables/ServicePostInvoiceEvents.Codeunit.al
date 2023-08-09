@@ -181,4 +181,14 @@ codeunit 827 "Service Post Invoice Events"
     local procedure OnPostLinesOnBeforeGenJnlLinePost(var GenJnlLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; TempInvoicePostingBuffer: Record "Invoice Posting Buffer"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean; SuppressCommit: Boolean)
     begin
     end;
+
+    procedure RunOnPrepareLineAfterGetGenPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; ServiceLineACY: Record "Service Line")
+    begin
+        OnPrepareLineAfterGetGenPostingSetup(GeneralPostingSetup, ServiceHeader, ServiceLine, ServiceLineACY);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareLineAfterGetGenPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; ServiceLineACY: Record "Service Line")
+    begin
+    end;
 }

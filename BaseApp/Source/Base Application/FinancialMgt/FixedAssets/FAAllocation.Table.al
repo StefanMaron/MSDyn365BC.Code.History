@@ -26,13 +26,19 @@ table 5615 "FA Allocation"
             TableRelation = "G/L Account";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if "Account No." = '' then
                     exit;
                 GLAcc.Get("Account No.");
                 GLAcc.CheckGLAcc();
-                if "Allocation Type".AsInteger() < "Allocation Type"::Gain.AsInteger() then
-                    GLAcc.TestField("Direct Posting");
+
+                IsHandled := false;
+                OnValidateAccountNoOnBeforeTestFieldDirectPosting(Rec, IsHandled);
+                if not IsHandled then
+                    if "Allocation Type".AsInteger() < "Allocation Type"::Gain.AsInteger() then
+                        GLAcc.TestField("Direct Posting");
                 Description := GLAcc.Name;
             end;
         }
@@ -161,6 +167,11 @@ table 5615 "FA Allocation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var FAAllocation: Record "FA Allocation"; var xFAAllocation: Record "FA Allocation"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAccountNoOnBeforeTestFieldDirectPosting(var FAAllocation: Record "FA Allocation"; var IsHandled: Boolean)
     begin
     end;
 }

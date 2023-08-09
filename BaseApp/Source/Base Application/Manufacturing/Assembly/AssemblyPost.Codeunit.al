@@ -632,7 +632,6 @@ codeunit 900 "Assembly-Post"
             ItemJnlLine."Document Line No." := 0;
             ItemJnlLine."Order No." := "No.";
             ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Assembly;
-            ItemJnlLine."Dimension Set ID" := "Dimension Set ID";
             ItemJnlLine."Shortcut Dimension 1 Code" := "Shortcut Dimension 1 Code";
             ItemJnlLine."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
             ItemJnlLine."Order Line No." := 0;
@@ -657,6 +656,7 @@ codeunit 900 "Assembly-Post"
             ItemJnlLine."Variant Code" := "Variant Code";
             ItemJnlLine.Description := Description;
             ItemJnlLine.Validate("Location Code", "Location Code");
+            ItemJnlLine."Dimension Set ID" := "Dimension Set ID";
             ItemJnlLine."Bin Code" := "Bin Code";
             ItemJnlLine."Indirect Cost %" := "Indirect Cost %";
             ItemJnlLine."Overhead Rate" := "Overhead Rate";

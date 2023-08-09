@@ -7,7 +7,7 @@ codeunit 456 "Job Queue Management"
         ExecuteEndSuccessMsg: label 'Job finished executing.\Status: %1', Comment = '%1 is a status value, e.g. Success';
         ExecuteEndErrorMsg: label 'Job finished executing.\Status: %1\Error: %2', Comment = '%1 is a status value, e.g. Success, %2=Error message';
         JobSomethingWentWrongMsg: Label 'Something went wrong and the job has stopped. Likely causes are system updates or routine maintenance processes. To restart the job, set the status to Ready.';
-        JobQueueEntriesCategoryTxt: Label 'AL JobQueueEntries', Locked = true;
+        JobQueueDelegatedAdminCategoryTxt: Label 'AL JobQueueEntries Delegated Admin', Locked = true;
         JobQueueStatusChangeTxt: Label 'The status for Job Queue Entry: %1 has changed.', Comment = '%1 is the Job Queue Entry Id', Locked = true;
         StaleJobQueueEntryTxt: Label 'Stale Job Queue Entry', Locked = true;
         StaleJobQueueLogEntryTxt: Label 'Stale Job Queue Log Entry', Locked = true;
@@ -219,9 +219,9 @@ codeunit 456 "Job Queue Management"
             JobQueueEntry.SetStatus(JobQueueEntry.Status::"On Hold");
             Commit();
             ApprovalsMgmt.OnSendJobQueueEntryForApproval(JobQueueEntry);
-            FeatureTelemetry.LogUsage('0000JQE', JobQueueEntriesCategoryTxt, DelegatedAdminSendingApprovalLbl);
+            FeatureTelemetry.LogUsage('0000JQE', JobQueueDelegatedAdminCategoryTxt, DelegatedAdminSendingApprovalLbl);
         end else begin
-            FeatureTelemetry.LogError('0000JQD', JobQueueEntriesCategoryTxt, DelegatedAdminSendingApprovalLbl, JobQueueWorkflowSetupErr);
+            FeatureTelemetry.LogError('0000JQD', JobQueueDelegatedAdminCategoryTxt, DelegatedAdminSendingApprovalLbl, JobQueueWorkflowSetupErr);
             Error(JobQueueWorkflowSetupErr);
         end;
     end;

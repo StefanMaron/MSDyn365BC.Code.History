@@ -92,7 +92,7 @@ codeunit 99000787 "Create Prod. Order Lines"
                     ProdOrderLine.Validate("Unit of Measure Code", FamilyLine."Unit of Measure Code");
                     ProdOrderLine.Validate(Quantity, FamilyLine.Quantity * ProdOrder.Quantity);
                     ProdOrderLine."Routing No." := Family."Routing No.";
-                    ProdOrderLine."Routing Reference No." := 0;
+                    ProdOrderLine."Routing Reference No." := ProdOrderLine."Line No.";
                     ProdOrderLine.UpdateDatetime();
                     OnCopyFromFamilyOnBeforeInsertProdOrderLine(ProdOrderLine, FamilyLine);
                     InsertProdOrderLine();

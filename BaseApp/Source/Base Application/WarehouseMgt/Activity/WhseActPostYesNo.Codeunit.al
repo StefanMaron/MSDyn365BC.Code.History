@@ -91,6 +91,8 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
         WhseActivityPost.SetIsPreview(IsPreview);
         WhseActivityPost.Run(WhseActivLine);
         Clear(WhseActivityPost);
+
+        OnAfterSetParamsAndRunWhseActivityPost(WhseActivLine, HideDialog, PrintDoc, Selection);
     end;
 
     [IntegrationEvent(false, false)]
@@ -145,6 +147,11 @@ codeunit 7323 "Whse.-Act.-Post (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelectForOtherTypes(var WhseActivLine: Record "Warehouse Activity Line"; var Result: Boolean; var IsHandled: Boolean; var Selection: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetParamsAndRunWhseActivityPost(var WarehouseActivityLine: Record "Warehouse Activity Line"; HideDialog: Boolean; PrintDoc: Boolean; Selection: Integer)
     begin
     end;
 }

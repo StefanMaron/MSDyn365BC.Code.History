@@ -237,24 +237,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType OutOfLimitErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - NamedType 3494735008" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Set up and enable the Sales and Inventory Forecast service.</source>
-          <target state="translated">Konfigurera och aktivera tjänsten för försäljnings- och lagerprognos.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastBusinessSetupDescriptionTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - NamedType 3760830540" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sales,Inventory,Forecast</source>
-          <target state="translated">Försäljning,Lager,Prognos</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastBusinessSetupKeywordsTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - NamedType 586424512" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sales and Inventory Forecast</source>
-          <target state="translated">Försäljnings- och lagerprognos</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastNameTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2836764293 - NamedType 3120113686" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Let Business Central analyze historical data to predict future demand, so you can base procurement decisions on accurate and reliable forecasts, and help your company avoid lost revenue, optimize shipping costs, discover trends, and boost your brand reputation by always delivering on orders. Set it up now.</source>
           <target state="translated">Låt Business Central analysera historiska data för att förutse framtida efterfrågan, så att du kan basera anskaffningsbesluten på korrekta och pålitliga prognoser och hjälpa ditt företag undvika att förlora intäkter, optimera leveranskostnader, upptäcka trender och förstärka ditt varumärkes anseende genom att alltid leverera enligt order. Konfigurera lösningen nu.</target>

@@ -18,5 +18,12 @@ codeunit 1544 "Workflow Webhook Subscription"
     begin
         WorkflowWebhookManagement.RejectByStepInstanceId(WorkflowStepInstanceId);
     end;
+
+    procedure Cancel(WorkflowStepInstanceId: Guid)
+    var
+        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
+    begin
+        WorkflowWebhookManagement.CancelByStepInstanceId(WorkflowStepInstanceId);
+    end;
 }
 

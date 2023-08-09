@@ -25,8 +25,9 @@ report 5172 "Delete Expired Sales Quotes"
                     CurrReport.Break();
                 end;
 
-                if not Confirm(StrSubstNo(ConfirmQst, ValidToDate), false) then
-                    Error('');
+                if GuiAllowed then
+                    if not Confirm(StrSubstNo(ConfirmQst, ValidToDate), false) then
+                        Error('');
 
                 DeleteAll(true);
             end;

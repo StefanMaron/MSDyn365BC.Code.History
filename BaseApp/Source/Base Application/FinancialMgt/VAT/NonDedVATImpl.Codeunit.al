@@ -450,10 +450,31 @@ codeunit 6201 "Non-Ded. VAT Impl."
         if ExistingVATPostingSetup.FindSet() then
             repeat
                 if (ExistingVATPostingSetup."VAT Bus. Posting Group" <> VATPostingSetup."VAT Bus. Posting Group") or (ExistingVATPostingSetup."VAT Prod. Posting Group" <> VATPostingSetup."VAT Prod. Posting Group") then
-                    If ExistingVATPostingSetup."Non-Deductible VAT %" <> VATPostingSetup."Non-Deductible VAT %" then
+                    if ExistingVATPostingSetup."Non-Deductible VAT %" <> VATPostingSetup."Non-Deductible VAT %" then
                         error(DifferentNonDedVATRatesSameVATIdentifierErr, ExistingVATPostingSetup."VAT Bus. Posting Group", ExistingVATPostingSetup."VAT Prod. Posting Group");
             until ExistingVATPostingSetup.Next() = 0;
         CheckUnrealizedVATWithNonDeductibleVATInVATPostingSetup(VATPostingSetup);
+    end;
+
+    procedure CheckNonDeductibleVATPctIsAllowed(PurchaseLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        if not IsNonDeductibleVATEnabled() then
+            exit;
+        NonDeductibleVAT.OnBeforeCheckNonDeductibleVATPctIsAllowed(PurchaseLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PurchaseLine."Non-Deductible VAT %" = 0 then
+            exit;
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseLine."Document No.");
+        PurchaseLine.SetFilter("Line No.", '<>%1', PurchaseLine."Line No.");
+        PurchaseLine.SetRange("VAT Identifier", PurchaseLine."VAT Identifier");
+        PurchaseLine.SetFilter("Non-Deductible VAT %", '<>%1', PurchaseLine."Non-Deductible VAT %");
+        if PurchaseLine.FindFirst() then
+            error(DifferentNonDedVATRatesSameVATIdentifierErr, PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
     end;
 
     procedure CheckNonDeductibleVATAmountDiff(var TempVATAmountLine: Record "VAT Amount Line" temporary; xTempVATAmountLine: Record "VAT Amount Line" temporary; AllowVATDifference: Boolean; Currency: Record Currency)

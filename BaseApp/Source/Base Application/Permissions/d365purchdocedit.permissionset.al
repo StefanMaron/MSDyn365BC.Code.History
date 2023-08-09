@@ -76,6 +76,7 @@ permissionset 5807 "D365 PURCH DOC, EDIT"
                   tabledata "VAT Rate Change Setup" = R,
                   tabledata "VAT Setup" = R,
                   tabledata "VAT Posting Parameters" = R,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata Vendor = RM,
                   tabledata "Vendor Bank Account" = R,
                   tabledata "Vendor Invoice Disc." = R,

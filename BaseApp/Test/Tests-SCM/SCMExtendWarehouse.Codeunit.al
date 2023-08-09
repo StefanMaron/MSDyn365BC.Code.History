@@ -61,6 +61,8 @@ codeunit 137030 "SCM Extend Warehouse"
         MSG_UPDATE_LINES: Label 'You have changed the To Bin Code on the Internal Movement Header, but it has not been changed on the existing internal movement lines.';
         MSG_WHSEEMPLEE: Label 'You cannot use Location Code';
         MSG_BIN_MANDATORY: Label 'Bin Mandatory must be ';
+        ToBinCodeShouldNotBeBlankErr: Label 'To Bin Code should not be blank.';
+        ToZoneCodeShouldNotBeBlankErr: Label 'To Zone Code should not be blank.';
 
     [Normal]
     local procedure Initialize()
@@ -7346,6 +7348,129 @@ codeunit 137030 "SCM Extend Warehouse"
         AssertProdOrderComponent(ProductionOrder, ChildItem2."No.", 20, 20, 0, 0, LocationWhite.Code, ToBin[1].Code, 1);
     end;
 
+    [Test]
+    procedure PopulateDefaultBinCodeAndZoneCodeInMovementWorksheet()
+    var
+        WorkCenter: Record "Work Center";
+        BOMItem: Record Item;
+        ComponentItem: Record Item;
+        WarehouseEmployee: Record "Warehouse Employee";
+        BinContent: Record "Bin Content";
+        Bin: Record Bin;
+        BinType: Record "Bin Type";
+        Zone: Record Zone;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        UnitOfMeasure: Record "Unit of Measure";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        ProductionOrder: Record "Production Order";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WarehouseActivityLine2: Record "Warehouse Activity Line";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+    begin
+        // [SCENARIO 476906] When using the Movement Worksheet and creating a Movement for Production Output - the default Place Zone Code and Bin Code is not populated in a Directed Put-away & Pick Location even with Default Bin Code defined
+        Initialize();
+
+        // [GIVEN] Create a BOM Item & Validate Replenishment System.
+        LibraryInventory.CreateItem(BOMItem);
+        BOMItem.Validate("Replenishment System", BOMItem."Replenishment System"::"Prod. Order");
+        BOMItem.Modify(true);
+
+        // [GIVEN] Create a Unit Of Measure & Update BOM Item.
+        UpdateItemWithUnitOfMeasure(UnitOfMeasure, BOMItem."No.");
+
+        // [GIVEN] Create a Component Item.
+        LibraryInventory.CreateItem(ComponentItem);
+
+        // [GIVEN] Create a Default Warehouse Employee for Location White.
+        CreateDefaultWarehouseEmployee(WarehouseEmployee, LocationWhite.Code);
+
+        // [GIVEN] Create a WorkCenter with Calendar.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+
+        // [GIVEN] Create a Production BOM Header.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasure.Code);
+
+        // [GIVEN] Create a Production BOM Line.
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Certify Production BOM.
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Create a Routing Header.
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+
+        // [GIVEN] Create a Routing Line & Validate Run Time.
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(0)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Run Time", LibraryRandom.RandInt(0));
+        RoutingLine.Modify(true);
+
+        // [GIVEN] Certify Routing.
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Validate Production BOM & Routing in BOM Item.
+        BOMItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        BOMItem.Validate("Routing No.", RoutingHeader."No.");
+        BOMItem.Modify(true);
+
+        //Create a Bin Type.
+        CreateBinTypeCode(BinType);
+
+        // Create a Zone for Location White.
+        LibraryWarehouse.CreateZone(Zone, Format(LibraryRandom.RandText(4)), LocationWhite.Code, BinType.Code, '', '', LibraryRandom.RandIntInRange(10, 50), false);
+
+        // [GIVEN] Create a Bin for Location White.
+        LibraryWarehouse.CreateBin(Bin, LocationWhite.Code, Format(LibraryRandom.RandText(3)), Zone.Code, BinType.Code);
+
+        // [GIVEN] Create a Bin Content for Location White & Set it as Default.
+        LibraryWarehouse.CreateBinContent(BinContent, LocationWhite.Code, Bin."Zone Code", Bin.Code, BOMItem."No.", '', BOMItem."Base Unit of Measure");
+        BinContent.Validate(Default, true);
+        BinContent.Validate("Bin Type Code", BinType.Code);
+        BinContent.Modify(true);
+
+        // [GIVEN] Create a Warehouse Journal Line for Component Item with Bin.
+        CreateWarehouseJournalLine(WarehouseJournalLine, Bin, WarehouseJournalTemplate.Type::Item, ComponentItem."No.", LibraryRandom.RandDecInRange(1, 20, 0), false);
+
+        // [GIVEN] Register Warehouse Journal Line.
+        LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", LocationWhite.Code, true);
+
+        // [GIVEN] Calculate Warehouse Adjustment for Component Item & Post Item Journal Line.
+        CalculateWarehouseAdjustmentAndPostItemJournalLine(ComponentItem);
+
+        // [GIVEN] Create a Released Production Order & Refresh it.
+        CreateRelProdOrderAndRefresh(ProductionOrder, BOMItem."No.", 1, LocationWhite.Code, '');
+
+        // [GIVEN] Create Warehouse Pick from Released Production Order.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+
+        // [GIVEN] Register Warehouse Pick.
+        RegisterWarehouseActivity(ProductionOrder."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [GIVEN] Create & Post Production Journal Lines from Released Production Order.
+        CreateAndPostProductionJournal(ProductionOrder);
+
+        // [GIVEN] Change Released production order Status to Finished.
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
+
+        // [GIVEN] Get Bin Content on Movement Worksheet.
+        GetBinContentOnMovementWorksheet(WhseWorksheetLine, LocationWhite.Code, BOMItem."No.");
+
+        // [GIVEN] Create Movement from Movement Worksheet & Post Warehouse Movement.
+        LibraryWarehouse.WhseSourceCreateDocument(WhseWorksheetLine, "Whse. Activity Sorting Method"::None, false, false, false);
+
+        // [WHEN] Find Warehouse Movement Line.
+        WarehouseActivityLine2.Setrange("Action Type", WarehouseActivityLine2."Action Type"::Place);
+        WarehouseActivityLine2.Setrange("Item No.", BOMItem."No.");
+        WarehouseActivityLine2.FindLast();
+
+        // [VERIFY] Verify To Bin Code & To Zone Code are not blank.
+        Assert.AreNotEqual('', WarehouseActivityLine2."Bin Code", ToBinCodeShouldNotBeBlankErr);
+        Assert.AreNotEqual('', WarehouseActivityLine2."Zone Code", ToZoneCodeShouldNotBeBlankErr);
+    end;
+
     local procedure UpdateMachineCenterOnRoutingLine(var ProductionOrder: Record "Production Order"; var MachineCenter: array[2] of Record "Machine Center")
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
@@ -7518,6 +7643,112 @@ codeunit 137030 "SCM Extend Warehouse"
         WorkCenter.Get(RoutingLine."No.");
         WorkCenter.Validate("Flushing Method", FlushingMethodOfWorkCenter);
         WorkCenter.Modify(true);
+    end;
+
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Enum "Warehouse Activity Type")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, Type);
+        WarehouseActivityHeader.Get(Type, WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindFirst();
+    end;
+
+    local procedure UpdateItemWithUnitOfMeasure(var UnitOfMeasure: Record "Unit of Measure"; ItemNo: Code[20])
+    var
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, ItemNo, UnitOfMeasure.Code, LibraryRandom.RandDec(10, 2));
+    end;
+
+    local procedure CreateWarehouseJournalLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; Bin: Record Bin; WarehouseJournalTemplateType: Enum "Warehouse Journal Template Type"; ItemNo: Code[20]; Quantity: Decimal; IsTracking: Boolean)
+    var
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+    begin
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplateType, Bin."Location Code");
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
+          Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        if IsTracking then
+            WarehouseJournalLine.OpenItemTrackingLines();
+    end;
+
+    local procedure CalculateWarehouseAdjustmentAndPostItemJournalLine(var Item: Record Item)
+    begin
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostProductionJournal(var ProductionOrder: Record "Production Order")
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        ProductionJournalMgt.InitSetupValues;
+        ProductionJournalMgt.SetTemplateAndBatchName();
+        ProductionJournalMgt.CreateJnlLines(ProductionOrder, ProdOrderLine."Line No.");
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Document No.", ProductionOrder."No.");
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Output);
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.Validate("Run Time", LibraryRandom.RandInt(0));
+        ItemJournalLine.Modify(true);
+        ItemJournalLine.SetRange("Entry Type");
+        CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
+    end;
+
+    local procedure GetBinContentOnMovementWorksheet(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LocationCode: Code[10]; ItemNo: Code[20])
+    var
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        BinContent: Record "Bin Content";
+        WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header";
+    begin
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Movement);
+        LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, LocationCode);
+        WhseWorksheetLine.DeleteAll(true);
+        WhseWorksheetLine.Init();
+        WhseWorksheetLine.Validate("Worksheet Template Name", WhseWorksheetName."Worksheet Template Name");
+        WhseWorksheetLine.Validate(Name, WhseWorksheetName.Name);
+        BinContent.SetRange("Location Code", LocationCode);
+        BinContent.SetRange("Item No.", ItemNo);
+        WhseInternalPutAwayHeader.Init();
+        LibraryWarehouse.WhseGetBinContent(
+            BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::MovementWorksheet);
+    end;
+
+    local procedure CreateDefaultWarehouseEmployee(var WarehouseEmployee: Record "Warehouse Employee"; LocationCode: Code[20])
+    begin
+        WarehouseEmployee.DeleteAll();
+        WarehouseEmployee.Init();
+        WarehouseEmployee.Validate("User ID", UserId);
+        WarehouseEmployee.Validate("Location Code", LocationCode);
+        WarehouseEmployee.Validate(Default, true);
+        WarehouseEmployee.Insert(true);
+    end;
+
+    local procedure CreateBinTypeCode(var BinType: Record "Bin Type")
+    begin
+        BinType.SetRange("Put Away", true);
+        BinType.SetRange(Pick, true);
+        BinType.FindFirst();
+        BinType.Delete();
+        LibraryWarehouse.CreateBinType(BinType, false, false, true, true);
     end;
 
     [ModalPageHandler]

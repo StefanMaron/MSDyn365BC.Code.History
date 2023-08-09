@@ -243,6 +243,12 @@
           <note from="Developer" annotates="general" priority="2">%1, %2 - strings to concatenate</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType TwoStringsTxt</note>
         </trans-unit>
+        <trans-unit id="Codeunit 3522532737 - NamedType 636250536" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 %2</source>
+          <target state="translated">%1 %2</target>
+          <note from="Developer" annotates="general" priority="2">%1, %2 - strings to concatenate</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Mapping Helper - NamedType TwoStringsWithSpaceTxt</note>
+        </trans-unit>
         <trans-unit id="Codeunit 3522532737 - NamedType 777588163" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>A chart of accounts does not exist in the current company.</source>
           <target state="translated">Il n’existe pas de plan de comptes dans la société actuelle.</target>

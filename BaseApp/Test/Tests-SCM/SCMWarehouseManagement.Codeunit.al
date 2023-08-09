@@ -33,6 +33,7 @@ codeunit 137064 "SCM Warehouse Management"
         LibraryRandom: Codeunit "Library - Random";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        WhseShipmentRelease: Codeunit "Whse.-Shipment Release";
         Initialized: Boolean;
         WarehouseOperations: Label 'The entered information may be disregarded by warehouse activities.';
         PutAwayActivitiesCreated: Label 'Number of Invt. Put-away activities created: 1 out of a total of 1.';
@@ -2713,6 +2714,65 @@ codeunit 137064 "SCM Warehouse Management"
         Assert.AreEqual(Qty, QtyOnOutboundBins, '');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure VerifyWarehouseShipmentLineUpdatedCorrectly()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        Qty: Decimal;
+        QtytoShip: Decimal;
+    begin
+        // [FEATURE] [Sales Order] [Warehouse Shipment]
+        // [SCENARIO 478583] Warehouse shipment line is updated wrongly when undoing a shipment
+        Initialize();
+
+        // [GIVEN] Setup: Create Item, setup quantities, update inventory for Item
+        LibraryInventory.CreateItem(Item);
+        Qty := LibraryRandom.RandDecInRange(10, 20, 2);
+        QtytoShip := LibraryRandom.RandDecInRange(8, 9, 2);
+        UpdateInventoryOnLocationWithWhseAdjustment(LocationWhite, Item, Qty);
+
+        // [GIVEN] Create and Release Sales Order
+        CreateAndReleaseSalesOrderWithOneSalesLine(SalesHeader, Item."No.", LocationWhite.Code, Qty);
+
+        // [GIVEN] Create Warehouse Shipment from Sales Order
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, LocationWhite.Code);
+
+        // [GIVEN] Registered Pick for Warehouse Shipment
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        FindWarehouseActivityHeader(WarehouseActivityHeader, LocationWhite.Code, WarehouseActivityHeader.Type::Pick);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Update Qty to Ship on Whse Shipment line.
+        UpdateQtyToShipOnWhseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader."No.", QtytoShip);
+
+        // [WHEN] Post Warehouse Shipment
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] Re-open and delete the Warehouse Shipment
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, LocationWhite.Code);
+        WhseShipmentRelease.Reopen(WarehouseShipmentHeader);
+        WarehouseShipmentHeader.Delete(true);
+
+        // [THEN] Create Warehouse Shipment again from Sales Order
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [WHEN] Undo Shipment
+        UndoSalesShipmentLine(SalesLine, SalesHeader."No.");
+
+        // [VERIFY] Verify: Warehouse Shipmet Line Qunatity and Sales Line Quantity are equal
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, LocationWhite.Code);
+        FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader, Item."No.");
+        Assert.AreEqual(SalesLine.Quantity, WarehouseShipmentLine.Quantity, QtyErr);
+    end;
+
     [Normal]
     local procedure Initialize()
     var
@@ -3578,6 +3638,55 @@ codeunit 137064 "SCM Warehouse Management"
         RegisteredWhseActivityLine.SetRange("Item No.", ItemNo);
         RegisteredWhseActivityLine.FindFirst();
         RegisteredWhseActivityLine.TestField("Bin Code", BinCode);
+    end;
+
+    local procedure CreateAndReleaseSalesOrderWithOneSalesLine(
+        var SalesHeader: Record "Sales Header";
+        ItemNo: Code[20];
+        LocationCode: Code[10];
+        Quantity: Decimal)
+    var
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesHeader(SalesHeader, Customer."No.", '', SalesHeader."Shipping Advice"::Partial);
+        CreateSalesLine(SalesHeader, SalesLine, ItemNo, LocationCode, Quantity);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure UpdateQtyToShipOnWhseShipmentLine(
+        var WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        No: Code[20];
+        QtyToShip: Decimal)
+    begin
+        WarehouseShipmentLine.SetRange("No.", No);
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.Validate("Qty. to Ship", QtyToShip);
+        WarehouseShipmentLine.Modify(true);
+    end;
+
+    local procedure UndoSalesShipmentLine(var SalesLine: Record "Sales Line"; OrderNo: Code[20])
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+    begin
+        SalesLine.SetRange("Document No.", OrderNo);
+        SalesLine.FindFirst();
+        SalesShipmentLine.SetRange("Order No.", OrderNo);
+        SalesShipmentLine.SetRange("Order Line No.", SalesLine."Line No.");
+        SalesShipmentLine.FindFirst();
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+    end;
+
+    local procedure FindWarehouseShipmentLine(
+        var WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        ItemNo: Code[20])
+    begin
+        WarehouseShipmentLine.Reset();
+        WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
+        WarehouseShipmentLine.SetRange("Item No.", ItemNo);
+        WarehouseShipmentLine.FindFirst();
     end;
 
     [RequestPageHandler]

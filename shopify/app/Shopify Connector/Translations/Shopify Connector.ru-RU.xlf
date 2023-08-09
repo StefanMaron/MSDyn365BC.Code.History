@@ -4917,6 +4917,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Activities - Control UnmappedProducts - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 234408897 - Control 2079618469 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of shipments that are failed to synchronize.</source>
+          <target state="translated">Определяет количество отгрузок, которые не удалось синхронизировать.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Activities - Control ShipmentErrors - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 234408897 - Control 2294954182 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Shop info</source>
           <target state="translated">Сведения о магазине Shopify</target>
@@ -5439,11 +5445,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Locations Mapping - Control DefaultLocationCode - Property ToolTip</note>
         </trans-unit>
+        <trans-unit id="Page 3081489686 - Control 1846745759 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if this is a fulfillment service location.</source>
+          <target state="translated">Определяет, является ли это местонахождение местонахождением службы выполнения.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Locations Mapping - Control Is Fulfillment Service - Property ToolTip</note>
+        </trans-unit>
         <trans-unit id="Page 3081489686 - Control 1864907812 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if the location is enabled/disabled for send stock information to Shopify.</source>
           <target state="translated">Указывает, включена ли для склада отправка информации о запасах в Shopify.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Locations Mapping - Control Disabled - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3081489686 - Control 2019373255 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The default product locations will be added to new products in Shopify.</source>
+          <target state="translated">Используемые по умолчанию местонахождения продуктов будут добавляться в новые продукты в Shopify.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Shpfy Shop Locations Mapping - Control Default Product Location - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 3081489686 - Control 2961552353 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the location.</source>
@@ -9417,6 +9435,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Cue - Field Unprocessed Orders - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 1487806969 - Field 3794577789 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Shipments Errors</source>
+          <target state="translated">Ошибки отгрузок</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Cue - Field Shipment Errors - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 1487806969 - Field 38261347 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unmapped Customers</source>
           <target state="translated">Несопоставленные клиенты</target>
@@ -11139,11 +11163,23 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop Location - Field Shop Code - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 298531255 - Field 1846745759 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Is Fulfillment Service</source>
+          <target state="translated">Является службой выполнения</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop Location - Field Is Fulfillment Service - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 298531255 - Field 1864907812 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Disabled</source>
           <target state="translated">Отключен</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop Location - Field Disabled - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 298531255 - Field 2019373255 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Default Product Location</source>
+          <target state="translated">Местонахождение продукта по умолчанию</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop Location - Field Default Product Location - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 298531255 - Field 237762718 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Version</source>
@@ -12944,6 +12980,12 @@
           <target state="translated">Можно указать не более 250 тегов.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Tag - Method OnInsert - NamedType MaxTagsErr</note>
+        </trans-unit>
+        <trans-unit id="Table 298531255 - Field 2019373255 - Method 2126772001 - NamedType 2015683432" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You can not use standard Shopify Locations with FulFillment Service Locations.</source>
+          <target state="translated">Стандартные местонахождения Shopify нельзя использовать в сочетании с местонахождениями служб выполнения.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Shpfy Shop Location - Field Default Product Location - Method OnValidate - NamedType MixLocationTypeErr</note>
         </trans-unit>
         <trans-unit id="Table 1118872714 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Shopify Customer Address</source>

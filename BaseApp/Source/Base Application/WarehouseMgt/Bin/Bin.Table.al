@@ -532,7 +532,13 @@ table 7354 Bin
         WhseActivLine: Record "Warehouse Activity Line";
         WhseRcptLine: Record "Warehouse Receipt Line";
         WhseShptLine: Record "Warehouse Shipment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckEmptyBin(Rec, ErrorText, IsHandled);
+        if IsHandled then
+            exit;
+
         WarehouseEntry.SetCurrentKey("Bin Code", "Location Code");
         WarehouseEntry.SetRange("Bin Code", Code);
         WarehouseEntry.SetRange("Location Code", "Location Code");
@@ -689,6 +695,11 @@ table 7354 Bin
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnModify(var Bin: Record Bin; var xBin: Record Bin; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEmptyBin(var Bin: Record Bin; ErrorText: Text[250]; var IsHandled: Boolean)
     begin
     end;
 }

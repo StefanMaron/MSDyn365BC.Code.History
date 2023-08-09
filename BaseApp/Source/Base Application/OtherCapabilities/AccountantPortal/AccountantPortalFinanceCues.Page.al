@@ -436,6 +436,7 @@ page 1315 "Accountant Portal Finance Cues"
     var
         FinanceCue: Record "Finance Cue";
         GeneralLedgerSetup: Record "General Ledger Setup";
+        ApprovalActivitiesCue: Record "Approvals Activities Cue";
         CuesAndKpis: Codeunit "Cues and KPIs";
         AcctWebServicesMgt: Codeunit "Acct. WebServices Mgt.";
         StringConversionManagement: Codeunit StringConversionManagement;
@@ -538,6 +539,17 @@ page 1315 "Accountant Portal Finance Cues"
         TempString := Format("Last Depreciated Posted Date");
         LastDepreciatedPostedDateAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         LastDepreciatedPostedDateStyle := LastDepreciatedPostedDateStyle::None;
+
+        ApprovalActivitiesCue.SetRange("User ID Filter", UserId);
+        ApprovalActivitiesCue.CalcFields("Requests to Approve");
+        TempString := Format(ApprovalActivitiesCue."Requests to Approve");
+        RequestsToApproveAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
+        CuesAndKpis.SetCueStyle(Database::"Approvals Activities Cue", ApprovalActivitiesCue.FieldNo("Requests to Approve"), ApprovalActivitiesCue."Requests to Approve", RequestsToApproveStyle);
+
+        ApprovalActivitiesCue.CalcFields("Requests Sent for Approval");
+        TempString := Format(ApprovalActivitiesCue."Requests Sent for Approval");
+        RequestsSentForApprovalAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
+        CuesAndKpis.SetCueStyle(Database::"Approvals Activities Cue", ApprovalActivitiesCue.FieldNo("Requests Sent for Approval"), ApprovalActivitiesCue."Requests Sent for Approval", RequestsSentForApprovalStyle);
     end;
 
     local procedure GetLastLoginDate()

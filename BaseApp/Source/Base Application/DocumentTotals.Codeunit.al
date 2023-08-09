@@ -48,6 +48,7 @@ codeunit 57 "Document Totals"
 
     procedure CalculateSalesSubPageTotals(var TotalSalesHeader: Record "Sales Header"; var TotalSalesLine: Record "Sales Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal)
     var
+        SalesHeader: Record "Sales Header";
         SalesLine2: Record "Sales Line";
         TotalSalesLine2: Record "Sales Line";
         IsHandled: Boolean;
@@ -91,7 +92,11 @@ codeunit 57 "Document Totals"
             with TotalSalesHeader do
                 case "Invoice Discount Calculation" of
                     "Invoice Discount Calculation"::"%":
-                        InvoiceDiscountPct := "Invoice Discount Value";
+                        begin
+                            SalesHeader.Get(TotalSalesHeader."Document Type", TotalSalesHeader."No.");
+                            TotalSalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+                            InvoiceDiscountPct := TotalSalesHeader."Invoice Discount Value";
+                        end;
                     "Invoice Discount Calculation"::None,
                     "Invoice Discount Calculation"::Amount:
                         begin
@@ -612,6 +617,7 @@ codeunit 57 "Document Totals"
 
     procedure CalculatePurchaseSubPageTotals(var TotalPurchaseHeader: Record "Purchase Header"; var TotalPurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal)
     var
+        PurchaseHeader: Record "Purchase Header";
         PurchaseLine2: Record "Purchase Line";
         TotalPurchaseLine2: Record "Purchase Line";
         IsHandled: Boolean;
@@ -655,7 +661,11 @@ codeunit 57 "Document Totals"
             with TotalPurchaseHeader do
                 case "Invoice Discount Calculation" of
                     "Invoice Discount Calculation"::"%":
-                        InvoiceDiscountPct := "Invoice Discount Value";
+                        begin
+                            PurchaseHeader.Get(TotalPurchaseHeader."Document Type", TotalPurchaseHeader."No.");
+                            TotalPurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+                            InvoiceDiscountPct := TotalPurchaseHeader."Invoice Discount Value";
+                        end;
                     "Invoice Discount Calculation"::None,
                     "Invoice Discount Calculation"::Amount:
                         begin

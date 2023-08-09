@@ -1795,6 +1795,42 @@ codeunit 134266 "Payment Recon. E2E Tests 2"
         asserterror BankAccountStatement.Get(BankAccNo, StatementNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MsgHandler')]
+    procedure BankAccountReconciliationDoesNotExistIfImportBankStatement()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccReconciliationListPage: TestPage "Bank Acc. Reconciliation List";
+    begin
+        // [SCENARIO 477062] Verify Bank Account Reconciliation is created If we import bank statements for only one bank account in the company.
+        Initialize();
+
+        // [GIVEN] Delete all the bank accounts.
+        BankAccount.DeleteAll();
+
+        // [GIVEN] Create a new bank account.
+        CreateBankAcc(SEPA_CAMT_Txt, BankAccount, '');
+
+        // [GIVEN] Creates an XML file with the bank account ID.
+        WriteCAMTFile_BankAccID(BankAccount."Bank Account No.");
+
+        // [GIVEN] Create a new bank account reconciliation.
+        BankAccReconciliationPage.Trap();
+        BankAccReconciliationListPage.OpenNew();
+
+        // [WHEN] Import a bank statement.
+        BankAccReconciliationPage.OpenEdit();
+        BankAccReconciliationPage.ImportBankStatement.Invoke();
+
+        // [Verify] Verify that a bank account reconciliation line has been created.
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccount."No.");
+
+        Assert.RecordIsNotEmpty(BankAccReconciliationLine);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";

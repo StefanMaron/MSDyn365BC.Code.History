@@ -366,8 +366,12 @@ codeunit 7320 "Whse. Undo Quantity"
         with PostedWhseShptLine do begin
             WhseShptLine.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
             if WhseShptLine.FindFirst() then begin
-                WhseShptLine.Validate("Qty. Shipped", WhseShptLine."Qty. Shipped" - Quantity);
-                WhseShptLine.Validate("Qty. Outstanding", WhseShptLine."Qty. Outstanding" + Quantity);
+                if WhseShptLine."Qty. Shipped" <> 0 then begin
+                    WhseShptLine.Validate("Qty. Shipped", WhseShptLine."Qty. Shipped" - Quantity);
+                    WhseShptLine.Validate("Qty. Outstanding", WhseShptLine."Qty. Outstanding" + Quantity);
+                end else
+                    WhseShptLine.Validate(Quantity, WhseShptLine.Quantity + Quantity);
+
                 if WhseShptLine."Qty. Shipped" = 0 then begin
                     WhseShptLine.Status := WhseShptLine.Status::" ";
                     WhseShptHeader.Get(WhseShptLine."No.");

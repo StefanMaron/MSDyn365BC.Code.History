@@ -27,5 +27,6 @@ permissionset 312 "Recievables Documents - View"
                   tabledata "VAT Assisted Setup Templates" = R,
                   tabledata "VAT Posting Setup" = R,
                   tabledata "VAT Rate Change Setup" = R,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "VAT Setup Posting Groups" = R;
 }

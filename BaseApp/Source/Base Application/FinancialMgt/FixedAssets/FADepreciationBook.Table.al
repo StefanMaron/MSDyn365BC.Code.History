@@ -121,7 +121,10 @@ table 5612 "FA Depreciation Book"
                     if DeprBook2."Fiscal Year 365 Days" then
                         Error(FiscalYear365Err);
 
-                TestField("Depreciation Starting Date");
+                IsHandled := false;
+                OnValidateNoofDepreciationYearsOnBeforeTestFieldDeprStartingDate(Rec, IsHandled);
+                if not IsHandled then
+                    TestField("Depreciation Starting Date");
                 ModifyDeprFields();
                 ShowDeprMethodError := ("No. of Depreciation Years" <> 0) and not LinearMethod();
                 OnValidateNoofDepreciationYearsOnAfterCalcShowDeprMethodError(Rec, ShowDeprMethodError);
@@ -152,7 +155,10 @@ table 5612 "FA Depreciation Book"
                     if DeprBook2."Fiscal Year 365 Days" then
                         Error(FiscalYear365Err);
 
-                TestField("Depreciation Starting Date");
+                IsHandled := false;
+                OnValidateNoofDepreciationMonthsOnBeforeTestFieldDeprStartingDate(Rec, IsHandled);
+                if not IsHandled then
+                    TestField("Depreciation Starting Date");
                 ModifyDeprFields();
                 ShowDeprMethodError := ("No. of Depreciation Months" <> 0) and not LinearMethod();
                 OnValidateNoofDepreciationMonthsOnAfterCalcShowDeprMethodError(Rec, ShowDeprMethodError);
@@ -247,7 +253,10 @@ table 5612 "FA Depreciation Book"
                 IsHandled: Boolean;
                 ShowDeprMethodError: Boolean;
             begin
-                TestField("Depreciation Starting Date");
+                IsHandled := false;
+                OnValidateDepreciationEndingDateOnBeforeTestFieldDeprStartingDate(Rec, IsHandled);
+                if not IsHandled then
+                    TestField("Depreciation Starting Date");
                 ShowDeprMethodError := ("Depreciation Ending Date" <> 0D) and not LinearMethod();
                 OnValidateDepreciationEndingDateOnAfterCalcShowDeprMethodError(Rec, ShowDeprMethodError);
                 if ShowDeprMethodError then
@@ -1201,6 +1210,21 @@ table 5612 "FA Depreciation Book"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckApplyDeprBookDefaults(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDepreciationEndingDateOnBeforeTestFieldDeprStartingDate(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoofDepreciationYearsOnBeforeTestFieldDeprStartingDate(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoofDepreciationMonthsOnBeforeTestFieldDeprStartingDate(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
 }

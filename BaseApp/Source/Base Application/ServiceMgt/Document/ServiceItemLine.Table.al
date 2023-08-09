@@ -2319,7 +2319,16 @@ table 5901 "Service Item Line"
     end;
 
     procedure CalculateResponseTimeHours(): Decimal
+    var
+        IsHandled: Boolean;
+        ResponseTimeHours: Decimal;
     begin
+        ResponseTimeHours := 0;
+        IsHandled := false;
+        OnBeforeCalculateResponseTimeHours(Rec, ResponseTimeHours, IsHandled);
+        if IsHandled then
+            exit(ResponseTimeHours);
+
         if "Contract No." <> '' then begin
             if "Service Item No." <> '' then begin
                 ServContractLine.Reset();
@@ -3042,6 +3051,11 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateContractNo(var ServiceItemLine: Record "Service Item Line"; var xServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateResponseTimeHours(var ServiceItemLine: Record "Service Item Line"; var ResponseTimeHours: Decimal; var IsHandled: Boolean);
     begin
     end;
 }

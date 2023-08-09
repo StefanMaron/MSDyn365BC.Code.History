@@ -181,24 +181,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType OutOfLimitErr</note>
         </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - NamedType 3494735008" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Set up and enable the Sales and Inventory Forecast service.</source>
-          <target state="translated">Set up and enable the Sales and Inventory Forecast service.</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastBusinessSetupDescriptionTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - NamedType 3760830540" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sales,Inventory,Forecast</source>
-          <target state="translated">Sales,Inventory,Forecast</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastBusinessSetupKeywordsTxt</note>
-        </trans-unit>
-        <trans-unit id="Codeunit 2836764293 - NamedType 586424512" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>Sales and Inventory Forecast</source>
-          <target state="translated">Sales and Inventory Forecast</target>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Sales Forecast Handler - NamedType SalesForecastNameTxt</note>
-        </trans-unit>
         <trans-unit id="Codeunit 2836764293 - NamedType 3788244515" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You must specify an API key and an API URI in the Sales and Inventory Forecast Setup page.</source>
           <target state="translated">You must specify an API key and an API URI in the Sales and Inventory Forecast Setup page.</target>

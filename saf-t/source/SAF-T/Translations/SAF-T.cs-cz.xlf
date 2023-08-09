@@ -1,0 +1,938 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="cs-CZ" original="SAF-T">
+    <body>
+      <group id="body">
+        <trans-unit id="Codeunit 1858010751 - NamedType 3074412423" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The %1 page is part of the new SAF-T feature, which is not enabled yet in your Business Central. An administrator can enable the feature on the Feature Management page.</source>
+          <target state="translated">Stránka %1 je součástí nové funkce SAF-T, která ještě není ve vašem Business Central povolena. Správce může tuto funkci povolit na stránce Správa funkcí.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - page caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit SAF-T Data Mgt. - NamedType FeatureNotEnabledMsg</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 191443960" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting Item Ledger Entry Types...</source>
+          <target state="translated">Export typů položek zboží...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingMovementTypesTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 2087603512" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting Items and Resources...</source>
+          <target state="translated">Export zboží a zdrojů...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingProductsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 2267997863" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting Payments...</source>
+          <target state="translated">Export plateb...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingPaymentsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 2308184551" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting G/L entries:</source>
+          <target state="translated">Export věcných položek:</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingGLEntriesTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 2379590836" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting VAT Posting Setup...</source>
+          <target state="translated">Export Nastavení účtování DPH...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingVATPostingSetupTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 2391796242" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting Movement of Goods...</source>
+          <target state="translated">Export pohybu zboží...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingMovementOfGoodsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 31545485" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting customers:</source>
+          <target state="translated">Export zákazníků:</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingCustomersTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 3241276167" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting Purchase Invoices:</source>
+          <target state="translated">Export nákupních faktur:</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingPurchaseInvoicesTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 3325356209" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting Fixed Assets...</source>
+          <target state="translated">Export dlouhodobého majetku...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingAssetsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 3369811046" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Blank</source>
+          <target state="translated">Prázdné</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType BlankTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 3381910885" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting vendors:</source>
+          <target state="translated">Export dodavatelů:</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingVendorsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 35759633" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting Dimensions...</source>
+          <target state="translated">Export dimenzí...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingDimensionsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 51091546" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting Sales Invoices:</source>
+          <target state="translated">Export prodejních faktur:</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingSalesInvoicesTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 551742765" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting Asset Transactions...</source>
+          <target state="translated">Export transakcí s majetkem...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingAssetTransactionsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 638935147" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Generating header...</source>
+          <target state="translated">Generování hlavičky...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType GeneratingHeaderTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 730525319" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting G/L accounts:</source>
+          <target state="translated">Export finančních účtů:</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingGLAccountsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 810117619" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting Warehouse Entries...</source>
+          <target state="translated">Export skladových položek...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingPhysicalStockTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 1983080780 - NamedType 811665637" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Exporting Unit of Measures...</source>
+          <target state="translated">Exportní měrná jednotka...</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Generate File SAF-T - NamedType ExportingUOMTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2317830889 - NamedType 23328419" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Documents</source>
+          <target state="translated">Zdrojové dokumenty</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Data Handling SAF-T - NamedType SourceDocumentsTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2317830889 - NamedType 841626667" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>General Ledger Entries from %1 to %2</source>
+          <target state="translated">Věcné položky od %1 do %2</target>
+          <note from="Developer" annotates="general" priority="2">%1, %2 - starting and ending date</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Data Handling SAF-T - NamedType GLEntriesTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2317830889 - NamedType 895813024" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Master Data</source>
+          <target state="translated">Master Data</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Data Handling SAF-T - NamedType MasterDataTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 3814701653 - NamedType 2041796227" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not possible to insert element %1</source>
+          <target state="translated">Nelze vložit prvek %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 - node text</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Xml Helper SAF-T Public - NamedType NotPossibleToInsertErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 4259920734 - NamedType 2041796227" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not possible to insert element %1</source>
+          <target state="translated">Nelze vložit prvek %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 - node text</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Xml Helper SAF-T - NamedType NotPossibleToInsertErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 481965730 - NamedType 1936075235" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 is not specified</source>
+          <target state="translated">%1 není specifikováno</target>
+          <note from="Developer" annotates="general" priority="2">%1 - missed field caption</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Audit Data Check SAF-T - NamedType FieldValueIsNotSpecifiedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 905179705 - NamedType 1184871457" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Assorted Journals</source>
+          <target state="translated">Různé deníky</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Mapping Helper SAF-T - NamedType AssortedJournalsSourceCodeDescriptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 905179705 - NamedType 1460283503" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>General Ledger Journals</source>
+          <target state="translated">Deníky hlavní knihy</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Mapping Helper SAF-T - NamedType GeneralLedgerJournalsSourceCodeDescriptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 905179705 - NamedType 2765860070" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Receivables</source>
+          <target state="translated">Účet pohledávek</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Mapping Helper SAF-T - NamedType AccountReceivablesSourceCodeDescriptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 905179705 - NamedType 3192184248" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Account Payables</source>
+          <target state="translated">Účet závazků</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Mapping Helper SAF-T - NamedType AccountPayablesSourceCodeDescriptionLbl</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 905179705 - NamedType 3876717098" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1/%2</source>
+          <target state="translated">%1/%2</target>
+          <note from="Developer" annotates="general" priority="2">%1 - count, %2 - total count</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Mapping Helper SAF-T - NamedType CountOutOfTotalTxt</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 918030317 - NamedType 2290190938" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One or more dimensions do not have a SAF-T analysis code. Open the Dimensions page and specify a SAF-T analysis code for each dimension.</source>
+          <target state="translated">Jedna nebo více dimenzí nemá kód analýzy SAF-T. Otevřete stránku Dimenze a zadejte kód analýzy SAF-T pro každou dimenzi.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Check Mgt. SAF-T - NamedType DimensionWithoutAnalysisCodeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 918030317 - NamedType 352177340" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>At least one of the following values must not be blank: %1</source>
+          <target state="translated">Alespoň jedna z následujících hodnot nesmí být prázdná: %1</target>
+          <note from="Developer" annotates="general" priority="2">%1 = list of field captions</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Check Mgt. SAF-T - NamedType MultipleValuesMissedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 918030317 - NamedType 367979656" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>One or more source codes do not have a SAF-T source code. Open the Source Codes page and specify a SAF-T source code for each source code.</source>
+          <target state="translated">Jeden nebo více kódů původu nemá kód původu SAF-T. Otevřete stránku Kódy původu a zadejte kód původu SAF-T pro každý kód původu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Check Mgt. SAF-T - NamedType SourceCodeWithoutSAFTCodeErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 918030317 - NamedType 3737374975" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source> or </source>
+          <target state="translated"> nebo </target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Check Mgt. SAF-T - NamedType OrTok</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 918030317 - NamedType 4100968325" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A field value missed</source>
+          <target state="translated">Chyběla hodnota pole</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Data Check Mgt. SAF-T - NamedType MissedValueErr</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 1161618275 - EnumValue 2880136412 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SAF-T</source>
+          <target state="translated">SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 1217862704</note>
+        </trans-unit>
+        <trans-unit id="EnumExtension 2425870997 - EnumValue 3675641207 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Government</source>
+          <target state="translated">Vláda</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Enum 1522950594</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Action 1462567861 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create a chart of accounts in Business Central from SAF-T standard accounts codes, with either two or four digits depending on mapping type selected in the previous step.</source>
+          <target state="translated">Vytvořte účetní osnovu v Business Central ze standardních kódů účtů SAF-T, se dvěmi nebo čtyřmi číslicemi v závislosti na typu mapování vybraném v předchozím kroku.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Action CreateChartOfAccounts - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Action 1462567861 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Create chart of accounts</source>
+          <target state="translated">Vytvořit účetní osnovu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Action CreateChartOfAccounts - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Action 2438272767 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Back</source>
+          <target state="translated">Zpět</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Action ActionBack - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Action 3259912055 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Finish</source>
+          <target state="translated">Dokončit</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Action ActionFinish - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Action 326275288 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Automatically match existing G/L accounts with SAF-T standard accounts codes, with either two or four digits depending on the mapping type selected in the previous step.</source>
+          <target state="translated">Automaticky spárujte existující finanční účty se standardními kódy účtů SAF-T, se dvěmi nebo čtyřmi číslicemi v závislosti na typu mapování vybraném v předchozím kroku.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Action MatchChartOfAccounts - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Action 326275288 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Match chart of accounts</source>
+          <target state="translated">Párování účetní osnovy</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Action MatchChartOfAccounts - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Action 914282563 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Next</source>
+          <target state="translated">Další</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Action ActionNext - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3351508045 - Control 3891180100 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the values you missed you specify.</source>
+          <target state="translated">Určuje hodnoty, které jste nezadali.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Check SAF-T - Control MissedValuesListControl - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3351508045 - Control 3891180100 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Missed values</source>
+          <target state="translated">Chybějící hodnoty</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Check SAF-T - Control MissedValuesListControl - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3650281282 - Control 1824987418 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if G/L entries with no source codes must be exported with this SAF-T source code.</source>
+          <target state="translated">Určuje, zda musí být věcné položky bez kódů původu exportovány s tímto kódem původu SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Source Codes SAF-T - Control IncludesNoSourceCode - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3650281282 - Control 3004954119 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the SAF-T source code.</source>
+          <target state="translated">Určuje kód původu SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Source Codes SAF-T - Control Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3650281282 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the SAF-T source code description.</source>
+          <target state="translated">Určuje popis kódu původu SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Source Codes SAF-T - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 1121962313 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control StandardBanner - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 1182202415 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You're ready to use the SAF-T functionality. Do an additional mapping on the G/L Account Mapping page if needed. Open the Audit File Export Document page to export the data in the SAF-T format.</source>
+          <target state="translated">Jste připraveni používat funkcionalitu SAF-T. V případě potřeby proveďte další mapování na stránce Mapování finančních účtů. Otevřete stránku Dokument exportu souboru auditu a exportujte data ve formátu SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control FinishDescription - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 1182202415 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control FinishDescription - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 1412901032 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the period of the first SAF-T file. Choose Next to map your chart of accounts to the values that SAF-T requires.</source>
+          <target state="translated">Zadejte období prvního souboru SAF-T. Kliknutím na tlačítko Další namapujte účtovou osnovu na hodnoty, které vyžaduje SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control ChooseMappingRangeChild - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 1412901032 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the period of the first SAF-T file</source>
+          <target state="translated">Zadejte periodu prvního souboru SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control ChooseMappingRangeChild - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 146194493 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>When sending your SAF-T file to the tax authorities, each G/L account must be mapped to either a financial standard account or the income statement for the type of business.</source>
+          <target state="translated">Při odesílání souboru SAF-T daňovým úřadům musí být každý finanční účet namapován buď na standardní finanční účet nebo na výsledovku pro daný typ podnikání.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control MappingSourceNotLoaded - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 146194493 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Select standard chart of accounts</source>
+          <target state="translated">Vyberte standardní účetní osnovu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control MappingSourceNotLoaded - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 1597877536 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the starting date of the accounting period.</source>
+          <target state="translated">Určuje počáteční datum účetního období.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control AccountingPeriod - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 1597877536 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Accounting Period</source>
+          <target state="translated">Účetní období</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control AccountingPeriod - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 1891128134 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Accounts Mapped:</source>
+          <target state="translated">Namapované finanční účty:</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control GLAccountsMappedInfo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 2093587482 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify a value in the Sales VAT Reporting Code field and/or the Purchase VAT Reporting Code field depending on type of operations you perform with the certain combination.</source>
+          <target state="translated">Zadejte hodnotu do pole Kód vykazování DPH z prodeje nebo Kód vykazování DPH nákupu v závislosti na typu operací, které provádíte s určitou kombinací.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control StandardTaxCodesGeneral - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 2093587482 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Map VAT posting setup to VAT reporting codes</source>
+          <target state="translated">Mapování nastavení účtování DPH na kódy vykazování DPH</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control StandardTaxCodesGeneral - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 2203603252 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The SAF-T setup is completed!</source>
+          <target state="translated">Nastavení SAF-T je dokončeno!</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control FinishedChild - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 2414211674 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the preferred standard account type and choose Next.</source>
+          <target state="translated">Zadejte upřednostňovaný standardní typ účtu a klikněte na tlačítko Další.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control MappingSourceLoaded - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 2758287844 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the user does understand the update procedure and agree to proceed.</source>
+          <target state="translated">Určuje, zda uživatel rozumí postupu aktualizace a souhlasí s pokračováním.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control Agreed - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 2758287844 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>I accept the data update</source>
+          <target state="translated">Souhlasím s aktualizací dat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control Agreed - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 300852202 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control FinishedBanner - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 3445333619 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify a value in the Starting Date field for each VAT posting setup entry.</source>
+          <target state="translated">Zadejte hodnotu do pole Počáteční datum pro každou položku nastavení účtování DPH.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control VATStartingDateGeneral - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 3445333619 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set starting date for the VAT posting setup entries</source>
+          <target state="translated">Nastavení počátečního data pro položky nastavení účtování DPH</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control VATStartingDateGeneral - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the description of what is going to happen during the data update task.</source>
+          <target state="translated">Určuje popis toho, co se bude dít během úlohy aktualizace dat.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 3520583103 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Posting Setup mapped:</source>
+          <target state="translated">Zmapováno nastavení účtování DPH:</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control VATMappedCount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 3572599862 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the preferred standard account type and then choose the Import the source files for mapping button. Import the mapping codes for standard tax and according to the mapping type specified in the field. Then choose Next.</source>
+          <target state="translated">Zadejte upřednostňovaný standardní typ účtu a poté klikněte na tlačítko Importovat zdrojové soubory pro mapování. Importujte kódy mapování pro standardní daň a podle typu mapování zadaného v poli. Pak zvolte Další.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control MappingSourceOnPrem - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 3592094765 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ending date of the period in which the mapping is valid.</source>
+          <target state="translated">Určuje koncové datum období, ve kterém je mapování platné.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control EndingDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 3592094765 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ending Date</source>
+          <target state="translated">Koncové datum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control EndingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 376187383 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>What is updated</source>
+          <target state="translated">Co je aktualizováno</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control WhatIsUpdated - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 3797089627 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Employee No.</source>
+          <target state="translated">Číslo zaměstnance</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control SAFTContactNo - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 3800514526 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Welcome to the setup of SAF-T</source>
+          <target state="translated">Vítejte v nastavení SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control Welcome - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 414586598 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Change the value of SAF-T Export on Dimensions page if a certain dimension must be skipped from export to the SAF-T File.</source>
+          <target state="translated">Změňte hodnotu exportu SAF-T na stránce Dimenze, pokud je nutné přeskočit určitou dimenzi z exportu do souboru SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control DimensionExportGeneral - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 414586598 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Export dimensions to SAF-T</source>
+          <target state="translated">Export dimenzí do SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control DimensionExportGeneral - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 43593927 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of the accounting period.</source>
+          <target state="translated">Určuje název účetního období.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control PeriodType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 43593927 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Accounting Period Type</source>
+          <target state="translated">Typ účetního období</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control PeriodType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 543275552 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the starting date of the period in which the mapping is valid.</source>
+          <target state="translated">Určuje počáteční datum období, ve kterém je mapování platné.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control StartingDate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 543275552 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starting Date</source>
+          <target state="translated">Počáteční datum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control StartingDate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 575692331 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>For each general ledger account, select the SAF-T account or grouping code depending on the mapping type selected in the previous step.</source>
+          <target state="translated">Pro každý finanční účet vyberte účet SAF-T nebo kód seskupení v závislosti na typu mapování vybraném v předchozím kroku.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control DoMappingGeneral - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 575692331 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Map SAF-T accounts to your chart of accounts</source>
+          <target state="translated">Mapujte účty SAF-T do své účtové osnovy</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control DoMappingGeneral - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 705636630 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of the standard general ledger accounts.</source>
+          <target state="translated">Určuje typ standardních finančních účtů.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control StandardAccountType - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 705636630 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Standard Account Type</source>
+          <target state="translated">Standardní typ účtu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control StandardAccountType - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 793767738 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the employee responsible for the content of the SAF-T File. The information about the contact will be exported to the SAF-T file.</source>
+          <target state="translated">Zadejte zaměstnance odpovědného za obsah souboru SAF-T. Informace o kontaktu budou exportovány do souboru SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control ContactGeneral - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 793767738 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specify the employee to contact</source>
+          <target state="translated">Určete zaměstnance, kterého chcete kontaktovat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control ContactGeneral - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 859857378 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The SAF-T (Standard Audit File - Tax) is a standard file format for exporting various types of accounting transactional data using the XML format. This guide helps you set up SAF-T for Dynamics 365 Business Central. If you do not have a chart of accounts, this guide helps you to create it based on SAF-T standard chart of accounts. If you do not want to set this up right now, close this page.</source>
+          <target state="translated">SAF-T (Standard Audit File - Tax) je standardní formát souboru pro export různých typů účetních transakcí dat pomocí formátu XML. Tento průvodce vám pomůže nastavit SAF-T pro Dynamics 365 Business Central. Pokud nemáte účetní osnovu, tento průvodce vám ji pomůže vytvořit na základě standardní účetní osnovy SAF-T. Pokud ji teď nechcete nastavit, zavřete tuto stránku.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control SAFTDescription - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Control 859857378 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source></source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Control SAFTDescription - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4189706051 - Control 1246077090 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the relevant VAT rate for the particular combination of VAT business posting group and VAT product posting group. Do not enter the percent sign, only the number. For example, if the VAT rate is 25 %, enter 25 in this field.</source>
+          <target state="translated">Určuje odpovídající sazbu DPH pro konkrétní kombinace obchodní DPH účto  skupiny a DPH účto skupiny zboží. Nezadávejte znak procento, pouze číslici. Například, pokud sazba DPH je 25 %, vložte do pole 25.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Posting Setup SAF-T - Control VAT % - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4189706051 - Control 1844012642 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.</source>
+          <target state="translated">Určuje specifikaci DPH příslušného zákazníka nebo dodavatele pro propojení transakcí provedených pro tento záznam s příslušným finančním účtem dle nastavení účtování DPH.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Posting Setup SAF-T - Control VAT Bus. Posting Group - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4189706051 - Control 2291296253 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code of the VAT posting setup that will be used for the TaxCode XML node in the SAF-T file for the sales VAT entries.</source>
+          <target state="translated">Určuje kód nastavení účtování DPH, který bude použit pro uzel XML TaxCode v souboru SAF-T pro položky DPH.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Posting Setup SAF-T - Control Sales VAT Code SAF-T - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4189706051 - Control 236064653 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the VAT product posting group. Links business transactions made for the item, resource, or G/L account with the general ledger, to account for VAT amounts resulting from trade with that record.</source>
+          <target state="translated">Určuje DPH účto skupinu zboží. Propojení obchodních transakcí uskutečněných pro zboží, zdroje nebo finanční účet v hlavní knize, k účtu pro DPH částky vyplývající z obchodu s tímto záznamem.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Posting Setup SAF-T - Control VAT Prod. Posting Group - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4189706051 - Control 2728285990 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code of the VAT posting setup that will be used for the StandardTaxCode XML node in the SAF-T file for the purchase VAT entries.</source>
+          <target state="translated">Určuje kód nastavení účtování DPH, který bude použit pro uzel XML StandardTaxCode v souboru SAF-T pro položky nákupní DPH.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Posting Setup SAF-T - Control Purch. VAT Reporting Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4189706051 - Control 2971014054 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies how VAT will be calculated for purchases or sales of items with this particular combination of VAT business posting group and VAT product posting group.</source>
+          <target state="translated">Určuje způsob výpočtu DPH pro nákupy nebo prodej zboží s touto konkrétní kombinací DPH obchodní účto skupiny a DPH účto skupiny zboží.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Posting Setup SAF-T - Control VAT Calculation Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4189706051 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies a description of the VAT posting setup</source>
+          <target state="translated">Určuje popis nastavení účtování DPH</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Posting Setup SAF-T - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4189706051 - Control 4274949637 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code of the VAT posting setup that will be used for the StandardTaxCode XML node in the SAF-T file for the sales VAT entries.</source>
+          <target state="translated">Určuje kód nastavení účtování DPH, který bude použit pro uzel XML StandardTaxCode v souboru SAF-T pro položky DPH.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Posting Setup SAF-T - Control Sale VAT Reporting Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4189706051 - Control 460889064 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the starting date of the VAT posting setup entry. It will be used for the EffectiveDate XML node in the SAF-T file.</source>
+          <target state="translated">Určuje počáteční datum položky nastavení účtování DPH. Použije se pro uzel XML EffectiveDate v souboru SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Posting Setup SAF-T - Control Starting Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4189706051 - Control 814335372 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code of the VAT posting setup that will be used for the TaxCode XML node in the SAF-T file for the purchase VAT entries.</source>
+          <target state="translated">Určuje kód nastavení účtování DPH, který bude použit pro uzel XML TaxCode v souboru SAF-T pro položky DPH nákupu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Posting Setup SAF-T - Control Purchase VAT Code SAF-T - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3351508045 - NamedType 2104704394" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You can turn-off this notification in the SAF-T Setup page.</source>
+          <target state="translated">Toto oznámení můžete vypnout na stránce Nastavení SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Check SAF-T - NamedType TurnOffNotificationMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - NamedType 1154975446" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Review affected data</source>
+          <target state="translated">Kontrola ovlivněných dat</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - NamedType ReviewDataTok</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - NamedType 1248164630" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A source for mapping was not loaded due to the following error: %1.</source>
+          <target state="translated">Zdroj mapování nebyl načten z důvodu následující chyby: %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - error text</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - NamedType MappingSourceNotLoadedMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - NamedType 1269338287" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the setup page to define which dimensions to export to SAF-T.</source>
+          <target state="translated">Otevřete stránku nastavení a definujte, které dimenze se mají exportovat do SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - NamedType OpenDimensionExportSetupLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - NamedType 1730087084" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A mapping range was not set up due to the following error: %1.</source>
+          <target state="translated">Rozsah mapování nebyl nastaven z důvodu následující chyby: %1.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - error text</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - NamedType MappingRangeNotSetupMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - NamedType 1934323751" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the setup page to define G/L account mappings.</source>
+          <target state="translated">Otevřete stránku nastavení a definujte mapování finančních účtů.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - NamedType OpenMappingSetupLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - NamedType 243693635" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must provide mapping for all G/L accounts in the company.</source>
+          <target state="translated">Musíte zadat mapování pro všechny finanční účty ve společnosti.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - NamedType GLAccountMappingRemainderTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - NamedType 2838187212" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>A standard account type is not specified.</source>
+          <target state="translated">Standardní typ účtu není zadán.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - NamedType StandardAccTypeNotSpecifiedErr</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - NamedType 2909238033" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT posting setups without a mapping will be exported with the NA value to the XML file.</source>
+          <target state="translated">Nastavení účtování DPH bez mapování bude exportováno s hodnotou NA do souboru XML.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - NamedType VATMappingNARemainderTxt</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - NamedType 3999457684" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Open the setup page to define VAT Posting Setup necessary field values.</source>
+          <target state="translated">Otevřete stránku nastavení a definujte hodnoty polí Nastavení účtování DPH.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - NamedType OpenTaxMappingSetupLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - NamedType 984350027" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Set up SAF-T has not been completed.\\Are you sure that you want to exit?</source>
+          <target state="translated">Nastavení ještě nebylo dokončeno.\\Opravdu chcete skončit?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - NamedType SetupNotCompletedQst</note>
+        </trans-unit>
+        <trans-unit id="Page 3351508045 - Property 1968111052" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The following fields are not set up correctly for SAF-T. Do you want to fill them in now?</source>
+          <target state="translated">Následující pole nejsou správně nastavena pro SAF-T. Chcete je nyní vyplnit?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Check SAF-T - Property InstructionalText</note>
+        </trans-unit>
+        <trans-unit id="Page 3351508045 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Data Check SAF-T</source>
+          <target state="translated">Kontrola dat SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Data Check SAF-T - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3650281282 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SAF-T Source Codes</source>
+          <target state="translated">Kódy původu SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Source Codes SAF-T - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3918905259 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SAF-T Setup Guide</source>
+          <target state="translated">Průvodce nastavením SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page SAF-T Setup Wizard - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4189706051 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>VAT Posting Setup SAF-T</source>
+          <target state="translated">Nastavení účtování DPH SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page VAT Posting Setup SAF-T - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 1933267346 - Control 2425194633 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies that currency information must be included in the export to the audit file.</source>
+          <target state="translated">Určuje, že informace o měně musí být zahrnuty do exportu do souboru auditu.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2635072399</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 247127863 - Control 1930012613 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the payment method to use when no value is specified for a payment or a refund.</source>
+          <target state="translated">Určuje způsob platby, který se má použít, pokud není zadána žádná hodnota pro platbu nebo refundaci.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3665447164</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 3650281282 - Control 568551500 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the code that will be exported to the JournalID XML node in the SAF-T file.</source>
+          <target state="translated">Určuje kód, který bude exportován do uzlu XML JournalID v souboru SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2170603285</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 530782654 - Control 3797089627 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the employee of the company whose information will be exported as the contact for the SAF-T file.</source>
+          <target state="translated">Určuje zaměstnance společnosti, jehož informace budou exportovány jako kontakt pro soubor SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 3469146285</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 753838746 - Control 2809465974 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the SAF-T code that will be exported to AnalysisType XML node of the SAF-T file.</source>
+          <target state="translated">Určuje kód SAF-T, který bude exportován do uzlu XML AnalysisType souboru SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2173385693</note>
+        </trans-unit>
+        <trans-unit id="PageExtension 753838746 - Control 3675218945 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if information about this dimension will be exported to the SAF-T file.</source>
+          <target state="translated">Určuje, zda budou informace o této dimenzi exportovány do souboru SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Page 2173385693</note>
+        </trans-unit>
+        <trans-unit id="Query 1330594197 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>FA Ledger Entry SAF-T</source>
+          <target state="translated">Položka DM SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query FA Ledger Entry SAF-T - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1334939021 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Qty. Item Ledger Entry SAF-T</source>
+          <target state="translated">Množství položky zboží SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Qty. Item Ledger Entry SAF-T - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 1534562925 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Cust. Ledger Entry SAF-T</source>
+          <target state="translated">Položka zákazníka SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Cust. Ledger Entry SAF-T - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2237340796 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Vendor Ledger Entry SAF-T</source>
+          <target state="translated">Položka dodavatele SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Vendor Ledger Entry SAF-T - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 2659440447 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>G/L Entry SAF-T</source>
+          <target state="translated">Věcné položky SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query G/L Entry SAF-T - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Query 3541642403 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Item Ledger Entry SAF-T</source>
+          <target state="translated">Položka zboží SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Query Item Ledger Entry SAF-T - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3219172725 - Field 1787409580 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Group No.</source>
+          <target state="translated">Číslo skupiny</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Missing Field SAF-T - Field Group No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3219172725 - Field 2897660500 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Record ID</source>
+          <target state="translated">ID záznamu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Missing Field SAF-T - Field Record ID - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3219172725 - Field 3017471043 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Table No.</source>
+          <target state="translated">Číslo tabulky</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Missing Field SAF-T - Field Table No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3219172725 - Field 3531868071 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field No.</source>
+          <target state="translated">Číslo pole</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Missing Field SAF-T - Field Field No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3219172725 - Field 823559016 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Field Caption</source>
+          <target state="translated">Titulek pole</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Missing Field SAF-T - Field Field Caption - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3241486271 - Field 3004954119 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Code</source>
+          <target state="translated">Kód</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Source Code SAF-T - Field Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3241486271 - Field 3289481650 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Includes No Source Code</source>
+          <target state="translated">Neobsahuje žádný kód původu</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Source Code SAF-T - Field Includes No Source Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3241486271 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Popis</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Source Code SAF-T - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3241486271 - NamedType 145639983" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SAF-T source code %1 already has the Include No Source Code enabled. You cannot set this option for multiple SAF-T source codes.</source>
+          <target state="translated">Kód původu SAF-T %1 již má povolenou možnost Nezahrnout žádný kód původu. Tuto možnost nelze nastavit pro více kódů původu SAF-T.</target>
+          <note from="Developer" annotates="general" priority="2">%1 = SAF-T source code no, like GL,AR,AP and so on</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Source Code SAF-T - NamedType IncludeNoSourceCodeAlreadyExistErr</note>
+        </trans-unit>
+        <trans-unit id="Table 3219172725 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Missing Field SAF-T</source>
+          <target state="translated">Chybějící pole SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Missing Field SAF-T - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3241486271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SAF-T Source Code</source>
+          <target state="translated">Kód původu SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Source Code SAF-T - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 247127863 - Field 1930012613 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Default Payment Method Code</source>
+          <target state="translated">Výchozí kód způsobu platby</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3665447164</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 247127863 - Field 2345991345 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Dimension No.</source>
+          <target state="translated">Číslo dimenze</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3665447164</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 247127863 - Field 2721429565 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SAF-T Modification</source>
+          <target state="translated">Modifikace SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3665447164</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 247127863 - Field 3762453258 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Not Applicable VAT Code</source>
+          <target state="translated">Nepoužitelný kód DPH</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3665447164</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3241486271 - Field 3241486271 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SAF-T Source Code</source>
+          <target state="translated">Kód původu SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 2720485332</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 3306340271 - Field 1786487985 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Export Currency Information</source>
+          <target state="translated">Export informací o měně</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 1532649924</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4189706051 - Field 2556425663 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Sales Tax Code SAF-T</source>
+          <target state="translated">Kód SAF-T prodejní DPH</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 4132487568</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4189706051 - Field 416836466 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Purchase Tax Code SAF-T</source>
+          <target state="translated">Kód SAF-T nákupní DPH</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 4132487568</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4189706051 - Field 460889064 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starting Date</source>
+          <target state="translated">Počáteční datum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 4132487568</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 530782654 - Field 221021734 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Contact No. SAF-T</source>
+          <target state="translated">Číslo kontaktu SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 3469146285</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 885831319 - Field 2918054083 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SAF-T Export</source>
+          <target state="translated">Export SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 881177948</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 885831319 - Field 2923342513 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>SAF-T Analysis Type</source>
+          <target state="translated">Typ analýzy SAF-T</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">Table 881177948</note>
+        </trans-unit>
+        <trans-unit id="TableExtension 4189706051 - NamedType 3443434198" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The VAT code %1 has already been used in %2 for business posting group %3 and product posting group %4.</source>
+          <target state="translated">Kód DPH %1 již byl použit v %2 pro obchodní účto skupinu %3 a účto skupinu zboží %4.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - VAT code, %2 - "VAT Posting Setup", %3 - VAT Bus. Posting Group, %4 - VAT Prod. Posting Group</note>
+          <note from="Xliff Generator" annotates="general" priority="3" />
+          <note from="ObjectTarget" annotates="general" priority="5">TableExtension 4189706051</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

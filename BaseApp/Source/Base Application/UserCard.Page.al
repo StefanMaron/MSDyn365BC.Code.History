@@ -589,6 +589,7 @@ page 9807 "User Card"
         HideExternalUsers();
 
         OnPremAskFirstUserToCreateSuper();
+        RefreshParts();
 
         Usermanagement.BasicAuthDepricationNotificationDefault(false);
         if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
@@ -855,11 +856,20 @@ page 9807 "User Card"
                 "Windows Security ID" := UserSID;
                 ValidateSid();
                 SetUserName();
-                CurrPage."User Security Groups".Page.Refresh();
-                CurrPage."Inherited Permission Sets".Page.Refresh();
+                RefreshParts();
             end else
                 Error(Text001Err, WindowsUserName);
         end;
+    end;
+
+    local procedure RefreshParts()
+    var
+        SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
+        SecurityGroup: Codeunit "Security Group";
+    begin
+        SecurityGroup.GetMembers(SecurityGroupMemberBuffer);
+        CurrPage."User Security Groups".Page.Refresh(SecurityGroupMemberBuffer);
+        CurrPage."Inherited Permission Sets".Page.Refresh(SecurityGroupMemberBuffer);
     end;
 
     local procedure OnPremAskFirstUserToCreateSuper()

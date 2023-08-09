@@ -23,6 +23,7 @@ codeunit 6500 "Item Tracking Management"
         CachedItemTrackingCode: Record "Item Tracking Code";
         ConfirmManagement: Codeunit "Confirm Management";
         UOMMgt: Codeunit "Unit of Measure Management";
+        SourceProdOrderLineForFilter: Integer;
         DueDate: Date;
         Text006: Label 'Synchronization cancelled.';
         Registering: Boolean;
@@ -2743,9 +2744,42 @@ codeunit 6500 "Item Tracking Management"
                 TempTrackingSpec."Qty. to Invoice (Base)" := Abs(TempTrackingSpec."Qty. to Invoice (Base)");
                 OnSynchronizeWhseActivItemTrkgOnAfterAssignAbsQty(TempTrackingSpec);
                 TempTrackingSpec.Modify();
+                if (WhseActivLine."Activity Type" in [WhseActivLine."Activity Type"::Pick, WhseActivLine."Activity Type"::"Invt. Pick"]) and
+                   (WhseActivLine."Action Type" <> WhseActivLine."Action Type"::Place) then
+                    CheckItemTrackingBeforeRegisterNewLines(TempTrackingSpec);
             until TempTrackingSpec.Next() = 0;
 
         RegisterNewItemTrackingLines(TempTrackingSpec, BlockCommit);
+    end;
+
+    local procedure CheckItemTrackingBeforeRegisterNewLines(var TempTrackingSpecificationToCheck: Record "Tracking Specification" temporary)
+    var
+        TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
+    begin
+        if (TempTrackingSpecificationToCheck."Lot No." = '') and (TempTrackingSpecificationToCheck."Serial No." = '') then
+            exit;
+
+        TempWarehouseActivityLine.Init();
+        TempWarehouseActivityLine."Item No." := TempTrackingSpecificationToCheck."Item No.";
+        TempWarehouseActivityLine."Variant Code" := TempTrackingSpecificationToCheck."Variant Code";
+        TempWarehouseActivityLine."Location Code" := TempTrackingSpecificationToCheck."Location Code";
+        TempWarehouseActivityLine."Bin Code" := TempTrackingSpecificationToCheck."Bin Code";
+        TempWarehouseActivityLine."Lot No." := TempTrackingSpecificationToCheck."Lot No.";
+        TempWarehouseActivityLine."Serial No." := TempTrackingSpecificationToCheck."Serial No.";
+        TempWarehouseActivityLine."Expiration Date" := TempTrackingSpecificationToCheck."Expiration Date";
+        TempWarehouseActivityLine."Qty. (Base)" := TempTrackingSpecificationToCheck."Qty. to Handle (Base)";
+        TempWarehouseActivityLine."Qty. to Handle (Base)" := TempTrackingSpecificationToCheck."Qty. to Handle (Base)";
+        TempWarehouseActivityLine."Source Type" := TempTrackingSpecificationToCheck."Source Type";
+        TempWarehouseActivityLine."Source Subtype" := TempTrackingSpecificationToCheck."Source Subtype";
+        TempWarehouseActivityLine."Source No." := TempTrackingSpecificationToCheck."Source ID";
+        TempWarehouseActivityLine."Source Line No." := TempTrackingSpecificationToCheck."Source Ref. No.";
+        TempWarehouseActivityLine."Source Subline No." := TempTrackingSpecificationToCheck."Source Prod. Order Line";
+
+        if TempTrackingSpecificationToCheck."Lot No." <> '' then
+            TempWarehouseActivityLine.CheckReservedItemTrkg(Enum::"Item Tracking Type"::"Lot No.", TempWarehouseActivityLine."Lot No.");
+
+        if TempTrackingSpecificationToCheck."Serial No." <> '' then
+            TempWarehouseActivityLine.CheckReservedItemTrkg(Enum::"Item Tracking Type"::"Serial No.", TempWarehouseActivityLine."Serial No.");
     end;
 
     local procedure RegisterNewItemTrackingLines(var TempTrackingSpec: Record "Tracking Specification" temporary; ItemTrackingLinesBlockCommit: Boolean)
@@ -2776,6 +2810,10 @@ codeunit 6500 "Item Tracking Management"
 
                 QtyToHandleToNewRegister := TempTrackingSpec."Qty. to Handle (Base)";
                 ReservEntry.TransferFields(TempTrackingSpec);
+
+                if ReservEntry."Source Type" = Database::"Prod. Order Component" then
+                    SourceProdOrderLineForFilter := ReservEntry."Source Prod. Order Line";
+
                 QtyToHandleInItemTracking :=
                   Abs(CalcQtyToHandleForTrackedQtyOnDocumentLine(
                       ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No."));
@@ -3316,7 +3354,10 @@ codeunit 6500 "Item Tracking Management"
             exit(Result);
 
         ReservEntry.SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-        ReservEntry.SetSourceFilter('', 0);
+        if SourceType = Database::"Prod. Order Component" then
+            ReservEntry.SetSourceFilter('', SourceProdOrderLineForFilter)
+        else
+            ReservEntry.SetSourceFilter('', 0);
         ReservEntry.SetFilter("Item Tracking", '<>%1', ReservEntry."Item Tracking"::None);
         OnCalcQtyToHandleForTrackedQtyOnDocumentLineOnAfterReservEntrySetFilters(ReservEntry);
         ReservEntry.CalcSums("Qty. to Handle (Base)");

@@ -20,7 +20,10 @@ codeunit 1323 "Cancel PstdSalesInv (Yes/No)"
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         IsHandled: Boolean;
     begin
-        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
+        IsHandled := false;
+        OnCancelInvoiceOnBeforeTestCorrectInvoiceIsAllowed(SalesInvoiceHeader, IsHandled);
+        if not IsHandled then
+            CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
         if Confirm(CancelPostedInvoiceQst) then
             if CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader) then
                 if Confirm(OpenPostedCreditMemoQst) then begin
@@ -38,6 +41,11 @@ codeunit 1323 "Cancel PstdSalesInv (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnCancelInvoiceOnBeforePostedSalesCreditMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCancelInvoiceOnBeforeTestCorrectInvoiceIsAllowed(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 }

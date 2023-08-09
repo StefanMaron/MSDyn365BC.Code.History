@@ -144,6 +144,7 @@ table 5089 "Contact Profile Answer"
         ProfileQuestnLine: Record "Profile Questionnaire Line";
         ProfileQuestnLine2: Record "Profile Questionnaire Line";
         ProfileQuestnLine3: Record "Profile Questionnaire Line";
+        PerformCheck: Boolean;
     begin
         ProfileQuestnLine.Get("Profile Questionnaire Code", "Line No.");
         ProfileQuestnLine.TestField(Type, ProfileQuestnLine.Type::Answer);
@@ -151,7 +152,9 @@ table 5089 "Contact Profile Answer"
         ProfileQuestnLine2.Get("Profile Questionnaire Code", QuestionLineNo());
         ProfileQuestnLine2.TestField("Auto Contact Classification", false);
 
-        if not ProfileQuestnLine2."Multiple Answers" then begin
+        PerformCheck := not ProfileQuestnLine2."Multiple Answers";
+        OnInsertOnBeforeMutipleAnswerCheck(Rec, ProfileQuestnLine, ProfileQuestnLine2, PerformCheck);
+        if PerformCheck then begin
             ContProfileAnswer.Reset();
             ProfileQuestnLine3.Reset();
             ProfileQuestnLine3.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
@@ -244,6 +247,11 @@ table 5089 "Contact Profile Answer"
             Rating.SetFilter("Rating Profile Quest. Line No.", '%1..', ProfileQuestnLine."Line No.");
 
         exit(not Rating.IsEmpty());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertOnBeforeMutipleAnswerCheck(var ContactProfileAnswer: Record "Contact Profile Answer"; var ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; var ProfileQuestionnaireLine2: Record "Profile Questionnaire Line"; var PerformCheck: Boolean);
+    begin
     end;
 }
 

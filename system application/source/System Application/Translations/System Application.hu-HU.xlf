@@ -3123,25 +3123,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Marketplace Extn Deployment - Control Language - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 523480673 - Control 1260872790 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The current value</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Current Value - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 523480673 - Control 2058393039 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>The display name</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control DisplayName - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 523480673 - Control 2432660905 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The value to replace the user information</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control New Value - Property ToolTip</note>
-        </trans-unit>
-        <trans-unit id="Page 523480673 - Control 2578412327 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The display name</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Display Name - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 293070022 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Good work!</source>
@@ -3158,11 +3143,6 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control NewLicense - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 523480673 - Control 3439090987 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The type of update</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Update Type - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 523480673 - Control 3491181912 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Confirm permission changes</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -3177,11 +3157,6 @@
           <source>Action</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control PermissionAction - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 523480673 - Control 3616446514 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>List of changes</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control ListOfChanges - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 523480673 - Control 3800514526 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Welcome to user updates</source>
@@ -3198,20 +3173,10 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control CurrentLicense - Property Caption</note>
         </trans-unit>
-        <trans-unit id="Page 523480673 - Control 419426744 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The user information that will be updated</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Information - Property ToolTip</note>
-        </trans-unit>
         <trans-unit id="Page 523480673 - Control 792907206 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Description</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control HeaderText - Property Caption</note>
-        </trans-unit>
-        <trans-unit id="Page 523480673 - Control 969389916 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
-          <source>The AAD user ID</source>
-          <note from="Developer" annotates="general" priority="2"></note>
-          <note from="Xliff Generator" annotates="general" priority="3">Page Azure AD User Update Wizard - Control Authentication Object ID - Property ToolTip</note>
         </trans-unit>
         <trans-unit id="Page 799089619 - Control 1013389983 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name translated locally.</source>

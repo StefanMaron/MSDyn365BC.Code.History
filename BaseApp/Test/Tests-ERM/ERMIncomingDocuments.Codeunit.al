@@ -17,6 +17,7 @@ codeunit 134400 "ERM Incoming Documents"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryInventory: Codeunit "Library - Inventory";
         OnlyOneDefaultAttachmentErr: Label 'There can only be one default attachment.';
         MainAttachErr: Label 'There can only be one main attachment.';
         ReplaceMainAttachmentQst: Label 'Are you sure you want to replace the attached file?';
@@ -786,6 +787,18 @@ codeunit 134400 "ERM Incoming Documents"
         CreateIncomingDocumentWithoutAttachments(IncomingDocument);
 
         FileName := CreateDummyFile('xml');
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
+        IncomingDocumentAttachment.Get(IncomingDocumentAttachment."Incoming Document Entry No.", IncomingDocumentAttachment."Line No.");
+    end;
+
+    local procedure CreateIncomingDocumentWithPDFAttachment(var IncomingDocument: Record "Incoming Document"; var IncomingDocumentAttachment: Record "Incoming Document Attachment")
+    var
+        FileName: Text;
+    begin
+        CreateIncomingDocumentWithoutAttachments(IncomingDocument);
+
+        FileName := CreateDummyFile('pdf');
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         ImportAttachToIncomingDoc(IncomingDocumentAttachment, FileName);
         IncomingDocumentAttachment.Get(IncomingDocumentAttachment."Incoming Document Entry No.", IncomingDocumentAttachment."Line No.");
@@ -1998,6 +2011,74 @@ codeunit 134400 "ERM Incoming Documents"
 
         // [THEN] List of attachments in the factbox is empty
         Assert.IsFalse(IncomingDocumentsPage.IncomingDocAttachFactBox.First(), NoAttachmentExpectedErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShowIncomingDocumentAttachedWhenOpenVendorLedgerEntries()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        IncomingDocument: Record "Incoming Document";
+        IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+    begin
+        // [SCENARIO 477906] "Error: The length of the string is 21, but it must be less than or equal to 20 characters. Value: '12000-009 (21% VAT)'" error message appears in the Incoming Document Factbox when the Document No. contains a % sign.
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create an Incoming Document.
+        CreateIncomingDocumentWithPDFAttachment(IncomingDocument, IncomingDocumentAttachment);
+
+        // [GIVEN] Create a Purchase Header & Validate Vendor Invoice No.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader.Validate("Vendor Invoice No.", Format(LibraryRandom.RandInt(1000)));
+
+        // [GIVEN] Attach Incoming Document with Purchase Invoice.
+        PurchaseHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        IncomingDocument.SetPurchDoc(PurchaseHeader);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Line with an Item.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+
+        // [GIVEN] Post Purchase Invoice.
+        CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
+
+        // [GIVEN] Find Posted Purchase Invoice.
+        PurchInvHeader.SetRange("Vendor Invoice No.", PurchaseHeader."Vendor Invoice No.");
+        PurchInvHeader.FindFirst();
+
+        // [GIVEN] Open Posted Purchase Invoice Page & Find Incoming Doc Attach FactBox.
+        PostedPurchaseInvoice.OpenEdit();
+        PostedPurchaseInvoice.GoToRecord(PurchInvHeader);
+        PostedPurchaseInvoice.IncomingDocAttachFactBox.First();
+
+        // [GIVEN] Verify Correct Incoming Document is attached to Posted Purchase Invoice & Close the Page.
+        PostedPurchaseInvoice.IncomingDocAttachFactBox.Name.AssertEquals(IncomingDocumentAttachment.Name);
+        PostedPurchaseInvoice.Close();
+
+        // [GIVEN] Find Vendor Ledger Entry.
+        VendorLedgerEntry.SetRange("Document No.", PurchInvHeader."No.");
+        VendorLedgerEntry.FindFirst();
+
+        // [WHEN] Open Vendor Ledger Entries Page & Find Incoming Doc Attach FactBox.
+        VendorLedgerEntries.OpenEdit();
+        VendorLedgerEntries.GoToRecord(VendorLedgerEntry);
+        VendorLedgerEntries.IncomingDocAttachFactBox.First();
+
+        // [VERIFY] Verify Correct Incoming Document is attached to Vendor Ledger Entries & Close the Page.
+        VendorLedgerEntries.IncomingDocAttachFactBox.Name.AssertEquals(IncomingDocumentAttachment.Name);
+        VendorLedgerEntries.Close();
     end;
 
     local procedure TestAutomaticCreationActions(DataExchangeTypeHasValue: Boolean)

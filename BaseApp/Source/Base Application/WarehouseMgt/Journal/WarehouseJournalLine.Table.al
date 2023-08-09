@@ -131,17 +131,22 @@ table 7311 "Warehouse Journal Line"
             trigger OnValidate()
             var
                 WhseItemTrackingSetup: Record "Item Tracking Setup";
+                IsHandled: Boolean;
             begin
                 if not PhysInvtEntered then
                     TestField("Phys. Inventory", false);
 
-                WhseJnlTemplate.Get("Journal Template Name");
-                if WhseJnlTemplate.Type = WhseJnlTemplate.Type::Reclassification then begin
-                    if Quantity < 0 then
-                        FieldError(Quantity, Text000);
-                end else begin
-                    GetLocation("Location Code");
-                    Location.TestField("Adjustment Bin Code");
+                IsHandled := false;
+                OnValidateQuantityOnBeforeGetWhseJnlTemplate(Rec, IsHandled);
+                if not IsHandled then begin
+                    WhseJnlTemplate.Get("Journal Template Name");
+                    if WhseJnlTemplate.Type = WhseJnlTemplate.Type::Reclassification then begin
+                        if Quantity < 0 then
+                            FieldError(Quantity, Text000);
+                    end else begin
+                        GetLocation("Location Code");
+                        Location.TestField("Adjustment Bin Code");
+                    end;
                 end;
 
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
@@ -1676,6 +1681,11 @@ table 7311 "Warehouse Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcBaseQty(var WarehouseJournalLine: Record "Warehouse Journal Line"; var Qty: Decimal; FromFieldName: Text; ToFieldName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeGetWhseJnlTemplate(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

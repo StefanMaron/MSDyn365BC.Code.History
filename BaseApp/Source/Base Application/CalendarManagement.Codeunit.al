@@ -419,6 +419,7 @@ codeunit 7600 "Calendar Management"
         LoopFactor: Integer;
         CalConvTimeFrame: Integer;
         CalendarChangeNo: Integer;
+        IsHandled: Boolean;
     begin
         if not IsOnBeforeCalcDateBOCHandled(CustomCalendarChange, CalConvTimeFrame) then begin
             CustomCalendarChange[1].AdjustSourceType();
@@ -432,6 +433,12 @@ codeunit 7600 "Calendar Management"
 
             OnCalcDateBOCOnAfterGetCalendarCodes(CustomCalendarChange);
         end;
+
+        IsHandled := false;
+        NewDate := 0D;
+        OnCalcDateBOCOnBeforeCalcNewDate(OrgDateExpression, OrgDate, CustomCalendarChange, CheckBothCalendars, NewDate, IsHandled);
+        if IsHandled then
+            exit(NewDate);
 
         Evaluate(DateFormula, OrgDateExpression);
         Evaluate(NegDateFormula, '<-0D>');
@@ -541,14 +548,17 @@ codeunit 7600 "Calendar Management"
     begin
         CustomizedCalendarChange.SetRange("Source Type", SourceType);
         CustomizedCalendarChange.SetRange("Source Code", SourceCode);
+        OnDeleteCustomizedBaseCalendarDataOnAfterFilterCalendarChange(CustomizedCalendarChange);
         CustomizedCalendarChange.DeleteAll();
 
         CustomizedCalendarEntry.SetRange("Source Type", SourceType);
         CustomizedCalendarEntry.SetRange("Source Code", SourceCode);
+        OnDeleteCustomizedBaseCalendarDataOnAfterFilterCalendarEntry(CustomizedCalendarEntry);
         CustomizedCalendarEntry.DeleteAll();
 
         WhereUsedBaseCalendar.SetRange("Source Type", SourceType);
         WhereUsedBaseCalendar.SetRange("Source Code", SourceCode);
+        OnDeleteCustomizedBaseCalendarDataOnAfterFilterWhereUsedBaseCalendar(WhereUsedBaseCalendar);
         WhereUsedBaseCalendar.DeleteAll();
     end;
 
@@ -705,6 +715,26 @@ codeunit 7600 "Calendar Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckDateStatusOnAfterCombineChanges(var TargetCustomizedCalendarChange: Record "Customized Calendar Change"; TempCustChange: Record "Customized Calendar Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcDateBOCOnBeforeCalcNewDate(var OrgDateExpression: Text[30]; var OrgDate: Date; var CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; CheckBothCalendars: Boolean; var NewDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteCustomizedBaseCalendarDataOnAfterFilterCalendarChange(var CustomizedCalendarChange: Record "Customized Calendar Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteCustomizedBaseCalendarDataOnAfterFilterCalendarEntry(var CustomizedCalendarEntry: Record "Customized Calendar Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteCustomizedBaseCalendarDataOnAfterFilterWhereUsedBaseCalendar(var WhereUsedBaseCalendar: Record "Where Used Base Calendar")
     begin
     end;
 }

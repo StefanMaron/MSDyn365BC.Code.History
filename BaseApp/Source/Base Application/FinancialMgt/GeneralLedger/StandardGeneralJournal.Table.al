@@ -111,6 +111,8 @@ table 750 "Standard General Journal"
         GenJnlLine.TransferFields(StdGenJnlLine, false);
         if (GenJnlLine."Account Type" <> GenJnlLine."Account Type"::"G/L Account") and (GenJnlLine."Account No." <> '') then
             GenJnlLine.Validate("Account No.");
+        if (GenJnlLine."Bal. Account Type" <> GenJnlLine."Bal. Account Type"::"G/L Account") and (GenJnlLine."Bal. Account No." <> '') then
+            GenJnlLine.Validate("Bal. Account No.");
         GenJnlLine.UpdateLineBalance();
         GenJnlLine."Currency Factor" := 0;
         GenJnlLine.Validate("Currency Code");
