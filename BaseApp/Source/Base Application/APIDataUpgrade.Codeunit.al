@@ -1,5 +1,11 @@
 codeunit 9994 "API Data Upgrade"
 {
+    
+    Permissions = TableData "Sales Shipment Header" = r,
+                  TableData "Sales Shipment Line" = rm,
+                  TableData "Purch. Rcpt. Header" = r,
+                  TableData "Purch. Rcpt. Line" = rm;
+                  
     trigger OnRun()
     var
         APIDataUpgrade: Record "API Data Upgrade";

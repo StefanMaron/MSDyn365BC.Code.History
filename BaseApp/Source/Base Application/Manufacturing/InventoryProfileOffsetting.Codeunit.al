@@ -4343,7 +4343,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         NextRecExists := 1;
 
         // check if reschedule is needed
-        while (SupplyInvtProfile."Due Date" <= NewDate) and
+        while (SupplyInvtProfile."Due Date" < NewDate) and
               (SupplyInvtProfile."Action Message" <> SupplyInvtProfile."Action Message"::New) and
               (SupplyInvtProfile."Planning Flexibility" = SupplyInvtProfile."Planning Flexibility"::Unlimited) and
               (SupplyInvtProfile."Fixed Date" = 0D) and

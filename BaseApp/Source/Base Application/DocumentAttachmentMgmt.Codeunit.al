@@ -1137,46 +1137,95 @@ codeunit 1173 "Document Attachment Mgmt"
                     FromDocumentAttachment.SetRange("Document Flow Purchase", true);
         end;
 
-        if FromDocumentAttachment.FindSet() then
+        if FromDocumentAttachment.FindSet() then begin
+            ToFieldRef := ToRecRef.Field(3);
+            ToNo := ToFieldRef.Value();
+
+            case ToRecRef.Number() of
+                Database::"Sales Header",
+                Database::"Purchase Header":
+                    begin
+                        ToFieldRef := ToRecRef.Field(1);
+                        ToDocumentType := ToFieldRef.Value();
+                    end;
+                Database::"Sales Line",
+                Database::"Purchase Line":
+                    begin
+                        ToFieldRef := ToRecRef.Field(1);
+                        ToDocumentType := ToFieldRef.Value();
+
+                        ToFieldRef := ToRecRef.Field(4);
+                        ToLineNo := ToFieldRef.Value();
+                    end;
+            end;
+
             repeat
-                Clear(ToDocumentAttachment);
-                ToDocumentAttachment.Init();
-                ToDocumentAttachment.TransferFields(FromDocumentAttachment);
-                ToDocumentAttachment.Validate("Table ID", ToRecRef.Number);
+                if not SkipDuplicateToDocumentAttachmentIDOnCopyFromOrderToInvoice(ToRecRef, FromDocumentAttachment, FromDocumentType, ToDocumentType, ToNo, ToLineNo) then begin
+                    Clear(ToDocumentAttachment);
+                    ToDocumentAttachment.Init();
+                    ToDocumentAttachment.TransferFields(FromDocumentAttachment);
 
-                ToFieldRef := ToRecRef.Field(3);
-                ToNo := ToFieldRef.Value();
-                ToDocumentAttachment.Validate("No.", ToNo);
+                    ToDocumentAttachment.Validate("Table ID", ToRecRef.Number);
+                    ToDocumentAttachment.Validate("No.", ToNo);
 
-                case ToRecRef.Number() of
-                    DATABASE::"Sales Header",
-                    DATABASE::"Purchase Header":
-                        begin
-                            ToFieldRef := ToRecRef.Field(1);
-                            ToDocumentType := ToFieldRef.Value();
+                    case ToRecRef.Number() of
+                        DATABASE::"Sales Header",
+                        DATABASE::"Purchase Header":
                             ToDocumentAttachment.Validate("Document Type", ToDocumentType);
-                        end;
-                    DATABASE::"Sales Line",
-                    DATABASE::"Purchase Line":
-                        begin
-                            ToFieldRef := ToRecRef.Field(1);
-                            ToDocumentType := ToFieldRef.Value();
-                            ToDocumentAttachment.Validate("Document Type", ToDocumentType);
+                        DATABASE::"Sales Line",
+                        DATABASE::"Purchase Line":
+                            begin
+                                ToDocumentAttachment.Validate("Document Type", ToDocumentType);
+                                ToDocumentAttachment.Validate("Line No.", ToLineNo);
+                            end;
+                    end;
 
-                            ToFieldRef := ToRecRef.Field(4);
-                            ToLineNo := ToFieldRef.Value();
-                            ToDocumentAttachment.Validate("Line No.", ToLineNo);
-                        end;
+                    if not ToDocumentAttachment.Insert(true) then;
+
+                    ToDocumentAttachment."Attached Date" := FromDocumentAttachment."Attached Date";
+                    ToDocumentAttachment.Modify();
                 end;
 
-                if not ToDocumentAttachment.Insert(true) then;
-
-                ToDocumentAttachment."Attached Date" := FromDocumentAttachment."Attached Date";
-                ToDocumentAttachment.Modify();
-
             until FromDocumentAttachment.Next() = 0;
+        end;
 
         // Copies attachments for header and then calls CopyAttachmentsForPostedDocsLines to copy attachments for lines.
+    end;
+
+    local procedure SkipDuplicateToDocumentAttachmentIDOnCopyFromOrderToInvoice(var ToRecordRef: RecordRef; FromDocumentAttachment: Record "Document Attachment"; FromDocumentType: Enum "Incoming Document Type"; ToDocumentType: Enum "Incoming Document Type"; ToNo: Code[20]; ToLineNo: Integer): Boolean;
+    var
+        ToDocumentAttachment: Record "Document Attachment";
+    begin
+        if (FromDocumentType <> FromDocumentType::Order) or (ToDocumentType <> ToDocumentType::Invoice) then
+            exit(false);
+
+        case ToRecordRef.Number() of
+            Database::"Sales Header",
+            Database::"Purchase Header":
+                begin
+                    ToDocumentAttachment.SetRange("Table ID", ToRecordRef.Number());
+                    ToDocumentAttachment.SetRange("Document Type", ToDocumentType);
+                    ToDocumentAttachment.SetRange("No.", ToNo);
+                    ToDocumentAttachment.SetRange(ID, FromDocumentAttachment.ID);
+                    if not ToDocumentAttachment.IsEmpty() then
+                        exit(true);
+                end;
+            Database::"Sales Line",
+            Database::"Purchase Line":
+                begin
+                    ToDocumentAttachment.SetRange("Table ID", ToRecordRef.Number());
+                    ToDocumentAttachment.SetRange("Document Type", ToDocumentType);
+                    ToDocumentAttachment.SetRange("No.", ToNo);
+                    ToDocumentAttachment.SetRange("Line No.", ToLineNo);
+                    ToDocumentAttachment.SetRange(ID, FromDocumentAttachment.ID);
+                    if not ToDocumentAttachment.IsEmpty() then
+                        exit(true);
+                end;
+            else
+                exit(false);
+        end;
+
+        exit(false);
     end;
 
     procedure CopyAttachmentsForPostedDocs(var FromRecRef: RecordRef; var ToRecRef: RecordRef)

@@ -14,6 +14,7 @@ permissionset 7372 "Security - Baseapp"
                   tabledata "Designer Diagnostic" = RIMD,
                   tabledata "Experience Tier Setup" = R,
                   tabledata "General Ledger Setup" = R,
+                  tabledata "VAT Setup" = R,
                   tabledata "Permission Buffer" = RIMD,
                   tabledata "Permission Set Buffer" = RIMD,
                   tabledata "Permission Set Link" = rimd,

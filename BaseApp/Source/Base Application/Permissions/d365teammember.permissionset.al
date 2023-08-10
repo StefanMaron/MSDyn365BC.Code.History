@@ -1350,6 +1350,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "VAT Statement Name" = RM,
                   tabledata "VAT Statement Report Line" = RIMD,
                   tabledata "VAT Statement Template" = RM,
+                  tabledata "VAT Setup" = RM,
                   tabledata Vendor = RM,
                   tabledata "Vendor Amount" = RM,
                   tabledata "Vendor Bank Account" = RM,

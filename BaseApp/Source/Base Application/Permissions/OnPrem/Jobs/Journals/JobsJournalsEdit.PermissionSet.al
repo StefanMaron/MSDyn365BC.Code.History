@@ -74,5 +74,6 @@ permissionset 7787 "Jobs Journals - Edit"
                   tabledata "Unit of Measure" = R,
                   tabledata "Value Entry" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
+                  tabledata "VAT Setup" = RM,
                   tabledata "Work Type" = R;
 }

@@ -705,53 +705,57 @@ codeunit 134776 "Document Attachment Tests"
         Item: Record Item;
         SalesHeaderOrder: Record "Sales Header";
         SalesLineOrder: Record "Sales Line";
+        RecordRef: RecordRef;
         SalesInvoicePage: TestPage "Sales Invoice";
-        RecRef: RecordRef;
         InvoiceNo: Code[20];
-        OrderNo: Code[20];
     begin
-        // [SCENARIO] Ensuring attached docs on posted sales shipment flow to sales Invoice when using 'Get Shipment Lines'
+        // [SCENARIO] Ensuring attached docs on Posted Sales Shipment flow to Sales Invoice when using 'Get Shipment Lines'
 
         // Initialize
         Initialize();
         LibrarySales.CreateCustomer(Customer);
-        RecRef.GetTable(Customer);
+        RecordRef.GetTable(Customer);
 
-        // [GIVEN] A sales Order with attachments in header and line item
+        // [GIVEN] Create Sales Order with Item line
         LibraryInventory.CreateItem(Item);
         CreateSalesDoc(SalesHeaderOrder, SalesLineOrder, Customer, Item, SalesHeaderOrder."Document Type"::Order);
 
-        // Attach docs to Order header and sales line
-        Clear(RecRef);
-        RecRef.GetTable(SalesHeaderOrder);
-        CreateDocAttach(RecRef, 'salesOrder.jpeg', false, false);
+        // [GIVEN] Attach document to Sales Order header
+        Clear(RecordRef);
+        RecordRef.GetTable(SalesHeaderOrder);
+        CreateDocAttach(RecordRef, 'SalesOrder.jpeg', false, false);
 
-        Clear(RecRef);
-        RecRef.GetTable(SalesLineOrder);
-        CreateDocAttach(RecRef, 'salesline.jpeg', false, false);
+        // [GIVEN] Attach document to 1st Sales Order line 
+        Clear(RecordRef);
+        RecordRef.GetTable(SalesLineOrder);
+        CreateDocAttach(RecordRef, 'SalesLine.jpeg', false, false);
 
-        // [WHEN] shipment is created from a sales Order
-        OrderNo := SalesHeaderOrder."No.";
+        // [GIVEN] Post Sales Shipment from Sales Order
         SalesHeaderOrder.Ship := true;
-        CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeaderOrder);
+        Codeunit.Run(Codeunit::"Sales-Post", SalesHeaderOrder);
 
-        // Create an invoice and use 'get shipment lines' to insert lines
+        // [GIVEN] Create Sales Invoice
         SalesInvoicePage.OpenNew();
         SalesInvoicePage."Sell-to Customer Name".SetValue(Customer."No.");
+        Evaluate(InvoiceNo, SalesInvoicePage."No.".Value);
+
+        // [WHEN] Use 'Get Shipment Lines' to insert lines
         SalesInvoicePage.SalesLines.GetShipmentLines.Invoke(); // opens modal page "Get Shipment Lines", and handler clicks OK
-        evaluate(InvoiceNo, SalesInvoicePage."No.".Value);
 
-        // [THEN] Assert docs are flown to sales invoice
-        CheckDocAttachments(DATABASE::"Sales Header", 1, InvoiceNo, SalesHeaderOrder."Document Type"::Invoice.AsInteger(), 'salesOrder');
+        // [WHEN] Repeat use 'Get Shipment Lines' to check it will run multiple times - inserts new line with attachment
+        SalesInvoicePage.SalesLines.GetShipmentLines.Invoke(); // opens modal page "Get Shipment Lines", and handler clicks OK
 
-        // [THEN] the sales line has one attachment for sales invoice
-        CheckDocAttachments(DATABASE::"Sales Line", 1, InvoiceNo, SalesHeaderOrder."Document Type"::Invoice.AsInteger(), 'salesline');
+        // [THEN] Assert attached documents are flown to Sales Invoice (one attachment)
+        CheckDocAttachments(Database::"Sales Header", 1, InvoiceNo, SalesHeaderOrder."Document Type"::Invoice.AsInteger(), 'SalesOrder');
+
+        // [THEN] Assert Sales Invoice lines have two document attachments (one per each line inserted from Sales Order)
+        CheckDocAttachments(Database::"Sales Line", 2, InvoiceNo, SalesHeaderOrder."Document Type"::Invoice.AsInteger(), 'SalesLine');
     end;
 
     [ModalPageHandler]
     procedure GetShipmentLinesPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
     begin
-        GetShipmentLines.OK.Invoke();
+        GetShipmentLines.OK().Invoke();
     end;
 
     [Test]
@@ -763,53 +767,57 @@ codeunit 134776 "Document Attachment Tests"
         Item: Record Item;
         PurchaseHeaderOrder: Record "Purchase Header";
         PurchaseLineOrder: Record "Purchase Line";
+        RecordRef: RecordRef;
         PurchaseInvoicePage: TestPage "Purchase Invoice";
-        RecRef: RecordRef;
         InvoiceNo: Code[20];
-        OrderNo: Code[20];
     begin
-        // [SCENARIO] Ensuring attached docs on posted Purchase shipment flow to Purchase Invoice when using 'Get Shipment Lines'
+        // [SCENARIO] Ensuring attached docs on Posted Purchase Receipt flow to Purchase Invoice when using 'Get Receipt Lines'
 
         // Initialize
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
-        RecRef.GetTable(Vendor);
+        RecordRef.GetTable(Vendor);
 
-        // [GIVEN] A Purchase Order with attachments in header and line item
+        // [GIVEN] Create Purchase Order with Item line
         LibraryInventory.CreateItem(Item);
         CreatePurchDoc(PurchaseHeaderOrder, PurchaseLineOrder, Vendor, Item, PurchaseHeaderOrder."Document Type"::Order);
 
-        // Attach docs to Order header and Purchase line
-        Clear(RecRef);
-        RecRef.GetTable(PurchaseHeaderOrder);
-        CreateDocAttach(RecRef, 'PurchaseOrder.jpeg', false, false);
+        // [GIVEN] Attach document to Purchase Order header
+        Clear(RecordRef);
+        RecordRef.GetTable(PurchaseHeaderOrder);
+        CreateDocAttach(RecordRef, 'PurchaseOrder.jpeg', false, false);
 
-        Clear(RecRef);
-        RecRef.GetTable(PurchaseLineOrder);
-        CreateDocAttach(RecRef, 'Purchaseline.jpeg', false, false);
+        // [GIVEN] Attach document to 1st Purchase Order line 
+        Clear(RecordRef);
+        RecordRef.GetTable(PurchaseLineOrder);
+        CreateDocAttach(RecordRef, 'PurchaseLine.jpeg', false, false);
 
-        // [WHEN] receipt is created from a Purchase Order
-        OrderNo := PurchaseHeaderOrder."No.";
+        // [GIVEN] Post Purchase Receipt from Purchase Order
         PurchaseHeaderOrder.Receive := true;
-        CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeaderOrder);
+        Codeunit.Run(Codeunit::"Purch.-Post", PurchaseHeaderOrder);
 
-        // Create an invoice and use 'get shipment lines' to insert lines
+        // [GIVEN] Create Purchase Invoice
         PurchaseInvoicePage.OpenNew();
         PurchaseInvoicePage."Buy-from Vendor Name".SetValue(Vendor."No.");
+        Evaluate(InvoiceNo, PurchaseInvoicePage."No.".Value);
+
+        // [WHEN] Use 'Get Receipt Lines' to insert lines
         PurchaseInvoicePage.PurchLines.GetReceiptLines.Invoke(); // opens modal page "Get Receipt Lines", and handler clicks OK
-        evaluate(InvoiceNo, PurchaseInvoicePage."No.".Value);
 
-        // [THEN] Assert docs are flown to Purchase invoice
-        CheckDocAttachments(DATABASE::"Purchase Header", 1, InvoiceNo, PurchaseHeaderOrder."Document Type"::Invoice.AsInteger(), 'PurchaseOrder');
+        // [WHEN] Repeat use 'Get Receipt Lines' to check it will run multiple times - inserts new line with attachment
+        PurchaseInvoicePage.PurchLines.GetReceiptLines.Invoke(); // opens modal page "Get Receipt Lines", and handler clicks OK
 
-        // [THEN] the Purchase line has one attachment for Purchase invoice
-        CheckDocAttachments(DATABASE::"Purchase Line", 1, InvoiceNo, PurchaseHeaderOrder."Document Type"::Invoice.AsInteger(), 'Purchaseline');
+        // [THEN] Assert attached documents are flown to Purchase Invoice (one attachment)
+        CheckDocAttachments(Database::"Purchase Header", 1, InvoiceNo, PurchaseHeaderOrder."Document Type"::Invoice.AsInteger(), 'PurchaseOrder');
+
+        // [THEN] Assert Purchase Invoice lines have two document attachments (one per each line inserted from Purchase Order)
+        CheckDocAttachments(Database::"Purchase Line", 2, InvoiceNo, PurchaseHeaderOrder."Document Type"::Invoice.AsInteger(), 'PurchaseLine');
     end;
 
     [ModalPageHandler]
     procedure GetReceiptLinesPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
     begin
-        GetReceiptLines.OK.Invoke();
+        GetReceiptLines.OK().Invoke();
     end;
 
     [Test]

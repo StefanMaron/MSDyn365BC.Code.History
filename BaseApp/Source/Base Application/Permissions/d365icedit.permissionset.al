@@ -6,6 +6,7 @@ permissionset 1562 "D365 IC, EDIT"
     IncludedPermissionSets = "D365 IC, VIEW";
 
     Permissions = tabledata "General Ledger Setup" = RM,
+                  tabledata "VAT Setup" = RM,
                   tabledata "Handled IC Inbox Jnl. Line" = IMD,
                   tabledata "Handled IC Inbox Purch. Header" = IMD,
                   tabledata "Handled IC Inbox Purch. Line" = IMD,
