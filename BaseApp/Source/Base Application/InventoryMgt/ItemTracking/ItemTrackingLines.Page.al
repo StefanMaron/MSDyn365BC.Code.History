@@ -1154,6 +1154,7 @@ page 6510 "Item Tracking Lines"
         ExpirationDateEditable: Boolean;
         [InDataSet]
         WarrantyDateEditable: Boolean;
+        HasSameQuantityBase: Boolean;
 
     local procedure SetupPackageNoControls()
     var
@@ -1829,7 +1830,10 @@ page 6510 "Item Tracking Lines"
                             Decrease := (TempTrackingSpecification2."Quantity (Base)" > TempItemTrackLineModify."Quantity (Base)");
                             if ((ModifyLoop = 1) and Decrease) or ((ModifyLoop = 2) and not Decrease) then begin
                                 i := i + 1;
+                                HasSameQuantityBase := false;
                                 if ShouldModifyTrackingSpecification(TempTrackingSpecification2, TempItemTrackLineModify) then begin
+                                    if TempTrackingSpecification2."Quantity (Base)" = TempItemTrackLineModify."Quantity (Base)" then
+                                        HasSameQuantityBase := true;
                                     RegisterChange(TempTrackingSpecification2, TempTrackingSpecification2, ChangeType::Delete, false);
                                     RegisterChange(TempItemTrackLineModify, TempItemTrackLineModify, ChangeType::Insert, false);
                                     if QtyToHandleOrInvoiceDifferFromQuantity(TempItemTrackLineModify) then
@@ -1839,6 +1843,7 @@ page 6510 "Item Tracking Lines"
                                     SetQtyToHandleAndInvoice(TempItemTrackLineModify);
                                 end;
                                 TempItemTrackLineModify.Delete();
+                                HasSameQuantityBase := false;
                             end;
                         end else begin
                             i := i + 1;
@@ -2119,7 +2124,8 @@ page 6510 "Item Tracking Lines"
                             CurrentSignFactor * OldTrackingSpecification."Quantity (Base)",
                             QtyToAddAsBlank, ItemTrackingCode);
                         TempReservEntry.ClearTrackingFilter();
-                        ReservationMgt.DeleteReservEntries(true, 0, ReservEntry1);
+                        if not HasSameQuantityBase then
+                            ReservationMgt.DeleteReservEntries(true, 0, ReservEntry1);
                         OnRegisterChangeOnAfterFullDelete(ReservEntry1, NewTrackingSpecification, OldTrackingSpecification, CurrentPageIsOpen);
                     end else begin
                         ReservationMgt.DeleteReservEntries(false, ReservEntry1."Quantity (Base)" -
@@ -2265,8 +2271,10 @@ page 6510 "Item Tracking Lines"
                     if (ReservEntry1."Qty. to Handle (Base)" <> QtyToHandleThisLine) or
                        (ReservEntry1."Qty. to Invoice (Base)" <> QtyToInvoiceThisLine) and not ReservEntry1.Correction
                     then begin
-                        ReservEntry1."Qty. to Handle (Base)" := QtyToHandleThisLine;
-                        ReservEntry1."Qty. to Invoice (Base)" := QtyToInvoiceThisLine;
+                        if not HasSameQuantityBase then begin
+                            ReservEntry1."Qty. to Handle (Base)" := QtyToHandleThisLine;
+                            ReservEntry1."Qty. to Invoice (Base)" := QtyToInvoiceThisLine;
+                        end;
                         OnSetQtyToHandleAndInvoiceOnBeforeReservEntryModify(ReservEntry1, TrackingSpecification);
                         ModifyLine := true;
                     end;
@@ -2728,7 +2736,7 @@ page 6510 "Item Tracking Lines"
 
     procedure TestTempSpecificationExists() Exists: Boolean
     begin
-        TestTempSpecificationExists(-1);
+        exit(TestTempSpecificationExists(-1));
     end;
 
     local procedure TestTempSpecificationExists(CheckTillEntryNo: Integer) Exists: Boolean

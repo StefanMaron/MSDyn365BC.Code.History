@@ -76,6 +76,7 @@ codeunit 5510 "Production Journal Mgt"
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
         if ProdOrderLineNo <> 0 then
             ProdOrderLine.SetRange("Line No.", ProdOrderLineNo);
+        OnCreateJnlLinesOnAfterSetProdOrderLineFilters(ProdOrderLine);
         if ProdOrderLine.Find('-') then
             repeat
                 OnCreateJnlLinesOnBeforeCheckProdOrderLine(ProdOrderLine);
@@ -127,7 +128,13 @@ codeunit 5510 "Production Journal Mgt"
     procedure InsertComponents(ProdOrderLine: Record "Prod. Order Line"; CheckRoutingLink: Boolean; Level: Integer)
     var
         ProdOrderComp: Record "Prod. Order Component";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertComponents(ProdOrderLine, CheckRoutingLink, Level, IsHandled);
+        if IsHandled then
+            exit;
+
         // Components with no Routing Link or illegal Routing Link
         ProdOrderComp.Reset();
         ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
@@ -730,6 +737,17 @@ codeunit 5510 "Production Journal Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertOutputItemJnlLineOnAfterAssignTimes(var ItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var QtyToPost: Decimal)
+    begin
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertComponents(ProdOrderLine: Record "Prod. Order Line"; CheckRoutingLink: Boolean; Level: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateJnlLinesOnAfterSetProdOrderLineFilters(var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 }

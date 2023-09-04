@@ -1105,5 +1105,12 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-478432-VATSetupUpgrade-20230717');
     end;
+
+#if not CLEAN22
+    internal procedure GetNewTimeSheetExperienceUpgradeTag(): Code[250]
+    begin
+        exit('MS-471211-NewTimeSheetExperienceUpgradeTag-20230720');
+    end;
+#endif
 }
 

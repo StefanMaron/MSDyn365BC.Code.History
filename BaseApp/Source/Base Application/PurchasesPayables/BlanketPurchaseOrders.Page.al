@@ -7,6 +7,7 @@ page 9310 "Blanket Purchase Orders"
     Editable = false;
     PageType = List;
     QueryCategory = 'Blanket Purchase Orders';
+    RefreshOnActivate = true;
     SourceTable = "Purchase Header";
     SourceTableView = WHERE("Document Type" = CONST("Blanket Order"));
     UsageCategory = Lists;

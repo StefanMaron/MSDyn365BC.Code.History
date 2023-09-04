@@ -474,6 +474,8 @@ codeunit 9200 "Matrix Management"
                 exit(Round(Amount / 1000, 0.1));
             RoundingFactor::"1000000":
                 exit(Round(Amount / 1000000, 0.1));
+            else
+                OnRoundAmountOnElse(Amount, RoundingFactor);
         end;
 
         exit(Amount);
@@ -517,6 +519,8 @@ codeunit 9200 "Matrix Management"
                 AmountDecimal := Format(0);
             RoundingFactor::"1000", RoundingFactor::"1000000":
                 AmountDecimal := Format(1);
+            else
+                OnFormatRoundingFactorOnElse(AmountDecimal, RoundingFactor);
         end;
         exit(StrSubstNo(RoundingFormatTxt, AmountDecimal));
     end;
@@ -533,6 +537,16 @@ codeunit 9200 "Matrix Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetDimColumnSetOnAfterDimValSetFilters(DimensionCode: Code[20]; DimFilter: Text; var DimensionValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFormatRoundingFactorOnElse(var AmountDecimal: Text; RoundingFactor: Enum "Analysis Rounding Factor")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRoundAmountOnElse(var Amount: Decimal; RoundingFactor: Enum "Analysis Rounding Factor")
     begin
     end;
 }

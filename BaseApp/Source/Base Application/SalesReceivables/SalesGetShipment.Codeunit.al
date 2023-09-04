@@ -114,6 +114,7 @@ codeunit 64 "Sales-Get Shipment"
                 CopyDocumentAttachments(OrderNoList, SalesHeader);
             end;
         end;
+        OnAfterCreateInvLines(SalesShptLine2, SalesHeader, SalesLine, SalesShptHeader);
     end;
 
     procedure InsertInvoiceLineFromShipmentLine(var SalesShptLine2: Record "Sales Shipment Line"; TransferLine: Boolean; var PrepmtAmtToDeductRounding: Decimal)
@@ -496,6 +497,11 @@ codeunit 64 "Sales-Get Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestSalesShptLineVATBusPostingGroup(SalesShptLine: Record "Sales Shipment Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCreateInvLines(var SalesShipmentLine2: Record "Sales Shipment Line"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;
 }

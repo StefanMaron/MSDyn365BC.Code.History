@@ -8,6 +8,7 @@ page 9306 "Purchase Quotes"
     Editable = false;
     PageType = List;
     QueryCategory = 'Purchase Quotes';
+    RefreshOnActivate = true;
     SourceTable = "Purchase Header";
     SourceTableView = WHERE("Document Type" = CONST(Quote));
     UsageCategory = Lists;

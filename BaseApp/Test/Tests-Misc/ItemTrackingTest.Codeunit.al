@@ -328,6 +328,56 @@ codeunit 133008 "Item Tracking Test"
         // [THEN] No error occurs
     end;
 
+    [Test]
+    [HandlerFunctions('AlreadyExistMessageHandler,ItemTrackingLinesDuplicateSNModalPageHandler')]
+    procedure DuplicateSerialNumberIsNotAllowedPageOnInsert()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [SCENARIO] It is not allowed to enter duplicate serial numbers on the item tracking lines page
+        Initialize();
+
+        // [GIVEN] Serial specific tracked item
+        LibraryItemTracking.CreateSerialItem(Item);
+
+        // [GIVEN] Positive adjustment Item journal line for the item
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, '');
+
+        // [GIVEN] User opens the item tracking lines page 
+        ItemJournalLine.OpenItemTrackingLines(false);
+
+        // [WHEN] User enters the same serial number twice
+        // [THEN] The line is not inserted
+        // Handled in ItemTrackingLinesDuplicateSNModalPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('AlreadyExistMessageHandler,ItemTrackingLinesDuplicateLotModalPageHandler')]
+    procedure DuplicateLotNumberIsNotAllowedPageOnInsert()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemTrackingLinesTestPage: TestPage "Item Tracking Lines";
+    begin
+        // [SCENARIO] It is not allowed to enter duplicate lot numbers on the item tracking lines page
+        Initialize();
+
+        // [GIVEN] Lot specific tracked item
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Positive adjustment Item journal line for the item
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, '');
+
+        // [GIVEN] User opens the item tracking lines page 
+        ItemTrackingLinesTestPage.Trap();
+        ItemJournalLine.OpenItemTrackingLines(false);
+
+        // [WHEN] User enters the same lot number twice
+        // [THEN] The line is not inserted
+        // Handled in ItemTrackingLinesDuplicateLotModalPageHandler
+    end;
+
     local procedure Initialize()
     begin
         LibrarytestInitialize.OnTestInitialize(Codeunit::"Item Tracking Test");
@@ -411,6 +461,53 @@ codeunit 133008 "Item Tracking Test"
     procedure GetSubscriberCallNumber(): Integer
     begin
         exit(SubscriberCalls);
+    end;
+
+    [MessageHandler]
+    procedure AlreadyExistMessageHandler(MessageText: Text[1024])
+    begin
+        Assert.IsSubstring(MessageText, 'already exists');
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesDuplicateSNModalPageHandler(var ItemTrackingLinesTestPage: TestPage "Item Tracking Lines");
+    var
+        SerialNo: Code[50];
+    begin
+        // [WHEN] User enters the same serial number twice
+        SerialNo := 'SERIAL1';
+        ItemTrackingLinesTestPage.New();
+        ItemTrackingLinesTestPage."Serial No.".SetValue(SerialNo);
+        ItemTrackingLinesTestPage."Quantity (Base)".SetValue(1);
+        ItemTrackingLinesTestPage.New();
+        ItemTrackingLinesTestPage."Serial No.".SetValue(SerialNo); //AlreadyExistMessageHandler handles the message
+
+        // [THEN] the line is not inserted
+        ItemTrackingLinesTestPage.First();
+        Assert.AreEqual(1, ItemTrackingLinesTestPage."Quantity (Base)".AsDecimal(), 'The first line should be inserted');
+        ItemTrackingLinesTestPage.Next();
+        Assert.AreEqual(0, ItemTrackingLinesTestPage."Quantity (Base)".AsDecimal(), 'The second line should not be inserted');
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesDuplicateLotModalPageHandler(var ItemTrackingLinesTestPage: TestPage "Item Tracking Lines");
+    var
+        LotNo: Code[50];
+    begin
+        // [WHEN] User enters the same lot number twice
+        LotNo := 'LOT1';
+        ItemTrackingLinesTestPage.New();
+        ItemTrackingLinesTestPage."Lot No.".SetValue(LotNo);
+        ItemTrackingLinesTestPage."Quantity (Base)".SetValue(5);
+        ItemTrackingLinesTestPage.New();
+        ItemTrackingLinesTestPage."Lot No.".SetValue(LotNo); //AlreadyExistMessageHandler handles the message
+
+        // [THEN] the line is not inserted
+        ItemTrackingLinesTestPage.First();
+        Assert.AreEqual(5, ItemTrackingLinesTestPage."Quantity (Base)".AsDecimal(), 'The first line should be inserted');
+        ItemTrackingLinesTestPage.Next();
+        Assert.AreEqual(0, ItemTrackingLinesTestPage."Quantity (Base)".AsDecimal(), 'The second line should not be inserted');
+
     end;
 }
 

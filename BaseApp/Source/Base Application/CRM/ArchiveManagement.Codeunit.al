@@ -335,6 +335,7 @@ codeunit 5063 ArchiveManagement
             OnRestoreSalesDocumentOnAfterSalesHeaderInsert(SalesHeader, SalesHeaderArchive);
             SalesHeader.TransferFields(SalesHeaderArchive);
             SalesHeader.Status := SalesHeader.Status::Open;
+            OnRestoreSalesDocumentOnBeforeSalesHeaderValidateFields(SalesHeader, SalesHeaderArchive);
             if SalesHeaderArchive."Sell-to Contact No." <> '' then
                 SalesHeader.Validate("Sell-to Contact No.", SalesHeaderArchive."Sell-to Contact No.")
             else
@@ -958,6 +959,11 @@ codeunit 5063 ArchiveManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnRestoreSalesLineCommentsOnBeforeInsertSalesCommentLine(var SalesCommentLine: Record "Sales Comment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRestoreSalesDocumentOnBeforeSalesHeaderValidateFields(var SalesHeader: Record "Sales Header"; SalesHeaderArchive: Record "Sales Header Archive");
     begin
     end;
 }

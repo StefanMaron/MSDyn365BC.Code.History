@@ -40,6 +40,8 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         IsInitialized: Boolean;
         DimValueDoesNotExistsInDimSetErr: Label 'Dimension value %1 %2 does not exist in Dimension Set ID %3.', Comment = '%1 = Dimension Code, %2 = Dimension Value Code';
         DimValueDoesNotExistsErr: Label 'Dimension Value %1 %2 does not exist.', Comment = '%1 = Dimension Code, %2 = Dimension Value Code';
+        FieldIDProcessingOrderMustMatchErr: Label 'Field ID and Processing Order must match.';
+        FieldIDProcessingOrderMustNotMatchErr: Label 'Field ID and Processing Order must not match.';
 
     [Test]
     [HandlerFunctions('ConfirmAddDimTablesHandlerYes')]
@@ -189,6 +191,59 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         VerifyDimValueExistsInSalesHeaderDimSetID(SalesHeader, DimVal);
 
         SetupManualNos(SalesHeader."No. Series", OldManualNos);
+    end;
+
+    [Test]
+    [HandlerFunctions('PackageFieldsPageHandler')]
+    [Scope('OnPrem')]
+    procedure DimensionFieldsNotDeletedWhenReopenConfigPackageFieldsPage()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        ConfigPackageField: Record "Config. Package Field";
+        ConfigPackageField2: Record "Config. Package Field";
+        ConfigManagement: Codeunit "Config. Management";
+        ConfigPackageFields: TestPage "Config. Package Fields";
+    begin
+        // [SCENARIO 479333] [IcM] When the "Dimensions as columns" option is enabled, RapidStart doesn't always respect the defined order of fields
+        Initialize();
+
+        // [GIVEN] Create a Config Package with Gen Journal Line table.
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, Database::"Gen. Journal Line");
+
+        // [GIVEN] Validate Dimensions as Columns in Config Package Table.
+        ConfigPackageTable.Validate("Dimensions as Columns", true);
+        ConfigPackageTable.Modify();
+
+        // [GIVEN] Open Config Package Fields page from Config Package Table.
+        ConfigPackageTable.ShowPackageFields();
+
+        // [GIVEN] Find Dimension Config Package Field.
+        ConfigPackageField.SetRange("Package Code", ConfigPackageTable."Package Code");
+        ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
+        ConfigPackageField.SetRange("Field ID", ConfigManagement.DimensionFieldID(), ConfigManagement.DimensionFieldID() + 999);
+        ConfigPackageField.FindFirst();
+
+        // [VERIFY] Verify Field ID and Processing Order of Dimension Config Package Field are same.
+        Assert.AreEqual(ConfigPackageField."Field ID", ConfigPackageField."Processing Order", FieldIDProcessingOrderMustMatchErr);
+
+        // [GIVEN] Open Config Package Fields page and Move Up Dimension Config Package Field.
+        ConfigPackageFields.OpenEdit();
+        ConfigPackageFields.GoToRecord(ConfigPackageField);
+        ConfigPackageFields."Move Up".Invoke();
+        ConfigPackageFields.Close();
+
+        // [GIVEN] Open Config Package Fields page from Config Package Table. 
+        ConfigPackageTable.ShowPackageFields();
+
+        // [WHEN] Find Dimension Config Package Field.
+        ConfigPackageField2.SetRange("Package Code", ConfigPackageTable."Package Code");
+        ConfigPackageField2.SetRange("Table ID", ConfigPackageTable."Table ID");
+        ConfigPackageField2.SetRange("Field ID", ConfigPackageField."Field ID");
+        ConfigPackageField2.FindFirst();
+
+        // [VERIFY] Verify Field ID and Processing Order of Dimension Config Package Field are not same. 
+        Assert.AreNotEqual(ConfigPackageField2."Field ID", ConfigPackageField2."Processing Order", FieldIDProcessingOrderMustNotMatchErr);
     end;
 
     local procedure Initialize()
@@ -645,6 +700,12 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         DimensionSetEntry.Modify();
     end;
 
+    local procedure CreatePackageWithTable(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; TableNo: Integer)
+    begin
+        LibraryRapidStart.CreatePackage(ConfigPackage);
+        LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, TableNo);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmAddDimTablesHandlerYes(Question: Text; var Reply: Boolean)
@@ -664,6 +725,13 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     procedure ImportPreviewModalPageHandler(var ConfigPackageImportPreview: TestPage "Config. Package Import Preview")
     begin
         ConfigPackageImportPreview.Import.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PackageFieldsPageHandler(var ConfigPackageFields: TestPage "Config. Package Fields")
+    begin
+        ConfigPackageFields.OK().Invoke();
     end;
 }
 

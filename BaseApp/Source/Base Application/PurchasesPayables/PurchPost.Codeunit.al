@@ -1,4 +1,4 @@
-﻿codeunit 90 "Purch.-Post"
+codeunit 90 "Purch.-Post"
 {
     Permissions = TableData "Sales Header" = rm,
                   TableData "Sales Line" = rm,
@@ -2764,7 +2764,11 @@
                         if "Document Type" in ["Document Type"::"Return Order"] then
                             ResetPostingNoSeriesFromSetup("Posting No. Series", PurchSetup."Posted Credit Memo Nos.")
                         else
-                            ResetPostingNoSeriesFromSetup("Posting No. Series", PurchSetup."Posted Invoice Nos.");
+                            if ("Document Type" <> "Document Type"::"Credit Memo") then
+                                ResetPostingNoSeriesFromSetup("Posting No. Series", PurchSetup."Posted Invoice Nos.");
+                        if "Document Type" = "Document Type"::"Credit Memo" then
+                            if (PurchSetup."Posted Credit Memo Nos." <> '') and ("Posting No. Series" = '') then
+                                CheckDefaultNoSeries(PurchSetup."Posted Credit Memo Nos.");
                         TestField("Posting No. Series");
                     end;
                     if ("No. Series" <> "Posting No. Series") or
@@ -2876,6 +2880,8 @@
         with PurchHeader do begin
             if HasLinks then
                 DeleteLinks();
+            WarehouseRequest.DeleteRequest(DATABASE::"Purchase Line", "Document Type".AsInteger(), "No.");
+
             Delete();
 
             PurchLineReserve.DeleteInvoiceSpecFromHeader(PurchHeader);
@@ -2897,7 +2903,6 @@
 
             DeleteItemChargeAssgnt(PurchHeader);
             PurchCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
-            WarehouseRequest.DeleteRequest(DATABASE::"Purchase Line", "Document Type".AsInteger(), "No.");
         end;
 
         OnAfterDeleteAfterPosting(PurchHeader, PurchInvHeader, PurchCrMemoHeader, SuppressCommit);
@@ -8991,6 +8996,14 @@
               PurchaseHeader.FieldNo("VAT Reporting Date"), StrSubstNo(PostingDateNotAllowedErr, PurchaseHeader.FieldCaption("VAT Reporting Date")),
               SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, GLSetup.FieldName("Allow Posting From")),
               ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
+    end;
+
+    local procedure CheckDefaultNoSeries(NoSeriesCode: Code[20])
+    var
+        NoSeries: Record "No. Series";
+    begin
+        if NoSeries.Get(NoSeriesCode) then
+            NoSeries.TestField("Default Nos.", true);
     end;
 
     [IntegrationEvent(false, false)]

@@ -309,13 +309,23 @@ codeunit 99000833 "Req. Line-Reserve"
     procedure TransferPlanningLineToPOLine(var OldReqLine: Record "Requisition Line"; var NewProdOrderLine: Record "Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean)
     var
         OldReservEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferPlanningLineToPOLine(OldReqLine, NewProdOrderLine, TransferQty, TransferAll, IsHandled);
+        if IsHandled then
+            exit;
+
         if not FindReservEntry(OldReqLine, OldReservEntry) then
             exit;
 
-        NewProdOrderLine.TestField("Item No.", OldReqLine."No.");
-        NewProdOrderLine.TestField("Variant Code", OldReqLine."Variant Code");
-        NewProdOrderLine.TestField("Location Code", OldReqLine."Location Code");
+        IsHandled := false;
+        OnTransferPlanningLineToPOLineOnBeforeCheckFields(OldReqLine, NewProdOrderLine, TransferQty, TransferAll, IsHandled);
+        if not IsHandled then begin
+            NewProdOrderLine.TestField("Item No.", OldReqLine."No.");
+            NewProdOrderLine.TestField("Variant Code", OldReqLine."Variant Code");
+            NewProdOrderLine.TestField("Location Code", OldReqLine."Location Code");
+        end;
 
         OnTransferReqLineToPOLineOnBeforeTransfer(OldReservEntry, OldReqLine, NewProdOrderLine);
 
@@ -760,6 +770,16 @@ codeunit 99000833 "Req. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateReservation(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferPlanningLineToPOLine(var OldRequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record "Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferPlanningLineToPOLineOnBeforeCheckFields(var OldRequisitionLine: Record "Requisition Line"; var ProdOrderLine: Record "Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

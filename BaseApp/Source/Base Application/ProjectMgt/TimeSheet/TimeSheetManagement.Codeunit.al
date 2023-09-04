@@ -206,6 +206,7 @@ codeunit 950 "Time Sheet Management"
                 repeat
                     i += 1;
                     DateDescription[i] := FormatDate(Calendar."Period Start", 0);
+                    OnCalcActSchedFactBoxDataOnAfterSetDateDescription(TimeSheetHeader, Calendar, DateDescription[i]);
                     TimeSheetHeader.SetRange("Date Filter", Calendar."Period Start");
                     OnCalcActSchedFactBoxDataOnAfterTimeSheetHeaderSetFilters(TimeSheetHeader, Calendar);
                     TimeSheetHeader.CalcFields(Quantity);
@@ -1166,6 +1167,11 @@ codeunit 950 "Time Sheet Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddServLinesFromTSDetail(ServiceHeader: Record "Service Header"; var TimeSheetDetail: Record "Time Sheet Detail"; LineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcActSchedFactBoxDataOnAfterSetDateDescription(TimeSheetHeader: Record "Time Sheet Header"; Calendar: Record Date; var DateDescriptionForSpecificDate: Text[30]);
     begin
     end;
 }

@@ -45,10 +45,10 @@ codeunit 1174 "User Task Management"
         if MyTasksUserGroups <> '' then begin
             UserTask.FilterGroup(-1);
             UserTask.SetFilter("User Task Group Assigned To", MyTasksUserGroups);
-            UserTask.SetFilter("Assigned To", UserSecurityId());
+            UserTask.SetRange("Assigned To", UserSecurityId());
         end else begin
             UserTask.FilterGroup(2);
-            UserTask.SetFilter("Assigned To", UserSecurityId());
+            UserTask.SetRange("Assigned To", UserSecurityId());
         end;
         UserTask.FilterGroup(2);
         UserTask.SetFilter("Percent Complete", '<>100');
@@ -104,5 +104,53 @@ codeunit 1174 "User Task Management"
             FilterTxt := DelStr(FilterTxt, StrLen(FilterTxt), 1);
         exit(FilterTxt);
     end;
+
+    internal procedure FindRec(var UserTask: Record "User Task"; var FilteredUserTask: Record "User Task"; Which: Text): Boolean
+    var
+        Found: Boolean;
+        i: Integer;
+    begin
+        for i := 1 to StrLen(Which) do begin
+            Found := UserTask.Find(Which[i]);
+            if Found then
+                while Found and not ValidateAgainstFilteredRecord(UserTask, FilteredUserTask) do
+                    case Which[i] of
+                        '=':
+                            Found := false;
+                        '<', '>':
+                            Found := UserTask.Find(Which[i]);
+                        '-':
+                            Found := UserTask.Next() <> 0;
+                        '+':
+                            Found := UserTask.Next(-1) <> 0;
+                    end;
+            if Found then
+                exit(true);
+        end;
+        exit(false);
+    end;
+
+    internal procedure NextRec(var UserTask: Record "User Task"; var FilteredUserTask: Record "User Task"; Steps: Integer) ResultSteps: Integer
+    var
+        Step: Integer;
+    begin
+        if Steps > 0 then
+            Step := 1
+        else
+            Step := -1;
+        ResultSteps := UserTask.Next(Step);
+        if ResultSteps = 0 then
+            exit(0);
+        while (ResultSteps <> 0) and not ValidateAgainstFilteredRecord(UserTask, FilteredUserTask) do
+            ResultSteps := UserTask.Next(Step);
+        exit(ResultSteps);
+    end;
+
+    local procedure ValidateAgainstFilteredRecord(var UserTask: Record "User Task"; var FilteredUserTask: Record "User Task"): Boolean
+    begin
+        FilteredUserTask.ID := UserTask.ID;
+        exit(FilteredUserTask.Find());
+    end;
+
 }
 

@@ -7733,7 +7733,7 @@
         </trans-unit>
         <trans-unit id="Page 1206474225 - Control 1460223235 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the date or datetime field on the table used to determine the age of a record.</source>
-          <target state="translated">Gibt den Namen des Datum- oder DatumZeit-Felds in der Tabelle an, die zum Ermitteln des Alters eines Datensatzes verwendet wird.</target>
+          <target state="translated">Gibt den Namen des Datum- oder Datum/Uhrzeit-Felds in der Tabelle an, der zum Ermitteln des Alters eines Datensatzes verwendet wird.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Control Date Field Name - Property ToolTip</note>
         </trans-unit>
@@ -7775,7 +7775,7 @@
         </trans-unit>
         <trans-unit id="Page 1206474225 - Control 2822064388 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the caption of the date or datetime field on the table used to determine the age of a record. The caption is the translated name of the field.</source>
-          <target state="translated">Gibt die Beschriftung des Datum- oder DatumZeit-Felds in der Tabelle an, die zum Ermitteln des Alters eines Datensatzes verwendet wird. Die Beschriftung ist der übersetzte Name des Felds.</target>
+          <target state="translated">Gibt die Beschriftung des Datum- oder Datum/Uhrzeit-Felds in der Tabelle an, die zum Ermitteln des Alters eines Datensatzes verwendet wird. Die Beschriftung ist der übersetzte Name des Felds.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Control Date Field Caption - Property ToolTip</note>
         </trans-unit>
@@ -7805,7 +7805,7 @@
         </trans-unit>
         <trans-unit id="Page 1206474225 - Control 611330467 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of the date or datetime field on the table used to determine the age of a record.</source>
-          <target state="translated">Gibt die Nummer des Datum- oder DatumZeit-Felds in der Tabelle an, die zum Ermitteln des Alters eines Datensatzes verwendet wird.</target>
+          <target state="translated">Gibt die Nummer des Datum- oder Datum/Uhrzeit-Felds in der Tabelle an, die zum Ermitteln des Alters eines Datensatzes verwendet wird.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Card - Control Date Field No. - Property ToolTip</note>
         </trans-unit>
@@ -8326,7 +8326,7 @@
         </trans-unit>
         <trans-unit id="Page 1623743194 - Control 1460223235 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the name of the date or datetime field on the table used to determine the age of a record.</source>
-          <target state="translated">Gibt den Namen des Datum- oder DatumZeit-Felds in der Tabelle an, die zum Ermitteln des Alters eines Datensatzes verwendet wird.</target>
+          <target state="translated">Gibt den Namen des Datum- oder Datum/Uhrzeit-Felds in der Tabelle an, der zum Ermitteln des Alters eines Datensatzes verwendet wird.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Lines - Control Date Field Name - Property ToolTip</note>
         </trans-unit>
@@ -8344,7 +8344,7 @@
         </trans-unit>
         <trans-unit id="Page 1623743194 - Control 2822064388 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the caption of the date or datetime field on the table used to determine the age of a record. The caption is the translated name of the field.</source>
-          <target state="translated">Gibt die Beschriftung des Datum- oder DatumZeit-Felds in der Tabelle an, die zum Ermitteln des Alters eines Datensatzes verwendet wird. Die Beschriftung ist der übersetzte Name des Felds.</target>
+          <target state="translated">Gibt die Beschriftung des Datum- oder Datum/Uhrzeit-Felds in der Tabelle an, die zum Ermitteln des Alters eines Datensatzes verwendet wird. Die Beschriftung ist der übersetzte Name des Felds.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Lines - Control Date Field Caption - Property ToolTip</note>
         </trans-unit>
@@ -8362,7 +8362,7 @@
         </trans-unit>
         <trans-unit id="Page 1623743194 - Control 611330467 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the number of the date or datetime field on the table used to determine the age of a record.</source>
-          <target state="translated">Gibt die Nummer des Datum- oder DatumZeit-Felds in der Tabelle an, die zum Ermitteln des Alters eines Datensatzes verwendet wird.</target>
+          <target state="translated">Gibt die Nummer des Datum- oder Datum/Uhrzeit-Felds in der Tabelle an, die zum Ermitteln des Alters eines Datensatzes verwendet wird.</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page Retention Policy Setup Lines - Control Date Field No. - Property ToolTip</note>
         </trans-unit>

@@ -35,6 +35,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
         NoOfPostingNoSeries: Integer;
         PostingNoSeriesNo: Integer;
         PreviewMode: Boolean;
+        SuppressCommit: Boolean;
 
         Text001: Label 'Journal Batch Name    #1##########\\';
         Text002: Label 'Checking lines        #2######\';
@@ -47,6 +48,7 @@ codeunit 5633 "FA Jnl.-Post Batch"
     var
         UpdateAnalysisView: Codeunit "Update Analysis View";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        IsHandled: Boolean;
     begin
         with FAJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
@@ -54,8 +56,11 @@ codeunit 5633 "FA Jnl.-Post Batch"
             OnCodeOnBeforeLockTable(FAJnlLine);
             LockTable();
 
+            OnCodeOnCheckSuppressCommit(FAJnlLine, SuppressCommit);
+
             FAJnlTemplate.Get("Journal Template Name");
             FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+            OnCodeOnAfterLockTable(FAJnlBatch);
 
             if FAJnlTemplate.Recurring then begin
                 SetRange("FA Posting Date", 0D, WorkDate());
@@ -66,23 +71,28 @@ codeunit 5633 "FA Jnl.-Post Batch"
                 if PreviewMode then
                     GenJnlPostPreview.ThrowError();
                 "Line No." := 0;
-                Commit();
+                if not SuppressCommit then
+                    Commit();
                 exit;
             end;
 
             if GuiAllowed() then begin
-                if FAJnlTemplate.Recurring then
-                    Window.Open(
-                      Text001 +
-                      Text002 +
-                      Text003 +
-                      Text004)
-                else
-                    Window.Open(
-                      Text001 +
-                      Text002 +
-                      Text005);
-                Window.Update(1, "Journal Batch Name");
+                IsHandled := false;
+                OnCodeOnBeforeWindowOpen(IsHandled);
+                if not IsHandled then begin
+                    if FAJnlTemplate.Recurring then
+                        Window.Open(
+                          Text001 +
+                          Text002 +
+                          Text003 +
+                          Text004)
+                    else
+                        Window.Open(
+                          Text001 +
+                          Text002 +
+                          Text005);
+                    Window.Update(1, "Journal Batch Name");
+                end;
             end;
 
             // Check lines
@@ -90,8 +100,12 @@ codeunit 5633 "FA Jnl.-Post Batch"
             StartLineNo := "Line No.";
             repeat
                 LineCount := LineCount + 1;
-                if GuiAllowed() then
-                    Window.Update(2, LineCount);
+                if GuiAllowed() then begin
+                    IsHandled := false;
+                    OnCodeOnBeforeWindowUpdate(IsHandled);
+                    if not IsHandled then
+                        Window.Update(2, LineCount);
+                end;
                 CheckRecurringLine(FAJnlLine);
                 FAJnlCheckLine.CheckFAJnlLine(FAJnlLine);
                 if Next() = 0 then
@@ -118,46 +132,53 @@ codeunit 5633 "FA Jnl.-Post Batch"
             "Line No." := FARegNo;
 
             // Update/delete lines
-            if FARegNo <> 0 then
-                if FAJnlTemplate.Recurring then begin
-                    LineCount := 0;
-                    FAJnlLine2.CopyFilters(FAJnlLine);
-                    FAJnlLine2.Find('-');
-                    repeat
-                        LineCount := LineCount + 1;
-                        if GuiAllowed() then begin
-                            Window.Update(5, LineCount);
-                            Window.Update(6, Round(LineCount / NoOfRecords * 10000, 1));
-                        end;
-                        if FAJnlLine2."FA Posting Date" <> 0D then
-                            FAJnlLine2.Validate("FA Posting Date", CalcDate(FAJnlLine2."Recurring Frequency", FAJnlLine2."FA Posting Date"));
-                        if FAJnlLine2."Recurring Method" <> FAJnlLine2."Recurring Method"::"F Fixed" then
-                            ZeroAmounts(FAJnlLine2);
-                        FAJnlLine2.Modify();
-                    until FAJnlLine2.Next() = 0;
-                end else begin
-                    FAJnlLine2.CopyFilters(FAJnlLine);
-                    FAJnlLine2.SetFilter("FA No.", '<>%1', '');
-                    if FAJnlLine2.Find('+') then; // Remember the last line
-                    FAJnlLine3.Copy(FAJnlLine);
-                    OnCodeOnBeforeFAJnlLine3DeleteAll(FAJnlLine3, FAJnlLine);
-                    FAJnlLine3.DeleteAll();
-                    FAJnlLine3.Reset();
-                    FAJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
-                    FAJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-                    if FAJnlTemplate."Increment Batch Name" then
-                        if not FAJnlLine3.FindLast() then
-                            if IncStr("Journal Batch Name") <> '' then begin
-                                FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-                                FAJnlBatch.Delete();
-                                FAJnlSetup.IncFAJnlBatchName(FAJnlBatch);
-                                FAJnlBatch.Name := IncStr("Journal Batch Name");
-                                if FAJnlBatch.Insert() then;
-                                "Journal Batch Name" := FAJnlBatch.Name;
+            IsHandled := false;
+            OnCodeOnBeforeUpdateDeleteLines(FAJnlLine, IsHandled);
+            if not IsHandled then
+                if FARegNo <> 0 then
+                    if FAJnlTemplate.Recurring then begin
+                        LineCount := 0;
+                        FAJnlLine2.CopyFilters(FAJnlLine);
+                        FAJnlLine2.Find('-');
+                        repeat
+                            LineCount := LineCount + 1;
+                            if GuiAllowed() then begin
+                                IsHandled := false;
+                                OnCodeOnBeforeWindowUpdate(IsHandled);
+                                if not IsHandled then begin
+                                    Window.Update(5, LineCount);
+                                    Window.Update(6, Round(LineCount / NoOfRecords * 10000, 1));
+                                end;
                             end;
+                            if FAJnlLine2."FA Posting Date" <> 0D then
+                                FAJnlLine2.Validate("FA Posting Date", CalcDate(FAJnlLine2."Recurring Frequency", FAJnlLine2."FA Posting Date"));
+                            if FAJnlLine2."Recurring Method" <> FAJnlLine2."Recurring Method"::"F Fixed" then
+                                ZeroAmounts(FAJnlLine2);
+                            FAJnlLine2.Modify();
+                        until FAJnlLine2.Next() = 0;
+                    end else begin
+                        FAJnlLine2.CopyFilters(FAJnlLine);
+                        FAJnlLine2.SetFilter("FA No.", '<>%1', '');
+                        if FAJnlLine2.Find('+') then; // Remember the last line
+                        FAJnlLine3.Copy(FAJnlLine);
+                        OnCodeOnBeforeFAJnlLine3DeleteAll(FAJnlLine3, FAJnlLine);
+                        FAJnlLine3.DeleteAll();
+                        FAJnlLine3.Reset();
+                        FAJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
+                        FAJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
+                        if FAJnlTemplate."Increment Batch Name" then
+                            if not FAJnlLine3.FindLast() then
+                                if IncStr("Journal Batch Name") <> '' then begin
+                                    FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+                                    FAJnlBatch.Delete();
+                                    FAJnlSetup.IncFAJnlBatchName(FAJnlBatch);
+                                    FAJnlBatch.Name := IncStr("Journal Batch Name");
+                                    if FAJnlBatch.Insert() then;
+                                    "Journal Batch Name" := FAJnlBatch.Name;
+                                end;
 
-                    CreateNewFAJnlLine();
-                end;
+                        CreateNewFAJnlLine();
+                    end;
             if FAJnlBatch."No. Series" <> '' then
                 NoSeriesMgt.SaveNoSeries();
             if TempNoSeries.Find('-') then
@@ -171,12 +192,14 @@ codeunit 5633 "FA Jnl.-Post Batch"
             if PreviewMode then
                 GenJnlPostPreview.ThrowError();
 
-            Commit();
+            if not SuppressCommit then    
+                Commit();
             Clear(FAJnlCheckLine);
             Clear(FAJnlPostLine);
         end;
         UpdateAnalysisView.UpdateAll(0, true);
-        Commit();
+        if not SuppressCommit then
+            Commit();
     end;
 
     local procedure CreateNewFAJnlLine()
@@ -241,7 +264,14 @@ codeunit 5633 "FA Jnl.-Post Batch"
         PreviewMode := NewPreviewMode;
     end;
 
+    procedure SetSuppressCommit(NewSuppressCommit: Boolean)
+    begin
+        SuppressCommit := NewSuppressCommit;
+    end;
+
     local procedure PostLines()
+    var
+        IsHandled: Boolean;
     begin
         with FAJnlLine do begin
             LineCount := 0;
@@ -252,8 +282,12 @@ codeunit 5633 "FA Jnl.-Post Batch"
             repeat
                 LineCount := LineCount + 1;
                 if GuiAllowed() then begin
-                    Window.Update(3, LineCount);
-                    Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+                    IsHandled := false;
+                    OnPostLinesOnBeforeWindowUpdate(IsHandled);
+                    if not IsHandled then begin
+                        Window.Update(3, LineCount);
+                        Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+                    end;
                 end;
                 CheckFAJnlLineDocumentNo();
                 if not ("FA No." = '') then
@@ -278,9 +312,12 @@ codeunit 5633 "FA Jnl.-Post Batch"
                             end;
                             LastDocNo := "Document No.";
                             Evaluate(PostingNoSeriesNo, TempNoSeries.Description);
+                            OnPostLinesOnBeforeGetNextNoSeries(FAJnlLine);
                             "Document No." := NoSeriesMgt2[PostingNoSeriesNo].GetNextNo("Posting No. Series", "FA Posting Date", false);
+                            OnPostLinesOnAfterGetNextNoSeries(FAJnlLine);
                             LastPostedDocNo := "Document No.";
                         end;
+                OnPostLinesOnBeforeFAJnlPostLine(FAJnlLine);
                 FAJnlPostLine.FAJnlPostLine(FAJnlLine, false);
                 OnPostLinesOnAfterFAJnlPostLine(FAJnlLine);
             until Next() = 0;
@@ -339,6 +376,51 @@ codeunit 5633 "FA Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostLinesOnAfterFAJnlPostLine(var FAJnlLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterLockTable(var FAJournalBatch: Record "FA Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeWindowOpen(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeUpdateDeleteLines(var FAJournalLine: Record "FA Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeWindowUpdate(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostLinesOnBeforeWindowUpdate(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostLinesOnBeforeGetNextNoSeries(var FAJournalLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostLinesOnAfterGetNextNoSeries(var FAJournalLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostLinesOnBeforeFAJnlPostLine(var FAJournalLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnCheckSuppressCommit(var FAJournalLine: Record "FA Journal Line"; var SuppressCommit: Boolean)
     begin
     end;
 }

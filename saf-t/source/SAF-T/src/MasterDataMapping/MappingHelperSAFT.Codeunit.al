@@ -192,11 +192,9 @@ codeunit 5291 "Mapping Helper SAF-T"
 
     procedure UpdateMasterDataWithNoSeries()
     var
-        AuditFileExportSetup: Record "Audit File Export Setup";
         Dimension: Record Dimension;
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        AuditFileExportSetup.Get();
         Dimension.SetRange("Analysis Type SAF-T", '');
         if Dimension.FindSet() then
             repeat

@@ -586,7 +586,7 @@ codeunit 900 "Assembly-Post"
             ItemJnlLine."Variant Code" := "Variant Code";
             ItemJnlLine.Description := Description;
             ItemJnlLine.Validate("Location Code", "Location Code");
-            ItemJnlLine."Dimension Set ID" := "Dimension Set ID";
+            ItemJnlLine.Validate("Dimension Set ID", "Dimension Set ID");
             ItemJnlLine."Bin Code" := "Bin Code";
             ItemJnlLine."Unit Cost" := "Unit Cost";
             ItemJnlLine.Correction := IsCorrection;
@@ -656,7 +656,7 @@ codeunit 900 "Assembly-Post"
             ItemJnlLine."Variant Code" := "Variant Code";
             ItemJnlLine.Description := Description;
             ItemJnlLine.Validate("Location Code", "Location Code");
-            ItemJnlLine."Dimension Set ID" := "Dimension Set ID";
+            ItemJnlLine.Validate("Dimension Set ID", "Dimension Set ID");
             ItemJnlLine."Bin Code" := "Bin Code";
             ItemJnlLine."Indirect Cost %" := "Indirect Cost %";
             ItemJnlLine."Overhead Rate" := "Overhead Rate";

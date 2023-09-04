@@ -239,6 +239,23 @@ codeunit 148035 "Audit File Export Tests"
         // [THEN] No error is shown.
     end;
 
+    [Test]
+    procedure AuditFileExportFormatNone()
+    var
+        AuditFileExportSetup: Record "Audit File Export Setup";
+        AuditFileExportHeader: Record "Audit File Export Header";
+    begin
+        // [SCENARIO 465520] Audit File Export Format "None" with 0 value exists.
+        AuditFileExportSetup.Validate("Audit File Export Format", "Audit File Export Format"::None);
+        Assert.AreEqual("Audit File Export Format"::None, AuditFileExportSetup."Audit File Export Format", '');
+
+        AuditFileExportHeader.Validate("Audit File Export Format", "Audit File Export Format"::None);
+        Assert.AreEqual("Audit File Export Format"::None, AuditFileExportHeader."Audit File Export Format", '');
+
+        // restore setup
+        AuditFileExportSetup.InitSetup("Audit File Export Format"::TEST);
+    end;
+
     local procedure Initialize()
     begin
         if IsInitialized then

@@ -559,7 +559,7 @@ codeunit 134322 "General Journal Line Approval"
 
         // Verify
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
-        Assert.AreEqual(1, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
+        Assert.AreEqual(2, ApprovalEntry.Count, UnexpectedNoOfApprovalEntriesErr);
     end;
 
     [Test]
@@ -1502,6 +1502,91 @@ codeunit 134322 "General Journal Line Approval"
             Format(GenJournalLine[2]."Line No.")));
     end;
 
+    [Test]
+    procedure GenJournalLineApprovalRequestIsApprovedForPurchaserAndFirstQualifiedApprover()
+    var
+        RequestorUserSetup: Record "User Setup";
+        IntermediateApproverUserSetup: Record "User Setup";
+        FinalApproverUserSetup: Record "User Setup";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Vendor: Record Vendor;
+        Workflow: Record Workflow;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        ApprovalEntry: Record "Approval Entry";
+    begin
+        // [SCENARIO 481473] Gen. Journal Line Approval Request is automatically approved for Purchaser approver type and first qualified approver limit type
+        Initialize();
+
+        // [GIVEN] Approval setup with users and approval limits       
+        LibraryDocumentApprovals.SetupUsersForApprovalsWithLimits(
+            RequestorUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
+        RequestorUserSetup."Purchase Amount Approval Limit" := 1000;
+        RequestorUserSetup.Modify(true);
+
+        // [GIVEN] Approval workflow where "Approver Type" = "Salesperson/Purchaser"
+        CreateSalesPersonFirstQualifiedApprovalEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
+
+        // [GIVEN] Create Vendor with "Purchaser Code" = "X"
+        LibraryPurchase.CreateVendor(Vendor);
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        Vendor.Validate("Purchaser Code", SalespersonPurchaser.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Update Purchaser for user A
+        RequestorUserSetup.Validate("Salespers./Purch. Code", SalespersonPurchaser.Code);
+        RequestorUserSetup.Modify(true);
+
+        // [GIVEN] Create Gen. Journal Batch with one Gen. Journal Line
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate, GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDecInRange(10, 100, 2));
+
+        // [WHEN] Send approval request for Gen. Journal Line
+        SendApprovalRequest(GenJournalLine."Journal Batch Name");
+
+        // [THEN] Verify that Gen. Journal Line is approved
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
+        Assert.AreEqual(ApprovalEntry.Status, ApprovalEntry.Status::Approved, '');
+    end;
+
+    [Test]
+    procedure GenJournalLineApprovalRequestIsSentForPaymentDocTypeAndGLAccountForApprovalChainLimitType()
+    var
+        RequestorUserSetup: Record "User Setup";
+        IntermediateApproverUserSetup: Record "User Setup";
+        FinalApproverUserSetup: Record "User Setup";
+        Workflow: Record Workflow;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        ApprovalEntry: Record "Approval Entry";
+    begin
+        // [SCENARIO 479546] Gen. Journal Line Approval Request is sent for Payment Doc. Type and G/L Account for Approval Chain limit type
+        Initialize();
+
+        // [GIVEN] Approval setup with users and approval limits       
+        LibraryDocumentApprovals.SetupUsersForApprovalsWithLimits(
+            RequestorUserSetup, IntermediateApproverUserSetup, FinalApproverUserSetup);
+        RequestorUserSetup."Request Amount Approval Limit" := 10;
+        RequestorUserSetup.Modify(true);
+
+        // [GIVEN] Approval workflow where "Approver Type" = "Approver"
+        CreateApprovalChainEnabledWorkflow(Workflow);
+
+        // [GIVEN] Create Gen. Journal Batch with one Gen. Journal Line
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate, GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::"Payment", GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting, LibraryRandom.RandDecInRange(10, 100, 2));
+
+        // [WHEN] Send approval request for Gen. Journal Line
+        SendApprovalRequest(GenJournalLine."Journal Batch Name");
+
+        // [THEN] Verify that Gen. Journal Line is sent
+        LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, GenJournalLine.RecordId);
+        ApprovalEntry.FindLast();
+        Assert.AreEqual(ApprovalEntry.Status, ApprovalEntry.Status::Open, '');
+    end;
+
     local procedure Initialize()
     var
         Workflow: Record Workflow;
@@ -1927,6 +2012,40 @@ codeunit 134322 "General Journal Line Approval"
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.SetRange(Open, true);
         Assert.IsFalse(VendorLedgerEntry.IsEmpty, StrSubstNo(RecordNotFoundErr, VendorLedgerEntry.TableCaption()));
+    end;
+
+    local procedure CreateSalesPersonFirstQualifiedApprovalEnabledWorkflow(var Workflow: Record Workflow; WorkflowCode: Code[17])
+    var
+        WorkflowStepArgument: Record "Workflow Step Argument";
+    begin
+        CreateCustomApproverTypeWorkflow(
+          Workflow, WorkflowStepArgument."Approver Limit Type"::"First Qualified Approver", WorkflowCode);
+        FindWorkflowStepArgument(Workflow, WorkflowStepArgument);
+        WorkflowStepArgument.Validate("Approver Type", WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser");
+        WorkflowStepArgument.Modify(true);
+        EnableWorkflow(Workflow);
+    end;
+
+    local procedure CreateCustomApproverTypeWorkflow(var Workflow: Record Workflow; ApproverLimitType: Enum "Workflow Approver Limit Type"; WorkflowCode: Code[17])
+    var
+        WorkflowStepArgument: Record "Workflow Step Argument";
+    begin
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowCode);
+        FindWorkflowStepArgument(Workflow, WorkflowStepArgument);
+        WorkflowStepArgument.Validate("Approver Limit Type", ApproverLimitType);
+        WorkflowStepArgument.Modify(true);
+    end;
+
+    local procedure FindWorkflowStepArgument(Workflow: Record Workflow; var WorkflowStepArgument: Record "Workflow Step Argument")
+    var
+        WorkflowStep: Record "Workflow Step";
+        WorkflowResponseHandling: Codeunit "Workflow Response Handling";
+    begin
+        WorkflowStep.SetRange("Workflow Code", Workflow.Code);
+        WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStep.FindFirst();
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
     end;
 
     [PageHandler]

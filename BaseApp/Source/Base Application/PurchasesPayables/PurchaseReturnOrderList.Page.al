@@ -6,6 +6,8 @@ page 9311 "Purchase Return Order List"
     DataCaptionFields = "Buy-from Vendor No.";
     Editable = false;
     PageType = List;
+    QueryCategory = 'Purchase Return Orders';
+    RefreshOnActivate = true;
     SourceTable = "Purchase Header";
     SourceTableView = WHERE("Document Type" = CONST("Return Order"));
     UsageCategory = Lists;

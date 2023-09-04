@@ -186,7 +186,13 @@ table 904 "Assemble-to-Order Link"
     procedure UpdateQtyToAsmFromWhseShptLine(WhseShptLine: Record "Warehouse Shipment Line")
     var
         Window: Dialog;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateQtyToAsmFromWhseShptLine(WhseShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if AsmExistsForWhseShptLine(WhseShptLine) then
             if GetAsmHeader() then begin
                 Window.Open(GetWindowOpenTextWhseShpt(WhseShptLine));
@@ -857,7 +863,13 @@ table 904 "Assemble-to-Order Link"
     procedure ShowSales(AssemblyHeader: Record "Assembly Header")
     var
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowSales(AssemblyHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if GetATOLink(AssemblyHeader) then begin
             SalesHeader.Get("Document Type", "Document No.");
             case "Document Type" of
@@ -1089,7 +1101,13 @@ table 904 "Assemble-to-Order Link"
     procedure AsmExistsForWhseShptLine(WhseShptLine: Record "Warehouse Shipment Line"): Boolean
     var
         SalesLine: Record "Sales Line";
+        AsmExists, IsHandled : Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAsmExistsForWhseShptLine(Rec, WhseShptLine, AsmExists, IsHandled);
+        if IsHandled then
+            exit(AsmExists);
+
         WhseShptLine.TestField("Assemble to Order", true);
         WhseShptLine.TestField("Source Type", DATABASE::"Sales Line");
         SalesLine.Get(WhseShptLine."Source Subtype", WhseShptLine."Source No.", WhseShptLine."Source Line No.");
@@ -1173,7 +1191,13 @@ table 904 "Assemble-to-Order Link"
         WMSMgt: Codeunit "WMS Management";
         MaxQty: Decimal;
         MinQty: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckQtyToAsm(AssemblyHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if GetATOLink(AssemblyHeader) then begin
             SalesLine.Get("Document Type", "Document No.", "Document Line No.");
 
@@ -1201,7 +1225,13 @@ table 904 "Assemble-to-Order Link"
     procedure InitQtyToAsm(AssemblyHeader: Record "Assembly Header"; var QtyToAsm: Decimal; var QtyToAsmBase: Decimal)
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitQtyToAsm(AssemblyHeader, QtyToAsm, QtyToAsmBase, IsHandled);
+        if IsHandled then
+            exit;
+
         if GetATOLink(AssemblyHeader) then begin
             SalesLine.Get("Document Type", "Document No.", "Document Line No.");
             QtyToAsm := MaxQtyToAsm(SalesLine, AssemblyHeader);
@@ -1507,6 +1537,31 @@ table 904 "Assemble-to-Order Link"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRollUpPrice(var SalesLine: Record "Sales Line"; var AssembleToOrderLink: Record "Assemble-to-Order Link"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateQtyToAsmFromWhseShptLine(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAsmExistsForWhseShptLine(var AssembleToOrderLink: Record "Assemble-to-Order Link"; WarehouseShipmentLine: Record "Warehouse Shipment Line"; var AsmExists: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowSales(AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitQtyToAsm(AssemblyHeader: Record "Assembly Header"; var QtyToAsm: Decimal; var QtyToAsmBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQtyToAsm(AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
 }

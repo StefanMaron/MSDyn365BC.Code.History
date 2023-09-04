@@ -2678,7 +2678,7 @@ table 5901 "Service Item Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled);
+        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -2690,7 +2690,7 @@ table 5901 "Service Item Line"
             FieldNo = Rec.FieldNo("Responsibility Center"):
                 TableValuePair.Add(Database::"Responsibility Center", Rec."Responsibility Center");
         end;
-        OnAfterInitTableValuePair(TableValuePair, FieldNo);
+        OnAfterInitTableValuePair(TableValuePair, FieldNo, Rec);
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -2935,12 +2935,12 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean; var ServiceItemLine: Record "Service Item Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
+    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var ServiceItemLine: Record "Service Item Line")
     begin
     end;
 

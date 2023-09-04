@@ -45,7 +45,7 @@ codeunit 7001 "Price Calculation Mgt."
         PriceCalculationSetup: Record "Price Calculation Setup";
     begin
         Result := FindSetup(LineWithPrice, PriceCalculationSetup);
-        OnGetHandlerOnAfterFindSetup(LineWithPrice, PriceCalculation, Result);
+        OnGetHandlerOnAfterFindSetup(LineWithPrice, PriceCalculation, Result, PriceCalculationSetup);
         PriceCalculation := PriceCalculationSetup.Implementation;
         PriceCalculation.Init(LineWithPrice, PriceCalculationSetup);
     end;
@@ -188,7 +188,7 @@ codeunit 7001 "Price Calculation Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetHandlerOnAfterFindSetup(LineWithPrice: Interface "Line With Price"; var PriceCalculation: Interface "Price Calculation"; var Result: Boolean)
+    local procedure OnGetHandlerOnAfterFindSetup(LineWithPrice: Interface "Line With Price"; var PriceCalculation: Interface "Price Calculation"; var Result: Boolean; var PriceCalculationSetup: Record "Price Calculation Setup")
     begin
     end;
 }

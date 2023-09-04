@@ -66,6 +66,12 @@ page 254 "Purchase Journal"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
+                field("Invoice Received Date"; Rec."Invoice Received Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the date when the related document was received.';
+                    Visible = false;
+                }
                 field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;

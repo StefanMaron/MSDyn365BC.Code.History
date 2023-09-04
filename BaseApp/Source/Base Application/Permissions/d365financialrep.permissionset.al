@@ -100,6 +100,6 @@ permissionset 7576 "D365 FINANCIAL REP."
                   tabledata "XBRL Taxonomy Label" = RIMD,
                   tabledata "XBRL Taxonomy Line" = RIMD,
 #endif
-                  tabledata "VAT Setup" = RM,
-                  tabledata "Vendor Ledger Entry" = Rimd;
+                  tabledata "Vendor Ledger Entry" = Rimd,
+                  tabledata "VAT Setup" = RM;
 }

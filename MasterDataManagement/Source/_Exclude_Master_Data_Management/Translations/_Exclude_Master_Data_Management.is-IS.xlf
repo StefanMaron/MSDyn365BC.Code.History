@@ -1426,6 +1426,12 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Mgt. Coupling - NamedType ZeroTableIdErr</note>
         </trans-unit>
+        <trans-unit id="Table 1217273708 - NamedType 158721947" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>You must choose a source company to synchronize data from.</source>
+          <target state="translated">Þú verður að velja upprunafyrirtæki til að samstilla gögn frá.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Master Data Management Setup - NamedType MustPickSourceCompanyErr</note>
+        </trans-unit>
         <trans-unit id="Table 1217273708 - NamedType 2297892348" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>You are currently signed into this company. \\Choose a different company to synchronize data with.</source>
           <target state="translated">Þú ert skráð(ur) inn í þetta fyrirtæki. \\Veldu annað fyrirtæki til að samstilla gögn við.</target>

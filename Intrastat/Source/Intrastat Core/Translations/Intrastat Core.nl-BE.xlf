@@ -2426,7 +2426,7 @@
         </trans-unit>
         <trans-unit id="Table 3132071445 - Field 4168804269 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
           <source>Default Country/Region Code</source>
-          <target state="translated">Standaardcode van land/regio</target>
+          <target state="translated">Standaardland/regio-code</target>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table Intrastat Report Setup - Field Def. Country/Region Code - Property Caption</note>
         </trans-unit>

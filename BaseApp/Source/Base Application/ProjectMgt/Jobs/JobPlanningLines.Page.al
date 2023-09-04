@@ -494,6 +494,12 @@ page 1007 "Job Planning Lines"
                     ToolTip = 'Specifies the base quantity of the item you have picked for the job planning line.';
                     Visible = false;
                 }
+                field("Contract Line"; Rec."Contract Line")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies whether this line is a billable line.';
+                    Visible = false;
+                }
             }
         }
         area(factboxes)

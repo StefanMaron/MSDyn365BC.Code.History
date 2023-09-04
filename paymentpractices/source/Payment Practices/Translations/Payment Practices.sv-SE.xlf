@@ -1,0 +1,693 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="sv-SE" original="Payment Practices">
+    <body>
+      <group id="body">
+        <trans-unit id="Table 2969990521 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Period</source>
+          <target state="translated">Betalningsperiod</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Period - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2969990521 - NamedType 3676735976" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Days From and Days To are not specified.</source>
+          <target state="translated">Dagar från och Dagar till har inte angetts.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Period - NamedType DaysFromAndDaysToNotSpecifiedErr</note>
+        </trans-unit>
+        <trans-unit id="Table 2969990521 - NamedType 3485618910" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Days From must not be less than Days To.</source>
+          <target state="translated">Dagar från måste infalla tidigare än Dagar till.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Period - NamedType DaysFromLessThanDaysToErr</note>
+        </trans-unit>
+        <trans-unit id="Table 2969990521 - NamedType 3235026836" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>More than %1 days.</source>
+          <target state="translated">Mer än %1 dagar.</target>
+          <note from="Developer" annotates="general" priority="2">%1 - number of days</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Period - NamedType DescriptionTemplateEndlessTxt</note>
+        </trans-unit>
+        <trans-unit id="Table 2969990521 - NamedType 187372530" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>%1 to %2 days.</source>
+          <target state="translated">%1 till %2 dagar.</target>
+          <note from="Developer" annotates="general" priority="2">%1,%2 - number of days</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Period - NamedType DescriptionTemplateTxt</note>
+        </trans-unit>
+        <trans-unit id="Table 2969990521 - Field 3004954119 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Code</source>
+          <target state="translated">Kod</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Period - Field Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2969990521 - Field 99564003 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Days From</source>
+          <target state="translated">Dagar från</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Period - Field Days From - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2969990521 - Field 613565288 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Days To</source>
+          <target state="translated">Dagar till</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Period - Field Days To - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 2969990521 - Field 3461834954 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Description</source>
+          <target state="translated">Beskrivning</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Period - Field Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Practice Data</source>
+          <target state="translated">Data för betalningsrutin</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 1178950021 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Actual Payment Days</source>
+          <target state="translated">Faktiska betalningsdagar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Actual Payment Days - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 3150588711 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Agreed Payment Days</source>
+          <target state="translated">Överenskomna betalningsdagar</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Agreed Payment Days - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 91730313 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Size Code</source>
+          <target state="translated">Kod för företagsstorleks</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Company Size Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 2616021550 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>CV No.</source>
+          <target state="translated">KL nr</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field CV No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 4085727052 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Due Date</source>
+          <target state="translated">Förfallodatum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Due Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 702557324 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Header No.</source>
+          <target state="translated">Huvudnummer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Header No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 2839012062 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Inv. External Document No.</source>
+          <target state="translated">Fakturans externa dokumentnr</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Inv. External Document No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 3143542455 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Invoice Amount</source>
+          <target state="translated">Fakturabelopp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Invoice Amount - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 2416506740 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Invoice Doc. No.</source>
+          <target state="translated">Fakturans dokumentnummer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Invoice Doc. No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 1995275950 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Invoice Entry No.</source>
+          <target state="translated">Fakturans löpnr</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Invoice Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 73960785 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Invoice Is Open</source>
+          <target state="translated">Fakturan är öppen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Invoice Is Open - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 3959782591 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Invoice Posting Date</source>
+          <target state="translated">Bokföringsdatum för faktura</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Invoice Posting Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 1886852470 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Invoice Received Date</source>
+          <target state="translated">Fakturans mottagandedatum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Invoice Received Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 3435910384 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pmt. Entry No.</source>
+          <target state="translated">Transaktionsnr för betalning</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Pmt. Entry No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 261637853 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pmt. Posting Date</source>
+          <target state="translated">Betalningens bokföringsdatum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Pmt. Posting Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1892886827 - Field 1753214751 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Type</source>
+          <target state="translated">Källtyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Data - Field Source Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Practice Header</source>
+          <target state="translated">Rubrik för betalningsrutin</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - NamedType 3341347988" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Changing %1 will delete existing lines. Do you want to continue?</source>
+          <target state="translated">Om du ändrar %1 tas befintliga rader bort. Vill du fortsätta?</target>
+          <note from="Developer" annotates="general" priority="2">%1 = Field name</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - NamedType ClearHeaderQst</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Field 2658469128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Aggregation Type</source>
+          <target state="translated">Aggregeringstyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Field Aggregation Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Field 4275867806 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Average Actual Payment Period</source>
+          <target state="translated">Genomsnittlig faktisk betalningsperiod</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Field Average Actual Payment Period - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Field 1683743600 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Average Agreed Payment Period</source>
+          <target state="translated">Genomsnittlig överenskommen betalningsperiod</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Field Average Agreed Payment Period - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Field 458406397 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Ending Date</source>
+          <target state="translated">Slutdatum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Field Ending Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Field 902661864 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Generated By</source>
+          <target state="translated">Genererades av</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Field Generated By - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Field 883307914 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Generated On</source>
+          <target state="translated">Genererades den</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Field Generated On - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Field 3072753081 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Header Type</source>
+          <target state="translated">Rubriktyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Field Header Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Field 2517064618 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Lines Exist</source>
+          <target state="translated">Rader finns</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Field Lines Exist - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Field 217839722 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Modified Manually</source>
+          <target state="translated">Ändrat manuellt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Field Modified Manually - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Field 4200184881 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No.</source>
+          <target state="translated">Nr</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Field No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Field 1242979889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pct Paid on Time</source>
+          <target state="translated">Procent betalat i tid</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Field Pct Paid on Time - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 1317703130 - Field 460889064 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Starting Date</source>
+          <target state="translated">Startdatum</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Header - Field Starting Date - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Practice Line</source>
+          <target state="translated">Rad för betalningsrutin</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 2658469128 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Aggregation Type</source>
+          <target state="translated">Aggregeringstyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Aggregation Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 4275867806 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Average Actual Payment Period</source>
+          <target state="translated">Genomsnittlig faktisk betalningsperiod</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Average Actual Payment Period - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 1683743600 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Average Agreed Payment Period</source>
+          <target state="translated">Genomsnittlig överenskommen betalningsperiod</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Average Agreed Payment Period - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 91730313 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Company Size Code</source>
+          <target state="translated">Kod för företagsstorleks</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Company Size Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 702557324 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Header No.</source>
+          <target state="translated">Huvudnummer</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Header No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 3320823955 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Line No.</source>
+          <target state="translated">Radnr</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Line No. - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 217839722 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Modified Manually</source>
+          <target state="translated">Ändrat manuellt</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Modified Manually - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 2543498006 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Period Code</source>
+          <target state="translated">Kod för betalningsperiod</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Payment Period Code - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 814244331 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Period Description</source>
+          <target state="translated">Beskrivning av betalningsperiod</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Payment Period Description - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 1592458435 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pct Paid in Period</source>
+          <target state="translated">Betalning som betalats under perioden</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Pct Paid in Period - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 2653494688 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pct Paid in Period (Amount)</source>
+          <target state="translated">Betalning som betalats under perioden (belopp)</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Pct Paid in Period (Amount</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 1242979889 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Pct Paid on Time</source>
+          <target state="translated">Procent betalat i tid</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Pct Paid on Time - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 3064368449 - Field 1753214751 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Source Type</source>
+          <target state="translated">Källtyp</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table Payment Practice Line - Field Source Type - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 2826147115 - NamedType 3557632091" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Practice Header Type must be Vendor for this aggregation type.</source>
+          <target state="translated">Huvud typen för betalningsrutinen måste vara leverantör för den här aggregerings typen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit Paym. Prac. Size Aggregator - NamedType WrongHeaderTypeErr</note>
+        </trans-unit>
+        <trans-unit id="Page 4018031280 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Periods</source>
+          <target state="translated">Betalningsperioder</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Periods - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4018031280 - Control 3004954119 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies code of the payment period.</source>
+          <target state="translated">Anger koden för betalningsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Periods - Control Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4018031280 - Control 99564003 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the lowest number of "Actual Payment Days" for the payment to be included in the period.</source>
+          <target state="translated">Anger det lägsta antalet faktiska betalningsdagar för betalningen som ska inkluderas i perioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Periods - Control Days From - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4018031280 - Control 613565288 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the highest number of "Actual Payment Days" for the payment to be included in the period. 0 means no upper limit.</source>
+          <target state="translated">Anger det högsta antalet faktiska betalningsdagar för betalningen som ska inkluderas i perioden. 0 innebär att det inte finns någon övre gräns.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Periods - Control Days To - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4018031280 - Control 3461834954 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the description of the payment period.</source>
+          <target state="translated">Anger en beskrivning av betalningsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Periods - Control Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Practice Card</source>
+          <target state="translated">Kort för betalningsrutin</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - NamedType 1757161961" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>All previously generated lines will be deleted. Do you want to continue?</source>
+          <target state="translated">Alla tidigare genererade rader kommer att tas bort. Vill du fortsätta?</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - NamedType LinesWillBeDeletedQst</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - NamedType 1154850288" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The payment practice generator found no entries were found corresponding to header type, starting and ending date.</source>
+          <target state="translated">Det gick inte att hitta några poster som motsvarar huvudtypen och start- och slutdatumet i generatorn för betalningsrutinen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - NamedType NoEntriesFoundMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Control 2658469128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the aggregation type of the payment practice.</source>
+          <target state="translated">Anger aggregerings typen för betalningsrutinen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Control Aggregation Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Control 458406397 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ending date of the payment practice.</source>
+          <target state="translated">Anger slutdatumet för betalningsrutinen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Control Ending Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Control 902661864 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the user who generated the payment practice.</source>
+          <target state="translated">Anger vilken användare som genererade betalningsrutinen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Control Generated By - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Control 883307914 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date and time when the payment practice was generated.</source>
+          <target state="translated">Anger det datum och den tidpunkt då betalningsrutinen skapades.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Control Generated On - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Control 3072753081 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the source for entries in the payment practice.</source>
+          <target state="translated">Anger källan för transaktioner i betalningsrutinen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Control Header Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Control 2517064618 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the payment practice has lines.</source>
+          <target state="translated">Anger om betalningsrutinen innehåller har rader.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Control Lines Exist - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Control 217839722 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the payment practice was modified manually.</source>
+          <target state="translated">Anger om betalningsrutinen har ändrats manuellt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Control Modified Manually - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the payment practice header.</source>
+          <target state="translated">Anger numret för huvudet för betalningsrutinen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Control No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Control 1154501529 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the starting date of the payment practice.</source>
+          <target state="translated">Anger startdatumet för betalningsrutinen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Control Startind Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Control 4275867806 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the average actual payment period.</source>
+          <target state="translated">Anger den genomsnittliga faktiska betalningsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Control Average Actual Payment Period - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Control 1683743600 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the average agreed payment period.</source>
+          <target state="translated">Anger den genomsnittliga överenskomna betalningsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Control Average Agreed Payment Period - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Control 1242979889 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the percentage paid on time.</source>
+          <target state="translated">Anger den procentandel som har betalats i tid.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Control Pct Paid on Time - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Action 2626368477 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Generates the data and lines for the payment practice.</source>
+          <target state="translated">Genererar data och rader för betalningsrutinen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Action Generate - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Action 2626368477 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Generate</source>
+          <target state="translated">Generera</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Action Generate - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Action 1002420131 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Prints the payment practice report.</source>
+          <target state="translated">Skriver ut rapporten för betalningsrutin.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Action Print - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 3524294527 - Action 1002420131 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Print</source>
+          <target state="translated">Skriv ut</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Card - Action Print - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Practice Data List</source>
+          <target state="translated">Lista över data för betalningsrutinen</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Control 3471137671 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Lines</source>
+          <target state="translated">Rader</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Control Lines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Control 1178950021 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of days that was the actual period for payment for the invoice.</source>
+          <target state="translated">Anger antalet dagar som var den faktiska betalningsperioden för fakturan.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Control Actual Payment Days - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Control 3150588711 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of days that was the agreed period for payment for the invoice.</source>
+          <target state="translated">Anger antalet dagar som var den överenskomna perioden för betalning av fakturan.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Control Agreed Payment Days - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Control 91730313 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the company size code of the vendor that is the source for this entry.</source>
+          <target state="translated">Anger företagsstorlekskoden för leverantören som är källan till den här transaktionen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Control Company Size Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Control 4085727052 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the due date of the invoice entry that is the source for this entry.</source>
+          <target state="translated">Anger förfallodatumet för fakturatransaktionen som är källan till den här transaktionen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Control Due Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Control 3143542455 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the amount of the invoice entry that is the source for this entry.</source>
+          <target state="translated">Anger beloppet för fakturatransaktionen som är källan till den här transaktionen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Control Invoice Amount - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Control 1995275950 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the invoice entry number that is the source for this entry.</source>
+          <target state="translated">Anger numret på fakturatransaktionen som är källan till transaktionen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Control Invoice Entry No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Control 73960785 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the invoice entry that is the source for this entry is open.</source>
+          <target state="translated">Anger om fakturatransaktionen som är källan till den här transaktionen är öppen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Control Invoice Is Open - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Control 3959782591 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the posting date of the invoice entry that is the source for this entry.</source>
+          <target state="translated">Anger bokföringsdatumet för fakturatransaktionen som är källan till den här transaktionen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Control Invoice Posting Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Control 1886852470 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the date the invoice was received that is the source for this buffer entry. If empty, the posting date is used.</source>
+          <target state="translated">Anger mottagningsdatumet för fakturan som är källan till den här bufferttransaktionen. Om fältet är tomt används bokföringsdatumet.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Control Invoice Received Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Control 1657135755 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the closing payment entry number that is associated with the source invoicy entry, if any was applied.</source>
+          <target state="translated">Anger det avslutande betalningstransaktionsnumret som var kopplad till den ursprungliga fakturatransaktionen, om ett sådant har kopplats.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Control Payment Entry No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 1141634581 - Control 261637853 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the posting date of the payment entry that is associated with the source invoicy entry, if any was applied.</source>
+          <target state="translated">Anger bokföringsdatumet för den betalningstransaktion som är kopplad till den ursprungliga fakturatransaktionen, om ett sådant har kopplats.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Data List - Control Pmt. Posting Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Lines</source>
+          <target state="translated">Rader</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Control 2658469128 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the type of aggregation.</source>
+          <target state="translated">Anger typen av aggregering.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Control Aggregation Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Control 4275867806 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the average actual payment period.</source>
+          <target state="translated">Anger den genomsnittliga faktiska betalningsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Control Average Actual Payment Period - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Control 1683743600 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the average agreed payment period.</source>
+          <target state="translated">Anger den genomsnittliga överenskomna betalningsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Control Average Agreed Payment Period - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Control 91730313 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the company size code.</source>
+          <target state="translated">Anger koden för företagsstorlek.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Control Company Size Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Control 3320823955 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the payment practice line.</source>
+          <target state="translated">Anger numret på raden för betalningsrutinen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Control Line No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Control 2069623537 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the line has been modified manually.</source>
+          <target state="translated">Anger om raden har ändrats manuellt.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Control Modified Manully - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Control 2543498006 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the payment period code.</source>
+          <target state="translated">Anger koden för betalningsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Control Payment Period Code - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Control 814244331 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the payment period description.</source>
+          <target state="translated">Anger en beskrivning av betalningsperioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Control Payment Period Description - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Control 1592458435 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the percentage paid in period.</source>
+          <target state="translated">Anger den procentandel som har betalats under perioden.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Control Pct Paid in Period - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Control 2653494688 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the percentage paid in period (amount).</source>
+          <target state="translated">Anger procentandelen som har betalats under perioden (belopp).</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Control Pct Paid in Period (Amount</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Control 1242979889 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the percentage paid on time.</source>
+          <target state="translated">Anger den procentandel som har betalats i tid.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Control Pct Paid on Time - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 2851816216 - Control 1753214751 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the source for the payment data.</source>
+          <target state="translated">Anger källan till betalningsdata.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice Lines - Control Source Type - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 385054005 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Practices</source>
+          <target state="translated">Betalningsrutiner</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice List - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 385054005 - Control 458406397 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the ending date of the payment practice report.</source>
+          <target state="translated">Anger slutdatumet för rapporten för betalningsrutinen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice List - Control Ending Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 385054005 - Control 4200184881 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the number of the payment practice document.</source>
+          <target state="translated">Anger numret på dokumentet för betalningsrutinen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice List - Control No. - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 385054005 - Control 460889064 - Property 1295455071" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the starting date of the payment practice report.</source>
+          <target state="translated">Anger startdatumet för rapporten för betalningsrutinen.</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page Payment Practice List - Control Starting Date - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Report 284720075 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Practice</source>
+          <target state="translated">Betalningsrutin</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Payment Practice - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Report 284720075 - ReportLayout 4115910379 - Property 2166945456" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Practice by Period</source>
+          <target state="translated">Betalningsmetod per period</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Payment Practice - ReportLayout PaymentPractice_PeriodLayout - Property Summary</note>
+        </trans-unit>
+        <trans-unit id="Report 284720075 - ReportLayout 4115910379 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Practice by Period</source>
+          <target state="translated">Betalningsmetod per period</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Payment Practice - ReportLayout PaymentPractice_PeriodLayout - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Report 284720075 - ReportLayout 2317443935 - Property 2166945456" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Practice by Vendor Size</source>
+          <target state="translated">Betalningsmetod per leverantörsstorlek</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Payment Practice - ReportLayout PaymentPractice_VendorSizeLayout - Property Summary</note>
+        </trans-unit>
+        <trans-unit id="Report 284720075 - ReportLayout 2317443935 - Property 2879900210" maxwidth="0" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Payment Practice by Vendor Size</source>
+          <target state="translated">Betalningsmetod per leverantörsstorlek</target>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Report Payment Practice - ReportLayout PaymentPractice_VendorSizeLayout - Property Caption</note>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

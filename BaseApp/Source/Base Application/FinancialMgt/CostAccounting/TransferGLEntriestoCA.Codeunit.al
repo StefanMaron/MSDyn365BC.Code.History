@@ -147,21 +147,23 @@ codeunit 1105 "Transfer GL Entries to CA"
                                     end;
 
                                     CombineEntries := CostType."Combine Entries" <> CostType."Combine Entries"::None;
-                                    OnGetGLEntriesOnBeforeCombineEntries(CostObjectCode, GLEntry, CostType, CombineEntries, CostCenterCode);
-                                    if CombineEntries then begin
-                                        TempCostJnlLine.Reset();
-                                        TempCostJnlLine.SetRange("Cost Type No.", CostType."No.");
-                                        if CostCenterCode <> '' then
-                                            TempCostJnlLine.SetRange("Cost Center Code", CostCenterCode)
-                                        else
-                                            TempCostJnlLine.SetRange("Cost Object Code", CostObjectCode);
-                                        TempCostJnlLine.SetRange("Posting Date", PostingDate);
-                                        if TempCostJnlLine.FindFirst() then
-                                            ModifyCostJournalLine(CombinedEntryText)
-                                        else
+                                    IsHandled := false;
+                                    OnGetGLEntriesOnBeforeCombineEntries(CostObjectCode, GLEntry, CostType, CombineEntries, CostCenterCode, IsHandled);
+                                    if not IsHandled then
+                                        if CombineEntries then begin
+                                            TempCostJnlLine.Reset();
+                                            TempCostJnlLine.SetRange("Cost Type No.", CostType."No.");
+                                            if CostCenterCode <> '' then
+                                                TempCostJnlLine.SetRange("Cost Center Code", CostCenterCode)
+                                            else
+                                                TempCostJnlLine.SetRange("Cost Object Code", CostObjectCode);
+                                            TempCostJnlLine.SetRange("Posting Date", PostingDate);
+                                            if TempCostJnlLine.FindFirst() then
+                                                ModifyCostJournalLine(CombinedEntryText)
+                                            else
+                                                InsertCostJournalLine(CostCenterCode, CostObjectCode);
+                                        end else
                                             InsertCostJournalLine(CostCenterCode, CostObjectCode);
-                                    end else
-                                        InsertCostJournalLine(CostCenterCode, CostObjectCode);
 
                                     if BatchRun and ((GLEntry."Entry No." mod 100) = 0) then begin
                                         Window.Update(2, CostType."No.");
@@ -357,7 +359,7 @@ codeunit 1105 "Transfer GL Entries to CA"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetGLEntriesOnBeforeCombineEntries(var CostObjectCode: Code[20]; GLEntry: Record "G/L Entry"; CostType: Record "Cost Type"; var CombineEntries: Boolean; var CostCenterCode: Code[20])
+    local procedure OnGetGLEntriesOnBeforeCombineEntries(var CostObjectCode: Code[20]; GLEntry: Record "G/L Entry"; CostType: Record "Cost Type"; var CombineEntries: Boolean; var CostCenterCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

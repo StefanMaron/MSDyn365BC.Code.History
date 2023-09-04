@@ -158,7 +158,13 @@ table 7005 "Price Source"
     procedure GetDefaultAmountType() AmountType: Enum "Price Amount Type";
     var
         AmountTypeInt: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDefaultAmountType(Rec, AmountType, IsHandled);
+        if IsHandled then
+            exit;
+
         foreach AmountTypeInt in AmountType.Ordinals() do begin
             AmountType := "Price Amount Type".FromInteger(AmountTypeInt);
             if IsForAmountType(AmountType) then
@@ -318,6 +324,11 @@ table 7005 "Price Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitSource(var PriceSource: Record "Price Source")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultAmountType(PriceSource: Record "Price Source"; var AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
     begin
     end;
 }

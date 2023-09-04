@@ -77,8 +77,6 @@ codeunit 5856 "TransferOrder-Post Transfer"
             InventorySetup.Get();
             InventorySetup.TestField("Posted Direct Trans. Nos.");
 
-            NoSeriesLine.LockTable();
-            if NoSeriesLine.FindLast() then;
             if InventorySetup."Automatic Cost Posting" then begin
                 GLEntry.LockTable();
                 if GLEntry.FindLast() then;
@@ -160,7 +158,6 @@ codeunit 5856 "TransferOrder-Post Transfer"
         TempWhseSplitSpecification: Record "Tracking Specification" temporary;
         TempHandlingSpecification: Record "Tracking Specification" temporary;
         TempWhseShptHeader: Record "Warehouse Shipment Header" temporary;
-        NoSeriesLine: Record "No. Series Line";
         GLEntry: Record "G/L Entry";
         WhseShptHeader: Record "Warehouse Shipment Header";
         WhseShptLine: Record "Warehouse Shipment Line";

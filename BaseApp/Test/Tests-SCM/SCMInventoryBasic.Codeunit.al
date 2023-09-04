@@ -2447,6 +2447,43 @@ codeunit 137280 "SCM Inventory Basic"
         Item.TestField("No. Series", NonstockItem."Item No. Series");
     end;
 
+    [Test]
+    [HandlerFunctions('CancelItemTemplateHandler,ConfirmHandler,NoSeriesListModalPageHandler')]
+    procedure CreateItemFromBlankCardWithRelatedNoSeries()
+    var
+        InventorySetup: Record "Inventory Setup";
+        NoSeries: Record "No. Series";
+        RelatedNoSeries: Record "No. Series";
+        RelatedNoSeriesLine: Record "No. Series Line";
+        ItemCard: TestPage "Item Card";
+        ExpectedItemNo: Code[20];
+    begin
+        // [SCENARIO 481615] Create Item from Blank Card with Related No. Series
+        Initialize();
+
+        // [GIVEN] No. Series "Y" with "Default Nos" = Yes and no. series line setup
+        LibraryUtility.CreateNoSeries(RelatedNoSeries, true, false, false);
+        LibraryUtility.CreateNoSeriesLine(RelatedNoSeriesLine, RelatedNoSeries.Code, '', '');
+        LibraryVariableStorage.Enqueue(RelatedNoSeries.Code);
+        ExpectedItemNo := LibraryUtility.GetNextNoFromNoSeries(RelatedNoSeries.Code, WorkDate());
+
+        // [GIVEN] No. Series "X" with "Default Nos" = Yes and related No. series "Y". Next "No." in no. series is "X1"
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
+        LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, RelatedNoSeries.Code);
+
+        // [GIVEN] Set default No. Series for Item on Inventory Setup
+        InventorySetup.Get();
+        InventorySetup.Validate("Item Nos.", NoSeries.Code);
+        InventorySetup.Modify(true);
+
+        // [WHEN] Open Item Card in New mode and call Assist Edit on "No." field
+        ItemCard.OpenNew();
+        ItemCard."No.".AssistEdit();
+
+        // [THEN] Verify results
+        Assert.AreEqual(ItemCard."No.".Value, ExpectedItemNo, 'Expected Item No. is not equal to actual.');
+    end;
+
     local procedure Initialize()
     var
         NonstockItemSetup: Record "Nonstock Item Setup";
@@ -3276,6 +3313,19 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         SalesShipmentLines.FILTER.SetFilter("Document No.", GlobalDocumentNo);
         SalesShipmentLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure CancelItemTemplateHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
+    begin
+        SelectItemTemplList.Cancel().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
+    begin
+        NoSeriesList.Filter.SetFilter(Code, LibraryVariableStorage.DequeueText);
+        NoSeriesList.OK.Invoke;
     end;
 
     [ConfirmHandler]

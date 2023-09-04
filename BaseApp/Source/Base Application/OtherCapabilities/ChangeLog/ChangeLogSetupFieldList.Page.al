@@ -107,13 +107,13 @@ page 594 "Change Log Setup (Field) List"
 
     trigger OnAfterGetCurrRecord()
     begin
-        PageIsEditable := CurrPage.Editable();
         GetRec();
         TransFromRec();
     end;
 
     trigger OnAfterGetRecord()
     begin
+        PageIsEditable := CurrPage.Editable();
         GetRec();
         TransFromRec();
     end;

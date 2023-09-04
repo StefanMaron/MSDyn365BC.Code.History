@@ -109,6 +109,8 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
                 end;
         end;
 
+        OnAfterApplyEntries(BankAccReconLine, BankAccLedgEntry, Relation);
+
         exit(true);
     end;
 
@@ -189,6 +191,8 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
             ModifyBankAccReconLine(BankAccReconLine);
             DeletePaymentMatchDetails(BankAccReconLine);
         end;
+
+        OnAfterRemoveApplication(BankAccLedgEntry);
     end;
 
     local procedure DeletePaymentMatchDetails(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
@@ -306,12 +310,22 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyEntries(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var Relation: Option "One-to-One","One-to-Many")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyBankAccReconLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRemoveApplication(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRemoveApplication(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 }

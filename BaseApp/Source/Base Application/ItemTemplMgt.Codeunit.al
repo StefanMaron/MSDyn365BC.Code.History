@@ -6,7 +6,7 @@ codeunit 1336 "Item Templ. Mgt."
 
     var
         VATPostingSetupErr: Label 'VAT Posting Setup does not exist. "VAT Bus. Posting Group" = %1, "VAT Prod. Posting Group" = %2.', Comment = '%1 - vat bus. posting group code; %2 - vat prod. posting group code';
-        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records in fields that do not already contain data. Do you want to continue?';
+        UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records in fields that do not already contain data.\\Do you want also data from the template to replace data for the records in fields that already contain data?';
         OpenBlankCardQst: Label 'Do you want to open the blank item card?';
 
     procedure CreateItemFromTemplate(var Item: Record Item; var IsHandled: Boolean; ItemTemplCode: Code[20]) Result: Boolean
@@ -94,7 +94,7 @@ codeunit 1336 "Item Templ. Mgt."
                 EmptyItemFldRef := EmptyItemRecRef.Field(ItemTemplFldRef.Number);
                 EmptyItemTemplFldRef := EmptyItemTemplRecRef.Field(ItemTemplFldRef.Number);
                 if (not UpdateExistingValues and (ItemFldRef.Value = EmptyItemFldRef.Value) and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value)) or
-                   (UpdateExistingValues and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value) and (ItemFldRef.Value = EmptyItemFldRef.Value))
+                   (UpdateExistingValues and (ItemTemplFldRef.Value <> EmptyItemTemplFldRef.Value))
                 then begin
                     ItemFldRef.Value := ItemTemplFldRef.Value;
                     FieldValidationList.Add(ItemTemplFldRef.Number);

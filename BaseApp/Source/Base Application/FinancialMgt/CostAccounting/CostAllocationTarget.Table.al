@@ -30,7 +30,13 @@ table 1107 "Cost Allocation Target"
             TableRelation = "Cost Center";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateTargetCostCenter(Rec, IsHandled);
+                if IsHandled then
+                    exit;
                 if ("Target Cost Center" <> '') and ("Target Cost Object" <> '') then
                     Error(Text000);
             end;
@@ -438,6 +444,11 @@ table 1107 "Cost Allocation Target"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcPercentOnAfterSetFilters(var CostAllocationTarget: Record "Cost Allocation Target"; var Rec: Record "Cost Allocation Target")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTargetCostCenter(var CostAllocationTarget: Record "Cost Allocation Target"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -12,7 +12,8 @@ codeunit 5281 "Audit Data Handling SAF-T" implements "Audit File Export Data Han
         AuditFileExportSetup: Record "Audit File Export Setup";
         CreateStandardDataSAFT: Interface CreateStandardDataSAFT;
     begin
-        AuditFileExportSetup.Get();
+        if not AuditFileExportSetup.Get() then
+            exit(false);
         CreateStandardDataSAFT := AuditFileExportSetup."SAF-T Modification";
         exit(CreateStandardDataSAFT.LoadStandardAccounts(StandardAccountType));
     end;
@@ -70,7 +71,8 @@ codeunit 5281 "Audit Data Handling SAF-T" implements "Audit File Export Data Han
         AuditFileExportSetup: Record "Audit File Export Setup";
         LoadStandardDataSAFT: Interface CreateStandardDataSAFT;
     begin
-        AuditFileExportSetup.Get();
+        if not AuditFileExportSetup.Get() then
+            exit;
         LoadStandardDataSAFT := AuditFileExportSetup."SAF-T Modification";
         LoadStandardDataSAFT.InitAuditExportDataTypeSetup();
     end;

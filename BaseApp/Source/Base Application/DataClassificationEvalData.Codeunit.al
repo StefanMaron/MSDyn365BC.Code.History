@@ -45,6 +45,8 @@
         ClassifyTablesToNormalPart10();
         ClassifyTablesToNormalPart11();
 
+        OnCreateEvaluationDataOnAfterClassifyTablesToNormal();
+
         DataClassEvalDataCountry.ClassifyCountrySpecificTables();
 
         // All EUII and EUPI Fields are set to Personal
@@ -1290,6 +1292,7 @@
         SetTableFieldsToNormal(DATABASE::"Semi-Manual Test Wizard");
         SetTableFieldsToNormal(DATABASE::"Semi-Manual Execution Log");
         SetTableFieldsToNormal(DATABASE::"Work Shift");
+        SetTableFieldsToNormal(DATABASE::"Company Size");
     end;
 
     local procedure ClassifyTablesToNormalPart10()
@@ -7186,5 +7189,10 @@
         SetFieldToPersonal(TableNo, RemitAddress.FieldNo(Name));
         SetFieldToPersonal(TableNo, RemitAddress.FieldNo("Bank Account No."));
         SetFieldToPersonal(TableNo, RemitAddress.FieldNo(IBAN));
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCreateEvaluationDataOnAfterClassifyTablesToNormal()
+    begin
     end;
 }

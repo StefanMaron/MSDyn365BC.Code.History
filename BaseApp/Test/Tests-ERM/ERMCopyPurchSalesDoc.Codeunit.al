@@ -32,7 +32,6 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         InvoiceNoTxt: Label 'Invoice No. %1:';
         WrongCopyPurchaseResourceErr: Label 'Wrong data after copy purchase resource';
         AddrChangedErr: Label 'field on the purchase order %1 must be the same as on sales order %2.', Comment = '%1: Purchase Order No., %2: Sales Order No.';
-        ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
 
 #if not CLEAN21
     [Test]
@@ -6739,50 +6738,6 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         VerifyShiptoAddressInSalesDocToCompanyInfo(SalesHeader);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyItemLedgerEntryTypeInValueEntryForItemChargeAssignedToSalesShipment()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        ValueEntry: Record "Value Entry";
-        PurchaseInvoiceNo: Code[20];
-        ItemNo: Code[20];
-    begin
-        // [SCENARIO 473759] Verify the Item Ledger Entry Type in Value Entry which is “Purchase”, but it should be Sale.
-        Initialize();
-
-        // [GIVEN] Create a new item.
-        ItemNo := LibraryInventory.CreateItemNo();
-
-        // [GIVEN] Create a Sales Document with Item.
-        CreateAndPostSalesDocumentWithItem("Sales Document Type"::Invoice, ItemNo);
-
-        // [GIVEN] Find an Item Ledger Entry with Document Type and Item Number.
-        FindItemLedgerEntryWithDocTypeAndItemNo(ItemLedgerEntry, ItemLedgerEntry."Document Type"::"Sales Shipment", ItemNo);
-
-        // [GIVEN] Create a Purchase Credit Memo with Item Charge and assign Sales Shipment to Item Charge.
-        CreatePurchaseCreditMemoWithItemChargeAssignment(
-            PurchaseHeader,
-            ItemLedgerEntry,
-            "Purchase Applies-to Document Type"::"Sales Shipment");
-
-        // [WHEN] Post a Purchase Credit Memo.
-        PurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [VERIFY] Verify: The Item Ledger Entry Type in the Value Entry must be equal to Sale.
-        ValueEntry.SetRange("Document No.", PurchaseInvoiceNo);
-        ValueEntry.FindFirst();
-        Assert.AreEqual(
-            ItemLedgerEntry."Entry Type",
-            ValueEntry."Item Ledger Entry Type",
-            StrSubstNo(
-                ValueMustBeEqualErr,
-                ValueEntry.FieldCaption("Item Ledger Entry Type"),
-                ItemLedgerEntry."Entry Type",
-                ValueEntry.TableCaption()));
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -8323,58 +8278,6 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
-    end;
-
-    local procedure CreateAndPostSalesDocumentWithItem(SalesDocumentType: Enum "Sales Document Type"; ItemNo: Code[20])
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesDocumentType, LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-    end;
-
-    local procedure FindItemLedgerEntryWithDocTypeAndItemNo(
-        var ItemLedgerEntry: Record "Item Ledger Entry";
-        ItemLedgerDocumentType: Enum "Item Ledger Document Type";
-        ItemNo: Code[20])
-    begin
-        ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.SetRange("Document Type", ItemLedgerDocumentType);
-        ItemLedgerEntry.FindFirst();
-    end;
-
-    local procedure CreatePurchaseCreditMemoWithItemChargeAssignment(
-        var PurchaseHeader: Record "Purchase Header";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        PurchaseAppliesToDocumentType: Enum "Purchase Applies-to Document Type")
-    var
-        PurchaseLine: Record "Purchase Line";
-        ItemChargeAssignmentPurchase: Record "Item Charge Assignment (Purch)";
-    begin
-        LibraryPurchase.CreatePurchHeader(
-            PurchaseHeader,
-            PurchaseHeader."Document Type"::"Credit Memo",
-            LibraryPurchase.CreateVendorNo());
-
-        LibraryPurchase.CreatePurchaseLine(
-            PurchaseLine,
-            PurchaseHeader,
-            PurchaseLine.Type::"Charge (Item)",
-            LibraryInventory.CreateItemChargeNo(),
-            LibraryRandom.RandInt(10));
-
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
-        PurchaseLine.Modify(true);
-
-        LibraryInventory.CreateItemChargeAssignPurchase(
-            ItemChargeAssignmentPurchase,
-            PurchaseLine,
-            PurchaseAppliesToDocumentType,
-            ItemLedgerEntry."Document No.",
-            ItemLedgerEntry."Document Line No.",
-            ItemLedgerEntry."Item No.");
     end;
 
     [RequestPageHandler]

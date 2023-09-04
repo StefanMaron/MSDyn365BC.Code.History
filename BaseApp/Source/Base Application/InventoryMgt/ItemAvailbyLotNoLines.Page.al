@@ -161,20 +161,25 @@ page 514 "Item Avail. by Lot No. Lines"
         ScheduledRcpt: Decimal;
 
     procedure SetItem(var NewItem: Record Item; NewAmountType: Enum "Analysis Amount Type")
+    var
+        IsHandled: Boolean;
     begin
-        Item.Copy(NewItem);
-        GenerateLines();
-        if Item.GetFilter("Location Filter") <> '' then
-            Rec.SetRange("Location Code Filter", Item.GetFilter("Location Filter"));
+        IsHandled := false;
+        OnBeforeSetItem(Rec, NewItem, NewAmountType, IsHandled);
+        if not IsHandled then begin
+            Item.Copy(NewItem);
+            GenerateLines();
+            if Item.GetFilter("Location Filter") <> '' then
+                Rec.SetRange("Location Code Filter", Item.GetFilter("Location Filter"));
 
-        if Item.GetFilter("Variant Filter") <> '' then
-            Rec.SetRange("Variant Code Filter", Item.GetFilter("Variant Filter"));
+            if Item.GetFilter("Variant Filter") <> '' then
+                Rec.SetRange("Variant Code Filter", Item.GetFilter("Variant Filter"));
 
-        if NewAmountType = NewAmountType::"Net Change" then
-            Rec.SetRange("Date Filter", Item.GetRangeMin("Date Filter"), Item.GetRangeMax("Date Filter"))
-        else
-            Rec.SetRange("Date Filter", 0D, Item.GetRangeMax("Date Filter"));
-
+            if NewAmountType = NewAmountType::"Net Change" then
+                Rec.SetRange("Date Filter", Item.GetRangeMin("Date Filter"), Item.GetRangeMax("Date Filter"))
+            else
+                Rec.SetRange("Date Filter", 0D, Item.GetRangeMax("Date Filter"));
+        end;
         OnAfterSetItem(Item, NewAmountType);
         CurrPage.Update(false);
     end;
@@ -345,6 +350,11 @@ page 514 "Item Avail. by Lot No. Lines"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeLookupPlannedOrderReceipt(var IsHandled: Boolean; var AvailabilityInfoBuffer: Record "Availability Info. Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetItem(var AvailabilityInfoBuffer: Record "Availability Info. Buffer"; var Item: Record Item; AmountType: Enum "Analysis Amount Type"; var IsHandled: Boolean)
     begin
     end;
 }

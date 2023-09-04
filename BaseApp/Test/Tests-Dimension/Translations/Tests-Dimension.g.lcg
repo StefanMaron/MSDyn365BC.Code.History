@@ -943,7 +943,7 @@
   </Item>
   <Item ItemId=";Codeunit 2453870435 - NamedType 2566446990" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This will change the dimension specified on the document. Do you want to keep the existing dimensions?]]></Val>
+      <Val><![CDATA[This will change the dimension specified on the document. Do you want to recalculate/update dimensions?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

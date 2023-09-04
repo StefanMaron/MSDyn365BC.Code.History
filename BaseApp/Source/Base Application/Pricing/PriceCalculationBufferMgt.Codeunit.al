@@ -197,6 +197,8 @@ codeunit 7008 "Price Calculation Buffer Mgt."
     var
         CurrExchRate: Record "Currency Exchange Rate";
     begin
+        OnBeforeConvertAmountByCurrency(PriceListLine, Amount, PriceCalculationBuffer);
+
         if (PriceCalculationBuffer."Currency Code" <> '') and (PriceListLine."Currency Code" = '') then
             Amount :=
                 CurrExchRate.ExchangeAmtLCYToFCY(
@@ -311,6 +313,11 @@ codeunit 7008 "Price Calculation Buffer Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnConvertAmountByTaxOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConvertAmountByCurrency(var PriceListLine: Record "Price List Line"; var Amount: Decimal; var PriceCalculationBuffer: Record "Price Calculation Buffer")
     begin
     end;
 }

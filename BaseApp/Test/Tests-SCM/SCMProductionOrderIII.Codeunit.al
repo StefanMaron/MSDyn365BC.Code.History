@@ -39,6 +39,7 @@ codeunit 137079 "SCM Production Order III"
         LibraryERM: Codeunit "Library - ERM";
         LibraryCosting: Codeunit "Library - Costing";
         ShopCalendarMgt: Codeunit "Shop Calendar Management";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         IsInitialized: Boolean;
         TrackingMsg: Label 'The change will not affect existing entries';
         ItemTrackingErr: Label 'You cannot define item tracking on this line because it is linked to production order';
@@ -5191,6 +5192,62 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderLine.FindFirst();
         ProdOrderLine.TestField("Finished Quantity", ProductionOrder.Quantity);
         ProdOrderLine.TestField("Finished Qty. (Base)", ProductionOrder.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ValidatePurchaseLinePriceUpdateWithPurchasePriceListFunctionality()
+    var
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemUnitOfMeasure: record "Item Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        RequisitionLine: Record "Requisition Line";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO: 479443] Error Qty. per Unit of Measure must have a value in Purchase Line: Document Type=Order, when clicking on the available price in the fact box in a purchase order
+        Initialize();
+
+        // [GIVEN] Enable Extended Price Calculation
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+
+        // Setup: Create Item with two unit of measures and set the base rounding precision to 1
+        SetupUoMTest(Item, ItemUnitOfMeasure, BaseUOM, NonBaseUOM, LibraryRandom.RandInt(10), 1);
+
+        // Setup: Create a subcontracting work center for the created item
+        CreateRoutingAndUpdateItemSubc(Item, WorkCenter, true);
+
+        // [GIVEN] Create Purchase Price List
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::Vendor, WorkCenter."Subcontractor No.");
+        LibraryPriceCalculation.CreatePriceListLine(PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Status := PriceListLine.Status::Active;
+        PriceListLine.Modify();
+
+        // Setup: Create production order where production order line contains quantity on base unit of measure
+        CreateProdOrderAndLineForUoMTest(ProductionOrder, ProdOrderLine, Item, 1, BaseUOM, 1);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, true, true, false);
+
+        // Setup: Calculate subcontrats and carry out suggested requests to create needed purchase lines
+        CalculateSubcontractOrder(WorkCenter);
+        AcceptActionMessage(RequisitionLine, Item."No.");
+        LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
+        FindPurchaseOrderLine(PurchaseLine, Item."No.");
+
+        // [THEN] Open Purchase Order Page
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseOrder.OpenEdit();
+        PurchaseOrder.GotoRecord(PurchaseHeader);
+
+        // [VERIFY] Verify: Lookup to purchase prices from the Purchase Line Factbox open without any error
+        PurchaseOrder.Control3.PurchasePrices.Lookup();
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
     end;
 
     local procedure Initialize()

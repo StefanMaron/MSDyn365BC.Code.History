@@ -595,13 +595,17 @@ codeunit 5342 "CRM Synch. Helper"
     internal procedure CancelCRMInvoice(var CRMInvoice: Record "CRM Invoice"): Integer
     var
         NewCRMInvoice: Record "CRM Invoice";
+        ChangeNeeded: Boolean;
     begin
         NewCRMInvoice.StateCode := NewCRMInvoice.StateCode::Canceled;
         NewCRMInvoice.StatusCode := NewCRMInvoice.StatusCode::Canceled;
-        if (NewCRMInvoice.StateCode <> CRMInvoice.StateCode) or (NewCRMInvoice.StatusCode <> CRMInvoice.StatusCode) then begin
+        ChangeNeeded := false;
+        OnCancelCRMInvoiceOnBeforeCheckFieldsChanged(CRMInvoice, NewCRMInvoice, ChangeNeeded);
+        if ChangeNeeded or (NewCRMInvoice.StateCode <> CRMInvoice.StateCode) or (NewCRMInvoice.StatusCode <> CRMInvoice.StatusCode) then begin
             ActivateInvoiceForFurtherUpdate(CRMInvoice);
             CRMInvoice.StateCode := NewCRMInvoice.StateCode;
             CRMInvoice.StatusCode := NewCRMInvoice.StatusCode;
+            OnCancelCRMInvoiceOnBeforeModifyCRMInvoice(CRMInvoice, NewCRMInvoice);
             CRMInvoice.Modify();
             exit(1);
         end;
@@ -2001,6 +2005,16 @@ codeunit 5342 "CRM Synch. Helper"
 
     [IntegrationEvent(false, false)]
     local procedure OnConvertOptionToTableOnBeforeSetRangeForIntegrationFieldID(var CRMOptionMapping: Record "CRM Option Mapping"; SourceFieldRef: FieldRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCancelCRMInvoiceOnBeforeModifyCRMInvoice(var CRMInvoice: Record "CRM Invoice"; var NewCRMInvoice: Record "CRM Invoice")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCancelCRMInvoiceOnBeforeCheckFieldsChanged(var CRMInvoice: Record "CRM Invoice"; var NewCRMInvoice: Record "CRM Invoice"; var ChangeNeeded: Boolean)
     begin
     end;
 }

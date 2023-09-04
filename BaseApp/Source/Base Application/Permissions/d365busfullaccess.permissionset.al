@@ -150,6 +150,7 @@
                   tabledata "Contract Gain/Loss Entry" = RIM,
                   tabledata "Contract Group" = RIMD,
                   tabledata "Contract Trend Buffer" = RIMD,
+                  tabledata "Company Size" = RIMD,
                   tabledata "Copy Gen. Journal Parameters" = RIMD,
                   tabledata "Copy Item Buffer" = RIMD,
                   tabledata "Copy Item Parameters" = RIMD,

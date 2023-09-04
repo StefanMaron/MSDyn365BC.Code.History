@@ -361,6 +361,8 @@ codeunit 99000830 "Create Reserv. Entry"
 
         NewReservEntry.TransferFields(OldReservEntry, false);
 
+        OnTransferReservEntryOnAfterTransferFields(NewReservEntry, OldReservEntry, UseQtyToHandle, UseQtyToInvoice, CurrSignFactor);
+
         NewReservEntry."Entry No." := OldReservEntry."Entry No.";
         NewReservEntry.Positive := OldReservEntry.Positive;
         NewReservEntry.SetSource(NewType, NewSubtype, NewID, NewRefNo, NewBatchName, NewProdOrderLine);
@@ -1262,6 +1264,11 @@ codeunit 99000830 "Create Reserv. Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateEntryOnBeforeSplitReservEntryLoop(var ReservEntry: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry"; TrackingSpecificationExists: Boolean; var FirstSplit: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReservEntryOnAfterTransferFields(var NewReservationEntry: Record "Reservation Entry"; var OldReservationEntry: Record "Reservation Entry"; var UseQtyToHandle: Boolean; var UseQtyToInvoice: Boolean; var CurrSignFactor: Integer)
     begin
     end;
 }

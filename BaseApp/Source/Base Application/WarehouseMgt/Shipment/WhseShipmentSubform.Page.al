@@ -307,7 +307,13 @@ page 7336 "Whse. Shipment Subform"
                     var
                         ATOLink: Record "Assemble-to-Order Link";
                         ATOSalesLine: Record "Sales Line";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeAssembleToOrder(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         TestField("Assemble to Order", true);
                         TestField("Source Type", DATABASE::"Sales Line");
                         ATOSalesLine.Get("Source Subtype", "Source No.", "Source Line No.");
@@ -450,6 +456,11 @@ page 7336 "Whse. Shipment Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePickCreate(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssembleToOrder(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1,4 +1,12 @@
 {
+  "settings": {
+    "search.exclude": {
+      "**.xlf": true
+    },
+    "al.enableCodeAnalysis": false,
+    "allint.enabled": false,
+    "al.enableCodeActions": false
+  },
   "folders": [
     {
       "path": "./vatgroupmanagement/test/VAT Group Management Tests"
@@ -59,6 +67,9 @@
     },
     {
       "path": "./ReportLayouts/test/Report Layouts Tests"
+    },
+    {
+      "path": "./paymentpractices/test/Payment Practices Tests"
     },
     {
       "path": "./testframework/TestLibraries"
@@ -225,13 +236,5 @@
     {
       "path": "./servicedeclaration/test/Service Declaration Tests"
     }
-  ],
-  "settings": {
-    "allint.enabled": false,
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "al.enableCodeActions": false,
-    "al.enableCodeAnalysis": false
-  }
+  ]
 }

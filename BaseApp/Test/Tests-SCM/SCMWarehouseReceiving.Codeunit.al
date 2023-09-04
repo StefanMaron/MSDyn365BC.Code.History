@@ -3804,6 +3804,98 @@ codeunit 137152 "SCM Warehouse - Receiving"
         PurchaseLine.TestField("Return Qty. Shipped", PurchaseLine.Quantity);
     end;
 
+    [Test]
+    procedure GetReceiptLinesInPurchInvoiceWithAttachedNonInvtLine()
+    var
+        Item: Record Item;
+        NonInvtItem: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineNonInvtItem: Record "Purchase Line";
+    begin
+        // [FEATURE] [Non-Inventory Item] [Purchase] [Order] [Invoice] [Get Receipt Lines]
+        // [SCENARIO 477047] Get Receipt Lines in Purchase Invoice with attached non-inventory line does not produce duplicate lines.
+        Initialize();
+
+        // [GIVEN] Set "Non-Invt. Item Whse. Policy" in purchase setup to "Attached/Assigned".
+        UpdateNonInvtPostingPolicyInPurchaseSetup("Non-Invt. Item Whse. Policy"::"Attached/Assigned");
+
+        // [GIVEN] Create item and non-inventory item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem);
+
+        // [GIVEN] Create purchase order with two lines: item and non-inventory item.
+        // [GIVEN] Attach the non-inventory item to the item line.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineItem, PurchaseHeader, PurchaseLineItem.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineNonInvtItem, PurchaseHeader, PurchaseLineNonInvtItem.Type::Item, NonInvtItem."No.", LibraryRandom.RandInt(10));
+        PurchaseLineNonInvtItem."Attached to Line No." := PurchaseLineItem."Line No.";
+        PurchaseLineNonInvtItem.Modify();
+
+        // [GIVEN] Post the purchase order as Receive.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [WHEN] Create purchase invoice using "Get Receipt Lines".
+        CreatePurchInvoiceFromReceipt(PurchaseHeaderInvoice, PurchaseHeader);
+
+        // [THEN] Purchase invoice has two lines: item and non-inventory item.
+        // [THEN] No duplicate lines.
+        FindPurchaseLine(PurchaseLineNonInvtItem, PurchaseHeaderInvoice, NonInvtItem."No.");
+        Assert.RecordCount(PurchaseLineNonInvtItem, 1);
+        FindPurchaseLine(PurchaseLineNonInvtItem, PurchaseHeaderInvoice, Item."No.");
+        Assert.RecordCount(PurchaseLineNonInvtItem, 1);
+    end;
+
+    [Test]
+    procedure GetReturnShipmentLinesInPurchCrMemoWithAttachedNonInvtLine()
+    var
+        Item: Record Item;
+        NonInvtItem: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeaderCrMemo: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineNonInvtItem: Record "Purchase Line";
+    begin
+        // [FEATURE] [Non-Inventory Item] [Purchase] [Return Order] [Credit Memo] [Get Return Shipment Lines]
+        // [SCENARIO 477047] Get Return Shipment Lines in Purchase Credit Memo with attached non-inventory line does not produce duplicate lines.
+        Initialize();
+
+        // [GIVEN] Set "Non-Invt. Item Whse. Policy" in purchase setup to "Attached/Assigned".
+        UpdateNonInvtPostingPolicyInPurchaseSetup("Non-Invt. Item Whse. Policy"::"Attached/Assigned");
+
+        // [GIVEN] Create item and non-inventory item.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateNonInventoryTypeItem(NonInvtItem);
+
+        // [GIVEN] Create purchase return order with two lines: item and non-inventory item.
+        // [GIVEN] Attach the non-inventory item to the item line.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", '');
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineItem, PurchaseHeader, PurchaseLineItem.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineNonInvtItem, PurchaseHeader, PurchaseLineNonInvtItem.Type::Item, NonInvtItem."No.", LibraryRandom.RandInt(10));
+        PurchaseLineNonInvtItem."Attached to Line No." := PurchaseLineItem."Line No.";
+        PurchaseLineNonInvtItem.Modify();
+
+        // [GIVEN] Post the purchase return as Ship.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [WHEN] Create purchase credit memo using "Get Return Shipment Lines".
+        CreatePurchCrMemoFromReturnShipment(PurchaseHeaderCrMemo, PurchaseHeader);
+
+        // [THEN] Purchase credit memo has two lines: item and non-inventory item.
+        // [THEN] No duplicate lines.
+        FindPurchaseLine(PurchaseLineNonInvtItem, PurchaseHeaderCrMemo, NonInvtItem."No.");
+        Assert.RecordCount(PurchaseLineNonInvtItem, 1);
+        FindPurchaseLine(PurchaseLineNonInvtItem, PurchaseHeaderCrMemo, Item."No.");
+        Assert.RecordCount(PurchaseLineNonInvtItem, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4261,10 +4353,9 @@ codeunit 137152 "SCM Warehouse - Receiving"
         PurchaseHeader.Validate("Location Code", LocationCode);
         PurchaseHeader.Modify(true);
 
-        for i := 1 to 2 do begin
+        for i := 1 to 2 do
             LibraryPurchase.CreatePurchaseLine(
               PurchaseLineItem[i], PurchaseHeader, PurchaseLineItem[i].Type::Item, Item[i]."No.", LibraryRandom.RandInt(10));
-        end;
 
         for i := 1 to 2 do begin
             LibraryPurchase.CreatePurchaseLine(
@@ -4703,6 +4794,28 @@ codeunit 137152 "SCM Warehouse - Receiving"
         CreateAndPostWarehouseReceiptFromPurchaseOrder(PurchaseHeader, LocationCode);
     end;
 
+    local procedure CreatePurchInvoiceFromReceipt(var PurchaseHeaderInvoice: Record "Purchase Header"; PurchaseHeader: Record "Purchase Header")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+    begin
+        FindPurchaseReceiptLine(PurchRcptLine, PurchaseHeader."No.");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, PurchaseHeader."Buy-from Vendor No.");
+        PurchGetReceipt.SetPurchHeader(PurchaseHeaderInvoice);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+    end;
+
+    local procedure CreatePurchCrMemoFromReturnShipment(var PurchaseHeaderCrMemo: Record "Purchase Header"; PurchaseHeader: Record "Purchase Header")
+    var
+        ReturnShipmentLine: Record "Return Shipment Line";
+        PurchGetReturnShipments: Codeunit "Purch.-Get Return Shipments";
+    begin
+        FindReturnShipmentLine(ReturnShipmentLine, PurchaseHeader."No.");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderCrMemo, PurchaseHeaderCrMemo."Document Type"::"Credit Memo", PurchaseHeader."Buy-from Vendor No.");
+        PurchGetReturnShipments.SetPurchHeader(PurchaseHeaderCrMemo);
+        PurchGetReturnShipments.CreateInvLines(ReturnShipmentLine);
+    end;
+
     local procedure CreateRoutingSetup(var RoutingHeader: Record "Routing Header")
     var
         WorkCenter: Record "Work Center";
@@ -4881,6 +4994,26 @@ codeunit 137152 "SCM Warehouse - Receiving"
         PurchaseLine.Reset();
         PurchaseLine.SetRange("No.", No);
         LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+    end;
+
+    local procedure FindPurchaseReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; OrderNo: Code[20])
+    var
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+    begin
+        PurchRcptHeader.SetRange("Order No.", OrderNo);
+        PurchRcptHeader.FindFirst();
+        PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
+        PurchRcptLine.FindFirst();
+    end;
+
+    local procedure FindReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; ReturnOrderNo: Code[20])
+    var
+        ReturnShipmentHeader: Record "Return Shipment Header";
+    begin
+        ReturnShipmentHeader.SetRange("Return Order No.", ReturnOrderNo);
+        ReturnShipmentHeader.FindFirst();
+        ReturnShipmentLine.SetRange("Document No.", ReturnShipmentHeader."No.");
+        ReturnShipmentLine.FindFirst();
     end;
 
     local procedure FindProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ItemJournalLine: Record "Item Journal Line")

@@ -116,8 +116,11 @@ report 499 "Delete Invoiced Purch. Orders"
 
                 ApprovalsMgmt.DeleteApprovalEntries(RecordId);
 
-                if HasLinks then
-                    DeleteLinks();
+                IsHandled := false;
+                OnPurchaseHeaderOnAfterGetRecordOnBeforeDeleteLinks("Purchase Header", IsHandled);
+                if not IsHandled then
+                    if HasLinks then
+                        DeleteLinks();
 
                 IsHandled := false;
                 OnBeforeDeletePurchaseHeader("Purchase Header", IsHandled);
@@ -220,6 +223,11 @@ report 499 "Delete Invoiced Purch. Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnPurchaseHeaderOnAfterGetRecordOnAfterCalcShouldDeleteLinks(var PurchaseLine: Record "Purchase Line"; var ShouldDeleteLinks: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPurchaseHeaderOnAfterGetRecordOnBeforeDeleteLinks(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

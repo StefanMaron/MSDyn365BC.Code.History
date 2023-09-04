@@ -305,6 +305,7 @@ report 1001 "Inventory Valuation"
     procedure CalculateItem(var Item: Record Item)
     var
         IsHandled: Boolean;
+        HasEntriesWithinDateRange: Boolean;
     begin
         Item.CalcFields("Assembly BOM");
 
@@ -327,7 +328,6 @@ report 1001 "Inventory Valuation"
         CostPostedToGL := 0;
         ExpCostPostedToGL := 0;
 
-        IsEmptyLine := true;
         ValueEntry.Reset();
         ValueEntry.SetRange("Item No.", Item."No.");
         ValueEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
@@ -336,62 +336,78 @@ report 1001 "Inventory Valuation"
         ValueEntry.SetFilter("Global Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         OnItemOnAfterGetRecordOnAfterValueEntrySetInitialFilters(ValueEntry, Item);
 
-        if StartDate > 0D then begin
-            ValueEntry.SetRange("Posting Date", 0D, CalcDate('<-1D>', StartDate));
-            ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)", "Cost Amount (Expected)", "Invoiced Quantity");
-            AssignAmounts(ValueEntry, StartingInvoicedValue, StartingInvoicedQty, StartingExpectedValue, StartingExpectedQty, 1);
-            IsEmptyLine := IsEmptyLine and ((StartingInvoicedValue = 0) and (StartingInvoicedQty = 0));
-            if ShowExpected then
-                IsEmptyLine := IsEmptyLine and ((StartingExpectedValue = 0) and (StartingExpectedQty = 0));
-        end;
-
-        ValueEntry.SetRange("Posting Date", StartDate, EndDate);
-        ValueEntry.SetFilter(
-            "Item Ledger Entry Type", '%1|%2|%3|%4',
-            ValueEntry."Item Ledger Entry Type"::Purchase,
-            ValueEntry."Item Ledger Entry Type"::"Positive Adjmt.",
-            ValueEntry."Item Ledger Entry Type"::Output,
-            ValueEntry."Item Ledger Entry Type"::"Assembly Output");
-        ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)", "Cost Amount (Expected)", "Invoiced Quantity");
-        AssignAmounts(ValueEntry, IncreaseInvoicedValue, IncreaseInvoicedQty, IncreaseExpectedValue, IncreaseExpectedQty, 1);
-
-        ValueEntry.SetRange("Posting Date", StartDate, EndDate);
-        ValueEntry.SetFilter(
-            "Item Ledger Entry Type", '%1|%2|%3|%4',
-            ValueEntry."Item Ledger Entry Type"::Sale,
-            ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.",
-            ValueEntry."Item Ledger Entry Type"::Consumption,
-            ValueEntry."Item Ledger Entry Type"::"Assembly Consumption");
-        ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)", "Cost Amount (Expected)", "Invoiced Quantity");
-        AssignAmounts(ValueEntry, DecreaseInvoicedValue, DecreaseInvoicedQty, DecreaseExpectedValue, DecreaseExpectedQty, -1);
-
-        ValueEntry.SetRange("Posting Date", StartDate, EndDate);
-        ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Transfer);
-        if ValueEntry.FindSet() then
-            repeat
-                if true in [ValueEntry."Valued Quantity" < 0, not GetOutboundItemEntry(ValueEntry."Item Ledger Entry No.")] then
-                    AssignAmounts(ValueEntry, DecreaseInvoicedValue, DecreaseInvoicedQty, DecreaseExpectedValue, DecreaseExpectedQty, -1)
-                else
-                    AssignAmounts(ValueEntry, IncreaseInvoicedValue, IncreaseInvoicedQty, IncreaseExpectedValue, IncreaseExpectedQty, 1);
-            until ValueEntry.Next() = 0;
-
-        IsEmptyLine := IsEmptyLine and ((IncreaseInvoicedValue = 0) and (IncreaseInvoicedQty = 0));
-        IsEmptyLine := IsEmptyLine and ((DecreaseInvoicedValue = 0) and (DecreaseInvoicedQty = 0));
-        if ShowExpected then begin
-            IsEmptyLine := IsEmptyLine and ((IncreaseExpectedValue = 0) and (IncreaseExpectedQty = 0));
-            IsEmptyLine := IsEmptyLine and ((DecreaseExpectedValue = 0) and (DecreaseExpectedQty = 0));
-        end;
-
         ValueEntry.SetRange("Posting Date", 0D, EndDate);
-        ValueEntry.SetRange("Item Ledger Entry Type");
-        ValueEntry.CalcSums("Cost Posted to G/L", "Expected Cost Posted to G/L");
-        ExpCostPostedToGL += ValueEntry."Expected Cost Posted to G/L";
-        InvCostPostedToGL += ValueEntry."Cost Posted to G/L";
+        IsEmptyLine := ValueEntry.IsEmpty();
+        if not IsEmptyLine then begin
+            ValueEntry.SetRange("Posting Date", StartDate, EndDate);
+            HasEntriesWithinDateRange := not ValueEntry.IsEmpty();
+        end;
+        ValueEntry.SetRange("Posting Date");
 
-        StartingExpectedValue += StartingInvoicedValue;
-        IncreaseExpectedValue += IncreaseInvoicedValue;
-        DecreaseExpectedValue += DecreaseInvoicedValue;
-        CostPostedToGL := ExpCostPostedToGL + InvCostPostedToGL;
+        if not IsEmptyLine then begin
+            IsEmptyLine := true;
+            if StartDate > 0D then begin
+                ValueEntry.SetRange("Posting Date", 0D, CalcDate('<-1D>', StartDate));
+                ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)", "Cost Amount (Expected)", "Invoiced Quantity");
+                AssignAmounts(ValueEntry, StartingInvoicedValue, StartingInvoicedQty, StartingExpectedValue, StartingExpectedQty, 1);
+                IsEmptyLine := IsEmptyLine and ((StartingInvoicedValue = 0) and (StartingInvoicedQty = 0));
+                if ShowExpected then
+                    IsEmptyLine := IsEmptyLine and ((StartingExpectedValue = 0) and (StartingExpectedQty = 0));
+            end;
+
+            if HasEntriesWithinDateRange then begin
+                ValueEntry.SetRange("Posting Date", StartDate, EndDate);
+                ValueEntry.SetFilter(
+                    "Item Ledger Entry Type", '%1|%2|%3|%4',
+                    ValueEntry."Item Ledger Entry Type"::Purchase,
+                    ValueEntry."Item Ledger Entry Type"::"Positive Adjmt.",
+                    ValueEntry."Item Ledger Entry Type"::Output,
+                    ValueEntry."Item Ledger Entry Type"::"Assembly Output");
+                ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)", "Cost Amount (Expected)", "Invoiced Quantity");
+                AssignAmounts(ValueEntry, IncreaseInvoicedValue, IncreaseInvoicedQty, IncreaseExpectedValue, IncreaseExpectedQty, 1);
+            end;
+
+            if HasEntriesWithinDateRange then begin
+                ValueEntry.SetRange("Posting Date", StartDate, EndDate);
+                ValueEntry.SetFilter(
+                    "Item Ledger Entry Type", '%1|%2|%3|%4',
+                    ValueEntry."Item Ledger Entry Type"::Sale,
+                    ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.",
+                    ValueEntry."Item Ledger Entry Type"::Consumption,
+                    ValueEntry."Item Ledger Entry Type"::"Assembly Consumption");
+                ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)", "Cost Amount (Expected)", "Invoiced Quantity");
+                AssignAmounts(ValueEntry, DecreaseInvoicedValue, DecreaseInvoicedQty, DecreaseExpectedValue, DecreaseExpectedQty, -1);
+            end;
+
+            if HasEntriesWithinDateRange then begin
+                ValueEntry.SetRange("Posting Date", StartDate, EndDate);
+                ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Transfer);
+                if ValueEntry.FindSet() then
+                    repeat
+                        if true in [ValueEntry."Valued Quantity" < 0, not GetOutboundItemEntry(ValueEntry."Item Ledger Entry No.")] then
+                            AssignAmounts(ValueEntry, DecreaseInvoicedValue, DecreaseInvoicedQty, DecreaseExpectedValue, DecreaseExpectedQty, -1)
+                        else
+                            AssignAmounts(ValueEntry, IncreaseInvoicedValue, IncreaseInvoicedQty, IncreaseExpectedValue, IncreaseExpectedQty, 1);
+                    until ValueEntry.Next() = 0;
+
+                IsEmptyLine := IsEmptyLine and ((IncreaseInvoicedValue = 0) and (IncreaseInvoicedQty = 0));
+                IsEmptyLine := IsEmptyLine and ((DecreaseInvoicedValue = 0) and (DecreaseInvoicedQty = 0));
+                if ShowExpected then begin
+                    IsEmptyLine := IsEmptyLine and ((IncreaseExpectedValue = 0) and (IncreaseExpectedQty = 0));
+                    IsEmptyLine := IsEmptyLine and ((DecreaseExpectedValue = 0) and (DecreaseExpectedQty = 0));
+                end;
+            end;
+            ValueEntry.SetRange("Posting Date", 0D, EndDate);
+            ValueEntry.SetRange("Item Ledger Entry Type");
+            ValueEntry.CalcSums("Cost Posted to G/L", "Expected Cost Posted to G/L");
+            ExpCostPostedToGL += ValueEntry."Expected Cost Posted to G/L";
+            InvCostPostedToGL += ValueEntry."Cost Posted to G/L";
+
+            StartingExpectedValue += StartingInvoicedValue;
+            IncreaseExpectedValue += IncreaseInvoicedValue;
+            DecreaseExpectedValue += DecreaseInvoicedValue;
+            CostPostedToGL := ExpCostPostedToGL + InvCostPostedToGL;
+        end; // if not IsEmptyLine
 
         IsHandled := false;
         OnAfterGetRecordItemOnBeforeSkipEmptyLine(Item, StartingInvoicedQty, IncreaseInvoicedQty, DecreaseInvoicedQty, IsHandled, IsEmptyLine);

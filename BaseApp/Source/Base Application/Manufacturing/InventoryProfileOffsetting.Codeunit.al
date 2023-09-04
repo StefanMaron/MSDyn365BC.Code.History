@@ -1315,6 +1315,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     if not SupplyExists or (SupplyInvtProfile."Due Date" > DemandInvtProfile."Due Date") then begin
                         InitSupply(
                           SupplyInvtProfile, DemandInvtProfile."Untracked Quantity", DemandInvtProfile."Due Date", DemandInvtProfile."Due Time");
+                        OnMatchAttributesOnAfterInitSupply(SupplyInvtProfile, DemandInvtProfile);
                         TransferAttributes(SupplyInvtProfile, DemandInvtProfile);
                         SupplyInvtProfile."Fixed Date" := SupplyInvtProfile."Due Date";
                         SupplyInvtProfile.Insert();
@@ -2112,6 +2113,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             exit;
 
         InitSupply(SupplyInvtProfile, -LastAvailableInventory, PlanningStartDate - 1, 0T);
+        OnInsertEmergencyOrderSupplyOnAfterInitSupply(SupplyInvtProfile, DemandInvtProfile);
         SupplyInvtProfile."Planning Flexibility" := SupplyInvtProfile."Planning Flexibility"::None;
         SupplyInvtProfile.Insert();
         MaintainPlanningLine(SupplyInvtProfile, DemandInvtProfile, PlanningLineStage::Exploded, ScheduleDirection::Backward);
@@ -2143,6 +2145,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     local procedure DecreaseQty(var SupplyInvtProfile: Record "Inventory Profile"; ReduceQty: Decimal; RespectPlanningParm: Boolean): Boolean
     var
         TempQty: Decimal;
+        NewRemainingQty: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2162,13 +2165,19 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if ReduceQty > 0 then begin
             TempQty := SupplyInvtProfile."Remaining Quantity (Base)";
 
-            if RespectPlanningParm then
-                SupplyInvtProfile."Remaining Quantity (Base)" :=
+            if RespectPlanningParm then begin
+                NewRemainingQty :=
                   SupplyInvtProfile."Remaining Quantity (Base)" - ReduceQty +
                   AdjustReorderQty(
                     SupplyInvtProfile."Remaining Quantity (Base)" - ReduceQty, TempSKU, SupplyInvtProfile."Line No.",
-                    SupplyInvtProfile."Min. Quantity")
-            else
+                    SupplyInvtProfile."Min. Quantity");
+
+                 if (SupplyInvtProfile."Action Message" <> SupplyInvtProfile."Action Message"::New) and (TempQty <> NewRemainingQty) then
+                    if (Abs(TempQty - NewRemainingQty) < DampenerQty) and (SupplyInvtProfile."Planning Level Code" = 0) then
+                        exit(false);
+                        
+                SupplyInvtProfile."Remaining Quantity (Base)" := NewRemainingQty;   
+            end else
                 SupplyInvtProfile."Remaining Quantity (Base)" -= ReduceQty;
 
             if TempSKU."Maximum Order Quantity" > 0 then
@@ -4358,10 +4367,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
         end;
 
         // if there is only one supply before the demand we roll back
-        if NumberofSupplies <= 1 then begin
-            SupplyInvtProfile.Get(SavedPosition);
-            exit(false);
-        end;
+        if NumberofSupplies <= 1 then 
+            if not ((NextRecExists <> 0) and (SupplyInvtProfile."Due Date" = NewDate) and (SupplyInvtProfile."Line No." < SavedPosition)) then begin
+                SupplyInvtProfile.Get(SavedPosition);
+                exit(false);
+            end;
 
         TempRescheduledSupplyInvtProfile.SetCurrentKey(
           "Item No.", "Variant Code", "Location Code", "Due Date", "Attribute Priority", "Order Priority");
@@ -6122,6 +6132,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnPlanItemOnBeforeInsertSafetyStockDemands(var InventoryProfile: Record "Inventory Profile"; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertEmergencyOrderSupplyOnAfterInitSupply(var SupplyInventoryProfile: Record "Inventory Profile"; var DemandInventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatchAttributesOnAfterInitSupply(var SupplyInventoryProfile: Record "Inventory Profile"; var DemandInventoryProfile: Record "Inventory Profile")
     begin
     end;
 }

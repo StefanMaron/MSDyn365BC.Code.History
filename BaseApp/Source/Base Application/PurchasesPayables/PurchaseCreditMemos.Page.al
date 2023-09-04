@@ -7,6 +7,7 @@ page 9309 "Purchase Credit Memos"
     Editable = false;
     PageType = List;
     QueryCategory = 'Purchase Credit Memos';
+    RefreshOnActivate = true;
     SourceTable = "Purchase Header";
     SourceTableView = WHERE("Document Type" = CONST("Credit Memo"));
     UsageCategory = Lists;

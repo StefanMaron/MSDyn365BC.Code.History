@@ -29,7 +29,8 @@ tableextension 5285 "VAT Posting Setup SAF-T" extends "VAT Posting Setup"
         PurchaseTaxCodeSAFT: Integer;
     begin
         AuditFileExportSetup.LockTable();
-        AuditFileExportSetup.Get();
+        if not AuditFileExportSetup.Get() then
+            exit;
         SalesTaxCodeSAFT := AuditFileExportSetup."Last Tax Code" + 1;
         PurchaseTaxCodeSAFT := AuditFileExportSetup."Last Tax Code" + 2;
 

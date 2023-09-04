@@ -1112,6 +1112,10 @@ page 1290 "Payment Reconciliation Journal"
     var
         BankAccReconciliationTest: Record "Bank Acc. Reconciliation";
     begin
+        if not IsBankAccReconInitialized then begin
+            BankAccReconciliation.Get(Rec."Statement Type", Rec."Bank Account No.", Rec."Statement No.");
+            IsBankAccReconInitialized := true;
+        end;
         if BankAccReconciliationTest.get(BankAccReconciliation."Statement Type", BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.") then begin
             BankAccReconciliation.Validate("Statement Ending Balance", 0.0);
             BankAccReconciliation.Modify();
@@ -1122,6 +1126,10 @@ page 1290 "Payment Reconciliation Journal"
     var
         BankAccReconciliationTest: Record "Bank Acc. Reconciliation";
     begin
+        if not IsBankAccReconInitialized then begin
+            BankAccReconciliation.Get(Rec."Statement Type", Rec."Bank Account No.", Rec."Statement No.");
+            IsBankAccReconInitialized := true;
+        end;
         if BankAccReconciliationTest.get(BankAccReconciliation."Statement Type", BankAccReconciliation."Bank Account No.", BankAccReconciliation."Statement No.") then begin
             BankAccReconciliation.Validate("Statement Ending Balance", 0.0);
             BankAccReconciliation.Modify();

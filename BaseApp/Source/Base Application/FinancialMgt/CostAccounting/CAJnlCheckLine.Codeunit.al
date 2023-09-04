@@ -43,9 +43,12 @@ codeunit 1101 "CA Jnl.-Check Line"
                 CostType.TestField(Blocked, false);
                 CostType.TestField(Type, CostType.Type::"Cost Type");
 
-                if "Source Code" <> SourceCodeSetup."G/L Entry to CA" then
-                    if ("Cost Center Code" = '') and ("Cost Object Code" = '') then
-                        Error(Text004, "Line No.", "Document No.", Amount);
+                IsHandled := false;
+                OnRunCheckOnBeforeCheckSourceCode(CostJnlLine, IsHandled);
+                if not IsHandled then
+                    if "Source Code" <> SourceCodeSetup."G/L Entry to CA" then
+                        if ("Cost Center Code" = '') and ("Cost Object Code" = '') then
+                            Error(Text004, "Line No.", "Document No.", Amount);
                 OnRunCheckOnBeforeVerifyCostCenterAndObjectFilled(CostJnlLine, IsHandled);
                 if not IsHandled then
                     if ("Cost Center Code" <> '') and ("Cost Object Code" <> '') then
@@ -57,8 +60,11 @@ codeunit 1101 "CA Jnl.-Check Line"
                 CostType.TestField(Blocked, false);
                 CostType.TestField(Type, CostType.Type::"Cost Type");
 
-                if ("Bal. Cost Center Code" = '') and ("Bal. Cost Object Code" = '') then
-                    Error(Text002, "Line No.", "Document No.", Amount);
+                IsHandled := false;
+                OnRunCheckOnBeforeCheckBalCostCenterCode(CostJnlLine, IsHandled);
+                if not IsHandled then
+                    if ("Bal. Cost Center Code" = '') and ("Bal. Cost Object Code" = '') then
+                        Error(Text002, "Line No.", "Document No.", Amount);
 
                 OnRunCheckOnBeforeVerifyBalCostCenterAndObjectFilled(CostJnlLine, IsHandled);
                 if not IsHandled then
@@ -98,6 +104,16 @@ codeunit 1101 "CA Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunCheckOnBeforeVerifyBalCostCenterAndObjectFilled(var CostJournalLine: Record "Cost Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunCheckOnBeforeCheckSourceCode(var CostJournalLine: Record "Cost Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunCheckOnBeforeCheckBalCostCenterCode(var CostJournalLine: Record "Cost Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -324,9 +324,15 @@ table 5406 "Prod. Order Line"
             trigger OnValidate()
             var
                 ProdOrderLine: Record "Prod. Order Line";
+                IsHandled: Boolean;
             begin
                 if ProdOrderLine.Get(Status, "Prod. Order No.", "Line No.") then begin
                     Modify();
+
+                    IsHandled := false;
+                    OnValidateEndingTimeOnBeforeRecalculate(Rec, CurrFieldNo, IsHandled);
+                    if IsHandled then
+                        exit;
 
                     CalcProdOrder.Recalculate(Rec, 1, true);
 
@@ -1801,6 +1807,11 @@ table 5406 "Prod. Order Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnAfterCalcBaseQty(var ProdOrderLine: Record "Prod. Order Line"; xProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateEndingTimeOnBeforeRecalculate(var ProdOrderLine: Record "Prod. Order Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

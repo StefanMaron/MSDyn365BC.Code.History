@@ -1259,41 +1259,46 @@ table 901 "Assembly Line"
         AssemblySetup: Record "Assembly Setup";
         DimMgt: Codeunit DimensionManagement;
         DimensionSetIDArr: array[10] of Integer;
+        IsHandled: Boolean;
     begin
         if SkipVerificationsThatChangeDatabase then
             exit;
 
-        SourceCodeSetup.Get();
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, CurrFieldNo, DefaultDimSource, HeaderDimensionSetID, IsHandled);
+        if not IsHandled then begin
+            SourceCodeSetup.Get();
 #if not CLEAN20
-        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+            RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
 #endif
 
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-        AssemblySetup.Get();
-        case AssemblySetup."Copy Component Dimensions from" of
-            AssemblySetup."Copy Component Dimensions from"::"Order Header":
-                begin
-                    DimensionSetIDArr[1] :=
-                      DimMgt.GetRecDefaultDimID(
-                        Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Assembly,
-                        "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
-                        0, 0);
-                    DimensionSetIDArr[2] := HeaderDimensionSetID;
-                end;
-            AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card":
-                begin
-                    DimensionSetIDArr[2] :=
-                      DimMgt.GetRecDefaultDimID(
-                        Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Assembly,
-                        "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
-                        0, 0);
-                    DimensionSetIDArr[1] := HeaderDimensionSetID;
-                end;
-        end;
+            "Shortcut Dimension 1 Code" := '';
+            "Shortcut Dimension 2 Code" := '';
+            AssemblySetup.Get();
+            case AssemblySetup."Copy Component Dimensions from" of
+                AssemblySetup."Copy Component Dimensions from"::"Order Header":
+                    begin
+                        DimensionSetIDArr[1] :=
+                          DimMgt.GetRecDefaultDimID(
+                            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Assembly,
+                            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
+                            0, 0);
+                        DimensionSetIDArr[2] := HeaderDimensionSetID;
+                    end;
+                AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card":
+                    begin
+                        DimensionSetIDArr[2] :=
+                          DimMgt.GetRecDefaultDimID(
+                            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Assembly,
+                            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
+                            0, 0);
+                        DimensionSetIDArr[1] := HeaderDimensionSetID;
+                    end;
+            end;
 
-        "Dimension Set ID" :=
-          DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+            "Dimension Set ID" :=
+              DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        end;
 
         OnAfterCreateDim(Rec, DefaultDimSource, HeaderDimensionSetID);
     end;
@@ -1956,7 +1961,7 @@ table 901 "Assembly Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled);
+        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -1966,7 +1971,7 @@ table 901 "Assembly Line"
             FieldNo = Rec.FieldNo("Location Code"):
                 TableValuePair.Add(Database::Location, Rec."Location Code");
         end;
-        OnAfterInitTableValuePair(TableValuePair, FieldNo);
+        OnAfterInitTableValuePair(TableValuePair, FieldNo, Rec);
     end;
 
 #if not CLEAN20
@@ -2210,12 +2215,12 @@ table 901 "Assembly Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean; var AssemblyLine: Record "Assembly Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
+    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var AssemblyLine: Record "Assembly Line")
     begin
     end;
 
@@ -2226,6 +2231,11 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcBOMQuantity(var AssemblyLine: Record "Assembly Line"; LineType: Enum "BOM Component Type"; QtyPer: Decimal; HeaderQty: Decimal; HeaderQtyPerUOM: Decimal; LineResourceUsageType: Option; var ReturnBOMQuantity: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var AssemblyLine: Record "Assembly Line"; CallingFieldNo: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; HeaderDimensionSetID: Integer; var IsHandled: Boolean);
     begin
     end;
 }
