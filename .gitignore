@@ -20,3 +20,5 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+#Ignore macOS system generated files
+**/.DS_Store
