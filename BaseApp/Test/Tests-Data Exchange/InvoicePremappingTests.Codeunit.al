@@ -285,7 +285,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Assert.AreEqual(IncomingDocument."Vendor Name",
           GetIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor Name"), 1), '');
         Assert.AreEqual(IncomingDocument."Vendor VAT Registration No.",
-          GetIntermediateTableRow(DataExch, DATABASE::Vendor, Vendor.FieldNo("VAT Registration No."), 1), '');
+          GetIntermediateTableRow(DataExch, DATABASE::Vendor, Vendor.FieldNo(ABN), 1), '');
         Assert.AreEqual(IncomingDocument."Vendor IBAN",
           GetIntermediateTableRow(DataExch, DATABASE::"Vendor Bank Account", VendorBankAccount.FieldNo(IBAN), 1), '');
         Assert.AreEqual(IncomingDocument."Vendor Bank Branch No.",
@@ -522,7 +522,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify gln value in intermediate table
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), InvalidGLNTxt);
-        UpdateIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."), '');
+        UpdateIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN), '');
 
         // Excercise
         CODEUNIT.Run(CODEUNIT::"Pre-map Incoming Purch. Doc", DataExch);
@@ -553,7 +553,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify gln value in intermediate table
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), InvalidGLNTxt);
-        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
+        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN));
 
         // Excercise
         CODEUNIT.Run(CODEUNIT::"Pre-map Incoming Purch. Doc", DataExch);
@@ -584,7 +584,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify vat reg no value in intermediate table
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), '');
-        UpdateIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."), InvalidVATAmtTxt);
+        UpdateIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN), InvalidVATAmtTxt);
 
         // Excercise
         CODEUNIT.Run(CODEUNIT::"Pre-map Incoming Purch. Doc", DataExch);
@@ -615,7 +615,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify gln and vat reg no value in intermediate table
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."), InvalidGLNTxt);
-        UpdateIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."), InvalidVATAmtTxt);
+        UpdateIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN), InvalidVATAmtTxt);
 
         // Excercise
         CODEUNIT.Run(CODEUNIT::"Pre-map Incoming Purch. Doc", DataExch);
@@ -643,7 +643,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify gln and vat reg value in intermediate table
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
-        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
+        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN));
 
         // Excercise - this is valid
         CODEUNIT.Run(CODEUNIT::"Pre-map Incoming Purch. Doc", DataExch);
@@ -681,7 +681,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // delete gln and vat reg value from intermediate table
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
-        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
+        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN));
         InsertIntermediateTableRow(DataExch, DATABASE::"Vendor Bank Account", VendorBankAccount.FieldNo(IBAN), VendorBankAccount.IBAN);
 
         // Excercise - this is valid
@@ -721,7 +721,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // delete gln and vat reg value from intermediate table
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
-        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
+        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN));
         InsertIntermediateTableRow(DataExch, DATABASE::"Vendor Bank Account",
           VendorBankAccount.FieldNo("Bank Branch No."), VendorBankAccount."Bank Branch No.");
         InsertIntermediateTableRow(DataExch, DATABASE::"Vendor Bank Account",
@@ -759,7 +759,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // delete gln and vat reg value from intermediate table
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
-        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
+        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN));
         InsertIntermediateTableRow(DataExch, DATABASE::Vendor,
           BuyFromVendor.FieldNo("Phone No."), BuyFromVendor."Phone No.");
 
@@ -797,7 +797,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify gln and vat reg value in intermediate table. also, modify vendor name to be uppercase
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
-        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
+        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN));
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor Name"),
           UpperCase(BuyFromVendor.Name));
 
@@ -832,7 +832,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify gln and vat reg value in intermediate table
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
-        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
+        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN));
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor Name"), InvalidGLNTxt);
 
         // Excercise - this is valid
@@ -867,7 +867,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify gln and vat reg value in intermediate table and lowercase the pay-to vendor name
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."), '');
-        UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("VAT Registration No."), '');
+        UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo(ABN), '');
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Name"),
           LowerCase(PayToVendor.Name));
 
@@ -901,7 +901,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify gln and vat reg value in intermediate table
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."), '');
-        UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("VAT Registration No."), '');
+        UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo(ABN), '');
 
         // Excercise - this is valid
         CODEUNIT.Run(CODEUNIT::"Pre-map Incoming Purch. Doc", DataExch);
@@ -934,7 +934,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify gln at vat reg value in intermediate table
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."), '');
-        UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("VAT Registration No."),
+        UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo(ABN),
           InvalidVATAmtTxt);
 
         // Excercise
@@ -964,7 +964,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify gln and vat reg value in intermediate table
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."));
-        DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("VAT Registration No."));
+        DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo(ABN));
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Name"), InvalidGLNTxt);
 
         // Excercise - this is valid
@@ -997,7 +997,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify item bar no and cross reference no value in intermediate table
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
-        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
+        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN));
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."), InvalidItemTxt);
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Cross-Reference No."),
           InvalidItem2Txt);
@@ -1030,7 +1030,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify item bar no and cross reference no value in intermediate table
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
-        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
+        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN));
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."), InvalidItemTxt);
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Cross-Reference No."));
 
@@ -1062,7 +1062,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         // modify item bar no and cross reference no value in intermediate table
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor No."));
-        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo("VAT Registration No."));
+        DeleteIntermediateTableRow(DataExch, DATABASE::Vendor, BuyFromVendor.FieldNo(ABN));
         DeleteIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."));
         UpdateIntermediateTableRow(DataExch, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Cross-Reference No."),
           InvalidItem2Txt);
@@ -1526,6 +1526,7 @@ codeunit 139157 "Invoice Premapping Tests"
 
         LibraryPurchase.CreateVendor(BuyFromVendor);
         BuyFromVendor.GLN := LibraryUtility.GenerateGUID;
+        BuyFromVendor.ABN := LibraryUtility.GenerateGUID;
         BuyFromVendor."VAT Registration No." := LibraryUtility.GenerateGUID;
         BuyFromVendor.Address := LibraryUtility.GenerateRandomCode(BuyFromVendor.FieldNo(Address), DATABASE::Vendor);
         BuyFromVendor.Name := LibraryUtility.GenerateRandomCode(BuyFromVendor.FieldNo(Name), DATABASE::Vendor);
@@ -1537,17 +1538,20 @@ codeunit 139157 "Invoice Premapping Tests"
           BuyFromVendor.Name);
         InsertIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Address"),
           BuyFromVendor.Address);
+        InsertIntermediateTableRow(DataExch, DATABASE::Vendor, Vendor.FieldNo(ABN), BuyFromVendor.ABN);
         InsertIntermediateTableRow(DataExch, DATABASE::Vendor, Vendor.FieldNo("VAT Registration No."),
           BuyFromVendor."VAT Registration No.");
 
         LibraryPurchase.CreateVendor(PayToVendor);
         PayToVendor.GLN := LibraryUtility.GenerateGUID;
+        PayToVendor.ABN := LibraryUtility.GenerateGUID;
         PayToVendor."VAT Registration No." := LibraryUtility.GenerateGUID;
         PayToVendor.Name := LibraryUtility.GenerateRandomCode(PayToVendor.FieldNo(Name), DATABASE::Vendor);
         PayToVendor.Modify(true);
 
         InsertIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Vendor No."), PayToVendor.GLN);
         InsertIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Pay-to Name"), PayToVendor.Name);
+        InsertIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo(ABN), PayToVendor.ABN);
         InsertIntermediateTableRow(DataExch, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("VAT Registration No."),
           PayToVendor."VAT Registration No.");
     end;

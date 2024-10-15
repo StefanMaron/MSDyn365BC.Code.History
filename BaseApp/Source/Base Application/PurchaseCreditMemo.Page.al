@@ -1050,9 +1050,7 @@ page 52 "Purchase Credit Memo"
 
                     trigger OnAction()
                     begin
-                        CopyPurchDoc.SetPurchHeader(Rec);
-                        CopyPurchDoc.RunModal;
-                        Clear(CopyPurchDoc);
+                        CopyDocument();
                         if Get("Document Type", "No.") then;
                     end;
                 }
@@ -1394,7 +1392,6 @@ page 52 "Purchase Credit Memo"
 
     var
         PurchSetup: Record "Purchases & Payables Setup";
-        CopyPurchDoc: Report "Copy Purchase Document";
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";

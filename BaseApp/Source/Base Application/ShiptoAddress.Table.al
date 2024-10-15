@@ -162,6 +162,8 @@ table 222 "Ship-to Address"
                 OnBeforeLookupPostCode(Rec, PostCode);
 
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+
+                OnAfterLookupPostCode(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -288,12 +290,17 @@ table 222 "Ship-to Address"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupCity(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    local procedure OnAfterLookupPostCode(var ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupPostCode(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    local procedure OnBeforeLookupCity(var ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPostCode(var ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
     begin
     end;
 

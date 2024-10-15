@@ -2609,7 +2609,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=IIF(Sum(Fields!IncreaseExpectedQty.Value)="0","",Sum(Fields!IncreaseExpectedQty.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Sum(Fields!IncreaseExpectedQty.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2644,7 +2644,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value EvaluationMode="Auto">=IIF(Sum(Fields!IncreaseExpectedValue.Value)="0","",Sum(Fields!IncreaseExpectedValue.Value))</Value>
+                                  <Value EvaluationMode="Auto">=Sum(Fields!IncreaseExpectedValue.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>

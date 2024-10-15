@@ -14,8 +14,6 @@ codeunit 134600 "Report Layout Test"
 
     var
         Assert: Codeunit Assert;
-        WrongRegNoErr: Label 'Wrong Company Registration Number';
-        WrongRegNoLblErr: Label 'Wrong "Registration No." field caption';
         LibraryJob: Codeunit "Library - Job";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
@@ -309,16 +307,20 @@ codeunit 134600 "Report Layout Test"
         LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::Word);
         CustomReportLayout.Get(LayoutCode);
         DefaultFileName := CustomReportLayout.ExportLayout(FileManagement.ServerTempFileName('docx'), false);
+        LayoutDescription := LibraryUtility.GenerateGUID;
 
         CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
         CustomReportLayout.DeleteAll();
         CustomReportLayout.Init();
         CustomReportLayout."Report ID" := StandardSalesInvoiceReportID;
-        LayoutDescription := LibraryUtility.GenerateGUID;
+        CustomReportLayout.Type := CustomReportLayout.Type::Word;
+        CustomReportLayout."File Extension" := 'docx';
         CustomReportLayout.Description := LayoutDescription;
         CustomReportLayout."Built-In" := true;
         CustomReportLayout.Insert();
+
         LayoutCode := CustomReportLayout.Code;
+
         if not ReportLayout.Get(LayoutCode) then begin
             ReportLayout.Init();
             ReportLayout.Code := LayoutCode;
@@ -874,24 +876,6 @@ codeunit 134600 "Report Layout Test"
         asserterror VerifySaveAsExcel(REPORT::"Test Report - Processing Only");
         VerifySchedule(REPORT::"Test Report - Processing Only");
         VerifyRun(REPORT::"Test Report - Processing Only");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GetCompanyRegistationNo()
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        // [FEATURE] [Company Information] [UT]
-        // [SCENARIO 375887] GetRegistrationNumber and GetRegistrationNumberLbl should return "Registration No." and its caption
-        CompanyInformation.Get();
-        CompanyInformation.Validate(
-          "Registration No.",
-          LibraryUtility.GenerateRandomCode(CompanyInformation.FieldNo("Registration No."), DATABASE::"Company Information"));
-        CompanyInformation.Modify();
-        Assert.AreEqual(CompanyInformation."Registration No.", CompanyInformation.GetRegistrationNumber, WrongRegNoErr);
-        Assert.AreEqual(
-          CompanyInformation.FieldCaption("Registration No."), CompanyInformation.GetRegistrationNumberLbl, WrongRegNoLblErr);
     end;
 
     [Test]

@@ -510,14 +510,19 @@ table 7320 "Warehouse Shipment Header"
     var
         WhseShptLine: Record "Warehouse Shipment Line";
         Confirmed: Boolean;
+        IsHandled: Boolean;
     begin
         WhseShptLine.SetRange("No.", "No.");
         if WhseShptLine.Find('-') then
             repeat
                 if WhseShptLine."Qty. Shipped" < WhseShptLine."Qty. Picked" then begin
-                    if not Confirm(Text009) then
-                        Error('');
-                    Confirmed := true;
+                    IsHandled := false;
+                    OnDeleteWarehouseShipmentLinesOnBeforeConfirm(WhseShptLine, Confirmed, IsHandled);
+                    if not IsHandled then begin
+                        if not Confirm(Text009) then
+                            Error('');
+                        Confirmed := true;
+                    end;
                 end;
             until (WhseShptLine.Next = 0) or Confirmed;
 
@@ -614,6 +619,11 @@ table 7320 "Warehouse Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeErrorIfUserIsNotWhseEmployee(LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteWarehouseShipmentLinesOnBeforeConfirm(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Confirmed: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

@@ -509,40 +509,4 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Prepayments - NamedType NoAmtFoundToBePostedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2904175643 - NamedType 158892399" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[cannot be less than %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM Purch Full Prepmt Rounding - NamedType CannotBeLessThanMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2904175643 - NamedType 2599102267" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[cannot be more than %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM Purch Full Prepmt Rounding - NamedType CannotBeMoreThanMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3246940295 - NamedType 158892399" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[cannot be less than %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM Sales Full Prepmt Rounding - NamedType CannotBeLessThanMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3246940295 - NamedType 2599102267" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[cannot be more than %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM Sales Full Prepmt Rounding - NamedType CannotBeMoreThanMsg)]]></Cmt>
-    </Cmts>
-  </Item>
 </LCX>

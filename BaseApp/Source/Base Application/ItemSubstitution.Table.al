@@ -380,6 +380,12 @@ table 5715 "Item Substitution"
             if Item.Get(Number) then
                 Description := Item.Description;
         end;
+        OnAfterSetItemVariantDescription(Type, Number, Variant, Description);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItemVariantDescription(Type: Integer; Number: Code[20]; Variant: Code[10]; var Description: Text[100])
+    begin
     end;
 }
 

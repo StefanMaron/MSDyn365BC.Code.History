@@ -2934,6 +2934,7 @@ codeunit 134103 "ERM Prepayment IV"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        DisableGST(false);
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -3588,6 +3589,20 @@ codeunit 134103 "ERM Prepayment IV"
             Validate("Prepayment %", 100);
             Modify(true);
             exit("No.")
+        end;
+    end;
+
+    local procedure DisableGST(DisableGST: Boolean)
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        with GLSetup do begin
+            Get;
+            Validate("Enable GST (Australia)", DisableGST);
+            Validate("Full GST on Prepayment", DisableGST);
+            Validate("GST Report", DisableGST);
+            Validate("Adjustment Mandatory", DisableGST);
+            Modify(true);
         end;
     end;
 

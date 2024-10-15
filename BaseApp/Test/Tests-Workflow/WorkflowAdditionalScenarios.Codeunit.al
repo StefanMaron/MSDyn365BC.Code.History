@@ -24,6 +24,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         SalesHeaderTypeCondnTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Sales Doc. Event Conditions" id="1504"><DataItems><DataItem name="Sales Header">SORTING(Document Type,No.) WHERE(Document Type=FILTER(%1))</DataItem><DataItem name="Sales Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>', Locked = true;
         SameEventConditionsErr: Label 'One or more entry-point steps exist that use the same event on table %1. You must specify unique event conditions on entry-point steps that use the same table.', Comment = '%1=Table Caption';
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
     [Test]
@@ -432,14 +433,17 @@ codeunit 134317 "Workflow Additional Scenarios"
     var
         Workflow: Record Workflow;
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Additional Scenarios");
         LibraryVariableStorage.Clear;
         Workflow.SetRange(Template, false);
         Workflow.ModifyAll(Enabled, false, true);
         LibraryERMCountryData.CreateVATData;
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Workflow Additional Scenarios");
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Workflow Additional Scenarios");
     end;
 
     local procedure CreateApprovalWorkflowForSalesDocument(DocType: Option)

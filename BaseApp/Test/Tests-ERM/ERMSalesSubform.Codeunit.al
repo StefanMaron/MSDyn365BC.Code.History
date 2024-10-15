@@ -2531,6 +2531,7 @@ codeunit 134393 "ERM Sales Subform"
         Item: Record Item;
         Customer: Record Customer;
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ReasonCode: Record "Reason Code";
         SalesCreditMemo: TestPage "Sales Credit Memo";
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
         ItemQuantity: Decimal;
@@ -2541,7 +2542,8 @@ codeunit 134393 "ERM Sales Subform"
 
         CreateCreditMemoWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesCreditMemo);
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
-
+        LibraryERM.CreateReasonCode(ReasonCode);
+        SalesCreditMemo."Reason Code".SetValue(ReasonCode.Code);
         AnswerYesToConfirmDialog;
         SalesCreditMemo.Post.Invoke;
 

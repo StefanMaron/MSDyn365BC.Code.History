@@ -141,8 +141,12 @@ codeunit 131302 "Library - Fiscal Year"
     end;
 
     procedure GetInitialPostingDate(): Date
+    var
+        GLEntry: Record "G/L Entry";
     begin
-        exit(GetFirstPostingDate(true));
+        GLEntry.SetCurrentKey("Posting Date", "G/L Account No.", GLEntry."Dimension Set ID");
+        GLEntry.FindFirst;
+        exit(GLEntry."Posting Date");
     end;
 
     procedure FindAccountingPeriodStartEndDate(var StartDate: Date; var EndDate: Date; NumberOfPeriods: Integer)

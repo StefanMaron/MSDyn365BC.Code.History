@@ -247,6 +247,9 @@ page 397 "Sales Invoice Statistics"
             ProfitPct := Round(100 * ProfitLCY / AmountLCY, 0.1);
 
         AdjProfitLCY := AmountLCY - TotalAdjCostLCY;
+
+        OnAfterGetRecordOnAfterCalculateAdjProfitLCY(Rec, AdjProfitLCY);
+
         if AmountLCY <> 0 then
             AdjProfitPct := Round(100 * AdjProfitLCY / AmountLCY, 0.1);
 
@@ -339,6 +342,11 @@ page 397 "Sales Invoice Statistics"
                     SalesInvLine, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
                     LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
             until SalesInvLine.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterCalculateAdjProfitLCY(SalesInvoiceHeader: Record "Sales Invoice Header"; var AdjProfitLCY: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

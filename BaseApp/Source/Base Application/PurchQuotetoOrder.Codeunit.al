@@ -18,7 +18,7 @@ codeunit 96 "Purch.-Quote to Order"
         TestField("Document Type", "Document Type"::Quote);
         ShouldRedistributeInvoiceAmount := PurchCalcDiscByType.ShouldRedistributeInvoiceDiscountAmount(Rec);
 
-        OnCheckPurchasePostRestrictions;
+        CheckPurchasePostRestrictions();
 
         Vend.Get("Buy-from Vendor No.");
         Vend.CheckBlockedVendOnDocs(Vend, false);

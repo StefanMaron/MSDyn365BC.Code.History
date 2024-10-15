@@ -1447,6 +1447,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // [GIVEN] Exact cost reversing mandatory.
         Initialize;
         UpdateExactCostReversingMandatory(true);
+        UpdateAdjustmentMandatory(false);
         LibrarySales.SetInvoiceRounding(false);
 
         CreateSalesOrderAndVerifyNonInventoriableCost(true);
@@ -1842,7 +1843,10 @@ codeunit 137287 "SCM Inventory Costing II"
         CopySalesDocument.SetSalesHeader(SalesHeader2);
         CopySalesDocument.RunModal;
         SalesHeader2.Get(SalesHeader2."Document Type", SalesHeader2."No.");
+
+        LibraryERM.CreateReasonCode(ReasonCode);
         SalesHeader2.Validate("Reason Code", ReasonCode.Code);
+        SalesHeader2.Modify(true);
 
         // [THEN] Verify that non-inventoriable cost amount equals to COGS.
         VerifyNonInventoriableCost(
@@ -2509,6 +2513,17 @@ codeunit 137287 "SCM Inventory Costing II"
         with SalesReceivablesSetup do begin
             Get;
             Validate("Exact Cost Reversing Mandatory", NewValue);
+            Modify;
+        end;
+    end;
+
+    local procedure UpdateAdjustmentMandatory(NewValue: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        with GeneralLedgerSetup do begin
+            Get;
+            Validate("Adjustment Mandatory", NewValue);
             Modify;
         end;
     end;

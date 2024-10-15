@@ -1231,9 +1231,15 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
     local procedure CreateAndCancelPostedInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; var NewSalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
+        ReasonCode: Record "Reason Code";
         CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
     begin
         CreatePostedInvoiceDiscountTypePct(SalesInvoiceHeader);
+
+        LibraryERM.CreateReasonCode(ReasonCode);
+        SalesInvoiceHeader."Reason Code" := ReasonCode.Code;
+        SalesInvoiceHeader.Modify();
+        Commit();
 
         CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
         NewSalesCrMemoHeader.SetRange("Bill-to Customer No.", SalesInvoiceHeader."Bill-to Customer No.");
@@ -1810,6 +1816,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
           DummySalesInvoiceLineAggregate.FieldNo("Quantity Shipped"), DATABASE::"Sales Invoice Line Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceLineAggregate.FieldNo("Line Discount Calculation"), DATABASE::"Sales Invoice Line Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo("Variant Code"), DATABASE::"Sales Invoice Line Aggregate", TempField);
     end;
 
     local procedure GetCrMemoAggregateSpecificFields(var TempField: Record "Field" temporary)
@@ -1863,6 +1870,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         AddFieldToBuffer(
           DummySalesInvoiceLineAggregate.FieldNo("Line Discount Value"), DATABASE::"Sales Invoice Line Aggregate", TempField);
         AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo(Id), DATABASE::"Sales Invoice Line Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceLineAggregate.FieldNo("Variant Id"), DATABASE::"Sales Invoice Line Aggregate", TempField);
     end;
 
     local procedure AddFieldToBuffer(FieldNo: Integer; TableID: Integer; var TempField: Record "Field" temporary)

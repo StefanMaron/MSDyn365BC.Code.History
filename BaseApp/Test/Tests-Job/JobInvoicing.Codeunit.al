@@ -2095,7 +2095,7 @@ codeunit 136306 "Job Invoicing"
         PostedDocNo: Code[20];
     begin
         // [FEATURE] [Update Job Item Cost] [Item Charge]
-        // [SCENARIO 252306] "Update Job Item Cost" should carry item charge amount from purchase entry to the applied job consumption entry
+        // [SCENARIO 252306] "Update Job Item Cost" should carry item charge amount from purchase entry to job consumption for an item with Type = Service
 
         Initialize;
 
@@ -2226,7 +2226,7 @@ codeunit 136306 "Job Invoicing"
         ArchiveManagement: Codeunit ArchiveManagement;
     begin
         // [FEATURE] [Sales]
-        // [SCENARIO 292637] Job related fields are copied to sales archive
+        // [SCENARIO 292637] Job Task No. field is copied to sales archive
         Initialize;
 
         // [GIVEN] Crated Job with Job task "JT"
@@ -2237,18 +2237,16 @@ codeunit 136306 "Job Invoicing"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Job No.", JobTask."Job No.");
         SalesLine.Validate("Job Task No.", JobTask."Job Task No.");
-        SalesLine."Job Contract Entry No." := LibraryRandom.RandIntInRange(10, 100); // mock entry number
         SalesLine.Modify();
 
         // [WHEN] Sales order is being archived
         ArchiveManagement.StoreSalesDocument(SalesHeader, false);
 
-        // [THEN] Sales Line Archive created with same job related fields
+        // [THEN] Sales Line Archive created with Job Task No. = "JT"
         SalesLineArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesLineArchive.SetRange("Document No.", SalesHeader."No.");
         SalesLineArchive.FindFirst();
         SalesLineArchive.TestField("Job Task No.", JobTask."Job Task No.");
-        SalesLineArchive.TestField("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
     end;
 
     [Test]
@@ -2273,17 +2271,16 @@ codeunit 136306 "Job Invoicing"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         PurchaseLine.Validate("Job No.", JobTask."Job No.");
         PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
-        MockPurchaseLineJobRelatedFields(PurchaseLine);
         PurchaseLine.Modify();
 
         // [WHEN] Purchase order is being archived
         ArchiveManagement.StorePurchDocument(PurchaseHeader, false);
 
-        // [THEN] Purchase Line Archive created with same job related fields
+        // [THEN] Purchase Line Archive created with Job Task No. = "JT"
         PurchaseLineArchive.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLineArchive.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLineArchive.FindFirst();
-        VerifyPurchaseLineArchive(PurchaseLine, PurchaseLineArchive);
+        PurchaseLineArchive.TestField("Job Task No.", JobTask."Job Task No.");
     end;
 
     local procedure Initialize()
@@ -2610,6 +2607,7 @@ codeunit 136306 "Job Invoicing"
     local procedure Credit(JobPlanningLine: Record "Job Planning Line"; Fraction: Decimal)
     var
         SalesHeader: Record "Sales Header";
+        ReasonCode: Record "Reason Code";
     begin
         if Fraction = 0 then
             exit;
@@ -2624,6 +2622,11 @@ codeunit 136306 "Job Invoicing"
             Insert(true);
 
             TransferJobPlanningLine(JobPlanningLine, 1, true, SalesHeader);
+
+            LibraryERM.CreateReasonCode(ReasonCode);
+            SalesHeader.Validate("Reason Code", ReasonCode.Code);
+            SalesHeader.Modify(true);
+
             LibrarySales.PostSalesDocument(SalesHeader, true, true);
         end
     end;

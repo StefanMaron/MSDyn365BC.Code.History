@@ -1187,10 +1187,16 @@ codeunit 131334 "ERM VAT Tool - Helper"
     var
         VATRateChangeConv: Record "VAT Rate Change Conversion";
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         ResetVATRateChangeSetup;
         VATRateChangeConv.DeleteAll();
         VATRateChangeLogEntry.DeleteAll();
+        // AU - to prevent overwriting of VAT Prod. Posting Group with GST Prod. Posting Group
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Enable GST (Australia)", false);
+        GeneralLedgerSetup.Modify(true);
+        // AU
         Commit();
     end;
 

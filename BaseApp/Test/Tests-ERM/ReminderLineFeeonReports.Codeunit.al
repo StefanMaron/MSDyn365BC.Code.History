@@ -536,7 +536,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         Clear(SalesInvoice);
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
         SalesInvoice.SetTableView(SalesInvoiceHeader);
-        SalesInvoice.InitializeRequest(0, true, false, false); // IncludeShptNo = FALSE, DisplayAssemblyInformation = FALSE
+        SalesInvoice.InitializeRequest(0, true, false, false, false, false, false, true); // IncludeShptNo = FALSE, DisplayAssemblyInformation = FALSE
         Commit();
         SalesInvoice.Run;
     end;

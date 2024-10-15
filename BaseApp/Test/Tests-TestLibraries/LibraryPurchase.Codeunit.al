@@ -119,6 +119,8 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyfromVendorNo: Code[20])
+    var
+        ReasonCode: Record "Reason Code";
     begin
         DisableWarningOnCloseUnpostedDoc;
         DisableWarningOnCloseUnreleasedDoc;
@@ -136,6 +138,11 @@ codeunit 130512 "Library - Purchase"
         else
             PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
         SetCorrDocNoPurchase(PurchaseHeader);
+        if (DocumentType = PurchaseHeader."Document Type"::"Return Order") or (DocumentType = PurchaseHeader."Document Type"::"Credit Memo") then begin
+            if not ReasonCode.FindFirst then
+                LibraryERM.CreateReasonCode(ReasonCode);
+            PurchaseHeader.Validate("Reason Code", ReasonCode.Code);
+        end;
         PurchaseHeader.Modify(true);
     end;
 
@@ -349,6 +356,8 @@ codeunit 130512 "Library - Purchase"
         Vendor.Validate("Vendor Posting Group", FindVendorPostingGroup);
         Vendor.Validate("Payment Terms Code", LibraryERM.FindPaymentTermsCode);
         Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        Vendor.ABN := '53004084612'; // Assignment with Valid ABN No. done to bypass the confirm handler message.
+        Vendor.Validate(Registered, true);
         Vendor.Modify(true);
         VendContUpdate.OnModify(Vendor);
 

@@ -11,6 +11,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
 
     var
         Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibrarySales: Codeunit "Library - Sales";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -619,6 +620,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
     var
         UserSetup: Record "User Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo SalesInv CL Approvals");
         LibraryVariableStorage.Clear;
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -627,7 +629,9 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         if IsInitialized then
             exit;
         IsInitialized := true;
-        BindSubscription(LibraryJobQueue)
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo SalesInv CL Approvals");
+        BindSubscription(LibraryJobQueue);
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"WF Demo SalesInv CL Approvals");
     end;
 
     local procedure CreateSalesInvWithLine(var SalesHeader: Record "Sales Header"; Amount: Decimal)

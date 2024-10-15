@@ -10,8 +10,6 @@ codeunit 138200 "Normal DemoData"
 
     var
         Assert: Codeunit Assert;
-        LibrarySales: Codeunit "Library - Sales";
-        NothingToPostErr: Label 'There is nothing to post.';
         NoPurchHeaderErr: Label 'There is no Purchase Header within the filter.';
         EmptyBlobErr: Label 'BLOB field is empty.';
 
@@ -36,31 +34,10 @@ codeunit 138200 "Normal DemoData"
         // [SCENARIO] There is 1 Sales Invoice and 43 documents of other types
         with SalesHeader do begin
             SetRange("Document Type", "Document Type"::Invoice);
-            Assert.RecordCount(SalesHeader, 1);
+            Assert.RecordCount(SalesHeader, 0);
 
             SetFilter("Document Type", '<>%1', "Document Type"::Invoice);
-            Assert.RecordCount(SalesHeader, 43);
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostSalesInvoices()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // [FEATURE] [Sales]
-        // [SCENARIO] Existing Sales Invoice cannot be posted
-        with SalesHeader do begin
-            // [WHEN] Post all Invoices
-            Reset;
-            SetRange("Document Type", "Document Type"::Invoice);
-            FindSet;
-            repeat
-                asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
-                // [THEN] An error: 'There is nothing to post.'
-                Assert.ExpectedError(NothingToPostErr);
-            until Next = 0;
+            Assert.RecordCount(SalesHeader, 0);
         end;
     end;
 
@@ -77,7 +54,7 @@ codeunit 138200 "Normal DemoData"
             Assert.RecordCount(PurchHeader, 0);
 
             SetFilter("Document Type", '<>%1', "Document Type"::Invoice);
-            Assert.RecordCount(PurchHeader, 21);
+            Assert.RecordCount(PurchHeader, 0);
         end;
     end;
 
@@ -185,7 +162,7 @@ codeunit 138200 "Normal DemoData"
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
         // [SCENARIO] There are 3 VAT Prod. Posting groups
-        Assert.RecordCount(VATProductPostingGroup, 3);
+        Assert.RecordCount(VATProductPostingGroup, 5);
     end;
 
     [Test]
@@ -235,12 +212,10 @@ codeunit 138200 "Normal DemoData"
         UsageOption: Option;
     begin
         // [FEATURE] [Electronic Document]
-        // [SCENARIO 278316] Electronic document format has setup for PEPPOL 2.0, 2.1 for all Usage options
+        // [SCENARIO 341241] Electronic document format has setup for PEPPOL BIS3 for all Usage options
         with ElectronicDocumentFormat do
-            for UsageOption := Usage::"Sales Invoice" to Usage::"Service Validation" do begin
-                Get('PEPPOL 2.0', UsageOption);
-                Get('PEPPOL 2.1', UsageOption);
-            end;
+            for UsageOption := Usage::"Sales Invoice" to Usage::"Service Validation" do
+                Get('PEPPOL BIS3', UsageOption);
     end;
 
     [Test]

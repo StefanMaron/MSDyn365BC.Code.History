@@ -475,7 +475,7 @@ table 5093 "Opportunity Entry"
                 Error(Text012);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure FinishWizard()
     var
         OppEntry: Record "Opportunity Entry";
@@ -483,6 +483,7 @@ table 5093 "Opportunity Entry"
         UpdateEstimates;
         OppEntry := Rec;
         InsertEntry(OppEntry, "Cancel Old To Do", false);
+        OnFinishWizardOnAfterInsertEntry(OppEntry);
         Delete;
     end;
 
@@ -537,7 +538,7 @@ table 5093 "Opportunity Entry"
             Error(Text009);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure FinishWizard2()
     var
         CreateNewTask: Boolean;
@@ -868,6 +869,11 @@ table 5093 "Opportunity Entry"
                     "Sales Cycle Stage" := TempSalesCycleStageJump.Stage;
         end;
         Validate("Sales Cycle Stage");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinishWizardOnAfterInsertEntry(OpportunityEntry: Record "Opportunity Entry")
+    begin
     end;
 }
 

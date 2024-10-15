@@ -1538,9 +1538,13 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
     end;
 
     local procedure CreateCreditMemoWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var SalesCreditMemo: TestPage "Sales Credit Memo")
+    var
+        ReasonCode: Record "Reason Code";
     begin
         SalesCreditMemo.OpenNew;
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
+        LibraryERM.CreateReasonCode(ReasonCode);
+        SalesCreditMemo."Reason Code".SetValue(ReasonCode.Code);
 
         SalesCreditMemo.SalesLines.First;
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");

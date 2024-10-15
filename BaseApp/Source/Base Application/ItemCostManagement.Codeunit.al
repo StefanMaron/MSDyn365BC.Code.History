@@ -432,6 +432,8 @@ codeunit 5804 ItemCostManagement
                         until Next = 0;
                 until OpenItemLedgEntry.Next = 0;
         end;
+
+        OnAfterExcludeOpenOutbndCosts(Item, CostAmt, CostAmtACY, Quantity);
     end;
 
     local procedure HasOpenEntries(var Item: Record Item): Boolean
@@ -495,6 +497,11 @@ codeunit 5804 ItemCostManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateQuantity(var ValueEntry: Record "Value Entry"; var Item: Record Item; var CalcQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterExcludeOpenOutbndCosts(var Item: Record Item; var CostAmt: Decimal; var CostAmtACY: Decimal; var Quantity: Decimal)
     begin
     end;
 

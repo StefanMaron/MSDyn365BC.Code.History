@@ -28,6 +28,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
         EntriesSuccessfullyUnappliedMsg: Label 'The entries were successfully unapplied.';
         ShippedQtyReturnedCorrectErr: Label 'You cannot correct this posted sales invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
         ShippedQtyReturnedCancelErr: Label 'You cannot cancel this posted sales invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
+        ReasonCodeErr: Label 'Canceling the invoice failed because of the following error: \\Reason Code must have a value in Sales Header: Document Type=Credit Memo, No.=%1. It cannot be zero or empty.';
 
     [Test]
     [HandlerFunctions('ConfirmHandler,SalesInvoicePageHandler')]
@@ -1383,9 +1384,71 @@ codeunit 138015 "O365 Correct Sales Invoice"
         Assert.IsTrue(PostedSalesInvoices.ShowCreditMemo.Visible, 'action ShowCreditMemo.Visible');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelInvoiceWithoutDefaultReasonCode()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        // [SCENARIO] Cancel posted sales invoice with empty "Default Cancel Reason Code" in Sales Setup
+        Initialize;
+
+        // [GIVEN] "Default Cancel Reason Code" is empty in Sales Setup
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Default Cancel Reason Code", '');
+        SalesReceivablesSetup.Modify(true);
+        // [GIVEN] Posted sales invoice
+        CreateAndPostSalesInvForNewItemAndCust(Item, Customer, 1, 1, SalesInvoiceHeader);
+        // [WHEN] Cancel posted sales invoice
+        asserterror CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+        // [THEN] Cancel failed due to testfield of "Reason Code" in the credit memo
+        SalesReceivablesSetup.Get();
+        Assert.ExpectedError(
+          StrSubstNo(
+            ReasonCodeErr,
+            NoSeriesManagement.GetNextNo(
+              SalesReceivablesSetup."Credit Memo Nos.",
+              SalesInvoiceHeader."Posting Date", false)));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelInvoiceWithDefaultReasonCode()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        ReasonCode: Code[10];
+    begin
+        // [SCENARIO] Cancel posted sales invoice with filled "Default Cancel Reason Code" in Sales Setup
+        Initialize;
+
+        // [GIVEN] "Sales Setup"."Default Cancel Reason Code" "DCRC" is filled (Initialize)
+        SalesReceivablesSetup.Get();
+        ReasonCode := SalesReceivablesSetup."Default Cancel Reason Code";
+        // [GIVEN] Posted sales invoice
+        CreateAndPostSalesInvForNewItemAndCust(Item, Customer, 1, 1, SalesInvoiceHeader);
+        // [WHEN] Cancel posted sales invoice
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+        // [THEN] "Sales Credit Memo"."Reason Code" = "DCRC"
+        SalesCrMemoHeader.SetRange("Applies-to Doc. Type", SalesCrMemoHeader."Applies-to Doc. Type"::Invoice);
+        SalesCrMemoHeader.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
+        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.TestField("Reason Code", ReasonCode);
+    end;
+
     local procedure Initialize()
     var
         SalesSetup: Record "Sales & Receivables Setup";
+        ReasonCode: Record "Reason Code";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Correct Sales Invoice");
         // Initialize setup.
@@ -1398,18 +1461,16 @@ codeunit 138015 "O365 Correct Sales Invoice"
             LibraryFiscalYear.CreateFiscalYear;
 
         LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGenProdPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryApplicationArea.EnableFoundationSetup;
 
         SalesSetup.Get();
         if SalesSetup."Order Nos." = '' then
             SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-
         if SalesSetup."Posted Shipment Nos." = '' then
             SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-
+        LibraryERM.CreateReasonCode(ReasonCode);
+        SalesSetup.Validate("Default Cancel Reason Code", ReasonCode.Code);
         SalesSetup.Modify();
 
         LibraryERMCountryData.UpdateSalesReceivablesSetup;

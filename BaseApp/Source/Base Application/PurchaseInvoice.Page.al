@@ -937,8 +937,7 @@ page 51 "Purchase Invoice"
                     var
                         OfficeMgt: Codeunit "Office Management";
                     begin
-                        if not Insert(true) then
-                            Modify(true);
+                        CurrPage.SaveRecord();
                         OfficeMgt.InitiateSendToIncomingDocumentsWithPurchaseHeaderLink(Rec, "Buy-from Vendor No.");
                     end;
                 }
@@ -1118,9 +1117,7 @@ page 51 "Purchase Invoice"
 
                     trigger OnAction()
                     begin
-                        CopyPurchDoc.SetPurchHeader(Rec);
-                        CopyPurchDoc.RunModal;
-                        Clear(CopyPurchDoc);
+                        CopyDocument();
                         if Get("Document Type", "No.") then;
                     end;
                 }
@@ -1444,7 +1441,6 @@ page 51 "Purchase Invoice"
 
     var
         PurchSetup: Record "Purchases & Payables Setup";
-        CopyPurchDoc: Report "Copy Purchase Document";
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         ReportPrint: Codeunit "Test Report-Print";

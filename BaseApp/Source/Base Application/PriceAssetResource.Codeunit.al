@@ -7,8 +7,8 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
     procedure GetNo(var PriceAsset: Record "Price Asset")
     begin
         if Resource.GetBySystemId(PriceAsset."Asset ID") then begin
-            PriceAsset."Unit of Measure Code" := Resource."Base Unit of Measure";
             PriceAsset."Asset No." := Resource."No.";
+            FillAdditionalFields(PriceAsset);
         end else
             PriceAsset.InitAsset();
     end;
@@ -16,8 +16,8 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
     procedure GetId(var PriceAsset: Record "Price Asset")
     begin
         if Resource.Get(PriceAsset."Asset No.") then begin
-            PriceAsset."Unit of Measure Code" := Resource."Base Unit of Measure";
             PriceAsset."Asset ID" := Resource.SystemId;
+            FillAdditionalFields(PriceAsset);
         end else
             PriceAsset.InitAsset();
     end;
@@ -39,6 +39,7 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
     procedure IsLookupUnitOfMeasureOK(var PriceAsset: Record "Price Asset"): Boolean
     begin
         if ResourceUnitofMeasure.Get(PriceAsset."Asset No.", PriceAsset."Unit of Measure Code") then;
+        ResourceUnitofMeasure.SetRange("Resource No.", PriceAsset."Asset No.");
         if Page.RunModal(Page::"Resource Units of Measure", ResourceUnitofMeasure) = ACTION::LookupOK then begin
             PriceAsset.Validate("Unit of Measure Code", ResourceUnitofMeasure.Code);
             exit(true);
@@ -96,5 +97,11 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
         PriceAsset.NewEntry(PriceCalculationBuffer."Asset Type", PriceAsset.Level);
         PriceAsset.Validate("Asset No.", PriceCalculationBuffer."Asset No.");
         PriceAsset."Unit of Measure Code" := PriceCalculationBuffer."Unit of Measure Code";
+    end;
+
+    local procedure FillAdditionalFields(var PriceAsset: Record "Price Asset")
+    begin
+        PriceAsset."Unit of Measure Code" := '';
+        PriceAsset."Variant Code" := '';
     end;
 }

@@ -28,6 +28,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         AmountPurchInvErr: Label 'Amount must have a value in Purch. Inv. Header';
         ShippedQtyReturnedCorrectErr: Label 'You cannot correct this posted purchase invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
         ShippedQtyReturnedCancelErr: Label 'You cannot cancel this posted purchase invoice because item %1 %2 has already been fully or partially returned.', Comment = '%1 = Item no. %2 = Item description.';
+        ReasonCodeErr: Label 'Canceling the invoice failed because of the following error: \\Reason Code must have a value in Purchase Header: Document Type=Credit Memo, No.=%1. It cannot be zero or empty.';
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -928,7 +929,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     [Scope('OnPrem')]
     procedure TestCorrectInvoiceUsingGLAccount()
     var
-        GLAcc: Record "G/L Account";
         Item: Record Item;
         Vend: Record Vendor;
         PurchHeader: Record "Purchase Header";
@@ -938,26 +938,24 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchHeaderTmp: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchHeader, PurchLine);
 
-        LibraryERM.FindGLAccount(GLAcc);
-
-        LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
-        PurchLine.Validate(Type, PurchLine.Type::"G/L Account");
-        PurchLine.Validate("No.", GLAcc."No.");
-        PurchLine.Validate("Direct Unit Cost", 1);
-        PurchLine.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+        Clear(PurchLine);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
         PurchLine.Modify(true);
 
+        Clear(PurchLine);
         LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
         PurchLine.Validate(Type, PurchLine.Type::" ");
         PurchLine.Modify(true);
 
         PurchInvHeader.Get(LibrarySmallBusiness.PostPurchaseInvoice(PurchHeader));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeaderTmp);
@@ -968,7 +966,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     [Scope('OnPrem')]
     procedure TestCancelInvoiceUsingGLAccount()
     var
-        GLAcc: Record "G/L Account";
         Item: Record Item;
         Vend: Record Vendor;
         PurchHeader: Record "Purchase Header";
@@ -977,26 +974,24 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchHeader, PurchLine);
 
-        LibraryERM.FindGLAccount(GLAcc);
-
+        Clear(PurchLine);
         LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
         PurchLine.Validate(Type, PurchLine.Type::" ");
         PurchLine.Modify(true);
 
-        LibrarySmallBusiness.CreatePurchaseLine(PurchLine, PurchHeader, Item, 1);
-        PurchLine.Validate(Type, PurchLine.Type::"G/L Account");
-        PurchLine.Validate("No.", GLAcc."No.");
-        PurchLine.Validate("Direct Unit Cost", 1);
-        PurchLine.Validate("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
+        Clear(PurchLine);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
         PurchLine.Modify(true);
 
         PurchInvHeader.Get(LibrarySmallBusiness.PostPurchaseInvoice(PurchHeader));
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
@@ -1376,9 +1371,71 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelInvoiceWithoutDefaultReasonCode()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        // [SCENARIO] Cancel posted purchase invoice with empty "Default Cancel Reason Code" in Purchase Setup
+        Initialize;
+
+        // [GIVEN] "Default Cancel Reason Code" is empty in Purchase Setup
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Default Cancel Reason Code", '');
+        PurchasesPayablesSetup.Modify(true);
+        // [GIVEN] Posted sales invoice
+        CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 1, 1, PurchInvHeader);
+        // [WHEN] Cancel posted purchase invoice
+        asserterror CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+        // [THEN] Cancel failed due to testfield of "Reason Code" in the credit memo
+        PurchasesPayablesSetup.Get();
+        Assert.ExpectedError(
+          StrSubstNo(
+            ReasonCodeErr,
+            NoSeriesManagement.GetNextNo(
+              PurchasesPayablesSetup."Credit Memo Nos.",
+              PurchInvHeader."Posting Date", false)));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelInvoiceWithDefaultReasonCode()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        ReasonCode: Code[10];
+    begin
+        // [SCENARIO] Cancel posted purchase invoice with filled "Default Cancel Reason Code" in Purchase Setup
+        Initialize;
+
+        // [GIVEN] "Purchase Setup"."Default Cancel Reason Code" "DCRC" is filled (Initialize)
+        PurchasesPayablesSetup.Get();
+        ReasonCode := PurchasesPayablesSetup."Default Cancel Reason Code";
+        // [GIVEN] Posted purchase invoice
+        CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 1, 1, PurchInvHeader);
+        // [WHEN] Cancel posted purchase invoice
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+        // [THEN] "Purchase Credit Memo"."Reason Code" = "DCRC"
+        PurchCrMemoHdr.SetRange("Applies-to Doc. Type", PurchCrMemoHdr."Applies-to Doc. Type"::Invoice);
+        PurchCrMemoHdr.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
+        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.TestField("Reason Code", ReasonCode);
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        ReasonCode: Record "Reason Code";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Correct Purchase Invoice");
         // Initialize setup.
@@ -1397,13 +1454,14 @@ codeunit 138025 "O365 Correct Purchase Invoice"
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         SetNoSeries;
         PurchasesPayablesSetup.Get();
         if PurchasesPayablesSetup."Order Nos." = '' then
             PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
+        LibraryERM.CreateReasonCode(ReasonCode);
+        PurchasesPayablesSetup.Validate("Default Cancel Reason Code", ReasonCode.Code);
         PurchasesPayablesSetup.Modify();
         LibraryPurchase.SetDiscountPostingSilent(PurchasesPayablesSetup."Discount Posting"::"All Discounts");
 

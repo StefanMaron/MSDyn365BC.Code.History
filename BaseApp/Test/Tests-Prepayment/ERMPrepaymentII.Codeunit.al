@@ -297,7 +297,7 @@ codeunit 134101 "ERM Prepayment II"
         // [THEN] Verify Prepayment and VAT Amount in G/L Entry.
         VerifyGLEntry(DocumentNo, PurchPrepaymentsAccount, -PurchaseLine."Line Amount");
         VATPostingSetup.Get(LineGLAccount."VAT Bus. Posting Group", LineGLAccount."VAT Prod. Posting Group");
-        VerifyGLEntry(DocumentNo, VATPostingSetup."Purchase VAT Account", VATAmount);
+        VerifyGLEntryPrepayment(DocumentNo, VATPostingSetup."Purchase VAT Account", VATAmount);
     end;
 
     [Test]
@@ -757,7 +757,7 @@ codeunit 134101 "ERM Prepayment II"
         // [THEN] Verify Prepayment and VAT Amount in G/L Entry.
         VerifyGLEntry(DocumentNo, SalesPrepaymentsAccount, SalesLine."Line Amount");
         VATPostingSetup.Get(LineGLAccount."VAT Bus. Posting Group", LineGLAccount."VAT Prod. Posting Group");
-        VerifyGLEntry(DocumentNo, VATPostingSetup."Sales VAT Account", -VATAmount);
+        VerifyGLEntryPrepayment(DocumentNo, VATPostingSetup."Sales VAT Account", -VATAmount);
     end;
 
     [Test]
@@ -811,7 +811,7 @@ codeunit 134101 "ERM Prepayment II"
         // [THEN] Verify Prepayment and VAT Amount in G/L Entry.
         VerifyGLEntry(DocumentNo, SalesPrepaymentsAccount, SalesLine."Line Amount" + SalesLine2."Line Amount");
         VATPostingSetup.Get(LineGLAccount."VAT Bus. Posting Group", LineGLAccount."VAT Prod. Posting Group");
-        VerifyGLEntry(DocumentNo, VATPostingSetup."Sales VAT Account", -VATAmount - VATAmount2);
+        VerifyGLEntryPrepayment(DocumentNo, VATPostingSetup."Sales VAT Account", -VATAmount - VATAmount2);
     end;
 
     [Test]
@@ -1846,6 +1846,7 @@ codeunit 134101 "ERM Prepayment II"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
+        DisableGST(false);
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prepayment II");
@@ -2118,10 +2119,33 @@ codeunit 134101 "ERM Prepayment II"
         exit(Vendor."No.");
     end;
 
+    local procedure DisableGST(DisableGST: Boolean)
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        with GLSetup do begin
+            Get;
+            Validate("Enable GST (Australia)", DisableGST);
+            Validate("Full GST on Prepayment", DisableGST);
+            Validate("GST Report", DisableGST);
+            Validate("Adjustment Mandatory", DisableGST);
+            Modify(true);
+        end;
+    end;
+
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst;
+    end;
+
+    local procedure FindGLEntryPrepayment(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        // There are 2 G/L Entries for the same account with the same Document No., so additional filter is needed
+        GLEntry.SetFilter(Amount, '<=%1&>=%2', Amount + LibraryERM.GetAmountRoundingPrecision, Amount - LibraryERM.GetAmountRoundingPrecision);
         GLEntry.FindFirst;
     end;
 
@@ -2426,6 +2450,18 @@ codeunit 134101 "ERM Prepayment II"
     begin
         GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
+        Assert.AreNearlyEqual(
+          Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
+          StrSubstNo(ValidationErr, GLEntry.FieldCaption(Amount), Amount));
+    end;
+
+    local procedure VerifyGLEntryPrepayment(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLEntry: Record "G/L Entry";
+    begin
+        GeneralLedgerSetup.Get();
+        FindGLEntryPrepayment(GLEntry, DocumentNo, GLAccountNo, Amount);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(ValidationErr, GLEntry.FieldCaption(Amount), Amount));
