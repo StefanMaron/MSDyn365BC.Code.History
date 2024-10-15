@@ -36,6 +36,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         PaymentsLineErr: Label 'There are payments in %1 %2, %3 %4, %5 %6', Comment = 'There are payments in Journal Template Name PAYMENT, Journal Batch Name GENERAL, Applies-to Doc. No. 101321';
         EarlierPostingDateErr: Label 'You cannot create a payment with an earlier posting date for %1 %2.';
         AppliesToIdErr: Label 'Applies-to ID is not blank.';
+        DocumentNoErr: Label 'Document No. is not equal.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -1937,13 +1938,14 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     end;
 
     [Test]
-    [HandlerFunctions('SuggestVendorPaymentsStartingDocNoRequestPageHandler')]
+    [HandlerFunctions('SuggestVendorPaymentsStartingDocNoRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsTwoVendorsNoSeriesIncrBy10()
     var
         PurchaseHeader: array[2] of Record "Purchase Header";
         NoSeriesLine: Record "No. Series Line";
         GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
         Index: Integer;
     begin
         // [FEATURE] [No. Series]
@@ -1956,7 +1958,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         end;
 
         CreateNoSeriesWithIncrementByNo(NoSeriesLine, 10, 'A0001', 'A9999');
-
+        LibraryERM.FindBankAccount(BankAccount);
         SetupGenJournalLineForSuggestVendorPayments(GenJournalLine, NoSeriesLine);
 
         LibraryVariableStorage.Enqueue(
@@ -1964,6 +1966,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryVariableStorage.Enqueue(NoSeriesLine."Starting No.");
         LibraryVariableStorage.Enqueue(false); // Summarize - FALSE
         LibraryVariableStorage.Enqueue(false); // New Doc. No. per Line - FALSE
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
 
         SuggestVendorPaymentForGenJournal(GenJournalLine);
 
@@ -1977,7 +1980,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     end;
 
     [Test]
-    [HandlerFunctions('SuggestVendorPaymentsStartingDocNoRequestPageHandler')]
+    [HandlerFunctions('SuggestVendorPaymentsStartingDocNoRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsTwoVendorsNoSeriesIncrBy10SummarizedByVendor()
     var
@@ -1985,6 +1988,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         PurchaseHeader: array[2] of Record "Purchase Header";
         NoSeriesLine: Record "No. Series Line";
         GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
         VendorIndex: Integer;
         DocIndex: Integer;
     begin
@@ -2002,13 +2006,14 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         end;
 
         CreateNoSeriesWithIncrementByNo(NoSeriesLine, 10, 'A0001', 'A9999');
-
+        LibraryERM.FindBankAccount(BankAccount);
         SetupGenJournalLineForSuggestVendorPayments(GenJournalLine, NoSeriesLine);
 
         LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', Vendor[1]."No.", Vendor[2]."No."));
         LibraryVariableStorage.Enqueue(NoSeriesLine."Starting No.");
         LibraryVariableStorage.Enqueue(true); // Summarize - TRUE
         LibraryVariableStorage.Enqueue(false); // New Doc. No. per Line - FALSE
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
 
         SuggestVendorPaymentForGenJournal(GenJournalLine);
 
@@ -2024,7 +2029,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     end;
 
     [Test]
-    [HandlerFunctions('SuggestVendorPaymentsStartingDocNoRequestPageHandler')]
+    [HandlerFunctions('SuggestVendorPaymentsStartingDocNoRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsTwoVendorsNoSeriesIncrBy10DocNoPerLine()
     var
@@ -2032,6 +2037,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         PurchaseHeader: array[2] of Record "Purchase Header";
         NoSeriesLine: Record "No. Series Line";
         GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
         VendorIndex: Integer;
         DocIndex: Integer;
     begin
@@ -2049,13 +2055,14 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         end;
 
         CreateNoSeriesWithIncrementByNo(NoSeriesLine, 10, 'A0001', 'A9999');
-
+        LibraryERM.FindBankAccount(BankAccount);
         SetupGenJournalLineForSuggestVendorPayments(GenJournalLine, NoSeriesLine);
 
         LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', Vendor[1]."No.", Vendor[2]."No."));
         LibraryVariableStorage.Enqueue(NoSeriesLine."Starting No.");
         LibraryVariableStorage.Enqueue(false); // Summarize - FALSE
         LibraryVariableStorage.Enqueue(true); // New Doc. No. per Line - TRUE
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
 
         SuggestVendorPaymentForGenJournal(GenJournalLine);
 
@@ -2343,6 +2350,54 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         VendorLedgerEntry.SetFilter("Vendor No.", Vendor."No.");
         VendorLedgerEntry.FindFirst();
         Assert.AreEqual('', VendorLedgerEntry."Applies-to ID", AppliesToIdErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyDocNoWhenBalAccNoIsBlankOnSuggestVendorPayment()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VendorNo: Code[20];
+        VendorNo2: Code[20];
+        NoOfLines: Integer;
+        DocumentNo: Code[20];
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO 441558] Document No. on payment Journals from 'Suggest Vendor Payments' is different even if New Doc. No. per Line is No
+        Initialize();
+
+        // [GIVEN] Create GenJournal Batch  and bank account
+        CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
+        BankAccountNo := SetupAndCreateGenJournalLines(GenJournalLine, GenJournalBatch);
+
+        // [GIVEN] Create two vendors and multiple invoices.
+        VendorNo := GenJournalLine."Account No.";
+        NoOfLines := 2 * LibraryRandom.RandInt(5);
+        VendorNo2 := CreateVendor(GenJournalLine."Currency Code", Vendor."Application Method"::"Apply to Oldest");
+        CreateMultipleGenJournalLine(
+          GenJournalLine, GenJournalBatch, NoOfLines, WorkDate(), VendorNo2,
+          GenJournalLine."Document Type"::Invoice, -1);
+
+        // [THEN] Create Document No. and save in a variable.
+        DocumentNo := Format(LibraryRandom.RandInt(100));
+
+        // [THEN] Post the invoices.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create General Journal Batch for posting payment.
+        CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
+
+        // [THEN] Suggest vendor payment with saved document no
+        SuggestVendorPaymentWithDocNo(
+          GenJournalBatch, VendorNo, VendorNo2, CalcDate('2Y', WorkDate()), false, GenJournalLine."Bal. Account Type"::"Bank Account", '',
+          GenJournalLine."Bank Payment Type"::" ", false, DocumentNo);
+
+        // [VERIFY] Verfiy Document No. on general journal line.
+        VerifySameDocumentNoOnGenJournal(VendorNo, DocumentNo);
+        VerifySameDocumentNoOnGenJournal(VendorNo2, DocumentNo);
     end;
 
     local procedure Initialize()
@@ -3426,6 +3481,52 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         until FromGenJournalTemplate.Next = 0;
     end;
 
+    local procedure VerifySameDocumentNoOnGenJournal(VendorNo: Text[100]; DocumentNo: Code[20])
+    var
+        Currency: Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+        GenJournalLine.SetRange("Account No.", VendorNo);
+        if GenJournalLine.FindFirst() then
+            repeat
+                Assert.AreEqual(DocumentNo, GenJournalLine."Document No.", DocumentNoErr);
+            until GenJournalLine.Next() = 0;
+    end;
+
+    local procedure SuggestVendorPaymentWithDocNo(
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VendorNo: Code[20];
+        VendorNo2: Code[20];
+        LastPaymentDate: Date;
+        FindPaymentDiscounts: Boolean;
+        BalAccountType: Enum "Gen. Journal Account Type";
+        BalAccountNo: Code[20];
+        BankPaymentType: Enum "Bank Payment Type";
+        SummarizePerVendor: Boolean;
+        FirstDocNo: Code[20])
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        SuggestVendorPayments: Report "Suggest Vendor Payments";
+    begin
+        GenJournalLine.Init();  // INIT is mandatory for Gen. Journal Line to Set the General Template and General Batch Name.
+        GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
+        SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
+
+        Vendor.Setfilter("No.", '%1|%2', VendorNo, VendorNo2);
+        SuggestVendorPayments.SetTableView(Vendor);
+
+        // Required Random Value for "Document No." field value is not important.
+        SuggestVendorPayments.InitializeRequest(
+          LastPaymentDate, FindPaymentDiscounts, 0, false, LastPaymentDate, FirstDocNo,
+          SummarizePerVendor, BalAccountType, BalAccountNo, BankPaymentType);
+        SuggestVendorPayments.UseRequestPage(false);
+        SuggestVendorPayments.RunModal();
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -3652,6 +3753,8 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryVariableStorage.DequeueText());
         SuggestVendorPayments.SummarizePerVendor.SetValue(LibraryVariableStorage.DequeueBoolean());
         SuggestVendorPayments.NewDocNoPerLine.SetValue(LibraryVariableStorage.DequeueBoolean());
+        SuggestVendorPayments.BalAccountType.SetValue(3);
+        SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText());
         SuggestVendorPayments.OK.Invoke();
     end;
 

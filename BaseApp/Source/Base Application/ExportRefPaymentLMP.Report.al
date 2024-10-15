@@ -14,7 +14,7 @@ report 32000006 "Export Ref. Payment -  LMP"
                 RefPmtExport.SetCurrentKey("Payment Date", "Vendor No.", "Entry No.");
                 RefPmtExport.SetFilter("Payment Account", "Bank Account"."No.");
                 RefPmtExport.SetRange("Foreign Payment", false);
-                RefPmtExport.SetRange("Document Type", 1);
+                RefPmtExport.SetRange("Document Type", 2);
                 RefPmtExport.SetRange(Transferred, false);
                 if RefPmtExport.FindSet() then begin
                     RefFileSetup.SetFilter("No.", "Bank Account"."No.");

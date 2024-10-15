@@ -18,7 +18,7 @@ report 32000004 "Export Ref. Payment -  LUM"
                 RefPmtExport.SetFilter("Payment Account", "Bank Account"."No.");
                 RefPmtExport.SetRange("Foreign Payment", true);
                 RefPmtExport.SetRange(Transferred, false);
-                RefPmtExport.SetRange("Document Type", 1);
+                RefPmtExport.SetRange("Document Type", 2);
                 RefPmtExport.SetRange("Applied Payments", false);
 
                 if RefPmtExport.FindSet() then begin

@@ -22,6 +22,7 @@ codeunit 144002 "Bank Payments"
         CountryRegion: Record "Country/Region";
         IsInitialized: Boolean;
         FileExportHasErrorsErr: Label 'The file export has one or more errors';
+        NotAppliedErr: Label 'Entries not applied';
 
     [Test]
     [HandlerFunctions('RPHSuggestBankPayments')]
@@ -163,6 +164,58 @@ codeunit 144002 "Bank Payments"
         asserterror RefPaymentExported.ExportToFile;
         // Verify. Error message is about File Export Errors
         Assert.ExpectedError(FileExportHasErrorsErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('RPHSuggestBankPayments')]
+    [Scope('OnPrem')]
+    procedure VerifyApplicationOnCreditTransferEntry()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        RefPmtExp: Record "Ref. Payment - Exported";
+        RefFileSetup: Record "Reference File Setup";
+        PaymentExportData: Record "Payment Export Data";
+        GenJnlLine: Record "Gen. Journal Line";
+        SEPACreatePayment: Codeunit "SEPA CT-Fill Export Buffer";
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        BankAccountNo: Code[20];
+        VendorNo: Code[20];
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        // [SCENARIO 448616] Verify the Application after creating Payment Export Lines on Credit Tarnsfer Entry.
+        Initialize();
+
+        // [GIVEN] Create Bank account and Venor with IBAN Code
+        BankAccountNo := CreateBankAccount(CountryRegion.Code, 'FI9780RBOS16173241116737', 'SEPACT');
+        CreateBankAccountReferenceFileSetup(RefFileSetup, BankAccountNo);
+        VendorNo := CreateVendor(CountryRegion.Code, 'FI9780RBOS16173241116737', true, 1);
+
+        // [THEN] Post Purchase invoice with payment method code.
+        CreateReferancePaymentExportLines(BankAccountNo, VendorNo, PurchaseHeader);
+
+        // [THEN] Fill export Buffer in Payment export data.
+        PaymentExportData.DeleteAll();
+        GenJnlLine.SetRange("Account Type", GenJnlLine."Account Type"::Vendor);
+        GenJnlLine.SetRange("Account No.", VendorNo);
+        SEPACreatePayment.FillExportBuffer(GenJnlLine, PaymentExportData);
+
+        // [THEN] Find Posted Vendor Ledger Entry
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.Findfirst();
+
+        // [THEN] Find Credit transfer entry after Ref. Payment Exported have data.
+        CreditTransferEntry.SetRange("Account Type", CreditTransferEntry."Account Type"::Vendor);
+        CreditTransferEntry.SetRange("Account No.", VendorNo);
+        CreditTransferEntry.FindFirst();
+
+        // [THEN] Find Ref. Payment Exported entry.
+        RefPmtExp.SetRange(Transferred, true);
+        RefPmtExp.SetRange("SEPA Payment", true);
+        RefPmtExp.SetRange("Batch Code", PaymentExportData."Message ID");
+        RefPmtExp.FindFirst();
+
+        // [VERIFY] Verified Credit transfer entry has correct Applies to entry no. as on Vendor Ledger entry.
+        Assert.AreEqual(VendorLedgerEntry."Entry No.", CreditTransferEntry."Applies-to Entry No.", NotAppliedErr);
     end;
 
     local procedure Initialize()
