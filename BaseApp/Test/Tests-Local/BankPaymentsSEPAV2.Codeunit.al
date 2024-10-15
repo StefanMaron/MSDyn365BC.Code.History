@@ -46,7 +46,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -59,14 +59,14 @@ codeunit 144004 "Bank Payments - SEPA V2"
         RunExport(BankAccountNo);
 
         // Verify Header
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
         VerifyValue(LibraryXPathXMLReader, 'GrpHdr/NbOfTxs[1]', '1');
         VerifyValue(LibraryXPathXMLReader, 'GrpHdr/CtrlSum[1]', Format(RefPmtExported.Amount, 0, 9));
         VerifyValue(LibraryXPathXMLReader, 'GrpHdr/Grpg[1]', 'MIXD');
 
         // Verify Sender info
-        CompanyInfo.FindFirst;
+        CompanyInfo.FindFirst();
         RefFileSetup.Get(BankAccountNo);
         VerifyValue(LibraryXPathXMLReader, 'GrpHdr/InitgPty/Nm[1]', CompanyInfo.Name);
         VerifyValue(LibraryXPathXMLReader, 'GrpHdr/InitgPty/PstlAdr/AdrLine[1]', CompanyInfo.Address + ' ' + CompanyInfo."Address 2");
@@ -123,7 +123,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -150,7 +150,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -175,7 +175,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -204,7 +204,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -212,7 +212,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
 
         // Setup transaction data
         CreateRefPaymentExportLines(BankAccountNo, VendorNo, PurchaseHeader, PurchaseHeader."Message Type"::"Reference No.");
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         RefPmtExported."Currency Code" := 'NOK';
         RefPmtExported.Modify();
 
@@ -249,7 +249,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -261,7 +261,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         // Excercise
         RunExport(BankAccountNo);
 
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
 
         // Verify Amount
         LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
@@ -287,7 +287,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -296,14 +296,14 @@ codeunit 144004 "Bank Payments - SEPA V2"
         // Setup transaction data
         CreateRefPaymentExportLinesFromPrepayment(BankAccountNo, VendorNo, PurchaseHeader);
 
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         RefPmtExported.Amount := Round(RefPmtExported.Amount * LibraryRandom.RandDec(99, 2) / 100, 0.01, '>');
         RefPmtExported.Modify();
 
         // Excercise
         RunExport(BankAccountNo);
 
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
 
         // Verify Amount
         LibraryXPathXMLReader.Initialize(GetSEPAFile(BankAccountNo), 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.02');
@@ -328,7 +328,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         VendorNo: Code[20];
         BankAccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -339,7 +339,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
 
         // Excercise
         LibraryVariableStorage.Enqueue(VendorNo);
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         REPORT.Run(REPORT::Payment, true, false, RefPmtExported);
 
         // Verify Report
@@ -362,7 +362,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -370,7 +370,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
 
         // Setup transaction data
         CreateRefPaymentExportLines(BankAccountNo, VendorNo, PurchaseHeader, PurchaseHeader."Message Type"::Message);
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         RefPmtExported."SEPA Payment" := false;
         RefPmtExported.Modify();
 
@@ -390,7 +390,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -418,7 +418,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -427,7 +427,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         // Setup transaction data
         DocNo[1] := CreateRefPaymentExportLines(BankAccountNo, VendorNo, PurchaseHeader, PurchaseHeader."Message Type"::Message);
         DocNo[2] := CreateRefPaymentExportLines(BankAccountNo, VendorNo, PurchaseHeader, PurchaseHeader."Message Type"::Message);
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         RefPmtExported."SEPA Payment" := false;
         RefPmtExported.Modify();
 
@@ -458,7 +458,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -490,7 +490,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -522,7 +522,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -568,7 +568,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -599,7 +599,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -635,7 +635,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 378874] Check lines count and totals on REP 32000005 - Payment, when combine payments
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor and Bank Account
         BankAccountNo := CreateBankAccount;
@@ -662,7 +662,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
 
         // [WHEN] Print report 32000005 - Payment
         LibraryVariableStorage.Enqueue(VendorNo);
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         REPORT.Run(REPORT::Payment, true, false, RefPmtExported);
 
         // [THEN] Report generated one line with amount "A"
@@ -683,7 +683,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         InvoiceNo: array[2] of Code[20];
     begin
         // [SCENARIO 202940] Suggested posting date is matching the date used by the Bank Payments
-        Initialize;
+        Initialize();
 
         // Vendor.GET(CreateVendorVATPostingSetup);
         LibraryPurchase.CreateVendor(Vendor);
@@ -709,7 +709,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Bank Payments - SEPA V2");
         LibraryReportDataset.Reset();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -1067,7 +1067,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         LibraryVariableStorage.Enqueue(BankAccountNo);
         LibraryVariableStorage.Enqueue(VendorNo);
         SuggestBankPayments.InitializeRequest(PaymentDate, false, 0);
-        SuggestBankPayments.Run;
+        SuggestBankPayments.Run();
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -1077,7 +1077,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         RefPaymentExported: Record "Ref. Payment - Exported";
     begin
         LibraryVariableStorage.Enqueue(StrSubstNo(FileCreatedMsg, GetSEPAFile(BankAccountNo)));
-        RefPaymentExported.FindFirst;
+        RefPaymentExported.FindFirst();
         RefPaymentExported.ExportToFile;
     end;
 
@@ -1092,7 +1092,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         LibraryVariableStorage.Enqueue(VendorNo);
         LibraryVariableStorage.Enqueue(PaymentDate);
         Commit();
-        SuggestBankPayments.Run;
+        SuggestBankPayments.Run();
     end;
 
     local procedure SuggestVendorPayment(var GenJournalLine: Record "Gen. Journal Line"; LastPmtDate: Date; VendorNo: Code[20]; SendToBank: Boolean)
@@ -1121,9 +1121,9 @@ codeunit 144004 "Bank Payments - SEPA V2"
         LibraryVariableStorage.Enqueue(SendToBank);   // Send to bank
         LibraryVariableStorage.Enqueue(false);        // Skip Exported Payments
         LibraryVariableStorage.Enqueue(false);        // SummarizePerVendor
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID); // StartingDocumentNo
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID()); // StartingDocumentNo
         Commit();  // Commit required to avoid test failure.
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
     end;
 
     local procedure UpdateRefPaymentExportedWithPaymentDate(VendorNo: Code[20]; DocumentNo: Code[20]; BankPaymentDate: Date; Send: Boolean)
@@ -1132,7 +1132,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
     begin
         RefPaymentExported.SetRange("Vendor No.", VendorNo);
         RefPaymentExported.SetRange("Document No.", DocumentNo);
-        RefPaymentExported.FindFirst;
+        RefPaymentExported.FindFirst();
         RefPaymentExported.Validate("Payment Date", BankPaymentDate);
         RefPaymentExported.Validate(Transferred, Send);
         RefPaymentExported.Validate("Payment Account", CreateLongBankAccount);
@@ -1172,7 +1172,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         GenJournalLine.SetRange("Account Type", AccountType);
         GenJournalLine.SetRange("Account No.", AccountNo);
         GenJournalLine.SetRange("Applies-to Doc. No.", DocumentNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Posting Date", PostingDate);
     end;
 

@@ -13,8 +13,9 @@ codeunit 9080 "Journal Errors Mgt."
         TempModifiedGenJnlLine: Record "Gen. Journal Line" temporary;
         TempGenJnlLineBeforeModify: Record "Gen. Journal Line" temporary;
         TempGenJnlLineAfterModify: Record "Gen. Journal Line" temporary;
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         FullBatchCheck: Boolean;
-#if not CLEAN19
+#if not CLEAN20
     [Obsolete('FeatureKey JournalErrorBackgroundCheck removed', '19.0')]
     procedure IsEnabled() Result: Boolean
     begin
@@ -46,10 +47,8 @@ codeunit 9080 "Journal Errors Mgt."
     end;
 
     procedure SetRecXRecOnModify(xRec: Record "Gen. Journal Line"; Rec: Record "Gen. Journal Line")
-    var
-        GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        if GenJnlBatch.Get(Rec."Journal Template Name", Rec."Journal Batch Name") and GenJnlBatch."Background Error Check" then begin
+        if BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled() then begin
             SaveJournalLineToBuffer(xRec, TempGenJnlLineBeforeModify);
             SaveJournalLineToBuffer(Rec, TempGenJnlLineAfterModify);
         end;
@@ -124,20 +123,20 @@ codeunit 9080 "Journal Errors Mgt."
     end;
 
     procedure InsertDeletedLine(GenJnlLine: Record "Gen. Journal Line")
-    var
-        GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        if GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name") and GenJnlBatch."Background Error Check" then begin
+        if BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled() then begin
             TempDeletedGenJnlLine := GenJnlLine;
             if TempDeletedGenJnlLine.Insert() then;
         end;
     end;
 
+#if not CLEAN20
+    [Obsolete('FeatureKey JournalErrorBackgroundCheck removed', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
     begin
     end;
-
+#endif
     [EventSubscriber(ObjectType::Page, Page::"General Journal", 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventGeneralJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin

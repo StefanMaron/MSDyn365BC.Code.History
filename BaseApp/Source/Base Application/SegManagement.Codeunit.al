@@ -59,7 +59,7 @@ codeunit 5051 SegManagement
         SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
         SegmentLine.SetFilter("Campaign No.", '<>%1', '');
         SegmentLine.SetFilter("Contact No.", '<>%1', '');
-        if SegmentLine.FindSet then
+        if SegmentLine.FindSet() then
             repeat
                 SegmentLine."Campaign Entry No." := GetCampaignEntryNo(SegmentLine, LoggedSegment."Entry No.");
                 OnBeforeCampaignEntryNoModify(SegmentLine);
@@ -70,7 +70,7 @@ codeunit 5051 SegManagement
         SegmentLine.SetRange("Segment No.", SegmentHeader."No.");
         SegmentLine.SetFilter("Contact No.", '<>%1', '');
 
-        if SegmentLine.FindSet then begin
+        if SegmentLine.FindSet() then begin
             if InteractTemplate.Get(SegmentHeader."Interaction Template Code") then;
             NextInteractLogEntryNo := GetNextInteractionLogEntryNo;
             repeat
@@ -208,7 +208,7 @@ codeunit 5051 SegManagement
             InterLogEntryCommentLine.DeleteAll();
         end;
 
-        if InterLogEntryCommentLineTmp.FindSet then
+        if InterLogEntryCommentLineTmp.FindSet() then
             repeat
                 InterLogEntryCommentLine.Init();
                 InterLogEntryCommentLine := InterLogEntryCommentLineTmp;
@@ -267,7 +267,7 @@ codeunit 5051 SegManagement
         InteractTmpl.Get(InteractTmplCode);
 
         InteractTmplLanguage.SetRange("Interaction Template Code", InteractTmplCode);
-        if InteractTmplLanguage.FindFirst then
+        if InteractTmplLanguage.FindFirst() then
             Error(Text003, InteractTmplCode, InteractTmplLanguage."Language Code");
 
         if Description = '' then
@@ -481,7 +481,7 @@ codeunit 5051 SegManagement
                 Error(SegmentSendContactEmailFaxMissingErr, Contact.FieldCaption("E-Mail"), Contact."No.")
     end;
 
-    local procedure CopyFieldsToCampaignEntry(var CampaignEntry: Record "Campaign Entry"; var SegmentLine: Record "Segment Line")
+    procedure CopyFieldsToCampaignEntry(var CampaignEntry: Record "Campaign Entry"; var SegmentLine: Record "Segment Line")
     var
         SegmentHeader: Record "Segment Header";
     begin
@@ -564,7 +564,7 @@ codeunit 5051 SegManagement
         with ContBusRel do begin
             SetRange("Link to Table", LinkToTable);
             SetRange("No.", AccountNo);
-            if FindFirst then
+            if FindFirst() then
                 exit("Contact No.");
         end;
     end;
@@ -582,7 +582,7 @@ codeunit 5051 SegManagement
         with SalesInvHeader do begin
             CampaignTargetGr.SetRange(Type, CampaignTargetGr.Type::Customer);
             CampaignTargetGr.SetRange("No.", "Bill-to Customer No.");
-            if not CampaignTargetGr.FindFirst then
+            if not CampaignTargetGr.FindFirst() then
                 exit;
 
             Campaign.Get(CampaignTargetGr."Campaign No.");
@@ -626,7 +626,7 @@ codeunit 5051 SegManagement
     begin
         with InteractionLogEntry do begin
             LockTable();
-            if FindLast then;
+            if FindLast() then;
             exit("Entry No." + 1);
         end;
     end;
@@ -638,7 +638,7 @@ codeunit 5051 SegManagement
     begin
         with LoggedSegment do begin
             LockTable();
-            if FindLast then;
+            if FindLast() then;
             exit("Entry No." + 1);
         end;
     end;
@@ -650,7 +650,7 @@ codeunit 5051 SegManagement
     begin
         with CampaignEntry do begin
             LockTable();
-            if FindLast then;
+            if FindLast() then;
             exit("Entry No." + 1);
         end;
     end;
@@ -663,7 +663,7 @@ codeunit 5051 SegManagement
         CampaignEntry.SetRange("Document Type", SegmentLine."Document Type");
         CampaignEntry.SetRange("Campaign No.", SegmentLine."Campaign No.");
         CampaignEntry.SetRange("Segment No.", SegmentLine."Segment No.");
-        if CampaignEntry.FindFirst then
+        if CampaignEntry.FindFirst() then
             exit(CampaignEntry."Entry No.");
 
         CampaignEntry.Reset();

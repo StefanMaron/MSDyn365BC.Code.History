@@ -307,7 +307,7 @@ codeunit 144006 "UT COD Bank Nos Check"
         PayToVendor: Record Vendor;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateVendorWithBankAccount(PayToVendor, 'Vendor2', 'Bank2', '229018-02332');
         PayToVendor."Our Account No." := '1030';
         PayToVendor.Modify();
@@ -331,7 +331,7 @@ codeunit 144006 "UT COD Bank Nos Check"
         PayToVendor: Record Vendor;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateVendorWithBankAccount(PayToVendor, 'Vendor2', 'Bank2', '229018-02332');
         PayToVendor."Our Account No." := '1030';
         PayToVendor.Modify();
@@ -355,7 +355,7 @@ codeunit 144006 "UT COD Bank Nos Check"
         PayToVendor: Record Vendor;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateVendorWithBankAccount(Vendor, 'Vendor1', 'Bank1', '229018-02332');
         CreateVendorWithBankAccount(PayToVendor, 'Vendor2', 'Bank2', '229018-02332');
         PayToVendor."Our Account No." := '1030';
@@ -386,7 +386,7 @@ codeunit 144006 "UT COD Bank Nos Check"
         PayToVendor: Record Vendor;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateVendorWithBankAccount(PayToVendor, 'Vendor2', 'Bank2', '229018-02332');
         PayToVendor."Our Account No." := '1030';
         PayToVendor.Modify();

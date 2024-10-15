@@ -113,7 +113,7 @@ table 288 "Vendor Bank Account"
                     if "Bank Account No." <> '' then
                         BankNosCheck.CheckBankAccount("Bank Account No.", Code);
                 end;
-		
+
 		        OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }

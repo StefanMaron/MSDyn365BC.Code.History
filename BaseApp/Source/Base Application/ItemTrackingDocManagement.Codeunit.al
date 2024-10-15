@@ -632,18 +632,6 @@ codeunit 6503 "Item Tracking Doc. Management"
         exit(false);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by ShowItemTrackingForEntity().', '17.0')]
-    procedure ShowItemTrackingForMasterData(SourceType: Option " ",Customer,Vendor,Item; SourceNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[20]; SerialNo: Code[50]; LotNo: Code[50]; LocationCode: Code[10])
-    var
-        ItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        ItemTrackingSetup."Serial No." := SerialNo;
-        ItemTrackingSetup."Lot No." := LotNo;
-        ShowItemTrackingForEntity(SourceType, SourceNo, ItemNo, VariantCode, LocationCode, ItemTrackingSetup);
-    end;
-#endif
-
     procedure ShowItemTrackingForEntity(SourceType: Integer; SourceNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[20]; LocationCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup")
     var
         ItemLedgEntry: Record "Item Ledger Entry";

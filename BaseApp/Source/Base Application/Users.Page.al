@@ -261,7 +261,6 @@ page 9800 Users
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this user.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -270,6 +269,16 @@ page 9800 Users
                         Email.OpenSentEmails(Database::User, Rec.SystemId);
                     end;
                 }
+            }
+            action("User Email Policies")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'User Email Policies';
+                Image = Email;
+                Promoted = true;
+                PromotedCategory = Category4;
+                RunObject = Page "Email View Policy List";
+                ToolTip = 'View or edit user email policies for the users of the database.';
             }
             action("User Settings")
             {
@@ -345,8 +354,6 @@ page 9800 Users
                 Visible = NoUserExists and (not IsSaaS);
 
                 trigger OnAction()
-                var
-                    FormatedMessage: Text;
                 begin
                     if Confirm(CreateQst, false, UserId) then
                         Codeunit.Run(Codeunit::"Users - Create Super User");
@@ -406,7 +413,7 @@ page 9800 Users
                 RunObject = page "Azure AD User Update Wizard";
 
                 AboutTitle = 'Keep in sync with Microsoft 365';
-                AboutText = 'When licenses or user accounts change in the Microsoft 365 Admin center, you must sync the changes back to this list.';
+                AboutText = 'When licenses or user accounts change in the Microsoft 365 admin center, you must sync the changes back to this list.';
             }
             action(Email)
             {
@@ -465,7 +472,6 @@ page 9800 Users
     trigger OnInit()
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        PermissionManager: Codeunit "Permission Manager";
         UserPermissions: Codeunit "User Permissions";
     begin
         IsSaaS := EnvironmentInfo.IsSaaS();
@@ -489,9 +495,7 @@ page 9800 Users
     trigger OnOpenPage()
     var
         UserSelection: Codeunit "User Selection";
-        EmailFeature: Codeunit "Email Feature";
     begin
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         NoUserExists := IsEmpty;
         UserSelection.HideExternalUsers(Rec);
     end;
@@ -511,7 +515,6 @@ page 9800 Users
         RestoreUserGroupsToDefaultQst: Label 'Do you want to restore the default user groups to for user %1?', Comment = 'Do you want to restore the default user groups to for user Annie?';
         CanManageUsersOnTenant: Boolean;
         IsSaaS: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure ValidateSid()
     var

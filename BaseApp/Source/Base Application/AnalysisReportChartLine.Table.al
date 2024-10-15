@@ -93,7 +93,7 @@ table 771 "Analysis Report Chart Line"
                     AnalysisReportChartSetup.SetLinkToMeasureLines(AnalysisReportChartLine);
                     AnalysisReportChartLine.SetFilter("Chart Type", '<>%1', AnalysisReportChartLine."Chart Type"::" ");
                     ActualNumMeasures := 0;
-                    if AnalysisReportChartLine.FindSet then
+                    if AnalysisReportChartLine.FindSet() then
                         repeat
                             if (AnalysisReportChartLine."Analysis Line Line No." <> "Analysis Line Line No.") or
                                (AnalysisReportChartLine."Analysis Column Line No." <> "Analysis Column Line No.")

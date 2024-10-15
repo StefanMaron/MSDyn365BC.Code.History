@@ -65,7 +65,7 @@ codeunit 137307 "SCM Assembly Reports"
         ActualReportLanguage: Integer;
         ActualGlobalLanguage: Integer;
     begin
-        Initialize;
+        Initialize();
         CleanSetupData;
         CheckInit;
         SalesOrderNo := CreateAssemblySalesDocument(1, "Assembly Document Type"::Order, false);
@@ -80,7 +80,7 @@ codeunit 137307 "SCM Assembly Reports"
         SalesShipment.InitializeRequest(0, false, false, false, true, true);
         SalesShipment.SetTableView(SalesShipmentHeader);
         Commit();
-        SalesShipment.Run;
+        SalesShipment.Run();
         VerifySalesShipmentLines(SalesShipment.BlanksForIndent);
         if ActualReportLanguage <> ActualGlobalLanguage then
             GlobalLanguage(ActualGlobalLanguage);
@@ -151,7 +151,7 @@ codeunit 137307 "SCM Assembly Reports"
     begin
         ReservationEntry.Reset();
         NextEntryNo := 1;
-        if ReservationEntry.FindLast then
+        if ReservationEntry.FindLast() then
             NextEntryNo := ReservationEntry."Entry No." + 1;
         ReservationEntry.Init();
         ReservationEntry."Entry No." := NextEntryNo;
@@ -185,12 +185,12 @@ codeunit 137307 "SCM Assembly Reports"
     begin
         ItemTrackingCode.SetRange("SN Specific Tracking", true);
         ItemTrackingCode.SetRange("Lot Specific Tracking", false);
-        ItemTrackingCode.FindFirst;
+        ItemTrackingCode.FindFirst();
         SerialNoCode := ItemTrackingCode.Code;
 
         ItemTrackingCode.SetRange("SN Specific Tracking", false);
         ItemTrackingCode.SetRange("Lot Specific Tracking", true);
-        ItemTrackingCode.FindFirst;
+        ItemTrackingCode.FindFirst();
         LotNoCode := ItemTrackingCode.Code;
     end;
 
@@ -204,7 +204,7 @@ codeunit 137307 "SCM Assembly Reports"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesOrderNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Assert.IsTrue(SalesLine.AsmToOrderExists(AssemblyHeader), 'No assembly order found for the sales line');
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
@@ -225,7 +225,7 @@ codeunit 137307 "SCM Assembly Reports"
     begin
         NextEntry := 0;
         with ReservationEntry do begin
-            if FindLast then
+            if FindLast() then
                 NextEntry := "Entry No.";
             Init;
             NextEntry += 1;
@@ -281,10 +281,10 @@ codeunit 137307 "SCM Assembly Reports"
             CreateTestNoSeriesBackupData;
             BlueLocation := LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
             GetResource;
-            SellToCustomerNo := LibrarySales.CreateCustomerNo;
-            LibraryERMCountryData.CreateVATData;
-            LibraryERMCountryData.UpdateSalesReceivablesSetup;
-            LibraryERMCountryData.UpdateGeneralPostingSetup;
+            SellToCustomerNo := LibrarySales.CreateCustomerNo();
+            LibraryERMCountryData.CreateVATData();
+            LibraryERMCountryData.UpdateSalesReceivablesSetup();
+            LibraryERMCountryData.UpdateGeneralPostingSetup();
             SetupDataInitialized := true;
         end;
         CreateAssemblyItem;
@@ -487,7 +487,7 @@ codeunit 137307 "SCM Assembly Reports"
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         AssemblyTemplate := ItemJournalTemplate.Name;
         Clear(ItemJournalBatch);
         ItemJournalBatch."Journal Template Name" := AssemblyTemplate;
@@ -580,7 +580,7 @@ codeunit 137307 "SCM Assembly Reports"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         SalesShipmentHeader.SetCurrentKey("Order No.");
         SalesShipmentHeader.SetRange("Order No.", NonEmptySalesOrderNo);
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         SalesShipmentNo := SalesShipmentHeader."No.";
         exit(SalesShipmentNo);
     end;
@@ -597,11 +597,11 @@ codeunit 137307 "SCM Assembly Reports"
         ItemLedgerEntry.SetCurrentKey("Document No.", "Document Type", "Document Line No.");
         ItemLedgerEntry.SetRange("Document No.", SalesShipmentNo);
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Invoice");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         SalesInvoiceNo := ValueEntry."Document No.";
         exit(SalesInvoiceNo);
     end;
@@ -629,7 +629,7 @@ codeunit 137307 "SCM Assembly Reports"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", OrderNo);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        if not SalesLine.FindFirst then
+        if not SalesLine.FindFirst() then
             exit(0);
         exit(SalesLine."Line No.");
     end;

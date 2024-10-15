@@ -16,14 +16,20 @@ codeunit 3687 "Low-Level Code Calculator"
     end;
 
     procedure Calculate()
+    begin
+        Calculate(true);
+    end;
+
+    procedure Calculate(ShowConfirmation: Boolean)
     var
         BOMStructure: Codeunit "BOM Tree";
         ConfirmManagement: Codeunit "Confirm Management";
         Start: DateTime;
     begin
         // Ask for confirmation
-        if not ConfirmManagement.GetResponseOrDefault(ConfirmQst, true) then
-            exit;
+        if ShowConfirmation then
+            if not ConfirmManagement.GetResponseOrDefault(ConfirmQst, true) then
+                exit;
 
         Start := CurrentDateTime();
         // Take locks to prevent other sessions from updating entities while the calculation is going on
@@ -63,7 +69,7 @@ codeunit 3687 "Low-Level Code Calculator"
         if not ConfirmManagement.GetResponseOrDefault(BackgroundJobQst, false) then
             exit;
 
-        JobQueueEntry.ScheduleRecurrentJobQueueEntryWtihFrequency(JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"Low-Level Code Calculator", DummyRecordID, 1440); // once daily
+        JobQueueEntry.ScheduleRecurrentJobQueueEntryWithFrequency(JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"Low-Level Code Calculator", DummyRecordID, 1440); // once daily
     end;
 
     local procedure PopulateBOMTree(BOMStructure: Codeunit "BOM Tree")

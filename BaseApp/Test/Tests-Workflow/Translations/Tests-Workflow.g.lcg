@@ -1375,7 +1375,7 @@
   </Item>
   <Item ItemId=";Codeunit 3364249448 - NamedType 1139017764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Contoso]]></Val>
+      <Val><![CDATA[CONTOSO]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1409,6 +1409,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType RecordIsRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3364249448 - NamedType 3437842493" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[User %1 cannot act on this step. Make sure the user who created the webhook (%2) is the same who is trying to act.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1, %2 = two distinct NAV user IDs, for example "MEGANB" and "WILLIAMC"]D;]A;(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType UserCannotActErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3364249448 - NamedType 73593933" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[User %1 does not have the permission necessary to cancel the item.]]></Val>
@@ -1416,24 +1425,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = NAV USERID]D;]A;(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType UserCannotCancelErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3364249448 - NamedType 1136070352" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[User %1 does not have the permission necessary to continue the item.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = NAV USERID]D;]A;(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType UserCannotContinueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3364249448 - NamedType 312917678" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[User %1 does not have the permission necessary to reject the item.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = NAV USERID]D;]A;(LookupHint=Codeunit WFWH Purch. Document Approval - NamedType UserCannotRejectErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1004775658 - NamedType 1019354318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1447,7 +1438,7 @@
   </Item>
   <Item ItemId=";Codeunit 1004775658 - NamedType 1139017764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Contoso]]></Val>
+      <Val><![CDATA[CONTOSO]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1481,6 +1472,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Record Id]D;]A;(LookupHint=Codeunit WFWH Sales Document Approval - NamedType RecordIsRestrictedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1004775658 - NamedType 3437842493" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[User %1 cannot act on this step. Make sure the user who created the webhook (%2) is the same who is trying to act.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1, %2 = two distinct NAV user IDs, for example "MEGANB" and "WILLIAMC"]D;]A;(LookupHint=Codeunit WFWH Sales Document Approval - NamedType UserCannotActErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1004775658 - NamedType 73593933" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[User %1 does not have the permission necessary to cancel the item.]]></Val>
@@ -1490,31 +1490,22 @@
       <Cmt Name="Dev"><![CDATA[%1 = NAV USERID]D;]A;(LookupHint=Codeunit WFWH Sales Document Approval - NamedType UserCannotCancelErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1004775658 - NamedType 1136070352" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[User %1 does not have the permission necessary to continue the item.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = NAV USERID]D;]A;(LookupHint=Codeunit WFWH Sales Document Approval - NamedType UserCannotContinueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1004775658 - NamedType 312917678" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[User %1 does not have the permission necessary to reject the item.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = NAV USERID]D;]A;(LookupHint=Codeunit WFWH Sales Document Approval - NamedType UserCannotRejectErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 93122047 - NamedType 1139017764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Contoso]]></Val>
+      <Val><![CDATA[CONTOSO]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Vendor Approval - NamedType BogusUserIdTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 93122047 - NamedType 715301035" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The %1 you are trying to act on is not in a pending state.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = the table caption for "Workflow Webhook Entry"]D;]A;(LookupHint=Codeunit WFWH Vendor Approval - NamedType EntryIsNotPendingErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 93122047 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1524,6 +1515,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH Vendor Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 93122047 - NamedType 3982566232" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[User %1 does not have the permission necessary to act on the item. Make sure the user is set as approver or substitute in page Approval User Setup, or check the "Workflows" section of the documentation.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = a NAV user ID]D;]A;(LookupHint=Codeunit WFWH Vendor Approval - NamedType UserNotApproverErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4232719484 - NamedType 530146157" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

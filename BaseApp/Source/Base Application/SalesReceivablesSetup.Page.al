@@ -173,6 +173,12 @@
                     Importance = Additional;
                     ToolTip = 'Specifies if and when posted sales invoices and credit memos can be deleted. If you enter a date, posted sales documents with a posting date on or after this date cannot be deleted.';
                 }
+                field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
+                {
+                    ApplicationArea = Advanced;
+                    Importance = Additional;
+                    ToolTip = 'Specifies if multiple posting groups can be used for the same customer in sales documents.';
+                }
                 field("Ignore Updated Addresses"; "Ignore Updated Addresses")
                 {
                     ApplicationArea = Basic, Suite;
@@ -195,6 +201,7 @@
                     Importance = Additional;
                     ToolTip = 'Specifies that the description on document lines of type G/L Account will be carried to the resulting general ledger entries.';
                 }
+#if not CLEAN20
                 field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
                 {
                     ApplicationArea = Advanced;
@@ -202,11 +209,21 @@
                     Importance = Additional;
                     ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of sales invoices.';
                     Visible = false;
+                    ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
+#endif
                 field("Document Default Line Type"; "Document Default Line Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default value for the Type field on the first line in new sales documents. If needed, you can change the value on the line.';
+                }
+                field("Disable Search by Name"; "Disable Search by Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies that you can change the names of customers on open sales documents. The change applies only to the documents.';
                 }
             }
             group(Prices)
@@ -423,11 +440,17 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to archive sales quotes when they are deleted.';
                 }
+#if not CLEAN20
                 field("Batch Archiving Quotes"; "Batch Archiving Quotes")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if deleted sales quotes can be manually archived with the Archived Sales Quotes batch job.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The field is part of the removed functionality.';
+                    ObsoleteTag = '20.0';
                 }
+#endif
                 field("Archive Blanket Orders"; "Archive Blanket Orders")
                 {
                     ApplicationArea = Basic, Suite;
@@ -442,6 +465,62 @@
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies if you want to archive sales return orders when they are deleted.';
+                }
+            }
+            group("Journal Templates")
+            {
+                Caption = 'Journal Templates';
+                Visible = JnlTemplateNameVisible;
+
+                field("S. Invoice Template Name"; "S. Invoice Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the journal template to use for posting sales invoices.';
+                }
+                field("S. Cr. Memo Template Name"; "S. Cr. Memo Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the journal template to use for posting sales credit memos.';
+                }
+                field("S. Prep. Inv. Template Name"; "S. Prep. Inv. Template Name")
+                {
+                    ApplicationArea = Prepayments;
+                    ToolTip = 'Specifies which general journal template to use for sales invoices.';
+                }
+                field("S. Prep. Cr.Memo Template Name"; Rec."S. Prep. Cr.Memo Template Name")
+                {
+                    ApplicationArea = Prepayments;
+                    ToolTip = 'Specifies which general journal template to use for sales credit memos.';
+                }
+                field("IC Sales Invoice Template Name"; Rec."IC Sales Invoice Template Name")
+                {
+                    ApplicationArea = Intercompany;
+                    ToolTip = 'Specifies the intercompany journal template to use for sales invoices.';
+                }
+                field("IC Sales Cr. Memo Templ. Name"; Rec."IC Sales Cr. Memo Templ. Name")
+                {
+                    ApplicationArea = Intercompany;
+                    ToolTip = 'Specifies the intercompany journal template to use for sales credit memos.';
+                }
+                field("Fin. Charge Jnl. Template Name"; Rec."Fin. Charge Jnl. Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies which general journal template to use for finance charges.';
+                }
+                field("Fin. Charge Jnl. Batch Name"; Rec."Fin. Charge Jnl. Batch Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies which general journal batch to use for finance charges.';
+                }
+                field("Reminder Journal Template Name"; Rec."Reminder Journal Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies which general journal template to use for reminders.';
+                }
+                field("Reminder Journal Batch Name"; Rec."Reminder Journal Batch Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies which general journal batch to use for reminders.';
                 }
             }
             group("Dynamics 365 Sales")
@@ -592,6 +671,7 @@
 
     trigger OnOpenPage()
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
@@ -602,10 +682,13 @@
         end;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        GeneralLedgerSetup.Get();
+        JnlTemplateNameVisible := GeneralLedgerSetup."Journal Templ. Name Mandatory";
     end;
 
     var
         ExtendedPriceEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
+        JnlTemplateNameVisible: Boolean;
 }
 

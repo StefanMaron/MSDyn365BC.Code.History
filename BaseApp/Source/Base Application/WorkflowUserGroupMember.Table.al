@@ -28,7 +28,7 @@ table 1541 "Workflow User Group Member"
                     SequenceNo := 1;
                     WorkflowUserGroupMember.SetCurrentKey("Workflow User Group Code", "Sequence No.");
                     WorkflowUserGroupMember.SetRange("Workflow User Group Code", "Workflow User Group Code");
-                    if WorkflowUserGroupMember.FindLast then
+                    if WorkflowUserGroupMember.FindLast() then
                         SequenceNo := WorkflowUserGroupMember."Sequence No." + 1;
                     Validate("Sequence No.", SequenceNo);
                 end;

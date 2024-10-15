@@ -949,7 +949,7 @@ report 317 "Vendor Pre-Payment Journal"
                 GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
                 GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                 GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
-                if not GenJnlAlloc.FindFirst then
+                if not GenJnlAlloc.FindFirst() then
                     AddError(E061Err);
             end;
 
@@ -958,12 +958,12 @@ report 317 "Vendor Pre-Payment Journal"
             GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
             GenJnlAlloc.SetFilter(Amount, '<>0');
-            if GenJnlAlloc.FindFirst then
+            if GenJnlAlloc.FindFirst() then
                 if not GenJnlTemplate.Recurring then
                     AddError(E021Err)
                 else begin
                     GenJnlAlloc.SetRange("Account No.", '');
-                    if GenJnlAlloc.FindFirst then
+                    if GenJnlAlloc.FindFirst() then
                         AddError(
                           StrSubstNo(
                             E022Err,
@@ -1249,7 +1249,7 @@ report 317 "Vendor Pre-Payment Journal"
                         OldCustLedgEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
                         OldCustLedgEntry.SetRange("Document Type", "Document Type");
                         OldCustLedgEntry.SetRange("Document No.", "Document No.");
-                        if OldCustLedgEntry.FindFirst then
+                        if OldCustLedgEntry.FindFirst() then
                             AddError(
                               StrSubstNo(
                                 E039Err, "Document Type", "Document No."));
@@ -1267,7 +1267,7 @@ report 317 "Vendor Pre-Payment Journal"
                             OldCustLedgEntry.SetRange("Document Type", "Document Type");
                             OldCustLedgEntry.SetRange("Customer No.", "Account No.");
                             OldCustLedgEntry.SetRange("External Document No.", "External Document No.");
-                            if OldCustLedgEntry.FindFirst then
+                            if OldCustLedgEntry.FindFirst() then
                                 AddError(
                                   StrSubstNo(
                                     E039Err,
@@ -1344,7 +1344,7 @@ report 317 "Vendor Pre-Payment Journal"
                         OldVendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
                         OldVendLedgEntry.SetRange("Document Type", "Document Type");
                         OldVendLedgEntry.SetRange("Document No.", "Document No.");
-                        if OldVendLedgEntry.FindFirst then
+                        if OldVendLedgEntry.FindFirst() then
                             AddError(
                               StrSubstNo(
                                 E040Err,
@@ -1362,7 +1362,7 @@ report 317 "Vendor Pre-Payment Journal"
                             OldVendLedgEntry.SetCurrentKey("External Document No.", "Document Type", "Vendor No.");
                             VendorMgt.SetFilterForExternalDocNo(
                               OldVendLedgEntry, "Document Type", "External Document No.", "Account No.", "Document Date");
-                            if OldVendLedgEntry.FindFirst then
+                            if OldVendLedgEntry.FindFirst() then
                                 AddError(
                                   StrSubstNo(
                                     E040Err,
@@ -1759,7 +1759,7 @@ report 317 "Vendor Pre-Payment Journal"
                 TempGenJnlLine.SetRange("Bal. Account Type", AccType);
                 TempGenJnlLine.SetRange("Bal. Account No.", AccNo);
             end;
-            if TempGenJnlLine.FindFirst then begin
+            if TempGenJnlLine.FindFirst() then begin
                 ErrorFound := true;
                 AddError(
                   StrSubstNo(
@@ -1787,7 +1787,7 @@ report 317 "Vendor Pre-Payment Journal"
                     GenJnlLine4.SetRange("Posting Date", "Posting Date");
                     GenJnlLine4.SetRange("Document No.", "Document No.");
                     GenJnlLine4.SetFilter("IC Partner Code", '<>%1', '');
-                    if GenJnlLine4.FindFirst then
+                    if GenJnlLine4.FindFirst() then
                         CurrentICPartner := GenJnlLine4."IC Partner Code"
                     else
                         CurrentICPartner := '';
@@ -1866,7 +1866,7 @@ report 317 "Vendor Pre-Payment Journal"
             SetRange("Applies-to ID", "Gen. Journal Line"."Applies-to ID");
             SetRange(Positive, PositiveFilter);
             SetAutoCalcFields("Remaining Amount");
-            if FindSet then
+            if FindSet() then
                 repeat
                     TotalAmount += "Remaining Amount";
                 until Next() = 0;
@@ -1880,7 +1880,7 @@ report 317 "Vendor Pre-Payment Journal"
             SetRange("Applies-to ID", "Gen. Journal Line"."Applies-to ID");
             SetRange(Positive, PositiveFilter);
             SetAutoCalcFields("Remaining Amount");
-            if FindSet then
+            if FindSet() then
                 repeat
                     TotalAmount += "Remaining Amount";
                 until Next() = 0;
@@ -1943,7 +1943,7 @@ report 317 "Vendor Pre-Payment Journal"
             SetRange("Document Type", "Gen. Journal Line"."Applies-to Doc. Type");
             SetRange("Document No.", "Gen. Journal Line"."Applies-to Doc. No.");
             SetRange("Customer No.", "Gen. Journal Line"."Account No.");
-            if FindFirst then begin
+            if FindFirst() then begin
                 CalcFields("Remaining Amount");
                 "Gen. Journal Line"."Due Date" := "Due Date";
                 "Gen. Journal Line".Description := Description;
@@ -1976,7 +1976,7 @@ report 317 "Vendor Pre-Payment Journal"
             SetRange("Document Type", "Gen. Journal Line"."Applies-to Doc. Type");
             SetRange("Document No.", "Gen. Journal Line"."Applies-to Doc. No.");
             SetRange("Vendor No.", "Gen. Journal Line"."Account No.");
-            if FindFirst then begin
+            if FindFirst() then begin
                 CalcFields("Remaining Amount");
                 "Gen. Journal Line"."Due Date" := "Due Date";
                 "Gen. Journal Line".Description := Description;

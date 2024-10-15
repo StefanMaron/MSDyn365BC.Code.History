@@ -1,4 +1,4 @@
-﻿codeunit 103 "Cust. Entry-Edit"
+codeunit 103 "Cust. Entry-Edit"
 {
     Permissions = TableData "Cust. Ledger Entry" = m,
                   TableData "Detailed Cust. Ledg. Entry" = m;

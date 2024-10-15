@@ -40,7 +40,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO 144800] CRM Quote in FCY can be created in NAV
-        Initialize;
+        Initialize();
         ClearCRMData;
 
         // [GIVEN]  CRM Quote in 'X' currency
@@ -64,7 +64,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO 144800] CRM Quote in FCY cannot be created in NAV if Currency not exists
-        Initialize;
+        Initialize();
         ClearCRMData;
 
         // [GIVEN]  CRM Quote in 'X' currency, Currency not exists in NAV
@@ -89,7 +89,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO 144800] CRM Sales Quote in LCY can be created in NAV
-        Initialize;
+        Initialize();
         ClearCRMData;
 
         // [GIVEN] CRM Quote in local currency
@@ -117,7 +117,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         // [FEATURE] [Freight]
         // [SCENARIO 172256] Error expected when create NAV Sales Quote from CRM Sales Quote with freight amount, if "Sales & Receivables Setup"."G/L Freight Account No." is empty
-        Initialize;
+        Initialize();
         ClearCRMData;
 
         // [GIVEN] "G/L Freight Account No." is empty in Sales & Receivables Setup
@@ -154,7 +154,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CRMQuotedetail: Record "CRM Quotedetail";
     begin
         // [SCENARIO 211596] Creating Sales Quote from CRM Sales Quote when SalesSetup."Write-in Product No." is not defined leads to error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Write-in Product No. is not defined
         LibraryCRMIntegration.SetSalesSetupWriteInProduct(SalesSetup."Write-in Product Type"::Item, '');
@@ -186,7 +186,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         Item: Record Item;
     begin
         // [SCENARIO 211596] Create Sales Quote from CRM Sales Quote with write-in product defined as item
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup write-in product as Item 'ITEM'
         LibraryCRMIntegration.PrepareWriteInProductItem(Item);
@@ -202,7 +202,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("No.", Item."No.");
     end;
 
@@ -217,7 +217,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         Resource: Record Resource;
     begin
         // [SCENARIO 211596] Create Sales Quote from CRM Sales Quote with write-in product defined as resource
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup write-in product as Resource 'RES'
         LibraryCRMIntegration.PrepareWriteInProductResource(Resource);
@@ -233,7 +233,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange(Type, SalesLine.Type::Resource);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("No.", Resource."No.");
     end;
 
@@ -246,7 +246,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesHeader: Record "Sales Header";
     begin
         // [SCENARIO 211535] Long CRM Product (item) description causes creating additional sales lines with Description field containing trancated product description part
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Quote in local currency with item
         CreateCRMQuoteInLCY(CRMQuote);
@@ -271,7 +271,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesHeader: Record "Sales Header";
     begin
         // [SCENARIO 211535] Long CRM Product (resource) description causes creating additional sales lines with Description field containing trancated product description part
-        Initialize;
+        Initialize();
         ClearCRMData;
 
         // [GIVEN] CRM Quote in local currency with resource
@@ -298,7 +298,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         Item: Record Item;
     begin
         // [SCENARIO 211535] Long write-in product description causes creating additional sales lines with Description field containing trancated product description part
-        Initialize;
+        Initialize();
 
         // [GIVEN] Setup write-in product as Item 'ITEM'
         LibraryCRMIntegration.PrepareWriteInProductItem(Item);
@@ -329,7 +329,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         Description: Text;
     begin
         // CRM Sales Quote Line Description (and not CRM Product Description) is used as Business Central Sales Quote line description
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Quote in local currency with item
         CreateCRMQuoteInLCY(CRMQuote);
@@ -363,7 +363,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         AnnotationText: Text;
     begin
         // CRM Sales Quote note is used as Business Central Sales Quote note
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Quote in local currency with item
         CreateCRMQuoteInLCY(CRMQuote);
@@ -389,7 +389,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CRMQuotedetail: Record "CRM Quotedetail";
     begin
         // [SCENARIO 211593] Job queue entry "Process submitted Sales Quotes" makes NAV Sales Quote from Submitted CRM Sales Quote
-        Initialize;
+        Initialize();
         ClearCRMData;
 
         // [GIVEN] CRM Quote in local currency with item
@@ -413,7 +413,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CRMQuotedetail: array[2] of Record "CRM Quotedetail";
     begin
         // [SCENARIO 211593] Job queue entry "Process submitted Sales Quotes" should not stop processing quotes after first fail
-        Initialize;
+        Initialize();
         ClearCRMData;
 
         // [GIVEN] CRM Quote 1 for customer 1 in local currency with item
@@ -449,7 +449,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         // [FEATURE] [External Document No.]
         // [SCENARIO 230310] CRM Sales Quote Name field value is copied to Sales Header External Document No field
-        Initialize;
+        Initialize();
 
         // [GIVEN] CRM Quote in local currency with item
         CreateCRMQuoteInLCY(CRMQuote);
@@ -484,7 +484,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         BlankGUID: Guid;
     begin
         // [SCENARIO] When releasing a CRM quote that gets created in Business Central, when the CRM Quote is "Won", the Sales Quote is deleted, a sales quote archieve is created
-        Initialize;
+        Initialize();
         ClearCRMData;
         ClearSalesTables;
 
@@ -525,7 +525,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         BlankGUID: Guid;
     begin
         // [SCENARIO] When releasing a CRM quote and the CRM Quote is "Won" before the Sales Quote has been created, a sales quote archieve is created
-        Initialize;
+        Initialize();
         ClearCRMData;
         ClearSalesTables;
 
@@ -563,7 +563,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         BlankGUID: Guid;
     begin
         // [SCENARIO] When releasing a CRM quote that gets created in Business Central, when the CRM Quote is "Won", the Sales Quote is deleted, a sales quote archieve is created
-        Initialize;
+        Initialize();
         ClearCRMData;
         ClearSalesTables;
 
@@ -608,22 +608,21 @@ codeunit 139172 "CRM Quotes Integr.Test"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         // Lazy Setup.
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 
         LibraryPatterns.SETNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
         CRMConnectionSetup.Get();
         CRMConnectionSetup."Is S.Order Integration Enabled" := true;
         CRMConnectionSetup."Is Enabled" := true;
-        CRMConnectionSetup."Is Enabled For User" := true;
         CRMConnectionSetup.Modify();
         isInitialized := true;
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
@@ -744,7 +743,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         "Code": Code[10];
     begin
         Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandIntInRange(10, 20), 1));
-        Code := LibraryUtility.GenerateGUID;
+        Code := LibraryUtility.GenerateGUID();
         Currency.Rename('.' + CopyStr(Code, StrLen(Code) - 3));
         exit(Currency.Code);
     end;

@@ -314,7 +314,7 @@ page 5339 "Integration Synch. Error List"
         ReferenceRecordRef: RecordRef;
     begin
         TableMetadata.SetRange(ID, RecID.TableNo);
-        if TableMetadata.FindFirst then begin
+        if TableMetadata.FindFirst() then begin
             if TableMetadata.TableType = TableMetadata.TableType::MicrosoftGraph then
                 exit('');
             if (TableMetadata.TableType = TableMetadata.TableType::CRM) and not CRMConnectionSetup.IsEnabled then

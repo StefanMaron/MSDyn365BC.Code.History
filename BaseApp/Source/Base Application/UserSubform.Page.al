@@ -23,11 +23,11 @@ page 9801 "User Subform"
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         PermissionSetLookupRecord: Record "Aggregate Permission Set";
-                        PermissionSetLookup: Page "Permission Set Lookup";
+                        LookupPermissionSet: Page "Lookup Permission Set";
                     begin
-                        PermissionSetLookup.LookupMode := true;
-                        if PermissionSetLookup.RunModal = ACTION::LookupOK then begin
-                            PermissionSetLookup.GetRecord(PermissionSetLookupRecord);
+                        LookupPermissionSet.LookupMode := true;
+                        if LookupPermissionSet.RunModal = ACTION::LookupOK then begin
+                            LookupPermissionSet.GetRecord(PermissionSetLookupRecord);
                             Scope := PermissionSetLookupRecord.Scope;
                             "App ID" := PermissionSetLookupRecord."App ID";
                             "Role ID" := PermissionSetLookupRecord."Role ID";
@@ -49,7 +49,7 @@ page 9801 "User Subform"
 
                         // Get the Scope and App ID for a matching Role ID
                         AggregatePermissionSet.SetRange("Role ID", "Role ID");
-                        AggregatePermissionSet.FindFirst;
+                        AggregatePermissionSet.FindFirst();
 
                         if AggregatePermissionSet.Count > 1 then
                             Error(MultipleRoleIDErr, "Role ID");
@@ -153,7 +153,7 @@ page 9801 "User Subform"
         UserGroupAccessControl.SetRange("User Security ID", "User Security ID");
         UserGroupAccessControl.SetRange("Role ID", "Role ID");
         UserGroupAccessControl.SetRange("Company Name", "Company Name");
-        if UserGroupAccessControl.FindFirst then
+        if UserGroupAccessControl.FindFirst() then
             Error(InUserGroupErr, UserGroupAccessControl."User Group Code");
     end;
 

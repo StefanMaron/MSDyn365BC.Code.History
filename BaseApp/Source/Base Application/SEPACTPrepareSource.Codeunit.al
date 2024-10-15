@@ -14,7 +14,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        if FromGenJnlLine.FindSet then begin
+        if FromGenJnlLine.FindSet() then begin
             GenJnlBatch.Get(FromGenJnlLine."Journal Template Name", FromGenJnlLine."Journal Batch Name");
 
             repeat
@@ -41,7 +41,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
         RefPmtExp.SetRange("Applied Payments", false);
         RefPmtExp.SetRange("SEPA Payment", true);
 
-        if RefPmtExp.FindSet then
+        if RefPmtExp.FindSet() then
             repeat
                 with TempGenJnlLine do begin
                     Init;

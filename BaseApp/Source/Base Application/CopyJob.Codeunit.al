@@ -17,7 +17,21 @@ codeunit 1006 "Copy Job"
         JobTaskDateRangeFrom: Date;
         JobTaskDateRangeTo: Date;
 
+#if not CLEAN20
+    [Obsolete('Pending removal, use CopyJob with TargetJobSellToCustomer as a argument instead.', '20.0')]
     procedure CopyJob(SourceJob: Record Job; TargetJobNo: Code[20]; TargetJobDescription: Text[100]; TargetJobBillToCustomer: Code[20])
+    begin
+        CopyJob(SourceJob, TargetJobNo, TargetJobDescription, '', TargetJobBillToCustomer);
+    end;
+#endif
+
+    procedure CopyJob(
+        SourceJob: Record Job;
+        TargetJobNo: Code[20];
+        TargetJobDescription: Text[100];
+        TargetJobSellToCustomer: Code[20];
+        TargetJobBillToCustomer: Code[20]
+    )
     var
         TargetJob: Record Job;
     begin
@@ -26,6 +40,8 @@ codeunit 1006 "Copy Job"
         TargetJob.Insert(true);
         if TargetJobDescription <> '' then
             TargetJob.Validate(Description, TargetJobDescription);
+        if TargetJobSellToCustomer <> '' then
+            TargetJob.Validate("Sell-to Customer No.", TargetJobSellToCustomer);
         if TargetJobBillToCustomer <> '' then
             TargetJob.Validate("Bill-to Customer No.", TargetJobBillToCustomer);
         TargetJob.Validate(Status, TargetJob.Status::Planning);
@@ -56,7 +72,7 @@ codeunit 1006 "Copy Job"
         end;
         OnCopyJobTasksOnAfterSourceJobTaskSetFilters(SourceJobTask, SourceJob);
 
-        if SourceJobTask.FindSet then
+        if SourceJobTask.FindSet() then
             repeat
                 TargetJobTask.Init();
                 TargetJobTask.Validate("Job No.", TargetJob."No.");
@@ -110,11 +126,11 @@ codeunit 1006 "Copy Job"
                 SourceJobPlanningLine.SetRange("Line Type", SourceJobPlanningLine."Line Type"::Billable);
         end;
         SourceJobPlanningLine.SetFilter("Planning Date", SourceJobTask.GetFilter("Planning Date Filter"));
-        if not SourceJobPlanningLine.FindLast then
+        if not SourceJobPlanningLine.FindLast() then
             exit;
         SourceJobPlanningLine.SetRange("Line No.", 0, SourceJobPlanningLine."Line No.");
         OnCopyJobPlanningLinesOnAfterSourceJobPlanningLineSetFilters(SourceJobPlanningLine);
-        if SourceJobPlanningLine.FindSet then
+        if SourceJobPlanningLine.FindSet() then
             repeat
                 with TargetJobPlanningLine do begin
                     Init;
@@ -167,7 +183,7 @@ codeunit 1006 "Copy Job"
         SourceJob.Get(SourceJobTask."Job No.");
         TargetJobPlanningLine.SetRange("Job No.", TargetJobTask."Job No.");
         TargetJobPlanningLine.SetRange("Job Task No.", TargetJobTask."Job Task No.");
-        if TargetJobPlanningLine.FindLast then
+        if TargetJobPlanningLine.FindLast() then
             NextPlanningLineNo := TargetJobPlanningLine."Line No." + 10000
         else
             NextPlanningLineNo := 10000;
@@ -181,7 +197,7 @@ codeunit 1006 "Copy Job"
                 JobLedgEntry.SetRange("Entry Type", JobLedgEntry."Entry Type"::Sale);
         end;
         JobLedgEntry.SetFilter("Posting Date", SourceJobTask.GetFilter("Planning Date Filter"));
-        if JobLedgEntry.FindSet then
+        if JobLedgEntry.FindSet() then
             repeat
                 TargetJobPlanningLine.Init();
                 JobTransferLine.FromJobLedgEntryToPlanningLine(JobLedgEntry, TargetJobPlanningLine);
@@ -213,14 +229,14 @@ codeunit 1006 "Copy Job"
     begin
         DefaultDimension.SetRange("Table ID", DATABASE::Job);
         DefaultDimension.SetRange("No.", TargetJob."No.");
-        if DefaultDimension.FindSet then
+        if DefaultDimension.FindSet() then
             repeat
                 DimMgt.DefaultDimOnDelete(DefaultDimension);
                 DefaultDimension.Delete();
             until DefaultDimension.Next() = 0;
 
         DefaultDimension.SetRange("No.", SourceJob."No.");
-        if DefaultDimension.FindSet then
+        if DefaultDimension.FindSet() then
             repeat
                 with NewDefaultDimension do begin
                     Init;
@@ -339,7 +355,7 @@ codeunit 1006 "Copy Job"
     begin
         JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
-        if JobPlanningLine.FindLast then
+        if JobPlanningLine.FindLast() then
             exit(JobPlanningLine."Line No.");
         exit(0);
     end;

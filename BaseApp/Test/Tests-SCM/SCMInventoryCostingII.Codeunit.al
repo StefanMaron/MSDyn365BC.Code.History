@@ -827,7 +827,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseLine2.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine2.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine2.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
-        PurchaseLine2.FindFirst;
+        PurchaseLine2.FindFirst();
 
         // Set the "Qty. to Invoice" of Charge Item Line to 0 and Post the document
         // After the post, "Qty. to Invoice" of Charge Item Line will be set to "Qty. Rcd. Not Invoiced" automatically
@@ -896,7 +896,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Get the item charge line
         SalesLine2.SetRange("Document No.", SalesHeader."No.");
         SalesLine2.SetRange(Type, SalesLine.Type::"Charge (Item)");
-        SalesLine2.FindFirst;
+        SalesLine2.FindFirst();
 
         // Set the "Qty. to Invoice" of Charge Item Line to 0 and Post the document
         // After the post, "Qty. to Invoice" of Charge Item Line will be set to "Qty. Rcd. Not Invoiced" automatically
@@ -1487,8 +1487,8 @@ codeunit 137287 "SCM Inventory Costing II"
         // [SCENARIO 122874] Check correct filtering of Item Ledger Entry by dimensions
         Initialize();
 
-        DimValue1 := LibraryUtility.GenerateGUID;
-        DimValue2 := LibraryUtility.GenerateGUID;
+        DimValue1 := LibraryUtility.GenerateGUID();
+        DimValue2 := LibraryUtility.GenerateGUID();
         Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
         // [GIVEN] Item Ledger Entries: "Cost Amount (Non-Invtbl.)" = 10; Dims = "TOYOTA"
         ExpectedResult := MockItemLedgerEntryWithDim(Customer."No.", DimValue1, DimValue2);
@@ -1627,7 +1627,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // [THEN] Inventory Value (Revalued) in Revaluation Journal is equal to "Q" * ("Y" rounded to "P" digits) (i.e. 196 * 15.127 = 2964.89).
         with ItemJournalLine do begin
             SetRange("Item No.", Item."No.");
-            FindFirst;
+            FindFirst();
             TestField(
               "Inventory Value (Revalued)",
               Round(Round(NewStandardCost, GLSetup."Unit-Amount Rounding Precision") * Quantity, GLSetup."Amount Rounding Precision"));
@@ -1657,7 +1657,7 @@ codeunit 137287 "SCM Inventory Costing II"
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1 / 6.67, 1 / 6.67);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemCharge(ItemCharge);
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Create and post two purchase lines with Item = "I", Quantity = 1.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
@@ -1715,7 +1715,7 @@ codeunit 137287 "SCM Inventory Costing II"
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1 / 6.67, 1 / 6.67);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemCharge(ItemCharge);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Create and post two sales lines with Item = "I", Quantity = 1.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
@@ -2140,7 +2140,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         // [WHEN] Copy posted sales invoice line to newly created Sales Credit Memo.
         CopySalesDocument.SetSalesHeader(SalesHeader2);
-        CopySalesDocument.RunModal;
+        CopySalesDocument.RunModal();
         SalesHeader2.Get(SalesHeader2."Document Type", SalesHeader2."No.");
         SalesHeader2.Validate("Reason Code", ReasonCode.Code);
 
@@ -2175,7 +2175,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         // [GIVEN] Copy posted purchase invoice line to newly created Purchase Credit Memo.
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-        CopyPurchaseDocument.RunModal;
+        CopyPurchaseDocument.RunModal();
 
         LibraryERM.CreateReasonCode(ReasonCode);
         with PurchaseHeader do begin
@@ -2609,7 +2609,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::"Charge (Item)");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure CalcInvoiceDiscountAndFindSalesLine(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
@@ -2618,7 +2618,7 @@ codeunit 137287 "SCM Inventory Costing II"
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure DuplicateRevaluationJournalConfirmMessage(LineCount: Integer)
@@ -2641,28 +2641,28 @@ codeunit 137287 "SCM Inventory Costing II"
     begin
         PurchRcptLine.SetRange("Order No.", OrderNo);
         PurchRcptLine.SetRange("No.", ItemNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; OrderNo: Code[20]; No: Code[20])
     begin
         SalesShipmentLine.SetRange("Order No.", OrderNo);
         SalesShipmentLine.SetRange("No.", No);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure FindReturnReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; ReturnOrderNo: Code[20]; No: Code[20])
     begin
         ReturnReceiptLine.SetRange("Return Order No.", ReturnOrderNo);
         ReturnReceiptLine.SetRange("No.", No);
-        ReturnReceiptLine.FindFirst;
+        ReturnReceiptLine.FindFirst();
     end;
 
     local procedure FindReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; ReturnOrderNo: Code[20]; ItemNo: Code[20])
     begin
         ReturnShipmentLine.SetRange("Return Order No.", ReturnOrderNo);
         ReturnShipmentLine.SetRange("No.", ItemNo);
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
     end;
 
     local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20]; ItemChargeNo: Code[20]; ValuedQuantity: Decimal)
@@ -2670,7 +2670,7 @@ codeunit 137287 "SCM Inventory Costing II"
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Item Charge No.", ItemChargeNo);
         ValueEntry.SetRange("Valued Quantity", ValuedQuantity);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
     end;
 
     local procedure FindVATProdPostingGroup(VATBusPostingGroup: Code[20]): Code[20]
@@ -2680,7 +2680,7 @@ codeunit 137287 "SCM Inventory Costing II"
         VATPostingSetup.SetFilter(
           "VAT Calculation Type", '<>%1', VATPostingSetup."VAT Calculation Type"::"Full VAT");
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
@@ -2782,7 +2782,7 @@ codeunit 137287 "SCM Inventory Costing II"
     var
         VendorNo: Code[10];
     begin
-        VendorNo := LibraryUtility.GenerateGUID;
+        VendorNo := LibraryUtility.GenerateGUID();
         PurchaseHeader.Validate("Vendor Invoice No.", VendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", VendorNo);
         PurchaseHeader.Modify(true);
@@ -2900,7 +2900,7 @@ codeunit 137287 "SCM Inventory Costing II"
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
         ItemChargeAssignmentPurch.SetRange("Item No.", ItemNo);
-        ItemChargeAssignmentPurch.FindFirst;
+        ItemChargeAssignmentPurch.FindFirst();
         ItemChargeAssignmentPurch.TestField("Amount to Assign", AmountToAssign);
         ItemChargeAssignmentPurch.TestField("Qty. to Assign", 1);  // Using 1 because only one Quantity of Charge Item is assigned.
     end;
@@ -2913,7 +2913,7 @@ codeunit 137287 "SCM Inventory Costing II"
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(ProfitLCY, CustLedgerEntry."Profit (LCY)", GeneralLedgerSetup."Inv. Rounding Precision (LCY)", UnexpMsg);
     end;

@@ -95,7 +95,7 @@ page 228 "Res. Gr. Allocated per Job"
                     JobRec.SetRange("Resource Gr. Filter", ResourceGrFilter);
                     OnActionShowMatrixOnAfterSetJobFilters(JobRec);
                     ResGrpPerJobFormWithMatrix.Load(JobRec, JobPlanningLine, MatrixColumnCaptions, MatrixRecords);
-                    ResGrpPerJobFormWithMatrix.RunModal;
+                    ResGrpPerJobFormWithMatrix.RunModal();
                 end;
             }
             action("Previous Set")

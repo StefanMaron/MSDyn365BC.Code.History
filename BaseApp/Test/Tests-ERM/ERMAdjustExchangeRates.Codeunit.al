@@ -1,4 +1,5 @@
-﻿codeunit 134083 "ERM Adjust Exchange Rates"
+﻿#if not CLEAN20
+codeunit 134083 "ERM Adjust Exchange Rates"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -35,7 +36,7 @@
 
         // 1. Setup: Create a new Currency with Exchange Rate, create another Exchange Rate for the Currency having greater
         // Relational Exch Rate Amount.
-        Initialize;
+        Initialize();
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
         LibraryERM.SetAddReportingCurrency(CurrencyExchangeRate."Currency Code");
 
@@ -70,7 +71,7 @@
         // Test Start Date Field is Used for  Additional Reporting Currency Adjustment.
 
         // 1. Setup: Create a new Currency with Exchange Rate.
-        Initialize;
+        Initialize();
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
 
         // Setup: Configure Additional Currency.
@@ -111,7 +112,7 @@
         // Check that there is no error exist on currencies page when exchange rate is defined with starting date only.
 
         // Setup:Create currency and create Exchange Rate with starting date only.
-        Initialize;
+        Initialize();
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
 
@@ -183,10 +184,12 @@
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if IsInitialized then
             exit;
+
+        LibraryERM.SetJournalTemplNameMandatory(false);
         IsInitialized := true;
         Commit();
 
@@ -300,7 +303,7 @@
         GLAccount.CalcFields("Add.-Currency Balance at Date");
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(
           Amount,
           GLAccount."Add.-Currency Balance at Date" * (CurrencyExchangeRate."Relational Exch. Rate Amount" / 2) /
@@ -313,7 +316,7 @@
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, 0);  // Entry will be created with zero amount.
         GLEntry.TestField("System-Created Entry", true);
     end;
@@ -334,4 +337,4 @@
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
 }
-
+#endif

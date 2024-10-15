@@ -421,7 +421,7 @@
   </Item>
   <Item ItemId=";Codeunit 2061240834 - NamedType 3908646503" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The setup of allowed posting dates is incorrect.The date in the Allow Posting From field must not be after the date in the Allow Posting To field.]]></Val>
+      <Val><![CDATA[The setup of allowed posting dates is incorrect. The date in the Allow Posting From field must not be after the date in the Allow Posting To field.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

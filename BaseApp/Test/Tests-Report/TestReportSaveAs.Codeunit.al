@@ -112,7 +112,7 @@ codeunit 134607 "Test Report SaveAs"
     var
         ReportInbox: Record "Report Inbox";
     begin
-        ReportInbox.FindLast;
+        ReportInbox.FindLast();
         Assert.AreEqual(JobQueueEntry.Description, ReportInbox.Description, '');
         ReportInbox.CalcFields("Report Output");
         Assert.IsTrue(ReportInbox."Report Output".HasValue, '');

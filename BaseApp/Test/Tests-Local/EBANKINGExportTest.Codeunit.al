@@ -25,7 +25,7 @@ codeunit 144009 "E-BANKING Export Test"
         Vendor: Record Vendor;
         ServerFileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDomesticVendorWithBankSetup(Vendor, 'Domestic Vendor name longer than 30', 'Bank1', '229018-72095');
@@ -45,7 +45,7 @@ codeunit 144009 "E-BANKING Export Test"
         Vendor: Record Vendor;
         ServerFileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateDomesticVendorWithBankSetup(Vendor, 'Domestic Vendor less than 30', 'Bank2', '229018-02332');
@@ -66,7 +66,7 @@ codeunit 144009 "E-BANKING Export Test"
         Vendor: Record Vendor;
         ServerFileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateForeignVendorWithBankSetup(Vendor, 'Vendor with Name longer than 35 characters', 'Bank3', '229018-72091');
@@ -87,7 +87,7 @@ codeunit 144009 "E-BANKING Export Test"
         Vendor: Record Vendor;
         ServerFileName: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateForeignVendorWithBankSetup(Vendor, 'Foreign Vendor name less than 35', 'Bank3', '229018-72091');
@@ -128,7 +128,7 @@ codeunit 144009 "E-BANKING Export Test"
         SuggestBankPayments.SetTableView(Vendor);
         SuggestBankPayments.InitializeRequest(CalcDate('<1M>', WorkDate), false, 0);
         SuggestBankPayments.UseRequestPage := false;
-        SuggestBankPayments.RunModal;
+        SuggestBankPayments.RunModal();
 
         RefPaymentExported.SetRange("Vendor No.", Vendor."No.");
         RefPaymentExported.ModifyAll("Payment Account", DomesticBankAccount."No.");
@@ -137,7 +137,7 @@ codeunit 144009 "E-BANKING Export Test"
         ExportRefPaymentLMP.InitializeRequest(true);
         ExportRefPaymentLMP.SetTableView(DomesticBankAccount);
         ExportRefPaymentLMP.UseRequestPage := false;
-        ExportRefPaymentLMP.RunModal;
+        ExportRefPaymentLMP.RunModal();
         exit(ExportRefPaymentLMP.GetFileName);
     end;
 
@@ -153,7 +153,7 @@ codeunit 144009 "E-BANKING Export Test"
         SuggestBankPayments.SetTableView(Vendor);
         SuggestBankPayments.InitializeRequest(CalcDate('<1M>', WorkDate), false, 0);
         SuggestBankPayments.UseRequestPage := false;
-        SuggestBankPayments.RunModal;
+        SuggestBankPayments.RunModal();
 
         RefPaymentExported.SetRange("Vendor No.", Vendor."No.");
         RefPaymentExported.ModifyAll("Payment Account", ForeignBankAccount."No.");
@@ -164,7 +164,7 @@ codeunit 144009 "E-BANKING Export Test"
         ExportRefPaymentLUM.InitializeRequest(true);
         ExportRefPaymentLUM.SetTableView(ForeignBankAccount);
         ExportRefPaymentLUM.UseRequestPage := false;
-        ExportRefPaymentLUM.RunModal;
+        ExportRefPaymentLUM.RunModal();
         exit(ExportRefPaymentLUM.GetFileName);
     end;
 

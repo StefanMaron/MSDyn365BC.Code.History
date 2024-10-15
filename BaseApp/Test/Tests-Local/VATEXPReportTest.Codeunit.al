@@ -32,7 +32,7 @@ codeunit 144017 "VATEXP Report Test"
         EnableVatProdPostGroup: Boolean;
     begin
         // This report (1306) can only show VAT information on saleslines (PROD).
-        Initialize;
+        Initialize();
         EnableVatBusPostGroup := false;
         EnableVatProdPostGroup := false;
         TestSalesInvoiceReport(EnableVatBusPostGroup, EnableVatProdPostGroup);
@@ -47,7 +47,7 @@ codeunit 144017 "VATEXP Report Test"
         EnableVatProdPostGroup: Boolean;
     begin
         // This report (1306) can only show VAT information on saleslines (PROD).
-        Initialize;
+        Initialize();
         EnableVatBusPostGroup := true;
         EnableVatProdPostGroup := false;
         TestSalesInvoiceReport(EnableVatBusPostGroup, EnableVatProdPostGroup);
@@ -62,7 +62,7 @@ codeunit 144017 "VATEXP Report Test"
         EnableVatProdPostGroup: Boolean;
     begin
         // This report (1306) can only show VAT information on saleslines (PROD).
-        Initialize;
+        Initialize();
         EnableVatBusPostGroup := false;
         EnableVatProdPostGroup := true;
         TestSalesInvoiceReport(EnableVatBusPostGroup, EnableVatProdPostGroup);
@@ -77,7 +77,7 @@ codeunit 144017 "VATEXP Report Test"
         EnableVatProdPostGroup: Boolean;
     begin
         // This report (1306) can only show VAT information on saleslines (PROD).
-        Initialize;
+        Initialize();
         EnableVatBusPostGroup := true;
         EnableVatProdPostGroup := true;
         TestSalesInvoiceReport(EnableVatBusPostGroup, EnableVatProdPostGroup);
@@ -101,7 +101,7 @@ codeunit 144017 "VATEXP Report Test"
         VATPrintedOnInvoiceFieldExists: Boolean;
     begin
         LibraryReportDataset.Reset();
-        VATBusinessPostingGroup.FindFirst;
+        VATBusinessPostingGroup.FindFirst();
         VATPrintedOnInvoiceFieldExists := false;
 
         while LibraryReportDataset.GetNextRow do
@@ -120,7 +120,7 @@ codeunit 144017 "VATEXP Report Test"
         VATPrintedOnInvoiceFieldExists: Boolean;
     begin
         LibraryReportDataset.Reset();
-        VATProductPostingGroup.FindFirst;
+        VATProductPostingGroup.FindFirst();
         VATPrintedOnInvoiceFieldExists := false;
 
         while LibraryReportDataset.GetNextRow do
@@ -151,7 +151,7 @@ codeunit 144017 "VATEXP Report Test"
         SalesInvoiceHeader.SetRange("No.", SalesInvoiceHeader."No.");
         StandardSalesInvoice.SetTableView(SalesInvoiceHeader);
         StandardSalesInvoice.UseRequestPage(true);
-        StandardSalesInvoice.Run;
+        StandardSalesInvoice.Run();
 
         // Validate
         VerifyReportDatasetHasData;

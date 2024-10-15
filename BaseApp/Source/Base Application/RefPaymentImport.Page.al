@@ -104,7 +104,7 @@ page 32000001 "Ref. Payment - Import"
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }

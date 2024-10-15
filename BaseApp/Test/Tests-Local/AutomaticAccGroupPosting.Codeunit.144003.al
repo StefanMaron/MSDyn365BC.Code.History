@@ -39,7 +39,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
     procedure CopyDimensionsFromGeneralJournal()
     begin
         // Check that dimensions are inherited from Gen. Journal Line to G/L Entry during posting when Dimension Set ID on Automatic Accounting Line is Empty
-        Initialize;
+        Initialize();
         CopyDimensionsFromAccGroupOrGenJournal(CopyFromOption::GenJournal);
     end;
 
@@ -49,7 +49,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
     begin
         // Check that dimensions are inherited from both Automatic Account Group and General Journal Line to G/L Entry during posting when
         // Dimension Set ID on both General Journal Line and Automatic Accounting Line is not Empty, and the Dimensions from Automatic Account Group have higher priority
-        Initialize;
+        Initialize();
         CopyDimensionsFromAccGroupOrGenJournal(CopyFromOption::AccGroupAndGenJnl);
     end;
 
@@ -85,7 +85,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
     procedure AccGroupPostingWithACY()
     begin
         // Check that G/L Entries of automatic acc. group posted with correct additional currency amount
-        Initialize;
+        Initialize();
         VerifyAccGroupPostingWithACY;
     end;
 
@@ -108,7 +108,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         // [GIVEN] "Automatic Acc. Line" - "AAL1", AAL1."Allocation %" = "PCT1%+PCT2%"
         // [GIVEN] "Automatic Acc. Line" - "AAL2", AAL2."Allocation %" = "PCT1%", AAL2."Shortcut Dimension 1 Code" = DimValue1
         // [GIVEN] "Automatic Acc. Line" - "AAL3", AAL3."Allocation %" = "PCT2%", AAL3."Shortcut Dimension 2 Code" = DimValue2
-        Initialize;
+        Initialize();
         AutoAccGroupNo := CreateAutoAccGroupWithTwoLines(GLAccountNo, DimValue1Code, DimValue2Code,
             AllocationPct1, AllocationPct2);
         // [GIVEN] "General Journal Line" - "GJL", GJL."Auto Acc. Group" = AAG, GJL."Amount" = "A"
@@ -136,7 +136,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         // [GIVEN] Automatic Acc. Group "AAG" with two lines:
         // [GIVEN]  Line1: "G/L Account No." = "ACC1", "Allocation %" = 30
         // [GIVEN]  Line2: "G/L Account No." = "ACC2", "Allocation %" = -30
-        Initialize;
+        Initialize();
         AutoAccGroupNo := CreateAutomaticAccHeader(AutomaticAccHeader);
         CreateBalancedAutoAccLines(AutomaticAccLine, AutoAccGroupNo, LibraryRandom.RandDec(100, 2), 0, '', '');
 
@@ -149,7 +149,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         // [THEN] Two G/L Entries are created by Automatic Acc. Posting:
         // [THEN] GLEntry1: "G/L Account No." = "ACC1", "Amount" = 30 (100 * 30%)
         AutomaticAccLine.SetRange("Automatic Acc. No.", AutoAccGroupNo);
-        AutomaticAccLine.FindFirst;
+        AutomaticAccLine.FindFirst();
         VerifyGLEntryAmount(
           GenJournalLine."Document No.", AutomaticAccLine."G/L Account No.",
           Round(-GenJournalLine."Amount (LCY)" * AutomaticAccLine."Allocation %" / 100));
@@ -174,8 +174,8 @@ codeunit 144003 "Automatic Acc. Group Posting"
         // [SCENARIO 380812] Post Gen. Journal Line with specified Automatic Account Group and Deferral Code
 
         // [GIVEN] Automatic Account Group "AAG" with 2 lines where "Account No." = "GL-AG" and balancing line with blank Account No.
-        Initialize;
-        AutoGroupGLAccountNo := LibraryERM.CreateGLAccountNo;
+        Initialize();
+        AutoGroupGLAccountNo := LibraryERM.CreateGLAccountNo();
         AutoAccGroupNo := CreateAutomaticAccGroupWithTwoLines(AutoGroupGLAccountNo);
 
         // [GIVEN] Deferral Template "D" where "No. of Periods" = 3 and "Deferral Account" = "GL-D"
@@ -218,8 +218,8 @@ codeunit 144003 "Automatic Acc. Group Posting"
         // [SCENARIO 380812] Post Purchase invoice with specified Automatic Account Group and Deferral Code
 
         // [GIVEN] Automatic Account Group "AAG" with 2 lines where "Account No." = "GL-AG" and balancing line with blank Account No.
-        Initialize;
-        AutoGroupGLAccountNo := LibraryERM.CreateGLAccountNo;
+        Initialize();
+        AutoGroupGLAccountNo := LibraryERM.CreateGLAccountNo();
         AutoAccGroupNo := CreateAutomaticAccGroupWithTwoLines(AutoGroupGLAccountNo);
 
         // [GIVEN] Deferral Template "D" where "No. of Periods" = 3 and "Deferral Account" = "GL-D"
@@ -264,8 +264,8 @@ codeunit 144003 "Automatic Acc. Group Posting"
         // [SCENARIO 380812] Post Sales invoice with specified Automatic Account Group and Deferral Code
 
         // [GIVEN] Automatic Account Group "AAG" with 2 lines where "Account No." = "GL-AG" and balancing line with blank Account No.
-        Initialize;
-        AutoGroupGLAccountNo := LibraryERM.CreateGLAccountNo;
+        Initialize();
+        AutoGroupGLAccountNo := LibraryERM.CreateGLAccountNo();
         AutoAccGroupNo := CreateAutomaticAccGroupWithTwoLines(AutoGroupGLAccountNo);
 
         // [GIVEN] Deferral Template "D" where "No. of Periods" = 3 and "Deferral Account" = "GL-D"
@@ -313,7 +313,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
     begin
         // [FEATURE] [Deferral] [Purchase]
         // [SCENARIO 273428] Post Purchase invoice of two lines with different Automatic Account Groups and same Deferral Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Auto Acc. Groups "AG1" and "AG2" of two lines and one balancing line with dimensions and blank Account No.:
         // [GIVEN] Line1: Pct = 20, Global Dimension 1 Code = "D1",
@@ -376,7 +376,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
     begin
         // [FEATURE] [Deferral] [Sales]
         // [SCENARIO 273428] Post Sales invoice of two lines with different Automatic Account Groups and same Deferral Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Auto Acc. Groups "AG1" and "AG2" of 2 lines and one balancing line with dimensions and blank Account No.:
         // [GIVEN] Line1: Pct = 20, Global Dimension 1 Code = "D1",
@@ -433,7 +433,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 228855] Auto. Acc. Group is transferred from G/L Account into Purchase Line and G/L Entry for records created for Account Group on posting purchase document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Automatic Account Group "B" with two lines for G/L Account "X"
         // [GIVEN] G/L Account "A" with "Auto. Acc. Group" = "B"
@@ -476,7 +476,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 228855] Auto. Acc. Group is transferred from G/L Account into Sales Line and G/L Entry for records created for Account Group on posting purchase document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Automatic Account Group "B" with two lines for G/L Account "X"
         // [GIVEN] G/L Account "A" with "Auto. Acc. Group" = "B"
@@ -522,10 +522,10 @@ codeunit 144003 "Automatic Acc. Group Posting"
     begin
         // [FEATURE] [Deferral] [Gen. Journal Line]
         // [SCENARIO 298392] Stan can post gen. journal with Auto Acc. Group in case of posting date restriction in G/L Setup and certain deferral template settings
-        Initialize;
+        Initialize();
 
         // [GIVEN] Auto Account Group "AAG" with two balanced lines
-        AutoAccNo := LibraryERM.CreateGLAccountNo;
+        AutoAccNo := LibraryERM.CreateGLAccountNo();
         AutAccGroupCode := CreateAutomaticAccGroupWithTwoLines(AutoAccNo);
         PeriodCount := 12; // random senseless here
 
@@ -578,7 +578,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         // [SCENARIO 312161] Post sales invoice with specified Automatic Account Group and partial deferral setup
 
         // [GIVEN] Automatic Account Group "AAG" with 2 lines with "G/L Account No." = "GL-AAG", "Deparment Code" = "ADM" and "Allocation %" = 10%
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Template "D" where "No. of Periods" = 3 and "Deferral %" = 20%
         CreateAutoAccLineWithDimensionAndPartialDeferralTemplateEqualPerPeriod(AutomaticAccLine, DeferralTemplate);
@@ -629,7 +629,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         // [SCENARIO 312161] Post purchase invoice with specified Automatic Account Group and partial deferral setup
 
         // [GIVEN] Automatic Account Group "AAG" with 2 lines with "G/L Account No." = "GL-AAG", "Deparment Code" = "ADM" and "Allocation %" = 10%
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Template "D" where "No. of Periods" = 3 and "Deferral %" = 20%
         CreateAutoAccLineWithDimensionAndPartialDeferralTemplateEqualPerPeriod(AutomaticAccLine, DeferralTemplate);
@@ -679,7 +679,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         // [SCENARIO 312161] Post general journal with specified Automatic Account Group and partial deferral setup
 
         // [GIVEN] Automatic Account Group "AAG" with 2 lines with "G/L Account No." = "GL-AAG", "Deparment Code" = "ADM" and "Allocation %" = 10%
-        Initialize;
+        Initialize();
 
         // [GIVEN] Deferral Template "D" where "No. of Periods" = 3 and "Deferral %" = 20%
         CreateAutoAccLineWithDimensionAndPartialDeferralTemplateEqualPerPeriod(AutomaticAccLine, DeferralTemplate);
@@ -716,7 +716,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Automatic Acc. Group Posting");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -814,7 +814,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
     var
         DimValueBalCode: Code[20];
     begin
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         AllocationPct1 := LibraryRandom.RandDec(50, 2);
         AllocationPct2 := LibraryRandom.RandDec(50, 2);
         AutoAccGroupNo :=
@@ -897,7 +897,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         DeferralTemplate.Init();
         DeferralTemplate."Deferral Code" :=
           LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
-        DeferralTemplate."Deferral Account" := LibraryERM.CreateGLAccountNo;
+        DeferralTemplate."Deferral Account" := LibraryERM.CreateGLAccountNo();
         DeferralTemplate."Calc. Method" := CalcMethod;
         DeferralTemplate."Start Date" := StartDate;
         DeferralTemplate."No. of Periods" := NumOfPeriods;
@@ -1104,7 +1104,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
     begin
         GLEntry.SetRange("G/L Account No.", GLAccNo);
         GLEntry.SetRange("Document No.", DocNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure FilterGLEntryWithDocument(var GLEntry: Record "G/L Entry"; DocNo: Code[20])
@@ -1233,7 +1233,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
             FindSet();
             repeat
                 GLEntry.SetRange("G/L Account No.", "G/L Account No.");
-                GLEntry.FindLast;
+                GLEntry.FindLast();
                 Assert.AreEqual(
                   Round(GLEntry.Amount * ExchRate), GLEntry."Additional-Currency Amount",
                   StrSubstNo(WrongValueErr, GLEntry.FieldCaption("Additional-Currency Amount"), GLEntry.TableCaption, GLEntry."Entry No."));
@@ -1250,7 +1250,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
             SetRange("G/L Account No.", GLAccountNo);
             SetRange("Bal. Account No.", GLAccountNo);
             SetRange("Global Dimension 1 Code", DimValueCode);
-            FindLast;
+            FindLast();
             ExpectedAmount := GLAmount * AllocationPct / 100;
             Assert.AreNearlyEqual(ExpectedAmount, -Amount, LibraryERM.GetAmountRoundingPrecision, WrongAmountGLEntriesErr);
         end;
@@ -1295,7 +1295,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
         VerifyGLEntrySum(LineAccount, StartDate, 0, NoOfPeriods * 2);
 
         PostedDeferralLine.SetRange("Document No.", DocumentNo);
-        PostedDeferralLine.FindFirst;
+        PostedDeferralLine.FindFirst();
         VerifyGLEntrySum(DeferralAccount, PostedDeferralLine."Posting Date", -Sign * DocAmount, NoOfPeriods);
         VerifyGLEntrySum(LineAccount, PostedDeferralLine."Posting Date", Sign * DocAmount, NoOfPeriods * 4);
         VerifyAllocationAmount(AllocationAmount, LineAccount, PostedDeferralLine."Posting Date");

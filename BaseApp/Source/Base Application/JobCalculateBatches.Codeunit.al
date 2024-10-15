@@ -261,7 +261,7 @@ codeunit 1005 "Job Calculate Batches"
         JobJnlLine.Validate("Journal Batch Name", BatchName);
         JobJnlLine.SetRange("Journal Template Name", JobJnlLine."Journal Template Name");
         JobJnlLine.SetRange("Journal Batch Name", JobJnlLine."Journal Batch Name");
-        if JobJnlLine.FindLast then
+        if JobJnlLine.FindLast() then
             NextLineNo := JobJnlLine."Line No." + 10000
         else
             NextLineNo := 10000;

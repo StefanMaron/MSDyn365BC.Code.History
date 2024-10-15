@@ -56,7 +56,7 @@ codeunit 144005 "Reference No Test"
         // Setup Reference No. generation to generate numbers and to set Reference No. to be printed.
         // Verify that Reference No. is set on Service Invoice Header and present on Invoice report
         // Setup
-        Initialize;
+        Initialize();
         SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, true);
 
         // Exercise
@@ -84,7 +84,7 @@ codeunit 144005 "Reference No Test"
         // Setup Reference No. generation to generate numbers, but set Reference No. to not be printed.
         // Verify that Reference No. is set on Service Invoice Header, but not present on Report
         // Setup
-        Initialize;
+        Initialize();
         SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, false);
 
         // Exercise
@@ -112,7 +112,7 @@ codeunit 144005 "Reference No Test"
         // Setup Reference No. generation to generate numbers and to set Reference No. to be printed.
         // Verify that Reference No. is set on Service Invoice Header and present on Invoice report
         // Setup
-        Initialize;
+        Initialize();
         SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, true);
 
         // Exercise
@@ -140,7 +140,7 @@ codeunit 144005 "Reference No Test"
         // Setup Reference No. generation to generate numbers, but set Reference No. to not be printed.
         // Verify that Reference No. is set on Service Invoice Header, but not present on Report
         // Setup
-        Initialize;
+        Initialize();
         SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, false);
 
         // Exercise
@@ -168,7 +168,7 @@ codeunit 144005 "Reference No Test"
         // [FEATURE] [Service Invoice] [Sales]
         // [SCENARIO 376506] After posting Service Invoice, Customer Ledger Entry should contain its "Reference No."
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Reference No Series is set
         SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, false);
@@ -186,16 +186,16 @@ codeunit 144005 "Reference No Test"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Reference No Test");
         LibraryReportDataset.Reset();
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Reference No Test");
         IsInitialized := true;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Commit();
 
         RefNoNoSeriesCode := CreateRefNumberSeries('1000');
@@ -272,14 +272,14 @@ codeunit 144005 "Reference No Test"
         ServiceLine.Validate(Quantity, 1);
         ServiceLine.Modify();
 
-        if ServiceInvoiceHeader.FindLast then
+        if ServiceInvoiceHeader.FindLast() then
             PreviousPostedDocumentNo := ServiceInvoiceHeader."No."
         else
             PreviousPostedDocumentNo := '0';
 
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
-        if ServiceInvoiceHeader.FindLast then
+        if ServiceInvoiceHeader.FindLast() then
             PostedDocumentNo := ServiceInvoiceHeader."No."
         else
             PostedDocumentNo := '0';
@@ -310,14 +310,14 @@ codeunit 144005 "Reference No Test"
         ServiceLine.Validate(Quantity, 1);
         ServiceLine.Modify();
 
-        if ServiceInvoiceHeader.FindLast then
+        if ServiceInvoiceHeader.FindLast() then
             PreviousPostedDocumentNo := ServiceInvoiceHeader."No."
         else
             PreviousPostedDocumentNo := '0';
 
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
-        if ServiceInvoiceHeader.FindLast then
+        if ServiceInvoiceHeader.FindLast() then
             PostedDocumentNo := ServiceInvoiceHeader."No."
         else
             PostedDocumentNo := '0';

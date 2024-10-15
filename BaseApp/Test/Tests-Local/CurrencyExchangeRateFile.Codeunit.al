@@ -31,7 +31,7 @@ codeunit 144001 CurrencyExchangeRateFile
     var
         CurrencyExchangeRateFile: Codeunit CurrencyExchangeRateFile;
     begin
-        Initialize;
+        Initialize();
 
         CurrencyExchangeRateFile.SetImportFileName(
           SetupCurrencyExchangeRateFile(''));
@@ -52,7 +52,7 @@ codeunit 144001 CurrencyExchangeRateFile
     begin
         String := CreateCurrencyLine(USDCodeTok, false, EuroCodeTok);
         BadData := String.Replace('001', '002');
-        Initialize;
+        Initialize();
 
         CurrencyExchangeRateFile.SetImportFileName(
           SetupCurrencyExchangeRateFile(BadData));
@@ -69,7 +69,7 @@ codeunit 144001 CurrencyExchangeRateFile
     var
         CurrencyExchangeRateFile: Codeunit CurrencyExchangeRateFile;
     begin
-        Initialize;
+        Initialize();
 
         CurrencyExchangeRateFile.SetImportFileName(
           SetupCurrencyExchangeRateFile(CreateCurrencyLine(USDCodeTok, false, EuroCodeTok)));
@@ -86,7 +86,7 @@ codeunit 144001 CurrencyExchangeRateFile
     var
         CurrencyExchangeRateFile: Codeunit CurrencyExchangeRateFile;
     begin
-        Initialize;
+        Initialize();
 
         CurrencyExchangeRateFile.SetImportFileName(
           SetupCurrencyExchangeRateFile(CreateCurrencyLine(EuroCodeTok, true, EuroCodeTok)));
@@ -102,7 +102,7 @@ codeunit 144001 CurrencyExchangeRateFile
     var
         CurrencyExchangeRateFile: Codeunit CurrencyExchangeRateFile;
     begin
-        Initialize;
+        Initialize();
 
         CurrencyExchangeRateFile.SetImportFileName(
           SetupCurrencyExchangeRateFile(CreateCurrencyLine(EuroCodeTok, true, USDCodeTok)));
@@ -119,7 +119,7 @@ codeunit 144001 CurrencyExchangeRateFile
     var
         CurrencyExchangeRateFile: Codeunit CurrencyExchangeRateFile;
     begin
-        Initialize;
+        Initialize();
 
         CurrencyExchangeRateFile.SetImportFileName(
           SetupCurrencyExchangeRateFile(CreateCurrencyLine('AAA', false, EuroCodeTok)));

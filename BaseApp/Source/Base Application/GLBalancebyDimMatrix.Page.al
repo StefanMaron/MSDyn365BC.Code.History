@@ -794,35 +794,37 @@ page 9233 "G/L Balance by Dim. Matrix"
     protected var
         AnalysisByDimParameters: Record "Analysis by Dim. Parameters" temporary;
 
-    local procedure DimCodeToOption(DimCode: Text[30]) Result: Integer
+    local procedure DimCodeToOption(DimCode: Text[30]) Result: Enum "Analysis Dimension Option"
     var
         BusUnit: Record "Business Unit";
+        ResultInt: Integer;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeDimCodeToOption(DimCode, Result, IsHandled);
+        OnBeforeDimCodeToOption(DimCode, ResultInt, IsHandled);
+        Result := "Analysis Dimension Option".FromInteger(ResultInt);
         if IsHandled then
             exit(Result);
 
         case DimCode of
             '':
-                exit(-1);
+                exit("Analysis Dimension Option"::Undefined);
             GLAcc.TableCaption:
-                exit(0);
+                exit("Analysis Dimension Option"::"G/L Account");
             Text001:
-                exit(1);
+                exit("Analysis Dimension Option"::Period);
             BusUnit.TableCaption:
-                exit(2);
+                exit("Analysis Dimension Option"::"Business Unit");
             GLSetup."Global Dimension 1 Code":
-                exit(3);
+                exit("Analysis Dimension Option"::"Dimension 1");
             GLSetup."Global Dimension 2 Code":
-                exit(4);
+                exit("Analysis Dimension Option"::"Dimension 2");
             else
-                exit(-1);
+                exit("Analysis Dimension Option"::Undefined);
         end;
     end;
 
-    local procedure FindRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[1024]) Found: Boolean
+    local procedure FindRec(DimOption: Enum "Analysis Dimension Option"; var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[1024]) Found: Boolean
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
@@ -888,10 +890,10 @@ page 9233 "G/L Balance by Dim. Matrix"
                 end;
         end;
 
-        OnAfterFindRec(DimOption, DimCodeBuf, Which, Found, AnalysisByDimParameters);
+        OnAfterFindRec(DimOption.AsInteger(), DimCodeBuf, Which, Found, AnalysisByDimParameters);
     end;
 
-    local procedure NextRec(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer) ResultSteps: Integer
+    local procedure NextRec(DimOption: Enum "Analysis Dimension Option"; var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer) ResultSteps: Integer
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
@@ -950,7 +952,7 @@ page 9233 "G/L Balance by Dim. Matrix"
                         CopyDimValueToBuf(DimVal, DimCodeBuf);
                 end;
         end;
-        OnAfterNextRec(DimOption, DimCodeBuf, Steps, ResultSteps, AnalysisByDimParameters);
+        OnAfterNextRec(DimOption.AsInteger(), DimCodeBuf, Steps, ResultSteps, AnalysisByDimParameters);
     end;
 
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
@@ -1058,11 +1060,12 @@ page 9233 "G/L Balance by Dim. Matrix"
         end;
     end;
 
-    local procedure LookUpCode(DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2"; DimCode: Text[30]; "Code": Text[30])
+    local procedure LookUpCode(DimOption: Enum "Analysis Dimension Option"; DimCode: Text[30]; "Code": Text[30])
     var
         GLAcc: Record "G/L Account";
         BusUnit: Record "Business Unit";
         DimVal: Record "Dimension Value";
+        DimOption2: Option;
     begin
         case DimOption of
             DimOption::"G/L Account":
@@ -1084,8 +1087,11 @@ page 9233 "G/L Balance by Dim. Matrix"
 
                     PAGE.RunModal(PAGE::"Dimension Value List", DimVal);
                 end;
-            else
-                OnLookupCodeOnCaseElse(DimOption, DimCode, Code);
+            else begin
+                    DimOption2 := DimOption.AsInteger();
+                    OnLookupCodeOnCaseElse(DimOption2, DimCode, Code);
+                    DimOption := "Analysis Dimension Option".FromInteger(DimOption2);
+                end;
         end;
     end;
 
@@ -1136,7 +1142,7 @@ page 9233 "G/L Balance by Dim. Matrix"
     local procedure SetDimFilters(var TheGLAcc: Record "G/L Account"; LineOrColumn: Option Line,Column)
     var
         DimCodeBuf: Record "Dimension Code Buffer";
-        DimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4";
+        DimOption: Enum "Analysis Dimension Option";
     begin
         if LineOrColumn = LineOrColumn::Line then begin
             DimCodeBuf := Rec;
@@ -1176,7 +1182,7 @@ page 9233 "G/L Balance by Dim. Matrix"
                 else
                     TheGLAcc.SetFilter("Global Dimension 2 Filter", DimCodeBuf.Totaling);
             else
-                OnSetDimFiltersOnCaseElse(DimOption, TheGLAcc, DimCodeBuf);
+                OnSetDimFiltersOnCaseElse(DimOption.AsInteger(), TheGLAcc, DimCodeBuf);
         end;
     end;
 

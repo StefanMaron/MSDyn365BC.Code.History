@@ -1,4 +1,4 @@
-codeunit 5700 "User Setup Management"
+﻿codeunit 5700 "User Setup Management"
 {
     Permissions = TableData Location = r,
                   TableData "Responsibility Center" = r;
@@ -12,6 +12,7 @@ codeunit 5700 "User Setup Management"
         Text001: Label 'vendor';
         Text002: Label 'This %1 is related to %2 %3. Your identification is setup to process from %2 %4.';
         Text003: Label 'This document will be processed in your %2.';
+        GLSetup: Record "General Ledger Setup";
         UserSetup: Record "User Setup";
         RespCenter: Record "Responsibility Center";
         CompanyInfo: Record "Company Information";
@@ -23,8 +24,8 @@ codeunit 5700 "User Setup Management"
         HasGotSalesUserSetup: Boolean;
         HasGotPurchUserSetup: Boolean;
         HasGotServUserSetup: Boolean;
-        AllowedPostingDateErr: Label 'The date in the Allow Posting From field must not be after the date in the Allow Posting To field.';
-        AllowedPostingDateMsg: Label 'The setup of allowed posting dates is incorrect.The date in the Allow Posting From field must not be after the date in the Allow Posting To field.';
+        AllowedPostingDateErr: Label 'The date in the %1 field must not be after the date in the %2 field.', Comment = '%1 - caption Allow Posting From, %2 - caption Allow Posting To';
+        AllowedPostingDateMsg: Label 'The setup of allowed posting dates is incorrect. The date in the %1 field must not be after the date in the %2 field.', Comment = '%1 - caption Allow Posting From, %2 - caption Allow Posting To';
         OpenGLSetupActionTxt: Label 'Open the General Ledger Setup window';
         OpenUserSetupActionTxt: Label 'Open the User Setup window';
         PostingDateRangeErr: Label 'The Posting Date is not within your range of allowed posting dates.';
@@ -197,7 +198,7 @@ codeunit 5700 "User Setup Management"
     procedure CheckAllowedPostingDate(PostingDate: Date)
     begin
         if not IsPostingDateValid(PostingDate) then
-            Error(PostingDateRangeErr);
+            Error(ErrorInfo.Create(PostingDateRangeErr, true));
     end;
 
     procedure TestAllowedPostingDate(PostingDate: Date; var ErrorText: Text[250]): Boolean
@@ -210,6 +211,13 @@ codeunit 5700 "User Setup Management"
     end;
 
     procedure CheckAllowedPostingDatesRange(AllowPostingFrom: Date; AllowPostingTo: Date; NotificationType: Option Error,Notification; InvokedBy: Integer)
+    begin
+        CheckAllowedPostingDatesRange(
+            AllowPostingFrom, AllowPostingTo, NotificationType, InvokedBy,
+            UserSetup.FieldCaption("Allow Posting From"), UserSetup.FieldCaption("Allow Posting To"));
+    end;
+
+    procedure CheckAllowedPostingDatesRange(AllowPostingFrom: Date; AllowPostingTo: Date; NotificationType: Option Error,Notification; InvokedBy: Integer; AllowPostingFromCaption: Text; AllowPostingToCaption: Text)
     var
         AllowedPostingDatesNotification: Notification;
     begin
@@ -222,7 +230,8 @@ codeunit 5700 "User Setup Management"
         case NotificationType of
             NotificationType::Notification:
                 begin
-                    AllowedPostingDatesNotification.Message := AllowedPostingDateMsg;
+                    AllowedPostingDatesNotification.Message :=
+                        StrSubstNo(AllowedPostingDateMsg, AllowPostingFromCaption, AllowPostingToCaption);
                     case InvokedBy of
                         DATABASE::"General Ledger Setup":
                             AllowedPostingDatesNotification.AddAction(OpenGLSetupActionTxt,
@@ -235,7 +244,7 @@ codeunit 5700 "User Setup Management"
                     Error('');
                 end;
             NotificationType::Error:
-                Error(AllowedPostingDateErr);
+                Error(AllowedPostingDateErr, AllowPostingFromCaption, AllowPostingToCaption);
         end;
     end;
 
@@ -248,7 +257,6 @@ codeunit 5700 "User Setup Management"
 
     procedure IsPostingDateValidWithSetup(PostingDate: Date; var SetupRecordID: RecordID) Result: Boolean
     var
-        GLSetup: Record "General Ledger Setup";
         UserSetup: Record "User Setup";
         AllowPostingFrom: Date;
         AllowPostingTo: Date;
@@ -266,7 +274,7 @@ codeunit 5700 "User Setup Management"
                 SetupRecordID := UserSetup.RecordId;
             end;
         if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
-            GLSetup.Get();
+            GLSetup.GetRecordOnce();
             GLSetup.CheckAllowedPostingDates(1);
             AllowPostingFrom := GLSetup."Allow Posting From";
             AllowPostingTo := GLSetup."Allow Posting To";
@@ -275,6 +283,37 @@ codeunit 5700 "User Setup Management"
         if AllowPostingTo = 0D then
             AllowPostingTo := DMY2Date(31, 12, 9999);
         exit(PostingDate in [AllowPostingFrom .. AllowPostingTo]);
+    end;
+
+    procedure IsPostingDateValidWithGenJnlTemplate(PostingDate: Date; TemplateName: Code[20]): Boolean
+    var
+        SetupRecordID: RecordID;
+    begin
+        exit(IsPostingDateValidWithGenJnlTemplateWithSetup(PostingDate, TemplateName, SetupRecordID));
+    end;
+
+    procedure IsPostingDateValidWithGenJnlTemplateWithSetup(PostingDate: Date; TemplateName: Code[20]; var SetupRecordID: RecordID): Boolean
+    var
+        GenJnlTemplate: Record "Gen. Journal Template";
+        AllowPostingFrom: Date;
+        AllowPostingTo: Date;
+    begin
+        if TemplateName <> '' then begin
+            GLSetup.GetRecordOnce();
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                GenJnlTemplate.Get(TemplateName);
+                AllowPostingFrom := GenJnlTemplate."Allow Posting Date From";
+                AllowPostingTo := GenJnlTemplate."Allow Posting Date To";
+                SetupRecordID := GenJnlTemplate.RecordId();
+            end;
+        end;
+        if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then
+            exit(IsPostingDateValidWithSetup(PostingDate, SetupRecordID));
+
+        if (PostingDate < AllowPostingFrom) or (PostingDate > AllowPostingTo) then
+            exit(false);
+
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]

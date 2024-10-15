@@ -2,6 +2,7 @@ table 9400 "Media Repository"
 {
     Caption = 'Media Repository';
     DataPerCompany = false;
+    ReplicateData = false;
 
     fields
     {

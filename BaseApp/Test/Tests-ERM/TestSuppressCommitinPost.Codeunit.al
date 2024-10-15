@@ -709,7 +709,7 @@
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         exit(GLEntry."Entry No.");
     end;
 
@@ -752,7 +752,7 @@
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         exit(ItemLedgerEntry."Entry No.");
     end;
 
@@ -832,7 +832,7 @@
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("Special Order", SpecialOrder);
         SalesLine.SetRange("Drop Shipment", DropShipment);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindSpecialOrderSalesLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -881,7 +881,7 @@
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", SalesLine."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
     end;
 
@@ -891,7 +891,7 @@
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("No.", SalesLine."No.");
         PurchaseLine.SetRange("Special Order Sales No.", SalesLine."Document No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindDropShipmentPurchaseLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; SalesLine: Record "Sales Line")
@@ -900,7 +900,7 @@
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("No.", SalesLine."No.");
         PurchaseLine.SetRange("Sales Order No.", SalesLine."Document No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure VerifySpecialOrderPurchaseOrder(SalesHeader: Record "Sales Header")
@@ -1166,7 +1166,7 @@
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", PrePaymentInvoiceNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
         CustLedgerEntry.TestField(Amount, PrePaymentAmount);
         CustLedgerEntry.TestField("Due Date", PrePaymentDueDate);

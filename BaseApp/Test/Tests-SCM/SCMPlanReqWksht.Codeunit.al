@@ -52,6 +52,8 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         QtyRoundingErr: Label 'is of lesser precision than expected';
         QuantityImbalanceErr: Label '%1 on %2-%3 causes the %4 and %5 to be out of balance. Rounding of the field %5 results to 0.';
         InvalidReplenishmentOptionErr: Label 'Replenishment System must be equal to';
+        WrongPrecisionItemAndUOMExpectedQtyErr: Label 'The value in the Rounding Precision field on the Item page, and Qty. Rounding Precision field on the Item Unit of Measure page, are causing the rounding precision for the Expected Quantity field to be incorrect.';
+
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -63,7 +65,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         PlanningEndDate: Date;
     begin
         // Setup: Create LFL Item. Shipment Date outside Lot Accumulation Period. Parameters: Shipment Date and Planning End Dates.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, LibraryRandom.RandInt(50), GetLotAccumulationPeriod(2, 5));  // Lot Accumulation Period based on Random Quantity.
         ShipmentDate := GetRequiredDate(2, 0, WorkDate, -1);  // Shipment Date relative to Work Date.
         PlanningEndDate := GetRequiredDate(2, 0, CalcDate('<+' + Format(Item."Lot Accumulation Period"), WorkDate), -1);  // Planning End Date relative to Lot Accumulation period.
@@ -80,7 +82,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         PlanningEndDate: Date;
     begin
         // Setup: Create LFL Item. Shipment Date within Lot Accumulation Period. Parameters: Shipment Date and Planning End Dates.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, LibraryRandom.RandInt(50), GetLotAccumulationPeriod(2, 5));  // Lot Accumulation Period based on Random Quantity.
         ShipmentDate := GetRequiredDate(20, 0, WorkDate, 1);  // Shipment Date relative to Work Date.
         PlanningEndDate := GetRequiredDate(10, 0, CalcDate('<+' + Format(Item."Lot Accumulation Period"), WorkDate), -1);  // Planning End Date relative to Lot Accumulation period.
@@ -97,7 +99,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         PlanningEndDate: Date;
     begin
         // Setup: Create LFL Item. Planning Ending Date greater than Lot Accumulation Period. Parameters: Shipment Date and Planning End Dates.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, LibraryRandom.RandInt(50), GetLotAccumulationPeriod(2, 5));  // Lot Accumulation Period based on Random Quantity.
         ShipmentDate := GetRequiredDate(20, 0, WorkDate, -1);  // Shipment Date relative to Work Date.
         PlanningEndDate := GetRequiredDate(10, 0, CalcDate('<+' + Format(Item."Lot Accumulation Period"), WorkDate), 1);  // Planning End Date relative to Lot Accumulation period.
@@ -125,7 +127,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
 
         // Exercise: Calculate Plan for Requisition Worksheet again after Carry Out Action Message.
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         LibraryPlanning.CalculatePlanForReqWksh(
           Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, WorkDate, EndingDate);
 
@@ -154,7 +156,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         ReqLineQuantity: Integer;
     begin
         // Setup: Create LFL Item  with Lot Accumulation Period and update Inventory.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, LibraryRandom.RandInt(50), GetLotAccumulationPeriod(2, 5));  // Lot Accumulation Period based on Random Quantity.
         UpdateInventory(ItemJournalLine, Item."No.", WorkDate, Item."Safety Stock Quantity" - LibraryRandom.RandInt(5));  // Inventory Value required for Test.
 
@@ -173,7 +175,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
           RequisitionWkshName, Item, RequisitionLine."Planning Flexibility"::Unlimited, PlanningEndDate);
 
         // Exercise: Calculate Plan for Requisition Worksheet again after Carry Out Action Message, Shipment Dates are included in Start and End Date.
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         PlanningEndDate2 := GetRequiredDate(10, 5, CalcDate('<+' + Format(Item."Lot Accumulation Period"), WorkDate), 1);  // Planning End Date relative to Lot Accumulation period.
         LibraryPlanning.CalculatePlanForReqWksh(
           Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, WorkDate, PlanningEndDate2);
@@ -205,7 +207,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create LFL Item with Lot Accumulation Period and update Inventory.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, LibraryRandom.RandInt(50), GetLotAccumulationPeriod(2, 5));  // Lot Accumulation Period based on Random Quantity.
         UpdateInventory(ItemJournalLine, Item."No.", WorkDate, Item."Safety Stock Quantity" - LibraryRandom.RandInt(5));  // Inventory Value required for Test.
 
@@ -224,7 +226,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
           RequisitionWkshName, Item, RequisitionLine."Planning Flexibility"::None, PlanningEndDate);
 
         // Exercise: Calculate Plan for Requisition Worksheet again after Carry Out Action Message, Shipment Dates are included in Start and End Date.
-        RequisitionWkshName.FindFirst;
+        RequisitionWkshName.FindFirst();
         PlanningEndDate2 := GetRequiredDate(10, 5, CalcDate('<+' + Format(Item."Lot Accumulation Period"), WorkDate), 1);  // Planning End Date relative to Lot Accumulation period.
         LibraryPlanning.CalculatePlanForReqWksh(
           Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, WorkDate, PlanningEndDate2);
@@ -258,7 +260,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         FirstOrderQuantity: Integer;
     begin
         // Setup: Create Fixed Reorder Quantity Item.
-        Initialize;
+        Initialize();
         CreateFixedReorderQtyItem(Item);
         Quantity := LibraryRandom.RandInt(10) + 5;  // Random Quantity.
         UpdateLeadTimeCalculationForItem(Item, '<' + Format(LibraryRandom.RandInt(5) + 10) + 'D>');  // Random Lead Time Calculation.
@@ -305,7 +307,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         LotAccumulationPeriod: Text[30];
     begin
         // Setup: Check Requisition Worksheet when Calculating Plan for Item having Lot Accumulation Period (1 Day) and Sales Order with multiple lines having same Shipment Dates.
-        Initialize;
+        Initialize();
         LotAccumulationPeriod := '<1D>';
         SalesShipmentDate := GetRequiredDate(20, 10, WorkDate, 1);  // Shipment Date relative to Work Date.
         SalesShipmentDate2 := SalesShipmentDate;  // Shipment Dates on Sales Line must be same.
@@ -321,7 +323,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         LotAccumulationPeriod: Text[30];
     begin
         // Setup: Check Requisition Worksheet when Calculating Plan for Item having Lot Accumulation Period (1 Day) and Sales Order with multiple lines having different Shipment Dates.
-        Initialize;
+        Initialize();
         LotAccumulationPeriod := '<1D>';
         SalesShipmentDate := WorkDate;
         SalesShipmentDate2 := GetRequiredDate(20, 10, WorkDate, 1);  // Shipment Date relative to Work Date.
@@ -337,7 +339,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         LotAccumulationPeriod: Text[30];
     begin
         // Setup: Check Requisition Worksheet when Calculating Plan for Item having Lot Accumulation Period (0 Day) and Sales Order with multiple lines having different Shipment Dates.
-        Initialize;
+        Initialize();
         LotAccumulationPeriod := '<0D>';
         SalesShipmentDate := WorkDate;
         SalesShipmentDate2 := GetRequiredDate(20, 10, WorkDate, 1);  // Shipment Date relative to Work Date.
@@ -399,7 +401,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Item of Order Type Reordering Policy. Create Sales order.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         Quantity := LibraryRandom.RandInt(10);
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", Quantity);
@@ -424,7 +426,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         // [SCENARIO] Verify Quantity on Requisition Line: Lot-for-Lot Item, Sales Order - Production Order from sales - post Prod Jnl - finish Prod Order - reduce sales Qty - create 2nd Sales Order - calc Regen plan.
 
         // Setup.
-        Initialize;
+        Initialize();
         CalcPlanForLFLItemProductionOrderCreatedFromSalesOrder(false);
     end;
 
@@ -437,7 +439,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         // [SCENARIO] Verify Quantity on Requisition Line: Lot-for-Lot Item, Sales Order - Production Order from sales - post Prod Jnl - finish Prod Order - reduce sales Qty - create 2nd Sales Order - calc Regen plan - post 1st Sales - calc Regen plan.
 
         // Setup.
-        Initialize;
+        Initialize();
         CalcPlanForLFLItemProductionOrderCreatedFromSalesOrder(true);
     end;
 
@@ -499,7 +501,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     procedure CalcPlanForSalesOrderFromBlanketOrderUsingForecastOrderItem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningForSalesOrderFromBlanketOrderUsingForecastOrderItem(false);  // Post Sales Order -False.
     end;
 
@@ -509,7 +511,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     procedure CalcPlanTwiceForSalesOrderFromBlanketOrderWithSalesShipUsingForecastOrderItem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningForSalesOrderFromBlanketOrderUsingForecastOrderItem(true);  // Post Sales Order -True.
     end;
 
@@ -563,7 +565,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     procedure CalcPlanForBlanketOrderUpdatedOnSalesOrderUsingForecastOrderItem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningForBlanketOrderUpdatedOnSalesOrderUsingForecastOrderItem(false);  // Post Sales Order and Calculate Plan -False.
     end;
 
@@ -573,7 +575,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     procedure CalcPlanTwiceForBlanketOrderUpdatedOnSalesOrderWithSalesShipUsingForecastOrderItem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningForBlanketOrderUpdatedOnSalesOrderUsingForecastOrderItem(true);  // Post Sales Order and Calculate Plan -True.
     end;
 
@@ -623,7 +625,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     procedure CalcPlanForBlanketOrderSalesOrderForSameItemUsingForecastOrderItem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningForBlanketOrderSalesOrderForSameItemUsingForecastOrderItem(false);  // Update Blanket Order on Sales Order -False, Post Sales Order -False.
     end;
 
@@ -633,7 +635,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     procedure CalcPlanTwiceForBlanketOrderSalesOrderForSameItemUpdateBlanketOnSalesUsingForecastOrderItem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningForBlanketOrderSalesOrderForSameItemUsingForecastOrderItem(true);  // Update Blanket Order on Sales Order -True, Post Sales Order -False.
     end;
 
@@ -693,7 +695,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Order Item, Create Production Forecast, Create Blanket Order and Create Sales Order.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", WorkDate, true);
         Quantity := LibraryRandom.RandInt(10) + 5;  // Random Quantity.
@@ -724,7 +726,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     procedure CalcPlanForBlanketOrderSalesOrderForItemAndChildItemOfUsingForecastOrderItem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningForBlanketOrderSalesOrderForItemAndChildItemUsingForecastOrderItem(false);  // Post Sales Order and Calculate Plan -False.
     end;
 
@@ -734,7 +736,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     procedure CalcPlanTwiceForBlanketOrderSalesOrderForItemAndChildItemWithSalesShipUsingForecastOrderItem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningForBlanketOrderSalesOrderForItemAndChildItemUsingForecastOrderItem(true);  // Post Sales Order and Calculate Plan -True.
     end;
 
@@ -816,7 +818,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [Planning Worksheet]
         // [SCENARIO 127791] Calc a regenerative Plan without demands when default "Blank Overflow Level".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item with Fixed Reorder Quantity, "Reorder Quantity" more than "Reorder Point".
         CreateItemAndSetFRQ(Item);
@@ -838,7 +840,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [Planning Worksheet]
         // [SCENARIO 378374] Calc a regenerative Plan without demands when "Blank Overflow Level" is "Use Item/SKU Values Only".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set "Blank Overflow Level" in "Manufacturing Setup" as "Use Item/SKU Values Only".
         SetBlankOverflowLevelAsUseItemValues;
@@ -863,7 +865,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         EndDate: Date;
     begin
         // Setup: Create Lot for Lot Item, Create Transfer Order.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::Purchase);
         Quantity := LibraryRandom.RandInt(10) + 10;  // Random Quantity.
 
@@ -895,7 +897,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         EndDate: Date;
     begin
         // Setup : Create Lot for Lot Items.
-        Initialize;
+        Initialize();
         CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::Purchase);
         CreateItem(Item2, Item2."Reordering Policy"::"Lot-for-Lot", Item2."Replenishment System"::Purchase);
         Quantity := LibraryRandom.RandInt(10) + 10;  // Random Quantity.
@@ -941,7 +943,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Order Item.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(OldStockoutWarning, OldCreditWarnings, false, SalesReceivablesSetup."Credit Warnings"::"No Warning");
         CreateOrderItem(Item, '', Item."Replenishment System"::"Prod. Order");
         Quantity := LibraryRandom.RandInt(5) + 10;  // Random Quantity.
@@ -989,7 +991,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Order Item, Create Production Forecast for Production Order.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetup(OldStockoutWarning, OldCreditWarnings, false, SalesReceivablesSetup."Credit Warnings"::"No Warning");
         CreateOrderItem(Item, '', Item."Replenishment System"::"Prod. Order");
         ForecastDate := GetRequiredDate(30, 20, WorkDate, 1);  // Forecast Date Relative to Workdate.
@@ -1037,7 +1039,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Order Item.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::"Prod. Order");
         Quantity := LibraryRandom.RandInt(5) + 10;  // Random Quantity.
 
@@ -1079,7 +1081,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Order Item, Create Production Forecast for Production Order.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::"Prod. Order");
         ForecastDate := GetRequiredDate(30, 20, WorkDate, 1);  // Forecast Date Relative to Workdate.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", ForecastDate, false);  // Boolean -False, for Single Forecast Entry.
@@ -1128,7 +1130,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         SalesLineQuantity: Integer;
     begin
         // Setup: Create Order Item, Create Production Forecast.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::"Prod. Order");
         ForecastDate := GetRequiredDate(20, 20, WorkDate, 1);  // Forecast Date Relative to Workdate.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", ForecastDate, false);  // Boolean - False, for Single Forecast Entry.
@@ -1182,7 +1184,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Order Items, Create Production Forecast.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::"Prod. Order");
         ForecastDate := GetRequiredDate(20, 20, WorkDate, 1);  // Forecast Date Relative to Workdate.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", ForecastDate, false);  // Boolean - False, for Single Forecast Entry.
@@ -1233,7 +1235,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Order Item, Create Production Forecast for multiple Items.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         CreateOrderItem(Item2, '', Item2."Replenishment System"::Purchase);
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
@@ -1278,7 +1280,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Order Item, Create Production Forecast.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         CreateOrderItem(Item2, '', Item2."Replenishment System"::Purchase);
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
@@ -1306,7 +1308,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     procedure CalcPlanForSalesOrderUsingForecastOrderItem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningForSalesOrderUsingForecastOrderItem(false);  // Post Sales Order and Calculate Plan - False.
     end;
 
@@ -1316,7 +1318,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     procedure CalcPlanTwiceForSalesOrderWithSalesShipUsingForecastOrderItem()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         PlanningForSalesOrderUsingForecastOrderItem(true);  // Post Sales Order and Calculate Plan - True.
     end;
 
@@ -1384,7 +1386,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Order Items.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         CreateOrderItem(Item2, '', Item."Replenishment System"::Purchase);
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
@@ -1419,7 +1421,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         ForecastDate: Date;
     begin
         // Setup: Create Order Item.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
 
@@ -1450,7 +1452,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         ForecastDate: Date;
     begin
         // Setup: Create Order Item.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         CreateOrderItem(Item2, '', Item2."Replenishment System"::Purchase);
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
@@ -1492,7 +1494,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Lot for Lot Item.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, 0, '<0D>');  // Safety Stock - 0.
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", ForecastDate, true);  // Boolean - TRUE, for multiple Forecast Entries.
@@ -1544,7 +1546,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup:  Create Lot for Lot Item.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, 0, '<0D>');  // Safety Stock - 0.
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
 
@@ -1591,7 +1593,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Order Item. Create Production forecast for multiple entries.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", ForecastDate, true);  // Boolean - TRUE, for multiple Forecast Entries.
@@ -1630,7 +1632,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Order Item. Create Production forecast for multiple entries.
-        Initialize;
+        Initialize();
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", ForecastDate, true);  // Boolean - TRUE, for multiple Forecast Entries.
@@ -1675,7 +1677,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         ShipmentDate: Date;
     begin
         // Setup: Create Order Item. Create Production Forecast.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
@@ -1716,7 +1718,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         OldCombinedMPSMRPCalculation: Boolean;
     begin
         // Setup: Create Order Item. Create Production Forecast.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
@@ -1748,7 +1750,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Order Item.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
         CreateOrderItem(Item, '', Item."Replenishment System"::Purchase);
 
@@ -1787,7 +1789,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
         CreateLotForLotItem(ChildItem, 0, '<0D>');  // Safety Stock - 0. Child Item.
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
@@ -1836,7 +1838,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(ChildItem, 0, '<0D>');  // Safety Stock - 0. Child Item.
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
 
@@ -1883,7 +1885,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity: Integer;
     begin
         // Setup: Create Lot for Lot Parent and Child Item. Create And Certify Production BOM.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(ChildItem, 0, '<0D>');  // Safety Stock - 0. Child Item.
         CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
 
@@ -1932,7 +1934,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         ForecastDate: Date;
     begin
         // Setup: Create Lot for Lot  Item. Create Production Forecast with multiple Entries.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
         CreateLotForLotItem(Item, 0, '<0D>');  // Safety Stock - 0, Lot Accumulation Period - 0D.
         ForecastDate := GetRequiredDate(10, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
@@ -1973,7 +1975,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         ForecastDate: Date;
     begin
         // Setup: Create Lot for Lot  Item.
-        Initialize;
+        Initialize();
         OldCombinedMPSMRPCalculation := UpdateManufacturingSetup(false);  // Combined MPS/MRP Calculation of Manufacturing Setup -FALSE.
         CreateLotForLotItem(Item, 0, '<0D>');  // Safety Stock - 0, Lot Accumulation Period - 0D.
 
@@ -2017,7 +2019,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         EndDate: Date;
     begin
         // Setup: Create Lot for Lot  Item. Create Production Forecast with multiple Entries.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, 0, '<0D>');  // Safety Stock - 0, Lot Accumulation Period - 0D.
 
         // Create Sales Order. Update Shipment Date and Planned Delivery Date on Sales Line.
@@ -2053,7 +2055,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         ForecastDate: Date;
     begin
         // Setup: Create Lot for Lot  Item. Create Production Forecast with multiple Entries.
-        Initialize;
+        Initialize();
         CreateLotForLotItem(Item, 0, '<0D>');  // Safety Stock - 0, Lot Accumulation Period - 0D.
         ForecastDate := GetRequiredDate(30, 0, WorkDate, 1);  // Forecast Date Relative to Workdate.
         CreateProductionForecastSetup(ProductionForecastEntry, Item."No.", ForecastDate, true);  // Boolean - TRUE, for multiple Forecast Entries.
@@ -2164,7 +2166,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         TempOrderPromisingLine: Record "Order Promising Line" temporary;
     begin
         // Setup: Create Sales Order. Calculate Plan for Requisition Worksheet and Carry out Action Message.
-        Initialize;
+        Initialize();
         CarryOutDemandInRequisitionWorksheet(Item, SalesHeader, SalesLine);
 
         // Exercise: Update the Promised Receipt Date in Purchase Order.
@@ -2181,7 +2183,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         AvailabilityMgt.CalcAvailableToPromise(TempOrderPromisingLine);
 
         // Verify: Verify the Earliest Shipment date in Order Promising Table.
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         TempOrderPromisingLine.TestField("Earliest Shipment Date", PurchaseLine."Expected Receipt Date");
     end;
 
@@ -2199,7 +2201,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         PromisedReceiptDate: Date;
     begin
         // Setup: Create Sales Order. Calculate Plan for Requisition Worksheet and Carry out Action Message.
-        Initialize;
+        Initialize();
         CarryOutDemandInRequisitionWorksheet(Item, SalesHeader, SalesLine);
 
         // Exercise: Update the Promised Receipt Date in Purchase Order.
@@ -2218,7 +2220,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         AvailabilityMgt.CalcAvailableToPromise(TempOrderPromisingLine);
 
         // Verify: Verify the Earliest Shipment date in Order Promising Table.
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         TempOrderPromisingLine.TestField("Earliest Shipment Date", SalesLine."Shipment Date");
     end;
 
@@ -2234,7 +2236,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // Setup: Create Sales Order. Calculate Plan for Requisition Worksheet and Carry out Action Message.
-        Initialize;
+        Initialize();
         CarryOutDemandInRequisitionWorksheet(Item, SalesHeader, SalesLine);
 
         // Exercise: Update the Promised Receipt Date in Purchase Order line.
@@ -2265,7 +2267,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         // [SCENARIO 363209] Can calculate regeneration plan for Item with opposite Transfer Order.
 
         // [GIVEN] Item with two SKUs.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Item.SetRange("No.", Item."No.");
         SelectTransferRoute(LocationYellow.Code, LocationRed.Code);
@@ -2374,7 +2376,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Qty: Integer;
     begin
         // Setup: Create production order. Component's reordering policy is "Maximum quantity"
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandInt(100);
         CreateItemWithReorderPoint(
           CompItem, CompItem."Reordering Policy"::"Maximum Qty.", CompItem."Replenishment System"::Purchase, Qty, Qty + 1);
@@ -2457,7 +2459,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         // [FEATURE] [Planning Worksheet] [Item Tracking] [Manufacturing]
         // [SCENARIO 376248] Surplus Reservation Entry exists after recalculation of Production Item supply and surplus exists because of "Order Multiple" rounding.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item with Order Multiple = "X", "Order Tracking Policy" = "Tracking Only", available stock = "S".
         OrderMultipleQty := LibraryRandom.RandDecInRange(10, 50, 1);
@@ -2516,7 +2518,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [SKU] [Planning Parameters]
         // [SCENARIO 202033] Calculating plan from requisition worksheet with "Respect Planning Parameters" for component item separetely for transfer and purchase replenishment systems.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Manufacturing Location "ML" and Purchase Location "PL"
         CreateLocationsChain(PurchaseLocation, MnfgLocation);
@@ -2572,7 +2574,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [Order Planning] [Sales] [Drop Shipment]
         // [SCENARIO 214007] Sales orders for drop shipment should not be included in the list of demands when Calculate Plan is run on Order Planning page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order for drop shipment of item "I".
         CreateSalesOrder(SalesHeader, SalesLine, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
@@ -2600,7 +2602,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [Special Order]
         // [SCENARIO 263844] Location code in requisition line is not copied from the vendor card when the vendor No. is updated if the requisition line refers to a special order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I", locations "L1" and "L2", vendors "V1" and "V2", "I"."Vendor No." = "V1", "V2"."Location Code" = "L2"
         CreateItemLocationVendorSetup(Item, Location, Vendor);
@@ -2636,7 +2638,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [Drop Shipment]
         // [SCENARIO 263844] Location code in requisition line is not copied from the vendor card when the vendor No. is updated if the requisition line refers to a sales order with drop shipment purchasing code.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I", locations "L1" and "L2", vendors "V1" and "V2", "I"."Vendor No." = "V1", "V2"."Location Code" = "L2"
         CreateItemLocationVendorSetup(Item, Location, Vendor);
@@ -2669,7 +2671,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         RequisitionLine: Record "Requisition Line";
     begin
         // [SCENARIO 263844] Requisition line "Location Code" is copied from vendor card when populate "Vendor No." with the field "No." of the vendor.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L", vendor "V", "V"."Location Code" = "L"
         LibraryWarehouse.CreateLocation(Location);
@@ -2702,11 +2704,11 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [Planning Worksheet]
         // [SCENARIO 264807] When user chooses to copy planning lines to requisition lines by carrying out action, the new lines are added after existing lines in requisition worksheet.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Items "I1", "I2".
         for i := 1 to ArrayLen(ItemNo) do
-            ItemNo[i] := LibraryInventory.CreateItemNo;
+            ItemNo[i] := LibraryInventory.CreateItemNo();
 
         // [GIVEN] A line in requisition worksheet with item "I1".
         CreateRequisitionLine(ReqLineInReqWksh);
@@ -2731,7 +2733,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         // [THEN] The line with "I1" is not deleted from the requisition worksheet.
         ReqLineInReqWksh.SetRange("Worksheet Template Name", ReqLineInReqWksh."Worksheet Template Name");
         ReqLineInReqWksh.SetRange("Journal Batch Name", ReqLineInReqWksh."Journal Batch Name");
-        ReqLineInReqWksh.FindFirst;
+        ReqLineInReqWksh.FindFirst();
         ReqLineInReqWksh.TestField("No.", ItemNo[1]);
 
         // [THEN] A new line with item "I2" is inserted into the requisition worksheet after the "I1" line.
@@ -2754,7 +2756,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [Carry Out Action Message]
         // [SCENARIO 268443] When carry out action messages in requisition worksheet the items are placed correctly by purchase orders with different Purchasing Codes when "Vendor No." is the same
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create 2 purchasing codes ("P1" and "P2"), 2 items ("I1" and "I2"). Both of them with the same "Vendor No."
         // [GIVEN] Create 3 sales orders: "S1" has "I1" and "P1", "S2" has "I2" and "P2", "S3" has "I1" and "P1", Customer is the same for all sales orders.
@@ -2780,7 +2782,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         // [THEN] Two purchase lines with "I1" are created, both in single order, and one line with "I2" in another order
         PurchaseLine.SetRange("No.", Item[1]."No.");
         Assert.RecordCount(PurchaseLine, 2);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseLine."Document No.");
@@ -2807,7 +2809,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         // [FEATURE] [Routing Link] [Due Date-Time] [Planning Component]
         // [SCENARIO 269798] When planning production components, "Due Date" and "Due Time" fields of the component are copied from "Starting Date" and "Starting Time" of the linked routing line
 
-        Initialize;
+        Initialize();
 
         LibraryInventory.CreateItem(CompItem[1]);
         LibraryInventory.CreateItem(CompItem[2]);
@@ -2857,7 +2859,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [Planning Component]
         // [SCENARIO 279595] The program recalculates "Expected Quantity" on planning component when a user changes Quantity on parent requisition line.
-        Initialize;
+        Initialize();
 
         Qty := LibraryRandom.RandIntInRange(50, 100);
 
@@ -2900,7 +2902,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [Reorder Point]
         // [SCENARIO 287931] Calculate Plan for item with reorder point doesn't order too much when there is demand between last reorder and it's due date
-        Initialize;
+        Initialize();
 
         // [GIVEN] An Item with Reorder Point Qty. = 1, Purchase, Reorder Point = 150, Lead Time = 2W
         CreateItemWithReorderPointAndQuantity(
@@ -2923,11 +2925,11 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Assert.RecordCount(RequisitionLine, 2);
 
         // [THEN] 1st line quantity = 150 - 70 + 1 = 81 (Exceeding Reorder Point by minimal margin)
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(Quantity, Item."Reorder Point" - ItemJournalLine.Quantity + Item."Reorder Quantity");
 
         // [THEN] 2nd line quantity = 30 (Compensating sales order)
-        RequisitionLine.FindLast;
+        RequisitionLine.FindLast();
         RequisitionLine.TestField(Quantity, SalesLine.Quantity);
     end;
 
@@ -2944,7 +2946,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [Reorder Point]
         // [SCENARIO 287931] Calculate Plan for item with reorder point doesn't order too much when there is supply between last reorder and it's due date
-        Initialize;
+        Initialize();
 
         // [GIVEN] An Item with Reorder Point Qty. = 1, Purchase, Reorder Point = 150, Lead Time = 2W
         CreateItemWithReorderPointAndQuantity(
@@ -2964,7 +2966,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         SelectRequisitionLine(RequisitionLine, Item."No.");
 
         // [THEN] Requisition line quantity = 150 - 70 - 30 + 1 = 51 (Exceeding Reorder Point by minimal margin)
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField(
           Quantity, Item."Reorder Point" - ItemJournalLine.Quantity - PurchaseOrderQuantity + Item."Reorder Quantity");
     end;
@@ -2983,7 +2985,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [Sales] [Order] [Blanket Order] [Lot-for-Lot]
         // [SCENARIO 314222] The planning takes into account a sales blanket order line that is partially utilized for one sales order line.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
 
         // [GIVEN] Lot-for-lot item.
@@ -3032,7 +3034,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         // [FEATURE] [Sales] [Order] [Blanket Order] [Lot-for-Lot]
         // [SCENARIO 314222] The planning takes into account a sales blanket order line that is partially utilized for several sales order lines.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
 
         // [GIVEN] Lot-for-lot item.
@@ -3435,6 +3437,60 @@ codeunit 137067 "SCM Plan-Req. Wksht"
 
     [Test]
     [Scope('OnPrem')]
+    procedure QtyAreRoundedWithRoundingPrecisionSpecifiedOnPlanningComponentAndGiveErrorOnScrap()
+    var
+        ItemReqLine: Record Item;
+        ItemPlanningComp: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        Scrap: Decimal;
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+    begin
+        // [SCENARIO 410191]  Planning Components - Missing Rounding Check when calculating Expected Quantity
+        Initialize();
+
+        // [GIVEN] Requisition line containing an item with base UoM, UoM rounding precision to default 0, non-base UoM and Quantity = "1/6".
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0;
+        NonBaseQtyPerUOM := 6;
+        Scrap := LibraryRandom.RandDecInDecimalRange(1, 10, 2);
+        SetupUoMTest(ItemReqLine, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        CreateRequisitionLine(RequisitionLine);
+        UpdateRequisitionLine(RequisitionLine, RequisitionLine.Type::Item, ItemReqLine."No.", BaseUOM.Code, LibraryRandom.RandIntInRange(1, 10));
+        RequisitionLine.Validate("Scrap %", Scrap);
+        RequisitionLine.Validate("Starting Date", WorkDate());
+        RequisitionLine.Validate("Ending Date", WorkDate());
+
+        //[GIVEN] Planning component for the requisition line containing an item with base UoM, UoM rounding precision, non-base UoM.
+        //[GIVEN] Item's base rounding precision = 1
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1;
+        NonBaseQtyPerUOM := 6;
+        SetupUoMTest(ItemPlanningComp, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+
+        ItemPlanningComp.Validate("Rounding Precision", 0.1); //Item rounding precision less than base UoM rounding precision.
+        ItemPlanningComp.Modify();
+
+        LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
+        PlanningComponent.Validate("Item No.", ItemPlanningComp."No.");
+        PlanningComponent.Validate("Unit of Measure Code", BaseUOM.Code);
+        PlanningComponent.Validate("Scrap %", RequisitionLine."Scrap %"); //Scrapped copied from the Requisition Line
+
+        // [WHEN] Setting "Quantity per" on Planning Component.
+        // [THEN] The expected quantity should through an error due to scrap in Requisition line makes the component expected quantity be in decimals but item QtyRoundingPrecision is 1.
+        asserterror PlanningComponent.Validate("Quantity per", LibraryRandom.RandIntInRange(1, 10));
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(WrongPrecisionItemAndUOMExpectedQtyErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure QtyAreRoundedWithRoundingPrecisionUnspecifiedOnPlanningComponent()
     var
         ItemReqLine: Record Item;
@@ -3711,7 +3767,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Evaluate(DefaultLeadTimeDateFormula, '<1D>');
 
         // [GIVEN] Ensure "Default Safety Lead Time" is not blank in Manufacturing Setup.
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Default Safety Lead Time", DefaultLeadTimeDateFormula);
         ManufacturingSetup.Modify(true);
 
@@ -3749,8 +3805,8 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         ReservationEntry.DeleteAll();
         RequisitionLine.DeleteAll();
         RequisitionWkshName.DeleteAll();
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         LibraryApplicationArea.EnableEssentialSetup;
 
@@ -3763,11 +3819,11 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         AllProfile.FindFirst();
         ConfPersonalizationMgt.SetCurrentProfile(AllProfile);
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateVATData;
-        NoSeriesSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateVATData();
+        NoSeriesSetup();
         ItemJournalSetup;
         CreateLocationSetup;
         ConsumptionJournalSetup;
@@ -3784,7 +3840,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     var
         Qty: Decimal;
     begin
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandIntInRange(10, 20);
         CreateItemWithReorderPoint(Item, ReorderingPolicy, Item."Replenishment System"::Purchase, Qty, Qty + 1);
         PostReceiptAndAutoReserveForSale(Item, Qty);
@@ -3838,7 +3894,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         LibraryVariableStorage.Enqueue(AutoReservNotPossibleMsg);
         Reservation.SetReservSource(SalesLine);
-        Reservation.RunModal;
+        Reservation.RunModal();
     end;
 
     local procedure BindSalesOrderLineToBlanketOrderLine(var SalesLineOrder: Record "Sales Line"; SalesLineBlanketOrder: Record "Sales Line")
@@ -3879,7 +3935,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         ReqLine.SetRecFilter;
         CarryOutActionMsgPlan.UseRequestPage(false);
         CarryOutActionMsgPlan.SetDemandOrder(ReqLine, MfgUserTemplate);
-        CarryOutActionMsgPlan.RunModal;
+        CarryOutActionMsgPlan.RunModal();
     end;
 
     local procedure CreateLocationSetup()
@@ -3949,7 +4005,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         with StockkeepingUnit do begin
             SetRange("Item No.", Item."No.");
             SetRange("Location Code", LocationCode);
-            FindFirst;
+            FindFirst();
             Validate("Replenishment System", RepSystem);
             Evaluate(
               "Lead Time Calculation",
@@ -4151,7 +4207,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
     end;
@@ -4348,7 +4404,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create the manufacturing tree. Create demand. Plan and carry out the Demand.
         CreateManufacturingTreeItem(TopItem, MiddleItem, BottomItem);
@@ -4387,7 +4443,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         TransferRoute.SetRange("Transfer-to Code", TransferTo);
 
         // If Transfer Not Found then Create it.
-        if not TransferRoute.FindFirst then
+        if not TransferRoute.FindFirst() then
             LibraryWarehouse.CreateTransferRoute(TransferRoute, TransferFrom, TransferTo);
     end;
 
@@ -4406,7 +4462,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         with SalesLine do begin
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Validate(Quantity, Quantity * LibraryRandom.RandDecInRange(2, 10, 2));
             Modify(true);
         end;
@@ -4423,7 +4479,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("No.", ItemNo);
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FilterOnRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20])
@@ -4450,7 +4506,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     begin
         with ReqLine do begin
             FilterOnRequisitionLine(ReqLine, ItemNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -4469,21 +4525,21 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     local procedure SelectSalesLineFromSalesDocument(var SalesLine: Record "Sales Line"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure SelectProductionOrder(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; Status: Enum "Production Order Status")
     begin
         ProductionOrder.SetRange("Source No.", ItemNo);
         ProductionOrder.SetRange(Status, Status);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
     end;
 
-    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Option)
+    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Enum "Req. Worksheet Template Type")
     begin
         ReqWkshTemplate.SetRange(Type, Type);
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
     end;
 
     local procedure SetSupplyFromVendorOnRequisitionLine(var ReqLine: Record "Requisition Line")
@@ -4642,10 +4698,10 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         GetSalesOrders.SetTableView(SalesLine);
         GetSalesOrders.InitializeRequest(0);
         GetSalesOrders.UseRequestPage(false);
-        GetSalesOrders.Run;
+        GetSalesOrders.Run();
     end;
 
-    local procedure FindRequisitionWkshName(ReqWkshTemplateType: Option): Code[10]
+    local procedure FindRequisitionWkshName(ReqWkshTemplateType: Enum "Req. Worksheet Template Type"): Code[10]
     var
         ReqWkshTemplate: Record "Req. Wksh. Template";
         RequisitionWkshName: Record "Requisition Wksh. Name";
@@ -4653,7 +4709,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         SelectRequisitionTemplate(ReqWkshTemplate, ReqWkshTemplateType);
         with RequisitionWkshName do begin
             SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
-            FindFirst;
+            FindFirst();
             exit(Name);
         end;
     end;
@@ -4831,10 +4887,10 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         PlanningComponent: Record "Planning Component";
     begin
         PlanningRoutingLine.SetRange("Routing Link Code", RoutingLinkCode);
-        PlanningRoutingLine.FindFirst;
+        PlanningRoutingLine.FindFirst();
 
         PlanningComponent.SetRange("Routing Link Code", RoutingLinkCode);
-        PlanningComponent.FindFirst;
+        PlanningComponent.FindFirst();
 
         PlanningComponent.TestField("Due Date", PlanningRoutingLine."Starting Date");
         PlanningComponent.TestField("Due Time", PlanningRoutingLine."Starting Time");
@@ -4884,7 +4940,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         RequisitionLine: Record "Requisition Line";
     begin
         FilterOnRequisitionLine(RequisitionLine, No);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
         RequisitionLine.TestField("Due Date", DueDate);
     end;
 
@@ -4911,10 +4967,10 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         ReservationEntry.SetRange("Item No.", ItemNo);
 
         if ReservationEntryExist then begin
-            ReservationEntry.FindFirst;
+            ReservationEntry.FindFirst();
             ReservationEntry.TestField("Expected Receipt Date", ExpectedReceiptDate);
         end else
-            asserterror ReservationEntry.FindFirst;
+            asserterror ReservationEntry.FindFirst();
     end;
 
     local procedure VerifyReservationEntryOfTrackingExist(ItemNo: Code[20]; ShipmentDate: Date; ShipmentDateExist: Boolean)
@@ -4959,7 +5015,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         with ReservationEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Reservation Status", "Reservation Status"::Surplus);
-            FindFirst;
+            FindFirst();
             TestField(Quantity, ExpectedQuantity);
         end;
     end;

@@ -34,7 +34,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         VendorNo: Code[20];
     begin
         // Initialize
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankAccount(CountryRegion.Code, 'FI9780RBOS16173241116737', 'SEPACT V02', '');
         CreateBankAccountReferenceFileSetup(RefFileSetup, BankAccountNo);
         VendorNo := CreateVendor(CountryRegion.Code, 'FI9780RBOS16173241116737', true, 1);
@@ -45,7 +45,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         RefPaymentExported.SetRange(Transferred, false);
         RefPaymentExported.SetRange("Applied Payments", false);
         RefPaymentExported.SetRange("SEPA Payment", true);
-        RefPaymentExported.FindFirst;
+        RefPaymentExported.FindFirst();
         RefPaymentExported.ExportToFile;
 
         // Verify
@@ -67,7 +67,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         ValidIBANCode: Code[50];
     begin
         // [SCENARIO 278682] Process SEPA payments action works on webclient
-        Initialize;
+        Initialize();
 
         // [GIVEN] Client type was webclient
         BindSubscription(TestClientTypeSubscriber);
@@ -81,7 +81,7 @@ codeunit 144026 "SEPA Bank Payment Export"
 
         // [WHEN] Run Process SEPA payments report
         BindSubscription(SEPABankPaymentExport);
-        RefPaymentExported.FindFirst;
+        RefPaymentExported.FindFirst();
         RefPaymentExported.ExportToFile;
         // RequestPage handled by RPHSuggestBankPayments handler
 
@@ -91,7 +91,7 @@ codeunit 144026 "SEPA Bank Payment Export"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SEPA Bank Payment Export");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SEPA Bank Payment Export");
@@ -184,7 +184,7 @@ codeunit 144026 "SEPA Bank Payment Export"
     begin
         with PostCode do begin
             SetRange("Country/Region Code", CountryCode);
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -297,7 +297,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         RefPaymentExported.DeleteAll();
         Commit();
         SuggestBankPayments.InitializeRequest(CalcDate('<30D>', PurchaseHeader."Posting Date"), false, 0);
-        SuggestBankPayments.RunModal;
+        SuggestBankPayments.RunModal();
 
         exit(DocNo);
     end;

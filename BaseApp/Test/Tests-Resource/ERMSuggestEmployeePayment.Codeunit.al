@@ -153,7 +153,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         Assert.IsTrue(PreCount < PostCount, 'Suggest Employee Payments should have added records.');
 
         RecordCountBefore := GenJournalLine.Count();
-        GenJournalLine.FindLast;
+        GenJournalLine.FindLast();
         GenJournalLine.Delete();
         Commit();
 
@@ -298,7 +298,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         // Setup: Create & Post General Journal Lines.
         Initialize();
         EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         CreateGeneralJournalWithAccountTypeGLAccount(GenJournalLine, GLAccountNo);
         UpdateGenJournalLine(GenJournalLine, EmployeeNo);
         ShortcutDimension1Code := GenJournalLine."Shortcut Dimension 1 Code";
@@ -324,7 +324,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         // 1. Setup: Create and Post General Journal Lines.
         EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         LibraryVariableStorage.Enqueue(EmployeeNo);
         LibraryVariableStorage.Enqueue(GLAccountNo);
         CreateGeneralJournalWithAccountTypeGLAccount(GenJournalLine, GLAccountNo);
@@ -545,7 +545,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         // [SCENARIO 273537] Suggest Employee Payments fills recipient bank account with Employee No.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Employee 'X'
         // [GIVEN] Posted General Journal Line, where "Bal. Account Type" = 'Employee', "Bal. Account No." = 'X'
@@ -591,7 +591,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account Type"::"Bank Account");
         LibraryVariableStorage.Enqueue(BankAccountNo);
         LibraryVariableStorage.Enqueue(GenJournalLine."Bank Payment Type"::"Electronic Payment");
-        SuggestEmployeePayments.Run;
+        SuggestEmployeePayments.Run();
 
         // [THEN] Payment Journal Line created for Employee A with Ammout 100 with "Bank Payment Type" = "Electronic Payment"
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
@@ -627,7 +627,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account Type"::"Bank Account");
         LibraryVariableStorage.Enqueue(BankAccountNo);
         LibraryVariableStorage.Enqueue(GenJournalLine."Bank Payment Type"::"Electronic Payment-IAT");
-        SuggestEmployeePayments.Run;
+        SuggestEmployeePayments.Run();
 
         // [THEN] Payment Journal Line created for Employee A with Ammout 100 with "Bank Payment Type" = "Electronic Payment-IAT"
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
@@ -729,7 +729,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         // [THEN] "Starting Document No." is equal to 101
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindLast;
+        GenJournalLine.FindLast();
         CreateEmployeePayment."Starting Document No.".AssertEquals(IncStr(GenJournalLine."Document No."));
         CreateEmployeePayment.Close;
     end;
@@ -1196,7 +1196,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
           0, false, WorkDate, Format(LibraryRandom.RandInt(100)),
           SummarizePerEmployee, BalAccountType, BalAccountNo, BankPaymentType);
         SuggestEmployeePayments.UseRequestPage(false);
-        SuggestEmployeePayments.RunModal;
+        SuggestEmployeePayments.RunModal();
     end;
 
     local procedure SuggestEmployeePaymentUsingPage(var GenJournalLine: Record "Gen. Journal Line")
@@ -1215,7 +1215,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
 
         SuggestEmployeePayments.SetGenJnlLine(GenJournalLine);
-        SuggestEmployeePayments.Run;
+        SuggestEmployeePayments.Run();
     end;
 
     local procedure UpdateOnHoldOnGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; OnHold: Code[3])
@@ -1413,7 +1413,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
             SetRange("Employee No.", EmployeeNo);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount, "Remaining Amount");
             Assert.AreNearlyEqual(Amount2, Amount, LibraryERM.GetAmountRoundingPrecision,
               StrSubstNo(ValidateErrorErr, FieldCaption(Amount), Amount2, TableCaption, FieldCaption("Entry No."), "Entry No."));
@@ -1446,7 +1446,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalLine2.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         GenJournalLine2.TestField("Shortcut Dimension 1 Code", '');
         GenJournalLine2.TestField("Shortcut Dimension 2 Code", '');
-        GenJournalLine2.FindLast;
+        GenJournalLine2.FindLast();
         GenJournalLine2.TestField("Account Type", GenJournalLine2."Account Type"::Employee);
         GenJournalLine2.TestField("Account No.", EmployeeNo);
         GenJournalLine2.TestField("Bal. Account Type", GenJournalLine2."Bal. Account Type"::"G/L Account");
@@ -1459,7 +1459,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         GenJournalLine2.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine2.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine2.FindLast;
+        GenJournalLine2.FindLast();
         GenJournalLine2.TestField("Shortcut Dimension 1 Code", DimValue1Code);
         GenJournalLine2.TestField("Shortcut Dimension 2 Code", DimValue2Code);
     end;

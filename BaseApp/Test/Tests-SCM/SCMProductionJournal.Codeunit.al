@@ -39,6 +39,7 @@ codeunit 137034 "SCM Production Journal"
         InvalidBinCodeErr: Label 'Bin Code is invalid.';
         LocationWithDirectedPutAwayAndPickErr: Label 'You cannot use a Bin Code because location %1 is set up with Directed Put-away and Pick.', Comment = '%1: Field(Code)';
         UpdateInterruptedErr: Label 'The update has been interrupted to respect the warning.';
+        BOMFixedQtyCalcFormulaErr: Label 'BOM Fixed Quantity Calculation Formula should be used to calculate the values.';
 
     [Test]
     [HandlerFunctions('JournalReservePageHandler')]
@@ -48,7 +49,7 @@ codeunit 137034 "SCM Production Journal"
         // Check Reserved Item Not On Inventory error.
 
         // Create required Production Journal Setups and Open Production Journal to perform required actions.
-        Initialize;
+        Initialize();
         ProdJnlForRelProdOrder;
 
         // Verify: Verification of 'Reserved Item Not On Inventory' when posting.
@@ -63,7 +64,7 @@ codeunit 137034 "SCM Production Journal"
         // Check Applies To Entry With Reservation error.
 
         // Create required Production Journal Setups and Open Production Journal to perform required actions.
-        Initialize;
+        Initialize();
         ProdJnlForRelProdOrder;
 
         // Verify: Verification of 'Applies To Entry' error message when posting.
@@ -80,7 +81,7 @@ codeunit 137034 "SCM Production Journal"
         // Check Production Journal Lines for Production Item in Released Production Order before lines have been posted.
 
         // Create required Production Journal Setups and Open Production Journal to perform required actions.
-        Initialize;
+        Initialize();
         ProdOrderNo := ProdJnlForRelProdOrder;
 
         // Verify: Verification of Production Journal Lines - Consumption and Output without posting of Production Journal.
@@ -131,7 +132,7 @@ codeunit 137034 "SCM Production Journal"
         RoutingHeader: Record "Routing Header";
     begin
         // Setup: Create Items and Released Production Order Setup.
-        Initialize;
+        Initialize();
         CreateRoutingSetup(RoutingHeader);
         CreateProdItem(Item, RoutingHeader."No.");
         CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.");
@@ -160,7 +161,7 @@ codeunit 137034 "SCM Production Journal"
         ProductionJournalMgt: Codeunit "Production Journal Mgt";
     begin
         // Setup: Create Items, Family and Released Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProdItem(Item, '');
         CreateProdItem(Item2, '');
         CreateRoutingSetup(RoutingHeader);
@@ -199,7 +200,7 @@ codeunit 137034 "SCM Production Journal"
         Family: Record Family;
     begin
         // Setup: Create Items, Family and Released Production Order Setup.
-        Initialize;
+        Initialize();
         CreateProdItem(Item, '');
         CreateProdItem(Item2, '');
         CreateRoutingSetup(RoutingHeader);
@@ -227,7 +228,7 @@ codeunit 137034 "SCM Production Journal"
         SalesHeader: Record "Sales Header";
     begin
         // Setup: Create Items, Sales Order and Released Production Order Setup.
-        Initialize;
+        Initialize();
         CreateRoutingSetup(RoutingHeader);
         CreateProdItem(Item, RoutingHeader."No.");
         CreateSalesOrder(SalesHeader, Item."No.");
@@ -254,7 +255,7 @@ codeunit 137034 "SCM Production Journal"
         RoutingHeader: Record "Routing Header";
     begin
         // Setup: Create Items, Sales Order and Released Production Order Setup.
-        Initialize;
+        Initialize();
         CreateRoutingSetup(RoutingHeader);
         CreateProdItem(Item, RoutingHeader."No.");
         CreateSalesOrder(SalesHeader, Item."No.");
@@ -280,7 +281,7 @@ codeunit 137034 "SCM Production Journal"
         RoutingHeader: Record "Routing Header";
     begin
         // Setup: Create Items and Released Production Order.
-        Initialize;
+        Initialize();
         CreateRoutingSetup(RoutingHeader);
         CreateProdItem(Item, RoutingHeader."No.");
         CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.");
@@ -305,7 +306,7 @@ codeunit 137034 "SCM Production Journal"
         RoutingHeader: Record "Routing Header";
     begin
         // Setup: Create Items and Released Production Order.
-        Initialize;
+        Initialize();
         CreateRoutingSetup(RoutingHeader);
         CreateProdItem(Item, RoutingHeader."No.");
         CreateAndRefreshRelProdOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.");
@@ -331,7 +332,7 @@ codeunit 137034 "SCM Production Journal"
         DimSetIDProdOrder: Integer;
     begin
         // Setup: Create Items with Dimensions and Create Released Production Order.
-        Initialize;
+        Initialize();
         DimSetIDProdOrder := CreateDimRelProdOrderSetup(ProductionOrder, DefaultDimension, DefaultDimension2);
         ProductionOrderNo := ProductionOrder."No.";
 
@@ -347,7 +348,7 @@ codeunit 137034 "SCM Production Journal"
         VerifyDimensionSetEntry(DefaultDimension2);
 
         // Dimensions for Output Entries.
-        TempItemJournalLine2.FindLast;
+        TempItemJournalLine2.FindLast();
         Assert.AreEqual(DimSetIDProdOrder, TempItemJournalLine2."Dimension Set ID", ErrMsgDimensions);
     end;
 
@@ -361,7 +362,7 @@ codeunit 137034 "SCM Production Journal"
         DefaultDimension2: Record "Default Dimension";
     begin
         // Setup: Create Items with Dimensions and Create Released Production Order.
-        Initialize;
+        Initialize();
         CreateDimRelProdOrderSetup(ProductionOrder, DefaultDimension, DefaultDimension2);
         ProductionOrderNo := ProductionOrder."No.";
 
@@ -385,7 +386,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         // [FEATURE] [Consumption Journal] [UI]
         // [SCENARIO 215892] List of prod. order components should be filtered by Prod. Order Line No. on looking up Prod. Order Comp. Line No. field in consumption journal, if Order Line No. on the journal line is not blank.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prod. Order Line "X".
         MockProdOrderLine(ProdOrderLine);
@@ -415,7 +416,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         // [FEATURE] [Consumption Journal] [UI]
         // [SCENARIO 215892] List of prod. order components should not be filtered by Prod. Order Line No. on looking up Prod. Order Comp. Line No. field in consumption journal, if Order Line No. on the journal line is blank.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prod. Order Line "X".
         MockProdOrderLine(ProdOrderLine);
@@ -445,7 +446,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         // [FEATURE] [Bin]
         // [SCENARIO 380337] Location and Bin codes on Output Journal are updated with Location and Bin on parent Prod. Order Line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Production Order "PO" on Location "L" with parent and child lines and bins "B1" and "B2" related to them.
         CreateReleasedProdOrderWithTwoLines(ParentProdOrderLine, ChildProdOrderLine);
@@ -474,7 +475,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         // [FEATURE] [Bin]
         // [SCENARIO 380337] Location and Bin codes on Consumption Journal are updated with Location and Bin on child Prod. Order Line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Production Order "PO" on Location "L" with parent and child lines and bins "B1" and "B2" related to them.
         CreateReleasedProdOrderWithTwoLines(ParentProdOrderLine, ChildProdOrderLine);
@@ -506,7 +507,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         // [FEATURE] [Bin]
         // [SCENARIO 380337] Bin code on Output Journal Line is updated from Prod. Order Line when Item No. is updated and only one Prod. Order Line related to this Item is found.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Production Order "PO" on Location "L" with parent and child lines and bins "B1" and "B2" related to them.
         CreateReleasedProdOrderWithTwoLines(ParentProdOrderLine, ChildProdOrderLine);
@@ -541,7 +542,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         // [FEATURE] [Bin] [Directed Put-away and Pick] [UT]
         // [SCENARIO 380337] Bin code on Item Journal Line can be cleared for Location with enabled "Directed Put-away and Pick".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location with Bin.
         CreateLocationWithNumberOfBins(Location, 1);
@@ -573,7 +574,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         // [FEATURE] [Bin] [Directed Put-away and Pick]
         // [SCENARIO 380337] Bin code can be set manually on Output Journal Line if the related Prod. Order Line has the same Bin code.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Production Order "PO" on Location "L" with parent and child lines and bins "B1" and "B2" related to them.
         CreateReleasedProdOrderWithTwoLines(ParentProdOrderLine, ChildProdOrderLine);
@@ -603,7 +604,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         // [FEATURE] [Bin] [Directed Put-away and Pick]
         // [SCENARIO 380337] Bin code can be set manually on Consumption Journal Line if the related Prod. Order Component has the same Bin code and Location.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Production Order "PO" on Location "L" with parent and child lines and bins "B1" and "B2" related to them.
         CreateReleasedProdOrderWithTwoLines(ParentProdOrderLine, ChildProdOrderLine);
@@ -636,7 +637,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         // [FEATURE] [Bin] [Directed Put-away and Pick]
         // [SCENARIO 380337] Bin code cannot be set manually on Output Journal Line if the related Prod. Order Component has different Bin code.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Production Order "PO" on Location "L" with parent and child lines and bins "B1" and "B2" related to them.
         CreateReleasedProdOrderWithTwoLines(ParentProdOrderLine, ChildProdOrderLine);
@@ -666,7 +667,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         // [FEATURE] [Bin] [Directed Put-away and Pick]
         // [SCENARIO 380337] Bin code cannot be set on Output Journal Line if the related Prod. Order Component has the same Bin code but different Location.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released Production Order "PO" on Location "L1" with parent and child lines and bins "B1" and "B2" related to them.
         CreateReleasedProdOrderWithTwoLines(ParentProdOrderLine, ChildProdOrderLine);
@@ -704,7 +705,7 @@ codeunit 137034 "SCM Production Journal"
         // [FEATURE] [Routing]
         // [SCENARIO 223042] "Output Quantity" should be set to 0 in output journal for finished operations
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Routing "R" with two operations: "O1" and "O2"
         // [GIVEN] Create item "I" and assign the routing to the item
@@ -720,14 +721,14 @@ codeunit 137034 "SCM Production Journal"
         LibraryManufacturing.OutputJournalExplodeRouting(ProductionOrder);
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Run Time", LibraryRandom.RandInt(20));
         ItemJournalLine.Validate("Output Quantity", 0);
         ItemJournalLine.Validate(Finished, true);
         ItemJournalLine.Modify(true);
 
         // [GIVEN] Delete the second operation and post the output journal
-        ItemJournalLine.FindLast;
+        ItemJournalLine.FindLast();
         ItemJournalLine.Delete(true);
         LibraryManufacturing.PostOutputJournal;
 
@@ -738,9 +739,9 @@ codeunit 137034 "SCM Production Journal"
 
         // [THEN] Two journal lines are created. First line has "Output Quantity" = 0, "Output Quantity" in the second line is 1
         Assert.RecordCount(ItemJournalLine, 2);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Output Quantity", 0);
-        ItemJournalLine.FindLast;
+        ItemJournalLine.FindLast();
         ItemJournalLine.TestField("Output Quantity", ProductionOrder.Quantity);
     end;
 
@@ -759,7 +760,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         // [FEATURE] [Inventory Put-Away]
         // [SCENARIO 223253] Inventory Put-Away for production order with partly finished routing can be successfully posted
-        Initialize;
+        Initialize();
 
         CreateBinMandatoryProductionLocation(Location);
         OperationNo := CreateRoutingSetup(RoutingHeader);
@@ -800,7 +801,7 @@ codeunit 137034 "SCM Production Journal"
         // [FEATURE] [Routing] [Production Order]
         // [SCENARIO 230130] Finished operations should not be excluded when recalculating the production order routing, routing type is Serial
 
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
 
         OperationNo[1] := '100';
@@ -854,7 +855,7 @@ codeunit 137034 "SCM Production Journal"
         // [FEATURE] [Routing] [Production Order]
         // [SCENARIO 230130] Finished operations should not be excluded when recalculating the production order routing, routing type is Parallel
 
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
 
         OperationNo[1] := '100';
@@ -924,7 +925,7 @@ codeunit 137034 "SCM Production Journal"
         // [FEATURE] [Routing] [Production Order]
         // [SCENARIO 230130] New value for the field "Output Quantity" in item journal should be accepted after user's confirmation when the journal line refers to a finished routing line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released production order "P"
         CreateAndRefreshReleasedProdOrderWithNewItemAndRouting(ProductionOrder, OperationNo);
@@ -961,7 +962,7 @@ codeunit 137034 "SCM Production Journal"
         // [FEATURE] [Routing] [Production Order]
         // [SCENARIO 230130] Error message should be shown when entering output quantity in the item journal for a finished routing line
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released production order "P"
         CreateAndRefreshReleasedProdOrderWithNewItemAndRouting(ProductionOrder, OperationNo);
@@ -1000,7 +1001,7 @@ codeunit 137034 "SCM Production Journal"
         // [FEATURE] [Routing] [Production Order]
         // [SCENARIO 230130] Item journal line can be linked to a finished prod. order routing line after user's confirmation
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released production order "P"
         CreateAndRefreshReleasedProdOrderWithNewItemAndRouting(ProductionOrder, OperationNo);
@@ -1037,7 +1038,7 @@ codeunit 137034 "SCM Production Journal"
         // [FEATURE] [Routing] [Production Order]
         // [SCENARIO 230130] Error message should be shown when entering an operation no. for the finished routing operation if output quantity is not zero, and action is not confirmed
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Released production order "P"
         CreateAndRefreshReleasedProdOrderWithNewItemAndRouting(ProductionOrder, OperationNo);
@@ -1318,6 +1319,138 @@ codeunit 137034 "SCM Production Journal"
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
     end;
 
+    [Test]
+    [HandlerFunctions('PostProdJnlWithConsume0PageHandler,ConfirmHandlerYes,MessageHandler')]
+    procedure BOMFixedQtyCalcConsumptionAfterPostProdJnl()
+    var
+        ComponentItem: Record Item;
+        ProductItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProdOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ConsumptionJournalLine: Record "Item Journal Line";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+        CalcBasedOn: Option "Actual Output","Expected Output";
+    begin
+        // [SCENARIO 317277] Fixed Quantity calculation formula is used for calculating consumption in consumption journal after posting production journal.
+        // [GIVEN] Component item, product item, Production BOM
+        Initialize();
+        LibraryInventory.CreateItem(ComponentItem);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ComponentItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem."No.", LibraryRandom.RandIntInRange(51, 100));
+        ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
+        ProductionBOMLine.Modify();
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify();
+
+        LibraryInventory.CreateItem(ProductItem);
+        ProductItem.Validate("Replenishment System", ProductItem."Replenishment System"::"Prod. Order");
+        ProductItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProductItem.Modify();
+
+        // [WHEN] Create released production order and refresh.
+        CreateAndRefreshReleasedProductionOrderAtLocation(ProdOrder, ProductItem."No.", LibraryRandom.RandIntInRange(51, 100), '');
+
+        // [WHEN] Create Production Journal from released production order line and update quantities
+        // [WHEN] Post Production Journal
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
+        ProdOrderLine.FindFirst();
+        ProductionJournalMgt.Handling(ProdOrder, ProdOrderLine."Line No.");
+        // Update and Post in ModalPageHandler PostProdJnlWithConsume0PageHandler
+
+        // [WHEN] Calculate consumption in consumption journal
+        LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalBatch."Template Type"::Consumption);
+        ConsumptionJnlCalcConsumption(ItemJournalBatch, CalcBasedOn::"Actual Output");
+
+        // [THEN]  New Item Journal Line for Component Item quantity = Production BOM Line Quantity Per.
+        FindLastJournalLine(ConsumptionJournalLine, ItemJournalBatch);
+        Assert.AreEqual(ComponentItem."No.", ConsumptionJournalLine."Item No.", BOMFixedQtyCalcFormulaErr);
+        Assert.AreEqual(ProductionBOMLine."Quantity per", ConsumptionJournalLine.Quantity, BOMFixedQtyCalcFormulaErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('PostProdJnlPageHandler,ConfirmHandlerYes,MessageHandler')]
+    procedure BOMFixedQtyPostRelProdOrderWithBackFlushing()
+    var
+        ComponentItem: Record Item;
+        ProductItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProdOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalLine: Record "Item Journal Line";
+        ProdOrderComp: Record "Prod. Order Component";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ProdOrderComponentsTestPage: TestPage "Prod. Order Components";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+    begin
+        // [SCENARIO 317277] Fixed Quantity calculation formula is used for calculating with BackFlushing and changing the status to Finished.
+        // [GIVEN] Component item, positive adjustment with qty 10 for Component,  product item, Production BOM
+        Initialize();
+        LibraryInventory.CreateItem(ComponentItem);
+        CreateAndPostItemJournal(ItemJournalLine."Entry Type"::"Positive Adjmt.", ComponentItem."No.", LibraryRandom.RandIntInRange(101, 1000));
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ComponentItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem."No.", LibraryRandom.RandIntInRange(51, 100));
+        ProductionBOMLine.Validate("Calculation Formula", ProductionBOMLine."Calculation Formula"::"Fixed Quantity");
+        ProductionBOMLine.Modify();
+        ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
+        ProductionBOMHeader.Modify();
+
+        LibraryInventory.CreateItem(ProductItem);
+        ProductItem.Validate("Replenishment System", ProductItem."Replenishment System"::"Prod. Order");
+        ProductItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProductItem.Modify();
+
+        // [WHEN] Create released production order and refresh.
+        CreateAndRefreshReleasedProductionOrderAtLocation(ProdOrder, ProductItem."No.", LibraryRandom.RandIntInRange(11, 50), '');
+
+        // [WHEN] Set flushing to Backward in Components page for the production line.
+        ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
+        ProdOrderLine.FindFirst();
+        ProdOrderComp.SetRange("Prod. Order No.", ProdOrder."No.");
+        ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        ProdOrderComponentsTestPage.Trap();
+        PAGE.Run(PAGE::"Prod. Order Components", ProdOrderComp);
+        ProdOrderComponentsTestPage."Flushing Method".SetValue(ProdOrderComp."Flushing Method"::Backward);
+        ProdOrderComponentsTestPage.Close();
+
+        // [WHEN] Create Production Journal from released production order line and update quantities
+        // [WHEN] Post Production Journal
+        ProductionJournalMgt.Handling(ProdOrder, ProdOrderLine."Line No.");
+        // Update and Post in ModalPageHandler PostProdJnlPageHandler
+
+        // [WHEN] Change Production Order Status to Finished
+        LibraryManufacturing.ChangeStatusReleasedToFinished(ProdOrder."No.");
+
+        // [THEN]  New Item Ledger Entry for Component Item quantity = - Production BOM Line Quantity Per.
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
+        ItemLedgerEntry.SetRange("Item No.", ComponentItem."No.");
+        ItemLedgerEntry.FindFirst();
+        Assert.AreEqual(ProductionBOMLine."Quantity per", -ItemLedgerEntry.Quantity, BOMFixedQtyCalcFormulaErr);
+    end;
+
+    local procedure FindLastJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemJournalBatch: Record "Item Journal Batch")
+    begin
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.FindLast();
+    end;
+
+    local procedure ConsumptionJnlCalcConsumption(ItemJournalBatch: Record "Item Journal Batch"; CalcBasedOn: Option "Actual Output","Expected Output")
+    var
+        CalcConsumption: Report "Calc. Consumption";
+    begin
+        Commit();
+        CalcConsumption.InitializeRequest(WorkDate(), CalcBasedOn);
+        CalcConsumption.SetTemplateAndBatchName(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+        CalcConsumption.UseRequestPage(false);
+        CalcConsumption.RunModal();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1328,9 +1461,9 @@ codeunit 137034 "SCM Production Journal"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Production Journal");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
-        UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
+        UpdateSalesReceivablesSetup();
         ItemJournalSetup;
 
         isInitialized := true;
@@ -1414,7 +1547,7 @@ codeunit 137034 "SCM Production Journal"
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
 
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
 
         CreateOutputJournalLine(
           ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
@@ -1447,12 +1580,12 @@ codeunit 137034 "SCM Production Journal"
     begin
         LibraryWarehouse.CreateInboundWhseReqFromProdO(ProductionOrder);
         WarehouseRequest.SetRange("Location Code", LocationCode);
-        WarehouseRequest.FindFirst;
+        WarehouseRequest.FindFirst();
         LibraryWarehouse.CreateInvtPutAwayPick(WarehouseRequest, true, false, false);
         WarehouseActivityHeader.SetRange("Location Code", LocationCode);
-        WarehouseActivityHeader.FindFirst;
+        WarehouseActivityHeader.FindFirst();
         WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
         WarehouseActivityLine.Modify(true);
     end;
@@ -1508,7 +1641,7 @@ codeunit 137034 "SCM Production Journal"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
     end;
 
@@ -1764,7 +1897,7 @@ codeunit 137034 "SCM Production Journal"
             SetRange(Status, ProdOrderStatus);
             SetRange("Prod. Order No.", ProdOrderNo);
             SetRange("Operation No.", OperationNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1796,7 +1929,7 @@ codeunit 137034 "SCM Production Journal"
             SetRange(Status, ProdOrderStatus);
             SetRange("Prod. Order No.", ProdOrderNo);
             SetRange("Operation No.", OperationNo);
-            FindFirst;
+            FindFirst();
 
             Validate("Next Operation No.", NextOperationNo);
             Modify(true);
@@ -1903,7 +2036,7 @@ codeunit 137034 "SCM Production Journal"
         with ProdOrderLine do begin
             SetRange("Prod. Order No.", ProdOrderNo);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1912,7 +2045,7 @@ codeunit 137034 "SCM Production Journal"
         with ProdOrderComponent do begin
             SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
             SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1955,7 +2088,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         SelectProdOrderLine(ProdOrderLine, ProdOrderNo);
         ProdOrderLine.SetRange("Item No.", ItemNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         SelectProdOrderComponent(ProdOrderComponent, ProdOrderNo);
         ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
         ProdOrderComponent.FindSet();
@@ -1998,7 +2131,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         FamilyLine.SetRange("Family No.", FamilyNo);
         FamilyLine.SetRange("Item No.", ItemNo);
-        FamilyLine.FindFirst;
+        FamilyLine.FindFirst();
         TempItemJournalLine.SetRange("Entry Type", TempItemJournalLine."Entry Type"::Output);
         TempItemJournalLine.FindSet();
         repeat
@@ -2012,7 +2145,7 @@ codeunit 137034 "SCM Production Journal"
     begin
         TempDimensionSetEntry.SetRange("Dimension Set ID", TempItemJournalLine2."Dimension Set ID");
         TempDimensionSetEntry.SetRange("Dimension Code", DefaultDimension."Dimension Code");
-        TempDimensionSetEntry.FindFirst;
+        TempDimensionSetEntry.FindFirst();
         TempDimensionSetEntry.TestField("Dimension Value Code", DefaultDimension."Dimension Value Code");
     end;
 
@@ -2021,9 +2154,9 @@ codeunit 137034 "SCM Production Journal"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         TempItemJournalLine2.SetRange("Item No.", ItemNo);
-        TempItemJournalLine2.FindFirst;
+        TempItemJournalLine2.FindFirst();
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindLast;
+        ItemLedgerEntry.FindLast();
         ItemLedgerEntry.TestField("Dimension Set ID", TempItemJournalLine2."Dimension Set ID");
     end;
 
@@ -2057,7 +2190,7 @@ codeunit 137034 "SCM Production Journal"
         // Generate Apply To Entry With Reservation error.
         SelectConsumptionJournal(ItemJournalLine, ProductionOrderNo);
         ItemLedgerEntry.SetRange("Item No.", ReserveItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemJournalLine.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.");
         ItemJournalLine.Modify(true);
         asserterror CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
@@ -2144,6 +2277,26 @@ codeunit 137034 "SCM Production Journal"
 
         // Post Production Journal lines.
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostProdJnlWithConsume0PageHandler(var ProductionJournal: TestPage "Production Journal")
+    var
+        ItemJnlEntryType: Enum "Item Ledger Entry Type";
+    begin
+        Assert.IsTrue(ProductionJournal.FindFirstField(ProductionJournal."Entry Type", ItemJnlEntryType::Consumption), '');
+        ProductionJournal.Quantity.SetValue(0);
+        Assert.IsTrue(ProductionJournal.FindNextField(ProductionJournal."Entry Type", ItemJnlEntryType::Output), '');
+        ProductionJournal.Quantity.SetValue(LibraryRandom.RandInt(10));
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostProdJnlPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Post.Invoke();
     end;
 
     [ModalPageHandler]

@@ -27,7 +27,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         ItemNo: Code[20];
     begin
         // [SCENARIO] Create a Purchase Order from a Purchase Quote as Business Manager
-        Initialize;
+        Initialize();
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
 
         // [GIVEN] A Vendor and an item
@@ -50,7 +50,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         ItemNo: Code[20];
     begin
         // [SCENARIO] Create a Purchase Order from a Purchase Quote as External Accountant
-        Initialize;
+        Initialize();
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
 
         // [GIVEN] A Vendor and an item
@@ -73,21 +73,21 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         ItemNo: Code[20];
     begin
         // [SCENARIO] Create a Purchase Order from a Purchase Quote as Team Member
-        Initialize;
+        Initialize();
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
 
         // [GIVEN] A Vendor
         asserterror VendorNo := CreateVendor;
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
 
         // [GIVEN] An Item
         asserterror ItemNo := CreateItem;
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
 
         // [WHEN] A Purchase Quote is created and made into Purchase Order
         CreatePurchaseQuoteAndMakeOrder(VendorNo, ItemNo);
@@ -105,7 +105,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         ItemNo: Code[20];
     begin
         // [SCENARIO] Create a Purchase Order from a Purchase Quote as Essential ISV Emb User
-        Initialize;
+        Initialize();
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
 
         // [GIVEN] A Vendor and an item
@@ -128,7 +128,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         ItemNo: Code[20];
     begin
         // [SCENARIO] Create a Purchase Order from a Purchase Quote as Team Member ISV Emb
-        Initialize;
+        Initialize();
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
 
         // [GIVEN] A Vendor
@@ -136,7 +136,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
 
@@ -145,7 +145,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
 
         // [WHEN] A Purchase Quote is created and made into Purchase Order
         CreatePurchaseQuoteAndMakeOrder(VendorNo, ItemNo);
@@ -163,7 +163,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         ItemNo: Code[20];
     begin
         // [SCENARIO] Create a Purchase Order from a Purchase Quote as Device ISV Emb User
-        Initialize;
+        Initialize();
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
 
         // [GIVEN] A Vendor and an item
@@ -200,8 +200,8 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
 
         LibraryTemplates.EnableTemplatesFeature();
         LibraryPurchase.SetQuoteNoSeriesInSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         IsInitialized := true;
         Commit();
@@ -214,7 +214,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         PurchaseLine: Record "Purchase Line";
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        PurchaseQuote.OpenNew;
+        PurchaseQuote.OpenNew();
         PurchaseQuote."Buy-from Vendor No.".SetValue(VendorNo);
         PurchaseQuote.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::Item));
         PurchaseQuote.PurchLines."No.".SetValue(ItemNo);
@@ -247,7 +247,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
@@ -260,7 +260,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         VendorCard: TestPage "Vendor Card";
     begin
         LibraryERM.FindGenBusinessPostingGroup(GenBusinessPostingGroup);
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         VendorCard."Gen. Bus. Posting Group".SetValue(GenBusinessPostingGroup.Code);
         VendorCard."Vendor Posting Group".SetValue(LibraryPurchase.FindVendorPostingGroup);

@@ -33,7 +33,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -53,7 +53,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
 
         // Verify
         Assert.RecordCount(RefPmtExported, 1);
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         Assert.AreEqual(
           PurchaseHeader."Posting Date", RefPmtExported."Due Date", 'Due date sould be the same as posting date on the purchase invoice');
     end;
@@ -68,7 +68,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         BankAccountNo: Code[20];
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         BankAccountNo := CreateBankAccount;
@@ -99,7 +99,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         VendorNo: array[2] of Code[20];
     begin
         // [SCENARIO 273616] Blocked vendor is ignored when running a SuggestBankPayments report
-        Initialize;
+        Initialize();
 
         // [GIVEN] A vendor[1] blocked by payment
         VendorNo[1] := CreateBlockedVendor;
@@ -135,7 +135,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
     begin
         // [FEATURE] [Payment Discount Tolerance]
         // [SCENARIO 312144] Payment Discount is taken into account when Bank Payment is suggested on the date before grace period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance with grace period = <5D> in G/L Setup
         SetPmtDiscToleranceGLSetup;
@@ -155,7 +155,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         RunSuggestBankPayments(true, false, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate));
 
         // [THEN] Suggested amount is equal to 900
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         Assert.RecordCount(RefPmtExported, 1);
         RefPmtExported.TestField(Amount, -VendorLedgerEntry.Amount + VendorLedgerEntry."Original Pmt. Disc. Possible");
     end;
@@ -173,7 +173,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
     begin
         // [FEATURE] [Payment Discount Tolerance]
         // [SCENARIO 312144] Payment Discount is not taken into account when Bank Payment is suggested on the date within grace period when 'Find Payment Discount Tolerance' = No
-        Initialize;
+        Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance with grace period = <5D> in G/L Setup
         SetPmtDiscToleranceGLSetup;
@@ -193,7 +193,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         RunSuggestBankPayments(true, false, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate));
 
         // [THEN] Suggested amount is equal to 1000
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         Assert.RecordCount(RefPmtExported, 1);
         RefPmtExported.TestField(Amount, -VendorLedgerEntry.Amount);
     end;
@@ -211,7 +211,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
     begin
         // [FEATURE] [Payment Discount Tolerance]
         // [SCENARIO 312144] Payment Discount is taken into account when Bank Payment is suggested on the date within grace period when 'Find Payment Discount Tolerance' = Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance with grace period = <5D> in G/L Setup
         SetPmtDiscToleranceGLSetup;
@@ -231,7 +231,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         RunSuggestBankPayments(true, true, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate));
 
         // [THEN] Suggested amount is equal to 900
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         Assert.RecordCount(RefPmtExported, 1);
         RefPmtExported.TestField(Amount, -VendorLedgerEntry.Amount + VendorLedgerEntry."Original Pmt. Disc. Possible");
     end;
@@ -249,7 +249,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
     begin
         // [FEATURE] [Payment Discount Tolerance]
         // [SCENARIO 312144] Payment Discount is not taken into account when Bank Payment is suggested on the date after grace period when 'Find Payment Discount' = Yes, 'Find Payment Discount Tolerance' = 'No'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance with grace period = <5D> in G/L Setup
         SetPmtDiscToleranceGLSetup;
@@ -269,7 +269,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         RunSuggestBankPayments(true, false, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate));
 
         // [THEN] Suggested amount is equal to 1000
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         Assert.RecordCount(RefPmtExported, 1);
         RefPmtExported.TestField(Amount, -VendorLedgerEntry.Amount);
     end;
@@ -287,7 +287,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
     begin
         // [FEATURE] [Payment Discount Tolerance]
         // [SCENARIO 312144] Payment Discount is not taken into account when Bank Payment is suggested on the date after grace period when with options 'Find Payment Discount' = Yes, 'Find Payment Discount Tolerance' = Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance with grace period = <5D> in G/L Setup
         SetPmtDiscToleranceGLSetup;
@@ -307,7 +307,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         RunSuggestBankPayments(true, true, BankAccountNo, VendorNo, CalcDate('<300D>', WorkDate));
 
         // [THEN] Suggested amount is equal to 1000
-        RefPmtExported.FindFirst;
+        RefPmtExported.FindFirst();
         Assert.RecordCount(RefPmtExported, 1);
         RefPmtExported.TestField(Amount, -VendorLedgerEntry.Amount);
     end;
@@ -317,8 +317,8 @@ codeunit 144024 "Test Suggest Vendor Payments"
         RefPmtExported: Record "Ref. Payment - Exported";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Test Suggest Vendor Payments");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         RefPmtExported.DeleteAll();
         Commit();
@@ -436,7 +436,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify();
 
         with PurchaseHeader do begin
@@ -483,7 +483,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
     local procedure UpdatePmtDiscDateVLE(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; PmtDiscTolDate: Date)
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.Validate("Pmt. Disc. Tolerance Date", PmtDiscTolDate);
         VendorLedgerEntry.Validate("Pmt. Discount Date", PmtDiscTolDate - 1);
 
@@ -500,7 +500,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         LibraryVariableStorage.Enqueue(BankAccountNo);
         LibraryVariableStorage.Enqueue(VendorNo);
         SuggestBankPayments.InitializeRequest(PaymentDate, true, 0);
-        SuggestBankPayments.Run;
+        SuggestBankPayments.Run();
 
         LibraryVariableStorage.AssertEmpty;
     end;

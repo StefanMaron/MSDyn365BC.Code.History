@@ -42,7 +42,7 @@ codeunit 144020 "Depr. Diff. Calculation"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Depr. Diff. Calculation");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportValidation);
         Clear(HandledMessage);
         if isInitialized then
@@ -68,7 +68,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         FixedAssetNo2: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
         PostingDate := CalcDate('<3M-1D>', StartingDate);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
@@ -107,7 +107,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         FixedAssetNo1: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
         PostingDate := CalcDate('<3M-1D>', StartingDate);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
@@ -141,7 +141,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         ExpectedMessage: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
         PostingDate := CalcDate('<3M-1D>', StartingDate);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
@@ -182,7 +182,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         FixedAssetNo1: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
         PostingDate := CalcDate('<3M-1D>', StartingDate);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
@@ -213,7 +213,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         FixedAssetNo1: Code[20];
     begin
         // Setup
-        Initialize;
+        Initialize();
         StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
         PostingDate := CalcDate('<3M-1D>', StartingDate);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
@@ -242,7 +242,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         PostDepreciationDifference: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         PostingDate := 0D;
         PostDepreciationDifference := true;
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
@@ -268,7 +268,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         PostDepreciationDifference: Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         DocumentNo := '';
         PostDepreciationDifference := true;
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
@@ -293,7 +293,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         StartingDate: Date;
     begin
         // Setup
-        Initialize;
+        Initialize();
         StartingDate := 0D;
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
         DepreciationBookCodeTax := CreateDepreciationBook(0, false);
@@ -317,7 +317,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         EndingDate: Date;
     begin
         // Setup
-        Initialize;
+        Initialize();
         EndingDate := 0D;
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
         DepreciationBookCodeTax := CreateDepreciationBook(0, false);
@@ -342,7 +342,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         StartingDate: Date;
     begin
         // Setup
-        Initialize;
+        Initialize();
         StartingDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
         EndingDate := CalcDate('<-1D>', StartingDate);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
@@ -365,7 +365,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         EmptyBookCode: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
         EmptyBookCode := '';
 
         // Excercise
@@ -384,7 +384,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         BookInGL: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
         BookInGL := CreateDepreciationBook(0, false);
         Commit();
 
@@ -404,7 +404,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         BookNotInGL: Code[10];
     begin
         // Setup
-        Initialize;
+        Initialize();
         BookNotInGL := CreateDepreciationBook(0, true);
         Commit();
 
@@ -426,7 +426,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         ExpectedMessage: Text;
     begin
         // Setup
-        Initialize;
+        Initialize();
         PostingDate := DMY2Date(1, 1, 1900);
         DepreciationBookCodeSUMU := CreateDepreciationBook(10.0, true);
         DepreciationBookCodeTax := CreateDepreciationBook(0, false);
@@ -453,7 +453,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         DeprBookCode: array[2] of Code[10];
     begin
         // [SCENARIO 311958] Calc And Post Deprectiation Difference repost posts difference when one of the values is zero, but the other is not
-        Initialize;
+        Initialize();
 
         // [GIVEN] Depreciation book "B1" integrated to ledger
         DeprBookCode[1] := CreateDepreciationBook(0, true);
@@ -761,7 +761,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         CalculateDepreciation.InitializeRequest(
           DepreciationBookCode, PostingDate, false, 0, PostingDate, FixedAssetNo, FixedAsset.Description, InsertBalanceAccount);
         CalculateDepreciation.UseRequestPage(false);
-        CalculateDepreciation.Run;
+        CalculateDepreciation.Run();
     end;
 
     local procedure PostDepreciation(DepreciationBookCode: Code[10])
@@ -840,7 +840,7 @@ codeunit 144020 "Depr. Diff. Calculation"
     begin
         FASetup.Get();
         FAJournalSetup2.SetRange("Depreciation Book Code", FASetup."Default Depr. Book");
-        FAJournalSetup2.FindFirst;
+        FAJournalSetup2.FindFirst();
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
         FAJournalSetup.Modify(true);
     end;
@@ -865,7 +865,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         FixedAsset.SetFilter("No.", FixedAssetFilter);
         CalcAndPostDeprDiffReport.SetTableView(FixedAsset);
         CalcAndPostDeprDiffReport.UseRequestPage(true);
-        CalcAndPostDeprDiffReport.Run;
+        CalcAndPostDeprDiffReport.Run();
     end;
 
     local procedure RunCalcAndPostDeprDifferenceReportWithEnqueue(DepreciationBookCodeSUMU: Code[10]; DepreciationBookCodeTax: Code[10]; StartingDate: Date; EndingDate: Date; PostingDate: Date; DocumentNo: Code[20]; PrintEmptyLines: Boolean; PostDepreciationDifference: Boolean; FixedAssetFilter: Text)

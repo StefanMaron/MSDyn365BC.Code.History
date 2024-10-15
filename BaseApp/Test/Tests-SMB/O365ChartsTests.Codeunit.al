@@ -36,7 +36,7 @@ codeunit 138022 "O365 Charts Tests"
         Delta: Decimal;
         ColumnIndex: Integer;
     begin
-        Initialize;
+        Initialize();
         BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Month;
 
         // get the aged inventory values before putting the test data
@@ -70,7 +70,7 @@ codeunit 138022 "O365 Charts Tests"
         StartDate: Date;
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
         BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Week;
         CreateTestItemLedgerEntriesForDrilldownTest;
 
@@ -101,7 +101,7 @@ codeunit 138022 "O365 Charts Tests"
         TestCustomerNames: array[12] of Text;
         TestCustomerSalesLCYs: array[12] of Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 12);
         TopFiveCustomersChartMgt.UpdateChart(BusinessChartBuffer);
         VerifyTopCustomerSalesMatch(BusinessChartBuffer, TestCustomerNames, TestCustomerSalesLCYs, 5);
@@ -116,7 +116,7 @@ codeunit 138022 "O365 Charts Tests"
         TestCustomerNames: array[12] of Text;
         TestCustomerSalesLCYs: array[12] of Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 2);
         TopFiveCustomersChartMgt.UpdateChart(BusinessChartBuffer);
         VerifyTopCustomerSalesMatch(BusinessChartBuffer, TestCustomerNames, TestCustomerSalesLCYs, 2);
@@ -131,7 +131,7 @@ codeunit 138022 "O365 Charts Tests"
         TestCustomerNames: array[12] of Text;
         TestCustomerSalesLCYs: array[12] of Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 12);
         TopTenCustomersChartMgt.UpdateChart(BusinessChartBuffer);
         VerifyTopCustomerSalesMatch(BusinessChartBuffer, TestCustomerNames, TestCustomerSalesLCYs, 10);
@@ -146,7 +146,7 @@ codeunit 138022 "O365 Charts Tests"
         TestCustomerNames: array[12] of Text;
         TestCustomerSalesLCYs: array[12] of Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 2);
         TopTenCustomersChartMgt.UpdateChart(BusinessChartBuffer);
         VerifyTopCustomerSalesMatch(BusinessChartBuffer, TestCustomerNames, TestCustomerSalesLCYs, 2);
@@ -164,7 +164,7 @@ codeunit 138022 "O365 Charts Tests"
         TestCustomerNames: array[12] of Text;
         TestCustomerSalesLCYs: array[12] of Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 12);
         TopTenCustomersChartMgt.UpdateChart(BusinessChartBuffer);
 
@@ -229,7 +229,7 @@ codeunit 138022 "O365 Charts Tests"
         RefDate: Date;
         NewDate: Date;
     begin
-        Initialize;
+        Initialize();
         RefDate := WorkDate;
 
         CreateTwoCustPostingGroups(NewCustPostGroup1, NewCustPostGroup2);
@@ -280,7 +280,7 @@ codeunit 138022 "O365 Charts Tests"
         SalesByCustGrpChartMgt: Codeunit "Sales by Cust. Grp. Chart Mgt.";
     begin
         // [SCENARIO 206660] A Customer List is opened on Drilldown in not modal mode.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer with a posting group, new item and one posted invoice.
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
@@ -316,7 +316,7 @@ codeunit 138022 "O365 Charts Tests"
         RefDate: Date;
         NewDate: Date;
     begin
-        Initialize;
+        Initialize();
         RefDate := WorkDate;
 
         CreateTwoCustPostingGroups(NewCustPostGroup1, NewCustPostGroup2);
@@ -359,8 +359,8 @@ codeunit 138022 "O365 Charts Tests"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Charts Tests");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         ClearTable(DATABASE::Resource);
         ClearTable(DATABASE::"Res. Ledger Entry");
@@ -373,10 +373,10 @@ codeunit 138022 "O365 Charts Tests"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Charts Tests");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         isInitialized := true;
         Commit();
@@ -390,7 +390,7 @@ codeunit 138022 "O365 Charts Tests"
         Customer: Record Customer;
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::Resource:
                 Resource.DeleteAll();

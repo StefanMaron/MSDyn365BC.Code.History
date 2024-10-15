@@ -77,7 +77,7 @@ codeunit 144021 "Ref. Payment - Exported Test"
             CreatePurchaseDocument(Vendor, VendorLedgerEntry."Document Type"::Invoice);
             VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
             VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
-            VendorLedgerEntry.FindLast;
+            VendorLedgerEntry.FindLast();
             VendorLedgerEntry.Open := true; // To make the relation work
             VendorLedgerEntry.Modify();
             Validate("Entry No.", VendorLedgerEntry."Entry No.");
@@ -85,7 +85,7 @@ codeunit 144021 "Ref. Payment - Exported Test"
             CreatePurchaseDocument(Vendor, VendorLedgerEntry."Document Type"::"Credit Memo");
             VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
             VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::"Credit Memo");
-            VendorLedgerEntry.FindLast;
+            VendorLedgerEntry.FindLast();
             VendorLedgerEntry.Open := true; // To make the relation work
             VendorLedgerEntry.Modify();
             Validate("Entry No.", VendorLedgerEntry."Entry No.");

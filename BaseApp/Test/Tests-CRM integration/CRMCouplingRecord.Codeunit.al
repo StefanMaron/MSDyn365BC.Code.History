@@ -35,7 +35,7 @@ codeunit 139174 "CRM Coupling Record"
         Customer: Record Customer;
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The Customer
         LibrarySales.CreateCustomer(Customer);
 
@@ -57,7 +57,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMAccount: Record "CRM Account";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The Customer coupled to the CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
 
@@ -76,7 +76,7 @@ codeunit 139174 "CRM Coupling Record"
         Customer: Record Customer;
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The Customer
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Open CRM Coupling Record page for the Customer
@@ -99,7 +99,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMAccount: Record "CRM Account";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The Customer coupled to the CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         // [GIVEN] Open CRM Coupling Record page for the Customer
@@ -123,7 +123,7 @@ codeunit 139174 "CRM Coupling Record"
         Customer: Record Customer;
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Open Coupling Record page for the Customer
         LibrarySales.CreateCustomer(Customer);
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Customer.RecordId);
@@ -174,7 +174,7 @@ codeunit 139174 "CRM Coupling Record"
         OtherCRMContact: Record "CRM Contact";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The CRM Contact "A"
         LibraryCRMIntegration.CreateCRMContact(OtherCRMContact);
         // [GIVEN] The Contact coupled to the CRM Contact "B"
@@ -203,7 +203,7 @@ codeunit 139174 "CRM Coupling Record"
         OtherCRMAccount: Record "CRM Account";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The CRM Account "A"
         LibraryCRMIntegration.CreateCRMAccount(OtherCRMAccount);
         // [GIVEN] The Customer coupled to the CRM Account "B"
@@ -233,7 +233,7 @@ codeunit 139174 "CRM Coupling Record"
         OtherCRMSystemuser: Record "CRM Systemuser";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The CRM Systemuser "A"
         LibraryCRMIntegration.CreateCRMSystemUser(OtherCRMSystemuser);
         // [GIVEN] The Salesperson coupled to the CRM Systemuser "B"
@@ -263,7 +263,7 @@ codeunit 139174 "CRM Coupling Record"
         OtherCRMTransactioncurrency: Record "CRM Transactioncurrency";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The CRM Transactioncurrency "A"
         LibraryCRMIntegration.CreateCRMTransactionCurrency(OtherCRMTransactioncurrency, 'AAA');
         // [GIVEN] The Currency coupled to the CRM Transactioncurrency "B"
@@ -295,7 +295,7 @@ codeunit 139174 "CRM Coupling Record"
         OtherCRMPricelevel: Record "CRM Pricelevel";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The CRM Pricelevel "A"
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(Currency, CRMTransactioncurrency);
         LibraryCRMIntegration.CreateCRMPriceList(OtherCRMPricelevel, CRMTransactioncurrency);
@@ -331,7 +331,7 @@ codeunit 139174 "CRM Coupling Record"
         OtherCRMProduct: Record "CRM Product";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The Item coupled to the CRM Product "B"
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
         // [GIVEN] The CRM Product "A"
@@ -368,7 +368,7 @@ codeunit 139174 "CRM Coupling Record"
         OtherCRMProduct: Record "CRM Product";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The Resource coupled to the CRM Product "B"
         LibraryCRMIntegration.CreateCoupledResourceAndProduct(Resource, CRMProduct);
         // [GIVEN] The CRM Product "A"
@@ -402,7 +402,7 @@ codeunit 139174 "CRM Coupling Record"
         OtherCRMUomschedule: Record "CRM Uomschedule";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The CRM Uomschedule "A"
         OtherCRMUom.Init();
         OtherCRMUom.Name := 'AAA';
@@ -435,7 +435,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMOpportunity: Record "CRM Opportunity";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The CRM Opportunity "A"
         LibraryCRMIntegration.CreateCRMOpportunity(OtherCRMOpportunity);
         // [GIVEN] The Opportunity coupled to the CRM Opportunity "B"
@@ -464,7 +464,7 @@ codeunit 139174 "CRM Coupling Record"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Intergration Table Mapping for Customer
         CreateIntTableMapping(
           IntegrationTableMapping, DATABASE::Customer, DATABASE::"CRM Account",
@@ -498,7 +498,7 @@ codeunit 139174 "CRM Coupling Record"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Intergration Table Mapping for Contact
         CreateIntTableMapping(
           IntegrationTableMapping, DATABASE::Contact, DATABASE::"CRM Contact",
@@ -532,7 +532,7 @@ codeunit 139174 "CRM Coupling Record"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Intergration Table Mapping for Salesperson
         CreateIntTableMapping(
           IntegrationTableMapping, DATABASE::"Salesperson/Purchaser", DATABASE::"CRM Systemuser",
@@ -566,7 +566,7 @@ codeunit 139174 "CRM Coupling Record"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Intergration Table Mapping for Currency
         CreateIntTableMapping(
           IntegrationTableMapping, DATABASE::Currency, DATABASE::"CRM Transactioncurrency",
@@ -610,7 +610,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Intergration Table Mapping for Customer Price Group
         CreateIntTableMapping(
           IntegrationTableMapping, DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel",
@@ -645,7 +645,7 @@ codeunit 139174 "CRM Coupling Record"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Intergration Table Mapping for Item
         CreateIntTableMapping(
           IntegrationTableMapping, DATABASE::Item, DATABASE::"CRM Product",
@@ -678,7 +678,7 @@ codeunit 139174 "CRM Coupling Record"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Intergration Table Mapping for Resource
         CreateIntTableMapping(
           IntegrationTableMapping, DATABASE::Resource, DATABASE::"CRM Product",
@@ -710,7 +710,7 @@ codeunit 139174 "CRM Coupling Record"
         OtherCRMAccount: Record "CRM Account";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration();
         // [GIVEN] The Customer coupled to the CRM Account "A"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, OriginallyCoupledCRMAccount);
@@ -752,7 +752,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMAccount3: Record "CRM Account";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration();
         // [GIVEN] The Customer
         LibrarySales.CreateCustomer(Customer);
@@ -785,7 +785,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMProductName: Codeunit "CRM Product Name";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The Customer
         LibrarySales.CreateCustomer(Customer);
 
@@ -808,7 +808,7 @@ codeunit 139174 "CRM Coupling Record"
         LocalCRMAccount: Record "CRM Account";
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] The Customer coupled to the CRM Account "A"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, OriginallyCoupledCRMAccount);
         // [GIVEN] The CRM Account "B"
@@ -863,10 +863,10 @@ codeunit 139174 "CRM Coupling Record"
     var
         CouplingRecordBuffer: Record "Coupling Record Buffer";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] No Integration Table Mapping defined
         // [GIVEN] "CRM Table Name" is 'N' in Coupling Record Buffer
-        CouplingRecordBuffer."CRM Table Name" := LibraryUtility.GenerateGUID;
+        CouplingRecordBuffer."CRM Table Name" := LibraryUtility.GenerateGUID();
         // [WHEN] Set 'NAV Table ID' = 'X' in Coupling Record Buffer
         CouplingRecordBuffer.Validate("NAV Table ID", DATABASE::Customer);
         // [THEN] "CRM Table Name" is <blank> in Coupling Record Buffer
@@ -881,19 +881,19 @@ codeunit 139174 "CRM Coupling Record"
         CouplingRecordBuffer: Record "Coupling Record Buffer";
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Integration Table Mapping defines Name = 'A' for Table ID = 'Y'
         IntegrationTableMapping.Init();
-        IntegrationTableMapping.Name := LibraryUtility.GenerateGUID;
+        IntegrationTableMapping.Name := LibraryUtility.GenerateGUID();
         IntegrationTableMapping."Table ID" := DATABASE::Currency;
         IntegrationTableMapping.Insert();
         // [GIVEN] Temporary Integration Table Mapping defines Name = 'T' for Table ID = 'X'
-        IntegrationTableMapping.Name := LibraryUtility.GenerateGUID;
+        IntegrationTableMapping.Name := LibraryUtility.GenerateGUID();
         IntegrationTableMapping."Table ID" := DATABASE::Customer;
         IntegrationTableMapping."Delete After Synchronization" := true;
         IntegrationTableMapping.Insert();
         // [GIVEN] Integration Table Mapping defines Name = 'N' for Table ID = 'X'
-        IntegrationTableMapping.Name := LibraryUtility.GenerateGUID;
+        IntegrationTableMapping.Name := LibraryUtility.GenerateGUID();
         IntegrationTableMapping."Table ID" := DATABASE::Customer;
         IntegrationTableMapping."Delete After Synchronization" := false;
         IntegrationTableMapping.Insert();
@@ -917,14 +917,14 @@ codeunit 139174 "CRM Coupling Record"
         ActualFieldCount: Integer;
         ExpectedFieldCount: Integer;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] There are 15 fields defined for the mapping "Customer" - "CRM Account"
         ResetDefaultCRMSetupConfiguration;
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
-        IntegrationTableMapping.FindFirst;
+        IntegrationTableMapping.FindFirst();
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
-        IntegrationFieldMapping.FindFirst;
+        IntegrationFieldMapping.FindFirst();
         ExpectedFieldCount := IntegrationFieldMapping.Count();
         // [GIVEN] A Customer is coupled to a CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -935,7 +935,7 @@ codeunit 139174 "CRM Coupling Record"
         // [THEN] Fields part is NOT editable
         Assert.IsFalse(CRMCouplingRecord.CoupledFields.Editable, 'Fields part should be not editable');
         Assert.IsTrue(CRMCouplingRecord.CoupledFields.First, 'There should be fields in the list part');
-        IntegrationFieldMapping.FindFirst;
+        IntegrationFieldMapping.FindFirst();
         ActualFieldCount := 1;
         while CRMCouplingRecord.CoupledFields.Next do begin
             ActualFieldCount += 1;
@@ -1000,7 +1000,7 @@ codeunit 139174 "CRM Coupling Record"
         CouplingRecordBuffer: Record "Coupling Record Buffer";
         CRMCouplingRecord: Page "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         LibraryCRMIntegration.CreateCRMAccount(LocalCRMAccount);
         CoupleToCRMAccount := LocalCRMAccount;
@@ -1009,7 +1009,7 @@ codeunit 139174 "CRM Coupling Record"
           'The CRM ID returned by the Customer Coupling page should be null before a record is set');
 
         CRMCouplingRecord.SetSourceRecordID(Customer.RecordId);
-        CRMCouplingRecord.RunModal;
+        CRMCouplingRecord.RunModal();
         CRMCouplingRecord.GetRecord(CouplingRecordBuffer);
 
         Assert.AreEqual(CRMAccount.AccountId, CouplingRecordBuffer."CRM ID", 'CRM ID');
@@ -1039,7 +1039,7 @@ codeunit 139174 "CRM Coupling Record"
         CoupleToCRMAccount := LocalCRMAccount;
 
         CRMCouplingRecord.SetSourceRecordID(Customer.RecordId);
-        CRMCouplingRecord.RunModal;
+        CRMCouplingRecord.RunModal();
         Assert.AreEqual(CoupleToCRMAccount.AccountId, CRMCouplingRecord.GetCRMId,
           'The CRM ID returned by the Customer Coupling page should be that of the record selected');
     end;
@@ -1060,12 +1060,12 @@ codeunit 139174 "CRM Coupling Record"
         Customer: Record Customer;
         CRMCouplingRecord: Page "CRM Coupling Record";
     begin
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         CRMCouplingRecord.SetSourceRecordID(Customer.RecordId);
         CreateNewValueToSet := true;
-        CRMCouplingRecord.RunModal;
+        CRMCouplingRecord.RunModal();
         CRMCouplingRecord.GetRecord(CouplingRecordBuffer);
         Assert.IsTrue(CouplingRecordBuffer."Create New",
           'The value returned by GetCreateNewInCRM should be TRUE if the checkbox is checked');
@@ -1073,7 +1073,7 @@ codeunit 139174 "CRM Coupling Record"
         Assert.AreEqual('', CouplingRecordBuffer."CRM Name", 'CRM Name should be blank');
 
         CreateNewValueToSet := false;
-        CRMCouplingRecord.RunModal;
+        CRMCouplingRecord.RunModal();
         CRMCouplingRecord.GetRecord(CouplingRecordBuffer);
         Assert.IsFalse(CouplingRecordBuffer."Create New",
           'The value returned by GetCreateNewInCRM should be FALSE if the checkbox is unchecked');
@@ -1093,7 +1093,7 @@ codeunit 139174 "CRM Coupling Record"
         Customer: Record Customer;
         CouplingRecordBuffer: Record "Coupling Record Buffer";
     begin
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CouplingRecordBuffer.Initialize(Customer.RecordId);
 
@@ -1118,7 +1118,7 @@ codeunit 139174 "CRM Coupling Record"
         Customer: Record Customer;
         CouplingRecordBuffer: Record "Coupling Record Buffer";
     begin
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Commit();
         CouplingRecordBuffer.Initialize(Customer.RecordId);
@@ -1164,7 +1164,7 @@ codeunit 139174 "CRM Coupling Record"
         // [FEATURE] [Skipped Record]
         // [SCENARIO 171357] NAV records are NOT decoupled from deleted CRM entities on synchronization
 
-        Initialize;
+        Initialize();
         LibraryCRMIntegration.RegisterTestTableConnection;
         LibraryCRMIntegration.EnsureCRMSystemUser;
         ResetDefaultCRMSetupConfiguration;
@@ -1221,7 +1221,7 @@ codeunit 139174 "CRM Coupling Record"
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
           Currency, CRMTransactioncurrency);
 
-        ErrorMsg := LibraryUtility.GenerateGUID;
+        ErrorMsg := LibraryUtility.GenerateGUID();
         JobID :=
           LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
             Currency.RecordId, CRMTransactioncurrency.RecordId, ErrorMsg, CurrentDateTime, false);
@@ -1256,7 +1256,7 @@ codeunit 139174 "CRM Coupling Record"
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
           Currency, CRMTransactioncurrency);
 
-        ErrorMsg := LibraryUtility.GenerateGUID;
+        ErrorMsg := LibraryUtility.GenerateGUID();
         JobID :=
           LibraryCRMIntegration.MockFailedSynchToCRMIntegrationRecord(
             Currency.RecordId, CRMTransactioncurrency.RecordId, ErrorMsg, CurrentDateTime, false);
@@ -1288,7 +1288,7 @@ codeunit 139174 "CRM Coupling Record"
         LibraryCRMIntegration.CreateCoupledCurrencyAndTransactionCurrency(
           Currency, CRMTransactioncurrency);
 
-        ErrorMsg := LibraryUtility.GenerateGUID;
+        ErrorMsg := LibraryUtility.GenerateGUID();
         JobID :=
           LibraryCRMIntegration.MockFailedSynchToNAVIntegrationRecord(
             CRMTransactioncurrency.TransactionCurrencyId, CRMTransactioncurrency.RecordId,
@@ -1320,7 +1320,7 @@ codeunit 139174 "CRM Coupling Record"
           Currency, CRMTransactioncurrency);
 
         // [GIVEN] Sync to NAV failed twice with the same error
-        ErrorMsg := LibraryUtility.GenerateGUID;
+        ErrorMsg := LibraryUtility.GenerateGUID();
         LibraryCRMIntegration.MockFailedSynchToNAVIntegrationRecord(
           CRMTransactioncurrency.TransactionCurrencyId, CRMTransactioncurrency.RecordId,
           Currency.RecordId, ErrorMsg, CurrentDateTime, false);
@@ -1350,7 +1350,7 @@ codeunit 139174 "CRM Coupling Record"
         // [SCENARIO 209341] CRM related controls on Customer List page not visible when CRM Connection not configured
 
         // [WHEN] CRM Connection is configured
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // [THEN] CRM related controls are visible on Customer List page
@@ -1393,7 +1393,7 @@ codeunit 139174 "CRM Coupling Record"
         // [SCENARIO 209341] CRM related controls on Customer Card page not visible when CRM Connection not configured
 
         // [WHEN] CRM Connection is configured
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // [THEN] CRM related controls are visible on Customer Card page
@@ -1433,7 +1433,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         // [SCENARIO 215218] Create new control is enabled for not-coupled records with ToIntegrationTable default Direction
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer
         CreateIntTableMapping(
@@ -1460,7 +1460,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         // [SCENARIO 215218] Create new control is not enabled for coupled records
-        Initialize;
+        Initialize();
 
         // [GIVEN] The Customer coupled to CRM Account
         CreateIntTableMapping(
@@ -1487,7 +1487,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         // [SCENARIO 215218] Create new control is not enabled for records with FromIntegrationTable default Direction
-        Initialize;
+        Initialize();
 
         // [GIVEN] Salesperson
         CreateIntTableMapping(
@@ -1514,7 +1514,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMCouplingRecord: TestPage "CRM Coupling Record";
     begin
         // [SCENARIO 275682] Looking up a CRM contact on Coupling Record Page refreshes the lines on the page
-        Initialize;
+        Initialize();
         ResetDefaultCRMSetupConfiguration;
 
         // [GIVEN] A Customer was coupled to a CRM Account "A"
@@ -1549,7 +1549,7 @@ codeunit 139174 "CRM Coupling Record"
         with IntegrationTableMapping do begin
             DeleteAll();
             Init;
-            Name := LibraryUtility.GenerateGUID;
+            Name := LibraryUtility.GenerateGUID();
             "Table ID" := TableId;
             "Integration Table ID" := CRMTableId;
             "Integration Table UID Fld. No." := UIDFldNo;
@@ -1604,7 +1604,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         CRMAccountList.Name.AssertEquals(LibraryVariableStorage.DequeueText);
         CRMAccount.SetRange(Name, LibraryVariableStorage.DequeueText);
-        CRMAccount.FindFirst;
+        CRMAccount.FindFirst();
         CRMAccountList.GotoRecord(CRMAccount);
         CRMAccountList.OK.Invoke;
     end;
@@ -1628,7 +1628,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         CRMContactList.FullName.AssertEquals(LibraryVariableStorage.DequeueText);
         CRMContact.SetRange(FullName, LibraryVariableStorage.DequeueText);
-        CRMContact.FindFirst;
+        CRMContact.FindFirst();
         CRMContactList.GotoRecord(CRMContact);
         CRMContactList.OK.Invoke;
     end;
@@ -1652,7 +1652,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         CRMSystemuserList.FullName.AssertEquals(LibraryVariableStorage.DequeueText);
         CRMSystemuser.SetRange(FullName, LibraryVariableStorage.DequeueText);
-        CRMSystemuser.FindFirst;
+        CRMSystemuser.FindFirst();
         CRMSystemuserList.GotoRecord(CRMSystemuser);
         CRMSystemuserList.OK.Invoke;
     end;
@@ -1676,7 +1676,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         CRMTransactionCurrencyList.ISOCurrencyCode.AssertEquals(LibraryVariableStorage.DequeueText);
         CRMTransactioncurrency.SetRange(ISOCurrencyCode, LibraryVariableStorage.DequeueText);
-        CRMTransactioncurrency.FindFirst;
+        CRMTransactioncurrency.FindFirst();
         CRMTransactionCurrencyList.GotoRecord(CRMTransactioncurrency);
         CRMTransactionCurrencyList.OK.Invoke;
     end;
@@ -1700,7 +1700,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         CRMPricelevelList.Name.AssertEquals(LibraryVariableStorage.DequeueText);
         CRMPricelevel.SetRange(Name, LibraryVariableStorage.DequeueText);
-        CRMPricelevel.FindFirst;
+        CRMPricelevel.FindFirst();
         CRMPricelevelList.GotoRecord(CRMPricelevel);
         CRMPricelevelList.OK.Invoke;
     end;
@@ -1724,7 +1724,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         CRMProductList.ProductNumber.AssertEquals(LibraryVariableStorage.DequeueText);
         CRMProduct.SetRange(ProductNumber, LibraryVariableStorage.DequeueText);
-        CRMProduct.FindFirst;
+        CRMProduct.FindFirst();
         CRMProductList.GotoRecord(CRMProduct);
         CRMProductList.OK.Invoke;
     end;
@@ -1748,7 +1748,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         CRMUnitGroupList.Name.AssertEquals(LibraryVariableStorage.DequeueText);
         CRMUomschedule.SetRange(Name, LibraryVariableStorage.DequeueText);
-        CRMUomschedule.FindFirst;
+        CRMUomschedule.FindFirst();
         CRMUnitGroupList.GotoRecord(CRMUomschedule);
         CRMUnitGroupList.OK.Invoke;
     end;
@@ -1761,7 +1761,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         CRMOpportunityList.Name.AssertEquals(LibraryVariableStorage.DequeueText);
         CRMOpportunity.SetRange(Name, LibraryVariableStorage.DequeueText);
-        CRMOpportunity.FindFirst;
+        CRMOpportunity.FindFirst();
         CRMOpportunityList.GotoRecord(CRMOpportunity);
         CRMOpportunityList.OK.Invoke;
     end;

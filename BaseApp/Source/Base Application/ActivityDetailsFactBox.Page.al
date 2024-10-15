@@ -88,7 +88,7 @@ page 971 "Activity Details FactBox"
                         Job.Get("Job No.");
                         JobList.SetRecord(Job);
                     end;
-                    JobList.RunModal;
+                    JobList.RunModal();
                 end;
             Type::Absence:
                 begin
@@ -97,7 +97,7 @@ page 971 "Activity Details FactBox"
                         CauseOfAbsence.Get("Cause of Absence Code");
                         CausesOfAbsence.SetRecord(CauseOfAbsence);
                     end;
-                    CausesOfAbsence.RunModal;
+                    CausesOfAbsence.RunModal();
                 end;
             Type::Service:
                 begin
@@ -105,7 +105,7 @@ page 971 "Activity Details FactBox"
                     if "Service Order No." <> '' then
                         if ServiceHeader.Get(ServiceHeader."Document Type"::Order, "Service Order No.") then
                             ServiceOrders.SetRecord(ServiceHeader);
-                    ServiceOrders.RunModal;
+                    ServiceOrders.RunModal();
                 end;
             Type::"Assembly Order":
                 begin
@@ -113,7 +113,7 @@ page 971 "Activity Details FactBox"
                     if "Assembly Order No." <> '' then
                         if AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, "Assembly Order No.") then
                             AssemblyOrders.SetRecord(AssemblyHeader);
-                    AssemblyOrders.RunModal;
+                    AssemblyOrders.RunModal();
                 end;
         end;
     end;
@@ -134,7 +134,7 @@ page 971 "Activity Details FactBox"
                 JobTask.Get("Job No.", "Job Task No.");
                 JobTaskList.SetRecord(JobTask);
             end;
-            JobTaskList.RunModal;
+            JobTaskList.RunModal();
         end;
     end;
 

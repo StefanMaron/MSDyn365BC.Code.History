@@ -70,8 +70,8 @@ codeunit 131014 "Library - Booking Manager"
         ExistingCustomer: Record Customer;
     begin
         Customer.SetRange("E-Mail", TempBookingItem."Customer Email");
-        if not Customer.FindFirst then begin
-            ExistingCustomer.FindFirst;
+        if not Customer.FindFirst() then begin
+            ExistingCustomer.FindFirst();
             with Customer do begin
                 Init;
                 Validate("E-Mail", TempBookingItem."Customer Email");
@@ -90,7 +90,7 @@ codeunit 131014 "Library - Booking Manager"
         BookingServiceMapping: Record "Booking Service Mapping";
     begin
         if not BookingServiceMapping.Get(TempBookingItem."Service ID") then begin
-            ExistingItem.FindFirst;
+            ExistingItem.FindFirst();
             with Item do begin
                 Init;
                 Validate(Description, CopyStr(TempBookingItem."Service Name", 1, 50));

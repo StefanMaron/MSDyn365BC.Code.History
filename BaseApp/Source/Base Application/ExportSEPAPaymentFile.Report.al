@@ -75,10 +75,10 @@ report 13403 "Export SEPA Payment File"
         SEPARefPmtExported.SetCurrentKey("Payment Date", "Vendor No.", "Entry No.");
         SEPARefPmtExported.SetRange(Transferred, false);
         SEPARefPmtExported.SetRange("Applied Payments", false);
-        if SEPARefPmtExported.FindFirst then begin
+        if SEPARefPmtExported.FindFirst() then begin
             ReferenceFileSetup.Reset();
             ReferenceFileSetup.SetRange("No.", SEPARefPmtExported."Payment Account");
-            if ReferenceFileSetup.FindFirst then begin
+            if ReferenceFileSetup.FindFirst() then begin
                 ReferenceFileSetup.TestField("Bank Party ID");
                 ReferenceFileSetup.Validate("Bank Party ID");
                 FileName := ReferenceFileSetup."File Name";
@@ -92,11 +92,7 @@ report 13403 "Export SEPA Payment File"
     begin
         OnBeforeFileDownload(XMLFileNameServer, CancelDownload);
         if not CancelDownload then begin
-#if not CLEAN17
-            FileMgt.DownloadToFile(XMLFileNameServer, FileName);
-#else
             FileMgt.DownloadHandler(XMLFileNameServer, '', '', '', FileName);
-#endif
             Message(Text13400, FileName);
         end;
     end;
@@ -172,7 +168,7 @@ report 13403 "Export SEPA Payment File"
         RefPaymentExported.SetRange("SEPA Payment", true);
         RefPaymentExported.SetRange(Transferred, false);
         RefPaymentExported.SetRange("Applied Payments", false);
-        if RefPaymentExported.FindFirst then
+        if RefPaymentExported.FindFirst() then
             XMLDomMgt.AddElement(XMLNodeCurr, 'NbOfTxs', Format(RefPaymentExported.Count), '', XMLNewChild);
         XMLDomMgt.AddElement(XMLNodeCurr, 'CtrlSum', Format(ControlSum, 0, '<Precision,2:2><Standard Format,9>'), '', XMLNewChild);
         XMLDomMgt.AddElement(XMLNodeCurr, 'Grpg', 'MIXD', '', XMLNewChild);
@@ -405,7 +401,7 @@ report 13403 "Export SEPA Payment File"
             SetRange(Transferred, false);
             SetRange("Applied Payments", false);
             SetRange("SEPA Payment", true);
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     TestField("Vendor No.");
 #if CLEAN20

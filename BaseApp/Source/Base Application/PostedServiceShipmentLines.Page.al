@@ -312,7 +312,7 @@ page 5970 "Posted Service Shipment Lines"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -364,7 +364,7 @@ page 5970 "Posted Service Shipment Lines"
         end else
             TrackingForm.SetMultipleItemLedgEntries(TempItemLedgEntry,
               DATABASE::"Service Shipment Line", 0, "Document No.", '', 0, "Line No.");
-        TrackingForm.RunModal;
+        TrackingForm.RunModal();
     end;
 
     local procedure UndoServShptPosting()

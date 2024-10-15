@@ -21,10 +21,10 @@ report 32000004 "Export Ref. Payment -  LUM"
                 RefPmtExport.SetRange("Document Type", 1);
                 RefPmtExport.SetRange("Applied Payments", false);
 
-                if RefPmtExport.FindSet then begin
+                if RefPmtExport.FindSet() then begin
                     CreatedLines := true;
                     RefFileSetup.SetFilter("No.", "Bank Account"."No.");
-                    if not RefFileSetup.FindFirst then
+                    if not RefFileSetup.FindFirst() then
                         Error(Text1090003, "Bank Account"."No.");
 
                     RefPmtExport.TestField("Vendor No.");
@@ -209,7 +209,7 @@ report 32000004 "Export Ref. Payment -  LUM"
     [Scope('OnPrem')]
     procedure CreatePaymentRecord()
     begin
-        if RefPmtExport.FindSet then
+        if RefPmtExport.FindSet() then
             repeat
                 RefPmtExport.TestField("Vendor No.");
                 RefPmtExport.TestField("Payment Account");

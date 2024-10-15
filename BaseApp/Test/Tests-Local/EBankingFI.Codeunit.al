@@ -40,11 +40,11 @@ codeunit 144007 "E-Banking FI"
         SuggestBankPayments.SetTableView(Vendor);
         SuggestBankPayments.InitializeRequest(CalcDate('<1M>', WorkDate), false, 0);
         SuggestBankPayments.UseRequestPage := false;
-        SuggestBankPayments.RunModal;
+        SuggestBankPayments.RunModal();
 
         // Verify
         RefPaymentExported.SetRange("Vendor No.", Vendor."No.");
-        RefPaymentExported.FindFirst;
+        RefPaymentExported.FindFirst();
         TruncatedVendorName := CopyStr(Vendor.Name, 1, MaxStrLen(RefPaymentExported."Description 2"));
         Assert.AreEqual(TruncatedVendorName, RefPaymentExported."Description 2", 'Vendor Name not properly truncated')
     end;
@@ -408,7 +408,7 @@ codeunit 144007 "E-Banking FI"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         exit(VendorLedgerEntry."Entry No.");
     end;
 

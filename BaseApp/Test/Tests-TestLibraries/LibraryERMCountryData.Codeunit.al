@@ -21,7 +21,7 @@ codeunit 131305 "Library - ERM Country Data"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>%1', '');
-        if VATPostingSetup.FindSet then
+        if VATPostingSetup.FindSet() then
             repeat
                 if (VATPostingSetup."Sales VAT Account" = '') or (VATPostingSetup."Purchase VAT Account" = '') then begin
                     VATPostingSetup.Validate("Sales VAT Account", CreateGLAccount);
@@ -295,7 +295,13 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        Evaluate(EntryRemainingAmount, BankAccountLedgerEntries.Amount.Value);
+        if BankAccountLedgerEntries.Amount.Visible() then
+            EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
+        else
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+                EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
+            else
+                EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
         exit(EntryRemainingAmount);
     end;
 

@@ -129,7 +129,7 @@ page 32000004 "Ref. Payment - Export"
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }

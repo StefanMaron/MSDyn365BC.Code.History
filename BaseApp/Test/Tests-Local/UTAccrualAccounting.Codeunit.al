@@ -43,7 +43,7 @@ codeunit 144025 "UT Accrual Accounting"
         // Purpose of this test to validate On New Record Trigger of Page 11207 - "Automatic Acc. Line".
 
         // Setup.
-        Initialize;
+        Initialize();
         AllocationPct := LibraryRandom.RandDec(10, 2);
         GLAccountNo := CreateGLAccount;
 
@@ -68,7 +68,7 @@ codeunit 144025 "UT Accrual Accounting"
         // Purpose of this test to validate On Lookup trigger of Shortcut Dimension 1 Code of Page 11207 - "Automatic Acc. Line".
 
         // Setup.
-        Initialize;
+        Initialize();
         AutomaticAccHeader.OpenEdit;
         AutomaticAccHeader.FILTER.SetFilter("No.", CreateAutomaticAccHeaderWithLine);
 
@@ -92,7 +92,7 @@ codeunit 144025 "UT Accrual Accounting"
         // Purpose of this test to validate On Lookup trigger of Shortcut Dimension 1 Code of Page 11207 - "Automatic Acc. Line".
 
         // Setup.
-        Initialize;
+        Initialize();
         AutomaticAccHeader.OpenEdit;
         AutomaticAccHeader.FILTER.SetFilter("No.", CreateAutomaticAccHeaderWithLine);
 
@@ -129,7 +129,7 @@ codeunit 144025 "UT Accrual Accounting"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAutomaticAccHeaderWithLine(): Code[10]
@@ -161,7 +161,7 @@ codeunit 144025 "UT Accrual Accounting"
     var
         AutomaticAccLine: TestPage "Automatic Acc. Line";
     begin
-        AutomaticAccLine.OpenNew;
+        AutomaticAccLine.OpenNew();
         AutomaticAccLine."Allocation %".SetValue(AllocationPct);
         AutomaticAccLine."G/L Account No.".SetValue(GLAccountNo);
         AutomaticAccLine.Close;

@@ -48,7 +48,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                                 CheckLedgEntry2.SetCurrentKey("Bank Account Ledger Entry No.");
                                 CheckLedgEntry2.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
                                 CheckLedgEntry2.SetRange(Open, true);
-                                if not CheckLedgEntry2.FindFirst then
+                                if not CheckLedgEntry2.FindFirst() then
                                     EnterBankAccLine(BankAccLedgEntry);
                                 EOFBankAccLedgEntries := BankAccLedgEntry.Next() = 0;
                             end;
@@ -64,7 +64,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                                 CheckLedgEntry2.SetCurrentKey("Bank Account Ledger Entry No.");
                                 CheckLedgEntry2.SetRange("Bank Account Ledger Entry No.", BankAccLedgEntry."Entry No.");
                                 CheckLedgEntry2.SetRange(Open, true);
-                                if not CheckLedgEntry2.FindFirst then
+                                if not CheckLedgEntry2.FindFirst() then
                                     EnterBankAccLine(BankAccLedgEntry);
                                 EOFBankAccLedgEntries := BankAccLedgEntry.Next() = 0;
                             end;
@@ -88,7 +88,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
                         EndDate := BankAccRecon."Statement Date";
 
                 BankAccReconLine.FilterBankRecLines(BankAccRecon);
-                if not BankAccReconLine.FindLast then begin
+                if not BankAccReconLine.FindLast() then begin
                     BankAccReconLine."Statement Type" := BankAccRecon."Statement Type";
                     BankAccReconLine."Bank Account No." := BankAccRecon."Bank Account No.";
                     BankAccReconLine."Statement No." := BankAccRecon."Statement No.";

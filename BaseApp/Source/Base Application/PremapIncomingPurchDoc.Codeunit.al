@@ -98,7 +98,7 @@
 
             if CompanyInformation.GLN <> '' then begin
                 SetFilter(Value, StrSubstNo('<>%1&<>%2', CompanyInformation.GLN, ''''''));
-                if FindLast then
+                if FindLast() then
                     LogErrorMessage(EntryNo, CompanyInformation, CompanyInformation.FieldNo(GLN),
                       StrSubstNo(InvalidCompanyInfoGLNErr, GLN));
             end;

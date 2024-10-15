@@ -32,7 +32,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         // [E2E] Scenario going trough the process of creating and cancelling a Purchase Invoice containing Item Charges
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A user with Business Manager Plan
@@ -60,7 +60,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         // [E2E] Scenario going trough the process of creating and cancelling a Purchase Invoice containing Item Charges
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A user with External Accountant Plan
@@ -91,7 +91,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         // [E2E] Scenario going trough the process of creating and cancelling a Purchase Invoice containing Item Charges
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] An item charge
@@ -149,7 +149,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         // [E2E] Scenario going trough the process of creating and cancelling a Purchase Invoice containing Item Charges
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A user with Business Manager Plan
@@ -180,7 +180,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         // [E2E] Scenario going trough the process of creating and cancelling a Purchase Invoice containing Item Charges
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] An item charge
@@ -240,7 +240,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         // [E2E] Scenario going trough the process of creating and cancelling a Purchase Invoice containing Item Charges
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A user with Device ISV Embedded Plan
@@ -269,7 +269,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         // [E2E] Scenario going trough the process of creating and cancelling a Sales Invoice containing Item Charges
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
@@ -300,7 +300,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         // [E2E] Scenario going trough the process of creating and cancelling a Sales Invoice containing Item Charges
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
@@ -334,7 +334,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         // [E2E] Scenario going trough the process of creating and cancelling a Sales Invoice containing Item Charges
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
@@ -395,7 +395,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         // [E2E] Scenario going trough the process of creating and cancelling a Sales Invoice containing Item Charges
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
@@ -429,7 +429,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         // [E2E] Scenario going trough the process of creating and cancelling a Sales Invoice containing Item Charges
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
@@ -492,7 +492,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         // [E2E] Scenario going trough the process of creating and cancelling a Sales Invoice containing Item Charges
 
-        Initialize;
+        Initialize();
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
@@ -520,7 +520,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Item Charges Plan-based E2E");
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
@@ -534,8 +534,8 @@ codeunit 135406 "Item Charges Plan-based E2E"
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryTemplates.UpdateTemplatesVatGroups();
 
         IsInitialized := true;
@@ -573,11 +573,11 @@ codeunit 135406 "Item Charges Plan-based E2E"
         PurchaseLine: Record "Purchase Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(VendorNo);
-        PurchaseInvoice."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID);
+        PurchaseInvoice."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID());
         PurchaseInvoice."Message Type".SetValue(PurchaseHeader."Message Type"::Message);
-        PurchaseInvoice."Invoice Message".SetValue(LibraryUtility.GenerateGUID);
+        PurchaseInvoice."Invoice Message".SetValue(LibraryUtility.GenerateGUID());
 
         CreatePurchaseInvoiceLine(
           PurchaseInvoice, Format(PurchaseLine.Type::Item), ItemNo, LibraryRandom.RandIntInRange(1, 10), LibraryRandom.RandDecInRange(1, 1000, 2));
@@ -638,7 +638,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         SalesLine: Record "Sales Line";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerNo);
 
         CreateSalesInvoiceLine(
@@ -785,7 +785,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         VendorName: Text[100];
     begin
         VendorName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name));
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.SetValue(VendorName);
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
@@ -798,7 +798,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         CustomerName: Text[100];
     begin
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(CustomerName);
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;
@@ -817,7 +817,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)), 1, MaxStrLen(Item.Description));
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
 
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(Description);
         ItemCard."Unit Price".SetValue(UnitCost + LibraryRandom.RandDec(100, 2));
         ItemCard."Unit Cost".SetValue(UnitCost);

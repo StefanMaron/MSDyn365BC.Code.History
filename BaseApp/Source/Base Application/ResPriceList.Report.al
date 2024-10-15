@@ -468,7 +468,7 @@ report 7054 "Res. Price List"
     procedure InitializeRequest(NewDateReq: Date; NewSourceType: Enum "Job Price Source Type"; NewSourceNo: Code[20]; NewCurrencyCode: Code[10])
     begin
         DateReq := NewDateReq;
-        SourceType := NewSourceType.AsInteger();
+        SourceType := "Price Source Type".FromInteger(NewSourceType.AsInteger());
         SourceNo := NewSourceNo;
         Currency.Code := NewCurrencyCode;
 

@@ -32,10 +32,10 @@ codeunit 137601 "SCM CETAF Purchase"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM CETAF Purchase");
 
         LibraryPatterns.SETNoSeries;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -127,7 +127,7 @@ codeunit 137601 "SCM CETAF Purchase"
         PurchRcptLine: Record "Purch. Rcpt. Line";
         TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
     begin
-        Initialize;
+        Initialize();
 
         // Setup Item and SKU.
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
@@ -140,7 +140,7 @@ codeunit 137601 "SCM CETAF Purchase"
 
         // Extract the Purchase Receipt No. from the ILEs.
         TempItemLedgerEntry.SetRange(Positive, true);
-        TempItemLedgerEntry.FindFirst;
+        TempItemLedgerEntry.FindFirst();
         PurchRcptLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
 
         // Cost modification.
@@ -149,12 +149,12 @@ codeunit 137601 "SCM CETAF Purchase"
           PurchaseHeader, PurchRcptLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
         LibraryPatterns.ASSIGNPurchChargeToPurchaseLine(
           PurchaseHeader, PurchaseLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise.
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchRcptLine."Order No.");
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
@@ -207,7 +207,7 @@ codeunit 137601 "SCM CETAF Purchase"
         SalesLine: Record "Sales Line";
     begin
         // Setup Item Tracking Code, Item and SKU.
-        Initialize;
+        Initialize();
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, ItemTrackingCode.Code);
         if MakeSKU then
@@ -346,7 +346,7 @@ codeunit 137601 "SCM CETAF Purchase"
         PurchaseLine1: Record "Purchase Line";
     begin
         // Setup Item and SKU.
-        Initialize;
+        Initialize();
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
         if MakeSKU then
             LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
@@ -360,7 +360,7 @@ codeunit 137601 "SCM CETAF Purchase"
 
         // Extract the Purchase Receipt No. from the ILEs.
         TempItemLedgerEntry.SetRange(Positive, true);
-        TempItemLedgerEntry.FindFirst;
+        TempItemLedgerEntry.FindFirst();
         PurchRcptLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
 
         // Cost modification.
@@ -371,7 +371,7 @@ codeunit 137601 "SCM CETAF Purchase"
           PurchaseHeader, PurchRcptLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
         LibraryPatterns.ASSIGNPurchChargeToPurchaseLine(
           PurchaseHeader, PurchaseLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         // for Purchase Return.
         PurchaseHeader1.Get(PurchaseLine1."Document Type", PurchaseLine1."Document No.");
@@ -380,7 +380,7 @@ codeunit 137601 "SCM CETAF Purchase"
           PurchaseHeader1, PurchaseLine1, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
 
         // Exercise.
-        PurchaseHeader1.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader1.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader1, true, true);
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
@@ -544,7 +544,7 @@ codeunit 137601 "SCM CETAF Purchase"
         PurchaseLine1: Record "Purchase Line";
     begin
         // Setup Item and SKU.
-        Initialize;
+        Initialize();
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
         if MakeSKU then
             LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
@@ -555,7 +555,7 @@ codeunit 137601 "SCM CETAF Purchase"
 
         // Extract the Purchase Receipt No. from the ILEs.
         TempItemLedgerEntry.SetRange(Positive, true);
-        TempItemLedgerEntry.FindLast;
+        TempItemLedgerEntry.FindLast();
         PurchRcptLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
 
         // Cost modification.
@@ -564,7 +564,7 @@ codeunit 137601 "SCM CETAF Purchase"
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(
           PurchaseHeader, PurchRcptLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, InvoicePurchase);
 
         // Apply return to charged receipt.
@@ -574,7 +574,7 @@ codeunit 137601 "SCM CETAF Purchase"
 
         // Exercise.
         PurchaseHeader1.Get(PurchaseLine1."Document Type", PurchaseLine1."Document No.");
-        PurchaseHeader1.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader1.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader1, true, InvoicePurchReturn);
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
@@ -621,7 +621,7 @@ codeunit 137601 "SCM CETAF Purchase"
         PurchaseLine1: Record "Purchase Line";
     begin
         // Setup Item and SKU.
-        Initialize;
+        Initialize();
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
         if MakeSKU then
             LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
@@ -631,12 +631,12 @@ codeunit 137601 "SCM CETAF Purchase"
           TempItemLedgerEntry, PurchaseLine, PurchaseLine1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code",
           InvoicePartialReceipt);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Extract the Purchase Receipt No. from the ILEs.
         TempItemLedgerEntry.SetRange(Positive, true);
-        TempItemLedgerEntry.FindFirst;
+        TempItemLedgerEntry.FindFirst();
         PurchRcptLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
 
         // Cost modification.
@@ -646,7 +646,7 @@ codeunit 137601 "SCM CETAF Purchase"
           PurchaseHeader1, PurchRcptLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
 
         // Exercise.
-        PurchaseHeader1.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader1.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader1, true, true);
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
@@ -691,7 +691,7 @@ codeunit 137601 "SCM CETAF Purchase"
         PurchaseLine1: Record "Purchase Line";
     begin
         // Setup Item and SKU.
-        Initialize;
+        Initialize();
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
         if MakeSKU then
             LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
@@ -709,7 +709,7 @@ codeunit 137601 "SCM CETAF Purchase"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPatterns.ASSIGNPurchChargeToPurchaseLine(
           PurchaseHeader, PurchaseLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         // for Purchase Return.
         PurchaseHeader1.Get(PurchaseLine1."Document Type", PurchaseLine1."Document No.");
@@ -717,7 +717,7 @@ codeunit 137601 "SCM CETAF Purchase"
           PurchaseHeader1, PurchaseLine1, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
 
         // Exercise.
-        PurchaseHeader1.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader1.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader1, true, true);
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
@@ -881,7 +881,7 @@ codeunit 137601 "SCM CETAF Purchase"
         InvoiceQty: Decimal;
     begin
         // Setup Item and SKU.
-        Initialize;
+        Initialize();
         LibraryPatterns.MAKEItem(Item, CostingMethod, 0, 0, 0, '');
         if MakeSKU then
             LibraryPatterns.MAKEStockkeepingUnit(StockkeepingUnit, Item);
@@ -917,20 +917,20 @@ codeunit 137601 "SCM CETAF Purchase"
         LibraryPurchase.CreatePurchHeader(PurchaseHeaderInv, PurchaseHeaderInv."Document Type"::Invoice, '');
         PurchaseHeaderInv.Validate("Posting Date", WorkDate + 3);
         PurchRcptLine.SetRange("Order No.", PurchaseHeader1."No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(
           PurchaseHeaderInv, PurchRcptLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
         PurchRcptLine.SetRange("Order No.", PurchaseHeader2."No.");
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
         LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(
           PurchaseHeaderInv, PurchRcptLine, LibraryRandom.RandInt(10), LibraryRandom.RandDec(100, 5));
 
         // Exercise.
         PurchaseHeader1.Get(PurchaseHeader1."Document Type", PurchaseHeader1."No.");
-        PurchaseHeader1.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader1.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader1, true, true);
         PurchaseHeader2.Get(PurchaseHeader2."Document Type", PurchaseHeader2."No.");
-        PurchaseHeader2.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader2.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, true, true);
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 

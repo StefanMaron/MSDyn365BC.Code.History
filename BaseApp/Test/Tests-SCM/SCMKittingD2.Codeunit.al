@@ -49,8 +49,8 @@ codeunit 137091 "SCM Kitting - D2"
 
         // Setup Demonstration data.
         isInitialized := true;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
@@ -70,7 +70,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyHeader: Record "Assembly Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StdCostLevel := 1;
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', false);
@@ -97,7 +97,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine: Record "Assembly Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StdCostLevel := 1;
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', false);
@@ -106,7 +106,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.SetCurrentKey("Document Type", "Document No.", Type);
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 AssemblyLine.Validate(Quantity, -AssemblyLine.Quantity);
                 AssemblyHeader.Modify(true);
@@ -131,7 +131,7 @@ codeunit 137091 "SCM Kitting - D2"
         ItemCheckAvail: Codeunit "Item-Check Avail.";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         LibraryNotificationMgt.DisableMyNotification(ItemCheckAvail.GetItemAvailabilityNotificationId);
 
@@ -141,7 +141,7 @@ codeunit 137091 "SCM Kitting - D2"
 
         BOMComponent.SetRange("Parent Item No.", AssemblyHeader."Item No.");
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-        BOMComponent.FindFirst;
+        BOMComponent.FindFirst();
         LibraryAssembly.CreateItemSubstitution(ItemSubstitution, BOMComponent."No.");
 
         // Exercise.
@@ -151,7 +151,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.SetRange(Type, "BOM Component Type"::Item);
         AssemblyLine.SetRange("No.", BOMComponent."No.");
 
-        if AssemblyLine.FindFirst then
+        if AssemblyLine.FindFirst() then
             AssemblyLine.ShowItemSub;
 
         // Validate.
@@ -174,7 +174,7 @@ codeunit 137091 "SCM Kitting - D2"
         Location1: Record Location;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, Location.Code,
           AssemblySetup."Copy Component Dimensions from"::"Order Header", LibraryUtility.GetGlobalNoSeriesCode);
@@ -222,7 +222,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyHeader: Record "Assembly Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, ReplSystem, '', '');
         LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, NoOfItems, NoOfResources, NoOfTexts, 1, '', '');
 
@@ -279,7 +279,7 @@ codeunit 137091 "SCM Kitting - D2"
         TempBOMComponent: Record "BOM Component" temporary;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StdCostLevel := 1;
         LibraryAssembly.SetupAssemblyData(
           AssemblyHeader, WorkDate2, ParentCostingMethod, CompCostingMethod, Item."Replenishment System"::Assembly,
@@ -420,7 +420,7 @@ codeunit 137091 "SCM Kitting - D2"
         NewComponentNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StdCostLevel := 1;
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, CostingMethod, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', true);
@@ -451,7 +451,7 @@ codeunit 137091 "SCM Kitting - D2"
         NewComponentNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order,
           ModifyAssemblyLines(ChangeType, CostingMethod, ComponentType, NewComponentType, UseBaseUnitOfMeasure));
         if NewComponentType = "BOM Component Type"::Item then
@@ -916,7 +916,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyHeader: Record "Assembly Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StdCostLevel := 1;
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, CostingMethod, CostingMethod,
           Item."Replenishment System"::Assembly, '', true);
@@ -1107,7 +1107,7 @@ codeunit 137091 "SCM Kitting - D2"
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateMultipleLvlTree(Item, Item1, Item."Replenishment System"::Assembly, CostingMethod, 1, 2);
         if Level > 1 then
             Item := Item1;
@@ -1210,7 +1210,7 @@ codeunit 137091 "SCM Kitting - D2"
         TempAssemblyLine: Record "Assembly Line" temporary;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateMultipleLvlTree(
           Item, Item1, Item."Replenishment System"::Assembly, Item."Costing Method"::Standard, TreeDepth, 2
           );
@@ -1222,7 +1222,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, "BOM Component Type"::Item);
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 Item.Get(AssemblyLine."No.");
                 if Item."Assembly BOM" then begin
@@ -1268,7 +1268,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine: Record "Assembly Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StdCostLevel := 1;
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', true);
@@ -1278,7 +1278,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, "BOM Component Type"::Item);
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 asserterror AssemblyLine.ExplodeAssemblyList;
                 // Validate.
@@ -1306,7 +1306,7 @@ codeunit 137091 "SCM Kitting - D2"
         SalesExplodeBOM: Codeunit "Sales-Explode BOM";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Stockout Warning", false);
         SalesReceivablesSetup.Modify(true);
@@ -1336,7 +1336,7 @@ codeunit 137091 "SCM Kitting - D2"
         SalesExplodeBOM: Codeunit "Sales-Explode BOM";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(5, 2));
@@ -1370,7 +1370,7 @@ codeunit 137091 "SCM Kitting - D2"
         PurchExplodeBOM: Codeunit "Purch.-Explode BOM";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateAssemblyList(Item."Costing Method"::Standard, Item."No.", true, 2, 0, 0, 1, '', '');
         SaveInitialAssemblyList(TempBOMComponent, Item."No.");
@@ -1399,7 +1399,7 @@ codeunit 137091 "SCM Kitting - D2"
         PurchExplodeBOM: Codeunit "Purch.-Explode BOM";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         LibraryPurchase.CreatePurchaseLine(
@@ -1433,7 +1433,7 @@ codeunit 137091 "SCM Kitting - D2"
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, CostingMethod, Item."Replenishment System"::Assembly, '', '');
         Item.Validate("Lot Size", LotSize);
         Item.Modify(true);
@@ -1528,7 +1528,7 @@ codeunit 137091 "SCM Kitting - D2"
         CalculateStandardCost: Codeunit "Calculate Standard Cost";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
         LibraryAssembly.CreateItem(Item1, Item."Costing Method"::Standard, Item."Replenishment System"::Purchase, '', '');
         LibraryAssembly.CreateResource(Resource, true, '');
@@ -1592,7 +1592,7 @@ codeunit 137091 "SCM Kitting - D2"
         ItemNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StdCostLevel := 1;
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', true);
@@ -1642,7 +1642,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeaderNo);
         AssemblyLine.SetFilter(Type, '<>%1', "BOM Component Type"::" ");
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 BOMComponent.SetRange("Parent Item No.", AssemblyHeader."Item No.");
                 BOMComponent.SetRange(Type, AssemblyLine.Type);
@@ -1729,7 +1729,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         LibraryAssembly.GetBOMComponentLines(TempBOMComponent, AssemblyHeader."Item No.");
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 TempBOMComponent.SetRange("Parent Item No.", AssemblyHeader."Item No.");
                 TempBOMComponent.SetRange(Type, AssemblyLine.Type);
@@ -1737,11 +1737,11 @@ codeunit 137091 "SCM Kitting - D2"
                 TempBOMComponent.SetRange("Variant Code", AssemblyLine."Variant Code");
                 TempBOMComponent.SetRange("Unit of Measure Code", AssemblyLine."Unit of Measure Code");
                 // TempBOMComponent.SETRANGE("Resource Usage Type",AssemblyLine."Resource Usage Type");
-                TempBOMComponent.FindFirst;
+                TempBOMComponent.FindFirst();
                 Assert.AreEqual(1, TempBOMComponent.Count, 'Too many order lines exploded.');
                 TempAssemblyLine.SetRange(Type, "BOM Component Type"::Item);
                 TempAssemblyLine.SetRange("No.", TempBOMComponent."Parent Item No.");
-                if TempAssemblyLine.FindFirst then
+                if TempAssemblyLine.FindFirst() then
                     Assert.AreNearlyEqual(TempAssemblyLine."Quantity per" * TempBOMComponent."Quantity per", AssemblyLine."Quantity per",
                       LibraryERM.GetAmountRoundingPrecision, 'Wrong qty per in exploded line for ' + TempAssemblyLine."No.");
                 VerifyOrderLine(AssemblyLine);
@@ -1766,7 +1766,7 @@ codeunit 137091 "SCM Kitting - D2"
             TempBOMComponent.SetRange("Variant Code", SalesLine."Variant Code");
             TempBOMComponent.SetRange("Unit of Measure Code", SalesLine."Unit of Measure Code");
             Assert.AreEqual(1, TempBOMComponent.Count, 'Too many order lines exploded.');
-            TempBOMComponent.FindFirst;
+            TempBOMComponent.FindFirst();
             Assert.AreNearlyEqual(TempBOMComponent."Quantity per" * TempSalesLine.Quantity, SalesLine.Quantity,
               LibraryERM.GetAmountRoundingPrecision, 'Wrong qty in exploded line for ' + SalesLine."No.");
             TempBOMComponent.Delete(true);
@@ -1795,7 +1795,7 @@ codeunit 137091 "SCM Kitting - D2"
             TempBOMComponent.SetRange("Variant Code", PurchaseLine."Variant Code");
             TempBOMComponent.SetRange("Unit of Measure Code", PurchaseLine."Unit of Measure Code");
             Assert.AreEqual(1, TempBOMComponent.Count, 'Too many order lines exploded.');
-            TempBOMComponent.FindFirst;
+            TempBOMComponent.FindFirst();
             Assert.AreNearlyEqual(TempBOMComponent."Quantity per" * TempPurchaseLine.Quantity, PurchaseLine.Quantity,
               LibraryERM.GetAmountRoundingPrecision, 'Wrong qty in exploded line for ' + PurchaseLine."No.");
             TempBOMComponent.Delete(true);
@@ -1834,7 +1834,7 @@ codeunit 137091 "SCM Kitting - D2"
         Commit();
         TempBOMComponent.DeleteAll();
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 TempBOMComponent := BOMComponent;
                 TempBOMComponent.Insert();
@@ -1847,9 +1847,9 @@ codeunit 137091 "SCM Kitting - D2"
         BOMComponent: Record "BOM Component";
     begin
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
-        if TempBOMComponent.FindSet then
+        if TempBOMComponent.FindSet() then
             Assert.AreEqual(TempBOMComponent.Count, BOMComponent.Count, 'Assembly list was altered!');
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 TempBOMComponent.SetRange("Parent Item No.", BOMComponent."Parent Item No.");
                 TempBOMComponent.SetRange("Line No.", BOMComponent."Line No.");
@@ -1871,7 +1871,7 @@ codeunit 137091 "SCM Kitting - D2"
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeaderNo);
         AssemblyLine.SetRange(Type, "BOM Component Type"::Item);
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 Assert.AreEqual(LocationCode, AssemblyLine."Location Code", 'Wrong location code on line.');
             until AssemblyLine.Next = 0;

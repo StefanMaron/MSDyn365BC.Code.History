@@ -512,7 +512,7 @@ codeunit 138047 "Navigate to Posted Document"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Navigate to Posted Document");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Navigate to Posted Document");
@@ -523,7 +523,7 @@ codeunit 138047 "Navigate to Posted Document"
         ClearTable(DATABASE::"Troubleshooting Setup");
         ClearTable(DATABASE::Resource);
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         CreateUserPersonalization;
 
         LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
@@ -541,7 +541,7 @@ codeunit 138047 "Navigate to Posted Document"
         ServiceDocumentLog: Record "Service Document Log";
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::"Job Planning Line":
                 JobPlanningLine.DeleteAll();
@@ -575,7 +575,7 @@ codeunit 138047 "Navigate to Posted Document"
         SalesLine: Record "Sales Line";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
@@ -588,7 +588,7 @@ codeunit 138047 "Navigate to Posted Document"
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Vendor."No.");
@@ -601,8 +601,8 @@ codeunit 138047 "Navigate to Posted Document"
         ServiceLine: Record "Service Line";
         Customer: Record Customer;
     begin
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         SetServSetupNoSeries;
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateCustomer(Customer);

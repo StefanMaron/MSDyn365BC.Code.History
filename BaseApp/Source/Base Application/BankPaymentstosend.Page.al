@@ -162,7 +162,7 @@ page 32000006 "Bank Payments to send"
 
                     trigger OnAction()
                     begin
-                        CreateRefPmtSuggestion.RunModal;
+                        CreateRefPmtSuggestion.RunModal();
                         Clear(CreateRefPmtSuggestion);
                     end;
                 }
@@ -235,7 +235,7 @@ page 32000006 "Bank Payments to send"
                     trigger OnAction()
                     begin
                         if Confirm(Text001) then
-                            CreateLMPFile.Run;
+                            CreateLMPFile.Run();
                         Clear(CreateLMPFile);
                     end;
                 }
@@ -251,7 +251,7 @@ page 32000006 "Bank Payments to send"
                     trigger OnAction()
                     begin
                         if Confirm(Text001) then
-                            CreateLUMFile.Run;
+                            CreateLUMFile.Run();
                         Clear(CreateLUMFile);
                     end;
                 }
@@ -293,7 +293,7 @@ page 32000006 "Bank Payments to send"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         PurchRefLines.Reset();
-        if PurchRefLines.FindLast then
+        if PurchRefLines.FindLast() then
             "No." := PurchRefLines."No." + 1
         else
             "No." := 0;

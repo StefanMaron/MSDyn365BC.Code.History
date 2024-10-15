@@ -176,7 +176,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         // Verify: Suggested Amount
         GenJournalLine.SetRange("Account No.", Vendor."No.");
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
-        Result := GenJournalLine.FindLast;
+        Result := GenJournalLine.FindLast();
         if FindDiscounts then
             Assert.AreEqual(-DiscountedInvoices, GenJournalLine.Amount, SumErr)
         else
@@ -445,7 +445,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         // Setup: Create & Post General Journal Lines.
         Initialize();
         VendorNo := CreateVendor(Vendor."Currency Code", Vendor."Application Method"::"Apply to Oldest");
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         CreateGeneralJournalWithAccountTypeGLAccount(GenJournalLine, GLAccountNo);
         UpdateGenJournalLine(GenJournalLine, VendorNo);
         ShortcutDimension1Code := GenJournalLine."Shortcut Dimension 1 Code";
@@ -470,8 +470,8 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GLAccountNo: Code[20];
     begin
         // 1. Setup: Create and Post General Journal Lines.
-        VendorNo := LibraryPurchase.CreateVendorNo;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         LibraryVariableStorage.Enqueue(VendorNo);
         LibraryVariableStorage.Enqueue(GLAccountNo);
         CreateGeneralJournalWithAccountTypeGLAccount(GenJournalLine, GLAccountNo);
@@ -663,8 +663,8 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GLAccountNo: Code[20];
     begin
         // 1. Setup: Create and Post Invoice and Credit Memo Entries for Vendor with Negative Balance.
-        VendorNo := LibraryPurchase.CreateVendorNo;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
 
         LibraryVariableStorage.Enqueue(VendorNo);
         LibraryVariableStorage.Enqueue(GLAccountNo);
@@ -810,7 +810,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         // [THEN] GLEntry for "P" has Amount = 100;
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, CrMemoAmount);
     end;
 
@@ -971,7 +971,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
 
         PostingDate := LibraryRandom.RandDate(5);
         LastPaymentDate := LibraryRandom.RandDate(5);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
 
         // [GIVEN] Gen. Journal Batch without Bal. Account No.
         SetupGenJnlLine(GenJournalLine);
@@ -1122,7 +1122,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account Type"::"Bank Account");
         LibraryVariableStorage.Enqueue(BankAccountNo);
         LibraryVariableStorage.Enqueue(GenJournalLine."Bank Payment Type"::"Electronic Payment-IAT");
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
 
         // [THEN] Payment Journal Line created for Vendor A with Ammout 100 with "Bank Payment Type" = "Electronic Payment-IAT"
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
@@ -1160,7 +1160,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account Type"::"Bank Account");
         LibraryVariableStorage.Enqueue(BankAccountNo);
         LibraryVariableStorage.Enqueue(GenJournalLine."Bank Payment Type"::"Electronic Payment");
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
 
         // [THEN] Payment Journal Line created for Vendor A with Ammout 100 with "Bank Payment Type" = "Electronic Payment"
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
@@ -1349,7 +1349,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         CreatePayment.OpenEdit;
 
         // [THEN] Page Create Payment shows Batch Name = Blank
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
         Assert.AreEqual(GenJournalBatch.Name, Format(CreatePayment."Batch Name"), '');
 
         CreatePayment.Close;
@@ -1378,7 +1378,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         CreatePayment.OpenEdit;
 
         // [THEN] Page Create Payment shows Batch Name = Blank
-        GenJournalBatch.FindFirst;
+        GenJournalBatch.FindFirst();
         Assert.AreEqual(GenJournalBatch.Name, Format(CreatePayment."Batch Name"), '');
 
         CreatePayment.Close;
@@ -1419,7 +1419,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         // [THEN] "Starting Document No." is equal to 101
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindLast;
+        GenJournalLine.FindLast();
         CreatePayment."Starting Document No.".AssertEquals(IncStr(GenJournalLine."Document No."));
         CreatePayment.Close;
     end;
@@ -1675,7 +1675,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         // [THEN] Payment Gen Journal Line was created
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch[2]."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch[2].Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Payment);
 
         VendorLedgerEntries.Close;
@@ -2165,14 +2165,14 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     begin
         // [FEATURE] [Object Options]
         // [SCENARIO 357515] Create new saved report option for Suggest Vendor Payment Report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Report option is saved for the report 'Suggest Vendor Payment' for selected General Journal
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo);
         LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
         LibraryVariableStorage.Enqueue(false);
-        ParameterName := LibraryUtility.GenerateGUID;
+        ParameterName := LibraryUtility.GenerateGUID();
 
         // request page is opened again when new object option is created
         LibraryVariableStorage.Enqueue(ParameterName);
@@ -2408,7 +2408,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalBatch: Record "Gen. Journal Batch";
         PaymentNo: Code[20];
     begin
-        PaymentNo := LibraryUtility.GenerateGUID;
+        PaymentNo := LibraryUtility.GenerateGUID();
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
         CreatePaymentLineWithAppliedTo(
           GenJournalLine, GenJournalBatch, AccountType, AccountNo,
@@ -2538,7 +2538,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         GLSetup.Get();
         DimSetID :=
           LibraryDimension.CreateDimSet(
@@ -2555,7 +2555,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         BankAccount: Record "Bank Account";
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
-        BankAccountPostingGroup.FindFirst;
+        BankAccountPostingGroup.FindFirst();
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Currency Code", CurrencyCode);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
@@ -2725,7 +2725,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;
@@ -2835,7 +2835,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
           LastPaymentDate, FindPaymentDiscounts, 0, false, LastPaymentDate, Format(LibraryRandom.RandInt(100)),
           SummarizePerVendor, BalAccountType, BalAccountNo, BankPaymentType);
         SuggestVendorPayments.UseRequestPage(false);
-        SuggestVendorPayments.RunModal;
+        SuggestVendorPayments.RunModal();
     end;
 
     local procedure SuggestVendorPaymentUsingPage(var GenJournalLine: Record "Gen. Journal Line")
@@ -2851,7 +2851,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
 
         Commit();  // Commit required to avoid test failure.
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
     end;
 
     local procedure SuggestVendorPaymentsEnqueueValues(ActionType: Option Update,Verify; PostingDate: Date; LastPaymentDate: Date; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
@@ -2869,7 +2869,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     begin
         Commit();
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
     end;
 
     local procedure UpdateOnHoldOnGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; OnHold: Code[3])
@@ -2975,7 +2975,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalLine.SetRange("Journal Template Name", GenJournaTemplateName);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatchName);
         GenJournalLine.SetRange(Amount, ExpectedAmount);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
     end;
 
     local procedure GetDimensionFilterText(): Text
@@ -3027,7 +3027,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalLine: Record "Gen. Journal Line";
         i: Integer;
     begin
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         BankAccountNo := LibraryERM.CreateBankAccountNo;
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::General);
         for i := 1 to ArrayLen(Amount) do begin
@@ -3073,7 +3073,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
         GenJournalLine.SetRange("Account No.", VendorNo);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.FindSet();
@@ -3145,7 +3145,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
             SetRange("Vendor No.", VendorNo);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount, "Remaining Amount");
             Assert.AreNearlyEqual(Amount2, Amount, LibraryERM.GetAmountRoundingPrecision,
               StrSubstNo(ValidateErr, FieldCaption(Amount), Amount2, TableCaption, FieldCaption("Entry No."), "Entry No."));
@@ -3179,7 +3179,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalLine2.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         GenJournalLine2.TestField("Shortcut Dimension 1 Code", '');
         GenJournalLine2.TestField("Shortcut Dimension 2 Code", '');
-        GenJournalLine2.FindLast;
+        GenJournalLine2.FindLast();
         GenJournalLine2.TestField("Account Type", GenJournalLine2."Account Type"::Vendor);
         GenJournalLine2.TestField("Account No.", VendorNo);
         GenJournalLine2.TestField("Bal. Account Type", GenJournalLine2."Bal. Account Type"::"G/L Account");
@@ -3192,7 +3192,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     begin
         GenJournalLine2.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine2.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine2.FindLast;
+        GenJournalLine2.FindLast();
         GenJournalLine2.TestField("Shortcut Dimension 1 Code", DimValue1Code);
         GenJournalLine2.TestField("Shortcut Dimension 2 Code", DimValue2Code);
     end;
@@ -3230,7 +3230,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
         GenJnlLine.SetRange("Account No.", VendNo);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         Assert.AreEqual(DimSetID, GenJnlLine."Dimension Set ID", GenJnlLine.FieldCaption("Dimension Set ID"));
     end;
 
@@ -3245,7 +3245,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     local procedure VerifyMessageToRecipientStandard(var GenJournalLine: Record "Gen. Journal Line"; BatchName: Code[10]; ExpectedMessage: Text)
     begin
         GenJournalLine.SetRange("Journal Batch Name", BatchName);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Message to Recipient", ExpectedMessage);
     end;
 
@@ -3414,7 +3414,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalLine.Validate("Journal Template Name", GenJournalTemplateName);
         GenJournalLine.Validate("Journal Batch Name", GenJournalBatchName);
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        SuggestVendorPayments.Run;
+        SuggestVendorPayments.Run();
     end;
 
     [ModalPageHandler]

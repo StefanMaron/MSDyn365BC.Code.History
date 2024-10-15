@@ -73,7 +73,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
         Amount2: Decimal;
         VendorBankAlt: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -105,7 +105,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
         Amount2: Decimal;
         VendorBankAlt: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -137,7 +137,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
         Amount2: Decimal;
         VendorBankAlt: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendor(Vendor);
@@ -169,7 +169,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
         AnyDate: Date;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccountNoComb);
@@ -211,7 +211,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
         PostingDate2: Date;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateBankAccount(BankAccount2);
@@ -384,7 +384,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
         Vendor.Get(VendorNo);
 
         with RefPmtExported do begin
-            if FindLast then
+            if FindLast() then
                 NextNo := "No." + 1;
             Init;
             Validate("No.", NextNo);
@@ -476,7 +476,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
             SetRange("Applied Payments", false);
             Assert.AreEqual(1, Count, 'Wrong number of lines to export');
 
-            FindFirst;
+            FindFirst();
             // Validate values in common from lines beeing combined
             Assert.AreEqual(BankAccountNo, "Payment Account", 'Wrong Payment Account');
             Assert.AreEqual(VendorNo, "Vendor No.", 'Wrong Vendor No.');

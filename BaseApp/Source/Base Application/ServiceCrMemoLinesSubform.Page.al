@@ -202,10 +202,10 @@ page 6039 "Service Cr. Memo Lines Subform"
         TempServCrMemoLine.Reset();
         TempServCrMemoLine.CopyFilters(Rec);
         TempServCrMemoLine.SetRange("Document No.", "Document No.");
-        if not TempServCrMemoLine.FindFirst then begin
+        if not TempServCrMemoLine.FindFirst() then begin
             ServCrMemoLine.CopyFilters(Rec);
             ServCrMemoLine.SetRange("Document No.", "Document No.");
-            if not ServCrMemoLine.FindFirst then
+            if not ServCrMemoLine.FindFirst() then
                 exit(false);
             TempServCrMemoLine := ServCrMemoLine;
             TempServCrMemoLine.Insert();

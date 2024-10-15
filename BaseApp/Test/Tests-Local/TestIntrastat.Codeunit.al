@@ -35,7 +35,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Filename: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -66,7 +66,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Filename: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -97,7 +97,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Filename: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -126,7 +126,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostSalesOrderAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -149,7 +149,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Order posting with Quantity = 1
         // [FEATURE] [Sales] [Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Unit Price" = "X"
@@ -176,7 +176,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Return Order posting with Quantity = 1
         // [FEATURE] [Sales] [Return Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Unit Price" = "X"
@@ -203,7 +203,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Last Direct Cost" = "X"
@@ -230,7 +230,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Return Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Return Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Last Direct Cost" = "X"
@@ -254,7 +254,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 331036] Statistical Value is editable on Intrastat Journal page
-        Initialize;
+        Initialize();
         RunIntrastatJournal(IntrastatJournal);
         Assert.IsTrue(IntrastatJournal."Statistical Value".Editable, '');
     end;
@@ -269,7 +269,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [FEATURE] [Report] [Export]
         // [SCENARIO 331036] 'Intrastat - Make Disk Tax Auth' report with Amount = 0 and given Statistical Value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line has blank Item No., Amount = 0 and Statistical Value = 100, all mandatory fields are filled in.
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -302,7 +302,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostSalesInvoiceAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -322,7 +322,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostSalesReturnOrderAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -342,7 +342,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostSalesCreditMemoAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -362,7 +362,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostSalesOrderAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -382,7 +382,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostSalesInvoiceAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -402,7 +402,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostSalesReturnOrderAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -422,7 +422,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostSalesCreditMemoAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -434,96 +434,6 @@ codeunit 134153 "Test Intrastat"
         VerifyIntrastatCheckListReportDataSet(IntrastatJnlLine, TariffNo);
     end;
 
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDiskSalesOrder()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        TariffNo: Code[20];
-        Filename: Text;
-    begin
-        Initialize;
-
-        // Setup
-        TariffNo := SetupAndPostSalesOrderAndPrepIntraJnlLines(IntrastatJnlLine);
-        Filename := FileManagement.ServerTempFileName('txt');
-
-        // Exercise
-        RunIntrastatMakeDiskTaxAuth(Filename, IntrastatJnlLine.Type::Shipment);
-
-        // Verify
-        VerifyIntrastatMakeDiskFile(Filename, TariffNo, IntrastatJnlLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDisktSalesInvoice()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        TariffNo: Code[20];
-        Filename: Text;
-    begin
-        Initialize;
-
-        // Setup
-        TariffNo := SetupAndPostSalesInvoiceAndPrepIntraJnlLines(IntrastatJnlLine);
-        Filename := FileManagement.ServerTempFileName('txt');
-
-        // Exercise
-        RunIntrastatMakeDiskTaxAuth(Filename, IntrastatJnlLine.Type::Shipment);
-
-        // Verify
-        VerifyIntrastatMakeDiskFile(Filename, TariffNo, IntrastatJnlLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDiskSalesReturnOrder()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        TariffNo: Code[20];
-        Filename: Text;
-    begin
-        Initialize;
-
-        // Setup
-        TariffNo := SetupAndPostSalesReturnOrderAndPrepIntraJnlLines(IntrastatJnlLine);
-        Filename := FileManagement.ServerTempFileName('txt');
-
-        // Exercise
-        RunIntrastatMakeDiskTaxAuth(Filename, IntrastatJnlLine.Type::Receipt);
-
-        // Verify
-        VerifyIntrastatMakeDiskFile(Filename, TariffNo, IntrastatJnlLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDiskSalesCreditMemo()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        TariffNo: Code[20];
-        Filename: Text;
-    begin
-        Initialize;
-
-        // Setup
-        TariffNo := SetupAndPostSalesCreditMemoAndPrepIntraJnlLines(IntrastatJnlLine);
-        Filename := FileManagement.ServerTempFileName('txt');
-
-        // Exercise
-        RunIntrastatMakeDiskTaxAuth(Filename, IntrastatJnlLine.Type::Receipt);
-
-        // Verify
-        VerifyIntrastatMakeDiskFile(Filename, TariffNo, IntrastatJnlLine);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntratstatJnlFormReqPageHandler')]
     [Scope('OnPrem')]
@@ -532,7 +442,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostPurchaseOrderAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -552,7 +462,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostPurchaseInvoiceAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -572,7 +482,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostPurchaseReturnOrderAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -592,7 +502,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostPurchaseCreditMemoAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -612,7 +522,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostPurchaseOrderAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -632,7 +542,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostPurchaseInvoiceAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -652,7 +562,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostPurchaseReturnOrderAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -672,7 +582,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         TariffNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         TariffNo := SetupAndPostPurchaseCreditMemoAndPrepIntraJnlLines(IntrastatJnlLine);
@@ -683,96 +593,6 @@ codeunit 134153 "Test Intrastat"
         // Verify
         VerifyIntrastatCheckListReportDataSet(IntrastatJnlLine, TariffNo);
     end;
-
-#if not CLEAN17
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDiskPurchaseOrder()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        TariffNo: Code[20];
-        Filename: Text;
-    begin
-        Initialize;
-
-        // Setup
-        TariffNo := SetupAndPostPurchaseOrderAndPrepIntraJnlLines(IntrastatJnlLine);
-        Filename := FileManagement.ServerTempFileName('txt');
-
-        // Exercise
-        RunIntrastatMakeDiskTaxAuth(Filename, IntrastatJnlLine.Type::Receipt);
-
-        // Verify
-        VerifyIntrastatMakeDiskFile(Filename, TariffNo, IntrastatJnlLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDisktPurchaseInvoice()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        TariffNo: Code[20];
-        Filename: Text;
-    begin
-        Initialize;
-
-        // Setup
-        TariffNo := SetupAndPostPurchaseInvoiceAndPrepIntraJnlLines(IntrastatJnlLine);
-        Filename := FileManagement.ServerTempFileName('txt');
-
-        // Exercise
-        RunIntrastatMakeDiskTaxAuth(Filename, IntrastatJnlLine.Type::Receipt);
-
-        // Verify
-        VerifyIntrastatMakeDiskFile(Filename, TariffNo, IntrastatJnlLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDiskPurchaseReturnOrder()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        TariffNo: Code[20];
-        Filename: Text;
-    begin
-        Initialize;
-
-        // Setup
-        TariffNo := SetupAndPostPurchaseReturnOrderAndPrepIntraJnlLines(IntrastatJnlLine);
-        Filename := FileManagement.ServerTempFileName('txt');
-
-        // Exercise
-        RunIntrastatMakeDiskTaxAuth(Filename, IntrastatJnlLine.Type::Shipment);
-
-        // Verify
-        VerifyIntrastatMakeDiskFile(Filename, TariffNo, IntrastatJnlLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestIntrastatMakeDiskPurchaseCreditMemo()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        TariffNo: Code[20];
-        Filename: Text;
-    begin
-        Initialize;
-
-        // Setup
-        TariffNo := SetupAndPostPurchaseCreditMemoAndPrepIntraJnlLines(IntrastatJnlLine);
-        Filename := FileManagement.ServerTempFileName('txt');
-
-        // Exercise
-        RunIntrastatMakeDiskTaxAuth(Filename, IntrastatJnlLine.Type::Shipment);
-
-        // Verify
-        VerifyIntrastatMakeDiskFile(Filename, TariffNo, IntrastatJnlLine);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('IntrastatMakeDiskTaxAuthCheckControlRequestPageHandler')]
@@ -804,7 +624,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
         IntrastatSetup: Record "Intrastat Setup";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportDataset.Reset();
         IntrastatSetup.DeleteAll();
         IntrastatJnlTemplate.DeleteAll(true);
@@ -812,8 +632,8 @@ codeunit 134153 "Test Intrastat"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         SetIntrastatCodeOnCountryRegion;
         SetTariffNoOnItems;
         CreateIntrastatFileSetup;
@@ -1006,7 +826,7 @@ codeunit 134153 "Test Intrastat"
     begin
         IntrastatMakeDiskTaxAuth.InitializeRequest(Filename, IntraJnlLineType);
         IntrastatMakeDiskTaxAuth.UseRequestPage(false);
-        IntrastatMakeDiskTaxAuth.RunModal;
+        IntrastatMakeDiskTaxAuth.RunModal();
     end;
 
     local procedure RunIntrastatJournalForm(Type: Option)
@@ -1035,7 +855,7 @@ codeunit 134153 "Test Intrastat"
     local procedure SetAdditionalFieldsOnJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; TariffNo: Code[20])
     begin
         IntrastatJnlLine.SetRange("Tariff No.", TariffNo);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.Validate("Unit of Measure", FindOrCreateUnitOfMeasure);
         IntrastatJnlLine.Validate("Quantity 2",
           IntrastatJnlLine.Quantity * LibraryRandom.RandIntInRange(1, 2) * 5); // ex: BOX of 5 or 10 PCS
@@ -1070,7 +890,7 @@ codeunit 134153 "Test Intrastat"
         with CountryRegion do begin
             SetFilter(Code, '<>%1', CompanyInfo."Country/Region Code");
             SetFilter("Intrastat Code", '<>%1', '');
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -1086,7 +906,7 @@ codeunit 134153 "Test Intrastat"
         TempTariffNo: Code[20];
     begin
         // TariffNo must be length 8 and unique
-        TempTariffNo := LibraryUtility.GenerateGUID;
+        TempTariffNo := LibraryUtility.GenerateGUID();
         TariffNo := CopyStr(TempTariffNo, StrLen(TempTariffNo) - MaxStrLen(TariffNo) + 1);
         TariffNumber.Init();
         TariffNumber.Validate("No.", TariffNo);
@@ -1110,7 +930,7 @@ codeunit 134153 "Test Intrastat"
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         Item.SetRange("Tariff No.", '');
         if not Item.IsEmpty() then
             Item.ModifyAll("Tariff No.", TariffNumber."No.");
@@ -1160,63 +980,6 @@ codeunit 134153 "Test Intrastat"
         LibraryReportDataset.AssertCurrentRowValueEquals('IntrastatJnlLinTranMethod', IntrastatJnlLine."Transport Method");
     end;
 
-#if not CLEAN17
-    local procedure VerifyIntrastatMakeDiskFile(Filename: Text; TariffNo: Code[20]; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
-    var
-        Line: Text[1024];
-        TransactionType: Text;
-        TransportMethod: Text;
-        UnitOfMeasure: Text;
-        Quantity2Code: Text;
-        TariffNoLength: Integer;
-        TariffNoStartPos: Integer;
-        TransactionTypeLength: Integer;
-        TransactionTypeStartPos: Integer;
-        TransportMethodLength: Integer;
-        TransportMethodStartPos: Integer;
-        UnitOfMeasureLength: Integer;
-        UnitOfMeasureStartPos: Integer;
-        Quantity2CodeLength: Integer;
-        Quantity2CodeStartPos: Integer;
-    begin
-        FindIntrastatJnlLineFromTariffNo(IntrastatJnlLine, TariffNo);
-        VerifyFieldsOnIntrastatJnlLineNotBlank(IntrastatJnlLine);
-
-        // UPLOAD the file to the server so the library can access it
-        Filename := FileManagement.UploadFileSilent(Filename);
-
-        TariffNoLength := StrLen(TariffNo);
-        TariffNoStartPos := 9;
-
-        // Find line with Tariff No.
-        Line := LibraryTextFileValidation.FindLineWithValue(CopyStr(Filename, 1, 1024), TariffNoStartPos, TariffNoLength, TariffNo);
-
-        TransactionTypeLength := 2;
-        TransactionTypeStartPos := 17;
-        TransactionType := LibraryTextFileValidation.ReadValue(Line, TransactionTypeStartPos, TransactionTypeLength);
-
-        TransportMethodLength := 1;
-        TransportMethodStartPos := 25;
-        TransportMethod := LibraryTextFileValidation.ReadValue(Line, TransportMethodStartPos, TransportMethodLength);
-
-        UnitOfMeasureLength := 3;
-        UnitOfMeasureStartPos := 70;
-        UnitOfMeasure := LibraryTextFileValidation.ReadValue(Line, UnitOfMeasureStartPos, UnitOfMeasureLength);
-
-        Quantity2CodeLength := 3;
-        Quantity2CodeStartPos := 67;
-        Quantity2Code := LibraryTextFileValidation.ReadValue(Line, Quantity2CodeStartPos, Quantity2CodeLength);
-
-        Assert.AreEqual(CopyStr(IntrastatJnlLine."Transaction Type", 1, TransactionTypeLength), TransactionType,
-          'Wrong value for Transaction Type in file');
-        Assert.AreEqual(CopyStr(IntrastatJnlLine."Transport Method", 1, TransportMethodLength), TransportMethod,
-          'Wrong value for Transport Method in file');
-        Assert.AreEqual(CopyStr(IntrastatJnlLine."Unit of Measure", 1, UnitOfMeasureLength), UnitOfMeasure,
-          'Wrong value for Unit Of Measure in file');
-        Assert.AreEqual('AAE', Quantity2Code, 'Wrong value for Quantity 2 Code in file');
-    end;
-#endif
-
     local procedure VerifyFieldsOnIntrastatJnlLineNotBlank(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
         IntrastatJnlLine.TestField("Transaction Type");
@@ -1228,7 +991,7 @@ codeunit 134153 "Test Intrastat"
     local procedure FindIntrastatJnlLineFromTariffNo(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; TariffNo: Code[20])
     begin
         IntrastatJnlLine.SetFilter("Tariff No.", TariffNo);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
     end;
 
     local procedure VerifyIntrastatJnlLine(IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; ItemNo: Code[20]; ExpectedQty: Decimal; ExpectedAmount: Decimal)
@@ -1239,7 +1002,7 @@ codeunit 134153 "Test Intrastat"
             SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
             SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
         end;

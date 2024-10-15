@@ -531,7 +531,6 @@ page 9209 "Invt. Analys by Dim. Matrix"
 
     var
         GLSetup: Record "General Ledger Setup";
-        ItemAnalysisView: Record "Item Analysis View";
         ItemStatisticsBuffer: Record "Item Statistics Buffer";
         MatrixRecords: array[32] of Record "Dimension Code Buffer";
         MatrixRecord: Record "Dimension Code Buffer";
@@ -561,6 +560,9 @@ page 9209 "Invt. Analys by Dim. Matrix"
         MATRIX_CaptionSet: array[32] of Text[80];
         [InDataSet]
         NameIndent: Integer;
+
+    protected var
+        ItemAnalysisView: Record "Item Analysis View";
 
     local procedure CalcAmt(ValueType: Enum "Item Analysis Value Type"; SetColFilter: Boolean) Amt: Decimal
     var

@@ -166,7 +166,6 @@ table 2115 "O365 Coupon Claim"
         UnapplyDiscountPercentageOptionStringTxt: Label 'Clear invoice discount,Let me change discount';
         PercentDiscountTxt: Label '%1% off', Comment = '%1 = a number indicating the discount value, ex. 8';
         AmountDiscountTxt: Label '%1%2 off', Comment = '%1 = currency symbol, ex. $. %2 = a number indicating the discount value, ex. 8';
-        GraphIntContact: Codeunit "Graph Int. - Contact";
         CouponAlreadyUsedOnInvoiceErr: Label 'This coupon has already been applied to invoice %1. Remove it there, and then use it here.', Comment = '%1 = document no.';
         CouponAlreadyUsedOnEstimateErr: Label 'This coupon has already been applied to estimate %1. Remove it there, and then use it here.', Comment = '%1 = document no.';
         NoCouponsTxt: Label 'You have one or more coupons that you can apply.';
@@ -176,7 +175,7 @@ table 2115 "O365 Coupon Claim"
         SetRange("Document Type Filter", SalesHeader."Document Type");
         SetRange("Document No. Filter", SalesHeader."No.");
         SetRange("Is applied", true);
-        if not FindSet then
+        if not FindSet() then
             exit(NoCouponsTxt);
 
         UpdateAmountText;
@@ -289,7 +288,7 @@ table 2115 "O365 Coupon Claim"
         if Usage = Usage::oneTime then begin
             O365CouponClaimDocLink.SetRange("Claim ID", "Claim ID");
             O365CouponClaimDocLink.SetRange("Graph Contact ID", "Graph Contact ID");
-            if O365CouponClaimDocLink.FindFirst then begin
+            if O365CouponClaimDocLink.FindFirst() then begin
                 if O365CouponClaimDocLink."Document Type" = O365CouponClaimDocLink."Document Type"::Invoice then
                     Error(CouponAlreadyUsedOnInvoiceErr, O365CouponClaimDocLink."Document No.");
                 Error(CouponAlreadyUsedOnEstimateErr, O365CouponClaimDocLink."Document No.");
@@ -399,26 +398,12 @@ table 2115 "O365 Coupon Claim"
     end;
 
     procedure CouponsExistForCustomer(CustomerNo: Code[20]): Boolean
-    var
-        O365CouponClaim: Record "O365 Coupon Claim";
-        GraphContactID: Text[250];
     begin
-        if not GraphIntContact.FindGraphContactIdFromCustomerNo(GraphContactID, CustomerNo) then
-            exit;
-
-        O365CouponClaim.SetRange("Graph Contact ID", GraphContactID);
-        exit(not O365CouponClaim.IsEmpty);
+        exit(false);
     end;
 
     procedure UpdateCustomerId()
-    var
-        Customer: Record Customer;
-        Contact: Record Contact;
     begin
-        if not GraphIntContact.FindOrCreateCustomerFromGraphContactSafe("Graph Contact ID", Customer, Contact) then
-            exit;
-
-        "Customer Id" := Customer.SystemId;
     end;
 
     local procedure SetLastModifiedDateTime()

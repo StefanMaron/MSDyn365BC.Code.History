@@ -189,8 +189,6 @@ page 5114 "Contact Profile Answers"
     end;
 
     var
-        Cont: Record Contact;
-        ContProfileAnswer: Record "Contact Profile Answer";
         ProfileQuestionnaireLine2: Record "Profile Questionnaire Line";
         ProfileQuestLineQuestion: Record "Profile Questionnaire Line";
         ProfileManagement: Codeunit ProfileManagement;
@@ -207,6 +205,8 @@ page 5114 "Contact Profile Answers"
         DescriptionIndent: Integer;
 
     protected var
+        Cont: Record Contact;
+        ContProfileAnswer: Record "Contact Profile Answer";
         Set: Boolean;
 
     procedure SetParameters(var SetCont: Record Contact; SetProfileQuestionnaireCode: Code[20]; SetContProfileAnswerCode: Code[20]; SetContProfileAnswerLine: Integer)

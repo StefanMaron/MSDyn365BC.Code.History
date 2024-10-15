@@ -16,9 +16,9 @@ report 32000006 "Export Ref. Payment -  LMP"
                 RefPmtExport.SetRange("Foreign Payment", false);
                 RefPmtExport.SetRange("Document Type", 1);
                 RefPmtExport.SetRange(Transferred, false);
-                if RefPmtExport.FindSet then begin
+                if RefPmtExport.FindSet() then begin
                     RefFileSetup.SetFilter("No.", "Bank Account"."No.");
-                    if not RefFileSetup.FindFirst then
+                    if not RefFileSetup.FindFirst() then
                         Error(Text1090000, "Bank Account"."No.");
 
                     RefPmtExport.TestField("Vendor No.");
@@ -178,7 +178,7 @@ report 32000006 "Export Ref. Payment -  LMP"
     [Scope('OnPrem')]
     procedure CreateTransactionlines()
     begin
-        if RefPmtExport.FindSet then
+        if RefPmtExport.FindSet() then
             repeat
                 if (PrevPaymDate <> 0D) and (PrevPaymDate <> RefPmtExport."Payment Date") then begin
                     CreateSumLines;
@@ -236,7 +236,7 @@ report 32000006 "Export Ref. Payment -  LMP"
                 VendLedgEntry.SetRange("Closed by Entry No.", RefPmtExport."Entry No.");
 
                 if RefFileSetup."Inform. of Appl. Cr. Memos" then
-                    if VendLedgEntry.FindFirst then begin
+                    if VendLedgEntry.FindFirst() then begin
                         MessageType := '5';
                         InvoiceMessage := TextSpaceFormat('', 70, 1, ' ');
                     end;
@@ -257,7 +257,7 @@ report 32000006 "Export Ref. Payment -  LMP"
                 RefPmtExport.Modify();
 
                 if RefFileSetup."Inform. of Appl. Cr. Memos" then
-                    if VendLedgEntry.FindFirst then
+                    if VendLedgEntry.FindFirst() then
                         CreateDetailLines(VendLedgEntry, RefPmtExport."Entry No.");
 
                 if MessageType > '5' then
@@ -399,7 +399,7 @@ report 32000006 "Export Ref. Payment -  LMP"
         VendBankAcc.Reset();
         VendBankAcc.SetFilter("Vendor No.", VendNo);
         VendBankAcc.SetRange(Code, AccountCode);
-        VendBankAcc.FindFirst;
+        VendBankAcc.FindFirst();
         BankAccFormat.ConvertBankAcc(VendBankAcc."Bank Account No.", VendBankAcc.Code);
         VendAccount := VendBankAcc."Bank Account No.";
     end;

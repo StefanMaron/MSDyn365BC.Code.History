@@ -102,7 +102,7 @@ table 2118 "O365 Email Setup"
         SetCurrentKey(Email, RecipientType);
         SetRange(RecipientType, RecipientType::CC);
 
-        if FindSet then begin
+        if FindSet() then begin
             repeat
                 Addresses += Email + ';';
             until Next() = 0;
@@ -115,7 +115,7 @@ table 2118 "O365 Email Setup"
         Reset;
         SetCurrentKey(Email, RecipientType);
         SetRange(RecipientType, RecipientType::BCC);
-        if FindSet then begin
+        if FindSet() then begin
             repeat
                 Addresses += Email + ';';
             until Next() = 0;

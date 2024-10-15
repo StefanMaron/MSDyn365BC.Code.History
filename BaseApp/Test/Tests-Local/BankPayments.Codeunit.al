@@ -35,7 +35,7 @@ codeunit 144002 "Bank Payments"
         PostedDocNo: Code[20];
     begin
         // Initialize
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankAccount(CountryRegion.Code, 'FI9780RBOS16173241116737', '');
         CreateBankAccountReferenceFileSetup(RefFileSetup, BankAccountNo);
         VendorNo := CreateVendor(CountryRegion.Code, 'FI9780RBOS16173241116737', true, 1);
@@ -62,7 +62,7 @@ codeunit 144002 "Bank Payments"
         VendorNo: Code[20];
     begin
         // Initialize
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankAccount(CountryRegion.Code, 'FI9780RBOS16173241116737', 'SEPACT');
         CreateBankAccountReferenceFileSetup(RefFileSetup, BankAccountNo);
         VendorNo := CreateVendor(CountryRegion.Code, 'FI9780RBOS16173241116737', true, 1);
@@ -95,7 +95,7 @@ codeunit 144002 "Bank Payments"
         VendorNo: Code[20];
     begin
         // Initialize
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankAccount(CountryRegion.Code, 'FI9780RBOS16173241116737', 'SEPACT');
         CreateBankAccountReferenceFileSetup(RefFileSetup, BankAccountNo);
         VendorNo := CreateVendor(CountryRegion.Code, '', true, 1);
@@ -111,13 +111,13 @@ codeunit 144002 "Bank Payments"
         // Verify
         RefPmtExp.SetRange(Transferred, false);
         RefPmtExp.SetRange("SEPA Payment", true);
-        RefPmtExp.FindFirst;
+        RefPmtExp.FindFirst();
 
         Assert.AreEqual(1, RefPmtExp.Count, 'Only one record expected');
         Assert.AreEqual(0D, RefPmtExp."Payment Execution Date", 'Incorrect Payment Execution Date');
 
         PmtJnlExpErrTxt.SetRange("Document No.", RefPmtExp."Document No.");
-        PmtJnlExpErrTxt.FindFirst;
+        PmtJnlExpErrTxt.FindFirst();
 
         Assert.AreEqual(1, PmtJnlExpErrTxt.Count, 'Only one error expected');
         Assert.AreEqual(
@@ -139,7 +139,7 @@ codeunit 144002 "Bank Payments"
         VendorNo: Code[20];
     begin
         // Initialize
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankAccount(CountryRegion.Code, 'FI9780RBOS16173241116737', 'SEPACT');
         CreateBankAccountReferenceFileSetup(RefFileSetup, BankAccountNo);
         VendorNo := CreateVendor(CountryRegion.Code, 'FI9780RBOS16173241116737', true, 1);
@@ -156,7 +156,7 @@ codeunit 144002 "Bank Payments"
         // Excercise
         RefPaymentExported.SetRange(Transferred, false);
         RefPaymentExported.SetRange("SEPA Payment", true);
-        RefPaymentExported.FindFirst;
+        RefPaymentExported.FindFirst();
         RefPaymentExported."Vendor Account" := ''; // Inject an error
         RefPaymentExported.Modify();
 
@@ -168,7 +168,7 @@ codeunit 144002 "Bank Payments"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Bank Payments");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Bank Payments");
@@ -384,7 +384,7 @@ codeunit 144002 "Bank Payments"
     begin
         with PostCode do begin
             SetRange("Country/Region Code", CountryCode);
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -403,7 +403,7 @@ codeunit 144002 "Bank Payments"
         RefPmtExp.DeleteAll();
         Commit();
         SuggestBankPayments.InitializeRequest(CalcDate('<30D>', PurchaseHeader."Posting Date"), false, 0);
-        SuggestBankPayments.RunModal;
+        SuggestBankPayments.RunModal();
 
         exit(DocNo);
     end;
@@ -433,7 +433,7 @@ codeunit 144002 "Bank Payments"
         with RefPaymentExported do begin
             SetRange("Vendor No.", VendorNo);
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(
               InvoiceMessage,
               "Invoice Message",
@@ -449,7 +449,7 @@ codeunit 144002 "Bank Payments"
         RefPmtExp.SetRange(Transferred, true);
         RefPmtExp.SetRange("SEPA Payment", true);
         RefPmtExp.SetRange("Batch Code", PmtExpData."Message ID");
-        RefPmtExp.FindFirst;
+        RefPmtExp.FindFirst();
 
         Assert.AreEqual(1, RefPmtExp.Count, 'Only one record expected');
 

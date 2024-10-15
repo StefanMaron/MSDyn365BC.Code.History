@@ -217,6 +217,7 @@ page 189 "Incoming Document"
                 ApplicationArea = All;
                 Caption = 'Supporting Attachments';
                 ShowFilter = false;
+                UpdatePropagation = Both;
                 Visible = AdditionalAttachmentsPresent;
             }
             group(FinancialInformation)
@@ -812,7 +813,7 @@ page 189 "Incoming Document"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Find entries...';
                     Image = Navigate;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                     trigger OnAction()
@@ -822,7 +823,7 @@ page 189 "Incoming Document"
                         if not Posted then
                             Error(NoPostedDocumentsErr);
                         NavigatePage.SetDoc("Posting Date", "Document No.");
-                        NavigatePage.Run;
+                        NavigatePage.Run();
                     end;
                 }
                 group(Action51)
@@ -1061,7 +1062,6 @@ page 189 "Incoming Document"
         HasCamera: Boolean;
         [InDataSet]
         StatusStyleText: Text;
-        URL: Text;
         AttachmentFileName: Text;
         RecordLinkTxt: Text;
         OCRResultFileName: Text;

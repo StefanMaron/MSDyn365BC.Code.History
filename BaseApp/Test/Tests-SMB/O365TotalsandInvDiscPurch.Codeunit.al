@@ -40,8 +40,8 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ItemNoSeries: Text[20];
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Totals and Inv.Disc.Purch");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
 
@@ -55,7 +55,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Totals and Inv.Disc.Purch");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
         InventorySetup.Get();
         ItemNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
@@ -73,7 +73,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::"Warehouse Entry":
                 WarehouseEntry.DeleteAll();
@@ -91,7 +91,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ItemQuantity: Decimal;
         ItemDirectCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemDirectCost := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -116,7 +116,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ItemQuantity: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
 
@@ -142,7 +142,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         DiscPct: Decimal;
         NewLineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
 
@@ -175,7 +175,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", PurchaseInvoice."No.".Value);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
 
         LibraryVariableStorage.AssertEmpty;
@@ -194,7 +194,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateInvoceWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseInvoice);
@@ -227,7 +227,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", PurchaseInvoice."No.".Value);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
     end;
 
@@ -244,7 +244,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
 
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -271,7 +271,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -299,7 +299,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableVATSetup;
 
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
@@ -331,7 +331,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -362,7 +362,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -394,7 +394,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
         CreateVendor(NewVendor);
 
@@ -425,7 +425,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         NewVendorDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
         NewVendorDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateVendorWithDiscount(NewVendor, NewVendorDiscPct, 0);
@@ -456,7 +456,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         NewVendorDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
         NewVendorDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateVendorWithDiscount(NewVendor, NewVendorDiscPct, 0);
@@ -487,7 +487,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
 
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -500,7 +500,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         TotalAmount := NumberOfLines * PurchaseLine."Line Amount";
         CheckInvoiceDiscountTypePercentage(DiscPct, TotalAmount, PurchaseInvoice, true, PurchaseInvoice."Currency Code".Value);
@@ -521,7 +521,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -533,7 +533,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         TotalAmount := NumberOfLines * PurchaseLine."Line Amount";
         CheckInvoiceDiscountTypeAmount(0, TotalAmount, PurchaseInvoice, true, PurchaseInvoice."Currency Code".Value);
@@ -552,7 +552,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateInvoceWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseInvoice);
@@ -589,7 +589,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
 
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -622,7 +622,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ItemQuantity: Decimal;
         ItemUnitCost: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -647,7 +647,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ItemQuantity: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
 
         CreateCreditMemoWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseCreditMemo);
@@ -672,7 +672,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         DiscPct: Decimal;
         NewLineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Warehouse Entry");
 
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -716,7 +716,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", PurchaseCreditMemo."No.".Value);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
     end;
 
@@ -734,7 +734,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryApplicationArea.EnableFoundationSetupForCurrentCompany();
 
@@ -779,7 +779,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", PurchaseCreditMemo."No.".Value);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
 
         LibraryVariableStorage.AssertEmpty;
@@ -798,7 +798,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
 
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -825,7 +825,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -853,7 +853,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableVATSetup;
 
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
@@ -884,7 +884,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         NewVendDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
         NewVendDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateVendorWithDiscount(NewVendor, NewVendDiscPct, 0);
@@ -914,7 +914,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateVendorWithDiscount(NewVendor, NewCustDiscPct, 0);
@@ -945,7 +945,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
         CreateVendor(NewVendor);
 
@@ -976,7 +976,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         NewVendorDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
         NewVendorDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateVendorWithDiscount(NewVendor, NewVendorDiscPct, 0);
@@ -1006,7 +1006,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         NewVendorDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
         NewVendorDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateVendorWithDiscount(NewVendor, NewVendorDiscPct, 0);
@@ -1037,7 +1037,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
 
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1049,7 +1049,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         TotalAmount := NumberOfLines * PurchaseLine."Line Amount";
         CheckCreditMemoDiscountTypePercentage(
@@ -1073,7 +1073,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
         CurrencyCode: Code[10];
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
 
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -1085,14 +1085,14 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         Assert.AreEqual(0, PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal, 'Invoice discount not set to 0');
 
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindLast;
+        CurrencyExchangeRate.FindLast();
         InvoiceDiscountAmount := InvoiceDiscountAmount /
           (CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount");
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(InvoiceDiscountAmount);
 
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         TotalAmount := NumberOfLines * PurchaseLine."Line Amount";
         CheckCreditMemoDiscountTypeAmount(
@@ -1109,7 +1109,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InstructionMgt: Codeunit "Instruction Mgt.";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
         InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
 
         CreateVendor(Vendor);
@@ -1144,7 +1144,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Purchase Invoice "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice "PI01" with Purchase Lines created for Vendor "V01" and no discount
         ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -1155,7 +1155,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
         CreateVendor(Vendor);
-        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID();
         Vendor.Modify(true);
 
         // [WHEN] Set "Pay-to Name" to "V02" on Purchase Invoice Page for "PI01"
@@ -1180,7 +1180,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Purchase Credit Memo "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo "PC01" with Purchase Lines created for Vendor "V01" and no discount
         ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -1191,7 +1191,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
         CreateVendor(Vendor);
-        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID();
         Vendor.Modify(true);
 
         // [WHEN] Set "Pay-to Name" to "V02" on Purchase Credit Memo Page for "PC01"
@@ -1215,7 +1215,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Purchase Order "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order "PC01" with Purchase Lines created for Vendor "V01" and no discount
         ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -1228,7 +1228,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
         CreateVendor(Vendor);
-        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID();
         Vendor.Modify(true);
 
         // [WHEN] Set "Pay-to Name" to "V02" on Purchase Order Page for "PC01"
@@ -1252,7 +1252,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Purchase Quote "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Quote "PC01" with Purchase Lines created for Vendor "V01" and no discount
         ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -1265,7 +1265,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
         CreateVendor(Vendor);
-        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID();
         Vendor.Modify(true);
 
         // [WHEN] Set "Pay-to Name" to "V02" on Purchase Quote Page for "PC01"
@@ -1289,7 +1289,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Blanket Purchase Order "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blanket Purchase Order "PC01" with Purchase Lines created for Vendor "V01" and no discount
         ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -1302,7 +1302,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
         CreateVendor(Vendor);
-        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID();
         Vendor.Modify(true);
 
         // [WHEN] Set "Pay-to Name" to "V02" on Blanket Purchase Order Page for "PC01"
@@ -1326,7 +1326,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Purchase Return Order "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableReturnOrderSetup;
 
         // [GIVEN] Purchase Return Order "PC01" with Purchase Lines created for Vendor "V01" and no discount
@@ -1340,7 +1340,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
         CreateVendor(Vendor);
-        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Vendor."IC Partner Code" := LibraryUtility.GenerateGUID();
         Vendor.Modify(true);
 
         // [WHEN] Set "Pay-to Name" to "V02" on Purchase Return Order Page for "PC01"
@@ -1379,7 +1379,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
         CurrencyExchangeRate.SetFilter("Starting Date", '<=%1', WorkDate);
-        if not CurrencyExchangeRate.FindFirst then
+        if not CurrencyExchangeRate.FindFirst() then
             LibrarySmallBusiness.CreateCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
     end;
 
@@ -1515,7 +1515,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     begin
         Currency.Init();
         Currency.SetFilter(Code, '<>%1', LibraryERM.GetLCYCode);
-        Currency.FindFirst;
+        Currency.FindFirst();
         CheckExistOrAddCurrencyExchageRate(Currency.Code);
 
         exit(Currency.Code);
@@ -1525,10 +1525,10 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     var
         RefPurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         PurchaseInvoice."Message Type".SetValue(RefPurchaseHeader."Message Type"::Message);
-        PurchaseInvoice."Invoice Message".SetValue(LibraryUtility.GenerateGUID);
+        PurchaseInvoice."Invoice Message".SetValue(LibraryUtility.GenerateGUID());
 
         PurchaseInvoice.PurchLines.First;
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
@@ -1538,7 +1538,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
     local procedure CreateCreditMemoWithOneLineThroughTestPage(Vendor: Record Vendor; Item: Record Item; ItemQuantity: Integer; var PurchaseCreditMemo: TestPage "Purchase Credit Memo")
     begin
-        PurchaseCreditMemo.OpenNew;
+        PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
 
         PurchaseCreditMemo.PurchLines.First;
@@ -1630,7 +1630,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
     begin
         if CurrencyCode = '' then begin
             Currency.SetFilter(Code, CurrencyCode);
-            Currency.FindFirst;
+            Currency.FindFirst();
             Amount := Round(Amount, Currency."Amount Rounding Precision");
         end else
             Amount := Round(Amount, LibraryERM.GetAmountRoundingPrecision);

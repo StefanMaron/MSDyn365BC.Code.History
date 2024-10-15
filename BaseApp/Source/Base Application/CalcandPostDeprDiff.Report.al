@@ -132,7 +132,7 @@ report 13402 "Calc. and Post Depr. Diff."
             begin
                 if PostDeprDiff then begin
                     DeprDiffPostingBuffer.Reset();
-                    if DeprDiffPostingBuffer.FindSet then begin
+                    if DeprDiffPostingBuffer.FindSet() then begin
                         repeat
                             PostJournalLines(DeprDiffPostingBuffer);
                         until DeprDiffPostingBuffer.Next() = 0;
@@ -317,8 +317,7 @@ report 13402 "Calc. and Post Depr. Diff."
     local procedure PostJournalLines(DeprDiffBuffer: Record "Depr. Diff. Posting Buffer")
     var
         DimMgt: Codeunit DimensionManagement;
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         SourceCodeSetup.Get();
         Clear(GenJnlLine);
@@ -337,12 +336,11 @@ report 13402 "Calc. and Post Depr. Diff."
         GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"G/L Account";
         GenJnlLine."Bal. Account No." := DeprDiffBuffer."Depr. Difference Bal. Acc.";
         GenJnlLine."Line No." := GenJnlNextLineNo + 10000;
-        TableID[1] := DATABASE::"Fixed Asset";
-        No[1] := DeprDiffBuffer."FA No.";
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Fixed Asset", DeprDiffBuffer."FA No.");
 
         GenJnlLine."Dimension Set ID" :=
           DimMgt.GetDefaultDimID(
-            TableID, No, GenJnlLine."Source Code",
+            DefaultDimSource, GenJnlLine."Source Code",
             GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code",
             0, 0);
 

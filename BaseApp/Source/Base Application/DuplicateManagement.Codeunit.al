@@ -45,7 +45,7 @@ codeunit 5060 DuplicateManagement
             exit;
 
         DuplContSearchString.SetRange("Contact Company No.", Cont."No.");
-        if DuplContSearchString.FindFirst then
+        if DuplContSearchString.FindFirst() then
             DuplContSearchString.DeleteAll();
 
         DuplCont.FilterGroup(-1);

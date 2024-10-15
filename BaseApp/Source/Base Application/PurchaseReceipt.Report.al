@@ -212,7 +212,7 @@ report 408 "Purchase - Receipt"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -292,7 +292,7 @@ report 408 "Purchase - Receipt"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -510,7 +510,7 @@ report 408 "Purchase - Receipt"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Purch. Rcpt. Header".FindSet then
+            if "Purch. Rcpt. Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(
                       15, "Purch. Rcpt. Header"."No.", 0, 0, DATABASE::Vendor, "Purch. Rcpt. Header"."Buy-from Vendor No.",

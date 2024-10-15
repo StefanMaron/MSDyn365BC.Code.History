@@ -461,7 +461,7 @@ table 32000002 "Ref. Payment - Exported"
         CurrExchRate.SetRange("Currency Code", "Currency Code");
         CurrExchRate.SetRange("Starting Date", 0D, "Posting Date");
 
-        if not CurrExchRate.FindLast then
+        if not CurrExchRate.FindLast() then
             exit(false);
 
         if CurrExchRate."Relational Currency Code" = '' then
@@ -475,7 +475,7 @@ table 32000002 "Ref. Payment - Exported"
             exit(false);
 
         CurrExchRate.SetRange("Currency Code", CurrExchRate."Relational Currency Code");
-        if CurrExchRate.FindLast then
+        if CurrExchRate.FindLast() then
             exit(
               CurrExchRate."Fix Exchange Rate Amount" =
               CurrExchRate."Fix Exchange Rate Amount"::Both);
@@ -570,7 +570,7 @@ table 32000002 "Ref. Payment - Exported"
         RefPaymentExported: Record "Ref. Payment - Exported";
     begin
         RefPaymentExported.Reset();
-        if RefPaymentExported.FindLast then
+        if RefPaymentExported.FindLast() then
             exit(RefPaymentExported."No.");
     end;
 

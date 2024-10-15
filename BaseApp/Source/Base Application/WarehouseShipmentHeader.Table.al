@@ -424,30 +424,30 @@ table 7320 "Warehouse Shipment Header"
         WhseShptLine.SetRange("No.", "No.");
         if LineNo <> 0 then
             WhseShptLine.SetFilter("Line No.", '<>%1', LineNo);
-        if not WhseShptLine.FindFirst then
+        if not WhseShptLine.FindFirst() then
             exit(WhseShptLine.Status::" ");
 
         WhseShptLine.SetRange(Status, WhseShptLine.Status::"Partially Shipped");
-        if WhseShptLine.FindFirst then
+        if WhseShptLine.FindFirst() then
             exit(WhseShptLine.Status);
 
         WhseShptLine.SetRange(Status, WhseShptLine.Status::"Partially Picked");
-        if WhseShptLine.FindFirst then
+        if WhseShptLine.FindFirst() then
             exit(WhseShptLine.Status);
 
         WhseShptLine.SetRange(Status, WhseShptLine.Status::"Completely Picked");
-        if WhseShptLine.FindFirst then begin
+        if WhseShptLine.FindFirst() then begin
             WhseShptLine.SetFilter(Status, '<%1', WhseShptLine.Status::"Completely Picked");
-            if WhseShptLine.FindFirst then
+            if WhseShptLine.FindFirst() then
                 exit(WhseShptLine.Status::"Partially Picked");
 
             exit(WhseShptLine.Status);
         end;
 
         WhseShptLine.SetRange(Status, WhseShptLine.Status::"Completely Shipped");
-        if WhseShptLine.FindFirst then begin
+        if WhseShptLine.FindFirst() then begin
             WhseShptLine.SetFilter(Status, '<%1', WhseShptLine.Status::"Completely Shipped");
-            if WhseShptLine.FindFirst then
+            if WhseShptLine.FindFirst() then
                 exit(WhseShptLine.Status::"Partially Shipped");
 
             exit(WhseShptLine.Status);
@@ -468,20 +468,21 @@ table 7320 "Warehouse Shipment Header"
                     Text006, ChangedFieldName, TableCaption) + Text007);
     end;
 
-    local procedure GetLocation(LocationCode: Code[10])
+    procedure GetLocation(LocationCode: Code[10]): Record Location
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeGetLocation(LocationCode, Rec, Location, IsHandled);
         if IsHandled then
-            exit;
+            exit(Location);
 
         if LocationCode = '' then
             Location.GetLocationSetup(LocationCode, Location)
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
+        exit(Location);
     end;
 
 #if not CLEAN19
@@ -547,7 +548,7 @@ table 7320 "Warehouse Shipment Header"
         WhseComment.DeleteAll();
     end;
 
-    local procedure DeleteWarehouseShipmentLines()
+    procedure DeleteWarehouseShipmentLines()
     var
         WhseShptLine: Record "Warehouse Shipment Line";
         Confirmed: Boolean;

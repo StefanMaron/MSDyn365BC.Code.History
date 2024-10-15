@@ -27,7 +27,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         BalAccountNo: Code[20];
         BatchName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal Batch 'BATCH00001', where "Increment Batch Name" is 'Yes'
         AccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting;
@@ -68,7 +68,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         BalAccountNo: Code[20];
         BatchName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal Batch 'BATCH00001', where "Increment Batch Name" is 'No'
         AccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting;
@@ -105,7 +105,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         ItemJournalBatch: Record "Item Journal Batch";
         BatchName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal Batch 'BATCH00001', where "Increment Batch Name" is 'Yes'
         LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
@@ -141,7 +141,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         ItemJournalBatch: Record "Item Journal Batch";
         BatchName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal Batch 'BATCH00001', where "Increment Batch Name" is 'No'
         LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
@@ -176,7 +176,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         ResJournalBatch: Record "Res. Journal Batch";
         BatchName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal Batch 'BATCH00001', where "Increment Batch Name" is 'Yes'
         LibraryResource.CreateResourceJournalTemplate(ResJournalTemplate);
@@ -216,7 +216,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         ResJournalBatch: Record "Res. Journal Batch";
         BatchName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Journal Batch 'BATCH00001', where "Increment Batch Name" is 'No'
         LibraryResource.CreateResourceJournalTemplate(ResJournalTemplate);
@@ -256,7 +256,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         JobTask: Record "Job Task";
         BatchName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create job and post journal line
         LibraryJob.CreateJob(Job);
@@ -298,7 +298,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         JobTask: Record "Job Task";
         BatchName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create job and post journal line
         LibraryJob.CreateJob(Job);

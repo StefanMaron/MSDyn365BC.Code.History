@@ -37,7 +37,7 @@ page 832 Approvals
                     begin
                         if "Created by Application" = "Created by Application"::"Microsoft Flow" then begin
                             WorkflowWebhookEntries.Setfilters("Record ID");
-                            WorkflowWebhookEntries.Run;
+                            WorkflowWebhookEntries.Run();
                         end else begin
                             ApprovalEntry.SetRange("Record ID to Approve", "Record ID");
                             PAGE.Run(PAGE::"Approval Entries", ApprovalEntry);

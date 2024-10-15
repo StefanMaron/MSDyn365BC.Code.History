@@ -61,6 +61,26 @@ page 1459 "Global Admin Message"
                     Session.LogMessage('0000C0V', 'User opened Global Admin documentation.', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'Global Admin Notification');
                 end;
             }
+
+            label(ThirdLine)
+            {
+                ApplicationArea = All;
+                Caption = 'If you''ve purchased a license and assigned it to a user you should update the user''s information in Business Central.';
+            }
+
+            field(LinkToUpdateUsersWizard; LinkToUpdateUsersWizardTxt)
+            {
+                ApplicationArea = All;
+                Editable = false;
+                ShowCaption = false;
+                Caption = ' ';
+                ToolTip = 'Update all user names, authentication email addresses, contact email addresses, plans, and so on, from Microsoft 365.';
+
+                trigger OnDrillDown()
+                begin
+                    Page.Run(Page::"Azure AD User Update Wizard");
+                end;
+            }
         }
     }
 
@@ -99,5 +119,6 @@ page 1459 "Global Admin Message"
         MediaRepository: Record "Media Repository";
         MediaResources: Record "Media Resources";
         LearnMoreTxt: Label 'Learn more';
+        LinkToUpdateUsersWizardTxt: Label 'Update user information from Microsoft 365';
         IconVisible: Boolean;
 }

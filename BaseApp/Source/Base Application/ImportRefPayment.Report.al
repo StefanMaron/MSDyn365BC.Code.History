@@ -34,7 +34,7 @@ report 32000000 "Import Ref. Payment"
                 Day: Integer;
                 Line: Text;
             begin
-                if FindSet then
+                if FindSet() then
                     repeat
                         RefPmtImportTemp := BankPayments;
                         RefPmtImportTemp.Insert();
@@ -43,7 +43,7 @@ report 32000000 "Import Ref. Payment"
                 if BankAccCode = '' then
                     Error(Text1090000);
                 FileSetup.SetFilter("No.", BankAccCode);
-                if not FileSetup.FindFirst then
+                if not FileSetup.FindFirst() then
                     Error(Text1090002, BankAccCode);
 
                 if FileName = '' then begin
@@ -52,7 +52,7 @@ report 32000000 "Import Ref. Payment"
                         CurrReport.Quit();
                 end;
 
-                if RefPmtImport.FindLast then begin
+                if RefPmtImport.FindLast() then begin
                     LineNo := RefPmtImport."No." + 1;
                     BatchNo := RefPmtImport."Batch No." + 1;
                 end;
@@ -209,9 +209,7 @@ report 32000000 "Import Ref. Payment"
         Text1090000: Label 'Select Bank Account Code.';
         Text1090002: Label 'Set Transfer File settings for Bank Account %1.';
         CheckAccount: Boolean;
-#if not CLEAN17
         BackUp: Code[10];
-#endif
         BatchName: Code[20];
         TemplateName: Code[20];
         LineNo: Integer;
@@ -226,7 +224,7 @@ report 32000000 "Import Ref. Payment"
         BankAccount.Reset();
         BankAccount.SetFilter("Bank Account No.", '<>%1', '');
         CheckAccount := false;
-        if BankAccount.FindSet then
+        if BankAccount.FindSet() then
             repeat
                 BankAccFormat.ConvertBankAcc(BankAccount."Bank Account No.", BankAccount."No.");
                 if LineBankAcctNo = BankAccount."Bank Account No." then

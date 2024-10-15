@@ -27,7 +27,7 @@ report 32000003 "Suggest Bank Payments"
                     CopyFilters(Vend2);
                     SetCurrentKey(Priority);
                     SetRange(Priority, 0);
-                    if FindSet then
+                    if FindSet() then
                         repeat
                             Window.Update(1, "No.");
                             GetVendLedgEntries(true, false);
@@ -40,7 +40,7 @@ report 32000003 "Suggest Bank Payments"
                 if UsePaymentDisc and not StopPayments then begin
                     Reset;
                     CopyFilters(Vend2);
-                    if FindSet then begin
+                    if FindSet() then begin
                         Window.Open(Text1090005);
                         repeat
                             Window.Update(1, "No.");
@@ -227,7 +227,7 @@ report 32000003 "Suggest Bank Payments"
         end else
             VendLedgEntry.SetRange("Due Date", 0D, LastDueDateToPayReq);
         VendLedgEntry.SetRange("On Hold", '');
-        if VendLedgEntry.FindSet then
+        if VendLedgEntry.FindSet() then
             repeat
                 SaveAmount;
             until VendLedgEntry.Next() = 0;
@@ -260,7 +260,7 @@ report 32000003 "Suggest Bank Payments"
     begin
         PayableVendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         PayableVendLedgEntry.SetRange(Future, Future);
-        if PayableVendLedgEntry.FindSet then begin
+        if PayableVendLedgEntry.FindSet() then begin
             PrevCurrency := PayableVendLedgEntry."Currency Code";
             repeat
                 if PayableVendLedgEntry."Currency Code" <> PrevCurrency then begin
@@ -298,7 +298,7 @@ report 32000003 "Suggest Bank Payments"
         PurchRefLines.Reset();
         NextEntryNo := PurchRefLines.GetLastEntryNo() + 1;
 
-        if PayableVendLedgEntry.FindSet then
+        if PayableVendLedgEntry.FindSet() then
             repeat
                 with RefPmtLines do begin
                     "No." := NextEntryNo;

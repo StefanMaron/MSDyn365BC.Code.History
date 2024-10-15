@@ -232,7 +232,7 @@ codeunit 134068 "ECSL Suggest Line Test"
     var
         LastId: Integer;
     begin
-        if VATEntry.FindLast then
+        if VATEntry.FindLast() then
             LastId := VATEntry."Entry No.";
 
         VATEntry.Init();
@@ -254,7 +254,7 @@ codeunit 134068 "ECSL Suggest Line Test"
     begin
         VATEntry.SetFilter("Posting Date", '%1..%2', StartDate, EndDate);
         VATEntry.SetRange(Type, VATEntry.Type::Sale);
-        if not VATEntry.FindSet then
+        if not VATEntry.FindSet() then
             exit(0);
 
         repeat

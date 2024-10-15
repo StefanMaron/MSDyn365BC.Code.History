@@ -31,7 +31,7 @@ codeunit 134229 "ERM Analysis View"
         // [SCENARIO 230452] Correct page of Analysis View List Sales Page open and closes without errors.
 
         // [GIVEN] Open and close Analysis View List Sales page.
-        Initialize;
+        Initialize();
         AnalysisViewListSales.OpenView;
         AnalysisViewListSales.Close;
 
@@ -51,7 +51,7 @@ codeunit 134229 "ERM Analysis View"
         // [SCENARIO 230453] Correct page of Analysis View List Purchase Page open and closes without errors.
 
         // [GIVEN] Open and close Analysis View List Purchase page.
-        Initialize;
+        Initialize();
         AnalysisViewListPurchase.OpenView;
         AnalysisViewListPurchase.Close;
 
@@ -70,7 +70,7 @@ codeunit 134229 "ERM Analysis View"
     begin
         // [FEATURE] [Cash Flow]
         // [SCENARIO 4a] Check Include Budgets and Update on Posting for Cash Flow
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnalysisView(AnalysisView, AnalysisView."Account Source"::"Cash Flow Account");
@@ -94,7 +94,7 @@ codeunit 134229 "ERM Analysis View"
     begin
         // [FEATURE] [Cash Flow]
         // [SCENARIO 4b] Check Include Budgets and Update on Posting for NON Cash Flow
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnalysisView(AnalysisView, AnalysisView."Account Source"::"G/L Account");
@@ -112,7 +112,7 @@ codeunit 134229 "ERM Analysis View"
     begin
         // [FEATURE] [Cash Flow]
         // [SCENARIO 4c] Check Include Budgets and Update on Posting for case of change Account Source from NON Cash Flow to Cash Flow
-        Initialize;
+        Initialize();
 
         // Verify
         CheckAccSourceChange(true, AnalysisView.FieldNo("Update on Posting"));
@@ -127,7 +127,7 @@ codeunit 134229 "ERM Analysis View"
     begin
         // [FEATURE] [Cash Flow]
         // [SCENARIO 4d] Check Include Budgets and Update on Posting for case of change Account Source from Cash Flow to NON Cash Flow
-        Initialize;
+        Initialize();
 
         // Verify
         CheckAccSourceChange(false, AnalysisView.FieldNo("Update on Posting"));
@@ -142,7 +142,7 @@ codeunit 134229 "ERM Analysis View"
         LastEntryNo: Integer;
     begin
         // [SCENARIO 5] Check Update on Posting for GL
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnalysisViewWithDimensions(AnalysisView, AnalysisView."Account Source"::"G/L Account");
@@ -167,14 +167,14 @@ codeunit 134229 "ERM Analysis View"
         AnalysisByDimensions: Page "Analysis by Dimensions";
     begin
         // [SCENARIO 6] Check Analysis By Dimensions page
-        Initialize;
+        Initialize();
 
         // Setup
         CreateAnalysisViewWithDimensions(AnalysisView, AnalysisView."Account Source"::"G/L Account");
 
         // Execute
         AnalysisByDimensions.SetAnalysisViewCode(AnalysisView.Code);
-        AnalysisByDimensions.Run;
+        AnalysisByDimensions.Run();
     end;
 
     [Test]
@@ -531,7 +531,7 @@ codeunit 134229 "ERM Analysis View"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Analysis View");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         isInitialized := true;
         Commit();
@@ -558,7 +558,7 @@ codeunit 134229 "ERM Analysis View"
         CreateAnalysisView(AnalysisView, AccountSource);
         AnalysisView."Update on Posting" := false;
         AnalysisView.Validate("Include Budgets", true);
-        if Dimension.FindSet then
+        if Dimension.FindSet() then
             repeat
                 i := i + 1;
                 case i of

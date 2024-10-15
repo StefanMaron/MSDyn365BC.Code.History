@@ -52,7 +52,7 @@ codeunit 32000001 "Currency Exchange Rate"
                 CurrencyExchRate.SetRange("Starting Date", StartingDate);
 
                 if CurrencyExchRate.FindFirst = false then
-                    if Currency.FindFirst then begin
+                    if Currency.FindFirst() then begin
                         UusienlukuOK := true;
                         CurrencyExchRate.Validate("Currency Code", Valuuttakoodi);
                         CurrencyExchRate.Validate("Starting Date", StartingDate);

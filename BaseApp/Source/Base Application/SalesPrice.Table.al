@@ -256,7 +256,7 @@ table 7002 "Sales Price"
     var
         NewSalesPrice: Record "Sales Price";
     begin
-        if SalesPrice.FindSet then
+        if SalesPrice.FindSet() then
             repeat
                 NewSalesPrice := SalesPrice;
                 NewSalesPrice."Sales Type" := NewSalesPrice."Sales Type"::Customer;

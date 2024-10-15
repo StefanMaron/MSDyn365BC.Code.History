@@ -294,12 +294,14 @@ report 593 "Intrastat - Make Disk Tax Auth"
     end;
 
 #if not CLEAN20
+    [Obsolete('Replaced by InitializeRequest(outstream,...)', '20.0')]
     procedure InitializeRequest(newServerFileName: Text; newIntraJnlLineType: Option)
     begin
         IntrastatFileWriter.SetServerFileName(newServerFileName);
         IntraJnlLineType := newIntraJnlLineType;
     end;
 
+    [Obsolete('Replaced by InitializeRequest(outstream,...)', '20.0')]
     procedure InitializeRequestWithExportFormat(newServerFileName: Text; newIntraJnlLineType: Option; NewExportFormat: Enum "Intrastat Export Format")
     begin
         IntrastatFileWriter.SetServerFileName(newServerFileName);

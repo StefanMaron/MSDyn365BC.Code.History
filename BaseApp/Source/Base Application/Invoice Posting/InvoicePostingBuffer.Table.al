@@ -158,6 +158,11 @@
             Caption = 'VAT Base Before Pmt. Disc.';
             DataClassification = SystemMetadata;
         }
+        field(40; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+            DataClassification = SystemMetadata;
+        }
         field(215; "Entry Description"; Text[100])
         {
             Caption = 'Entry Description';
@@ -275,7 +280,7 @@
     }
 
     var
-        TempInvoicePostBufferRounding: Record "Invoice Post. Buffer" temporary;
+        TempInvoicePostBufferRounding: Record "Invoice Posting Buffer" temporary;
         DimMgt: Codeunit DimensionManagement;
 
     procedure PrepareSales(var SalesLine: Record "Sales Line")
@@ -318,6 +323,7 @@
             "VAT Amount (ACY)" := 0;
         end;
 
+        "Journal Templ. Name" := SalesLine.GetJnlTemplateName();
         "Auto. Acc. Group" := SalesLine."Auto. Acc. Group";
 
         OnAfterPrepareSales(SalesLine, Rec);
@@ -438,6 +444,7 @@
             "VAT Amount (ACY)" := 0;
         end;
 
+        "Journal Templ. Name" := PurchLine.GetJnlTemplateName();
         "Auto. Acc. Group" := PurchLine."Auto. Acc. Group";
 
         OnAfterPreparePurchase(PurchLine, Rec);
@@ -549,6 +556,7 @@
         PrepmtAdjInvoicePostingBuffer."Dimension Set ID" := InvoicePostingBuffer."Dimension Set ID";
         PrepmtAdjInvoicePostingBuffer."Global Dimension 1 Code" := InvoicePostingBuffer."Global Dimension 1 Code";
         PrepmtAdjInvoicePostingBuffer."Global Dimension 2 Code" := InvoicePostingBuffer."Global Dimension 2 Code";
+        PrepmtAdjInvoicePostingBuffer."Journal Templ. Name" := InvoicePostingBuffer."Journal Templ. Name";
         PrepmtAdjInvoicePostingBuffer."System-Created Entry" := true;
         PrepmtAdjInvoicePostingBuffer."Entry Description" := InvoicePostingBuffer."Entry Description";
         OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostingBuffer(PrepmtAdjInvoicePostingBuffer, InvoicePostingBuffer);
@@ -618,6 +626,7 @@
     begin
         TypeValue := Type.AsInteger();
         GroupID :=
+          PadField("Journal Templ. Name", MaxStrLen("Journal Templ. Name")) +
           Format(TypeValue) +
           PadField("G/L Account", MaxStrLen("G/L Account")) +
           PadField("Gen. Bus. Posting Group", MaxStrLen("Gen. Bus. Posting Group")) +

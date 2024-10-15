@@ -30,7 +30,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
 
         LibrarySales.SetStockoutWarning(false);
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         IsInitialized := true;
         Commit();
@@ -50,14 +50,14 @@ codeunit 135529 "Sales Quote Line E2E Test"
     begin
         // [SCENARIO] Call GET on the Lines of a quote
         // [GIVEN] A quote with lines.
-        Initialize;
+        Initialize();
         QuoteId := CreateSalesQuoteWithLines(SalesHeader);
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo1 := Format(SalesLine."Line No.");
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         LineNo2 := Format(SalesLine."Line No.");
 
         // [WHEN] we GET all the lines with the  quote ID from the web service
@@ -90,7 +90,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
     begin
         // [SCENARIO] POST a new line to a quote
         // [GIVEN] An existing  quote and a valid JSON describing the new quote line
-        Initialize;
+        Initialize();
         QuoteId := CreateSalesQuoteWithLines(SalesHeader);
         LibraryInventory.CreateItem(Item);
 
@@ -132,12 +132,12 @@ codeunit 135529 "Sales Quote Line E2E Test"
     begin
         // [SCENARIO] PATCH a line of a quote
         // [GIVEN] a quote with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         QuoteLineId := CreateSalesQuoteWithLines(SalesHeader);
         Assert.AreNotEqual('', QuoteLineId, 'ID should not be empty');
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo := SalesLine."Line No.";
 
         SalesQuantity := 4;
@@ -175,12 +175,12 @@ codeunit 135529 "Sales Quote Line E2E Test"
     begin
         // [SCENARIO] DELETE a line from a quote
         // [GIVEN] a quote with lines
-        Initialize;
+        Initialize();
         QuoteId := CreateSalesQuoteWithLines(SalesHeader);
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LineNo := SalesLine."Line No.";
 
         Commit();
@@ -216,7 +216,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Creating a line through API should update Discount Pct
         // [GIVEN] A quote for customer with discount pct
-        Initialize;
+        Initialize();
         CreateQuoteWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
@@ -258,7 +258,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Modifying a line through API should update Discount Pct
         // [GIVEN] A quote for customer with discount pct
-        Initialize;
+        Initialize();
         CreateQuoteWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         MinAmount := SalesHeader.Amount + Item."Unit Price" / 2;
@@ -305,7 +305,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] A quote for customer with quote discount pct
-        Initialize;
+        Initialize();
         CreateQuoteWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -352,7 +352,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] A quote for customer with discount pct
-        Initialize;
+        Initialize();
         CreateQuoteWithTwoLines(SalesHeader, Customer, Item);
         SalesHeader.CalcFields(Amount);
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -393,7 +393,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Adding a quote through API will keep Discount Amount
         // [GIVEN] A quote for customer with discount amount
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(SalesHeader, Item, DiscountAmount);
         QuoteLineJSON := CreateQuoteLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
 
@@ -428,7 +428,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Modifying a line through API should keep existing Discount Amount
         // [GIVEN] A quote for customer with discount amt
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(SalesHeader, Item, DiscountAmount);
         QuoteLineJSON := CreateQuoteLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
 
@@ -467,7 +467,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [FEATURE] [Discount]
         // [SCENARIO] Deleting a line through API should update Discount Pct
         // [GIVEN] A quote for customer with discount pct
-        Initialize;
+        Initialize();
         SetupAmountDiscountTest(SalesHeader, Item, DiscountAmount);
         Commit();
 
@@ -500,7 +500,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
     begin
         // [SCENARIO] Posting a line with description only will get a type item
         // [GIVEN] A post request with description only
-        Initialize;
+        Initialize();
         CreateSalesQuoteWithLines(SalesHeader);
 
         Commit();
@@ -518,7 +518,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
 
         // [THEN] Line of type Item is created
         FindFirstSalesLine(SalesHeader, SalesLine);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         Assert.AreEqual('', SalesLine."No.", 'No should be blank');
         Assert.AreEqual(SalesLine.Type, SalesLine.Type::Item, 'Wrong type is set');
 
@@ -542,7 +542,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
         // [FEATURE] [Comment]
         // [SCENARIO] Posting a line with Type Comment and description will make a comment line
         // [GIVEN] A post request with type and description
-        Initialize;
+        Initialize();
         CreateSalesQuoteWithLines(SalesHeader);
 
         QuoteLineJSON := '{"' + LineTypeFieldNameTxt + '":"Comment","description":"test"}';
@@ -560,7 +560,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
 
         // [THEN] Line of type Item is created
         FindFirstSalesLine(SalesHeader, SalesLine);
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         Assert.AreEqual(SalesLine.Type, SalesLine.Type::" ", 'Wrong type is set');
         Assert.AreEqual('test', SalesLine.Description, 'Wrong description is set');
 
@@ -587,7 +587,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
     begin
         // [SCENARIO] PATCH a Type on a line of a quote
         // [GIVEN] a quote with lines and a valid JSON describing the fields that we want to change
-        Initialize;
+        Initialize();
         QuoteLineID := CreateSalesQuoteWithLines(SalesHeader);
         Assert.AreNotEqual('', QuoteLineID, 'ID should not be empty');
         FindFirstSalesLine(SalesHeader, SalesLine);
@@ -722,7 +722,7 @@ codeunit 135529 "Sales Quote Line E2E Test"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure SetupAmountDiscountTest(var SalesHeader: Record "Sales Header"; var Item: Record Item; var DiscountAmount: Decimal)

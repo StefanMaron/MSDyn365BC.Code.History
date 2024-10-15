@@ -30,8 +30,8 @@ codeunit 138033 "O365 Navigate"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Navigate");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         PostInvoice := true;
         DoNotShowPostedDocument := false;
@@ -47,9 +47,9 @@ codeunit 138033 "O365 Navigate"
         ClearTable(DATABASE::Resource);
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         SalesSetup.Get();
         SalesSetup."Stockout Warning" := false;
@@ -64,7 +64,7 @@ codeunit 138033 "O365 Navigate"
     var
         Resource: Record Resource;
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::Resource:
                 Resource.DeleteAll();
@@ -83,11 +83,11 @@ codeunit 138033 "O365 Navigate"
         Navigate: TestPage Navigate;
         PreAssignedNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         PostSalesInvoice(PreAssignedNo);
         PostedSalesInvoices.OpenView;
         SalesInvoiceHeader.SetFilter("Pre-Assigned No.", PreAssignedNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         PostedSalesInvoices.GotoRecord(SalesInvoiceHeader);
 
         Navigate.Trap;
@@ -114,12 +114,12 @@ codeunit 138033 "O365 Navigate"
         Navigate: TestPage Navigate;
         PreAssignedNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         PostSalesInvoice(PreAssignedNo);
 
         SalesInvoiceHeader.SetFilter("Pre-Assigned No.", PreAssignedNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         Navigate.OpenView;
         Navigate.FindByItemReference.Invoke;
@@ -140,6 +140,61 @@ codeunit 138033 "O365 Navigate"
     [Test]
     [HandlerFunctions('HandleConfirmationDialog')]
     [Scope('OnPrem')]
+    procedure TestFindByExternalDocumentSales()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Navigate: TestPage Navigate;
+        PreAssignedNo: Code[20];
+        ExtDocNo: Code[20];
+    begin
+        Initialize();
+
+        PostSalesInvoice(PreAssignedNo);
+
+        SalesInvoiceHeader.SetFilter("Pre-Assigned No.", PreAssignedNo);
+        SalesInvoiceHeader.FindFirst();
+
+        Navigate.OpenView;
+        Navigate.FindByDocument.Invoke;
+
+        Navigate.ExtDocNo2.Value(SalesInvoiceHeader."External Document No.");
+        Navigate.Find.Invoke;
+        Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
+
+        Navigate.Close;
+    end;
+
+
+    [Test]
+    [HandlerFunctions('HandleConfirmationDialog')]
+    [Scope('OnPrem')]
+    procedure TestFindByExternalDocumentPurchase()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        Navigate: TestPage Navigate;
+        PreAssignedNo: Code[20];
+        ExtDocNo: Code[20];
+    begin
+        Initialize();
+
+        PostPurchaseInvoice(PreAssignedNo);
+
+        PurchInvHeader.SetFilter("Pre-Assigned No.", PreAssignedNo);
+        PurchInvHeader.FindFirst();
+
+        Navigate.OpenView;
+        Navigate.FindByDocument.Invoke;
+
+        Navigate.ExtDocNo2.Value(PurchInvHeader."Vendor Invoice No.");
+        Navigate.Find.Invoke;
+        Assert.AreEqual(1, Navigate."No. of Records".AsInteger, 'There should be only one record on the first row');
+
+        Navigate.Close;
+    end;
+
+    [Test]
+    [HandlerFunctions('HandleConfirmationDialog')]
+    [Scope('OnPrem')]
     procedure TestFindByContact()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -147,14 +202,14 @@ codeunit 138033 "O365 Navigate"
         PreAssignedNo: Code[20];
         ContactType: Option " ",Vendor,Customer;
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(true);
 
         PostSalesInvoice(PreAssignedNo);
 
         SalesInvoiceHeader.SetFilter("Pre-Assigned No.", PreAssignedNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
 
         Navigate.OpenView;
         Navigate.FindByBusinessContact.Invoke;
@@ -178,12 +233,12 @@ codeunit 138033 "O365 Navigate"
         PreAssignedNo: Code[20];
         ContactType: Option " ",Vendor,Customer;
     begin
-        Initialize;
+        Initialize();
 
         PostPurchaseInvoice(PreAssignedNo);
 
         PurchInvHeader.SetFilter("Pre-Assigned No.", PreAssignedNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         Navigate.OpenView;
         Navigate.FindByBusinessContact.Invoke;
@@ -216,7 +271,7 @@ codeunit 138033 "O365 Navigate"
         Navigate: TestPage Navigate;
         ContactType: Option " ",Vendor,Customer;
     begin
-        Initialize;
+        Initialize();
         LibrarySmallBusiness.CreateCustomer(OneSalesInvoiceCustomer);
 
         CreateSalesInvoice(OneSalesInvoiceCustomer);
@@ -289,8 +344,9 @@ codeunit 138033 "O365 Navigate"
         LibrarySmallBusiness.CreateCustomer(Customer);
         LibrarySmallBusiness.CreateItem(Item);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
+        SalesInvoice."External Document No.".SetValue(SalesInvoice."No.");
         SalesInvoice.SalesLines."No.".SetValue(Item."No.");
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
         SalesInvoice.SalesLines.New;
@@ -317,12 +373,12 @@ codeunit 138033 "O365 Navigate"
         LibrarySmallBusiness.CreateVendor(Vendor);
         LibrarySmallBusiness.CreateItem(Item);
 
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
         PurchaseInvoice."Vendor Invoice No.".SetValue(
           LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."), DATABASE::"Purchase Header"));
         PurchaseInvoice."Message Type".SetValue(PurchaseHeader."Message Type"::Message);
-        PurchaseInvoice."Invoice Message".SetValue(LibraryUtility.GenerateGUID);
+        PurchaseInvoice."Invoice Message".SetValue(LibraryUtility.GenerateGUID());
 
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
         PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
@@ -343,7 +399,7 @@ codeunit 138033 "O365 Navigate"
     begin
         LibrarySmallBusiness.CreateItem(Item);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesInvoice.SalesLines."No.".SetValue(Item."No.");
@@ -360,7 +416,7 @@ codeunit 138033 "O365 Navigate"
     begin
         LibrarySmallBusiness.CreateItem(Item);
 
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
@@ -374,14 +430,14 @@ codeunit 138033 "O365 Navigate"
     begin
         SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
         Assert.AreEqual(SalesHeader.Count, 1, 'Could not find the document or more documents were found');
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure FindPurchaseHeader(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
         Assert.AreEqual(PurchaseHeader.Count, 1, 'Could not find the document or more documents were found');
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     [ConfirmHandler]

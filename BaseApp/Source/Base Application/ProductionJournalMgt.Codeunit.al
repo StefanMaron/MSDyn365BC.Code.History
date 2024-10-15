@@ -52,7 +52,7 @@ codeunit 5510 "Production Journal Mgt"
                 LeaveForm := true;
                 Clear(ProductionJnl);
                 ProductionJnl.Setup(ToTemplateName, ToBatchName, ProdOrder, ActualLineNo, PostingDate);
-                ProductionJnl.RunModal;
+                ProductionJnl.RunModal();
                 if DataHasChanged(ToTemplateName, ToBatchName, ProdOrder."No.", ActualLineNo) then
                     LeaveForm := Confirm(Text001, true);
             until LeaveForm;
@@ -73,7 +73,7 @@ codeunit 5510 "Production Journal Mgt"
         ItemJnlLine.Reset();
         ItemJnlLine.SetRange("Journal Template Name", ToTemplateName);
         ItemJnlLine.SetRange("Journal Batch Name", ToBatchName);
-        if ItemJnlLine.FindLast then
+        if ItemJnlLine.FindLast() then
             NextLineNo := ItemJnlLine."Line No." + 10000
         else
             NextLineNo := 10000;
@@ -111,7 +111,7 @@ codeunit 5510 "Production Journal Mgt"
                                 ProdOrderComp.SetRange("Routing Link Code", ProdOrderRtngLine."Routing Link Code");
                                 ProdOrderComp.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
                                 ProdOrderComp.SetFilter("Item No.", '<>%1', '');
-                                if ProdOrderComp.FindSet then
+                                if ProdOrderComp.FindSet() then
                                     repeat
                                         InsertConsumptionItemJnlLine(ProdOrderComp, ProdOrderLine, 1);
                                     until ProdOrderComp.Next() = 0;
@@ -396,7 +396,7 @@ codeunit 5510 "Production Journal Mgt"
         DoRecursion := false;
         OnBeforeRecursiveInsertOutputJnlLine(ProdOrderRoutingLine, ProdOrderLine, DoRecursion, AdditionalProdOrderLine);
         if DoRecursion and AdditionalProdOrderLine.HasFilter then
-            if AdditionalProdOrderLine.FindSet then begin
+            if AdditionalProdOrderLine.FindSet() then begin
                 repeat
                     InsertOutputItemJnlLine(ProdOrderRoutingLine, AdditionalProdOrderLine);
                 until AdditionalProdOrderLine.Next() = 0;
@@ -434,7 +434,7 @@ codeunit 5510 "Production Journal Mgt"
         ItemJnlTemplate.SetRange("Page ID", PAGE::"Production Journal");
         ItemJnlTemplate.SetRange(Recurring, false);
         ItemJnlTemplate.SetRange(Type, PageTemplate::"Prod. Order");
-        if not ItemJnlTemplate.FindFirst then begin
+        if not ItemJnlTemplate.FindFirst() then begin
             ItemJnlTemplate.Init();
             ItemJnlTemplate.Recurring := false;
             ItemJnlTemplate.Validate(Type, PageTemplate::"Prod. Order");

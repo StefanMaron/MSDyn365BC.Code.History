@@ -34,8 +34,8 @@ codeunit 144018 "PAYDISC Test"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"PAYDISC Test");
 
         LibrarySales.SetCreditWarningsToNoWarnings;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         GeneralLedgerSetup.Get();
         SalesReceivablesSetup.Get();
         SetSalesAndRecivablesSetup(SalesReceivablesSetup."Appln. between Currencies"::All,
@@ -69,7 +69,7 @@ codeunit 144018 "PAYDISC Test"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         DisregPmtDiscAtFullPmt := true;
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2), DisregPmtDiscAtFullPmt);
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
@@ -124,7 +124,7 @@ codeunit 144018 "PAYDISC Test"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         DisregPmtDiscAtFullPmt := true;
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2), DisregPmtDiscAtFullPmt);
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
@@ -178,7 +178,7 @@ codeunit 144018 "PAYDISC Test"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         DisregPmtDiscAtFullPmt := true;
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2), DisregPmtDiscAtFullPmt);
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
@@ -230,7 +230,7 @@ codeunit 144018 "PAYDISC Test"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         DisregPmtDiscAtFullPmt := true;
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2), DisregPmtDiscAtFullPmt);
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
@@ -285,7 +285,7 @@ codeunit 144018 "PAYDISC Test"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         DisregPmtDiscAtFullPmt := true;
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2), DisregPmtDiscAtFullPmt);
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
@@ -350,7 +350,7 @@ codeunit 144018 "PAYDISC Test"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         DisregPmtDiscAtFullPmt := true;
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2), DisregPmtDiscAtFullPmt);
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
@@ -405,7 +405,7 @@ codeunit 144018 "PAYDISC Test"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         DisregPmtDiscAtFullPmt := false;
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2), DisregPmtDiscAtFullPmt);
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
@@ -459,7 +459,7 @@ codeunit 144018 "PAYDISC Test"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         DisregPmtDiscAtFullPmt := false;
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2), DisregPmtDiscAtFullPmt);
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
@@ -513,7 +513,7 @@ codeunit 144018 "PAYDISC Test"
 
         // 1. Setup: Change the Sales and Receivable Setup, create Payment Terms, create Customer and Currency, create General Journal Line
         // for Invoice and Payment, change warnings in General Ledger Setup.
-        Initialize;
+        Initialize();
         DisregPmtDiscAtFullPmt := false;
         CreatePaymentTerms(PaymentTerms, LibraryRandom.RandInt(10), LibraryRandom.RandDec(5, 2), DisregPmtDiscAtFullPmt);
         CurrencyCode := CreateCustomerWithCurrency(Customer, PaymentTerms.Code);
@@ -686,7 +686,7 @@ codeunit 144018 "PAYDISC Test"
         Clear(ChangePaymentTolerance);
         ChangePaymentTolerance.InitializeRequest(false, CurrencyCode, PaymentTolerance, MaxPmtToleranceAmount);
         ChangePaymentTolerance.UseRequestPage(false);
-        ChangePaymentTolerance.Run;
+        ChangePaymentTolerance.Run();
     end;
 
     local procedure SetSalesAndRecivablesSetup(ApplnbetweenCurrencies: Option; CreditWarnings: Option)

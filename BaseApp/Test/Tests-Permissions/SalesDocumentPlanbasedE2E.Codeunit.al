@@ -24,7 +24,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         CountryRegion: Record "Country/Region";
     begin
         // [SCENARIO] The test framework does NOT add D365 BASIC to TEAMMEMBER
-        Initialize;
+        Initialize();
 
         // [Given] A user with BASIC permission
         // LibraryLowerPermissions.SetO365Basic; TODO: Uncomment this when fixing the test
@@ -37,7 +37,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         asserterror Assert.ExpectedError('');
 
         // [Given] A user with TEAMMEMBER plan
-        // LibraryLowerPermissions.SetOutsideO365Scope; TODO: Uncomment this when fixing the test
+        // LibraryLowerPermissions.SetOutsideO365Scope(); TODO: Uncomment this when fixing the test
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
 
         // [WHEN] The user creates a new Country/Region
@@ -58,7 +58,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Create a purchase order from a sales order as business manager
-        Initialize;
+        Initialize();
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
 
         // [GIVEN] A sales order
@@ -70,7 +70,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         // [THEN] The purchase order contains the same lines as the sales order
         VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -81,7 +81,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Create a purchase order from a sales order as team member
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has the team member plan
         LibraryE2EPlanPermissions.SetTeamMemberPlan;
@@ -103,7 +103,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Create a purchase order from a sales order as external accountant
-        Initialize;
+        Initialize();
         LibraryE2EPlanPermissions.SetExternalAccountantPlan;
 
         // [GIVEN] A sales order
@@ -115,7 +115,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         // [THEN] The purchase order contains the same lines as the sales order
         VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -128,7 +128,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Create a purchase order from a sales order as Essential ISV Emb User
-        Initialize;
+        Initialize();
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
 
         // [GIVEN] A sales order
@@ -140,7 +140,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         // [THEN] The purchase order contains the same lines as the sales order
         VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -151,7 +151,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Create a purchase order from a sales order as team member ISV Emb
-        Initialize;
+        Initialize();
 
         // [GIVEN] The user has the team member plan
         LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
@@ -173,7 +173,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Create a purchase order from a sales order as Device ISV Emb User
-        Initialize;
+        Initialize();
         LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
 
         // [GIVEN] A sales order
@@ -185,7 +185,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         // [THEN] The purchase order contains the same lines as the sales order
         VerifyPurchaseOrderCreatedFromSalesOrder(SalesOrder, PurchaseOrder);
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -201,7 +201,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         CustomerNo: Code[20];
     begin
         // [SCENARIO] Change customer on sales quote with assembly-to-order items work
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales quote with a sales line with Assemble-to-Order item
         LibraryE2EPlanPermissions.SetBusinessManagerPlan();
@@ -245,8 +245,8 @@ codeunit 135404 "Sales Document Plan-based E2E"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Sales Document Plan-based E2E");
 
         LibraryTemplates.EnableTemplatesFeature();
-        LibrarySales.DisableWarningOnCloseUnreleasedDoc;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibrarySales.DisableWarningOnCloseUnreleasedDoc();
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
 
         IsInitialized := true;
         Commit();
@@ -264,7 +264,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(CreateCustomer);
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
         SalesOrder.SalesLines."No.".SetValue(CreateItem);
@@ -275,7 +275,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer No.".SetValue(Customer."No.");
         SalesQuote.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
@@ -288,7 +288,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
@@ -308,7 +308,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
     begin
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         VendorNo := VendorCard."No.".Value;
         VendorCard.OK.Invoke;
@@ -320,7 +320,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
         Customer: Record Customer;
         CustomerCard: TestPage "Customer Card";
     begin
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
         CustomerNo := CustomerCard."No.".Value;
         CustomerCard.OK.Invoke;

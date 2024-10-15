@@ -37,7 +37,7 @@ codeunit 144022 "E-BANKING Import Test"
         i: Integer;
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
         WorkDate(20051122D);
 
         // Setup
@@ -75,7 +75,7 @@ codeunit 144022 "E-BANKING Import Test"
         PostingNo: Code[20];
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
         WorkDate(20060823D);
 
         // Setup
@@ -119,7 +119,7 @@ codeunit 144022 "E-BANKING Import Test"
         FileName: Text;
     begin
         // [SCENARIO 334605] Stan can import reference file two times being under Windows User Group permissions.
-        Initialize;
+        Initialize();
         WorkDate(20060823D);
 
         CreateDomesticCustomer(Customer);
@@ -151,7 +151,7 @@ codeunit 144022 "E-BANKING Import Test"
         PostingDate: Date;
         FileName: Text;
     begin
-        Initialize;
+        Initialize();
         WorkDate(20060823D);
 
         // Setup
@@ -173,7 +173,7 @@ codeunit 144022 "E-BANKING Import Test"
 
         Assert.AreEqual(2, RefPaymentImported.Count, 'Expected number of bank payment entries does not match');
 
-        RefPaymentImported.FindFirst;
+        RefPaymentImported.FindFirst();
         Assert.AreEqual(1500.6, RefPaymentImported.Amount, 'Expected amount on first line does not match');
 
         RefPaymentImported.Next;
@@ -292,7 +292,7 @@ codeunit 144022 "E-BANKING Import Test"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, JnlTemplateName);
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
         GenJournalBatch."Bal. Account No." := BankAccountNo;
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         GenJournalBatch."No. Series" := NoSeries.Code;
         GenJournalBatch."Posting No. Series" := LibraryERM.CreateNoSeriesCode;
         GenJournalBatch.Modify(true);
@@ -410,12 +410,12 @@ codeunit 144022 "E-BANKING Import Test"
         ImportRefPayment: Report "Import Ref. Payment";
     begin
         Commit();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue(BankAccountNo);
         ImportRefPayment.InitializeRequest(FileName);
         ImportRefPayment.SetLedgerNames(GenJournalBatchName, JnlTemplateName);
         ImportRefPayment.UseRequestPage := true;
-        ImportRefPayment.RunModal;
+        ImportRefPayment.RunModal();
     end;
 
     local procedure ValidateAndGetGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; GenJournalBatchName: Code[20]; GenJournalTemplateName: Code[20]; PostingNo: Code[20]; ReferenceNo: Code[20])
@@ -427,7 +427,7 @@ codeunit 144022 "E-BANKING Import Test"
         GenJournalLine.SetRange("Applies-to Doc. No.", PostingNo);
         GenJournalLine.SetRange("Reference No.", ReferenceNo);
         Assert.AreEqual(1, GenJournalLine.Count, 'Expected number of entries in Gen. Journal Lines does not match');
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         Assert.AreEqual(-Amount, GenJournalLine.Amount, 'Expected amount on first line does not match');
     end;
 
@@ -470,7 +470,7 @@ codeunit 144022 "E-BANKING Import Test"
         PostingNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         CustLedgerEntry.SetRange("Document Type", SalesHeader."Document Type".AsInteger());
         CustLedgerEntry.SetRange("Document No.", PostingNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         exit(CustLedgerEntry."Reference No.");
     end;
 
@@ -512,7 +512,7 @@ codeunit 144022 "E-BANKING Import Test"
         GenJournalBatch.Get(JnlTemplateName, GenJournalBatchName);
         Assert.RecordCount(GenJournalLine, 1);
 
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Posting Date", PostingDate);
         GenJournalLine.TestField(Amount, ExpectedAmount);
         GenJournalLine.TestField("Posting No. Series", GenJournalBatch."Posting No. Series");

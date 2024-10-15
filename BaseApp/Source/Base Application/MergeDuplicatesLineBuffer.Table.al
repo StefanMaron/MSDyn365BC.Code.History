@@ -203,7 +203,7 @@ table 65 "Merge Duplicates Line Buffer"
         RecordRef.Open("Table ID");
         FieldRef := RecordRef.Field(ID);
         FieldRef.SetRange(OldKey);
-        if RecordRef.FindSet then
+        if RecordRef.FindSet() then
             repeat
                 NewRecordRef.Get(RecordRef.RecordId);
                 NewFieldRef := NewRecordRef.Field(ID);
@@ -290,12 +290,12 @@ table 65 "Merge Duplicates Line Buffer"
         TempMergeDuplicatesLineBuffer.Copy(xRec, true);
         RecRef.Open("Table ID");
         TempMergeDuplicatesLineBuffer.Reset();
-        if TempMergeDuplicatesLineBuffer.FindSet then
+        if TempMergeDuplicatesLineBuffer.FindSet() then
             repeat
                 FieldRef := RecRef.Field(TempMergeDuplicatesLineBuffer.ID);
                 FieldRef.SetFilter(TempMergeDuplicatesLineBuffer."Duplicate Value");
             until TempMergeDuplicatesLineBuffer.Next() = 0;
-        if RecRef.FindFirst then begin
+        if RecRef.FindFirst() then begin
             FieldRef := RecRef.Field(ID);
             FieldRef.Validate("Duplicate Value");
             "Duplicate Value" := Format(FieldRef.Value);

@@ -25,7 +25,7 @@ codeunit 135002 "Data Type Management Tests"
     begin
         // [SCENARIO] GetRecordRef accepts parameter of types: Record, RecordRef, RecordID
         // [GIVEN] A Record, a RecordRef and a RecordID
-        CustRec.FindFirst;
+        CustRec.FindFirst();
         CustRecordRef.GetTable(CustRec);
         CustRecordID := CustRecordRef.RecordId;
 

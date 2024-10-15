@@ -409,7 +409,7 @@ table 1304 "Sales Price and Line Disc Buff"
         SetFiltersOnSalesLineDiscountItemGroup(SalesLineDiscountItemGroup);
         LoadSalesLineDiscount(SalesLineDiscountItemGroup, 0);
 
-        if FindFirst then;
+        if FindFirst() then;
 
         Session.LogMessage('0000AI4', StrSubstNo(PricesAndDiscountsCountMsg, Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PricesAndDiscountsCountLbl);
     end;
@@ -554,7 +554,7 @@ table 1304 "Sales Price and Line Disc Buff"
     var
         NoOfRows: Integer;
     begin
-        if SalesLineDiscount.FindSet then
+        if SalesLineDiscount.FindSet() then
             repeat
                 Init;
                 "Line Type" := "Line Type"::"Sales Line Discount";
@@ -583,7 +583,7 @@ table 1304 "Sales Price and Line Disc Buff"
     var
         NoOfRows: Integer;
     begin
-        if SalesPrice.FindSet then
+        if SalesPrice.FindSet() then
             repeat
                 Init;
                 "Line Type" := "Line Type"::"Sales Price";
@@ -837,7 +837,7 @@ table 1304 "Sales Price and Line Disc Buff"
         SetRange(Type, Type::Item);
         SetFilter("Unit Price", '>0');
 
-        if not FindSet then
+        if not FindSet() then
             exit;
 
         if IncludesVat then
@@ -897,7 +897,7 @@ table 1304 "Sales Price and Line Disc Buff"
     begin
         Contact.SetLoadFields("No.", "Company No.");
         Contact.SetRange("Company No.", CompanyContactNo);
-        if Contact.FindSet then begin
+        if Contact.FindSet() then begin
             SegmentLine.SetFilter("Campaign No.", '<>%1', '');
             SegmentLine.SetRange("Campaign Target", true);
             repeat
@@ -910,7 +910,7 @@ table 1304 "Sales Price and Line Disc Buff"
     local procedure InsertTempCampaignFromSegmentLines(var TempCampaign: Record Campaign temporary; var SegmentLine: Record "Segment Line")
     begin
         SegmentLine.SetLoadFields("Segment No.", "Line No.", "Campaign No.", "Campaign Target");
-        if SegmentLine.FindSet then
+        if SegmentLine.FindSet() then
             repeat
                 TempCampaign.Init();
                 TempCampaign."No." := SegmentLine."Campaign No.";

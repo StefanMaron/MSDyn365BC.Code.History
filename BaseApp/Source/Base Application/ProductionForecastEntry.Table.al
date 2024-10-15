@@ -9,6 +9,7 @@ table 99000852 "Production Forecast Entry"
         field(1; "Production Forecast Name"; Code[10])
         {
             Caption = 'Demand Forecast Name';
+            NotBlank = true;
             TableRelation = "Production Forecast Name";
         }
         field(2; "Entry No."; Integer)

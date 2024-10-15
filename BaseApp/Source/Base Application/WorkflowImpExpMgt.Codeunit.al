@@ -46,7 +46,7 @@ codeunit 1560 "Workflow Imp. / Exp. Mgt"
 
         CopyWorkflow.InitCopyWorkflow(FromWorkflow, Workflow);
         CopyWorkflow.UseRequestPage(false);
-        CopyWorkflow.Run;
+        CopyWorkflow.Run();
 
         FromWorkflow.Delete(true);
     end;

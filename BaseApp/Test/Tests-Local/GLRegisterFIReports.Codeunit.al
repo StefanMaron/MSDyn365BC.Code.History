@@ -26,7 +26,7 @@ codeunit 144019 "G/L Register FI Reports"
 
         // Setup: Create and post General Journal Line With Random values.
         CreateAndPostGenLine;
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // Exercise. Save GL Register FI Report.
         GLRegisterFIReport(GLEntry."Posting Date", GLEntry."No. Series", GLEntry."Document No.");
@@ -60,7 +60,7 @@ codeunit 144019 "G/L Register FI Reports"
         GLEntry.SetRange("No. Series", NoSeries);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLRegisterFIReport.SetTableView(GLEntry);
-        GLRegisterFIReport.Run;
+        GLRegisterFIReport.Run();
     end;
 
     local procedure VerifyGLRegisterFIReport(GLEntry: Record "G/L Entry")

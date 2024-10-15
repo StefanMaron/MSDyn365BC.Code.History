@@ -27,10 +27,10 @@ codeunit 144010 "Company Field Report Test"
     begin
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         LibraryReportDataset.Reset();
-        CompanyInformation.FindFirst;
+        CompanyInformation.FindFirst();
         CompanyInformation."Business Identity Code" := TenDigitsTxt + TenDigitsTxt;
         CompanyInformation."Registered Home City" := TenDigitsTxt + TenDigitsTxt + TenDigitsTxt + TenDigitsTxt + TenDigitsTxt;
         CompanyInformation.Modify();
@@ -114,7 +114,7 @@ codeunit 144010 "Company Field Report Test"
         DocumentNumber: Variant;
     begin
         with LibraryService do begin
-            Initialize;
+            Initialize();
             LibrarySales.CreateCustomer(Customer);
             CreateServiceHeader(ServiceHeader, Type, Customer."No.");
             CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
@@ -123,7 +123,7 @@ codeunit 144010 "Company Field Report Test"
             if Post then begin
                 PostServiceOrder(ServiceHeader, true, false, true);
 
-                ServiceInvoiceHeader.FindLast;
+                ServiceInvoiceHeader.FindLast();
                 DocumentNumber := ServiceInvoiceHeader."No.";
             end else
                 DocumentNumber := ServiceHeader."No.";
@@ -143,7 +143,7 @@ codeunit 144010 "Company Field Report Test"
         DocumentNumber: Variant;
     begin
         with LibraryService do begin
-            Initialize;
+            Initialize();
             LibrarySales.CreateCustomer(Customer);
             CreateServiceContractHeader(ServiceContractHeader, Type, Customer."No.");
             CreateServiceItem(ServiceItem, Customer."No.");
@@ -223,11 +223,11 @@ codeunit 144010 "Company Field Report Test"
     var
         VATVIESDeclarationTaxAuthReport: Report "VAT- VIES Declaration Tax Auth";
     begin
-        Initialize;
+        Initialize();
 
         VATVIESDeclarationTaxAuthReport.UseRequestPage(true);
         VATVIESDeclarationTaxAuthReport.InitializeRequest(true, WorkDate, WorkDate + 365, '');
-        VATVIESDeclarationTaxAuthReport.Run;
+        VATVIESDeclarationTaxAuthReport.Run();
         TestBusinessIdentityandHomeCity(3);
     end;
 
@@ -246,9 +246,9 @@ codeunit 144010 "Company Field Report Test"
     var
         ResourcePriceListReport: Report "Resource - Price List";
     begin
-        Initialize;
+        Initialize();
         ResourcePriceListReport.UseRequestPage(true);
-        ResourcePriceListReport.Run;
+        ResourcePriceListReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 #endif
@@ -260,7 +260,7 @@ codeunit 144010 "Company Field Report Test"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.SetFilter(Amount, '<>0');
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         StatementReport."Start Date".SetValue(CustLedgerEntry."Posting Date");
         StatementReport."End Date".SetValue(CustLedgerEntry."Posting Date");
         StatementReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -273,9 +273,9 @@ codeunit 144010 "Company Field Report Test"
     var
         StatementReport: Report Statement;
     begin
-        Initialize;
+        Initialize();
         StatementReport.UseRequestPage(true);
-        StatementReport.Run;
+        StatementReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -287,7 +287,7 @@ codeunit 144010 "Company Field Report Test"
         Currency: Record Currency;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         ReminderHeader.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
@@ -320,13 +320,13 @@ codeunit 144010 "Company Field Report Test"
         ReminderReport: Report Reminder;
         IssueRemindersReport: Report "Issue Reminders";
     begin
-        Initialize;
+        Initialize();
         ReminderMemoReportInit;
 
         IssueRemindersReport.UseRequestPage(false);
-        IssueRemindersReport.Run;
+        IssueRemindersReport.Run();
         ReminderReport.UseRequestPage(true);
-        ReminderReport.Run;
+        ReminderReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -344,11 +344,11 @@ codeunit 144010 "Company Field Report Test"
     var
         ReminderTestReport: Report "Reminder - Test";
     begin
-        Initialize;
+        Initialize();
         ReminderMemoReportInit;
 
         ReminderTestReport.UseRequestPage(true);
-        ReminderTestReport.Run;
+        ReminderTestReport.Run();
     end;
 
     [RequestPageHandler]
@@ -373,7 +373,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryFinanceChargeMemo: Codeunit "Library - Finance Charge Memo";
         PostedDocumentNo: Variant;
     begin
-        Initialize;
+        Initialize();
 
         PostedDocumentNo := CreateSalesDocument(SalesHeader."Document Type"::Invoice, true);
         LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
@@ -385,11 +385,11 @@ codeunit 144010 "Company Field Report Test"
         Commit();
         CreateFinanceChargeMemos.UseRequestPage(false);
         CreateFinanceChargeMemos.InitializeRequest(SalesInvoiceHeader."Posting Date", SalesInvoiceHeader."Posting Date");
-        CreateFinanceChargeMemos.Run;
+        CreateFinanceChargeMemos.Run();
         IssueFinanceChargeMemos.UseRequestPage(false);
-        IssueFinanceChargeMemos.Run;
+        IssueFinanceChargeMemos.Run();
         FinanceChargeMemoReport.UseRequestPage(true);
-        FinanceChargeMemoReport.Run;
+        FinanceChargeMemoReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -413,11 +413,11 @@ codeunit 144010 "Company Field Report Test"
         SalesHeader: Record "Sales Header";
         SalesQuoteReport: Report "Standard Sales - Quote";
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesDocument(SalesHeader."Document Type"::Quote, false);
         SalesQuoteReport.UseRequestPage(true);
-        SalesQuoteReport.Run;
+        SalesQuoteReport.Run();
         TestBusinessIdentityandHomeCity(5);
     end;
 
@@ -441,11 +441,11 @@ codeunit 144010 "Company Field Report Test"
         SalesHeader: Record "Sales Header";
         StandardSalesInvoice: Report "Standard Sales - Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesDocument(SalesHeader."Document Type"::Invoice, true);
         StandardSalesInvoice.UseRequestPage(true);
-        StandardSalesInvoice.Run;
+        StandardSalesInvoice.Run();
     end;
 
     [RequestPageHandler]
@@ -470,11 +470,11 @@ codeunit 144010 "Company Field Report Test"
         SalesHeader: Record "Sales Header";
         SalesShipmentReport: Report "Sales - Shipment";
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesDocument(SalesHeader."Document Type"::Order, true);
         SalesShipmentReport.UseRequestPage(true);
-        SalesShipmentReport.Run;
+        SalesShipmentReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -498,11 +498,11 @@ codeunit 144010 "Company Field Report Test"
         SalesHeader: Record "Sales Header";
         BlanketSalesOrderReport: Report "Blanket Sales Order";
     begin
-        Initialize;
+        Initialize();
 
         CreateSalesDocument(SalesHeader."Document Type"::"Blanket Order", false);
         BlanketSalesOrderReport.UseRequestPage(true);
-        BlanketSalesOrderReport.Run;
+        BlanketSalesOrderReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -526,11 +526,11 @@ codeunit 144010 "Company Field Report Test"
         PurchaseHeader: Record "Purchase Header";
         PurchaseQuoteReport: Report "Purchase - Quote";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocument(PurchaseHeader."Document Type"::Quote, false);
         PurchaseQuoteReport.UseRequestPage(true);
-        PurchaseQuoteReport.Run;
+        PurchaseQuoteReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -554,11 +554,11 @@ codeunit 144010 "Company Field Report Test"
         PurchaseHeader: Record "Purchase Header";
         PurchaseOrderReport: Report "Order";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocument(PurchaseHeader."Document Type"::Order, false);
         PurchaseOrderReport.UseRequestPage(true);
-        PurchaseOrderReport.Run;
+        PurchaseOrderReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -582,11 +582,11 @@ codeunit 144010 "Company Field Report Test"
         PurchaseHeader: Record "Purchase Header";
         PurchaseInvoiceReport: Report "Purchase - Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocument(PurchaseHeader."Document Type"::Invoice, true);
         PurchaseInvoiceReport.UseRequestPage(true);
-        PurchaseInvoiceReport.Run;
+        PurchaseInvoiceReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -610,11 +610,11 @@ codeunit 144010 "Company Field Report Test"
         PurchaseHeader: Record "Purchase Header";
         PurchaseCreditMemoReport: Report "Purchase - Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocument(PurchaseHeader."Document Type"::"Credit Memo", true);
         PurchaseCreditMemoReport.UseRequestPage(true);
-        PurchaseCreditMemoReport.Run;
+        PurchaseCreditMemoReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -640,11 +640,11 @@ codeunit 144010 "Company Field Report Test"
         PurchaseHeader: Record "Purchase Header";
         PurchaseReceiptReport: Report "Purchase - Receipt";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocument(PurchaseHeader."Document Type"::Order, true);
         PurchaseReceiptReport.UseRequestPage(true);
-        PurchaseReceiptReport.Run;
+        PurchaseReceiptReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -668,11 +668,11 @@ codeunit 144010 "Company Field Report Test"
         PurchaseHeader: Record "Purchase Header";
         BlanketPurchaseOrderReport: Report "Blanket Purchase Order";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseDocument(PurchaseHeader."Document Type"::"Blanket Order", false);
         BlanketPurchaseOrderReport.UseRequestPage(true);
-        BlanketPurchaseOrderReport.Run;
+        BlanketPurchaseOrderReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -693,14 +693,14 @@ codeunit 144010 "Company Field Report Test"
         PriceListReport: Report "Price List";
         xImplemetation: Enum "Price Calculation Handler";
     begin
-        Initialize;
+        Initialize();
         xImplemetation := LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
 
         LibrarySales.CreateCustomer(Customer);
         PriceListReport.InitializeRequest(0D, 0, Customer."No.", '');
         Commit();
         PriceListReport.UseRequestPage(true);
-        PriceListReport.Run;
+        PriceListReport.Run();
         TestBusinessIdentityandHomeCity(0);
 
         LibraryPriceCalculation.SetupDefaultHandler(xImplemetation);
@@ -739,7 +739,7 @@ codeunit 144010 "Company Field Report Test"
         JournalBatchName: Variant;
         JournalTemplateName: Variant;
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
@@ -747,11 +747,11 @@ codeunit 144010 "Company Field Report Test"
         IntrastatJnlLine.Date := WorkDate;
         LibraryERM.CreateCountryRegion(CountryRegion);
         IntrastatJnlLine.Validate("Country/Region Code", CountryRegion.Code);
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         IntrastatJnlLine.Validate("Tariff No.", TariffNumber."No.");
-        TransactionType.FindFirst;
+        TransactionType.FindFirst();
         IntrastatJnlLine.Validate("Transaction Type", TransactionType.Code);
-        TransportMethod.FindFirst;
+        TransportMethod.FindFirst();
         IntrastatJnlLine.Validate("Transport Method", TransportMethod.Code);
         IntrastatJnlLine.Validate("Total Weight", 1);
 
@@ -767,7 +767,7 @@ codeunit 144010 "Company Field Report Test"
 
         IntrastatFormReport.UseRequestPage(true);
 
-        IntrastatFormReport.Run;
+        IntrastatFormReport.Run();
         TestBusinessIdentityandHomeCity(1);
     end;
 
@@ -791,11 +791,11 @@ codeunit 144010 "Company Field Report Test"
         ServiceHeader: Record "Service Header";
         ServiceOrderReport: Report "Service Order";
     begin
-        Initialize;
+        Initialize();
 
         CreateServiceDocument(ServiceHeader."Document Type"::Order, false);
         ServiceOrderReport.UseRequestPage(true);
-        ServiceOrderReport.Run;
+        ServiceOrderReport.Run();
         TestBusinessIdentityandHomeCity(2);
     end;
 
@@ -819,11 +819,11 @@ codeunit 144010 "Company Field Report Test"
         ServiceHeader: Record "Service Header";
         ServiceQuoteReport: Report "Service Quote";
     begin
-        Initialize;
+        Initialize();
 
         CreateServiceDocument(ServiceHeader."Document Type"::Quote, false);
         ServiceQuoteReport.UseRequestPage(true);
-        ServiceQuoteReport.Run;
+        ServiceQuoteReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -846,11 +846,11 @@ codeunit 144010 "Company Field Report Test"
         ServiceHeader: Record "Service Header";
         ServiceInvoiceReport: Report "Service - Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateServiceDocument(ServiceHeader."Document Type"::Invoice, true);
         ServiceInvoiceReport.UseRequestPage(true);
-        ServiceInvoiceReport.Run;
+        ServiceInvoiceReport.Run();
         TestBusinessIdentityandHomeCity(4);
     end;
 
@@ -874,11 +874,11 @@ codeunit 144010 "Company Field Report Test"
         FiledServiceContractHeader: Record "Filed Service Contract Header";
         ServiceContractReport: Report "Service Contract";
     begin
-        Initialize;
+        Initialize();
 
         CreateServiceContract(FiledServiceContractHeader."Contract Type"::Contract);
         ServiceContractReport.UseRequestPage(true);
-        ServiceContractReport.Run;
+        ServiceContractReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -902,11 +902,11 @@ codeunit 144010 "Company Field Report Test"
         FiledServiceContractHeader: Record "Filed Service Contract Header";
         ServiceContractDetailReport: Report "Service Contract-Detail";
     begin
-        Initialize;
+        Initialize();
 
         CreateServiceContract(FiledServiceContractHeader."Contract Type"::Contract);
         ServiceContractDetailReport.UseRequestPage(true);
-        ServiceContractDetailReport.Run;
+        ServiceContractDetailReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 
@@ -930,11 +930,11 @@ codeunit 144010 "Company Field Report Test"
         FiledServiceContractHeader: Record "Filed Service Contract Header";
         ServiceContractQuoteReport: Report "Service Contract Quote";
     begin
-        Initialize;
+        Initialize();
 
         CreateServiceContract(FiledServiceContractHeader."Contract Type"::Quote);
         ServiceContractQuoteReport.UseRequestPage(true);
-        ServiceContractQuoteReport.Run;
+        ServiceContractQuoteReport.Run();
         TestBusinessIdentityandHomeCity(0);
     end;
 }

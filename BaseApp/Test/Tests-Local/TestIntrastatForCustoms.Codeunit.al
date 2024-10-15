@@ -26,7 +26,7 @@ codeunit 144000 TestIntrastatForCustoms
         IntrastatFileSetup: Record "Intrastat - File Setup";
         IntrastatFileSetupPage: TestPage "Intrastat - File Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         asserterror IntrastatFileSetup.Get();
@@ -49,7 +49,7 @@ codeunit 144000 TestIntrastatForCustoms
         IntrastatFileSetup: Record "Intrastat - File Setup";
         IntrastatFileSetupPage: TestPage "Intrastat - File Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         asserterror IntrastatFileSetup.Get();
@@ -103,7 +103,7 @@ codeunit 144000 TestIntrastatForCustoms
     begin
         // [FEATURE] [Report] [Intrastat - Form]
         // [SCENARIO 380228] A "Quantity 2" field is shown in report "Intrastat - Form"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line "INTJNL" with filled "Quantity 2" field.
         CreateIntrastatLineFilledForReportForm(IntrastatJnlLine);
@@ -147,16 +147,16 @@ codeunit 144000 TestIntrastatForCustoms
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::TestIntrastatForCustoms);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         IntrastatSetup.DeleteAll();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::TestIntrastatForCustoms);
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateTransportMethodTableData;
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::TestIntrastatForCustoms);
@@ -179,8 +179,8 @@ codeunit 144000 TestIntrastatForCustoms
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         with CountryRegion do begin
-            Validate(Name, LibraryUtility.GenerateGUID);
-            Validate("Intrastat Code", LibraryUtility.GenerateGUID);
+            Validate(Name, LibraryUtility.GenerateGUID());
+            Validate("Intrastat Code", LibraryUtility.GenerateGUID());
             Modify(true);
         end;
     end;
@@ -210,9 +210,9 @@ codeunit 144000 TestIntrastatForCustoms
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
 
         with IntrastatJnlLine do begin
-            "Tariff No." := LibraryUtility.GenerateGUID;
-            "Transaction Type" := LibraryUtility.GenerateGUID;
-            "Transport Method" := LibraryUtility.GenerateGUID;
+            "Tariff No." := LibraryUtility.GenerateGUID();
+            "Transaction Type" := LibraryUtility.GenerateGUID();
+            "Transport Method" := LibraryUtility.GenerateGUID();
             Validate(Quantity, LibraryRandom.RandInt(10));
             Validate("Net Weight", LibraryRandom.RandInt(10));
             Modify(true);

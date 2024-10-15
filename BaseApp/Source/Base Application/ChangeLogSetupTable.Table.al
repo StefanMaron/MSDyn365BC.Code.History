@@ -1,7 +1,7 @@
 table 403 "Change Log Setup (Table)"
 {
     Caption = 'Change Log Setup (Table)';
-    ReplicateData = true;
+    ReplicateData = false;
 
     fields
     {
@@ -12,7 +12,7 @@ table 403 "Change Log Setup (Table)"
         }
         field(2; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
                                                                            "Object ID" = FIELD("Table No.")));
             Caption = 'Table Caption';
             FieldClass = FlowField;

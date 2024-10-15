@@ -1,3 +1,4 @@
+#pragma warning disable AS0029
 #if not CLEAN19
 pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Data Update"
 {
@@ -70,3 +71,4 @@ pageextension 7049 "Price Calc. Update Parameters" extends "Schedule Feature Dat
     end;
 }
 #endif
+#pragma warning restore AS0029

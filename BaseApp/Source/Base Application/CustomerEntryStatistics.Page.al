@@ -504,7 +504,7 @@ page 302 "Customer Entry Statistics"
             CustLedgEntry[j].SetRange("Document Type", j); // Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund
             CustLedgEntry[j].SetRange("Customer No.", "No.");
             OnAfterGetRecordOnAfterCustLedgEntrySetFiltersCalcAmount(CustLedgEntry[j]);
-            if CustLedgEntry[j].FindLast then
+            if CustLedgEntry[j].FindLast() then
                 CustLedgEntry[j].CalcFields(Amount, "Remaining Amount");
         end;
 
@@ -567,7 +567,7 @@ page 302 "Customer Entry Statistics"
                             end else begin
                                 CustLedgEntry3.SetCurrentKey("Closed by Entry No.");
                                 CustLedgEntry3.SetRange("Closed by Entry No.", CustLedgEntry2."Entry No.");
-                                if CustLedgEntry3.FindLast then
+                                if CustLedgEntry3.FindLast() then
                                     UpdateDaysToPay(CustLedgEntry3."Posting Date" - CustLedgEntry2."Posting Date");
                             end;
                 until CustLedgEntry2.Next(-1) = 0;

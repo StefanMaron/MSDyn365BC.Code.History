@@ -14,6 +14,10 @@ codeunit 138200 "Normal DemoData"
         EmptyBlobErr: Label 'BLOB field is empty.';
         XOUTGOINGTxt: Label 'OUTGOING';
         XINCOMETxt: Label 'INCOME';
+        XCashCycleAccSchedNameTxt: Label 'I_CACYCLE', Comment = 'Data for Cash Cycle chart abrivated. Starting with I beacuse of sorting. Maximum lenght 10 characters';
+        XReducedTrialBalanceAccSchedNameTxt: Label 'I_MINTRIAL', Comment = 'Data for Mini Trial Balance chart abrivated. Starting with I beacuse of sorting. Maximum lenght 10 characters';
+        XBUDGANALYS: Label 'BUDGANALYS';
+        XACTBUD: Label 'Act/Bud';
 
     [Test]
     [Scope('OnPrem')]
@@ -79,7 +83,7 @@ codeunit 138200 "Normal DemoData"
             // [WHEN] Post all Invoices
             Reset();
             SetRange("Document Type", "Document Type"::Invoice);
-            asserterror FindFirst;
+            asserterror FindFirst();
             // [THEN] Error: 'There is no Purchase Header within the filter.'
             Assert.ExpectedError(NoPurchHeaderErr);
         end;
@@ -138,7 +142,7 @@ codeunit 138200 "Normal DemoData"
         ContactBusinessRelation.SetRange("Link to Table", LinkToTable);
         ContactBusinessRelation.SetRange("No.", No);
         Assert.RecordCount(ContactBusinessRelation, 1);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         CompanyNo := ContactBusinessRelation."Contact No.";
     end;
 
@@ -334,6 +338,45 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklistField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Quantity), '');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
         AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
+    end;
+
+    [Test]
+    procedure AccountScheduleHideCurrencySymbol()
+    begin
+        // [SCENARIO 425105] Specific account schedule lines marked with "Hide Currency Symbol"
+        VerifyAccountScheduleLineHideCurencySymbol(XCashCycleAccSchedNameTxt, 50000);
+        VerifyAccountScheduleLineHideCurencySymbol(XCashCycleAccSchedNameTxt, 60000);
+        VerifyAccountScheduleLineHideCurencySymbol(XCashCycleAccSchedNameTxt, 70000);
+        VerifyAccountScheduleLineHideCurencySymbol(XCashCycleAccSchedNameTxt, 80000);
+
+        VerifyAccountScheduleLineHideCurencySymbol(XReducedTrialBalanceAccSchedNameTxt, 40000);
+        VerifyAccountScheduleLineHideCurencySymbol(XReducedTrialBalanceAccSchedNameTxt, 70000);
+    end;
+
+    [Test]
+    procedure ColumnLayoutHideCurrencySymbol()
+    begin
+        // [SCENARIO 425105] Specific column layout marked with "Hide Currency Symbol"
+        VerifyColumnLayoutHideCurencySymbol(XBUDGANALYS, 30000);
+
+        VerifyColumnLayoutHideCurencySymbol(XACTBUD, 40000);
+    end;
+
+    local procedure VerifyAccountScheduleLineHideCurencySymbol(ScheduleName: Code[10]; LineNo: Integer)
+    var
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        AccScheduleLine.Get(ScheduleName, LineNo);
+        AccScheduleLine.TestField("Hide Currency Symbol", true);
+    end;
+
+
+    local procedure VerifyColumnLayoutHideCurencySymbol(ColumnLayoutName: Code[10]; LineNo: Integer)
+    var
+        ColumnLayout: Record "Column Layout";
+    begin
+        ColumnLayout.Get(ColumnLayoutName, LineNo);
+        ColumnLayout.TestField("Hide Currency Symbol", true);
     end;
 
     local procedure AdvancedIntrastatChecklistCommonFields(ReportId: Integer)

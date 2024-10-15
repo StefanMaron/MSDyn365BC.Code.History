@@ -42,6 +42,7 @@ codeunit 6060 "Hybrid Deployment"
         SqlTimeoutErr: Label 'The server timed out while attempting to connect to the specified SQL server.';
         TooManyReplicationRunsErr: Label 'Cannot start replication because a replication is currently in progress. Please try again at a later time.';
         NoAdfCapacityErr: Label 'The cloud migration service is temporarily unable to process your request. Please try again at a later time.';
+        CloudMigrationTok: Label 'CloudMigration', Locked = true;
 
     [Scope('OnPrem')]
     procedure Initialize(SourceProductId: Text)
@@ -350,7 +351,7 @@ codeunit 6060 "Hybrid Deployment"
 
             if AllowContinue and GuiAllowed() then
                 if Confirm(StrSubstNo(CloudMigrationFailedContinueQst, CloudMigrationFailedContinueTxt, Message)) then begin
-                    Session.LogMessage('0000E9N', StrSubstNo(TelemetryContinuedWithMigrationMsg, Message), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', 'IntelligentCloud');
+                    Session.LogMessage('0000E9N', StrSubstNo(TelemetryContinuedWithMigrationMsg, Message), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CloudMigrationTok);
                     exit;
                 end;
 
@@ -560,7 +561,7 @@ codeunit 6060 "Hybrid Deployment"
         if not TryGetError(JsonOutput, ErrorCode, ErrorMessage) or ((ErrorCode = '') and (ErrorMessage = '')) then
             exit(GenericError);
 
-        Session.LogMessage('00006NE', StrSubstNo('Error occurred in replication service.\n  Error Code: %1\n  Message: %2', ErrorCode, ErrorMessage), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', 'IntelligentCloud');
+        Session.LogMessage('00006NE', StrSubstNo('Error occurred in replication service.\n  Error Code: %1\n  Message: %2', ErrorCode, ErrorMessage), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CloudMigrationTok);
 
         // Check if a subscriber has a error message for the given code
         OnGetErrorMessage(ErrorCode, Message);
@@ -607,7 +608,7 @@ codeunit 6060 "Hybrid Deployment"
     local procedure ValidateInstanceId(InstanceId: Text)
     begin
         if InstanceId = '' then begin
-            Session.LogMessage('00007HU', 'Received an empty response from the replication service.', Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', 'IntelligentCloud');
+            Session.LogMessage('00007HU', 'Received an empty response from the replication service.', Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', CloudMigrationTok);
             Error(FailedToProcessRequestErr);
         end;
     end;
