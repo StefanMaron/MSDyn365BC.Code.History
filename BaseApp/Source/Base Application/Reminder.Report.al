@@ -140,6 +140,12 @@
                 column(CompanyAddr6; CompanyAddr[6])
                 {
                 }
+                column(CompanyAddr7; CompanyAddr[7])
+                {
+                }
+                column(CompanyAddr8; CompanyAddr[8])
+                {
+                }
                 column(CustAddr5; CustAddr[5])
                 {
                 }

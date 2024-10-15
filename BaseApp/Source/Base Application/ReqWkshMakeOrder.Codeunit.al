@@ -525,10 +525,16 @@
     end;
 
     procedure InitPurchOrderLine(var PurchOrderLine: Record "Purchase Line"; PurchOrderHeader: Record "Purchase Header"; RequisitionLine: Record "Requisition Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeInitPurchOrderLine(
             RequisitionLine, PurchasingCode, PurchOrderHeader, LineCount, NextLineNo, PrevPurchCode, PrevShipToCode, PlanningResiliency,
-            TempDocumentEntry, SuppressCommit, PostingDateReq, ReferenceReq, OrderDateReq, ReceiveDateReq, OrderCounter, HideProgressWindow);
+            TempDocumentEntry, SuppressCommit, PostingDateReq, ReferenceReq, OrderDateReq, ReceiveDateReq, OrderCounter, HideProgressWindow, IsHandled);
+        if IsHandled then
+            exit;
+
         with RequisitionLine do begin
             Clear(PurchOrderLine);
             PurchOrderLine.Init();
@@ -1618,7 +1624,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitPurchOrderLine(var ReqLine: record "Requisition Line"; var PurchasingCode: Record Purchasing; var PurchOrderHeader: Record "Purchase Header"; var LineCount: Integer; var NextLineNo: Integer; var PrevPurchCode: code[10]; var PrevShipToCode: code[10]; var PlanningResiliency: boolean; TempDocumentEntry: Record "Document Entry" temporary; var SuppressCommit: Boolean; var PostingDateReq: date; var ReferenceReq: text[35]; var OrderDateReq: date; var ReceiveDateReq: date; var OrderCounter: integer; var HideProgressWindow: Boolean)
+    local procedure OnBeforeInitPurchOrderLine(var ReqLine: record "Requisition Line"; var PurchasingCode: Record Purchasing; var PurchOrderHeader: Record "Purchase Header"; var LineCount: Integer; var NextLineNo: Integer; var PrevPurchCode: code[10]; var PrevShipToCode: code[10]; var PlanningResiliency: boolean; TempDocumentEntry: Record "Document Entry" temporary; var SuppressCommit: Boolean; var PostingDateReq: date; var ReferenceReq: text[35]; var OrderDateReq: date; var ReceiveDateReq: date; var OrderCounter: integer; var HideProgressWindow: Boolean; var IsHandled: Boolean)
     begin
     end;
 

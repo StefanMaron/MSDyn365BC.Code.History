@@ -15,6 +15,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
         PerCompanyUpgradeTags.Add(GetSalesTaxDiffPositiveFieldUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCFDIEnableOptionUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCompanyInformationRFCNumberUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetPACWebServiceDetailsUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -67,5 +68,11 @@ codeunit 9997 "Upgrade Tag Def - Country"
     begin
         exit('MS-459664-CompanyInformation-RFCNumber-20230105');
     end;
+
+    procedure GetPACWebServiceDetailsUpgradeTag(): Code[250]
+    begin
+        exit('MS-462312-PACWebServiceDetails-20230202');
+    end;
+
 }
 

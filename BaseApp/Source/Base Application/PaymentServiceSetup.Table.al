@@ -304,10 +304,16 @@ table 1060 "Payment Service Setup"
         exit(true);
     end;
 
-    local procedure CanUsePaymentMethod(PaymentMethodCode: Code[10]): Boolean
+    local procedure CanUsePaymentMethod(PaymentMethodCode: Code[10]) Result: Boolean
     var
         PaymentMethod: Record "Payment Method";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCanUsePaymentMethod(PaymentMethodCode, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if not PaymentMethod.Get(PaymentMethodCode) then
             exit(true);
 
@@ -430,6 +436,11 @@ table 1060 "Payment Service Setup"
 
     [IntegrationEvent(false, false)]
     procedure OnRegisterPaymentServiceProviders(var PaymentServiceSetup: Record "Payment Service Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCanUsePaymentMethod(PaymentMethodCode: Code[10]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

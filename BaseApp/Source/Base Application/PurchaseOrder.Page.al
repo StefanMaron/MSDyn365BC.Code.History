@@ -669,6 +669,11 @@ page 50 "Purchase Order"
                             Importance = Promoted;
                             ToolTip = 'Specifies the name of the vendor sending the invoice.';
 
+                            trigger OnLookup(var Text: Text): Boolean
+                            begin
+                                exit(Rec.LookupPayToVendorName(Text));
+                            end;
+
                             trigger OnValidate()
                             begin
                                 if not ((PayToOptions = PayToOptions::"Custom Address") and not ShouldSearchForVendByName) then begin

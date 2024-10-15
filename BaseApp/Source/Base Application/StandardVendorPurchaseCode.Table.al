@@ -184,7 +184,7 @@ table 175 "Standard Vendor Purchase Code"
                 if StdPurchLine.InsertLine() then begin
                     PurchLine."Line No." := GetNextLineNo(PurchLine);
                     PurchLine.Insert(true);
-                    OnApplyStdCodesToPurchaseLinesOnAfterPurchLineInsert(PurchLine, PurchHeader);
+                    OnApplyStdCodesToPurchaseLinesOnAfterPurchLineInsert(PurchLine, PurchHeader, StdPurchLine);
                     InsertExtendedText(PurchLine, PurchHeader);
                 end;
             until StdPurchLine.Next() = 0;
@@ -305,7 +305,7 @@ table 175 "Standard Vendor Purchase Code"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyStdCodesToPurchaseLinesOnAfterPurchLineInsert(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
+    local procedure OnApplyStdCodesToPurchaseLinesOnAfterPurchLineInsert(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var StandardPurchaseLine: Record "Standard Purchase Line")
     begin
     end;
 

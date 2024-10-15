@@ -1662,7 +1662,7 @@
                                             </Paragraphs>
                                             <rd:DefaultName>CompanyRegistrationNumber_Lbl</rd:DefaultName>
                                             <Visibility>
-                                              <Hidden>=Fields!CompanyVATRegistrationNo.Value=""</Hidden>
+                                              <Hidden>=Fields!CompanyRegistrationNumber.Value=""</Hidden>
                                             </Visibility>
                                             <Style>
                                               <Border>
@@ -5656,6 +5656,12 @@ End Function
         </Field>
         <Field Name="CompanyAddress6">
           <DataField>CompanyAddress6</DataField>
+        </Field>
+        <Field Name="CompanyAddress7">
+          <DataField>CompanyAddress7</DataField>
+        </Field>
+        <Field Name="CompanyAddress8">
+          <DataField>CompanyAddress8</DataField>
         </Field>
         <Field Name="CompanyHomePage">
           <DataField>CompanyHomePage</DataField>

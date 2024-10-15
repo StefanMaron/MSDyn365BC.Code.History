@@ -361,7 +361,7 @@
             exit;
         PriceAssetList.Init();
         PriceAssetList.Add(PriceAsset);
-        OnShowPriceListLinesOnAfterPriceAssetListAdd(PriceAsset, PriceType, PriceAssetList);
+        OnShowPriceListLinesOnAfterPriceAssetListAdd(PriceAsset, PriceType, PriceAssetList, PriceListLineReview);
         PriceListLineReview.Set(PriceAssetList, PriceType, AmountType);
         PriceListLineReview.Run();
     end;
@@ -629,7 +629,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnShowPriceListLinesOnAfterPriceAssetListAdd(PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type"; var PriceAssetList: Codeunit "Price Asset List")
+    local procedure OnShowPriceListLinesOnAfterPriceAssetListAdd(PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type"; var PriceAssetList: Codeunit "Price Asset List"; var PriceListLineReview: Page "Price List Line Review")
     begin
     end;
 

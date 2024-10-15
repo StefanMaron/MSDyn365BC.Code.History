@@ -56,6 +56,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SegmentNoErr: Label 'Segment No. is incorrect';
         OppCampaignNoErr: Label 'Campaign No. must not be %1 in Opportunity No.=''%2''';
         OppCardSalesDocTypeErr: Label 'Validation error for Field: Sales Document Type,  Message = ''Your entry of ''%1'' is not an acceptable value for ''Sales Document Type''. (Select Refresh to discard errors)''';
+        OppNoNotUpdatedOnSalesQuoteErr: Label 'Opportunity No. not updated on Sales Quote.';
 
     [Test]
     [HandlerFunctions('ModalFormHandlerOpportunity,FormHandlerUpdateOpportunity')]
@@ -1671,6 +1672,54 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Opportunity.TestField("Segment Description", '');
     end;
 
+    [Test]
+    [HandlerFunctions('ModalFormHandlerOpportunity,CustomerTemplateListModalPageHandler,ConfirmMessageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SameOpportunityAssignToNewSalesQuote()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        SalesHeader: Record "Sales Header";
+        Opportunity: Record Opportunity;
+        OpportunityCard: TestPage "Opportunity Card";
+        SalesQuote: TestPage "Sales Quote";
+        CustomerTemplateCode: Code[20];
+        ActionOption: Option LookupOK,Cancel;
+    begin
+        // [SCENARIO 462715] Same Opportunity No. cannot be inserted twice in a different Sales Quote
+        Initialize();
+
+        // [GIVEN] Contact "C" with Company Type, Customer Template "CT"
+        CustomerTemplateCode := CreateCustomerTemplateForContact('');
+        Contact.Get(CreateContactWithCustTemplateAndOpportunity(true));
+
+        // [GIVEN] Opportunity for Contact "C"
+        OpenOpportunityCardForContact(OpportunityCard, Contact."No.");
+        Opportunity.Get(Format(OpportunityCard."No."));
+        SalesQuote.Trap;
+
+        // [WHEN] Create Sales Quote from Opportunity where user selects to create new Customer from the "CT" and Verify the Opportunity No. on Sales Quote
+        LibraryVariableStorage.Enqueue(ActionOption::LookupOK);
+        LibraryVariableStorage.Enqueue(CustomerTemplateCode);
+        OpportunityCard.CreateSalesQuote.Invoke;
+        Customer.Get(SalesQuote."Sell-to Customer No.");
+        Assert.AreEqual(Opportunity."No.", SalesQuote."Opportunity No.".Value, OppNoNotUpdatedOnSalesQuoteErr);
+        SalesQuote.Close();
+
+        // [GIVEN] Create New Sales Quote "SQ"
+        CreateSalesQuoteWithCustomer(SalesHeader, Customer."No.");
+
+        // [THEN] Open Sales Quote and set Opportunity
+        SalesQuote.OpenEdit;
+        SalesQuote.GotoRecord(SalesHeader);
+        SalesQuote."Opportunity No.".SetValue(Opportunity."No.");
+        SalesQuote.Close();
+        SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesHeader."No.");
+
+        // [VERIFY] Verify: Opportunity No. on New Sales Quote
+        Assert.AreEqual(Opportunity."No.", SalesHeader."Opportunity No.", OppNoNotUpdatedOnSalesQuoteErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Marketing Opportunity Mgmt");
@@ -2143,6 +2192,14 @@ codeunit 136209 "Marketing Opportunity Mgmt"
             Opportunity.TestField(
               "Calcd. Current Value (LCY)", WizardEstimatedValueLCY2 * ((WizardChancesOfSuccessPercent2 + Completed2) / 2) / 100);
         end;
+    end;
+
+    local procedure CreateSalesQuoteWithCustomer(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    begin
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
+        SalesHeader.Validate("Sell-to Customer No.", CustomerNo);
+        SalesHeader.Insert(true);
     end;
 
     [ConfirmHandler]

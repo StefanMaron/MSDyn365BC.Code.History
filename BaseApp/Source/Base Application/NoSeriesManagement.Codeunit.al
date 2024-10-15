@@ -112,6 +112,7 @@ codeunit 396 NoSeriesManagement
                 NoSeries.Code := OldNoSeriesCode;
         end else
             NoSeries.Code := NewNoSeriesCode;
+        OnSelectSeriesOnBeforePageRunModal(DefaultNoSeriesCode, NoSeries);
         if PAGE.RunModal(0, NoSeries) = ACTION::LookupOK then begin
             NewNoSeriesCode := NoSeries.Code;
             exit(true);
@@ -169,7 +170,7 @@ codeunit 396 NoSeriesManagement
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, Result, IsHandled);
+        OnBeforeGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, Result, IsHandled, LastNoSeriesLine);
         if IsHandled then
             exit(Result);
 
@@ -198,13 +199,17 @@ codeunit 396 NoSeriesManagement
     procedure DoGetNextNo(NoSeriesCode: Code[20]; SeriesDate: Date; ModifySeries: Boolean; NoErrorsOrWarnings: Boolean): Code[20]
     var
         NoSeriesLine: Record "No. Series Line";
+        CurrNoSeriesLine: Record "No. Series Line";
     begin
         OnBeforeDoGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, NoErrorsOrWarnings);
 
         if SeriesDate = 0D then
             SeriesDate := WorkDate();
 
-        if ModifySeries or (LastNoSeriesLine."Series Code" = '') then begin
+        SetNoSeriesLineFilter(CurrNoSeriesLine, NoSeriesCode, SeriesDate);
+        if ModifySeries or (LastNoSeriesLine."Series Code" = '') or
+        ((LastNoSeriesLine."Line No." <> CurrNoSeriesLine."Line No.") and (LastNoSeriesLine."Series Code" = NoSeriesCode))
+        then begin
             NoSeries.Get(NoSeriesCode);
             SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, SeriesDate);
             if not NoSeriesLine.FindFirst() then begin
@@ -559,7 +564,7 @@ codeunit 396 NoSeriesManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetNextNo(var NoSeriesCode: Code[20]; var SeriesDate: Date; var ModifySeries: Boolean; var Result: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeGetNextNo(var NoSeriesCode: Code[20]; var SeriesDate: Date; var ModifySeries: Boolean; var Result: Code[20]; var IsHandled: Boolean; var NoSeriesLine: Record "No. Series Line")
     begin
     end;
 
@@ -616,6 +621,11 @@ codeunit 396 NoSeriesManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelectSeries(DefaultNoSeriesCode: Code[20]; OldNoSeriesCode: Code[20]; var NewNoSeriesCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSelectSeriesOnBeforePageRunModal(DefaultNoSeriesCode: Code[20]; var NoSeries: Record "No. Series")
     begin
     end;
 }

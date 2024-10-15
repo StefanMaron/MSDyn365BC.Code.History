@@ -8163,6 +8163,12 @@ End Function</Code>
         <Field Name="CompanyAddr_6_">
           <DataField>CompanyAddr_6_</DataField>
         </Field>
+        <Field Name="CompanyAddr_7_">
+          <DataField>CompanyAddr_7_</DataField>
+        </Field>
+        <Field Name="CompanyAddr_8_">
+          <DataField>CompanyAddr_8_</DataField>
+        </Field>
         <Field Name="Sales_Header_Archive___Prices_Including_VAT_">
           <DataField>Sales_Header_Archive___Prices_Including_VAT_</DataField>
         </Field>

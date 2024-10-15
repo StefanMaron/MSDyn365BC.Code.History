@@ -32,6 +32,14 @@ page 132 "Posted Sales Invoice"
                     TableRelation = Customer.Name;
                     ToolTip = 'Specifies the name of the customer that you shipped the items on the invoice to.';
                 }
+                field("VAT Registration No."; Rec."VAT Registration No.")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                    Visible = false;
+                }
                 group("Sell-to")
                 {
                     Caption = 'Sell-to';
@@ -1492,7 +1500,7 @@ page 132 "Posted Sales Invoice"
 
         ActivateFields();
         PaymentServiceVisible := PaymentServiceSetup.IsPaymentServiceVisible();
-		VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var

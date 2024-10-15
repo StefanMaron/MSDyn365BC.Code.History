@@ -4094,6 +4094,12 @@ End Function
         <Field Name="CompanyAddr5">
           <DataField>CompanyAddr5</DataField>
         </Field>
+        <Field Name="CompanyAddr7">
+          <DataField>CompanyAddr7</DataField>
+        </Field>
+        <Field Name="CompanyAddr8">
+          <DataField>CompanyAddr8</DataField>
+        </Field>
         <Field Name="ServHeaderOrderDate">
           <DataField>ServHeaderOrderDate</DataField>
         </Field>

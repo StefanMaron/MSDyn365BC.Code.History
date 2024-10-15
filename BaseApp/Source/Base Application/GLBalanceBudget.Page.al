@@ -496,7 +496,14 @@ page 422 "G/L Balance/Budget"
     end;
 
     trigger OnOpenPage()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenPage(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GLSetup.Get();
         InitDefaultFilters();
         CODEUNIT.Run(CODEUNIT::"GLBudget-Open", Rec);
@@ -776,6 +783,11 @@ page 422 "G/L Balance/Budget"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidatePeriodType(var PeriodType: Enum "Analysis Period Type")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOpenPage(var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 

@@ -27,7 +27,8 @@ codeunit 136107 "Service Posting - Shipment"
         UnknownError: Label 'Unknown error.';
         WarningMsg: Label 'The field Automatic Cost Posting should not be set to Yes if field Use Legacy G/L Entry Locking in General Ledger Setup table is set to No because of possibility of deadlocks.';
         ExpectedMsg: Label 'Expected Cost Posting to G/L has been changed';
-        ExpectedCostPostingConfirm: Label 'If you change the Expected Cost Posting to G/L';
+        ExpectedCostPostingEnableConfirm: Label 'If you enable the Expected Cost Posting to G/L';
+        ExpectedCostPostingDisableConfirm: Label 'If you disable the Expected Cost Posting to G/L';
         WhseShptIsCreatedMsg: Label 'Warehouse Shipment Header has been created.', Locked = true;
         WhseShptIsNotCreatedErr: Label 'There are no Warehouse Shipment Lines created.', Locked = true;
 
@@ -2364,11 +2365,13 @@ codeunit 136107 "Service Posting - Shipment"
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.IsTrue((StrPos(Question, ExpectedCostPostingConfirm) = 1) or
-          (StrPos(Question, 'You must confirm Service Cost') = 1) or
-          (StrPos(Question, 'Do you want to undo the selected shipment line(s)?') = 1) or
-          (StrPos(Question, 'Do you want to undo consumption of the selected shipment line(s)?') = 1),
-          'Unexpected confirm dialog: ' + Question);
+        Assert.IsTrue(
+            (StrPos(Question, ExpectedCostPostingEnableConfirm) = 1) or
+            (StrPos(Question, ExpectedCostPostingDisableConfirm) = 1) or
+            (StrPos(Question, 'You must confirm Service Cost') = 1) or
+            (StrPos(Question, 'Do you want to undo the selected shipment line(s)?') = 1) or
+            (StrPos(Question, 'Do you want to undo consumption of the selected shipment line(s)?') = 1),
+            'Unexpected confirm dialog: ' + Question);
         Reply := true
     end;
 
@@ -2391,7 +2394,7 @@ codeunit 136107 "Service Posting - Shipment"
     local procedure ExecuteUIHandlers()
     begin
         Message(StrSubstNo(ExpectedMsg));
-        if Confirm(StrSubstNo(ExpectedCostPostingConfirm)) then;
+        if Confirm(StrSubstNo(ExpectedCostPostingEnableConfirm)) then;
     end;
 
     [ConfirmHandler]
