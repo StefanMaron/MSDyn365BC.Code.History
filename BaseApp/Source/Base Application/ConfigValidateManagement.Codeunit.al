@@ -307,10 +307,11 @@ codeunit 8617 "Config. Validate Management"
     local procedure EvaluateValueToDate(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
     var
         Date: Date;
+        ZeroDate: Date;
         Decimal: Decimal;
     begin
-        if not Evaluate(Date, Value) and not Evaluate(Date, Value, XMLFormat()) then
-            if not Evaluate(Decimal, Value) or not Evaluate(Date, Format(DT2Date(OADateToDateTime(Decimal)))) then
+        if not Evaluate(Decimal, Value) or not (Evaluate(Date, Format(DT2Date(OADateToDateTime(Decimal)))) and (Date <> ZeroDate)) then
+            if not Evaluate(Date, Value) and not Evaluate(Date, Value, XMLFormat()) then
                 exit(StrSubstNo(Text003Msg, Value, Format(FieldType::Date)));
 
         if Validate then
@@ -890,9 +891,15 @@ codeunit 8617 "Config. Validate Management"
         DotNetDateTime: DotNet DateTime;
         ALDateTime: DateTime;
     begin
-        DotNetDateTime := DotNetDateTime.FromOADate(DateTimeDecimal);
-        Evaluate(ALDateTime, DotNetDateTime.ToString());
+        if FromOADate(DotNetDateTime, DateTimeDecimal) then
+            Evaluate(ALDateTime, DotNetDateTime.ToString());
         exit(ALDateTime);
+    end;
+
+    [TryFunction]
+    local procedure FromOADate(var DotNetDateTime: DotNet DateTime; DateTimeDecimal: Decimal)
+    begin
+        DotNetDateTime := DotNetDateTime.FromOADate(DateTimeDecimal);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Config. Package Table", 'OnBeforeInsertEvent', '', true, true)]

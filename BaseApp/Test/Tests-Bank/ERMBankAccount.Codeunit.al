@@ -26,6 +26,7 @@ codeunit 134231 "ERM Bank Account"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
         IBANConfirmationMsg: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?';
+        OnNextRecordStepsErr: Label 'OnNextRecord returned incorrect Steps parameter.';
 
     [Test]
     [Scope('OnPrem')]
@@ -425,6 +426,139 @@ codeunit 134231 "ERM Bank Account"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure RecordRefInsertTempRecordVariant()
+    var
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        RecRef: RecordRef;
+        RecVar: Variant;
+    begin
+        // [FEATURE] [UI] [UT]
+        // [SCENARIO 434158] System keeps temporary record information when it passed to RecordRef and returned back via Variant variable
+        RecVar := TempNameValueBuffer;
+
+        RecRef.GetTable(RecVar);
+        RecRef.Insert();
+        Assert.AreEqual(RecRef.Count(), 1, '');
+        Assert.IsTrue(RecRef.IsTemporary(), '');
+
+        RecRef.SetTable(RecVar);
+        RecRef.Close();
+        TempNameValueBuffer := RecVar;
+
+        Assert.IsTrue(TempNameValueBuffer.IsTemporary(), '');
+        asserterror Assert.RecordCount(TempNameValueBuffer, 1); // inserted record is lost due to bug 434158
+    end;
+
+    [Test]
+    procedure RecordRefInsertTempRecord()
+    var
+        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        RecRef: RecordRef;
+    begin
+        // [FEATURE] [UI] [UT]
+        // [SCENARIO 434158] System keeps temporary record information when it passed to RecordRef and returned back explicitly
+        RecRef.GetTable(TempNameValueBuffer);
+        RecRef.Insert();
+        Assert.AreEqual(RecRef.Count(), 1, '');
+        Assert.IsTrue(RecRef.IsTemporary(), '');
+
+        RecRef.SetTable(TempNameValueBuffer);
+
+        Assert.IsTrue(TempNameValueBuffer.IsTemporary(), '');
+        Assert.RecordCount(TempNameValueBuffer, 1);
+    end;
+
+    [Test]
+    procedure RecordRefInsertNormalRecordVariant()
+    var
+        NameValueBuffer: Record "Name/Value Buffer";
+        RecRef: RecordRef;
+        RecVar: Variant;
+    begin
+        // [FEATURE] [UI] [UT]
+        // [SCENARIO 434158] System keeps record information when it passed to RecordRef and returned back via Variant variable
+        RecVar := NameValueBuffer;
+
+        RecRef.GetTable(RecVar);
+        RecRef.Insert();
+        Assert.AreEqual(RecRef.Count(), 1, '');
+        Assert.IsFalse(RecRef.IsTemporary(), '');
+
+        RecRef.SetTable(RecVar);
+        NameValueBuffer := RecVar;
+
+        Assert.IsFalse(NameValueBuffer.IsTemporary(), '');
+        Assert.RecordCount(NameValueBuffer, 1);
+        NameValueBuffer.DeleteAll();
+    end;
+
+    [Test]
+    procedure RecordRefInsertNormalRecord()
+    var
+        NameValueBuffer: Record "Name/Value Buffer";
+        RecRef: RecordRef;
+    begin
+        // [FEATURE] [UI] [UT]
+        // [SCENARIO 434158] System keeps record information when it passed to RecordRef and returned back explicitly
+        RecRef.GetTable(NameValueBuffer);
+        RecRef.Insert();
+        Assert.AreEqual(RecRef.Count(), 1, '');
+        Assert.IsFalse(RecRef.IsTemporary(), '');
+
+        RecRef.SetTable(NameValueBuffer);
+
+        Assert.IsFalse(NameValueBuffer.IsTemporary(), '');
+        Assert.RecordCount(NameValueBuffer, 1);
+        NameValueBuffer.DeleteAll();
+    end;
+
+    [Test]
+    procedure PeriodFormLinesMgt_OnNextRecord()
+    var
+        TempBankAccountBalanceBuffer: Record "Bank Account Balance Buffer" temporary;
+        DateRec: Record Date;
+        PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
+        PeriodType: Option;
+        Steps: Integer;
+        ExpectedDate: Date;
+        FindResult: Boolean;
+        NextRecordResult: Integer;
+    begin
+        // [FEATURE] [UI] [UT]
+        // [SCENARIO 417912]  "Period Form Lines Mgt.".NextDate() function has to sync Date Record with moved "Buffer" record when system invokes OnNextRecord trigger of a page.
+        Initialize();
+
+        Steps := 0;
+        PeriodType := DateRec."Period Type"::Month;
+
+        FindResult := BankAccountBalancePageFindRecordTrigger(TempBankAccountBalanceBuffer, DateRec, PeriodType, PeriodFormLinesMgt);
+        Assert.IsTrue(FindResult, '');
+
+
+        ExpectedDate := CalcDate('<-CM>', WorkDate());
+        VerifyBufferAndDateRecords(TempBankAccountBalanceBuffer, DateRec, NextRecordResult, 1, PeriodType, ExpectedDate, 0);
+
+        Steps := 1;
+        NextRecordResult := BankAccountBalancePageNextRecordTrigger(TempBankAccountBalanceBuffer, DateRec, Steps, PeriodType, PeriodFormLinesMgt);
+
+        ExpectedDate := CalcDate('<-CM+1M>', WorkDate());
+        VerifyBufferAndDateRecords(TempBankAccountBalanceBuffer, DateRec, NextRecordResult, 2, PeriodType, ExpectedDate, Steps);
+
+        NextRecordResult := BankAccountBalancePageNextRecordTrigger(TempBankAccountBalanceBuffer, DateRec, Steps, PeriodType, PeriodFormLinesMgt);
+
+        ExpectedDate := CalcDate('<-CM+2M>', WorkDate());
+        VerifyBufferAndDateRecords(TempBankAccountBalanceBuffer, DateRec, NextRecordResult, 3, PeriodType, ExpectedDate, Steps);
+
+        TempBankAccountBalanceBuffer.FindFirst();
+        Steps := -1;
+
+        NextRecordResult := BankAccountBalancePageNextRecordTrigger(TempBankAccountBalanceBuffer, DateRec, Steps, PeriodType, PeriodFormLinesMgt);
+
+        ExpectedDate := CalcDate('<-CM-1M>', WorkDate());
+        VerifyBufferAndDateRecords(TempBankAccountBalanceBuffer, DateRec, NextRecordResult, 4, PeriodType, ExpectedDate, Steps);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Bank Account");
@@ -437,6 +571,32 @@ codeunit 134231 "ERM Bank Account"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Bank Account");
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Bank Account");
+    end;
+
+    local procedure BankAccountBalancePageFindRecordTrigger(var TempBankAccountBalanceBuffer: Record "Bank Account Balance Buffer" temporary; var DateRec: Record Date; PeriodType: Option; var PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.") TriggerResult: Boolean
+    var
+        RecVar: Variant;
+    begin
+        // Simulates OnFindRecord trigger of "Bank Account Balance" page
+        RecVar := TempBankAccountBalanceBuffer;
+        TriggerResult := PeriodFormLinesMgt.FindDate(RecVar, DateRec, '=<>', PeriodType);
+        TempBankAccountBalanceBuffer := RecVar;
+        // additional Insert due to bug 434158
+        if TriggerResult then
+            TempBankAccountBalanceBuffer.Insert()
+    end;
+
+    local procedure BankAccountBalancePageNextRecordTrigger(var TempBankAccountBalanceBuffer: Record "Bank Account Balance Buffer" temporary; var DateRec: Record Date; Steps: Integer; PeriodType: Option; var PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.") TriggerResult: Integer
+    var
+        RecVar: Variant;
+    begin
+        // Simulates OnNextRecord trigger of "Bank Account Balance" page
+        RecVar := TempBankAccountBalanceBuffer;
+        TriggerResult := PeriodFormLinesMgt.NextDate(RecVar, DateRec, Steps, PeriodType);
+        TempBankAccountBalanceBuffer := RecVar;
+        // additional Insert due to bug 434158
+        if TriggerResult <> 0 then
+            TempBankAccountBalanceBuffer.Insert()
     end;
 
     local procedure FindIBAN(): Code[50]
@@ -539,6 +699,16 @@ codeunit 134231 "ERM Bank Account"
     local procedure VerifyIBAN(CurrentIBAN: Code[50]; CheckIBAN: Code[50])
     begin
         Assert.AreEqual(CurrentIBAN, CheckIBAN, WrongIBANErr);
+    end;
+
+    local procedure VerifyBufferAndDateRecords(var TempBankAccountBalanceBuffer: Record "Bank Account Balance Buffer" temporary; var DateRec: Record Date; var Steps: Integer; ExpectedCount: Integer; ExpectedPeriodType: Option; ExpectedDate: Date; ExpectedSteps: Integer)
+    begin
+        Assert.RecordCount(TempBankAccountBalanceBuffer, ExpectedCount);
+        TempBankAccountBalanceBuffer.TestField("Period Type", ExpectedPeriodType);
+        TempBankAccountBalanceBuffer.TestField("Period Start", ExpectedDate);
+        DateRec.TestField("Period Type", ExpectedPeriodType);
+        DateRec.TestField("Period Start", ExpectedDate);
+        Assert.AreEqual(Steps, ExpectedSteps, OnNextRecordStepsErr);
     end;
 
     [ConfirmHandler]

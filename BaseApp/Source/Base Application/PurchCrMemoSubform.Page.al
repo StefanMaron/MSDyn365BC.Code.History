@@ -78,6 +78,7 @@ page 98 "Purch. Cr. Memo Subform"
                     begin
                         CrossReferenceNoLookUp();
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -100,6 +101,7 @@ page 98 "Purch. Cr. Memo Subform"
                     begin
                         ItemReferenceMgt.PurchaseReferenceNoLookup(Rec);
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
