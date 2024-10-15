@@ -5545,12 +5545,12 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.AssertElementTagWithValueExists('VATIdentifier_Lbl', 'VAT Identifier');
 
         LibraryReportDataset.AssertElementTagWithValueExists('VATIdentifier_Line', VATPostingSetup[1]."VAT Identifier");
-        LibraryReportDataset.AssertElementTagWithValueExists('Description_VATClauseLine', VATClause[1].Description);
-        LibraryReportDataset.AssertElementTagWithValueExists('Description2_VATClauseLine', VATClause[1]."Description 2");
+        LibraryReportDataset.AssertElementTagWithValueExists(
+          'Description_VATClauseLine', VATClause[1].Description + ' ' + VATClause[1]."Description 2");
 
         LibraryReportDataset.AssertElementTagWithValueExists('VATIdentifier_Line', VATPostingSetup[2]."VAT Identifier");
-        LibraryReportDataset.AssertElementTagWithValueExists('Description_VATClauseLine', VATClause[2].Description);
-        LibraryReportDataset.AssertElementTagWithValueExists('Description2_VATClauseLine', VATClause[2]."Description 2");
+        LibraryReportDataset.AssertElementTagWithValueExists(
+          'Description_VATClauseLine', VATClause[2].Description + ' ' + VATClause[2]."Description 2");
     end;
 
     local procedure VerifyExcelWithItemAssemblyComponents(ItemComponentCode: array[3] of Code[20])
