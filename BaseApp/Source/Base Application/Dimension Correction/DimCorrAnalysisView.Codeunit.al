@@ -48,7 +48,7 @@ codeunit 2584 "Dim Corr Analysis View"
         Session.LogMessage('0000EK9', StrSubstNo(CompletedUpdateAnalysisViewsLbl, DimensionCorrection."Entry No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DimensionCorrectionTok);
     end;
 
-    local procedure ShouldUpdateAnalysisView(var AnalysisView: Record "Analysis View"; var DimensionCorrection: Record "Dimension Correction"): Boolean
+    local procedure ShouldUpdateAnalysisView(var AnalysisView: Record "Analysis View"; var DimensionCorrection: Record "Dimension Correction") Result: Boolean
     var
         TempDimCorrectionChange: Record "Dim Correction Change" temporary;
         DimensionCorrectionMgt: Codeunit "Dimension Correction Mgt";
@@ -63,11 +63,17 @@ codeunit 2584 "Dim Corr Analysis View"
             if AnalysisView.CheckDimensionIsTracked(TempDimCorrectionChange."Dimension Code") then
                 exit(true);
         until TempDimCorrectionChange.Next() = 0;
-        exit(false);
+
+        OnAfterShouldUpdateAnalysisView(AnalysisView, DimensionCorrection, Result);
     end;
 
     var
         StartingUpdateAnalysisViewsLbl: Label 'Starting Update Analysis Views, Dimension Correction - %1', Locked = true, Comment = '%1 - Number of Dimension Correction';
         CompletedUpdateAnalysisViewsLbl: Label 'Completed Update Analysis Views, Dimension Correction - %1', Locked = true, Comment = '%1 - Number of Dimension Correction';
         DimensionCorrectionTok: Label 'DimensionCorrection', Locked = true;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShouldUpdateAnalysisView(var AnalysisView: Record "Analysis View"; var DimensionCorrection: Record "Dimension Correction"; var Result: Boolean)
+    begin
+    end;
 }

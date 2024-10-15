@@ -1631,6 +1631,8 @@ table 5407 "Prod. Order Component"
         SetRange(Weight, ProdBOMLine.Weight);
         SetRange(Depth, ProdBOMLine.Depth);
         SetRange("Unit of Measure Code", ProdBOMLine."Unit of Measure Code");
+
+        OnAfterSetFilterFromProdBOMLine(Rec, ProdBOMLine);
     end;
 
     local procedure IsLineRequiredForSingleDemand(ProdOrderLine: Record "Prod. Order Line"; DemandLineNo: Integer): Boolean
@@ -1678,6 +1680,11 @@ table 5407 "Prod. Order Component"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSKU(ProdOrderComponent: Record "Prod. Order Component"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilterFromProdBOMLine(var ProdOrderComponent: Record "Prod. Order Component"; ProdBOMLine: Record "Production BOM Line")
     begin
     end;
 

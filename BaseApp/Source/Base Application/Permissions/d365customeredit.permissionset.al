@@ -48,6 +48,7 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Price List Header" = Rid,
                   tabledata "Price List Line" = Rid,
                   tabledata "Price Source" = Rid,
+                  tabledata "Price Worksheet Line" = Rid,
                   tabledata "Profile Questionnaire Line" = R,
                   tabledata "Purch. Cr. Memo Hdr." = rm,
                   tabledata "Purch. Cr. Memo Line" = rm,

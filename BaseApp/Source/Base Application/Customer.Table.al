@@ -2035,10 +2035,28 @@ table 18 Customer
         end;
     end;
 
+    procedure CheckBlockedCustOnJnls(Cust2: Record Customer; var GenJnlLine: Record "Gen. Journal Line"; Transaction: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBlockedCustOnJnls(Cust2, GenJnlLine, Transaction, IsHandled);
+        if IsHandled then
+            exit;
+
+        CheckBlockedCustOnJnls(Cust2, GenJnlLine."Document Type", Transaction);
+    end;
+
     procedure CustBlockedErrorMessage(Cust2: Record Customer; Transaction: Boolean)
     var
         "Action": Text[30];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCustBlockedErrorMessage(Cust2, Transaction, IsHandled);
+        if IsHandled then
+            exit;
+
         if Transaction then
             Action := Text004
         else
@@ -2454,6 +2472,7 @@ table 18 Customer
         Customer.SetFilter("No.", CustomerFilterFromStart);
 
         Customer.SetFilter(Name, CustomerFilterFromStart);
+        OnGetCustNoOpenCardOnAfterOnAfterCustomerFilterFromStart(Customer);
 
         if Customer.FindFirst then
             exit(Customer."No.");
@@ -2698,7 +2717,7 @@ table 18 Customer
         if ForceUpdateContact then
             UpdateNeeded := true;
 
-        OnBeforeIsContactUpdateNeeded(Rec, xRec, UpdateNeeded);
+        OnBeforeIsContactUpdateNeeded(Rec, xRec, UpdateNeeded, ForceUpdateContact);
         exit(UpdateNeeded);
     end;
 
@@ -3155,7 +3174,7 @@ table 18 Customer
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIsContactUpdateNeeded(Customer: Record Customer; xCustomer: Record Customer; var UpdateNeeded: Boolean)
+    local procedure OnBeforeIsContactUpdateNeeded(Customer: Record Customer; xCustomer: Record Customer; var UpdateNeeded: Boolean; ForceUpdateContact: Boolean)
     begin
     end;
 
@@ -3219,6 +3238,11 @@ table 18 Customer
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlockedCust(Customer: Record Customer; Source: Option Journal,Document; DocType: Option; Shipment: Boolean; Transaction: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBlockedCustOnJnls(Customer: Record Customer; var GenJnlLine: Record "Gen. Journal Line"; Transaction: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -3349,6 +3373,16 @@ table 18 Customer
 
     [IntegrationEvent(false, false)]
     local procedure OnShowContactOnBeforeOpenContactList(var Contact: Record Contact; var ContactPageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetCustNoOpenCardOnAfterOnAfterCustomerFilterFromStart(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCustBlockedErrorMessage(Cust2: Record Customer; Transaction: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

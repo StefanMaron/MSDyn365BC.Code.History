@@ -78,8 +78,7 @@ page 517 "Requisition Lines"
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the method that will be used for price calculation in the requisition line.';
                 }
@@ -251,9 +250,17 @@ page 517 "Requisition Lines"
         Clear(ShortcutDimCode);
     end;
 
+    trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
+
     var
         ReqLine: Record "Requisition Line";
         ReqWkshTmpl: Record "Req. Wksh. Template";
+        ExtendedPriceEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

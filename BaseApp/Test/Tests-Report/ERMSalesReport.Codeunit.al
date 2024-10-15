@@ -54,6 +54,7 @@ codeunit 134976 "ERM Sales Report"
         InvoiceTxt: Label 'Invoice';
         TaxInvoiceTxt: Label 'Tax Invoice';
         EmptyReportDatasetTxt: Label 'There is nothing to print for the selected filters.';
+        WrongDecimalErr: Label 'Wrong count of decimals', Locked = true;
 
     [Test]
     [HandlerFunctions('CustomerTrialBalanceRequestPageHandler')]
@@ -3474,7 +3475,7 @@ codeunit 134976 "ERM Sales Report"
         Initialize();
 
         // [GIVEN] Customer has closed Customer Ledger Entry with "Remaining Amount" = 0.
-        LibrarySales.MockCustLedgerEntryWithZeroBalance(CustLedgerEntry,LibrarySales.CreateCustomerNo());
+        LibrarySales.MockCustLedgerEntryWithZeroBalance(CustLedgerEntry, LibrarySales.CreateCustomerNo());
         CustLedgerEntry.Open := false;
         CustLedgerEntry.Modify();
 
@@ -3489,6 +3490,51 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.AssertElementWithValueExists('Cust_Ledger_Entry_Remaining_Amount_', 0);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesOrderConfRequestPageHandler')]
+    procedure StandardSalesOrderConfPlannedShipmentDateIsPrinted()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [UI] [Order] [Confirmation]
+        // [SCENARIO 391390] "Planned Shipment Date" is shown with its caption when report "Standard Sales - Order Conf." is printed for Sales Order
+        Initialize();
+
+        // [GIVEN] Sales Order
+        CreateSalesOrder(SalesHeader, SalesLine, '', LibrarySales.CreateCustomerNo());
+
+        // [WHEN] Export report "Standard Sales - Order Conf." to XML file
+        RunStandardSalesOrderConfirmationReport(SalesHeader."No.");
+        LibraryReportDataset.LoadDataSetFile();
+
+        // [THEN] Planned Shipment Date for the line is exported, along with its label
+        LibraryReportDataset.AssertElementTagWithValueExists('PlannedShipmentDate_Line_Lbl', SalesLine.FieldCaption("Planned Shipment Date"));
+        LibraryReportDataset.AssertElementTagWithValueExists('PlannedShipmentDate_Line', Format(SalesLine."Planned Shipment Date"));
+    end;
+
+    [Test]
+    procedure ReportTotalsBufferFormatAmountFormatted()
+    var
+        ReportTotalsBuffer: Record "Report Totals Buffer" temporary;
+        AutoFormat: Codeunit "Auto Format";
+        CurrencyCode: Code[10];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 393753] Correct formatting of "Report Totals Buffer"."Amount Formatted" when pass AutoFormatExp in function Add(...)
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [WHEN] Invoke "Report Totals Buffer".Add(...) with AutoFormatExp and Amount = 123.123
+        ReportTotalsBuffer.Add('', 123.123, true, true, true, CurrencyCode);
+
+        // [THEN] "Amount Formatted" = 123.123
+        ReportTotalsBuffer.FindFirst();
+        Assert.IsTrue(ReportTotalsBuffer."Amount Formatted".EndsWith('.123'), WrongDecimalErr);
     end;
 
     local procedure Initialize()
@@ -4625,6 +4671,19 @@ codeunit 134976 "ERM Sales Report"
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
+    end;
+
+    local procedure CreateCurrencyWithDecimalPlaces(): Code[10]
+    var
+        Currency: Record Currency;
+        CurrencyCode: Code[10];
+    begin
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1, 1);
+        Currency.Get(CurrencyCode);
+        Currency.Validate("Amount Decimal Places", '3:3');
+        Currency.Validate("Amount Rounding Precision", 0.001);
+        Currency.Modify(true);
+        exit(CurrencyCode);
     end;
 
     local procedure VerifyAmtInDtldCustLedgEntries(RowCaption: Text; RowValue: Text; Amount: Decimal)

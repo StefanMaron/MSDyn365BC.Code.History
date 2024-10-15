@@ -37,7 +37,7 @@ report 5899 "Calculate Inventory Value"
                 ItemLedgEntry.SetRange(Positive, true);
                 CopyFilter("Location Filter", ItemLedgEntry."Location Code");
                 CopyFilter("Variant Filter", ItemLedgEntry."Variant Code");
-                OnItemAfterGetRecordOnAfterItemLedgEntrySetFilters(ItemLedgEntry);
+                OnItemAfterGetRecordOnAfterItemLedgEntrySetFilters(ItemLedgEntry, Item);
                 if ItemLedgEntry.Find('-') then
                     repeat
                         if IncludeEntryInCalc(ItemLedgEntry, PostingDate, IncludeExpectedCost) then begin
@@ -700,7 +700,7 @@ report 5899 "Calculate Inventory Value"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnItemAfterGetRecordOnAfterItemLedgEntrySetFilters(var ItemLedgerEntry: Record "Item Ledger Entry")
+    local procedure OnItemAfterGetRecordOnAfterItemLedgEntrySetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; var Item: Record Item)
     begin
     end;
 }

@@ -36,18 +36,18 @@ page 7016 "Sales Price List"
                     Editable = PriceListIsEditable;
                     ToolTip = 'Specifies the description of the price list.';
                 }
-                field(SourceType; CustomerSourceType)
+                field(SourceType; SourceType)
                 {
                     ApplicationArea = All;
                     Importance = Promoted;
                     Caption = 'Applies-to Type';
                     Editable = PriceListIsEditable;
-                    Visible = IsCustomerGroup;
+                    Visible = not IsJobGroup;
                     ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the customer or customer price group.';
 
                     trigger OnValidate()
                     begin
-                        ValidateSourceType(CustomerSourceType.AsInteger());
+                        ValidateSourceType(SourceType.AsInteger());
                     end;
                 }
                 field(JobSourceType; JobSourceType)
@@ -206,7 +206,7 @@ page 7016 "Sales Price List"
             action(CopyLines)
             {
                 ApplicationArea = Basic, Suite;
-                Enabled = PriceListIsEditable;
+                Enabled = PriceListIsEditable and CopyLinesEnabled;
                 Ellipsis = true;
                 Image = CopyWorksheet;
                 Promoted = true;
@@ -345,7 +345,9 @@ page 7016 "Sales Price List"
     trigger OnOpenPage()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        PriceListManagement: Codeunit "Price List Management";
     begin
+        CopyLinesEnabled := PriceListManagement.VerifySourceGroupInLines();
         UpdateSourceType();
         PriceUXManagement.GetFirstSourceFromFilter(Rec, OriginalPriceSource, DefaultSourceType);
         SetSourceNoEnabled();
@@ -366,10 +368,7 @@ page 7016 "Sales Price List"
         PriceListIsEditable := Rec.IsEditable();
         UpdateSourceType();
         ViewAmountType := Rec."Amount Type";
-        if ViewAmountType = ViewAmountType::Any then
-            ViewGroupIsVisible := true
-        else
-            ViewGroupIsVisible := not PriceUXManagement.IsAmountTypeFiltered(Rec);
+        ViewGroupIsVisible := true;
         if Rec.HasDraftLines() then
             PriceListManagement.SendVerifyLinesNotification(Rec);
 
@@ -409,8 +408,8 @@ page 7016 "Sales Price List"
         case Rec."Source Group" of
             Rec."Source Group"::Customer:
                 begin
-                    IsCustomerGroup := true;
-                    CustomerSourceType := "Sales Price Source Type".FromInteger(Rec."Source Type".AsInteger());
+                    IsJobGroup := false;
+                    SourceType := "Sales Price Source Type".FromInteger(Rec."Source Type".AsInteger());
                     DefaultSourceType := Rec."Source Type"::"All Customers";
                 end;
             Rec."Source Group"::Job:
@@ -433,12 +432,12 @@ page 7016 "Sales Price List"
         StatusActiveFilterApplied: Boolean;
         DefaultSourceType: Enum "Price Source Type";
         JobSourceType: Enum "Job Price Source Type";
-        CustomerSourceType: Enum "Sales Price Source Type";
+        SourceType: Enum "Sales Price Source Type";
         ViewAmountType: Enum "Price Amount Type";
-        IsCustomerGroup: Boolean;
         IsJobGroup: Boolean;
         SourceNoEnabled: Boolean;
         PriceListIsEditable: Boolean;
+        CopyLinesEnabled: Boolean;
         ViewGroupIsVisible: Boolean;
 
     local procedure SetSourceNoEnabled()

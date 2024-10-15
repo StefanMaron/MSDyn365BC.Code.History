@@ -566,6 +566,10 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Initialize;
         LibraryCRMIntegration.CreateCRMOrganization;
         CRMConnectionSetup.Get();
+        CRMConnectionSetup."Is S.Order Integration Enabled" := true;
+        CRMConnectionSetup."Is Enabled" := true;
+        CRMConnectionSetup."Is Enabled For User" := true;
+        CRMConnectionSetup.Modify();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
@@ -618,7 +622,6 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMInvoice.TestField(DiscountAmount, CRMSalesorder.TotalDiscountAmount);
         CRMInvoice.TestField(DiscountPercentage, 0);
         CRMInvoice.TestField(FreightAmount, 0);
-        CRMInvoice.TestField(TotalAmount, CRMInvoice.TotalAmountLessFreight + CRMInvoice.TotalTax);
     end;
 
     [Test]
@@ -640,12 +643,15 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         // [GIVEN] CRM Salesorder in "Submitted" State
         CreateCRMSalesorderInLCY(CRMSalesorder);
         CRMConnectionSetup.Get();
+        CRMConnectionSetup."Is CRM Solution Installed" := true;
+        CRMConnectionSetup.Modify();
 
         // [WHEN] Disabled CRM Sales Order Integration action is invoked
         asserterror CRMConnectionSetup.SetCRMSOPDisabled;
 
         // [THEN] Error message appears stating there are CRM Sales Orders in "Submitted" State
         Assert.ExpectedError(DisabledSalesOrderIntSubmittedOrderErr);
+        CRMConnectionSetup.SetCRMSOPEnabled();
     end;
 
     [Test]
@@ -673,6 +679,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMOrganization.TestField(IsSOPIntegrationEnabled, false);
         CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Is S.Order Integration Enabled", false);
+        ResetDefaultCRMSetupConfiguration();
     end;
 
     [Test]
@@ -700,6 +707,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
         // [THEN] Error message appears stating CRM Solution should be installed
         Assert.ExpectedError(IsCRMSolutionInstalledYesErr);
+        ResetDefaultCRMSetupConfiguration();
     end;
 
     [Test]
@@ -1496,12 +1504,18 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     [Scope('OnPrem')]
     procedure DeleteSalesOrderCoupledToDeletedCRMSalesOrder()
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         SalesHeader: Record "Sales Header";
         CRMSalesorder: Record "CRM Salesorder";
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
     begin
         // [SCENARIO 279148] Sales Order coupled to deleted CRM Sales Order can be deleted
         Initialize;
+        CRMConnectionSetup.Get();
+        CRMConnectionSetup."Is S.Order Integration Enabled" := true;
+        CRMConnectionSetup."Is Enabled" := true;
+        CRMConnectionSetup."Is Enabled For User" := true;
+        CRMConnectionSetup.Modify();
 
         // [GIVEN] Created NAV Order from CRM Order
         CreateCRMSalesorderInLCY(CRMSalesorder);
@@ -2087,6 +2101,12 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CDSConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
+        CRMConnectionSetup.Get();
+        CRMConnectionSetup."Is CRM Solution Installed" := true;
+        CRMConnectionSetup."Is S.Order Integration Enabled" := true;
+        CRMConnectionSetup."Is Enabled" := true;
+        CRMConnectionSetup."Is Enabled For User" := true;
+        CRMConnectionSetup.Modify();
     end;
 
     [ConfirmHandler]

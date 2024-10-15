@@ -918,7 +918,7 @@ table 21 "Cust. Ledger Entry"
 
     procedure SetAmountToApply(AppliesToDocNo: Code[20]; CustomerNo: Code[20])
     begin
-        OnBeforeSetAmountToApply(Rec);
+        OnBeforeSetAmountToApply(Rec, AppliesToDocNo, CustomerNo);
 
         SetCurrentKey("Document No.");
         SetRange("Document No.", AppliesToDocNo);
@@ -1059,7 +1059,7 @@ table 21 "Cust. Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetAmountToApply(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    local procedure OnBeforeSetAmountToApply(var CustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToDocNo: Code[20]; CustomerNo: Code[20])
     begin
     end;
 

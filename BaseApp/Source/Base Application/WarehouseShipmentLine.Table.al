@@ -804,7 +804,7 @@ table 7321 "Warehouse Shipment Line"
             WhseShipmentCreatePick.GetResultMessage;
             Clear(WhseShipmentCreatePick);
         end;
-        OnAfterCreatePickDoc(WhseShptHeader);
+        OnAfterCreatePickDoc(WhseShptHeader, WhseShptLine);
     end;
 
     local procedure GetItem()
@@ -1037,7 +1037,7 @@ table 7321 "Warehouse Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreatePickDoc(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    local procedure OnAfterCreatePickDoc(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WhseShptLine: Record "Warehouse Shipment Line")
     begin
     end;
 

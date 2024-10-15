@@ -26,14 +26,15 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeSharePointConnection();
         CreateDefaultAADApplication();
         UpgradePowerBIOptin();
+        UpgradeNativeAPIWebService();
     end;
 
     trigger OnUpgradePerCompany()
     begin
+        ClearTemporaryTables();
+
         UpdateDefaultDimensionsReferencedIds();
         UpdateGenJournalBatchReferencedIds();
-        // Bug - check if this method is needed if not delete the CH file (only difference with w1)
-        UpdateBusinessRelation();
         UpdateItems();
         UpdateJobs();
         UpdateItemTrackingCodes();
@@ -65,6 +66,47 @@ codeunit 104000 "Upgrade - BaseApp"
 
         UpdateWorkflowTableRelations();
         UpgradeWordTemplateTables();
+        UpdatePriceSourceGroupInPriceListLines();
+        UpdatePriceListLineStatus()
+    end;
+
+    local procedure ClearTemporaryTables()
+    var
+        BinContentBuffer: Record "Bin Content Buffer";
+        DocumentEntry: Record "Document Entry";
+        EntrySummary: Record "Entry Summary";
+        InvoicePostBuffer: Record "Invoice Post. Buffer";
+        ItemTrackingSetup: Record "Item Tracking Setup";
+        OptionLookupBuffer: Record "Option Lookup Buffer";
+        ParallelSessionEntry: Record "Parallel Session Entry";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetClearTemporaryTablesUpgradeTag()) then
+            exit;
+
+        BinContentBuffer.Reset();
+        BinContentBuffer.DeleteAll();
+
+        DocumentEntry.Reset();
+        DocumentEntry.DeleteAll();
+
+        EntrySummary.Reset();
+        EntrySummary.DeleteAll();
+
+        InvoicePostBuffer.Reset();
+        InvoicePostBuffer.DeleteAll();
+
+        ItemTrackingSetup.Reset();
+        ItemTrackingSetup.DeleteAll();
+
+        OptionLookupBuffer.Reset();
+        OptionLookupBuffer.DeleteAll();
+
+        ParallelSessionEntry.Reset();
+        ParallelSessionEntry.DeleteAll();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetClearTemporaryTablesUpgradeTag());
     end;
 
     internal procedure UpgradeWordTemplateTables()
@@ -151,25 +193,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBalAccountNoOnJournalAPIUpgradeTag());
     end;
 
-    local procedure UpdateBusinessRelation()
-    var
-        Contact: Record Contact;
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetContactBusinessRelationUpgradeTag()) THEN
-            EXIT;
-
-        Contact.SetRange("Business Relation", '');
-        if Contact.FindSet(true, false) then
-            repeat
-                Contact.UpdateBusinessRelation();
-                if Contact.MODIFY then;
-            until Contact.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetContactBusinessRelationUpgradeTag());
-    end;
-
     local procedure UpdateItems()
     var
         Item: Record "Item";
@@ -213,6 +236,78 @@ codeunit 104000 "Upgrade - BaseApp"
                 END;
             UNTIL Job.Next() = 0;
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAddingIDToJobsUpgradeTag());
+    end;
+
+    local procedure UpdatePriceSourceGroupInPriceListLines()
+    var
+        PriceListLine: Record "Price List Line";
+        EnvironmentInformation: Codeunit "Environment Information";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPriceSourceGroupUpgradeTag()) then
+            exit;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPriceSourceGroupFixedUpgradeTag()) then
+            exit;
+
+        PriceListLine.SetRange("Source Group", "Price Source Group"::All);
+        if EnvironmentInformation.IsSaaS() then
+            if PriceListLine.Count() > GetSafeRecordCountForSaaSUpgrade() then
+                exit;
+        if PriceListLine.FindSet(true) then
+            repeat
+                if PriceListLine."Source Type" in
+                    ["Price Source Type"::"All Jobs",
+                    "Price Source Type"::Job,
+                    "Price Source Type"::"Job Task"]
+                then
+                    PriceListLine."Source Group" := "Price Source Group"::Job
+                else
+                    case PriceListLine."Price Type" of
+                        "Price Type"::Purchase:
+                            PriceListLine."Source Group" := "Price Source Group"::Vendor;
+                        "Price Type"::Sale:
+                            PriceListLine."Source Group" := "Price Source Group"::Customer;
+                    end;
+                if PriceListLine."Source Group" <> "Price Source Group"::All then
+                    PriceListLine.Modify();
+            until PriceListLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPriceSourceGroupFixedUpgradeTag());
+    end;
+
+    local procedure UpdatePriceListLineStatus()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        EnvironmentInformation: Codeunit "Environment Information";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        Status: Enum "Price Status";
+    begin
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPriceSourceGroupUpgradeTag()) then
+            exit;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSyncPriceListLineStatusUpgradeTag()) then
+            exit;
+
+        PriceListLine.SetRange(Status, "Price Status"::Draft);
+        if EnvironmentInformation.IsSaaS() then
+            if PriceListLine.Count() > GetSafeRecordCountForSaaSUpgrade() then
+                exit;
+        if PriceListLine.Findset(true) then
+            repeat
+                if PriceListHeader.Code <> PriceListLine."Price List Code" then
+                    if PriceListHeader.Get(PriceListLine."Price List Code") then
+                        Status := PriceListHeader.Status
+                    else
+                        Status := Status::Draft;
+                if Status = Status::Active then begin
+                    PriceListLine.Status := Status::Active;
+                    PriceListLine.Modify();
+                end;
+            until PriceListLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSyncPriceListLineStatusUpgradeTag());
     end;
 
     local procedure CreateWorkflowWebhookWebServices()
@@ -364,6 +459,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeInvoicesCreatedFromOrders();
         UpgradePurchRcptLineDocumentId();
         UpgradePurchaseOrderEntityBuffer();
+        UpgradeSalesCreditMemoReasonCode();
     end;
 
     local procedure CreateTimeSheetDetailsIds()
@@ -1907,6 +2003,39 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewPurchaseOrderEntityBufferUpgradeTag());
     end;
 
+    procedure UpgradeSalesCreditMemoReasonCode()
+    var
+        SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesHeader: Record "Sales Header";
+        EnvironmentInformation: Codeunit "Environment Information";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesCreditMemoReasonCodeUpgradeTag()) then
+            exit;
+
+        if EnvironmentInformation.IsSaaS() then
+            if SalesCrMemoEntityBuffer.Count() > GetSafeRecordCountForSaaSUpgrade() then
+                exit;
+
+        SalesCrMemoEntityBuffer.SetLoadFields(SalesCrMemoEntityBuffer.Id);
+        if SalesCrMemoEntityBuffer.FindSet(true, false) then
+            repeat
+                if SalesCrMemoEntityBuffer.Posted then begin
+                    SalesCrMemoHeader.SetLoadFields(SalesCrMemoHeader."Reason Code");
+                    if SalesCrMemoHeader.GetBySystemId(SalesCrMemoEntityBuffer.Id) then
+                        UpdateSalesCreditMemoReasonCodeFields(SalesCrMemoHeader."Reason Code", SalesCrMemoEntityBuffer);
+                end else begin
+                    SalesHeader.SetLoadFields(SalesHeader."Reason Code");
+                    if SalesHeader.GetBySystemId(SalesCrMemoEntityBuffer.Id) then
+                        UpdateSalesCreditMemoReasonCodeFields(SalesHeader."Reason Code", SalesCrMemoEntityBuffer);
+                end;
+            until SalesCrMemoEntityBuffer.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesCreditMemoReasonCodeUpgradeTag());
+    end;
+
     local procedure UpgradePowerBIOptin()
     var
         MediaRepository: Record "Media Repository";
@@ -1988,6 +2117,35 @@ codeunit 104000 "Upgrade - BaseApp"
     local procedure GetSafeRecordCountForSaaSUpgrade(): Integer
     begin
         exit(300000);
+    end;
+
+    local procedure UpdateSalesCreditMemoReasonCodeFields(SourceReasonCode: Code[10]; var SalesCrMemoEntityBuffer: Record "Sales Cr. Memo Entity Buffer"): Boolean
+    var
+        ReasonCode: Record "Reason Code";
+        NewReasonCodeId: Guid;
+        EmptyGuid: Guid;
+        Changed: Boolean;
+    begin
+        if SalesCrMemoEntityBuffer."Reason Code" <> SourceReasonCode then begin
+            SalesCrMemoEntityBuffer."Reason Code" := SourceReasonCode;
+            Changed := true;
+        end;
+
+        if SalesCrMemoEntityBuffer."Reason Code" <> '' then begin
+            if ReasonCode.Get(SalesCrMemoEntityBuffer."Reason Code") then
+                NewReasonCodeId := ReasonCode.SystemId
+            else
+                NewReasonCodeId := EmptyGuid;
+        end else
+            NewReasonCodeId := EmptyGuid;
+
+        if SalesCrMemoEntityBuffer."Reason Code Id" <> NewReasonCodeId then begin
+            SalesCrMemoEntityBuffer."Reason Code Id" := NewReasonCodeId;
+            Changed := true;
+        end;
+
+        if Changed then
+            exit(SalesCrMemoEntityBuffer.Modify());
     end;
 }
 

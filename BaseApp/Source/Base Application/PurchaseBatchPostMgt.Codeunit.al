@@ -331,7 +331,7 @@ codeunit 1372 "Purchase Batch Post Mgt."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeRunBatch(var PurchaseHeader: Record "Purchase Header"; var ReplacePostingDate: Boolean; PostingDate: Date; ReplaceDocumentDate: Boolean; Receive: Boolean; Invoice: Boolean)
     begin
     end;

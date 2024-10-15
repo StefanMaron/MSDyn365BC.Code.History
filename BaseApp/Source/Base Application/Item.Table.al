@@ -1892,22 +1892,26 @@
             var
                 PhysInvtCountPeriod: Record "Phys. Invt. Counting Period";
                 PhysInvtCountPeriodMgt: Codeunit "Phys. Invt. Count.-Management";
+                IsHandled: Boolean;
             begin
                 if ("Phys Invt Counting Period Code" <> '') and
                    ("Phys Invt Counting Period Code" <> xRec."Phys Invt Counting Period Code")
                 then begin
                     PhysInvtCountPeriod.Get("Phys Invt Counting Period Code");
                     PhysInvtCountPeriod.TestField("Count Frequency per Year");
-                    if xRec."Phys Invt Counting Period Code" <> '' then
-                        if CurrFieldNo <> 0 then
-                            if not Confirm(
-                                 Text7380,
-                                 false,
-                                 FieldCaption("Phys Invt Counting Period Code"),
-                                 FieldCaption("Next Counting Start Date"),
-                                 FieldCaption("Next Counting End Date"))
-                            then
-                                Error(Text7381);
+                    IsHandled := false;
+                    OnValidatePhysInvtCountingPeriodCodeOnBeforeConfirmUpdate(Rec, xRec, PhysInvtCountPeriod, IsHandled);
+                    if not IsHandled then
+                        if xRec."Phys Invt Counting Period Code" <> '' then
+                            if CurrFieldNo <> 0 then
+                                if not Confirm(
+                                     Text7380,
+                                     false,
+                                     FieldCaption("Phys Invt Counting Period Code"),
+                                     FieldCaption("Next Counting Start Date"),
+                                     FieldCaption("Next Counting End Date"))
+                                then
+                                    Error(Text7381);
 
                     if "Last Counting Period Update" = 0D then
                         PhysInvtCountPeriodMgt.CalcPeriod(
@@ -3775,6 +3779,11 @@
     procedure ItemTrackingCodeUsesExpirationDate(): Boolean
     begin
         exit(ItemTrackingCodeUseExpirationDates());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePhysInvtCountingPeriodCodeOnBeforeConfirmUpdate(var Item: Record Item; xItem: Record Item; PhysInvtCountPeriod: Record "Phys. Invt. Counting Period"; var IsHandled: Boolean)
+    begin
     end;
 }
 

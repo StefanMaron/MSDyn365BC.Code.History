@@ -506,6 +506,21 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Allow Editing Active Price';
             DataClassification = SystemMetadata;
         }
+        field(7003; "Default Price List Code"; Code[20])
+        {
+            Caption = 'Default Price List Code';
+            TableRelation = "Price List Header" where("Price Type" = Const(Sale), "Source Group" = Const(Customer), "Allow Updating Defaults" = const(true));
+            DataClassification = CustomerContent;
+            trigger OnLookup()
+            var
+                PriceListHeader: Record "Price List Header";
+            begin
+                if Page.RunModal(Page::"Sales Price Lists", PriceListHeader) = Action::LookupOK then begin
+                    PriceListHeader.TestField("Allow Updating Defaults");
+                    Validate("Default Price List Code", PriceListHeader.Code);
+                end;
+            end;
+        }
         field(7101; "Customer Group Dimension Code"; Code[20])
         {
             Caption = 'Customer Group Dimension Code';

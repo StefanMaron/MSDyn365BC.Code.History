@@ -707,6 +707,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Adjust Cost Item Entries]
         // [SCENARIO 371768] Item ledger entries receive average cost when a purchase return having valuation date earlier than its posting date, is applied to a transfer
+        Initialize();
 
         Amount[1] := 3.33333;
         Amount[2] := 7.73737;
@@ -769,6 +770,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Adjust Cost Item Entries] [Partial Revaluation]
         // [SCENARIO 372019] Revalued inbound transfer entry is adjusted correctly for an item with "Standard" costing method
+        Initialize();
 
         StandardCost := LibraryRandom.RandIntInRange(100, 200);
 
@@ -819,6 +821,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Manufacturing]
         // [SCENARIO 375615] It is not allowed to post prod. order consumption that would create loop in cost application on 2 different locations
+        Initialize();
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationRed);
@@ -866,6 +869,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Manufacturing]
         // [SCENARIO 375615] It is not allowed to post prod. order consumption that would create loop in cost application on one location
+        Initialize();
 
         // [GIVEN] Item "I"
         LibraryInventory.CreateItem(Item);
@@ -907,6 +911,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Adjust Cost - Item Entries]
         // [SCENARIO 381650] Posting of two consumption entries in one batch, when only the second entry creates a cycle in cost application, should fail
+        Initialize();
 
         // [GIVEN] Item "I"
         LibraryInventory.CreateItem(Item);
