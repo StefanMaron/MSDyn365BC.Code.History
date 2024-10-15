@@ -17,6 +17,7 @@ codeunit 136361 "UT C Copy Job"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
         JobWithManualNoNotCreatedErr: Label 'Job with manual number is not created.';
@@ -417,6 +418,63 @@ codeunit 136361 "UT C Copy Job"
         VerifyJobPlanningLineLedgerEntryFields(Job[2]."No.", JobTask."Job Task No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyJobWithPriceDiffCurrency()
+    var
+        SourceJob: Record Job;
+        SourceJobTask: Record "Job Task";
+        SourceJobPlanningLine: array[3] of Record "Job Planning Line";
+        TargetJobTask: Record "Job Task";
+        JobGLAccountPrice: array[2] of Record "Job G/L Account Price";
+        JobItemPrice: array[2] of Record "Job Item Price";
+        JobResourcePrice: array[2] of Record "Job Resource Price";
+        Currency: Record Currency;
+        CopyJob: Codeunit "Copy Job";
+        TargetJobNo: Code[20];
+    begin
+        // [SCENARIO 409848] Copy Job should not ignore prices with Currency <> Job Currency
+        Initialize;
+
+        // [GIVEN] Job with Currency Code = '' and with 3 Job Planning Lines of types "G/L Account", "Item", "Resource"
+        LibraryJob.CreateJob(SourceJob);
+        SourceJob.Validate("Currency Code", '');
+        SourceJob.Modify();
+        LibraryJob.CreateJobTask(SourceJob, SourceJobTask);
+        CreateJobPlanningLine(SourceJobPlanningLine[1], SourceJobPlanningLine[1].Type::"G/L Account", SourceJobTask);
+        CreateJobPlanningLine(SourceJobPlanningLine[2], SourceJobPlanningLine[2].Type::Item, SourceJobTask);
+        CreateJobPlanningLine(SourceJobPlanningLine[3], SourceJobPlanningLine[3].Type::Resource, SourceJobTask);
+
+        // [GIVEN] Currency "C"
+        LibraryERM.CreateCurrency(Currency);
+
+        // [GIVEN] Job G/L Account Price, Job Item Price, Job Resource Price lines with Currency Code = "C"
+        CreateJobGLAccPrice(JobGLAccountPrice[1], SourceJob."No.", SourceJobPlanningLine[1]."No.", Currency.Code);
+        CreateJobItemPrice(JobItemPrice[1], SourceJob."No.", SourceJobPlanningLine[2]."No.", Currency.Code);
+        CreateJobResourcePrice(JobResourcePrice[1], SourceJob."No.", SourceJobPlanningLine[3]."No.", Currency.Code);
+
+        // [WHEN] Copy Job with Copy Price = true
+        TargetJobNo := LibraryUtility.GenerateGUID;
+        CopyJob.SetCopyOptions(true, true, true, 0, 0, 0);
+        CopyJob.CopyJob(SourceJob, TargetJobNo, '', SourceJob."Bill-to Customer No.");
+
+        // [THEN] New Job created with Job G/L Account Price, Job Item Price, Job Resource Price lines with Currency Code = "C"
+        JobGLAccountPrice[2].SetRange("Job No.", TargetJobNo);
+        JobGLAccountPrice[2].SetRange("G/L Account No.", SourceJobPlanningLine[1]."No.");
+        JobGLAccountPrice[2].SetRange("Currency Code", Currency.Code);
+        Assert.RecordIsNotEmpty(JobGLAccountPrice[2]);
+
+        JobItemPrice[2].SetRange("Job No.", TargetJobNo);
+        JobItemPrice[2].SetRange("Item No.", SourceJobPlanningLine[2]."No.");
+        JobItemPrice[2].SetRange("Currency Code", Currency.Code);
+        Assert.RecordIsNotEmpty(JobItemPrice[2]);
+
+        JobResourcePrice[2].SetRange("Job No.", TargetJobNo);
+        JobResourcePrice[2].SetRange(Code, SourceJobPlanningLine[3]."No.");
+        JobResourcePrice[2].SetRange("Currency Code", Currency.Code);
+        Assert.RecordIsNotEmpty(JobResourcePrice[2]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -470,6 +528,39 @@ codeunit 136361 "UT C Copy Job"
     begin
         LibrarySales.CreateCustomer(Customer);
         exit(Customer."No.");
+    end;
+
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobPlanningLineType: Enum "Job Planning Line Type"; JobTask: record "Job Task")
+    begin
+        LibraryJob.CreateJobPlanningLine(
+            JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLineType, JobTask,
+            JobPlanningLine);
+        JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(1000));
+        JobPlanningLine.Modify();
+    end;
+
+    local procedure CreateJobGLAccPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[20])
+    begin
+        LibraryJob.CreateJobGLAccountPrice(
+            JobGLAccountPrice, JobNo, '', GLAccountNo, CurrencyCode);
+        JobGLAccountPrice."Unit Price" := LibraryRandom.RandIntInRange(1, 10);
+        JobGLAccountPrice.Modify();
+    end;
+
+    local procedure CreateJobItemPrice(var JobItemPrice: Record "Job Item Price"; JobNo: Code[20]; ItemNo: Code[20]; CurrencyCode: Code[20])
+    begin
+        LibraryJob.CreateJobItemPrice(
+            JobItemPrice, JobNo, '', ItemNo, CurrencyCode, '', '');
+        JobItemPrice."Unit Price" := LibraryRandom.RandIntInRange(1, 10);
+        JobItemPrice.Modify();
+    end;
+
+    local procedure CreateJobResourcePrice(var JobResourcePrice: Record "Job Resource Price"; JobNo: Code[20]; ResourceNo: Code[20]; CurrencyCode: Code[20])
+    begin
+        LibraryJob.CreateJobResourcePrice(
+            JobResourcePrice, JobNo, '', JobResourcePrice.Type::Resource, ResourceNo, '', CurrencyCode);
+        JobResourcePrice."Unit Price" := LibraryRandom.RandIntInRange(1, 10);
+        JobResourcePrice.Modify();
     end;
 
     local procedure CompareJobFields(SourceJob: Record Job; TargetJob: Record Job)

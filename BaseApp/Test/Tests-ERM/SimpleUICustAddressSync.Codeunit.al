@@ -863,6 +863,48 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         Assert.IsTrue(SalesHeader.HasBillToAddress, StrSubstNo(HasAddressErr, SalesHeader.TableCaption));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithMessageValidation,ModalPageCustomerTemplateList')]
+    [Scope('OnPrem')]
+    procedure SalesQuoteBillToAddressFromContactAfterChangeCustomer()
+    var
+        FirstContact: Record Contact;
+        SecondContact: Record Contact;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        ContactBusinessRelation: Record "Contact Business Relation";
+        LibraryMarketing: Codeunit "Library - Marketing";
+    begin
+        // [SCENARIO 406074] Sales Quote Address field must be updated after change the Customer if Sales Quote is created from Contact
+        Initialize();
+
+        // [GIVEN] The first contact "C1" with Address = 'First contact address'
+        LibraryMarketing.CreatePersonContact(FirstContact);
+        FirstContact.Validate(Address, LibraryUtility.GenerateGUID());
+        FirstContact.Modify(true);
+
+        // [GIVEN] Sales quote is created from "C1"
+        LibraryVariableStorage.Enqueue(true);
+        LibraryMarketing.CreateSalesQuoteWithContact(SalesHeader, FirstContact."No.", '');
+
+        // [GIVEN] The second contact "C2" with Address = 'Second contact address'
+        // [GIVEN] The customer "Cust" with business relation with "C2"
+        LibrarySales.CreateCustomer(Customer);
+        LibraryMarketing.CreateCompanyContact(SecondContact);
+        LibraryMarketing.CreateBusinessRelationBetweenContactAndCustomer(
+            ContactBusinessRelation, SecondContact."No.", Customer."No.");
+        SecondContact.Validate(Address, LibraryUtility.GenerateGUID());
+        SecondContact.Modify(true);
+
+        // [WHEN] Validate "Sales Header"."Sell-to Customer No." = "Cust"
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+
+        // [THEN] "Sales Header".Address = 'Second contact address'
+        SalesHeader.TestField("Bill-to Address", SecondContact.Address);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -1057,6 +1099,13 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         // Due to a platform bug in ALConfirm, the placehoders in a CONFIRM question do not get replaced.
         // Assert.ExpectedMessage(LibraryVariableStorage.DequeueText,Question);
         Reply := LibraryVariableStorage.DequeueBoolean;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalPageCustomerTemplateList(var CustomerTemplateList: Page "Customer Template List"; var Response: Action)
+    begin
+        Response := Action::LookupOK;
     end;
 }
 
