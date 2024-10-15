@@ -21,6 +21,9 @@ codeunit 134989 "ERM Cash Flow - Reports"
         LibrarySales: Codeunit "Library - Sales";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         IsInitialized: Boolean;
         DocumentNoFilterText: Text[250];
         EmptyDateFormula: DateFormula;
@@ -410,6 +413,43 @@ codeunit 134989 "ERM Cash Flow - Reports"
             LibraryReportDataset.AssertElementWithValueExists('GLBudget', Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('RHCashFlowDateListToExcel')]
+    [Scope('OnPrem')]
+    procedure TestTaxesLabelOnCashFlowDateListReport()
+    var
+        CFForecastEntry: Record "Cash Flow Forecast Entry" temporary;
+        CFForecast: Record "Cash Flow Forecast";
+        CFDateList: Report "Cash Flow Date List";
+        Amount: Decimal;
+        IntervalLength: DateFormula;
+    begin
+        // [SCENARIO 361088] The caption of column 'Taxes' is wrong
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Cash Flow Forecast
+        LibraryCFHelper.CreateCashFlowForecastDefault(CFForecast);
+
+        // [GIVEN] Cash Flow Forecast Entry of source type Tax with Amount
+        Amount := LibraryRandom.RandDec(100, 2);
+        LibraryCFHelper.InsertCFLedgerEntry(CFForecast."No.", '', CFForecastEntry."Source Type"::Tax, WorkDate(), Amount);
+
+        // [WHEN] Run report Cash Flow Date List
+        Evaluate(IntervalLength, '<1D>');
+        CFDateList.SetTableView(CFForecast);
+        CFDateList.InitializeRequest(WorkDate(), 2, IntervalLength);
+        Commit();
+
+        LibraryVariableStorage.Enqueue(CFForecast."No.");
+        CFDateList.Run();
+
+        // [THEN] Column with caption 'Taxes' should exists and contains correct value
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.CheckIfValueExistsInSpecifiedColumn('Taxes', StrSubstNo('%1', Amount));
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -485,6 +525,14 @@ codeunit 134989 "ERM Cash Flow - Reports"
     procedure RHCashFlowDimensionsDetail(var CashFlowDimensionsDetail: TestRequestPage "Cash Flow Dimensions - Detail")
     begin
         CashFlowDimensionsDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHCashFlowDateListToExcel(var CashFlowDateList: TestRequestPage "Cash Flow Date List")
+    begin
+        CashFlowDateList.CashFlow.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        CashFlowDateList.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 
