@@ -630,6 +630,8 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                             begin
                                 RemittanceText1 := '';
                                 RemittanceText2 := '';
+                                CdtrRefInf_CdOrPrtry_Prtry := '';
+                                CdtrRefInf_CdOrPrtry_Cd := '';
                                 TempPaymentExportRemittanceText.SetRange("Pmt. Export Data Entry No.", PaymentExportData."Entry No.");
                                 if not TempPaymentExportRemittanceText.FindSet then
                                     currXMLport.Skip;

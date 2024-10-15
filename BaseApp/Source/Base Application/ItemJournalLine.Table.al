@@ -2899,12 +2899,19 @@
         "Order Date" := ServiceHeader."Order Date";
         "Source Posting Group" := ServiceHeader."Customer Posting Group";
         "Salespers./Purch. Code" := ServiceHeader."Salesperson Code";
-        "Country/Region Code" := ServiceHeader."VAT Country/Region Code";
         "Reason Code" := ServiceHeader."Reason Code";
         "Source Type" := "Source Type"::Customer;
         "Source No." := ServiceHeader."Customer No.";
         "Shpt. Method Code" := ServiceHeader."Shipment Method Code";
         "Price Calculation Method" := ServiceHeader."Price Calculation Method";
+
+        if ServiceHeader.IsCreditDocType() then
+            "Country/Region Code" := ServiceHeader."Country/Region Code"
+        else
+            if ServiceHeader."Ship-to Country/Region Code" <> '' then
+                "Country/Region Code" := ServiceHeader."Ship-to Country/Region Code"
+            else
+                "Country/Region Code" := ServiceHeader."Country/Region Code";
 
         OnAfterCopyItemJnlLineFromServHeader(Rec, ServiceHeader);
     end;
@@ -3749,6 +3756,16 @@
            not ("Entry Type" in ["Entry Type"::Consumption, "Entry Type"::"Assembly Consumption"])
         then
             Item.TestField(Type, Item.Type::Inventory);
+    end;
+
+    procedure IsNotInternalWhseMovement(): Boolean
+    begin
+        exit(
+          not (("Entry Type" = "Entry Type"::Transfer) and
+               ("Location Code" = "New Location Code") and
+               ("Dimension Set ID" = "New Dimension Set ID") and
+               ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
+               not Adjustment));
     end;
 
     local procedure IsDefaultBin() Result: Boolean
