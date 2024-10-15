@@ -131,6 +131,8 @@
         if (GenJnlLine."VAT %" <> 0) and GenJnlBatch."Allow VAT Difference" then
             GenJnlLine.Validate("VAT Amount", StdGenJnlLine."VAT Amount");
         GenJnlLine.Validate("Bal. VAT Prod. Posting Group");
+        GenJnlLine."Shortcut Dimension 1 Code" := StdGenJnlLine."Shortcut Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := StdGenJnlLine."Shortcut Dimension 2 Code";
         GenJnlLine."Dimension Set ID" := StdGenJnlLine."Dimension Set ID";
         if GenJnlBatch."Allow VAT Difference" then
             GenJnlLine.Validate("Bal. VAT Amount", StdGenJnlLine."Bal. VAT Amount");

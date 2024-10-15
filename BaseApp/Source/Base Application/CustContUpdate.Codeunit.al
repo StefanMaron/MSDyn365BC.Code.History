@@ -55,6 +55,8 @@ codeunit 5056 "CustCont-Update"
             ContNo := Cont."No.";
             NoSeries := Cont."No. Series";
             Cont.Validate("E-Mail", Cust."E-Mail");
+            if (Cont."VAT Registration No." <> Cust."VAT Registration No.") and CustVATLogExist(Cust) then
+                Cont.Validate("VAT Registration No.", Cust."VAT Registration No.");
             Cont.TransferFields(Cust);
             Cont."No." := ContNo;
             Cont."No. Series" := NoSeries;
@@ -129,6 +131,8 @@ codeunit 5056 "CustCont-Update"
             Insert(true);
         end;
 
+        OnInsertNewContactOnAfterContInsert(Cont, Cust);
+
         with ContBusRel do begin
             Init();
             "Contact No." := Cont."No.";
@@ -168,6 +172,7 @@ codeunit 5056 "CustCont-Update"
                     UpdateBusinessRelation();
                     OnInsertNewContactPersonOnBeforeContactModify(Cont, Cust);
                     Modify(true);
+                    OnInsertNewContactPersonOnAfterContactModify(Cont, Cust);
                     Cust."Primary Contact No." := "No.";
                 end
     end;
@@ -206,6 +211,23 @@ codeunit 5056 "CustCont-Update"
         end;
     end;
 
+    local procedure CustVATLogExist(Customer: Record Customer): Boolean
+    var
+        VATRegistrationLog: Record "VAT Registration Log";
+        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
+    begin
+        if Customer."VAT Registration No." = '' then
+            exit(false);
+        if not VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then
+            exit(false);
+
+        VATRegistrationLog.SetRange("Account Type", VATRegistrationLog."Account Type"::Customer);
+        VATRegistrationLog.SetRange("Account No.", Customer."No.");
+        VATRegistrationLog.SetRange("VAT Registration No.", Customer."VAT Registration No.");
+        if not VATRegistrationLog.IsEmpty() then
+            exit(true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnModify(var Contact: Record Contact; var OldContact: Record Contact; var Customer: Record Customer)
     begin
@@ -238,6 +260,16 @@ codeunit 5056 "CustCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnModify(Customer: Record Customer; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertNewContactOnAfterContInsert(var Contact: Record Contact; var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertNewContactPersonOnAfterContactModify(var Contact: Record Contact; var Customer: Record Customer)
     begin
     end;
 

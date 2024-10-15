@@ -19,11 +19,8 @@ page 6305 "Power BI Report Dialog"
                 end;
 
                 trigger DocumentReady()
-                var
-                    LoadReportMessage: Text;
                 begin
-                    PowerBIEmbedHelper.TryGetLoadReportMessage(LoadReportMessage);
-                    CurrPage.WebPageViewer.PostMessage(LoadReportMessage, PowerBIEmbedHelper.TargetOrigin(), false)
+                    InitializeAddIn();
                 end;
 
                 trigger Callback(data: Text)
@@ -80,6 +77,15 @@ page 6305 "Power BI Report Dialog"
         JsonArray := JsonArray.CreateInstance(GetDotNetType(DotNetString), 1);
         JsonArray.SetValue('{"statusCode":202,"headers":{}}', 0);
         CurrPage.WebPageViewer.SetCallbacksFromSubscribedEventToIgnore('message', JsonArray);
+    end;
+
+    [NonDebuggable]
+    local procedure InitializeAddIn()
+    var
+        LoadReportMessage: Text;
+    begin
+        PowerBIEmbedHelper.TryGetLoadReportMessage(LoadReportMessage);
+        CurrPage.WebPageViewer.PostMessage(LoadReportMessage, PowerBIEmbedHelper.TargetOrigin(), false)
     end;
 }
 

@@ -143,6 +143,7 @@ report 1320 "Notification Email"
         SettingsLbl: Label 'Notification Settings';
         SettingsWinLbl: Label '(Windows Client)';
         CustomLinkLbl: Label '(Custom Link)';
+        NotificationSetupFilterStringTxt: Label '&filter=''Notification Setup''.''User ID'' IS ''%1''', Locked = true;
         Line1Lbl: Label 'Hello %1,', Comment = '%1 = User Name';
         Line2Lbl: Label 'You are registered to receive notifications related to %1.', Comment = '%1 = Company Name';
         Line3Lbl: Label 'This is a message to notify you that:';
@@ -166,6 +167,7 @@ report 1320 "Notification Email"
             exit;
 
         SettingsURL := GetUrl(CLIENTTYPE::Web, CompanyName, OBJECTTYPE::Page, Page::"Notification Setup");
+        SettingsURL += StrSubstNo(NotificationSetupFilterStringTxt, ReceipientUser."User Name");
     end;
 
     local procedure SetDocumentTypeAndNumber(SourceRecRef: RecordRef)

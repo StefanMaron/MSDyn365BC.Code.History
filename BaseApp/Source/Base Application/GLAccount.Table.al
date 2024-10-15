@@ -223,6 +223,7 @@ table 15 "G/L Account"
                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                         "Posting Date" = FIELD(UPPERLIMIT("Date Filter")),
+                                                        "VAT Reporting Date" = FIELD(UPPERLIMIT("VAT Reporting Date Filter")),
                                                         "Dimension Set ID" = FIELD("Dimension Set ID Filter")));
             Caption = 'Balance at Date';
             Editable = false;
@@ -237,6 +238,7 @@ table 15 "G/L Account"
                                                         "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                         "Posting Date" = FIELD("Date Filter"),
+                                                        "VAT Reporting Date" = FIELD("VAT Reporting Date Filter"),
                                                         "Dimension Set ID" = FIELD("Dimension Set ID Filter")));
             Caption = 'Net Change';
             Editable = false;
@@ -426,6 +428,7 @@ table 15 "G/L Account"
                                                                  "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                  "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                  "Posting Date" = FIELD("Date Filter"),
+                                                                 "VAT Reporting Date" = FIELD("VAT Reporting Date Filter"),
                                                                  "Dimension Set ID" = FIELD("Dimension Set ID Filter")));
             Caption = 'Credit Amount';
             Editable = false;
@@ -502,6 +505,7 @@ table 15 "G/L Account"
                                                               "Business Unit Code" = FIELD("Business Unit Filter"),
                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                              "VAT Reporting Date" = FIELD("VAT Reporting Date Filter"),
                                                               "Posting Date" = FIELD("Date Filter")));
             Caption = 'VAT Amt.';
             Editable = false;
@@ -516,6 +520,7 @@ table 15 "G/L Account"
                                                                               "Business Unit Code" = FIELD("Business Unit Filter"),
                                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                              "VAT Reporting Date" = FIELD("VAT Reporting Date Filter"),
                                                                               "Posting Date" = FIELD("Date Filter")));
             Caption = 'Additional-Currency Net Change';
             Editable = false;
@@ -530,6 +535,7 @@ table 15 "G/L Account"
                                                                               "Business Unit Code" = FIELD("Business Unit Filter"),
                                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                              "VAT Reporting Date" = FIELD(UPPERLIMIT("VAT Reporting Date Filter")),
                                                                               "Posting Date" = FIELD(UPPERLIMIT("Date Filter"))));
             Caption = 'Add.-Currency Balance at Date';
             Editable = false;
@@ -562,6 +568,7 @@ table 15 "G/L Account"
                                                                               "Business Unit Code" = FIELD("Business Unit Filter"),
                                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                              "VAT Reporting Date" = FIELD("VAT Reporting Date Filter"),
                                                                               "Posting Date" = FIELD("Date Filter")));
             Caption = 'Add.-Currency Debit Amount';
             Editable = false;
@@ -576,6 +583,7 @@ table 15 "G/L Account"
                                                                                "Business Unit Code" = FIELD("Business Unit Filter"),
                                                                                "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
+                                                                               "VAT Reporting Date" = FIELD("VAT Reporting Date Filter"),
                                                                                "Posting Date" = FIELD("Date Filter")));
             Caption = 'Add.-Currency Credit Amount';
             Editable = false;
@@ -612,6 +620,11 @@ table 15 "G/L Account"
             Caption = 'Account Subcategory Descript.';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(82; "VAT Reporting Date Filter"; Date)
+        {
+            Caption = 'VAT Reporting Date Filter';
+            FieldClass = FlowFilter;
         }
         field(400; "Dimension Set ID Filter"; Integer)
         {

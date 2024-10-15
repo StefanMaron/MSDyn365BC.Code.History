@@ -86,7 +86,7 @@ codeunit 134327 "ERM Purchase Order"
         RemitToCodeShouldNotBeEditableErr: Label 'Remit-to code should not be editable when vendor is not selected.';
         RemitToCodeShouldBeEditableErr: Label 'Remit-to code should be editable when vendor is selected.';
         UpdateLinesOrderDateAutomaticallyQst: Label 'You have changed the Order Date on the purchase order, which might affect the prices and discounts on the purchase order lines.\Do you want to update the order date for existing lines?';
-        OrderDateErr: Label 'The purchase order date (%1) should be the same as the purchase line order date (%2).', Comment = '%1 - Purchase Header Order Date; %2 - Purchase Line Order Date';
+        OrderDateErr: Label 'The purchase line order date is (%1), but it should be (%2).', Comment = '%1 - Actual Purchase Line Order Date; %2 - Expected Purchase Line Order Date';
         DescriptionErr: Label 'The purchase line description (%1) should be the same as the random generated description (%2).', Comment = '%1 - Purchase Line Description; %2 - Random Generated Description';
 
     [Test]
@@ -4687,6 +4687,98 @@ codeunit 134327 "ERM Purchase Order"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure S461624_DefaultLocationCodeOnPurchaseOrderFromVendor_ValidateVendorAfterInsert()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Vendor] [Location] [Purchase Order] [UT]
+        // [SCENARIO 461624] "Location Code" in Purchase Document must be copied from Vendor when Purchase Header is inserted before validating "Buy-from Vendor No.".
+        Initialize();
+
+        // [GIVEN] Create Vendor "V10000" with Location "BLUE".
+        CreateVendorWithDefaultLocation(Vendor);
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" after inserting Purchase Order Header.
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Location Code" = "BLUE" in the Purchase Order.
+        PurchaseHeader.TestField("Location Code", Vendor."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S461624_DefaultLocationCodeOnPurchaseOrderFromCustomer_ValidateVendorAfterInsert()
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Vendor] [Order Address] [Location] [Purchase Order] [UT]
+        // [SCENARIO 461624] Vendor has "Order Address" defined with "Location Code" defined both on Vendor and "Order Address".
+        // [SCENARIO 461624] "Location Code" in Purchase Document must be copied from "Order Address" when Purchase Header is inserted after validating "Buy-from Vendor No.".
+        Initialize();
+
+        // [GIVEN] Create Vendor "V10000" with Location "BLUE".
+        CreateVendorWithDefaultLocation(Vendor);
+
+        // [GIVEN] Create Customer "C10000" with Location "RED".
+        // [GIVEN] Create Customer Ship-to Address "C10000_SA" without "Location Code".
+        CreateCustomerWithLocationAndShipToAddressWithoutLocation(Customer, ShipToAddress);
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" after inserting Purchase Order Header. 
+        // [WHEN] Then validate "Sell-to Customer No." with "C10000" and "Ship-to Code" with "C10000_SA".
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Validate("Sell-to Customer No.", Customer."No.");
+        PurchaseHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Location Code" = "RED" in the Purchase Order.
+        PurchaseHeader.TestField("Location Code", Customer."Location Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure S461624_DefaultLocationCodeOnPurchaseOrderFromShipToAddress_ValidateVendorAfterInsert()
+    var
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Vendor] [Order Address] [Location] [Purchase Order] [UT]
+        // [SCENARIO 461624] Vendor has "Order Address" defined with "Location Code" defined both on Vendor and "Order Address".
+        // [SCENARIO 461624] "Location Code" in Purchase Document must be copied from "Order Address" when Purchase Header is inserted after validating "Buy-from Vendor No.".
+        Initialize();
+
+        // [GIVEN] Create Vendor "V10000" with Location "BLUE".
+        CreateVendorWithDefaultLocation(Vendor);
+
+        // [GIVEN] Create Customer "C10000" with Location "RED".
+        // [GIVEN] Create Customer Ship-to Address "C10000_SA" with Location "GREEN".
+        CreateCustomerWithLocationAndShipToAddressWithDifferentLocation(Customer, ShipToAddress);
+
+        // [WHEN] Create "Purchase Header" for Purchase Order and then validate "Buy-from Vendor No." with "V10000" after inserting Purchase Order Header. 
+        // [WHEN] Then validate "Sell-to Customer No." with "C10000" and "Ship-to Code" with "C10000_SA".
+        PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Order);
+        PurchaseHeader.Insert(true);
+        PurchaseHeader.Validate("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.Validate("Sell-to Customer No.", Customer."No.");
+        PurchaseHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] "Location Code" = "GREEN" in the Purchase Order.
+        PurchaseHeader.TestField("Location Code", ShipToAddress."Location Code");
+    end;
+
+    [Test]
     [HandlerFunctions('GetReceiptLinesPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure NotInsertInvLineFromExtTextRcptLine()
@@ -6873,23 +6965,29 @@ codeunit 134327 "ERM Purchase Order"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
     begin
         Initialize();
 
+        LibraryWarehouse.CreateLocation(Location);
+
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
-        PurchaseHeader.Validate("Order Date", today());
+        PurchaseHeader.Validate("Order Date", Today());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
         Commit();
         LibraryVariableStorage.Enqueue(UpdateLinesOrderDateAutomaticallyQst);
         LibraryVariableStorage.Enqueue(true);
-        PurchaseHeader.Validate("Order Date", today() + 1);
+        PurchaseHeader.Validate("Order Date", Today() + 1);
         PurchaseHeader.Modify(true);
         LibraryVariableStorage.AssertEmpty();
         PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
 
-        Assert.AreEqual(PurchaseHeader."Order Date", today() + 1, StrSubstNo('The purchase order date should be %1. Instead, it is %2', (today() + 1), PurchaseHeader."Order Date"));
+        Assert.AreEqual(PurchaseHeader."Order Date", Today() + 1, StrSubstNo('The purchase order date should be %1. Instead, it is %2', (Today() + 1), PurchaseHeader."Order Date"));
         Assert.AreEqual(PurchaseHeader."Order Date", PurchaseLine."Order Date", StrSubstNo('The purchase order date (%1) should be the same as the purchase line order date (%2)', PurchaseHeader."Order Date", PurchaseLine."Order Date"));
+        PurchaseLine.TestField("Location Code", Location.Code);
     end;
 
     [Test]
@@ -7059,11 +7157,15 @@ codeunit 134327 "ERM Purchase Order"
         PurchaseHeader.Validate("Order Date", Today());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
+        // [VERIFY] Verify Purchase Line has the same Order Date as Purchase Header
+        PurchaseLine.TestField("Order Date", PurchaseHeader."Order Date");
         Clear(PurchaseLine);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::" ", '', 0);
         Description := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(PurchaseLine.Description), 1), 1, MAXSTRLEN(PurchaseLine.Description));
         PurchaseLine.Validate(Description, Description);
         PurchaseLine.Modify(true);
+        // [VERIFY] Verify Purchase Line has blank Order Date
+        PurchaseLine.TestField("Order Date", 0D);
         Commit();
 
         // [WHEN] Update Order Date on Purchase Order
@@ -7074,14 +7176,94 @@ codeunit 134327 "ERM Purchase Order"
         LibraryVariableStorage.AssertEmpty();
         PurchaseLine.GetBySystemId(PurchaseLine.SystemId);
 
-        // [VERIFY] Verify Purchase Line with Order Date and Description Text on Purchase Order Line.
+        // [VERIFY] Verify Purchase Line with blank Order Date and Description Text on Purchase Order Line.
         Assert.AreEqual(
-            PurchaseHeader."Order Date", PurchaseLine."Order Date",
-            StrSubstNo(OrderDateErr, PurchaseHeader."Order Date", PurchaseLine."Order Date"));
+            0D, PurchaseLine."Order Date",
+            StrSubstNo(OrderDateErr, 0D, PurchaseLine."Order Date"));
 
         Assert.AreEqual(
             PurchaseLine.Description, Description,
             StrSubstNo(DescriptionErr, PurchaseLine.Description, Description));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure VerifyServiceChargeLineIsRecreatedOnUpdatePayToVendorOnPurchaseOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+        VendorNo: array[2] of Code[20];
+        ServiceChargeAmt: array[2] of Decimal;
+        PayToOptions: Option "Default (Vendor)","Another Vendor";
+    begin
+        // [SCENARIO 461917] Verify Service Charge line is removed and new is created on update Pay-to Vendor on Purchase Order 
+        // [GIVEN] Initialize
+        Initialize();
+
+        // [GIVEN] Enable invoice discount calculation on "Purchases & Payables Setup".
+        LibraryPurchase.SetCalcInvDiscount(true);
+
+        // [GIVEN] Create two Vendors with Service Charge line 
+        CreateVendorWithServiceChargeAmount(VendorNo[1], ServiceChargeAmt[1]);
+        CreateVendorWithServiceChargeAmount(VendorNo[2], ServiceChargeAmt[2]);
+
+        // [WHEN] Purchase order with vendor = "V" 
+        CreatePurchaseOrderWithServiceCharge(PurchaseHeader, VendorNo[1]);
+        LibraryPurchase.CalcPurchaseDiscount(PurchaseHeader);
+
+        // [THEN] Verify Charge Line is created
+        FindPurchaseServiceChargeLine(PurchaseLine, PurchaseHeader);
+        Assert.RecordCount(PurchaseLine, 1);
+        PurchaseLine.TestField(Amount, ServiceChargeAmt[1]);
+
+        // [WHEN] Purchase Order page is opened, and Pay-to Vendor is picked        
+        PurchaseOrder.OpenEdit;
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder.PayToOptions.SetValue(PayToOptions::"Another Vendor");
+        PurchaseOrder."Pay-to Name".SetValue(VendorNo[2]);
+
+        // [THEN] Verify Charge Line is recreated
+        FindPurchaseServiceChargeLine(PurchaseLine, PurchaseHeader);
+        Assert.RecordCount(PurchaseLine, 1);
+        PurchaseLine.TestField(Amount, ServiceChargeAmt[2]);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetReceiptLinesModalPageHandler')]
+    procedure VerifyPostPurchaseOrderWithChargeItemPostedFromPurchaseInvoiceRelatedToReceiptCreatedFromPurchaseOrder()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        ItemCharge: Record "Item Charge";
+        Items: array[2] of Record Item;
+    begin
+        // [SCENARIO 463637] Verify Post Purchase Order, for partially Receive lines, with Charge (Item), and than that lines posted through Purchase Invoice
+        Initialize();
+
+        // [GIVEN] Create Item Charge and two Items
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        LibraryInventory.CreateItem(Items[1]);
+        LibraryInventory.CreateItem(Items[2]);
+
+        // [GIVEN] Create Purchase Order with three lines (two Item and one Charge (Item))
+        CreatePurchaseOrderWithItemCharge(PurchaseHeaderOrder, ItemCharge."No.", Items);
+
+        // [GIVEN] Set First Purchase Order Line not to Receive
+        SetFirstPurchaseLineNotToReceive(PurchaseHeaderOrder, Items[1]."No.");
+
+        // [GIVEN] Post Receive for one Item and Charge (Item) line
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        // [GIVEN] Create Purchase Invoice for Posted Receipt Lines from Purchase Order
+        CreatePurchaseInvoice(PurchaseHeaderInvoice, PurchaseHeaderOrder, ItemCharge);
+
+        // [WHEN] Post Invoice
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, false, true);
+
+        // [THEN] Post Purchase Order
+        PurchaseHeaderOrder.Get(PurchaseHeaderOrder."Document Type", PurchaseHeaderOrder."No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
     end;
 
     local procedure Initialize()
@@ -10225,6 +10407,137 @@ codeunit 134327 "ERM Purchase Order"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, Resource."No.", 1);
     end;
 
+    local procedure CreateCustomerWithLocationAndShipToAddressWithoutLocation(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
+    begin
+        CreateCustomerWithLocation(Customer);
+
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+    end;
+
+    local procedure CreateCustomerWithLocationAndShipToAddressWithDifferentLocation(var Customer: Record Customer; var ShipToAddress: Record "Ship-to Address")
+    var
+        ShipToLocation: Record Location;
+    begin
+        CreateCustomerWithLocation(Customer);
+
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        LibraryWarehouse.CreateLocation(ShipToLocation);
+        ShipToAddress.Validate("Location Code", ShipToLocation.Code);
+        ShipToAddress.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithLocation(var Customer: Record Customer)
+    var
+        Location: Record Location;
+    begin
+        LibraryWarehouse.CreateLocation(Location);
+        LibrarySales.CreateCustomerWithLocationCode(Customer, Location.Code);
+    end;
+
+    local procedure CreatePurchaseOrderWithServiceCharge(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+        Amount: Decimal;
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", Amount);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure FindPurchaseServiceChargeLine(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"G/L Account");
+        PurchaseLine.FindFirst();
+    end;
+
+    local procedure CreateVendorWithServiceChargeAmount(var VendorNo: Code[20]; var ServiceChargeAmt: Decimal)
+    var
+        VendorInvoiceDisc: Record "Vendor Invoice Disc.";
+    begin
+        VendorNo := CreateVendorInvDiscount;
+        ServiceChargeAmt := LibraryRandom.RandDecInDecimalRange(10, 20, 2);
+        VendorInvoiceDisc.SetRange(Code, VendorNo);
+        VendorInvoiceDisc.FindFirst();
+        VendorInvoiceDisc.Validate("Service Charge", ServiceChargeAmt);
+        VendorInvoiceDisc.Modify(true);
+    end;
+
+    local procedure SetFirstPurchaseLineNotToReceive(var PurchHeader: Record "Purchase Header"; ItemNo: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", ItemNo);
+        PurchaseLine.FindFirst();
+        PurchaseLine.Validate("Qty. to Receive", 0);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseInvoice(var PurchHeaderInvoice: Record "Purchase Header"; var PurchHeaderOrder: Record "Purchase Header"; var ItemCharge: Record "Item Charge")
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        PurchaseLineInvoice: Record "Purchase Line";
+        ItemChargePurchLine: Record "Purchase Line";
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchaseLineType: Enum "Purchase Line Type";
+    begin
+        LibraryPurchase.CreatePurchHeader(
+          PurchHeaderInvoice, PurchHeaderInvoice."Document Type"::Invoice, PurchHeaderOrder."Buy-from Vendor No.");
+        PurchaseLineInvoice.Validate("Document Type", PurchHeaderInvoice."Document Type");
+        PurchaseLineInvoice.Validate("Document No.", PurchHeaderInvoice."No.");
+
+        PurchRcptLine.SetRange("Buy-from Vendor No.", PurchHeaderOrder."Buy-from Vendor No.");
+        PurchRcptLine.SetFilter(Quantity, '<>%1', 0);
+        PurchRcptLine.FindSet();
+        repeat
+            LibraryVariableStorage.Enqueue(PurchRcptLine."Document No.");
+            LibraryVariableStorage.Enqueue(PurchRcptLine."Line No.");
+            LibraryPurchase.GetPurchaseReceiptLine(PurchaseLineInvoice);
+        until PurchRcptLine.Next() = 0;
+
+        FindPurchaseLines(PurchaseLine, PurchHeaderInvoice, PurchaseLineType::Item);
+        FindPurchaseLines(ItemChargePurchLine, PurchHeaderInvoice, PurchaseLineType::"Charge (Item)");
+        LibraryPurchase.CreateItemChargeAssignment(
+            ItemChargeAssignmentPurch, ItemChargePurchLine, ItemCharge,
+            PurchHeaderInvoice."Document Type"::Invoice, PurchHeaderInvoice."No.", PurchaseLine."Line No.",
+            PurchaseLine."No.", ItemChargePurchLine.Quantity, LibraryRandom.RandIntInRange(10, 20));
+        ItemChargeAssignmentPurch.Insert(true);
+    end;
+
+    local procedure FindPurchaseLines(var PurchaseLines: Record "Purchase Line"; var PurchHeader: Record "Purchase Header"; PurchaseLineType: Enum "Purchase Line Type")
+    begin
+        PurchaseLines.SetRange("Document Type", PurchHeader."Document Type");
+        PurchaseLines.SetRange("Document No.", PurchHeader."No.");
+        PurchaseLines.SetRange(Type, PurchaseLineType);
+        PurchaseLines.FindFirst();
+    end;
+
+    local procedure CreatePurchaseOrderWithItemCharge(var PurchHeader: Record "Purchase Header"; ItemChargeNo: Code[20]; var Items: array[2] of Record Item)
+    var
+        PurchaseLineItemCharge: Record "Purchase Line";
+        PurchaseLineItem: Record "Purchase Line";
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineItem, PurchHeader, PurchaseLineItem.Type::Item, Items[1]."No.", 1);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineItem, PurchHeader, PurchaseLineItem.Type::Item, Items[2]."No.", 1);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLineItemCharge, PurchHeader, PurchaseLineItemCharge.Type::"Charge (Item)", ItemChargeNo, 1);
+        PurchaseLineItemCharge.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLineItemCharge.Modify(true);
+    end;
+
 #if not CLEAN21
     local procedure CreateStandardCostWorksheet(var StandardCostWorksheetPage: TestPage "Standard Cost Worksheet"; ResourceNo: Code[20]; StandardCost: Decimal; NewStandardCost: Decimal)
     var
@@ -10601,5 +10914,17 @@ codeunit 134327 "ERM Purchase Order"
     procedure PurchaseDocumentTestRequestPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
     begin
         // Close handler
+    end;
+
+    [ModalPageHandler]
+    procedure GetReceiptLinesModalPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
+    var
+        DocumentNo: Code[20];
+        LineNo: Integer;
+    begin
+        DocumentNo := LibraryVariableStorage.DequeueText();
+        LineNo := LibraryVariableStorage.DequeueInteger();
+        GetReceiptLines.GotoKey(DocumentNo, LineNo);
+        GetReceiptLines.OK.Invoke;
     end;
 }

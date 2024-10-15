@@ -48,6 +48,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
             ProdOrderRtngLine.SetRange("Operation No.", "Operation No.");
         ProdOrderRtngLine.SetFilter("Routing Status", '<> %1', ProdOrderRtngLine."Routing Status"::Finished);
         ProdOrderRtngLine.SetRange("Flushing Method", ProdOrderRtngLine."Flushing Method"::Manual);
+        OnRunOnAfterProdOrderRtngLineSetFiltersBeforeLoop(ProdOrderRtngLine, ProdOrderLine);
 
         // Clear fields in xRec to ensure that validation code regarding dimensions is executed:
         "Order Line No." := 0;
@@ -236,6 +237,11 @@ codeunit 5406 "Output Jnl.-Expl. Route"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterProdOrderRtngLineSetFilters(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterProdOrderRtngLineSetFiltersBeforeLoop(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 

@@ -109,13 +109,19 @@ codeunit 760 "Trailing Sales Orders Mgt."
         exit(GetSalesOrderAmount(Status, FromDate, ToDate));
     end;
 
-    local procedure GetSalesOrderAmount(Status: Option; FromDate: Date; ToDate: Date): Decimal
+    local procedure GetSalesOrderAmount(Status: Option; FromDate: Date; ToDate: Date) Result: Decimal
     var
         CurrExchRate: Record "Currency Exchange Rate";
         TrailingSalesOrderQry: Query "Trailing Sales Order Qry";
         Amount: Decimal;
         TotalAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSalesOrderAmount(Status, FromDate, ToDate, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if TrailingSalesOrdersSetup."Show Orders" = TrailingSalesOrdersSetup."Show Orders"::"Delayed Orders" then
             TrailingSalesOrderQry.SetFilter(ShipmentDate, '<%1', TrailingSalesOrdersSetup.GetStartDate());
 
@@ -153,6 +159,11 @@ codeunit 760 "Trailing Sales Orders Mgt."
         Map[2] := SalesHeader.Status::"Pending Prepayment".AsInteger();
         Map[3] := SalesHeader.Status::"Pending Approval".AsInteger();
         Map[4] := SalesHeader.Status::Open.AsInteger();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSalesOrderAmount(Status: Option; FromDate: Date; ToDate: Date; var Result: Decimal; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

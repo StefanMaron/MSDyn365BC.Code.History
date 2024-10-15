@@ -2568,13 +2568,20 @@ table 5901 "Service Item Line"
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then exit;
         InitDefaultDimensionSources(DefaultDimSource, FieldNo);
-        CreateDim(DefaultDimSource);
+        if DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then
+            CreateDim(DefaultDimSource);
     end;
 
     local procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         case true of
             FieldNo = Rec.FieldNo("Service Item No."):
                 TableValuePair.Add(Database::"Service Item", Rec."Service Item No.");
@@ -2583,6 +2590,7 @@ table 5901 "Service Item Line"
             FieldNo = Rec.FieldNo("Responsibility Center"):
                 TableValuePair.Add(Database::"Responsibility Center", Rec."Responsibility Center");
         end;
+        OnAfterInitTableValuePair(TableValuePair, FieldNo);
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -2823,6 +2831,16 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckShipToCode(var ServiceItemLine: Record "Service Item Line"; ServItem: Record "Service Item"; ServHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
     begin
     end;
 }

@@ -89,7 +89,10 @@ report 6661 "Delete Invd Purch. Ret. Orders"
                                     Delete();
                                     OnAfterDeletePurchaseHeader("Purchase Header");
                                 end;
-                                Commit();
+                                IsHandled := false;
+                                OnPurchaseHeaderAfterGetRecordOnBeforeCommit(IsHandled);
+                                if not IsHandled then
+                                    Commit();
                             end;
                         end;
                     end;
@@ -164,6 +167,11 @@ report 6661 "Delete Invd Purch. Ret. Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchaseHeaderOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPurchaseHeaderAfterGetRecordOnBeforeCommit(var IsHandled: Boolean)
     begin
     end;
 }

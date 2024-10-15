@@ -371,11 +371,17 @@ table 99000772 "Production BOM Line"
         OnAfterTestStatus(Rec, ProdBOMHeader, ProdBOMVersion);
     end;
 
-    procedure GetQtyPerUnitOfMeasure(): Decimal
+    procedure GetQtyPerUnitOfMeasure() Result: Decimal
     var
         Item: Record Item;
         UOMMgt: Codeunit "Unit of Measure Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetQtyPerUnitOfMeasure(Rec, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type = Type::Item then begin
             Item.Get("No.");
             exit(
@@ -384,13 +390,19 @@ table 99000772 "Production BOM Line"
         exit(1);
     end;
 
-    procedure GetBOMHeaderQtyPerUOM(Item: Record Item): Decimal
+    procedure GetBOMHeaderQtyPerUOM(Item: Record Item) Result: Decimal
     var
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMVersion: Record "Production BOM Version";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         UOMMgt: Codeunit "Unit of Measure Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetBOMHeaderQtyPerUOM(Rec, Item, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if "Production BOM No." = '' then
             exit(1);
 
@@ -407,11 +419,17 @@ table 99000772 "Production BOM Line"
         exit(UOMMgt.GetQtyPerUnitOfMeasure(Item, ProdBOMHeader."Unit of Measure Code"));
     end;
 
-    procedure GetBOMLineQtyPerUOM(Item: Record Item): Decimal
+    procedure GetBOMLineQtyPerUOM(Item: Record Item) Result: Decimal
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         UOMMgt: Codeunit "Unit of Measure Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetBOMLineQtyPerUOM(Rec, Item, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if "No." = '' then
             exit(1);
 
@@ -436,6 +454,21 @@ table 99000772 "Production BOM Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateNo(var ProductionBOMLine: Record "Production BOM Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetBOMHeaderQtyPerUOM(var ProductionBOMLine: Record "Production BOM Line"; Item: Record Item; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetBOMLineQtyPerUOM(var ProductionBOMLine: Record "Production BOM Line"; Item: Record Item; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetQtyPerUnitOfMeasure(var ProductionBOMLine: Record "Production BOM Line"; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 
