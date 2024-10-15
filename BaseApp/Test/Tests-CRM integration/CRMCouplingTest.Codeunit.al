@@ -881,6 +881,45 @@ codeunit 139182 "CRM Coupling Test"
     end;
 
     [Test]
+    procedure CouplePriceListHeaderAllowUpdatingDefaultsWithCRMPriceLevel()
+    var
+        CRMProduct: Record "CRM Product";
+        CustomerPriceGroup: Record "Customer Price Group";
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        CRMCouplingTest: Codeunit "CRM Coupling Test";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        // [FEATURE] [UI] [Price List]
+        // [SCENARIO] Coupling is not enabled for Price List Header, where "Allow Updating Defaults" is Yes.
+        TestInit(true);
+        BindSubscription(CRMCouplingTest); // to pass 'CurPage.Activate on subpage' issue
+        // [GIVEN] Extended Price is on
+
+        // [GIVEN] Active Price List Header for Customer Price Group 'CPR' with one Line for Item 'I',
+        LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
+        LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"Customer Price Group", CustomerPriceGroup.Code);
+        PriceListHeader.TestField(Status, PriceListHeader.Status::Draft);
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"Customer Price Group", CustomerPriceGroup.Code,
+            "Price Asset Type"::Item, Item."No.");
+        // [GIVEN] "Allow Updating Defaults" is Yes.
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Status := PriceListHeader.Status::Active;
+        PriceListHeader.Modify();
+
+        // [GIVEN] Open "Sales Price List" page
+        SalesPriceList.OpenView;
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [THEN] CRM action group is not enabled
+        Assert.IsFalse(SalesPriceList.ManageCRMCoupling.Enabled(), 'ManageCRMCoupling.Enabled');
+    end;
+
+    [Test]
     [HandlerFunctions('CreateNewCouplingRecordNavNamePageHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure CouplePriceListHeaderWithCRMPriceLevel()

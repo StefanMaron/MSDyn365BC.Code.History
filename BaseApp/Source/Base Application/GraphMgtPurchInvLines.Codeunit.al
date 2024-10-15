@@ -29,5 +29,17 @@ codeunit 5528 "Graph Mgt - Purch. Inv. Lines"
 
         exit(UnitOfMeasureJSON);
     end;
+
+    [Scope('Cloud')]
+    procedure GetPurchaseOrderDocumentIdFilterFromSystemId(Id: Guid): Text
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer";
+    begin
+        if not PurchaseLine.GetBySystemId(Id) then
+            exit(' ');
+        PurchaseOrderEntityBuffer.Get(PurchaseLine."Document No.");
+        exit(Format(PurchaseOrderEntityBuffer.Id));
+    end;
 }
 

@@ -1472,7 +1472,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetUpdateFromSKU(var ProdOrderLine: Record "Prod. Order Line"; SKU: Record "Stockkeeping Unit"; Item: Record Item; var IsHandled: Boolean)
+    local procedure OnBeforeGetUpdateFromSKU(var ProdOrderLine: Record "Prod. Order Line"; var SKU: Record "Stockkeeping Unit"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 

@@ -162,7 +162,7 @@ codeunit 96 "Purch.-Quote to Order"
                     if Vend."Prepayment %" <> 0 then
                         PurchOrderLine."Prepayment %" := Vend."Prepayment %";
                     PrepmtMgt.SetPurchPrepaymentPct(PurchOrderLine, PurchOrderHeader."Posting Date");
-                    PurchOrderLine.Validate("Prepayment %");
+                    ValidatePurchOrderLinePrepaymentPct(PurchOrderLine);
                     PurchOrderLine.DefaultDeferralCode;
                     OnBeforeInsertPurchOrderLine(PurchOrderLine, PurchOrderHeader, PurchQuoteLine, PurchQuoteHeader);
                     PurchOrderLine.Insert();
@@ -170,6 +170,18 @@ codeunit 96 "Purch.-Quote to Order"
                     PurchLineReserve.VerifyQuantity(PurchOrderLine, PurchQuoteLine);
                 end;
             until PurchQuoteLine.Next = 0;
+    end;
+
+    local procedure ValidatePurchOrderLinePrepaymentPct(var PurchOrderLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidatePurchOrderLinePrepaymentPct(PurchOrderLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchOrderLine.Validate("Prepayment %");
     end;
 
     [IntegrationEvent(false, false)]
@@ -215,6 +227,11 @@ codeunit 96 "Purch.-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferQuoteLineToOrderLineLoop(var PurchQuoteLine: Record "Purchase Line"; var PurchQuoteHeader: Record "Purchase Header"; var PurchOrderHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePurchOrderLinePrepaymentPct(var PurchOrderLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

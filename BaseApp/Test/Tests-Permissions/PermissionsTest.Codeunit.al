@@ -1113,6 +1113,48 @@ codeunit 139400 "Permissions Test"
         Assert.AreEqual(TenantPermissions.ObjectName.Value, '', 'Object name should be blank for removed object.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PermissionSetsWithSameNameAndDifferentTypes()
+    var
+        FirstTenantPermissionSet: Record "Tenant Permission Set";
+        SecondTenantPermissionSet: Record "Tenant Permission Set";
+        TenantPermission: Record "Tenant Permission";
+        AggregatePermissionSet: Record "Aggregate Permission Set";
+        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+        TenantPermissions: TestPage "Tenant Permissions";
+        RoleID: Code[20];
+    begin
+        // [SCENARIO 389103] Page "Tenant Permissions" shows corresponding permissions
+
+        // [GIVEN] Permission Set "PS1" with "Role ID" = "PermSet" and type "User-defined"
+        // [GIVEN] and Permission "P1"
+        RoleID := LibraryUtility.GenerateRandomCode20(FirstTenantPermissionSet.FieldNo("Role ID"), Database::"Tenant Permission Set");
+        LibraryPermissions.CreateTenantPermissionSet(FirstTenantPermissionSet, RoleID, LibraryUtility.GetEmptyGuid());
+        LibraryPermissions.AddTenantPermission(
+            FirstTenantPermissionSet."App ID", FirstTenantPermissionSet."Role ID",
+            TenantPermission."Object Type"::Table, Database::"Sales Header");
+
+        // [GIVEN] Permission Set "PS2" with "Role ID" = "PermSet" and type "Extension"
+        // [GIVEN] and Permission "P2"
+        LibraryPermissions.CreateTenantPermissionSet(SecondTenantPermissionSet, RoleID, System.CreateGuid());
+        LibraryPermissions.AddTenantPermission(
+            SecondTenantPermissionSet."App ID", SecondTenantPermissionSet."Role ID",
+            TenantPermission."Object Type"::Table, Database::"Purchase Header");
+
+        // [WHEN] Open page "Tenant Permissions"
+        TenantPermissions.Trap();
+        PermissionPagesMgt.ShowPermissions(AggregatePermissionSet.Scope::Tenant, LibraryUtility.GetEmptyGuid(), RoleID, false);
+
+        // [THEN] The first permission is "P1"
+        TenantPermissions.First();
+        Assert.AreEqual(Database::"Sales Header", TenantPermissions."Object ID".AsInteger(), 'Wrong object ID.');
+
+        // [THEN] The next line is blank
+        TenantPermissions.Next();
+        Assert.AreEqual(0, TenantPermissions."Object ID".AsInteger(), 'Wrong object ID.');
+    end;
+
     local procedure AddTenantPermissionSetToUserGroup(TenantPermissionSet: Record "Tenant Permission Set"; UserGroupCode: Code[20])
     var
         UserGroupPermissionSet: Record "User Group Permission Set";

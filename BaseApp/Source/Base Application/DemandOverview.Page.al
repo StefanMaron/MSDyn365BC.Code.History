@@ -78,7 +78,7 @@
                         IsHandled: Boolean;
                     begin
                         IsHandled := false;
-                        OnBeforeLookupDemandNo(Rec, DemandType, Result, IsHandled);
+                        OnBeforeLookupDemandNo(Rec, DemandType, Result, IsHandled, Text);
                         if IsHandled then
                             exit(Result);
 
@@ -681,7 +681,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupDemandNo(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; DemandType: Option; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeLookupDemandNo(var AvailabilityCalcOverview: Record "Availability Calc. Overview"; DemandType: Option; var Result: Boolean; var IsHandled: Boolean; var Text: Text)
     begin
     end;
 }
