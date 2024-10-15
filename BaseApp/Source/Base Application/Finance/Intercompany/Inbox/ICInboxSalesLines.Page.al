@@ -94,6 +94,12 @@ page 645 "IC Inbox Sales Lines"
                     ToolTip = 'Specifies the date that you have promised to deliver the order, as a result of the Order Promising function.';
                     Visible = false;
                 }
+                field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
+                {
+                    ApplicationArea = Intercompany;
+                    ToolTip = 'Specifies the total calculated invoice discount amount for the line.';
+                    Visible = false;
+                }
             }
         }
     }

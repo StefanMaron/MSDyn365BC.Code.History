@@ -209,7 +209,7 @@ codeunit 8617 "Config. Validate Management"
     local procedure EvaluateValueBase(var FieldRef: FieldRef; Value: Text; XMLValue: Boolean; Validate: Boolean): Text
     begin
         if (Value <> '') and not IsNormalField(FieldRef) then
-            exit(Text002Msg);
+            exit(StrSubstNo(Text002Msg, FieldRef.Name));
 
         case FieldRef.Type of
             FieldType::Text:

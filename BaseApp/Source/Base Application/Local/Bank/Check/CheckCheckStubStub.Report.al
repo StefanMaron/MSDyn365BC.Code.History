@@ -1445,9 +1445,7 @@ report 10412 "Check (Check/Stub/Stub)"
         GenJnlLine2: Record "Gen. Journal Line";
         GenJnlLine3: Record "Gen. Journal Line";
         Cust: Record Customer;
-        CustLedgEntry: Record "Cust. Ledger Entry";
         Vend: Record Vendor;
-        VendLedgEntry: Record "Vendor Ledger Entry";
         BankAcc: Record "Bank Account";
         BankAcc2: Record "Bank Account";
         CheckLedgEntry: Record "Check Ledger Entry";
@@ -1462,37 +1460,20 @@ report 10412 "Check (Check/Stub/Stub)"
         PrintCheckHelper: Codeunit "Print Check Helper";
         FormatAddr: Codeunit "Format Address";
         CheckManagement: Codeunit CheckManagement;
-        CompanyAddr: array[8] of Text[100];
-        CheckToAddr: array[8] of Text[100];
-        BalancingType: Enum "Gen. Journal Account Type";
-        BalancingNo: Code[20];
-        CheckNoText: Text[30];
-        CheckDateText: Text[30];
-        CheckAmountText: Text[30];
-        DescriptionLine: array[2] of Text[80];
         DocNo: Text[30];
         ExtDocNo: Text[35];
         VoidText: Text[30];
-        LineAmount: Decimal;
-        LineDiscount: Decimal;
-        TotalLineAmount: Decimal;
         TotalLineAmountDollar: Decimal;
         TotalLineDiscount: Decimal;
-        RemainingAmount: Decimal;
-        CurrentLineAmount: Decimal;
-        UseCheckNo: Code[20];
         FoundLast: Boolean;
         ReprintChecks: Boolean;
         TestPrint: Boolean;
         FirstPage: Boolean;
-        OneCheckPrVendor: Boolean;
         FoundNegative: Boolean;
         CommitEachCheck: Boolean;
         AddedRemainingAmount: Boolean;
-        ApplyMethod: Option Payment,OneLineOneEntry,OneLineID,MoreLinesOneEntry;
         ChecksPrinted: Integer;
         HighestLineNo: Integer;
-        PreprintedStub: Boolean;
         TotalText: Text[10];
         DocDate: Date;
         i: Integer;
@@ -1522,18 +1503,6 @@ report 10412 "Check (Check/Stub/Stub)"
         PrnChkCurrencyCode: array[2] of Code[10];
         USText006Err: Label 'You cannot use the <blank> %1 option with a Canadian style check. Please check %2 %3.', Comment = '%1=Field caption for "Check Date Format" field, %2=Caption for table "Bank Account", %3=Bank Account number';
         USText007Err: Label 'You cannot use the Spanish %1 option with a Canadian style check. Please check %2 %3.', Comment = '%1=Field caption for "Bank Communication" field, %2=Caption for table "Bank Account", %3=Bank Account number';
-        Stub2LineNo: Integer;
-        Stub2DocNo: array[50] of Text[30];
-        Stub2DocDate: array[50] of Date;
-        Stub2LineAmount: array[50] of Decimal;
-        Stub2LineDiscount: array[50] of Decimal;
-        Stub2PostingDesc: array[50] of Text[100];
-        Stub2DocNoHeader: Text[30];
-        Stub2DocDateHeader: Text[30];
-        Stub2AmountHeader: Text[30];
-        Stub2DiscountHeader: Text[30];
-        Stub2NetAmountHeader: Text[30];
-        Stub2PostingDescHeader: Text[30];
         USText011Txt: Label 'Document No.';
         USText012Txt: Label 'Document Date';
         USText013Txt: Label 'Amount';
@@ -1560,6 +1529,40 @@ report 10412 "Check (Check/Stub/Stub)"
         CheckNoText_Control1480000CaptionLbl: Label 'Check No.';
         AlreadyAppliedToEmployeeErr: Label ' is already applied to %1 %2 for employee %3.', Comment = '%1 = Document type, %2 = Document No., %3 = Employee No.';
         BlockedEmplForCheckErr: Label 'You cannot print check because employee %1 is blocked due to privacy.', Comment = '%1 - Employee no.';
+
+    protected var
+    
+        PreprintedStub: Boolean;
+        OneCheckPrVendor: Boolean;
+        ApplyMethod: Option Payment,OneLineOneEntry,OneLineID,MoreLinesOneEntry;
+        BalancingType: Enum "Gen. Journal Account Type";
+        CompanyAddr: array[8] of Text[100];
+        CheckToAddr: array[8] of Text[100];
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        RemainingAmount: Decimal;
+        CurrentLineAmount: Decimal;
+        LineAmount: Decimal;
+        LineDiscount: Decimal;
+        TotalLineAmount: Decimal;
+        UseCheckNo: Code[20];
+        BalancingNo: Code[20];
+        CheckNoText: Text[30];
+        CheckDateText: Text[30];
+        CheckAmountText: Text[30];
+        Stub2LineNo: Integer;
+        Stub2DocNo: array[50] of Text[35];
+        Stub2DocDate: array[50] of Date;
+        Stub2LineAmount: array[50] of Decimal;
+        Stub2LineDiscount: array[50] of Decimal;
+        Stub2PostingDesc: array[50] of Text[100];
+        Stub2DocNoHeader: Text[30];
+        Stub2DocDateHeader: Text[30];
+        Stub2AmountHeader: Text[30];
+        Stub2DiscountHeader: Text[30];
+        Stub2NetAmountHeader: Text[30];
+        Stub2PostingDescHeader: Text[30];
+        DescriptionLine: array[2] of Text[80];
 
     local procedure CustUpdateAmounts(var CustLedgEntry2: Record "Cust. Ledger Entry"; RemainingAmount2: Decimal)
     begin

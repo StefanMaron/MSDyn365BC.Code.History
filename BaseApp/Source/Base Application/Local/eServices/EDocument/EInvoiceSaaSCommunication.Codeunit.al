@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -7,6 +7,7 @@ namespace Microsoft.eServices.EDocument;
 using System;
 using System.Azure.Functions;
 using System.Azure.KeyVault;
+using System.Environment;
 using System.Utilities;
 
 #if not CLEAN24
@@ -22,16 +23,17 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication 
     var
         Parameters: JsonArray;
         ClientIDLbl: label 'AppNetProxyFnClientID', Locked = true;
-        ClientSecretLbl: label 'AppNetProxyFnClientSecret', Locked = true;
-        ResourceUrLLbl: label 'AppNetProxyFnResourceUrL', Locked = true;
         EndpointLbl: Label 'AppNetProxyFnEndpoint', Locked = true;
         AuthURlLbl: Label 'AppNetProxyFnAuthUrl', Locked = true;
+        ScopeLbl: Label 'AppNetProxyFnScope', Locked = true;
         FunctionSecretErr: Label 'There was an error connecting to the service.';
         MXElectronicInvoicingTok: Label 'MXElectronicInvoicingTelemetryCategoryTok', Locked = true;
         ResponseErr: Label 'There was an error while connecting to the service. Error message: %1', Comment = '%1=Error message';
-        RequestSuccessfulMsg: label 'CFDI request was submitted successfully', Locked = true;
+        RequestSuccessfulMsg: label 'CFDI request was submitted successfully using certificate authorized Azure Function', Locked = true;
         RequestFailedMsg: label 'CFDI request failed with reason: %1, and error message: %2', Locked = true;
         SecretsMissingMsg: label 'CFDI Az Function secrets are  missing', Locked = true;
+        ElectronicInvoicingCertificateNameLbl: Label 'ElectronicInvoicingCertificateName', Locked = true;
+        MissingCertificateErr: Label 'The certificate can not be retrieved.', Locked = true;
 
 #if not CLEAN24
     [NonDebuggable]
@@ -140,10 +142,11 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication 
         AzureFunctionsResponse: Codeunit "Azure Functions Response";
         IAzurefunctionsAuthentication: Interface "Azure Functions Authentication";
         Response, ErrorMsg : Text;
-        ClientID, ClientSecret, ResourceUrL, Endpoint, AuthUrl : Text;
+        ClientID, AuthUrl, Endpoint, Scope : Text;
+        Certificate: SecretText;
     begin
-        GetAzFunctionSecrets(ClientID, ClientSecret, ResourceUrL, Endpoint, AuthUrl);
-        IAzurefunctionsAuthentication := AzureFunctionsAuthentication.CreateOAuth2(GetEndpoint(Endpoint, Path), '', ClientID, ClientSecret, AuthUrl, '', ResourceUrL);
+        GetAzFunctionSecrets(ClientID, Certificate, Scope, Endpoint, AuthUrl);
+        IAzurefunctionsAuthentication := AzureFunctionsAuthentication.CreateOAuth2WithCert(GetEndpoint(Endpoint, Path), '', ClientID, Certificate, AuthUrl, '', Scope);
 
         AzureFunctionsResponse := AzureFunctions.SendPostRequest(IAzurefunctionsAuthentication, Body, 'application/json');
 
@@ -159,18 +162,41 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication 
     end;
 
     [NonDebuggable]
-    local procedure GetAzFunctionSecrets(var ClientID: Text; var ClientSecret: Text; var ResourceUrL: Text; var Endpoint: Text; var AuthUrl: Text)
+    local procedure GetAzFunctionSecrets(var ClientID: Text; var Certificate: SecretText; var Scope: Text; var Endpoint: Text; var AuthUrl: Text)
     var
         AzureKeyVault: Codeunit "Azure Key Vault";
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
+        if not EnvironmentInformation.IsSaaSInfrastructure() then
+            Error('');
+
         if not (AzureKeyVault.GetAzureKeyVaultSecret(ClientIDLbl, ClientID)
-                and AzureKeyVault.GetAzureKeyVaultSecret(ClientSecretLbl, ClientSecret)
-                and AzureKeyVault.GetAzureKeyVaultSecret(ResourceUrLLbl, ResourceUrL)
+                and AzureKeyVault.GetAzureKeyVaultSecret(ScopeLbl, Scope)
                 and AzureKeyVault.GetAzureKeyVaultSecret(AuthURlLbl, AuthUrl)
-                and AzureKeyVault.GetAzureKeyVaultSecret(EndpointLbl, Endpoint)) then begin
+                and AzureKeyVault.GetAzureKeyVaultSecret(EndpointLbl, Endpoint))
+                and GetCertificate(Certificate) then begin
             Session.LogMessage('0000JOZ', SecretsMissingMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
             Error(FunctionSecretErr);
         end;
+    end;
+
+    [NonDebuggable]
+    local procedure GetCertificate(var Certificate: SecretText): Boolean;
+    var
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        CertificateName: Text;
+    begin
+        if not AzureKeyVault.GetAzureKeyVaultSecret(ElectronicInvoicingCertificateNameLbl, CertificateName) then begin
+            Session.LogMessage('0000MZN', MissingCertificateErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+            exit(false);
+        end;
+
+        if not AzureKeyVault.GetAzureKeyVaultCertificate(CertificateName, Certificate) then begin
+            Session.LogMessage('0000MZO', MissingCertificateErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MXElectronicInvoicingTok);
+            exit(false);
+        end;
+
+        exit(true);
     end;
 
     local procedure GetEndpoint(Host: Text; Path: Text): text

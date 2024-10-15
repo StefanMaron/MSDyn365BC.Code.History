@@ -27,6 +27,7 @@ codeunit 10322 "Exp. Writing EFT"
         Filename2: Text[250];
         RecordCount: Integer;
         ArrayLength: Integer;
+        FileIsOpened: Boolean;
     begin
         DataExchDetail.SetRange("Entry No.", DataExchEntryCodeDetail);
         if DataExchDetail.FindFirst() then begin
@@ -42,10 +43,19 @@ codeunit 10322 "Exp. Writing EFT"
             DataExchDetail."File Content".CreateOutStream(OutStream);
             CopyStream(OutStream, InStream);
             DataExchDetail.Modify();
+            FileIsOpened := true;
         end;
-        ExportFile.Close();
 
         ExportEFTACH.AddFileToClientZip(Filename, ACHFileName, TempNameValueBuffer, ZipFileName, DataCompression);
+        if not FileIsOpened then begin
+            ExportFile.TextMode := true;
+            ExportFile.Open(Filename);
+        end;
+        ExportFile.CreateInStream(InStream);
+        TempNameValueBuffer."Value BLOB".CreateOutStream(OutStream);
+        CopyStream(OutStream, InStream);
+        TempNameValueBuffer.Modify();
+        ExportFile.Close();
 
         // Need to clear out the File Name and blob (File Content) for the footer record(s)
         DataExchFooter.SetRange("Entry No.", DataExchEntryCodeFooter);

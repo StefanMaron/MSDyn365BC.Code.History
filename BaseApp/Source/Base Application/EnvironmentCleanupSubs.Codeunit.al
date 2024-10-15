@@ -15,6 +15,7 @@ using System.DataAdministration;
 using System.Threading;
 using System.Automation;
 using System.Feedback;
+using System.Reflection;
 
 codeunit 8912 "Environment Cleanup Subs"
 {
@@ -71,18 +72,27 @@ codeunit 8912 "Environment Cleanup Subs"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMConnectionSetup: Record "CRM Connection Setup";
-        CDSIntegrationRecord: Record "CRM Integration Record";
+        CRMIntegrationRecord: Record "CRM Integration Record";
         CDSIntegrationSyncJob: Record "Integration Synch. Job";
         CDSIntegrationsSyncJobErrors: Record "Integration Synch. Job Errors";
+        TableKey: Codeunit "Table Key";
+        DisableCleanup: Boolean;
     begin
         // Here we delete the setup records
         CDSConnectionSetup.DeleteAll();
         CRMConnectionSetup.DeleteAll();
 
         // Here we delete the integration links
-        CDSIntegrationRecord.DeleteAll();
         CDSIntegrationSyncJob.DeleteAll();
         CDSIntegrationsSyncJobErrors.DeleteAll();
+
+        OnBeforeCleanCRMIntegrationRecords(DisableCleanup);
+        if DisableCleanup then
+            exit;
+
+        // Deleting all couplings can timeout so disable the keys before deleting
+        TableKey.DisableAll(Database::"CRM Integration Record");
+        CRMIntegrationRecord.DeleteAll();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Environment Cleanup", 'OnClearDatabaseConfig', '', false, false)]
@@ -95,6 +105,7 @@ codeunit 8912 "Environment Cleanup Subs"
 
         SatisfactionSurveyMgt.ResetState();
         FlowServiceConfiguration.ModifyAll("Flow Service", FlowServiceConfiguration."Flow Service"::"Testing Service (TIP 1)");
+        Commit();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Environment Cleanup", 'OnClearDatabaseConfig', '', false, false)]
@@ -108,4 +119,8 @@ codeunit 8912 "Environment Cleanup Subs"
 
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCleanCRMIntegrationRecords(var DisableCleanup: Boolean)
+    begin
+    end;
 }

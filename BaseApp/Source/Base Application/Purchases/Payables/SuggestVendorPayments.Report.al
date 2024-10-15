@@ -791,6 +791,7 @@ report 393 "Suggest Vendor Payments"
                                 TempVendorPaymentBuffer."Applies-to Ext. Doc. No." := '';
                                 if TempVendorPaymentBuffer.Find() then begin
                                     TempVendorPaymentBuffer.Amount := TempVendorPaymentBuffer.Amount + TempPayableVendorLedgerEntry.Amount;
+                                    TempVendorPaymentBuffer.Validate("Vendor Ledg. Entry Doc. Type", VendLedgEntry."Document Type");
                                     OnMakeGenJnlLinesOnBeforeVendorPaymentBufferModify(TempVendorPaymentBuffer, VendLedgEntry);
 #if not CLEAN22
                                     TempPaymentBuffer.CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer);
@@ -803,6 +804,7 @@ report 393 "Suggest Vendor Payments"
                                     if DocNoPerLine then
                                         RunIncrementDocumentNo(true);
                                     TempVendorPaymentBuffer.Amount := TempPayableVendorLedgerEntry.Amount;
+                                    TempVendorPaymentBuffer.Validate("Vendor Ledg. Entry Doc. Type", VendLedgEntry."Document Type");
                                     Window2.Update(1, VendLedgEntry."Vendor No.");
                                     OnMakeGenJnlLinesOnBeforeVendorPaymentBufferInsert(TempVendorPaymentBuffer, VendLedgEntry, TempPayableVendorLedgerEntry);
 #if not CLEAN22

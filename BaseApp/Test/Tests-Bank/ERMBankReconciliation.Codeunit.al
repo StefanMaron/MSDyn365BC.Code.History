@@ -3722,6 +3722,48 @@ codeunit 134141 "ERM Bank Reconciliation"
 
     [Test]
     [HandlerFunctions('MessageHandler')]
+    procedure AutomatchShouldPreferCloseAmountsAfterItInitiallyProposesMatches()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccountNo: Code[20];
+    begin
+        Initialize();
+        BankAccountNo := CreateBankAccount(BankAccount);
+        CreateAndPostGenJournalLineWithAmount(GenJournalLine, BankAccountNo, 73600);
+        CreateAndPostGenJournalLineWithAmount(GenJournalLine, BankAccountNo, 600);
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation."Statement Date" := WorkDate();
+        BankAccReconciliation.Modify();
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Statement Amount", -73590);
+        BankAccReconciliationLine.Description := CopyStr(GenJournalLine."Document No.", 1, 5);
+        BankAccReconciliationLine.Modify();
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Statement Amount", -600);
+        BankAccReconciliationLine.Description := GenJournalLine."Document No.";
+        BankAccReconciliationLine.Modify();
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Statement Amount", -73600);
+        BankAccReconciliationLine.Modify();
+        MatchBankRecLines.BankAccReconciliationAutoMatch(BankAccReconciliation, 1);
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetFilter("Statement No.", '<>%1', '');
+        Assert.AreEqual(2, BankAccountLedgerEntry.Count(), 'There should be two entries matched');
+        BankAccountLedgerEntry.FindSet();
+        BankAccReconciliationLine.Get(BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", BankAccountLedgerEntry."Statement Line No.");
+        Assert.AreEqual(0, BankAccReconciliationLine.Difference, 'The difference should be 0');
+        BankAccountLedgerEntry.Next();
+        BankAccReconciliationLine.Get(BankAccReconciliation."Statement Type", BankAccountNo, BankAccReconciliation."Statement No.", BankAccountLedgerEntry."Statement Line No.");
+        Assert.AreEqual(0, BankAccReconciliationLine.Difference, 'The difference should be 0');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
     procedure AutomatchShouldPreferLeastDifferenceInAmountForEntriesWithSameDescription()
     var
         BankAccount: Record "Bank Account";
