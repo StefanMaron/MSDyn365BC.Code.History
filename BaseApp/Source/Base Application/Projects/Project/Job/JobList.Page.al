@@ -998,12 +998,10 @@ page 89 "Job List"
 
     trigger OnInit()
     begin
-        CurrPage.PowerBIEmbeddedReportPart.PAGE.InitPageRatio(PowerBIServiceMgt.GetFactboxRatio());
         CurrPage.PowerBIEmbeddedReportPart.PAGE.SetPageContext(CurrPage.ObjectId(false));
     end;
 
     var
-        PowerBIServiceMgt: Codeunit "Power BI Service Mgt.";
         ExtendedPriceEnabled: Boolean;
 }
 

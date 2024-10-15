@@ -7,6 +7,7 @@ namespace Microsoft.RoleCenters;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Foundation.Period;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Customer;
@@ -230,8 +231,16 @@ codeunit 1311 "Activities Mgt."
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesHeader: Record "Sales Header";
+        ReservationEntry: Record "Reservation Entry";
     begin
         Number := 0;
+
+        ReservationEntry.SetRange(Positive, true);
+        ReservationEntry.SetRange("Source Type", Database::"Item Ledger Entry");
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        if ReservationEntry.IsEmpty() then
+            exit;
+
         SalesHeader.SetLoadFields("Document Type", "No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         if SalesHeader.FindSet() then

@@ -1,5 +1,6 @@
 namespace Microsoft.Inventory.Transfer;
 
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Setup;
 
 codeunit 5708 "Release Transfer Document"
@@ -100,6 +101,7 @@ codeunit 5708 "Release Transfer Document"
 
     local procedure CheckTransLines(var TransLine: Record "Transfer Line"; TransHeader: Record "Transfer Header")
     var
+        Item: Record Item;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -107,10 +109,20 @@ codeunit 5708 "Release Transfer Document"
         if IsHandled then
             exit;
 
+        TransLine.SetLoadFields("Document No.", Quantity, "Item No.");
         TransLine.SetRange("Document No.", TransHeader."No.");
         TransLine.SetFilter(Quantity, '<>0');
         if TransLine.IsEmpty() then
             Error(NothingToReleaseErr, TransHeader."No.");
+
+        TransLine.SetFilter("Item No.", '<>%1', '');
+        if TransLine.FindSet() then
+            repeat
+                Item.Get(TransLine."Item No.");
+                if Item.IsInventoriableType() then
+                    TransLine.TestField("Unit of Measure Code");
+            until TransLine.Next() = 0;
+        TransLine.SetFilter("Item No.", '');
     end;
 
     [IntegrationEvent(false, false)]

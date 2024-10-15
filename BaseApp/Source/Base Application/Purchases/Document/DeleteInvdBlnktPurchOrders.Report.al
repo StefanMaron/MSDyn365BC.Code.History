@@ -22,39 +22,42 @@ report 491 "Delete Invd Blnkt Purch Orders"
 
             trigger OnAfterGetRecord()
             var
+                PurchaseBlanketOrderLine: Record "Purchase Line";
+                PurchaseLineFromBlanketOrder: Record "Purchase Line";
+                PurchCommentLine: Record "Purch. Comment Line";
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+                ArchiveManagement: Codeunit ArchiveManagement;
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforePurchaseHeaderOnAfterGetRecord("Purchase Header", IsHandled);
+                OnBeforePurchaseHeaderOnAfterGetRecord("Purchase Header", IsHandled, ProgressDialog);
                 if IsHandled then
                     CurrReport.Skip();
 
                 if GuiAllowed() then
-                    Window.Update(1, "No.");
+                    ProgressDialog.Update(1, "No.");
 
-                PurchLine.Reset();
-                PurchLine.SetRange("Document Type", "Document Type");
-                PurchLine.SetRange("Document No.", "No.");
-                PurchLine.SetFilter("Quantity Invoiced", '<>0');
-                if PurchLine.FindFirst() then begin
-                    PurchLine.SetRange("Quantity Invoiced");
-                    PurchLine.SetFilter("Outstanding Quantity", '<>0');
-                    OnAfterSetPurchLineFilters(PurchLine);
-                    if not PurchLine.FindFirst() then begin
-                        PurchLine.SetRange("Outstanding Quantity");
-                        PurchLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
-                        if not PurchLine.FindFirst() then begin
-                            PurchLine.LockTable();
-                            if not PurchLine.FindFirst() then begin
-                                PurchLine.SetRange("Qty. Rcd. Not Invoiced");
-                                PurchLine2.SetRange("Blanket Order No.", "No.");
-                                if not PurchLine2.FindFirst() then begin
+                PurchaseBlanketOrderLine.SetRange("Document Type", "Document Type");
+                PurchaseBlanketOrderLine.SetRange("Document No.", "No.");
+                PurchaseBlanketOrderLine.SetFilter("Quantity Invoiced", '<>0');
+                if PurchaseBlanketOrderLine.FindFirst() then begin
+                    PurchaseBlanketOrderLine.SetRange("Quantity Invoiced");
+                    PurchaseBlanketOrderLine.SetFilter("Outstanding Quantity", '<>0');
+                    OnAfterSetPurchLineFilters(PurchaseBlanketOrderLine);
+                    if not PurchaseBlanketOrderLine.FindFirst() then begin
+                        PurchaseBlanketOrderLine.SetRange("Outstanding Quantity");
+                        PurchaseBlanketOrderLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
+                        if not PurchaseBlanketOrderLine.FindFirst() then begin
+                            PurchaseBlanketOrderLine.LockTable();
+                            if not PurchaseBlanketOrderLine.FindFirst() then begin
+                                PurchaseBlanketOrderLine.SetRange("Qty. Rcd. Not Invoiced");
+                                PurchaseLineFromBlanketOrder.SetRange("Blanket Order No.", "No.");
+                                if PurchaseLineFromBlanketOrder.IsEmpty() then begin
                                     ArchiveManagement.AutoArchivePurchDocument("Purchase Header");
 
-                                    OnBeforeDeletePurchLines(PurchLine);
-                                    PurchLine.DeleteAll();
-                                    OnAfterDeletePurchLines(PurchLine);
+                                    OnBeforeDeletePurchLines(PurchaseBlanketOrderLine);
+                                    PurchaseBlanketOrderLine.DeleteAll();
+                                    OnAfterDeletePurchLines(PurchaseBlanketOrderLine);
 
                                     PurchCommentLine.SetRange("Document Type", "Document Type");
                                     PurchCommentLine.SetRange("No.", "No.");
@@ -77,35 +80,14 @@ report 491 "Delete Invd Blnkt Purch Orders"
             trigger OnPreDataItem()
             begin
                 if GuiAllowed() then
-                    Window.Open(Text000);
+                    ProgressDialog.Open(ProcessingProgressTxt);
             end;
         }
     }
 
-    requestpage
-    {
-
-        layout
-        {
-        }
-
-        actions
-        {
-        }
-    }
-
-    labels
-    {
-    }
-
     var
-        PurchLine: Record "Purchase Line";
-        PurchLine2: Record "Purchase Line";
-        PurchCommentLine: Record "Purch. Comment Line";
-        ArchiveManagement: Codeunit ArchiveManagement;
-        Window: Dialog;
-
-        Text000: Label 'Processing purch. orders #1##########';
+        ProgressDialog: Dialog;
+        ProcessingProgressTxt: Label 'Processing blanket purchase orders #1##########', Comment = '%1 - Blanket Purchase Order No.';
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")
@@ -133,7 +115,7 @@ report 491 "Delete Invd Blnkt Purch Orders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchaseHeaderOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforePurchaseHeaderOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var ProgressDialog: Dialog)
     begin
     end;
 }

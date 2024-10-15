@@ -6579,7 +6579,8 @@
           CompanyInformation."RFC Number", CompanyInformation.Name, CompanyInformation."SAT Postal Code", CompanyInformation."SAT Tax Regime Classification", 15, 18);
         VerifyCartaPorteXMLValuesForeignTrade(
             OriginalStr,
-            SalesShipmentHeader."Identifier IdCCP", SalesShipmentHeader."SAT Transfer Reason", SalesShipmentHeader."SAT International Trade Term", SalesShipmentHeader."Exchange Rate USD", 29);
+            SalesShipmentHeader."Identifier IdCCP", SalesShipmentHeader."SAT Transfer Reason", SalesShipmentHeader."SAT International Trade Term",
+            SalesShipmentHeader."Exchange Rate USD", SalesShipmentHeader."SAT Customs Regime", 29);
     end;
 
     [Test]
@@ -6671,7 +6672,8 @@
           CompanyInformation."RFC Number", CompanyInformation.Name, CompanyInformation."SAT Postal Code", CompanyInformation."SAT Tax Regime Classification", 15, 18);
         VerifyCartaPorteXMLValuesForeignTrade(
           OriginalStr, TransferShipmentHeader."Identifier IdCCP",
-          TransferShipmentHeader."SAT Transfer Reason", TransferShipmentHeader."SAT International Trade Term", TransferShipmentHeader."Exchange Rate USD", 29);
+          TransferShipmentHeader."SAT Transfer Reason", TransferShipmentHeader."SAT International Trade Term",
+          TransferShipmentHeader."Exchange Rate USD", TransferShipmentHeader."SAT Customs Regime", 29);
     end;
 
     [Test]
@@ -8743,7 +8745,7 @@
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
         LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
-        LibraryXPathXMLReader.AddAdditionalNamespace('cartaporte30', 'http://www.sat.gob.mx/CartaPorte30');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cartaporte31', 'http://www.sat.gob.mx/CartaPorte31');
         LibraryXPathXMLReader.AddAdditionalNamespace('cce20', 'http://www.sat.gob.mx/ComercioExterior20');
     end;
 
@@ -9036,7 +9038,17 @@
     end;
 
     local procedure VerifyPartyInformation(OriginalStr: Text; RFCNumber: Text[30]; ReceptorName: Text[300]; SATPostalCode: Code[20]; SATTaxRegime: Text[10]; StartPosition1: Integer; StartPosition2: Integer)
+    var
+        CompanyInformation: Record "Company Information";
     begin
+        // Enisor/RFC
+        CompanyInformation.Get();
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Emisor', 'Rfc', CompanyInformation."RFC Number");
+        Assert.AreEqual(CompanyInformation."RFC Number", SelectStr(StartPosition1 - 3, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Enisor/Rfc', OriginalStr));
+        //  Enisor/RegimenFiscal
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Emisor', 'RegimenFiscal', CompanyInformation."SAT Tax Regime Classification");
+        Assert.AreEqual(CompanyInformation."SAT Tax Regime Classification", SelectStr(StartPosition1 - 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Enisor/RegimenFiscal', OriginalStr));
+
         // Rfc
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'Rfc', RFCNumber);
         Assert.AreEqual(RFCNumber, SelectStr(StartPosition1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Rfc', OriginalStr));
@@ -9533,14 +9545,14 @@
         CompanyInformation: Record "Company Information";
         FixedAsset: Record "Fixed Asset";
     begin
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'Version', '3.0'); // Version
-        Assert.AreEqual('3.0', SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'IdCCP', IdCCP); // IdCCP
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte31:CartaPorte', 'Version', '3.1'); // Version
+        Assert.AreEqual('3.1', SelectStr(StartPosition, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte31:CartaPorte', 'IdCCP', IdCCP); // IdCCP
         Assert.AreEqual(IdCCP, SelectStr(StartPosition + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'IdCCP', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'TranspInternac', 'No'); // TranspInternac
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte31:CartaPorte', 'TranspInternac', 'No'); // TranspInternac
         Assert.AreEqual('No', SelectStr(StartPosition + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TranspInternac', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte', 'TotalDistRec', FormatDecimal(TransitDistance, 6)); // TotalDistRec
+          'cfdi:Complemento/cartaporte31:CartaPorte', 'TotalDistRec', FormatDecimal(TransitDistance, 6)); // TotalDistRec
         Assert.AreEqual(
           FormatDecimal(TransitDistance, 6), SelectStr(StartPosition + 3, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'TotalDistRec', OriginalStr));
@@ -9548,13 +9560,13 @@
         // Ubicaciones
         CompanyInformation.Get();
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Ubicaciones/cartaporte30:Ubicacion',
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Ubicaciones/cartaporte31:Ubicacion',
           'RFCRemitenteDestinatario', CompanyInformation."RFC Number"); // RFCRemitenteDestinatario
         Assert.AreEqual(
           CompanyInformation."RFC Number", SelectStr(StartPosition + 5, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'RFCRemitenteDestinatario', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Ubicaciones/cartaporte30:Ubicacion',
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Ubicaciones/cartaporte31:Ubicacion',
           'DistanciaRecorrida', FormatDecimal(TransitDistance, 6), 1); // DistanciaRecorrida
         Assert.AreEqual(
           FormatDecimal(TransitDistance, 6), SelectStr(StartPosition + 17, OriginalStr),
@@ -9562,23 +9574,23 @@
 
         // Mercancias 
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias', 'PesoBrutoTotal', FormatDecimal(GrossWeight, 3)); // PesoBrutoTotal
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias', 'PesoBrutoTotal', FormatDecimal(GrossWeight, 3)); // PesoBrutoTotal
         Assert.AreEqual(
           FormatDecimal(GrossWeight, 3), SelectStr(StartPosition + 25, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'PesoBrutoTotal', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias', 'UnidadPeso', 'XAG'); // UnidadPeso
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias', 'UnidadPeso', 'XAG'); // UnidadPeso
         Assert.AreEqual('XAG', SelectStr(StartPosition + 26, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'UnidadPeso', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias', 'NumTotalMercancias', '1'); // NumTotalMercancias
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias', 'NumTotalMercancias', '1'); // NumTotalMercancias
         Assert.AreEqual('1', SelectStr(StartPosition + 27, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumTotalMercancias', OriginalStr));
 
         // Mercancias/Mercancia
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Mercancia', 'MaterialPeligroso', 'No'); // MaterialPeligroso
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias/cartaporte31:Mercancia', 'MaterialPeligroso', 'No'); // MaterialPeligroso
         Assert.AreEqual('No', SelectStr(StartPosition + 32, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MaterialPeligroso', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Mercancia',
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias/cartaporte31:Mercancia',
           'PesoEnKg', FormatDecimal(GrossWeight, 3)); // PesoEnKg
         Assert.AreEqual(
           FormatDecimal(GrossWeight, 3), SelectStr(StartPosition + 33, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'PesoEnKg', OriginalStr));
@@ -9586,31 +9598,31 @@
         // Vehicle
         FixedAsset.Get(VehicleNo);
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Autotransporte',
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias/cartaporte31:Autotransporte',
           'PermSCT', FixedAsset."SCT Permission Type"); // PermSCT
         Assert.AreEqual(
           FixedAsset."SCT Permission Type", SelectStr(StartPosition + 36, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'PermSCT', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Autotransporte',
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias/cartaporte31:Autotransporte',
           'NumPermisoSCT', FixedAsset."SCT Permission No."); // NumPermisoSCT
         Assert.AreEqual(
           FixedAsset."SCT Permission No.", SelectStr(StartPosition + 37, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'NumPermisoSCT', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Autotransporte/cartaporte30:IdentificacionVehicular',
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias/cartaporte31:Autotransporte/cartaporte31:IdentificacionVehicular',
           'ConfigVehicular', FixedAsset."SAT Federal Autotransport"); // ConfigVehicular
         Assert.AreEqual(
           FixedAsset."SAT Federal Autotransport", SelectStr(StartPosition + 38, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'ConfigVehicular', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Autotransporte/cartaporte30:IdentificacionVehicular',
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias/cartaporte31:Autotransporte/cartaporte31:IdentificacionVehicular',
           'PesoBrutoVehicular', FormatDecimal(FixedAsset."Vehicle Gross Weight", 2)); // PesoBrutoVehicular
         Assert.AreEqual(
           FormatDecimal(FixedAsset."Vehicle Gross Weight", 2), SelectStr(StartPosition + 39, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'PesoBrutoVehicular', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Autotransporte/cartaporte30:IdentificacionVehicular',
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias/cartaporte31:Autotransporte/cartaporte31:IdentificacionVehicular',
           'PlacaVM', FixedAsset."Vehicle Licence Plate");
         Assert.AreEqual(
           FixedAsset."Vehicle Licence Plate", SelectStr(StartPosition + 40, OriginalStr),
@@ -9618,21 +9630,21 @@
 
         // TiposFigura
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:FiguraTransporte/cartaporte30:TiposFigura', 'TipoFigura', '01');
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:FiguraTransporte/cartaporte31:TiposFigura', 'TipoFigura', '01');
         Assert.AreEqual('01', SelectStr(StartPosition + 46, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoFigura', OriginalStr));
     end;
 
-    local procedure VerifyCartaPorteXMLValuesForeignTrade(OriginalStr: Text; IdCCP: Text; SATTransferReason: Code[20]; SATInternationalTermsCode: Code[10]; ExchRateUSD: Decimal; StartPosition: Integer)
+    local procedure VerifyCartaPorteXMLValuesForeignTrade(OriginalStr: Text; IdCCP: Text; SATTransferReason: Code[20]; SATInternationalTermsCode: Code[10]; ExchRateUSD: Decimal; SATCustomsRegime: Code[10]; StartPosition: Integer)
     var
         CompanyInformation: Record "Company Information";
         CCEOffset: Integer;
     begin
         CCEOffset := 26;
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'Version', '3.0'); // Version
-        Assert.AreEqual('3.0', SelectStr(StartPosition + CCEOffset, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'IdCCP', IdCCP); // IdCCP
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte31:CartaPorte', 'Version', '3.1'); // Version
+        Assert.AreEqual('3.1', SelectStr(StartPosition + CCEOffset, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Version', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte31:CartaPorte', 'IdCCP', IdCCP); // IdCCP
         Assert.AreEqual(IdCCP, SelectStr(StartPosition + CCEOffset + 1, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'IdCCP', OriginalStr));
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte30:CartaPorte', 'TranspInternac', 'Sí'); // TranspInternac
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Complemento/cartaporte31:CartaPorte', 'TranspInternac', 'Sí'); // TranspInternac
         Assert.AreEqual('Sí', SelectStr(StartPosition + CCEOffset + 2, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TranspInternac', OriginalStr));
 
         // CoercioExterior
@@ -9661,10 +9673,15 @@
         Assert.AreEqual(
           FormatDecimal(0, 2), SelectStr(StartPosition + 6, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TotalUSD', OriginalStr));
 
+        // RegimenesAduaneros
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:RegimenesAduaneros/cartaporte31:RegimenAduaneroCCP', 'RegimenAduanero', SATCustomsRegime); // RegimenAduanero
+        Assert.AreEqual(SATCustomsRegime, SelectStr(StartPosition + CCEOffset + 7, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'RegimenAduanero', OriginalStr));
+
         // Ubicaciones
         CompanyInformation.Get();
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Ubicaciones/cartaporte30:Ubicacion',
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Ubicaciones/cartaporte31:Ubicacion',
           'RFCRemitenteDestinatario', CompanyInformation."RFC Number"); // RFCRemitenteDestinatario
         Assert.AreEqual(
           CompanyInformation."RFC Number", SelectStr(StartPosition + CCEOffset + 9, OriginalStr),
@@ -9672,30 +9689,30 @@
 
         // Mercancias 
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias', 'UnidadPeso', 'XAG'); // UnidadPeso
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias', 'UnidadPeso', 'XAG'); // UnidadPeso
         Assert.AreEqual(
           'XAG', SelectStr(StartPosition + CCEOffset + 32, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'UnidadPeso', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias', 'NumTotalMercancias', '1'); // NumTotalMercancias
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias', 'NumTotalMercancias', '1'); // NumTotalMercancias
         Assert.AreEqual(
           '1', SelectStr(StartPosition + CCEOffset + 33, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'NumTotalMercancias', OriginalStr));
 
         // Mercancias/Mercancia
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Mercancia', 'MaterialPeligroso', 'No'); // MaterialPeligroso
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias/cartaporte31:Mercancia', 'MaterialPeligroso', 'No'); // MaterialPeligroso
         Assert.AreEqual(
           'No', SelectStr(StartPosition + CCEOffset + 38, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MaterialPeligroso', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Mercancia', 'TipoMateria', '01'); // TipoMateria
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias/cartaporte31:Mercancia', 'TipoMateria', '01'); // TipoMateria
         Assert.AreEqual(
           '01', SelectStr(StartPosition + CCEOffset + 43, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoMateria', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Mercancia/cartaporte30:DocumentacionAduanera',
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias/cartaporte31:Mercancia/cartaporte31:DocumentacionAduanera',
           'TipoDocumento', '02'); // IdentDocAduanero
         Assert.AreEqual(
           '02', SelectStr(StartPosition + CCEOffset + 44, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoDocumento', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/cartaporte30:CartaPorte/cartaporte30:Mercancias/cartaporte30:Mercancia/cartaporte30:DocumentacionAduanera',
+          'cfdi:Complemento/cartaporte31:CartaPorte/cartaporte31:Mercancias/cartaporte31:Mercancia/cartaporte31:DocumentacionAduanera',
           'IdentDocAduanero', 'identifier'); // IdentDocAduanero
         Assert.AreEqual(
           'identifier', SelectStr(StartPosition + CCEOffset + 45, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'IdentDocAduanero', OriginalStr));

@@ -41,6 +41,7 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
                 WarehouseEntry.SetCurrentKey("Location Code", "Bin Code", "Item No.", "Variant Code");
                 WarehouseEntry.SetRange("Location Code", "Location Code");
                 WarehouseEntry.SetRange("Bin Code", Code);
+                OnAfterGetRecordBinOnAfterWarehouseEntrySetFilters(PhysInvtOrderHeader, Bin, WarehouseEntry);
                 if WarehouseEntry.Find('-') then
                     repeat
                         if Item.Get(WarehouseEntry."Item No.") then
@@ -241,6 +242,11 @@ report 5885 "Calc. Phys. Invt. Order (Bins)"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsNewWhseEntryGroup(WhseEntry: Record "Warehouse Entry"; LastWhseEntry: Record "Warehouse Entry"; var Result: Boolean; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordBinOnAfterWarehouseEntrySetFilters(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var Bin: Record "Bin"; var WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 }

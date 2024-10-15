@@ -3241,6 +3241,64 @@ codeunit 137154 "SCM Warehouse Management II"
         // [THEN] The action runs successfully.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CloseGLPostingPreviewPageHandler')]
+    procedure WarehouseReceiptPageRemainsOpenWhenRunPreviewPostAndCloseGLPostingPreviewPage()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+        WarehouseReceipt: TestPage "Warehouse Receipt";
+    begin
+        // [SCENARIO 540123] When Stan Preview Posts Warehouse Receipt and closes G/L Posting Preview page then
+        // Warehouse Receipt page remains open.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create a location with Require Receive and Require Putaway.
+        CreateAndUpdateLocation(Location, true, true, false, false, false);
+
+        // [GIVEN] Create Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create a Purchase Line and Validate Location Code.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(10, 10));
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Release Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Warehouse Receipt from Purchase Order.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] Find Warehouse Receipt Header.
+        WarehouseReceiptHeader.SetRange("Location Code", Location.Code);
+        WarehouseReceiptHeader.FindFirst();
+        Commit();
+
+        // [WHEN] Open Warehouse Receipt page and run Preview Posting action.
+        WarehouseReceipt.OpenEdit();
+        WarehouseReceipt.GoToRecord(WarehouseReceiptHeader);
+        WarehouseReceipt.PreviewPosting.Invoke();
+
+        // [THEN] Warehouse Receipt remains Open.
+        WarehouseReceipt."No.".AssertEquals(Format(WarehouseReceiptHeader."No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5048,6 +5106,13 @@ codeunit 137154 "SCM Warehouse Management II"
     [Scope('OnPrem')]
     procedure GLPostingPreviewPageHandler(var ShowAllEntries: TestPage "G/L Posting Preview")
     begin
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure CloseGLPostingPreviewPageHandler(var GLPostingPreview: TestPage "G/L Posting Preview")
+    begin
+        GLPostingPreview.Close();
     end;
 
     [MessageHandler]

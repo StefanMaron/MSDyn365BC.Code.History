@@ -77,6 +77,12 @@ page 7391 "Posted Invt. Put-away Subform"
                     ToolTip = 'Specifies the lot number for the item that was put away.';
                     Visible = false;
                 }
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the package number for the item that was put away.';
+                    Visible = false;
+                }
                 field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;

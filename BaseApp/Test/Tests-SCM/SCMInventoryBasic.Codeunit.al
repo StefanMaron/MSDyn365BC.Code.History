@@ -2549,6 +2549,47 @@ codeunit 137280 "SCM Inventory Basic"
             until ItemledgerEntry.Next() = 0;
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,CatalogItemListModalPageHandlerForEntryNo')]
+    procedure CatalogItemConvertedNonInventoryTypeIntoSalesQuote()
+    var
+        ItemTemplate: Record "Item Templ.";
+        NonstockItem: Record "Nonstock Item";
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 539059] Inventory Posting Group can be empty in Item Template when Type is Non-Inventory.
+        Initialize();
+
+        // [GIVEN] Create Item Template.
+        LibraryTemplates.CreateItemTemplateWithData(ItemTemplate);
+
+        // [GIVEN] Validate Type into Non-Inventory.
+        ItemTemplate.Validate(Type, ItemTemplate.Type::"Non-Inventory");
+        ItemTemplate.Modify(true);
+
+        // [GIVEN] Create Non Stock Item from Item Template.
+        LibraryInventory.CreateNonStockItemWithItemTemplateCode(NonstockItem, ItemTemplate.Code);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Sales Quote.
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, Customer."No.");
+
+        // [GIVEN] Create Sales Line and Validate Type into Item.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine."Document Type"::Quote, '', 0);
+        SalesLine.Validate(Type, SalesLine.Type::Item);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Store Non Stock Item Entry No. to select Non Stock Item.
+        LibraryVariableStorage.Enqueue(NonstockItem."Entry No.");
+
+        // [THEN] Run and Select Show Non Stock Item to ensure no error.
+        SalesLine.ShowNonstock();
+    end;
+
     local procedure Initialize()
     var
         NonstockItemSetup: Record "Nonstock Item Setup";
@@ -3454,6 +3495,14 @@ codeunit 137280 "SCM Inventory Basic"
         ItemSubstitution: Record "Item Substitution";
     begin
         exit(ItemSubstitution.Get(Type, No, '', SubstituteType, SubstituteNo));
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CatalogItemListModalPageHandlerForEntryNo(var CatalogItemList: TestPage "Catalog Item List")
+    begin
+        CatalogItemList.FILTER.SetFilter("Entry No.", LibraryVariableStorage.DequeueText());
+        CatalogItemList.OK().Invoke();
     end;
 }
 
