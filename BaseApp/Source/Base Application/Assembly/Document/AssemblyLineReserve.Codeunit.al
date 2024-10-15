@@ -323,6 +323,7 @@ codeunit 926 "Assembly Line-Reserve"
     begin
         // Used for updating Quantity to Handle and Quantity to Invoice after posting
         ReservationEntry.InitSortingAndFilters(false);
+        ReservationEntry.SetRange("Item No.", AssemblyLine."No.");
         ReservationEntry.SetRange("Source Type", Database::"Assembly Line");
         ReservationEntry.SetRange("Source Subtype", AssemblyLine."Document Type");
         ReservationEntry.SetRange("Source ID", AssemblyLine."Document No.");

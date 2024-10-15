@@ -149,6 +149,7 @@ page 1327 "Adjust Inventory"
             TempItemJournalLine."Qty. (Calculated)" := Item.Inventory;
             TempItemJournalLine."Item No." := Item."No.";
             TempItemJournalLine."Location Code" := Rec.Code;
+            OnOpenPageOnBeforeInsertTempItemJournalLine(TempItemJournalLine, Rec);
             TempItemJournalLine.Insert();
             LineNo := LineNo + 1;
         until Rec.Next() = 0;
@@ -186,6 +187,11 @@ page 1327 "Adjust Inventory"
             ColumnStyle := 'Strong'
         else
             ColumnStyle := 'Unfavorable';
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnBeforeInsertTempItemJournalLine(var TempItemJournalLine: Record "Item Journal Line" temporary; var Location: Record Location)
+    begin
     end;
 }
 

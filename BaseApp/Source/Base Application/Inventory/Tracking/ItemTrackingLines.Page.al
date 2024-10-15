@@ -2894,7 +2894,15 @@ page 6510 "Item Tracking Lines"
     protected procedure AssignPackageNo()
     var
         QtyToCreate: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssignPackageNo(Rec, TempItemTrackLineInsert, SourceQuantityArray, IsHandled);
+        if IsHandled then begin
+            CalculateSums();
+            exit;
+        end;
+
         if ZeroLineExists() then
             Rec.Delete();
 
@@ -4159,6 +4167,11 @@ page 6510 "Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnRegisterChangeOnBeforeClearExpirationDate(var OldTrackingSpecification: Record "Tracking Specification"; var NewTrackingSpecification: Record "Tracking Specification"; CurrentSignFactor: Integer; CurrentRunMode: Enum "Item Tracking Run Mode"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignPackageNo(var TrackingSpecification: Record "Tracking Specification"; var TempItemTrackingSpecificationInsert: Record "Tracking Specification" temporary; SourceQuantityArray: array[5] of Decimal; var IsHandled: Boolean)
     begin
     end;
 }

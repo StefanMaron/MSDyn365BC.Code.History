@@ -636,6 +636,8 @@ report 5753 "Get Source Documents"
             SalesLine.SetFilter("Outstanding Quantity", '<0');
         SalesLine.SetRange("Drop Shipment", false);
         SalesLine.SetRange("Job No.", '');
+
+        OnAfterSetSalesLineFilters(SalesLine, WarehouseRequest);
     end;
 
     procedure SetPurchLineFilters(var PurchLine: Record "Purchase Line"; WarehouseRequest: Record "Warehouse Request")
@@ -1267,6 +1269,11 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line"; WarehouseRequest: Record "Warehouse Request")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line"; WarehouseRequest: Record "Warehouse Request")
     begin
     end;
 }

@@ -239,7 +239,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
 
     local procedure GetDocumentDate() DocumentDate: Date;
     begin
-        DocumentDate := PurchaseLine.GetDateForCalculations();
+        DocumentDate := PurchaseLine.GetDateForCalculations(PurchaseHeader);
         OnAfterGetDocumentDate(DocumentDate, PurchaseHeader, PurchaseLine);
     end;
 

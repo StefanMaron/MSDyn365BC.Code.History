@@ -94,8 +94,10 @@ codeunit 432 Consolidate
                 DimBufMgt.DeleteAllDimensions();
                 InitializeGLAccount();
                 PreviousDate := 0D;
+                OnRunOnBeforeLoopTempSubsidGLEntry(BusUnit, TempSubsidGLAcc);
                 if TempSubsidGLEntry.FindSet() then
                     repeat
+                        OnRunOnTempSubsidGLEntryLoopStart(GenJnlLine, BusUnit, TempSubsidGLEntry);
                         if (TempSubsidGLEntry."Posting Date" <> NormalDate(TempSubsidGLEntry."Posting Date")) and
                            not ConsolidatingClosingDate
                         then
@@ -258,8 +260,12 @@ codeunit 432 Consolidate
             end;
             if RoundingResiduals[i] <> 0 then begin
                 GenJnlLine.Amount := -RoundingResiduals[i];
-                BusUnit.TestField("Residual Account");
-                GenJnlLine."Account No." := BusUnit."Residual Account";
+                IsHandled := false;
+                OnRunOnBeforeSetResidualAccount(BusUnit, GenJnlLine, IsHandled);
+                if not IsHandled then begin
+                    BusUnit.TestField("Residual Account");
+                    GenJnlLine."Account No." := BusUnit."Residual Account";
+                end;
                 OnBeforeWindowUpdate(GenJnlLine);
                 Window.Update(3, GenJnlLine."Account No.");
                 if not ConsolidatingClosingDate then
@@ -428,6 +434,8 @@ codeunit 432 Consolidate
         StoredCheckSum := NewCheckSum;
         StartingDate := NewStartingDate;
         EndingDate := NewEndingDate;
+
+        OnAfterSetGlobals(ProductVersion, FormatVersion, SubCompanyName, CurrencyLCY, CurrencyACY, CurrencyPCY, StoredCheckSum, StartingDate, EndingDate);
     end;
 
     local procedure ShowAnalysisViewEntryMessage()
@@ -552,27 +560,33 @@ codeunit 432 Consolidate
         Consolidation: XMLport "Consolidation Import/Export";
         InputFile: File;
         InputStream: InStream;
+        IsHandled: Boolean;
     begin
-        InputFile.TextMode(true);
-        InputFile.WriteMode(false);
-        InputFile.Open(FileName);
+        IsHandled := false;
+        OnBeforeImportFromXML(FileName, TempSubsidGLAcc, TempSubsidGLEntry, TempSubsidDimBuf, TempSubsidCurrExchRate, IsHandled);
+        if not IsHandled then begin
+            InputFile.TextMode(true);
+            InputFile.WriteMode(false);
+            InputFile.Open(FileName);
 
-        InputFile.CreateInStream(InputStream);
+            InputFile.CreateInStream(InputStream);
 
-        Consolidation.SetSource(InputStream);
-        Consolidation.Import();
-        InputFile.Close();
+            Consolidation.SetSource(InputStream);
+            Consolidation.Import();
+            InputFile.Close();
 
-        Consolidation.GetGLAccount(TempSubsidGLAcc);
-        OnAfterGetGLAccount(TempSubsidGLAcc);
-        Consolidation.GetGLEntry(TempSubsidGLEntry);
-        Consolidation.GetEntryDim(TempSubsidDimBuf);
-        Consolidation.GetExchRate(TempSubsidCurrExchRate);
-        Consolidation.GetGlobals(
-          ProductVersion, FormatVersion, SubCompanyName, CurrencyLCY, CurrencyACY, CurrencyPCY,
-          StoredCheckSum, StartingDate, EndingDate);
+            Consolidation.GetGLAccount(TempSubsidGLAcc);
+            OnAfterGetGLAccount(TempSubsidGLAcc);
+            Consolidation.GetGLEntry(TempSubsidGLEntry);
+            Consolidation.GetEntryDim(TempSubsidDimBuf);
+            Consolidation.GetExchRate(TempSubsidCurrExchRate);
+            Consolidation.GetGlobals(
+              ProductVersion, FormatVersion, SubCompanyName, CurrencyLCY, CurrencyACY, CurrencyPCY,
+              StoredCheckSum, StartingDate, EndingDate);
 
-        SelectAllImportedDimensions();
+            OnImportFromXMLOnBeforeSelectAllImportedDimensions(ProductVersion, FormatVersion, SubCompanyName, CurrencyLCY, CurrencyACY, CurrencyPCY, StoredCheckSum, StartingDate, EndingDate);
+            SelectAllImportedDimensions();
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -581,7 +595,13 @@ codeunit 432 Consolidate
         Consolidation: XMLport "Consolidation Import/Export";
         OutputFile: File;
         OutputStream: OutStream;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeExportToXML(FileName, TempSubsidGLAcc, TempSubsidGLEntry, TempSubsidDimBuf, TempSubsidCurrExchRate, IsHandled);
+        if IsHandled then
+            exit;
+
         OutputFile.TextMode(true);
         OutputFile.WriteMode(true);
         OutputFile.Create(FileName);
@@ -692,6 +712,7 @@ codeunit 432 Consolidate
         TempAnalysisView: Record "Analysis View" temporary;
         AnalysisViewEntry: Record "Analysis View Entry";
         AnalysisViewFound: Boolean;
+        IsHandled: Boolean;
     begin
         OnBeforeClearPreviousConsolidation(ConsolidGLEntry);
         ClearAmountArray();
@@ -702,22 +723,26 @@ codeunit 432 Consolidate
                 SetCurrentKey("G/L Account No.", "Business Unit Code", "Posting Date");
             SetRange("Business Unit Code", BusUnit.Code);
             SetRange("Posting Date", StartingDate, EndingDate);
+            OnClearPreviousConsolidationOnAfterConsolidGLEntrySetFilters(ConsolidGLEntry);
             if FindSet(true, false) then
                 repeat
-                    OnClearPreviousConsolidationOnBeforeUpdateAmountArray(ConsolidGLEntry, DeletedAmounts, DeletedDates, DeletedIndex);
-                    UpdateAmountArray("Posting Date", Amount);
-                    Description := '';
-                    Amount := 0;
-                    "Debit Amount" := 0;
-                    "Credit Amount" := 0;
-                    "Additional-Currency Amount" := 0;
-                    "Add.-Currency Debit Amount" := 0;
-                    "Add.-Currency Credit Amount" := 0;
-                    Modify();
-                    if "G/L Account No." <> TempGLAccount."No." then begin
-                        Window.Update(3, "G/L Account No.");
-                        TempGLAccount."No." := "G/L Account No.";
-                        TempGLAccount.Insert();
+                    IsHandled := false;
+                    OnClearPreviousConsolidationOnBeforeUpdateAmountArray(ConsolidGLEntry, DeletedAmounts, DeletedDates, DeletedIndex, IsHandled);
+                    if not IsHandled then begin
+                        UpdateAmountArray("Posting Date", Amount);
+                        Description := '';
+                        Amount := 0;
+                        "Debit Amount" := 0;
+                        "Credit Amount" := 0;
+                        "Additional-Currency Amount" := 0;
+                        "Add.-Currency Debit Amount" := 0;
+                        "Add.-Currency Credit Amount" := 0;
+                        Modify();
+                        if "G/L Account No." <> TempGLAccount."No." then begin
+                            Window.Update(3, "G/L Account No.");
+                            TempGLAccount."No." := "G/L Account No.";
+                            TempGLAccount.Insert();
+                        end;
                     end;
                 until Next() = 0;
         end;
@@ -824,10 +849,15 @@ codeunit 432 Consolidate
     local procedure CheckAmountArray()
     var
         idx: Integer;
+        IsHandled: Boolean;
     begin
         for idx := 1 to MaxDeletedIndex do
-            if DeletedAmounts[idx] <> 0 then
-                ReportError(StrSubstNo(Text010 + Text011, DeletedAmounts[idx], DeletedDates[idx]));
+            if DeletedAmounts[idx] <> 0 then begin
+                IsHandled := false;
+                OnCheckAmountArrayOnBeforeReportError(DeletedAmounts, DeletedDates, idx, IsHandled);
+                if not IsHandled then
+                    ReportError(StrSubstNo(Text010 + Text011, DeletedAmounts[idx], DeletedDates[idx]));
+            end;
     end;
 
     local procedure TestGLAccounts()
@@ -1133,6 +1163,8 @@ codeunit 432 Consolidate
                 "Account No." := TempSubsidGLAcc."No.";
             if AmountToPost = 0 then
                 exit;
+
+            OnCreateAndPostGenJnlLineOnBeforeConsolidGLAccGet(GenJnlLine, GLEntry, BusUnit, TempSubsidGLAcc);
             ConsolidGLAcc.Get("Account No.");
 
             OriginalTranslationMethod := TempSubsidGLAcc."Consol. Translation Method";
@@ -1485,7 +1517,7 @@ codeunit 432 Consolidate
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnClearPreviousConsolidationOnBeforeUpdateAmountArray(var ConsolidatedGLEntry: Record "G/L Entry"; var DeletedAmountsArray: array[500] of Decimal; var DeletedDatesArray: array[500] of Date; var DeletedIdx: Integer)
+    local procedure OnClearPreviousConsolidationOnBeforeUpdateAmountArray(var ConsolidatedGLEntry: Record "G/L Entry"; var DeletedAmountsArray: array[500] of Decimal; var DeletedDatesArray: array[500] of Date; var DeletedIdx: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -1601,6 +1633,56 @@ codeunit 432 Consolidate
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeInsertTempDimBuf(var TempDimensionBuffer: Record "Dimension Buffer"; var TempSubsidDimensionBuffer: Record "Dimension Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateAndPostGenJnlLineOnBeforeConsolidGLAccGet(var GenJournalLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; var BusinessUnit: Record "Business Unit"; var TempSubsidGLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeLoopTempSubsidGLEntry(var BusinessUnit: Record "Business Unit"; var TempSubsidGLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnTempSubsidGLEntryLoopStart(var GenJournalLine: Record "Gen. Journal Line"; var BusinessUnit: Record "Business Unit"; var TempSubsidGLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeSetResidualAccount(var BusinessUnit: Record "Business Unit"; var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportToXML(FileName: Text; var TempSubsidGLAccount: Record "G/L Account"; var TempSubsidGLEntry: Record "G/L Entry"; var TempSubsidDimensionBuffer: Record "Dimension Buffer"; var TempSubsidCurrencyExchangeRate: Record "Currency Exchange Rate"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckAmountArrayOnBeforeReportError(var DeletedAmountsArray: array[500] of Decimal; var DeletedDatesArray: array[500] of Date; DeletedIndex: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeImportFromXML(FileName: Text; var TempSubsidGLAccount: Record "G/L Account"; var TempSubsidGLEntry: Record "G/L Entry"; var TempSubsidDimensionBuffer: Record "Dimension Buffer"; var TempSubsidCurrencyExchangeRate: Record "Currency Exchange Rate"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnClearPreviousConsolidationOnAfterConsolidGLEntrySetFilters(var ConsolidGLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetGlobals(var ProductVersion: Code[10]; var FormatVersion: Code[10]; var CompanyName: Text[30]; var CurrencyLCY: Code[10]; var CurrencyACY: Code[10]; var CurrencyPCY: Code[10]; var CheckSum: Decimal; var StartingDate: Date; var EndingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnImportFromXMLOnBeforeSelectAllImportedDimensions(var ProductVersion: Code[10]; var FormatVersion: Code[10]; var CompanyName: Text[30]; var CurrencyLCY: Code[10]; var CurrencyACY: Code[10]; var CurrencyPCY: Code[10]; var CheckSum: Decimal; var StartingDate: Date; var EndingDate: Date)
     begin
     end;
 }

@@ -152,6 +152,11 @@ table 10002 "Document Header"
         {
             Caption = 'Payment Method Code';
         }
+        field(10039; "Identifier IdCCP"; Text[50])
+        {
+            Caption = 'Identifier IdCCP';
+            Editable = false;
+        }
         field(10044; "Transport Operators"; Integer)
         {
             Caption = 'Transport Operators';
@@ -229,6 +234,16 @@ table 10002 "Document Header"
         {
             Caption = 'Exchange Rate USD';
             DecimalPlaces = 0 : 6;
+        }
+        field(10061; "SAT Customs Regime"; Code[10])
+        {
+            Caption = 'SAT Customs Regime';
+            TableRelation = "SAT Customs Regime";
+        }
+        field(10062; "SAT Transfer Reason"; Code[10])
+        {
+            Caption = 'SAT Transfer Reason';
+            TableRelation = "SAT Transfer Reason";
         }
         field(27000; "CFDI Purpose"; Code[10])
         {

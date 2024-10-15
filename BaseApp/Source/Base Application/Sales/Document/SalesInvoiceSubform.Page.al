@@ -275,8 +275,7 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        ValidateAutoReserve();
-                        DeltaUpdateTotals();
+                        QuantityOnAfterValidate();
                         if SalesSetup."Calc. Inv. Discount" and (Rec.Quantity = 0) then
                             CurrPage.Update(false);
                     end;
@@ -762,6 +761,12 @@ page 47 "Sales Invoice Subform"
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies a unique transit number as five groups of digits separated by two spaces. The number identifies the transport, the year of transport, the customs office, and other required information.';
+                    Visible = IsPACEnabled;
+                }
+                field("SAT Customs Document Type"; Rec."SAT Customs Document Type")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the type of customs document that is associated with the transfer of goods of foreign origin during their transfer in national territory. This information is required by Carte Porte in Mexico.';
                     Visible = IsPACEnabled;
                 }
             }
@@ -1448,6 +1453,16 @@ page 47 "Sales Invoice Subform"
         CurrPage.Update(false);
     end;
 
+    protected procedure QuantityOnAfterValidate()
+    begin
+        OnBeforeQuantityOnAfterValidate(Rec, xRec);
+
+        ValidateAutoReserve();
+        DeltaUpdateTotals();
+
+        OnAfterQuantityOnAfterValidate(Rec, xRec);
+    end;
+
     procedure CalcInvDisc()
     var
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
@@ -1721,6 +1736,16 @@ page 47 "Sales Invoice Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnDeleteRecord(var SalesLine: Record "Sales Line"; var DocumentTotals: Codeunit "Document Totals"; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 }

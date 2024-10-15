@@ -5,6 +5,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Setup;
@@ -601,6 +602,11 @@ table 111 "Sales Shipment Line"
         field(10003; "Custom Transit Number"; Text[30])
         {
             Caption = 'Custom Transit Number';
+        }
+        field(10004; "SAT Customs Document Type"; Code[10])
+        {
+            Caption = 'SAT Customs Document Type';
+            TableRelation = "SAT Customs Document Type";
         }
     }
 

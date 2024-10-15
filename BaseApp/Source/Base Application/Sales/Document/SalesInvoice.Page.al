@@ -1038,6 +1038,16 @@ page 43 "Sales Invoice"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies whether the goods or merchandise that are transported enter or leave the national territory.';
                 }
+                field("SAT Customs Regime"; Rec."SAT Customs Regime")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the system that regulates the transfer of goods of foreign origin when it enters or exits the country. This information is required by Carte Porte in Mexico.';
+                }
+                field("SAT Transfer Reason"; Rec."SAT Transfer Reason")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the reason that is associated with the transfer of goods and merchandise in exports. This information is required by Carte Porte in Mexico.';
+                }
                 field("Insurer Name"; Rec."Insurer Name")
                 {
                     ApplicationArea = BasicMX;
@@ -1071,7 +1081,7 @@ page 43 "Sales Invoice"
                 field("Exchange Rate USD"; Rec."Exchange Rate USD")
                 {
                     ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies the exchange rate for USD currency that is used to report foreing trade electronic invoices to Mexican SAT authorities.';
+                    ToolTip = 'Specifies the USD to MXN exchange rate that is used to report foreign trade documents to Mexican SAT authorities. This rate must match the rate used by the Mexican National Bank.';
                 }
             }
         }
@@ -2086,7 +2096,15 @@ page 43 "Sales Invoice"
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        Result: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnQueryClosePage(Rec, DocumentIsPosted, CloseAction, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not (SkipConfirmationDialogOnClosing or DocumentIsPosted) then
             exit(Rec.ConfirmCloseUnposted());
     end;
@@ -2405,6 +2423,11 @@ page 43 "Sales Invoice"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnDeleteRecord(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnQueryClosePage(var SalesHeader: Record "Sales Header"; DocumentIsPosted: Boolean; CloseAction: Action; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

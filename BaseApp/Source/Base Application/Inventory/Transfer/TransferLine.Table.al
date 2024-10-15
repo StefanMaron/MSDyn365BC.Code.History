@@ -2,6 +2,7 @@
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Shipping;
@@ -941,6 +942,11 @@ table 5741 "Transfer Line"
         field(10003; "Custom Transit Number"; Text[30])
         {
             Caption = 'Custom Transit Number';
+        }
+        field(10004; "SAT Customs Document Type"; Code[10])
+        {
+            Caption = 'SAT Customs Document Type';
+            TableRelation = "SAT Customs Document Type";
         }
         field(99000755; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
