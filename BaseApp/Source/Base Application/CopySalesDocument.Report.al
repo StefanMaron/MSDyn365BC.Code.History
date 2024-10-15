@@ -192,6 +192,8 @@ report 292 "Copy Sales Document"
 
     trigger OnPreReport()
     begin
+        OnBeforePreReport();
+
         SalesSetup.Get;
         CopyDocMgt.SetProperties(
           IncludeHeader, RecalculateLines, false, false, false, SalesSetup."Exact Cost Reversing Mandatory", false);
@@ -318,6 +320,8 @@ report 292 "Copy Sales Document"
 
     local procedure LookupDocNo()
     begin
+        OnBeforeLookupDocNo(SalesHeader);
+
         case DocType of
             DocType::Quote,
           DocType::"Blanket Order",
@@ -459,6 +463,16 @@ report 292 "Copy Sales Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateIncludeHeader(var IncludeHeader: Boolean; var RecalculateLines: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupDocNo(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreReport()
     begin
     end;
 

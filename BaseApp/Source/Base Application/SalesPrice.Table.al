@@ -46,6 +46,7 @@ table 7002 "Sales Price"
                         "Sales Type"::"Customer Price Group":
                             begin
                                 CustPriceGr.Get("Sales Code");
+                                OnValidateSalesCodeOnAfterGetCustomerPriceGroup(Rec, CustPriceGr);
                                 "Price Includes VAT" := CustPriceGr."Price Includes VAT";
                                 "VAT Bus. Posting Gr. (Price)" := CustPriceGr."VAT Bus. Posting Gr. (Price)";
                                 "Allow Line Disc." := CustPriceGr."Allow Line Disc.";
@@ -234,6 +235,11 @@ table 7002 "Sales Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeNewSalesPriceInsert(var NewSalesPrice: Record "Sales Price"; SalesPrice: Record "Sales Price")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSalesCodeOnAfterGetCustomerPriceGroup(var Salesprice: Record "Sales Price"; CustPriceGroup: Record "Customer Price Group")
     begin
     end;
 }

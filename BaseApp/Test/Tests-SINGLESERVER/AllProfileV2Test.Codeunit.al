@@ -1,4 +1,4 @@
-codeunit 139071 "AllProfile V2 Test"
+codeunit 138698 "AllProfile V2 Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -102,33 +102,34 @@ codeunit 139071 "AllProfile V2 Test"
         AllProfile: Record "All Profile";
         MySettingsTestPage: TestPage "My Settings";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
-        PreviousAllProfileDescription: Text;
+        PreviousAllProfileCaption: Text;
     begin
         // [GIVEN] The user has a profile assigned
         ConfPersonalizationMgt.GetCurrentProfileNoError(AllProfile);
-        PreviousAllProfileDescription := AllProfile.Description;
+        PreviousAllProfileCaption := AllProfile.Caption;
 
         // [GIVEN] A list of builtin profiles is available
         Clear(AllProfile);
+        AllProfile.SetRange(Enabled, true);
         AllProfile.FindSet();
         EnsureUserPersonalization();
 
         repeat
             Assert.AreNotEqual(AllProfile."Profile ID", '', 'Empty profile ID!');
-            Assert.AreNotEqual(AllProfile.Description, '', 'Empty profile Description!');
+            Assert.AreNotEqual(AllProfile.Caption, '', 'Empty profile Caption!');
 
             // [WHEN] The user chooses any of those profiles from my settings
             Clear(MySettingsTestPage);
 
             MySettingsTestPage.OpenEdit();
-            Assert.AreEqual(PreviousAllProfileDescription, MySettingsTestPage.UserRoleCenter.Value, 'Unexpected profile set for the user.');
+            Assert.AreEqual(PreviousAllProfileCaption, MySettingsTestPage.UserRoleCenter.Value, 'Unexpected profile set for the user.');
             LibraryVariableStorage.Enqueue(AllProfile."Profile ID");
             MySettingsTestPage.UserRoleCenter.AssistEdit();
             // Handler
             // [THEN] The description is updated on the my settings page
-            Assert.AreEqual(AllProfile.Description, MySettingsTestPage.UserRoleCenter.Value, 'Unexpected profile set for the user after changing rolecenter.');
+            Assert.AreEqual(AllProfile.Caption, MySettingsTestPage.UserRoleCenter.Value, 'Unexpected profile set for the user after changing rolecenter.');
             MySettingsTestPage.OK.Invoke();
-            PreviousAllProfileDescription := AllProfile.Description;
+            PreviousAllProfileCaption := AllProfile.Caption;
         until AllProfile.Next() = 0;
 
         Cleanup();
@@ -330,6 +331,7 @@ codeunit 139071 "AllProfile V2 Test"
         DBAllProfile.Scope := DBAllProfile.Scope::Tenant;
         DBAllProfile.Description := LibraryRandom.RandText(MaxStrLen(DBAllProfile.Description));
         DBAllProfile."Role Center ID" := Page::"Business Manager Role Center";
+        DBAllProfile.Enabled := true;
         DBAllProfile.Insert();
 
         // [WHEN] The user opens the Profile Card on a profile owned
@@ -417,7 +419,6 @@ codeunit 139071 "AllProfile V2 Test"
         Cleanup();
     end;
 
-
     [Test]
     [Scope('OnPrem')]
     procedure TestProfileCardNew()
@@ -425,19 +426,23 @@ codeunit 139071 "AllProfile V2 Test"
         ProfileCard: TestPage "Profile Card";
         AllProfile: Record "All Profile";
         ProfileId: Code[30];
-        ProfileDesc: Text[250];
+        ProfileDesc: Text;
+        ProfileCaption: Text;
         NullGuid: Guid;
     begin
         // Creating a new profile from the Profile Card works
-        ProfileId := LibraryRandom.RandText(MaxStrLen(ProfileId));
-        ProfileDesc := LibraryRandom.RandText(MaxStrLen(ProfileDesc));
+        ProfileId := LibraryRandom.RandText(MaxStrLen(AllProfile."Profile ID"));
+        ProfileDesc := LibraryRandom.RandText(MaxStrLen(AllProfile.Description));
+        ProfileCaption := LibraryRandom.RandText(MaxStrLen(AllProfile.Caption));
         ProfileCard.OpenNew();
         ProfileCard.ProfileIdField.Value := ProfileId;
         ProfileCard.DescriptionField.Value := ProfileDesc;
+        ProfileCard.CaptionField.Value := ProfileCaption;
         ProfileCard.Close();
 
         AllProfile.Get(AllProfile.Scope::Tenant, NullGuid, ProfileId);
         Assert.AreEqual(AllProfile.Description, ProfileDesc, 'Wrong description for the AllProfile.');
+        Assert.AreEqual(AllProfile.Caption, ProfileCaption, 'Wrong caption for the AllProfile.');
 
         Cleanup();
     end;
@@ -455,6 +460,7 @@ codeunit 139071 "AllProfile V2 Test"
         DBAllProfile.Scope := DBAllProfile.Scope::Tenant;
         DBAllProfile.Description := LibraryRandom.RandText(MaxStrLen(DBAllProfile.Description));
         DBAllProfile."Role Center ID" := Page::"Business Manager Role Center";
+        DBAllProfile.Enabled := true;
         DBAllProfile.Insert();
 
         // [WHEN] The user deletes the record
@@ -498,8 +504,10 @@ codeunit 139071 "AllProfile V2 Test"
         // [GIVEN] A user and a profile
         AllProfile.Init();
         AllProfile."Profile ID" := '/-*PR0FÍL&*-\';
+        AllProfile.Caption := 'any caption';
         AllProfile.Scope := AllProfile.Scope::Tenant;
         AllProfile."Role Center ID" := Page::"Bookkeeper Role Center";
+        AllProfile.Enabled := true;
         AllProfile.Insert();
 
         // [WHEN] The user clicks the Customize Profile action in the Profile List
@@ -537,6 +545,7 @@ codeunit 139071 "AllProfile V2 Test"
         ProfileCard.OpenNew();
         ProfileCard.ProfileIdField.Value := 'My new profile 2';
         ProfileCard.DescriptionField.Value := 'My new description 2';
+        ProfileCard.CaptionField.Value := 'My new caption 2';
         ProfileCard.DefaultRoleCenterField.Value := 'Yes';
         ProfileCard.Close();
 
@@ -568,8 +577,11 @@ codeunit 139071 "AllProfile V2 Test"
         UserCreatedAllProfile."Profile ID" := LibraryRandom.RandText(MaxStrLen(UserCreatedAllProfile."Profile ID"));
         UserCreatedAllProfile.Scope := UserCreatedAllProfile.Scope::Tenant;
         UserCreatedAllProfile.Description := LibraryRandom.RandText(MaxStrLen(UserCreatedAllProfile.Description));
+        UserCreatedAllProfile.Caption := LibraryRandom.RandText(MaxStrLen(UserCreatedAllProfile.Caption));
         UserCreatedAllProfile."Role Center ID" := Page::"Business Manager Role Center";
+        UserCreatedAllProfile.Enabled := true;
         UserCreatedAllProfile.Insert();
+        AllProfile.SetRange(Enabled, true);
         AllProfile.FindSet();
 
         ProfileList.OpenEdit();
@@ -674,6 +686,8 @@ codeunit 139071 "AllProfile V2 Test"
         UserPersonalization: Record "User Personalization";
         ProfileCard: TestPage "Profile Card";
     begin
+        EnsureUserPersonalization();
+
         AllProfile.FindFirst();
         UserPersonalization.Get(UserSecurityId());
         UserPersonalization."Profile ID" := AllProfile."Profile ID";
@@ -695,9 +709,10 @@ codeunit 139071 "AllProfile V2 Test"
     begin
         ProfileCard.OpenNew();
         ProfileCard.ProfileIdField.SetValue(LibraryRandom.RandText(MaxStrLen(AllProfile."Profile ID")));
+        ProfileCard.CaptionField.SetValue(LibraryRandom.RandText(MaxStrLen(AllProfile.Caption)));
         ProfileCard.DefaultRoleCenterField.SetValue(true);
         asserterror ProfileCard.EnabledField.SetValue(false);
-        Assert.ExpectedError('You cannot disable the default profile.');
+        Assert.ExpectedError('You cannot disable the profile that is used as default.');
     end;
 
     [Test]
@@ -752,12 +767,14 @@ codeunit 139071 "AllProfile V2 Test"
 
         // Make sure when we called ClearCustomizedPagesAction that the correct messages were sent
         Assert.AreEqual(
-            'This will delete all user-made customization changes for this profile. It will not clear the customizations coming from your extensions. Do you want to continue?',
+            'This will delete all user-made customization changes for this profile. It will not clear the customizations coming from your extensions.\\Do you want to continue?',
             LibraryVariableStorage.DequeueText(),
             'Delete customization question not shown.');
         Assert.IsTrue(
             StrPos(LibraryVariableStorage.DequeueText(), 'have been deleted successfully') > 0,
             'Succcessfully deleted message was not shown.');
+
+        Cleanup();
     end;
 
     [Test]
@@ -766,7 +783,6 @@ codeunit 139071 "AllProfile V2 Test"
     var
         ProfileCard: TestPage "Profile Card";
         AllProfile: Record "All Profile";
-        UserPersonalization: Record "User Personalization";
         EmptyGuid: Guid;
     begin
         AllProfile.SetFilter("App ID", '<>%1', EmptyGuid);
@@ -776,6 +792,8 @@ codeunit 139071 "AllProfile V2 Test"
         Assert.ExpectedError(
             StrSubstNo('A profile with Profile ID "%1" already exist, please provide another Profile ID.',
             AllProfile."Profile ID"));
+
+        Cleanup();
     end;
 
     [Test]
@@ -803,42 +821,64 @@ codeunit 139071 "AllProfile V2 Test"
     [Scope('OnPrem')]
     procedure TestDownloadProfiles()
     var
-        AllProfile: Record "All Profile";
-        AllProfileV2Test: codeunit "AllProfile V2 Test";
-        ConfPersonalizationMgt: codeunit "Conf./Personalization Mgt.";
         FileManagement: codeunit "File Management";
+        ProfileZipFileName: Text;
+        ZipEntries: List of [Text];
+        ExpectedEntries: List of [Text];
+    begin
+        // Setup
+        CleanupProfilesAndCustomizations();
+        LibraryVariableStorage.AssertEmpty();
+
+        // [GIVEN] User created profiles
+        CreateProfilesAndGetIDs(3, ExpectedEntries);
+
+        // [WHEN] The user exports all profiles (and customizations)
+        ExportUserCreatedProfilesAndCustomizationsToZipInServer(ProfileZipFileName);
+        GetZipFileContentNamesAsList(ProfileZipFileName, ZipEntries);
+
+        // [THEN] A zip file is exported, and the user created profiles are there
+        ExpectedEntries.Add('app.json');
+        ExpectedEntries.Add('profiles.json');
+        AssertMatchStringsFromLists(ZipEntries, ExpectedEntries);
+
+        // Cleanup
+        LibraryVariableStorage.AssertEmpty();
+        FileManagement.DeleteServerFile(ProfileZipFileName);
+    end;
+
+    // Helper functions
+
+    local procedure CreateProfilesAndGetIDs(HowMany: Integer; var ProfileIDs: List of [Text])
+    var
+        DummyAllProfile: Record "All Profile";
+        CurrentProfileID: Text;
+        Index: Integer;
+    begin
+        // Some checks to make sure the test is not inconclusive
+        Assert.AreNotEqual(HowMany, 0, 'Test would be inconclusive with 0 profiles.');
+        Assert.AreEqual(ProfileIDs.Count(), 0, 'Expected empty list to use as output.');
+
+        for Index := 1 to HowMany do begin
+            CurrentProfileID := LibraryRandom.RandText(MaxStrLen(DummyAllProfile."Profile ID"));
+            CreateTenantProfile(CurrentProfileID);
+            ProfileIDs.Add(UpperCase(CurrentProfileID));
+        end;
+
+        Assert.AreEqual(ProfileIDs.Count(), HowMany, 'Failed to generate the right number of profiles.');
+    end;
+
+    local procedure GetZipFileContentNamesAsList(ZipFileName: Text; var OutList: List of [Text])
+    var
         DataCompression: codeunit "Data Compression";
         ZipFile: File;
         ProfilesZipArchiveInstream: instream;
-        ProfileZipFileName: Text;
-        ProfileId1: Text;
-        ProfileId2: Text;
-        ProfileId3: Text;
-        ZipEntries: List of [Text];
     begin
-        // [GIVEN] Two user created profiles
-        ProfileId1 := LibraryRandom.RandText(MaxStrLen(AllProfile."Profile ID"));
-        ProfileId2 := LibraryRandom.RandText(MaxStrLen(AllProfile."Profile ID"));
-        ProfileId3 := LibraryRandom.RandText(MaxStrLen(AllProfile."Profile ID"));
-
-        CreateTenantProfile(ProfileId1);
-        CreateTenantProfile(ProfileId2);
-        CreateTenantProfile(ProfileId3);
-
-        // [WHEN] The user exports all profiles
-        BindSubscription(AllProfileV2Test);
-        ConfPersonalizationMgt.DownloadProfileConfigurationPackage();
-        UnbindSubscription(AllProfileV2Test);
-        ProfileZipFileName := AllProfileV2Test.DequeueText();
-
-        Assert.IsTrue(File.Exists(ProfileZipFileName), 'Profiles were not exported to a zip file');
-        ZipFile.Open(ProfileZipFileName);
+        // [THEN] 
+        ZipFile.Open(ZipFileName);
         ZipFile.CreateInStream(ProfilesZipArchiveInstream);
         DataCompression.OpenZipArchive(ProfilesZipArchiveInstream, false);
-        DataCompression.GetEntryList(ZipEntries);
-        Assert.IsTrue(ZipEntries.Contains(ProfileId1), 'Zip file does not contain the first profile');
-        Assert.IsTrue(ZipEntries.Contains(ProfileId2), 'Zip file does not contain the second profile');
-        Assert.IsTrue(ZipEntries.Contains(ProfileId3), 'Zip file does not contain the third profile');
+        DataCompression.GetEntryList(OutList);
     end;
 
     procedure DequeueText(): Text
@@ -855,9 +895,6 @@ codeunit 139071 "AllProfile V2 Test"
         AllProfile."Role Center ID" := page::"Business Manager Role Center";
         AllProfile.Insert(true);
     end;
-
-
-    // Helper functions and handlers
 
     local procedure Cleanup()
     var
@@ -914,6 +951,7 @@ codeunit 139071 "AllProfile V2 Test"
     var
         NextJump: Integer;
     begin
+        AllProfile.SetRange(Enabled, true);
         AllProfile.FindSet();
         NextJump := LibraryRandom.RandInt(AllProfile.Count()) - 1; // 0 to AllProfile.Count - 1
         Assert.AreEqual(
@@ -944,17 +982,6 @@ codeunit 139071 "AllProfile V2 Test"
         AllProfile.SetRecFilter();
         AllProfile.Find();
         Assert.IsTrue(AllProfile."Default Role Center", 'Picking default failed.');
-    end;
-
-    [ModalPageHandler]
-    procedure RCLookupPageHandler(var RcLookupPage: TestPage "All Objects with Caption")
-    var
-        AllObjWithCaption: Record AllObjWithCaption;
-    begin
-        AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Page, LibraryVariableStorage.DequeueInteger());
-        RcLookupPage.GoToRecord(AllObjWithCaption);
-        Assert.AreNotEqual('', RcLookupPage."App Name".Value, 'Empty App name in the RC list.');
-        RcLookupPage.OK().Invoke();
     end;
 
     local procedure AssertCopySuccessful(SourceAllProfile: Record "All Profile"; DestinationAllProfile: Record "All Profile")
@@ -1027,6 +1054,64 @@ codeunit 139071 "AllProfile V2 Test"
                 Permission2."Role ID", Permission2."Execute Permission", Permission2."Object ID"));
     end;
 
+    local procedure ExportUserCreatedProfilesAndCustomizationsToZipInServer(var ProfileZipFileName: Text)
+    var
+        AllProfileV2Test: codeunit "AllProfile V2 Test";
+        ConfPersonalizationMgt: codeunit "Conf./Personalization Mgt.";
+    begin
+        BindSubscription(AllProfileV2Test);
+        ConfPersonalizationMgt.DownloadProfileConfigurationPackage();
+        UnbindSubscription(AllProfileV2Test);
+        ProfileZipFileName := AllProfileV2Test.DequeueText();
+
+        Assert.IsTrue(File.Exists(ProfileZipFileName), 'Profiles were not exported to a zip file');
+    end;
+
+    local procedure AssertMatchStringsFromLists(FirstListOfStrings: List of [Text]; SecondListOfStrings: List of [Text])
+    var
+        TextFromFirstList: Text;
+        TextFromSecondList: Text;
+    begin
+        Assert.AreEqual(FirstListOfStrings.Count(), SecondListOfStrings.Count(), 'Cannot match two lists of different size.');
+
+        // This is quadratic, but currently we have 5 files so we can deal with it.
+        foreach TextFromFirstList in FirstListOfStrings do begin
+            foreach TextFromSecondList in SecondListOfStrings do begin
+                if TextFromFirstList.Contains(TextFromSecondList) or TextFromSecondList.Contains(TextFromFirstList) then begin
+                    SecondListOfStrings.Remove(TextFromSecondList);
+                    break;
+                end;
+            end;
+        end;
+
+        if SecondListOfStrings.Count() > 0 then
+            Assert.Fail(StrSubstNo('All elements should have matched, but for example I still have: %1.', SecondListOfStrings.Get(1)));
+    end;
+
+    local procedure CleanupProfilesAndCustomizations()
+    var
+        TenantProfilePageMetadata: Record "Tenant Profile Page Metadata";
+        TenantProfileExtension: Record "Tenant Profile Extension";
+    begin
+        TenantProfileExtension.DeleteAll();
+
+        TenantProfilePageMetadata.SetRange(Owner, TenantProfilePageMetadata.Owner::Tenant);
+        TenantProfilePageMetadata.DeleteAll();
+    end;
+
+    // Handlers
+
+    [ModalPageHandler]
+    procedure RCLookupPageHandler(var RcLookupPage: TestPage "All Objects with Caption")
+    var
+        AllObjWithCaption: Record AllObjWithCaption;
+    begin
+        AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Page, LibraryVariableStorage.DequeueInteger());
+        RcLookupPage.GoToRecord(AllObjWithCaption);
+        Assert.AreNotEqual('', RcLookupPage."App Name".Value, 'Empty App name in the RC list.');
+        RcLookupPage.OK().Invoke();
+    end;
+
     [ModalPageHandler]
     procedure CopyProfileModalPageHandler(var CopyProfileModalPage: TestPage "Copy Profile")
     begin
@@ -1077,10 +1162,20 @@ codeunit 139071 "AllProfile V2 Test"
         reply := true;
     end;
 
+    // Subscribers
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
     local procedure SaveFileToDisk(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
+    var
+        FileManagement: Codeunit "File Management";
+        TempFile: File;
+        ServerTempFileName: Text;
     begin
-        LibraryVariableStorage.Enqueue(FromFileName);
+        // The download handler deletes the file before we can check the content, so need to copy it for the test to succeed
+        ServerTempFileName := FileManagement.ServerTempFileName('zip');
+        FileManagement.CopyServerFile(FromFileName, ServerTempFileName, false);
+
+        LibraryVariableStorage.Enqueue(ServerTempFileName);
         IsHandled := true;
     end;
 }

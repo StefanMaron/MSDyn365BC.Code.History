@@ -429,7 +429,13 @@ codeunit 365 "Format Address"
     end;
 
     procedure SalesInvShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header"): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeSalesInvShipTo(AddrArray, SalesInvHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesInvHeader do begin
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -1098,6 +1104,11 @@ codeunit 365 "Format Address"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesInvBillTo(var AddrArray: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesInvShipTo(var AddrArray: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header"; var Handled: Boolean)
     begin
     end;
 

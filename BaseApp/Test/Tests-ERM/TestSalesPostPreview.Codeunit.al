@@ -834,6 +834,44 @@ codeunit 134763 "Test Sales Post Preview"
         GLPostingPreview.Close;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustLedgerEntryIsClosedInPostingPreview()
+    var
+        PaymentMethod: Record "Payment Method";
+        SalesHeader: Record "Sales Header";
+        SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+        CustomerEntriesPreview: TestPage "Cust. Ledg. Entries Preview";
+    begin
+        // [FEATURE] [Invoice]
+        // [SCENARIO 328755] Invoice Cust. Ledger Entry is Closed in Posting Preview when Sales Invoice has "Payment Method Code" with Bal. Account No. filled.
+        Initialize;
+
+        // [GIVEN] Sales Invoice has "Payment Method Code" with Bal. Account No. filled.
+        LibraryInventory.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Bal. Account Type", PaymentMethod."Bal. Account Type"::"G/L Account");
+        PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        PaymentMethod.Modify(true);
+        CreateSalesRecord(SalesHeader, LibraryRandom.RandInt(500), LibraryRandom.RandInt(10), SalesHeader."Document Type"::Invoice);
+        SalesHeader.Validate("Payment Method Code", PaymentMethod.Code);
+        SalesHeader.Modify(true);
+        Commit;
+
+        // [WHEN] Cust. Ledger Entries Preview is opened from Posting Preview of Sales Invoice.
+        GLPostingPreview.Trap;
+        asserterror SalesPostYesNo.Preview(SalesHeader);
+        CustomerEntriesPreview.Trap;
+        GLPostingPreview.FILTER.SetFilter("Table ID", Format(DATABASE::"Cust. Ledger Entry"));
+        GLPostingPreview.Show.Invoke;
+
+        // [THEN] Cust. Vendor Ledger Entry with "Document Type" = Invoice has Open = False.
+        CustomerEntriesPreview.FILTER.SetFilter("Document Type", Format(SalesHeader."Document Type"::Invoice));
+        CustomerEntriesPreview.Open.AssertEquals(false);
+        CustomerEntriesPreview.OK.Invoke;
+        GLPostingPreview.OK.Invoke;
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";

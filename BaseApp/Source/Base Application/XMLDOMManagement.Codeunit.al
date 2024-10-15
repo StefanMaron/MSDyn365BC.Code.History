@@ -43,6 +43,7 @@ codeunit 6224 "XML DOM Management"
     var
         NewChildNode: DotNet XmlNode;
     begin
+        OnBeforeAddElementWithPrefix(NodeName);
         NewChildNode := XMLNode.OwnerDocument.CreateElement(Prefix, NodeName, NameSpace);
         exit(AddElementToNode(XMLNode, NewChildNode, NodeText, CreatedXMLNode));
     end;
@@ -697,6 +698,11 @@ codeunit 6224 "XML DOM Management"
         DotNet_XmlDocument.InitXmlDocument;
         DotNet_XmlDocument.Load(SourceXmlStream);
         DotNet_XslCompiledTransform.Transform(DotNet_XmlDocument, DotNet_XsltArgumentList, DestinationStream);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddElementWithPrefix(var NodeName: Text)
+    begin
     end;
 }
 

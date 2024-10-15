@@ -2,26 +2,26 @@
     "id":  "1fb2e583-f2c3-4484-a8d4-387e3adce46d",
     "name":  "Tests-Bank",
     "publisher":  "Microsoft",
-    "version":  "15.0.36626.36675",
+    "version":  "15.1.37881.38071",
     "platform":  "15.0.0.0",
     "dependencies":  [
                          {
                              "appId":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
                              "name":  "System Application",
                              "publisher":  "Microsoft",
-                             "version":  "15.0.0.0"
+                             "version":  "15.1.0.0"
                          },
                          {
                              "appId":  "437dbf0e-84ff-417a-965d-ed2bb9650972",
                              "name":  "Base Application",
                              "publisher":  "Microsoft",
-                             "version":  "15.0.0.0"
+                             "version":  "15.1.0.0"
                          },
                          {
                              "appId":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
                              "name":  "Tests-TestLibraries",
                              "publisher":  "Microsoft",
-                             "version":  "15.0.0.0"
+                             "version":  "15.1.0.0"
                          }
                      ],
     "target":  "OnPrem",

@@ -843,6 +843,42 @@ codeunit 134227 "ERM PostRecurringJournal"
             VerifyGenJnlAllocationAmount(GenJournalLine[Index], AllocLineNo[Index], AllocAmt[Index]);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATInfoCopiedOnAllocationLine()
+    var
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        VATEntry: Record "VAT Entry";
+    begin
+        // [FEATURE] [Sales] [Gen. Jnl. Allocation]
+        // [SCENARIO 320952] "Country Code","VAT Registration No." are copied to VAT Entry from Customer when Recurring Journal Line is posted with Allocations
+
+        // [GIVEN] Customer with "VAT Registration No." = "12345678910" and "Country/Region Code" = "FR"
+        LibrarySales.CreateCustomerWithVATRegNo(Customer);
+
+        // [GIVEN] Recurring journal line for sales Invoice with Amount = 100. The line is allocated by 100%.
+        CreateTemplateAndBatch(GenJournalBatch);
+        CreateGeneralJournalLineWithType(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Customer, Customer."No.", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        CreateGenJnlAllocationWithAccountAndAllocPct(
+          GenJournalLine,
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale), 100);
+
+        // [WHEN] Post the recurring journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] VAT Entry for the Invoice with "Country/Region Code" = "FR" and "VAT Registration No." = "12345678910" is created
+        FindVATEntry(VATEntry, VATEntry."Document Type"::Invoice, Customer."No.");
+        VATEntry.TestField("VAT Registration No.", Customer."VAT Registration No.");
+        VATEntry.TestField("Country/Region Code", Customer."Country/Region Code");
+    end;
+
     local procedure CreateGLAccountWithBalanceAtDate(PostingDate: Date; Balance: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1049,6 +1085,13 @@ codeunit 134227 "ERM PostRecurringJournal"
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         GenJournalLine.FindSet;
+    end;
+
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; BillToPayToNo: Code[20])
+    begin
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
+        VATEntry.FindFirst;
     end;
 
     local procedure VerifyGenJnlAllocationAmount(GenJournalLine: Record "Gen. Journal Line"; AllocationLineNo: Integer; ExpectedAmount: Decimal)

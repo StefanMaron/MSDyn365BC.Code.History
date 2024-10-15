@@ -46,17 +46,23 @@ page 9171 "Profile List"
                     Lookup = false;
                     ToolTip = 'Specifies the ID of the Role Center associated with the profile.';
                 }
-                field(DefaultRoleCenterField; "Default Role Center")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Use as default profile';
-                    ToolTip = 'Specifies if this profile is used for all users that are not assigned a role. Only one profile can be set as the default.​';
-                }
                 field(EnabledField; Enabled)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Enabled';
                     ToolTip = 'Specifies whether the profile is available in the list of roles that users can select from. Note: Users that are assigned this profile can continue to sign in even when the profile is not enabled.';
+                }
+                field(DefaultRoleCenterField; "Default Role Center")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Use as default profile';
+                    ToolTip = 'Specifies if this profile is used for all users that are not assigned a role. Only one profile can be set as the default.';
+                }
+                field(PromotedField; Promoted)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show in Role Explorer';
+                    ToolTip = 'Specifies whether the display name and available business features of this profile are shown in the Role Explorer. The profile must also be enabled.';
                 }
             }
         }

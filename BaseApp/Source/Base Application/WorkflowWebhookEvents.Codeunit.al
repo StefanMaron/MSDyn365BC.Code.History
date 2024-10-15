@@ -65,7 +65,7 @@ codeunit 1541 "Workflow Webhook Events"
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
         WorkflowSetup.InsertTableRelation(DATABASE::"Gen. Journal Batch", DummyGenJournalBatch.FieldNo(Id),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
-        WorkflowSetup.InsertTableRelation(DATABASE::"Gen. Journal Line", DummyGenJournalLine.FieldNo(Id),
+        WorkflowSetup.InsertTableRelation(DATABASE::"Gen. Journal Line", DummyGenJournalLine.FieldNo(SystemId),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));
         WorkflowSetup.InsertTableRelation(DATABASE::Item, DummyItem.FieldNo(Id),
           DATABASE::"Workflow Webhook Entry", DummyWorkflowWebhookEntry.FieldNo("Data ID"));

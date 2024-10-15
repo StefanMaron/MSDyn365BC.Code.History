@@ -351,7 +351,10 @@ report 99001026 "Replan Production Order"
                             Delete(true)
                         else begin
                             ExtReservedQtyBase := CalcQtyReservedFromExternalDemand(ProdOrderLine, DATABASE::"Prod. Order Component");
-                            Validate(Quantity, UOMMgt.CalcQtyFromBase(ExtReservedQtyBase, "Qty. per Unit of Measure"));
+                            Validate(
+                              Quantity,
+                              UOMMgt.CalcQtyFromBase(
+                                "Item No.", "Variant Code", "Unit of Measure Code", ExtReservedQtyBase, "Qty. per Unit of Measure"));
                             if Quantity > 0 then
                                 Modify(true)
                             else

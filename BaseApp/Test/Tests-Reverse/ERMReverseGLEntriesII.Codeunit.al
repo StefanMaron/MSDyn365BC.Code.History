@@ -19,6 +19,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         PostingDate2: Date;
         DocumentNo2: Code[20];
         IsInitialized: Boolean;
@@ -259,7 +260,31 @@ codeunit 134148 "ERM Reverse GL Entries-II"
         GLRegister[1].TestField(Reversed, true);
     end;
 
-    [Normal]
+    [Test]
+    [HandlerFunctions('ReverseEntriesCheckDateModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure GeneralJournalLineReverseCheckClosingDate()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        // [FEATURE] [Closind Date] [UI]
+        // [SCENARIO 327812] Reverse transaction for G/L Entry with closing date.
+
+        // [GIVEN] General Journal Line with Closing Date was created and  posted.
+        Initialize;
+        CreateAndPostGeneralJournalLineWithGLAccountsWithClosingDate(GenJournalLine, '');
+
+        // [WHEN] Reverse Transaction Entry.
+        ReverseTransactionOnPage(GenJournalLine."Document No.", GenJournalLine."Account No.");
+
+        // [THEN] Field "Posting Date" in page ReverseEntries shows closing date of G/L Entry
+        Assert.AreEqual(
+          Format(GenJournalLine."Posting Date", 0, '<Closing><Month,2>/<Day,2>/<Year4>'),
+          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -458,7 +483,7 @@ codeunit 134148 "ERM Reverse GL Entries-II"
         exit(GLAccount."No.");
     end;
 
-    local procedure ModifyGeneralJournalLine(GenJournalLine: Record "Gen. Journal Line"; BalanceAccountNo: Code[20]; CurrencyCode: Code[10])
+    local procedure ModifyGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; BalanceAccountNo: Code[20]; CurrencyCode: Code[10])
     begin
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalLine.Validate("Bal. Account No.", BalanceAccountNo);
@@ -476,6 +501,31 @@ codeunit 134148 "ERM Reverse GL Entries-II"
         FilterGLEntry(GLEntry, DocumentNo, AccountNo);
         GLEntry2.Get(GLEntry."Reversed by Entry No.");  // GLEntry2 used to Get the Revarsal Entry.
         GLEntry2.TestField("Additional-Currency Amount", -GLEntry."Additional-Currency Amount");
+    end;
+
+    local procedure ReverseTransactionOnPage(DocumentNo: Code[20]; AccountNo: Code[20])
+    var
+        ReversalEntry: Record "Reversal Entry";
+    begin
+        ReversalEntry.SetHideDialog(false);
+        ReversalEntry.ReverseTransaction(FindGLEntryTransactionNo(DocumentNo, AccountNo));
+    end;
+
+    local procedure CreateAndPostGeneralJournalLineWithGLAccountsWithClosingDate(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10])
+    var
+        GLAccount: array[2] of Record "G/L Account";
+    begin
+        CreateAndUpdateGLAccount(GLAccount[1]);
+        CreateAndUpdateGLAccount(GLAccount[2]);
+
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", GLAccount[1]."No.",
+          -LibraryRandom.RandInt(100));
+        ModifyGeneralJournalLine(GenJournalLine, GLAccount[2]."No.", CurrencyCode);
+        GenJournalLine.Validate("Posting Date", ClosingDate(LibraryFiscalYear.GetFirstPostingDate(false) - 1));
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     [ModalPageHandler]
@@ -518,6 +568,15 @@ codeunit 134148 "ERM Reverse GL Entries-II"
     procedure MessageHandler(Message: Text[1024])
     begin
         // Message Handler.
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReverseEntriesCheckDateModalPageHandler(var ReverseEntries: TestPage "Reverse Entries")
+    begin
+        ReverseEntries.First;
+        LibraryVariableStorage.Enqueue(ReverseEntries."Posting Date".Value);
+        LibraryVariableStorage.Enqueue(ReverseEntries."Posting Date".Caption);
     end;
 }
 

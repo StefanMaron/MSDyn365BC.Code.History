@@ -7222,7 +7222,7 @@ Cstr(Fields!BoardOfDirectorsLocCaption.Value)
         <Height>24.74397cm</Height>
         <Style />
       </Body>
-      <Width>19cm</Width>
+      <Width>18cm</Width>
       <Page>
         <PageHeader>
           <Height>11.25457cm</Height>
@@ -8649,7 +8649,7 @@ Cstr(Fields!BoardOfDirectorsLocCaption.Value)
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>7.5cm</Left>
+              <Left>7cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>46</ZIndex>
@@ -8701,7 +8701,7 @@ Cstr(Fields!BoardOfDirectorsLocCaption.Value)
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>15cm</Left>
+              <Left>14cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>48</ZIndex>

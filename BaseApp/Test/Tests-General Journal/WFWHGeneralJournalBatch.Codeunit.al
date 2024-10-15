@@ -901,6 +901,125 @@ codeunit 134219 "WFWH General Journal Batch"
         CashReceiptJournal.Close;
     end;
 
+    [Test]
+    [HandlerFunctions('GeneralJournalBatchesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ButtonStatusForGeneralJournalBatchAfterLookupSwitch()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        WebhookHelper: Codeunit "Webhook Helper";
+        GenJnlManagement: Codeunit GenJnlManagement;
+        GeneralJournal: TestPage "General Journal";
+    begin
+        // [SCENARIO 321997] Approval actions are correctly enabled/disabled on General Journal page after switching to different General Journal Batch through lookup
+        Initialize;
+        GenJnlManagement.SetJournalSimplePageModePreference(false, PAGE::"General Journal");
+
+        // [GIVEN] Journal batches "B1","B2" with one or more lines
+        CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+        CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        // [GIVEN] Workflow webhook entry exists for batch "B2"
+        WebhookHelper.CreatePendingFlowApproval(GenJournalBatch.RecordId);
+
+        // [GIVEN] General Journal page opened on batch "B2"
+        Commit;
+        GeneralJournal.OpenEdit;
+        GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [WHEN] User opens the journal batch "B1" through lookup
+        GeneralJournal.CurrentJnlBatchName.Lookup;
+
+        // [THEN] Approval actions are correctly enabled/disabled
+        Assert.IsTrue(GeneralJournal.SendApprovalRequestJournalBatch.Enabled, 'Send Batch must be enabled');
+        Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalBatch.Enabled, 'Cancel Batch must be disabled');
+        Assert.IsTrue(GeneralJournal.SendApprovalRequestJournalLine.Enabled, 'Send Line must be enabled');
+        Assert.IsFalse(GeneralJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line must be disabled');
+
+        GeneralJournal.Close;
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralJournalBatchesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ButtonStatusForPaymentJournalBatchAfterLookupSwitch()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        WebhookHelper: Codeunit "Webhook Helper";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [SCENARIO 321997] Approval actions are correctly enabled/disabled on Payment Journal page after switching to different General Journal Batch through lookup
+        Initialize;
+
+        // [GIVEN] Journal batches "B1","B2" with one or more lines
+        CreatePaymentJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+        CreatePaymentJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        // [GIVEN] Workflow webhook entry exists for batch "B2"
+        WebhookHelper.CreatePendingFlowApproval(GenJournalBatch.RecordId);
+
+        // [GIVEN] Payment Journal page opened on batch "B2"
+        Commit;
+        PaymentJournal.OpenEdit;
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [WHEN] User opens the journal batch "B1" through lookup
+        PaymentJournal.CurrentJnlBatchName.Lookup;
+
+        // [THEN] Approval actions are correctly enabled/disabled
+        Assert.IsTrue(PaymentJournal.SendApprovalRequestJournalBatch.Enabled, 'Send Batch must be enabled');
+        Assert.IsFalse(PaymentJournal.CancelApprovalRequestJournalBatch.Enabled, 'Cancel Batch must be disabled');
+        Assert.IsTrue(PaymentJournal.SendApprovalRequestJournalLine.Enabled, 'Send Line must be enabled');
+        Assert.IsFalse(PaymentJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line must be disabled');
+
+        PaymentJournal.Close;
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralJournalBatchesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ButtonStatusForCashReceiptJournalBatchAfterLookupSwitch()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        WebhookHelper: Codeunit "Webhook Helper";
+        CashReceiptJournal: TestPage "Cash Receipt Journal";
+    begin
+        // [SCENARIO 321997] Approval actions are correctly enabled/disabled on Cash Receipt Journal page after switching to different General Journal Batch through lookup
+        Initialize;
+
+        // [GIVEN] Journal batches "B1","B2" with one or more lines
+        CreateCashReceiptJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
+        CreateCashReceiptJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
+
+        // [GIVEN] Workflow webhook entry exists for batch "B2"
+        WebhookHelper.CreatePendingFlowApproval(GenJournalBatch.RecordId);
+
+        // [GIVEN] Cash Receipt Journal page opened on batch "B2"
+        Commit;
+        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+
+        // [WHEN] User opens the journal batch "B1" through lookup
+        CashReceiptJournal.CurrentJnlBatchName.Lookup;
+
+        // [THEN] Approval actions are correctly enabled/disabled
+        Assert.IsTrue(CashReceiptJournal.SendApprovalRequestJournalBatch.Enabled, 'Send Batch must be enabled');
+        Assert.IsFalse(CashReceiptJournal.CancelApprovalRequestJournalBatch.Enabled, 'Cancel Batch must be disabled');
+        Assert.IsTrue(CashReceiptJournal.SendApprovalRequestJournalLine.Enabled, 'Send Line must be enabled');
+        Assert.IsFalse(CashReceiptJournal.CancelApprovalRequestJournalLine.Enabled, 'Cancel Line must be disabled');
+
+        CashReceiptJournal.Close;
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         Workflow: Record Workflow;
@@ -1074,6 +1193,14 @@ codeunit 134219 "WFWH General Journal Batch"
         WorkflowWebhookEntry.FindFirst;
 
         WorkflowWebhookEntry.TestField(Response, ResponseArgument);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GeneralJournalBatchesModalPageHandler(var GeneralJournalBatches: TestPage "General Journal Batches")
+    begin
+        GeneralJournalBatches.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
+        GeneralJournalBatches.OK.Invoke;
     end;
 }
 

@@ -34,6 +34,9 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         if not CheckValidRecord(Rec) or (not GraphMgtGeneralTools.IsApiEnabled) then
             exit;
 
+        if IsBackgroundPosting(Rec) then
+            exit;
+
         InsertOrModifyFromSalesHeader(Rec);
     end;
 
@@ -911,6 +914,14 @@ codeunit 5508 "Graph Mgt - Sal. Cr. Memo Buf."
         SalesInvoiceLineAggregate."Line Tax Amount" :=
           SalesInvoiceLineAggregate."Line Amount Including Tax" - SalesInvoiceLineAggregate."Line Amount Excluding Tax";
         SalesInvoiceAggregator.UpdateInvoiceDiscountAmount(SalesInvoiceLineAggregate);
+    end;
+
+    local procedure IsBackgroundPosting(var SalesHeader: Record "Sales Header"): Boolean
+    begin
+        if SalesHeader.IsTemporary then
+            exit(false);
+
+        exit(SalesHeader."Job Queue Status" in [SalesHeader."Job Queue Status"::"Scheduled for Posting", SalesHeader."Job Queue Status"::Posting]);
     end;
 }
 
