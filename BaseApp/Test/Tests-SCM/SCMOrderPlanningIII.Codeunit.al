@@ -1101,7 +1101,7 @@ codeunit 137088 "SCM Order Planning - III"
         Purchasing: Record Purchasing;
     begin
         // [FEATURE] [Unit of Measure] [Special Order]
-        // [SCENARIO 207135] Updating of "Currency Code" in the Header of Purchase Order related with Sales Order with Special Order "Purchasing Code" retains the same "Unit of Measure Code" = Item."Purch. Unit of Measure" as it was created during Carry Ou
+        // [SCENARIO 207135] Updating of "Currency Code" in the Header of Purchase Order related with Sales Order with Special Order "Purchasing Code" retains the same "Unit of Measure Code" as it was created during Carry Out Action Message
         Initialize;
 
         // [GIVEN] Item "I" with "Vendor No." and "Purch. Unit of Measure";
@@ -1117,12 +1117,12 @@ codeunit 137088 "SCM Order Planning - III"
         // [WHEN] Update Currency Code for "PO" through the Header
         UpdatePurchaseHeaderCurrencyCode(PurchaseHeader);
 
-        // [THEN] "PL"."Unit of Measure Code" = "I"."Purch. Unit of Measure", "PL"."Quantity (Base)" = "SL"."Quantity (Base)"
+        // [THEN] "PL"."Unit of Measure Code" = "SL"."Unit of Measure Code", "PL"."Quantity (Base)" = "SL"."Quantity (Base)"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseLine."Document No.");
         PurchaseLine.FindFirst;  // Cannot use GET because one of the key fields "Line No." could be changed while line recreation
         VerifyPurchaseLineUnitOfMeasureCodeAndQuantityBase(
-          PurchaseLine, Item."Purch. Unit of Measure", SalesLine."Quantity (Base)");
+          PurchaseLine, SalesLine."Unit of Measure Code", SalesLine."Quantity (Base)");
     end;
 
     [Test]
@@ -1138,7 +1138,7 @@ codeunit 137088 "SCM Order Planning - III"
         Purchasing: Record Purchasing;
     begin
         // [FEATURE] [Unit of Measure] [Special Order]
-        // [SCENARIO 207135] Updating of "Currency Code" in the Header of Purchase Order related with Sales Order with Drop Shipment "Purchasing Code" retains the same "Unit of Measure Code" = Item."Purch. Unit of Measure" as it was created during Carry Ou
+        // [SCENARIO 207135] Updating of "Currency Code" in the Header of Purchase Order related with Sales Order with Drop Shipment "Purchasing Code" retains the same "Unit of Measure Code" as it was created during Carry Out Action Message
         Initialize;
 
         // [GIVEN] Item "I" with "Vendor No." and "Purch. Unit of Measure";
@@ -1154,7 +1154,7 @@ codeunit 137088 "SCM Order Planning - III"
         // [WHEN] Update Currency Code for "PO" through the Header
         UpdatePurchaseHeaderCurrencyCode(PurchaseHeader);
 
-        // [THEN] "PL"."Unit of Measure Code" = "I"."Purch. Unit of Measure", "PL"."Quantity (Base)" = "SL"."Quantity (Base)"
+        // [THEN] "PL"."Unit of Measure Code" = "SL"."Unit of Measure Code", "PL"."Quantity (Base)" = "SL"."Quantity (Base)"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseLine."Document No.");
         PurchaseLine.FindFirst;  // Cannot use GET because one of the key fields "Line No." could be changed while line recreation
