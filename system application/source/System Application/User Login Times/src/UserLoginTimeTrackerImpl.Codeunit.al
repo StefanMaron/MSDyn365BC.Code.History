@@ -102,10 +102,12 @@ codeunit 9013 "User Login Time Tracker Impl."
                 UserEnvironmentLogin.Insert(true);
             end;
         end;
+        Commit();
 
 #if not CLEAN21
-        Commit();
+#pragma warning disable AL0432
         UserLoginTimeTracker.OnAfterCreateorUpdateLoginInfo(UserSecurityId());
+#pragma warning restore AL0432
 #endif
     end;
 }
