@@ -702,7 +702,25 @@ codeunit 9751 "Web Service Management Impl."
                 end;
             until TenantWebServiceColumns.Next() = 0;
 
+        ApplyFlowFilters(BaseRecRef, UpdatedRecRef, UpdatedFieldRef);
+
         exit(UpdatedRecRef.GetView());
+    end;
+
+    local procedure ApplyFlowFilters(var BaseRecordRef: RecordRef; var UpdatedRecordRef: RecordRef; var UpdatedFieldRef: FieldRef)
+    var
+        FlowFilterFieldRef: FieldRef;
+        BaseFieldRef: FieldRef;
+        FieldIndex: Integer;
+    begin
+        for FieldIndex := 1 to BaseRecordRef.FieldCount do begin
+            FlowFilterFieldRef := BaseRecordRef.FieldIndex(FieldIndex);
+            if FlowFilterFieldRef.Class = FlowFilterFieldRef.Class::FlowFilter then begin
+                BaseFieldRef := BaseRecordRef.FieldIndex(FieldIndex);
+                UpdatedFieldRef := UpdatedRecordRef.FieldIndex(FieldIndex);
+                UpdatedFieldRef.SetFilter(BaseFieldRef.GetFilter());
+            end;
+        end;
     end;
 
     local procedure GenerateODataV3Url(ServiceRootUrlParam: Text; ServiceNameParam: Text; ObjectTypeParam: Option ,,,,,,,,"Page","Query"): Text

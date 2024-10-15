@@ -22,7 +22,6 @@ report 502 "Intrastat - Checklist"
             {
                 DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
                 DataItemTableView = SORTING(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Transaction Specification", Area);
-                RequestFilterFields = Type;
                 column(TodayFormatted; Format(Today, 0, 4))
                 {
                 }

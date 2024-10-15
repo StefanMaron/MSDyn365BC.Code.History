@@ -454,6 +454,8 @@ codeunit 1004 "Job Transfer Line"
         JobTask: Record "Job Task";
         UOMMgt: Codeunit "Unit of Measure Management";
         Factor: Decimal;
+        NondeductibleVATAmount: Decimal;
+        NondeductibleVATAmtPrUnitLCY: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -498,9 +500,12 @@ codeunit 1004 "Job Transfer Line"
                 JobJnlLine."External Document No." := PurchHeader."Vendor Invoice No.";
             end;
 
+            NondeductibleVATAmount := PurchLine.GetNonDeductibleVATAmount();
+            NondeductibleVATAmtPrUnitLCY := NondeductibleVATAmount / Quantity;
+
             GetCurrencyRounding(JobJnlLine."Currency Code");
 
-            JobJnlLine."Unit Cost (LCY)" := "Unit Cost (LCY)" / "Qty. per Unit of Measure";
+            JobJnlLine."Unit Cost (LCY)" := "Unit Cost (LCY)" / "Qty. per Unit of Measure" + Abs(NondeductibleVATAmtPrUnitLCY);
             OnFromPurchaseLineToJnlLineOnAfterCalcUnitCostLCY(JobJnlLine, PurchLine);
 
             if Type = Type::Item then begin
@@ -508,7 +513,7 @@ codeunit 1004 "Job Transfer Line"
                     JobJnlLine."Unit Cost (LCY)" := 0
                 else
                     if Item."Costing Method" = Item."Costing Method"::Standard then
-                        JobJnlLine."Unit Cost (LCY)" := Item."Standard Cost";
+                        JobJnlLine."Unit Cost (LCY)" := Item."Standard Cost" + NondeductibleVATAmtPrUnitLCY;
             end;
             JobJnlLine."Unit Cost (LCY)" := Round(JobJnlLine."Unit Cost (LCY)", LCYCurrency."Unit-Amount Rounding Precision");
 
@@ -539,13 +544,13 @@ codeunit 1004 "Job Transfer Line"
                   Round(JobJnlLine."Unit Cost (LCY)" * JobJnlLine.Quantity, LCYCurrency."Amount Rounding Precision");
 
             if "Currency Code" = '' then
-                JobJnlLine."Direct Unit Cost (LCY)" := "Direct Unit Cost"
+                JobJnlLine."Direct Unit Cost (LCY)" := "Direct Unit Cost" + NondeductibleVATAmtPrUnitLCY
             else
                 JobJnlLine."Direct Unit Cost (LCY)" :=
                   CurrencyExchRate.ExchangeAmtFCYToLCY(
                     PurchHeader."Posting Date",
                     "Currency Code",
-                    "Direct Unit Cost",
+                    "Direct Unit Cost" + NondeductibleVATAmtPrUnitLCY,
                     PurchHeader."Currency Factor");
 
             JobJnlLine."Unit Price (LCY)" :=
