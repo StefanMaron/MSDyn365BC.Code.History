@@ -3331,6 +3331,44 @@
         VerifySalesLineType(SalesLine, SalesLineType);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReceiveSalesReturnOrderForDeletedShipTo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ShipToAddress: Record "Ship-to Address";
+        Customer: Record Customer;
+        CustomerNo: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 443051] Ensure that Sales return is getting posted even if ship-to code is deleted from the ship-to address table.
+        Initialize();
+
+        // [GIVEN] Create customer, Ship-to Address
+        CustomerNo := CreateCustomer();
+        LibrarySales.CreateShipToAddress(ShipToAddress, CustomerNo);
+
+        // [GIVEN] Update Ship-to code on customer
+        Customer.Get(CustomerNo);
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create sales return document and update ship-to code of the sales header with customer
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", CustomerNo);
+        SalesHeader.Validate("Ship-to Code", ShipToAddress.Code);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Delete ship-to address
+        ShipToAddress.Delete(true);
+
+        // [WHEN] Return order is posted
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Order should be posted without any error
+        VerifyItemLedgerEntry(DocumentNo, SalesLine."No.", SalesLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";

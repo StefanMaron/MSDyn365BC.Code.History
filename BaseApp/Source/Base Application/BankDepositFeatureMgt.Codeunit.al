@@ -58,6 +58,17 @@ codeunit 1514 "Bank Deposit Feature Mgt."
         DisableDepositActions();
     end;
 
+    internal procedure PreviousNADepositStateDetected()
+    begin
+        OnPreviousNADepositStateDetected();
+        Commit();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreviousNADepositStateDetected()
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsEnabled(var Result: Boolean; var IsHandled: Boolean)
     begin

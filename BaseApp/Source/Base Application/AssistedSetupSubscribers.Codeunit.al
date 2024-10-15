@@ -129,7 +129,6 @@ codeunit 1814 "Assisted Setup Subscribers"
         SetupTimeSheetsHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2166666';
         SetupTimeSheetsDescriptionTxt: Label 'Track the time used on jobs, register absences, or create simple time registrations for team members on any device.';
 
-
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
     local procedure Initialize()
     var

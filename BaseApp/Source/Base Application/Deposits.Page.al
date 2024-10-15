@@ -141,14 +141,31 @@ page 36646 Deposits
 
     trigger OnInit()
     var
+        DepositsPageSetup: Record "Deposits Page Setup";
         BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
         OpenDepositsPage: Codeunit "Open Deposits Page";
+        DepositsPageMgt: Codeunit "Deposits Page Mgt.";
+        DepositsPageSetupKey: Enum "Deposits Page Setup Key";
     begin
         if BankDepositFeatureMgt.IsEnabled() then begin
+            if not DepositsPageMgt.GetDepositsPageSetup(DepositsPageSetupKey::DepositsPage, DepositsPageSetup) then begin
+                BankDepositFeatureMgt.PreviousNADepositStateDetected();
+                if not DepositsPageMgt.GetDepositsPageSetup(DepositsPageSetupKey::DepositsPage, DepositsPageSetup) then
+                    exit;
+            end;
+            if DepositsPageSetup.ObjectId = PAGE::Deposits then begin
+                BankDepositFeatureMgt.PreviousNADepositStateDetected();
+                DepositsPageMgt.GetDepositsPageSetup(DepositsPageSetupKey::DepositsPage, DepositsPageSetup);
+                if DepositsPageSetup.ObjectId = PAGE::Deposits then
+                    exit;
+            end;
             OpenDepositsPage.Run();
-            Error('Opening "Bank Deposits" instead.');
+            Error(OpenAnotherPageErr);
         end;
     end;
+
+    var
+        OpenAnotherPageErr: Label 'Opening Bank Deposits page instead.';
 }
 
 #endif

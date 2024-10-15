@@ -1712,6 +1712,12 @@
         {
             Caption = 'CFDI General Public';
         }
+        field(27006; "CFDI Period"; Option) 
+        {
+            Caption = 'CFDI Period';
+            OptionCaption = 'Diario,Semanal,Quincenal,Mensual';
+            OptionMembers = "Diario","Semanal","Quincenal","Mensual"; 
+        }
 
     }
 
@@ -2635,7 +2641,7 @@
         Customer.SetFilter(Name, CustomerFilterFromStart);
         OnGetCustNoOpenCardOnAfterOnAfterCustomerFilterFromStart(Customer);
 
-        if Customer.FindFirst() then
+        if Customer.FindFirst() and (Customer.Count() = 1) then
             exit(Customer."No.");
 
         CustomerFilterContains := '''@*' + CustomerWithoutQuote + '*''';

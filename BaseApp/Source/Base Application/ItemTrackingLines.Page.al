@@ -1646,7 +1646,7 @@
         xTrackingSpec.Copy(Rec);
         Rec.Reset();
         Rec.CalcSums("Quantity (Base)", "Qty. to Handle (Base)", "Qty. to Invoice (Base)");
-        OnCalculateSumsOnAfterCalcSums(Rec);
+        OnCalculateSumsOnAfterCalcSums(Rec, SourceTrackingSpecification);
         TotalTrackingSpecification := Rec;
         Rec.Copy(xTrackingSpec);
 
@@ -1811,10 +1811,8 @@
                                 if ShouldModifyTrackingSpecification(xTempTrackingSpecification, TempItemTrackLineModify) then begin
                                     RegisterChange(xTempTrackingSpecification, xTempTrackingSpecification, ChangeType::Delete, false);
                                     RegisterChange(TempItemTrackLineModify, TempItemTrackLineModify, ChangeType::Insert, false);
-                                    if (TempItemTrackLineInsert."Quantity (Base)" <> TempItemTrackLineInsert."Qty. to Handle (Base)") or
-                                       (TempItemTrackLineInsert."Quantity (Base)" <> TempItemTrackLineInsert."Qty. to Invoice (Base)")
-                                    then
-                                        SetQtyToHandleAndInvoice(TempItemTrackLineInsert);
+                                    if QtyToHandleOrInvoiceDifferFromQuantity(TempItemTrackLineModify) then
+                                        SetQtyToHandleAndInvoice(TempItemTrackLineModify);
                                 end else begin
                                     RegisterChange(xTempTrackingSpecification, TempItemTrackLineModify, ChangeType::Modify, false);
                                     SetQtyToHandleAndInvoice(TempItemTrackLineModify);
@@ -1840,9 +1838,7 @@
                     OnWriteToDatabaseOnBeforeRegisterInsert(TempItemTrackLineInsert);
                     if not RegisterChange(TempItemTrackLineInsert, TempItemTrackLineInsert, ChangeType::Insert, false) then
                         Error(Text005);
-                    if (TempItemTrackLineInsert."Quantity (Base)" <> TempItemTrackLineInsert."Qty. to Handle (Base)") or
-                       (TempItemTrackLineInsert."Quantity (Base)" <> TempItemTrackLineInsert."Qty. to Invoice (Base)")
-                    then
+                    if QtyToHandleOrInvoiceDifferFromQuantity(TempItemTrackLineInsert) then
                         SetQtyToHandleAndInvoice(TempItemTrackLineInsert);
                 until TempItemTrackLineInsert.Next() = 0;
                 TempItemTrackLineInsert.DeleteAll();
@@ -2187,7 +2183,7 @@
         QtyToInvoiceThisLine: Decimal;
         ModifyLine: Boolean;
     begin
-        OnBeforeSetQtyToHandleAndInvoice(TrackingSpecification, IsCorrection, CurrentSignFactor);
+        OnBeforeSetQtyToHandleAndInvoice(TrackingSpecification, IsCorrection, CurrentSignFactor, TotalTrackingSpecification);
 
         if IsCorrection then
             exit;
@@ -2198,9 +2194,11 @@
         ReservEntry1.TransferFields(TrackingSpecification);
         ReservEntry1.SetPointerFilter();
         ReservEntry1.SetTrackingFilterFromReservEntry(ReservEntry1);
+        OnSetQtyToHandleAndInvoiceOnAfterSetReservEntry1Filters(ReservEntry1, TrackingSpecification, SourceTrackingSpecification);
         if TrackingSpecification.TrackingExists() then begin
             ItemTrackingMgt.SetPointerFilter(TrackingSpecification);
             TrackingSpecification.SetTrackingFilterFromSpec(TrackingSpecification);
+            OnSetQtyToHandleAndInvoiceOnAfterSetTrackingSpecificationFilters(TrackingSpecification, SourceTrackingSpecification);
             if TrackingSpecification.Find('-') then
                 repeat
                     if not TrackingSpecification.Correction then begin
@@ -2232,7 +2230,7 @@
                 ReservEntry1."Reservation Status"::Prospect
             do begin
                 ReservEntry1.SetRange("Reservation Status", ReservEntry1."Reservation Status");
-                if ReservEntry1.Find('-') then
+                if ReservEntry1.FindFirst() then
                     repeat
                         ModifyLine := false;
                         QtyToHandleThisLine := ReservEntry1."Quantity (Base)";
@@ -2416,7 +2414,7 @@
         if ZeroLineExists then
             Rec.Delete();
 
-        QtyToCreate := UndefinedQtyArray[1] * QtySignFactor;
+        QtyToCreate := UndefinedQtyArray[1] * QtySignFactor();
         if QtyToCreate < 0 then
             QtyToCreate := 0;
 
@@ -2511,7 +2509,7 @@
         Rec."Qty. per Unit of Measure" := QtyPerUOM;
         Rec."Qty. Rounding Precision (Base)" := QtyRoundingPerBase;
         Rec.Validate("Quantity (Base)", QtyToCreate);
-        Rec."Entry No." := NextEntryNo;
+        Rec."Entry No." := NextEntryNo();
         TestTempSpecificationExists();
         Rec.Insert();
 
@@ -2622,7 +2620,7 @@
         if ZeroLineExists() then
             Rec.Delete();
 
-        QtyToCreate := UndefinedQtyArray[1] * QtySignFactor;
+        QtyToCreate := UndefinedQtyArray[1] * QtySignFactor();
         if QtyToCreate < 0 then
             QtyToCreate := 0;
 
@@ -2725,6 +2723,8 @@
     end;
 
     procedure RegisterItemTrackingLines(SourceTrackingSpecification: Record "Tracking Specification"; AvailabilityDate: Date; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    var
+        IsHandled: Boolean;
     begin
         SourceTrackingSpecification.TestField("Source Type"); // Check if source has been set.
         if not CalledFromSynchWhseItemTrkg then
@@ -2739,15 +2739,20 @@
         Rec.SetTrackingKey();
 
         repeat
-            SetTrackingFilterFromSpec(TempTrackingSpecification);
-            if Find('-') then begin
+            Rec.SetTrackingFilterFromSpec(TempTrackingSpecification);
+            OnRegisterItemTrackingLinesOnBeforeFind(Rec, TempTrackingSpecification, CurrentRunMode);
+            if Rec.Find('-') then begin
                 OnRegisterItemTrackingLinesOnAfterFind(Rec, TempTrackingSpecification, IsCorrection);
                 if IsCorrection then begin
                     Rec."Quantity (Base)" += TempTrackingSpecification."Quantity (Base)";
                     Rec."Qty. to Handle (Base)" += TempTrackingSpecification."Qty. to Handle (Base)";
                     Rec."Qty. to Invoice (Base)" += TempTrackingSpecification."Qty. to Invoice (Base)";
-                end else
-                    Rec.Validate("Quantity (Base)", "Quantity (Base)" + TempTrackingSpecification."Quantity (Base)");
+                end else begin
+                    IsHandled := false;
+                    OnRegisterItemTrackingLinesOnBeforeValidateExistingQuantityBase(Rec, TempTrackingSpecification, CurrentRunMode, IsHandled);
+                    if not IsHandled then
+                        Rec.Validate("Quantity (Base)", Rec."Quantity (Base)" + TempTrackingSpecification."Quantity (Base)");
+                end;
                 OnRegisterItemTrackingLinesOnBeforeModify(Rec, TempTrackingSpecification);
                 Rec.Modify();
             end else begin
@@ -2762,7 +2767,8 @@
                 end;
                 OnAfterCopyTrackingSpec(TempTrackingSpecification, Rec);
                 Rec.Validate("Quantity (Base)", TempTrackingSpecification."Quantity (Base)");
-                Rec."Entry No." := NextEntryNo;
+                Rec."Entry No." := NextEntryNo();
+                OnRegisterItemTrackingLinesOnBeforeInsert(Rec, TempTrackingSpecification, SourceTrackingSpecification);
                 Rec.Insert();
             end;
         until TempTrackingSpecification.Next() = 0;
@@ -2777,14 +2783,14 @@
         Rec.SetTrackingFilterFromSpec(SourceTrackingSpecification);
 
         CalculateSums();
-        if UpdateUndefinedQty then
-            WriteToDatabase
+        if UpdateUndefinedQty() then
+            WriteToDatabase()
         else
             Error(Text014, TotalTrackingSpecification."Quantity (Base)",
-              LowerCase(TempReservEntry.TextCaption), SourceQuantityArray[1]);
+              LowerCase(TempReservEntry.TextCaption()), SourceQuantityArray[1]);
 
         // Copy to inbound part of transfer
-        if (CurrentRunMode = CurrentRunMode::Transfer) or IsOrderToOrderBindingToTransfer then
+        if (CurrentRunMode = CurrentRunMode::Transfer) or IsOrderToOrderBindingToTransfer() then
             SynchronizeLinkedSources('');
     end;
 
@@ -2892,7 +2898,7 @@
             until Rec.Next() = 0;
         LastEntryNo := Rec."Entry No.";
         CalculateSums();
-        UpdateUndefinedQtyArray;
+        UpdateUndefinedQtyArray();
         Rec.CopyFilters(xTrackingSpec);
         CurrPage.Update(false);
     end;
@@ -2919,6 +2925,8 @@
 
     protected procedure LotNoOnAfterValidate()
     begin
+        OnBeforeLotNoOnAfterValidate(Rec, SourceQuantityArray);
+
         UpdateExpDateEditable();
         CurrPage.Update();
     end;
@@ -2945,12 +2953,12 @@
 
     local procedure ExpirationDateOnFormat()
     begin
-        UpdateExpDateColor;
+        UpdateExpDateColor();
     end;
 
     local procedure TempRecValid()
     begin
-        if not TempRecIsValid then
+        if not TempRecIsValid() then
             Error(Text007);
     end;
 
@@ -3269,6 +3277,20 @@
         SourceQuantityArray[3] := TrackingSpecification."Qty. to Invoice (Base)";
         SourceQuantityArray[4] := TrackingSpecification."Quantity Handled (Base)";
         SourceQuantityArray[5] := TrackingSpecification."Quantity Invoiced (Base)";
+    end;
+
+    local procedure QtyToHandleOrInvoiceDifferFromQuantity(ItemTrackingLine: Record "Tracking Specification") HasChanged: Boolean
+    begin
+        HasChanged :=
+            (ItemTrackingLine."Quantity (Base)" <> ItemTrackingLine."Qty. to Handle (Base)") or
+            (ItemTrackingLine."Quantity (Base)" <> ItemTrackingLine."Qty. to Invoice (Base)");
+
+        OnAfterQtyToHandleOrInvoiceDifferFromQuantity(ItemTrackingLine, HasChanged);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterQtyToHandleOrInvoiceDifferFromQuantity(ItemTrackingLine: Record "Tracking Specification"; var HasChanged: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -3680,7 +3702,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateSumsOnAfterCalcSums(var TrackingSpecification: Record "Tracking Specification")
+    local procedure OnCalculateSumsOnAfterCalcSums(var TrackingSpecification: Record "Tracking Specification"; var SourceTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 
@@ -3690,7 +3712,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetQtyToHandleAndInvoice(var TrackingSpecification: record "Tracking Specification"; IsCorrection: Boolean; CurrentSignFactor: Integer)
+    local procedure OnBeforeSetQtyToHandleAndInvoice(var TrackingSpecification: record "Tracking Specification"; IsCorrection: Boolean; CurrentSignFactor: Integer; var TotalTrackingSpecification: record "Tracking Specification")
     begin
     end;
 
@@ -3718,5 +3740,34 @@
     local procedure OnSetSourceSpecOnAfterSetCurrentSourceRowID(CurrentRunMode: Enum "Item Tracking Run Mode"; var CurrentSourceRowID: Text[250]; TrackingSpecification: Record "Tracking Specification")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLotNoOnAfterValidate(var TempTrackingSpecification: Record "Tracking Specification" temporary; SecondSourceQuantityArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetQtyToHandleAndInvoiceOnAfterSetTrackingSpecificationFilters(var TrackingSpecification: Record "Tracking Specification"; SourceTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetQtyToHandleAndInvoiceOnAfterSetReservEntry1Filters(var ReservEntry1: Record "Reservation Entry"; var TrackingSpecification: Record "Tracking Specification"; SourceTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterItemTrackingLinesOnBeforeValidateExistingQuantityBase(var TrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification" temporary; CurrentRunMode: Enum "Item Tracking Run Mode"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterItemTrackingLinesOnBeforeFind(var TrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification" temporary; CurrentRunMode: Enum "Item Tracking Run Mode")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterItemTrackingLinesOnBeforeInsert(var TrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification" temporary; SourceTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+}
