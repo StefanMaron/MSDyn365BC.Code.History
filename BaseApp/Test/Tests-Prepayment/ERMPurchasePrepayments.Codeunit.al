@@ -17,6 +17,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         PurchasePostPrepayments: Codeunit "Purchase-Post Prepayments";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryInventory: Codeunit "Library - Inventory";
         IsInitialized: Boolean;
         LCYCode: Code[10];
         NoAmtFoundToBePostedErr: Label 'No amount found to be posted.';
@@ -277,12 +278,19 @@ codeunit 134333 "ERM Purchase Prepayments"
     local procedure PrepareItemAccordingToSetup(var Item: Record Item; GLAccount: Record "G/L Account")
     var
         InventoryPostingGroup: Record "Inventory Posting Group";
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
         // Create an Item that uses this setup (finding was not possible in all cases).
         InventoryPostingGroup.FindFirst();
 
         Item.Init();
         Item.Insert(true);
+
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, LibraryRandom.RandInt(0));
+
+        Item.Validate("Base Unit of Measure", ItemUnitOfMeasure.Code);
         Item.Validate("Gen. Prod. Posting Group", GLAccount."Gen. Prod. Posting Group");
         Item.Validate("VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
         Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
