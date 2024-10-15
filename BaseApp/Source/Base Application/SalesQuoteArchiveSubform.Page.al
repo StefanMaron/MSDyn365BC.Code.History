@@ -37,9 +37,9 @@ page 5163 "Sales Quote Archive Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -329,7 +329,6 @@ page 5163 "Sales Quote Archive Subform"
     trigger OnOpenPage()
     begin
         SetDimensionsVisibility();
-        SetItemReferenceVisibility();
     end;
 
     trigger OnAfterGetRecord()
@@ -338,10 +337,6 @@ page 5163 "Sales Quote Archive Subform"
     begin
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
     end;
-
-    var
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -371,13 +366,6 @@ page 5163 "Sales Quote Archive Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 }
 

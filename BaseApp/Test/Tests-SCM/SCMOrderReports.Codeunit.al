@@ -18,6 +18,7 @@ codeunit 137303 "SCM Order Reports"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
 
     [Test]
@@ -234,6 +235,45 @@ codeunit 137303 "SCM Order Reports"
         LibraryReportDataset.LoadDataSetFile;
         VerifyCompareListReport(Item[3]);
         VerifyCompareListReport(Item[4]);
+    end;
+
+    [Test]
+    [HandlerFunctions('CompareListRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ProductionBOMWithVersionCompareListReport()
+    var
+        Item1: Record Item;
+        Item2: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 418989] There are no any errors if "Production BOM Version"."Version Code" has length 20
+        Initialize();
+
+        LibraryInventory.CreateItem(Item1);
+        LibraryInventory.CreateItem(Item2);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item1."Base Unit of Measure");
+        Item1.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item1.Modify(true);
+
+        LibraryManufacturing.CreateProductionBOMVersion(
+            ProductionBOMVersion, ProductionBOMHeader."No.",
+            LibraryUtility.GenerateRandomCode20(ProductionBOMVersion.FieldNo("Version Code"), Database::"Production BOM Version"),
+            ProductionBOMHeader."Unit of Measure Code");
+        ProductionBOMVersion.Validate(Status, ProductionBOMVersion.Status::Certified);
+        ProductionBOMVersion.Modify(true);
+
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item2."Base Unit of Measure");
+        Item2.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item2.Modify(true);
+
+        Commit();
+        LibraryVariableStorage.Enqueue(Item1."No.");
+        LibraryVariableStorage.Enqueue(Item2."No.");
+        LibraryVariableStorage.Enqueue(WorkDate);
+        Report.Run(Report::"Compare List", true, false);
     end;
 
     local procedure Initialize()

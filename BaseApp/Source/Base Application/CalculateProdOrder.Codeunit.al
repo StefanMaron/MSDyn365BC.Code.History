@@ -98,6 +98,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 end;
         end;
 
+        OnTransferRoutingOnBeforeCalcRoutingCostPerUnit(ProdOrderRoutingLine, ProdOrderLine, RoutingLine);
         CostCalcMgt.RoutingCostPerUnit(
             ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.",
             ProdOrderRoutingLine."Direct Unit Cost", ProdOrderRoutingLine."Indirect Cost %", ProdOrderRoutingLine."Overhead Rate",
@@ -1032,6 +1033,11 @@ codeunit 99000773 "Calculate Prod. Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferRoutingOnbeforeValidateDirectUnitCost(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; RoutingLine: Record "Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnTransferRoutingOnBeforeCalcRoutingCostPerUnit(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; RoutingLine: Record "Routing Line")
     begin
     end;
 

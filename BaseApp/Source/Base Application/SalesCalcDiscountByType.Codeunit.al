@@ -21,6 +21,11 @@ codeunit 56 "Sales - Calc Discount By Type"
         CalcInvoiceDiscountOnSalesLine: Boolean;
 
     procedure ApplyDefaultInvoiceDiscount(InvoiceDiscountAmount: Decimal; var SalesHeader: Record "Sales Header")
+    begin
+        ApplyDefaultInvoiceDiscount(InvoiceDiscountAmount, SalesHeader, false);
+    end;
+
+    internal procedure ApplyDefaultInvoiceDiscount(InvoiceDiscountAmount: Decimal; var SalesHeader: Record "Sales Header"; ModifyBeforeApplying: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -29,11 +34,15 @@ codeunit 56 "Sales - Calc Discount By Type"
 
         IsHandled := false;
         OnBeforeApplyDefaultInvoiceDiscount(SalesHeader, IsHandled, InvoiceDiscountAmount);
-        if not IsHandled then
+        if not IsHandled then begin
+            if ModifyBeforeApplying then
+                SalesHeader.Modify();
+
             if SalesHeader."Invoice Discount Calculation" = SalesHeader."Invoice Discount Calculation"::Amount then
                 ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, SalesHeader)
             else
                 ApplyInvDiscBasedOnPct(SalesHeader);
+        end;
 
         ResetRecalculateInvoiceDisc(SalesHeader);
     end;

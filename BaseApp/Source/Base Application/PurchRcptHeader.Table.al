@@ -491,6 +491,10 @@ table 120 "Purch. Rcpt. Header"
             Caption = 'Inbound Whse. Handling Time';
             Editable = false;
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
     }
 
     keys
@@ -560,7 +564,7 @@ table 120 "Purch. Rcpt. Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure ShowDimensions()

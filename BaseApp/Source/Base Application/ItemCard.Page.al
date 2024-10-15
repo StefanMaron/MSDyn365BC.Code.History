@@ -1854,9 +1854,9 @@ page 30 "Item Card"
 #endif
                 action("Item Re&ferences")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item Re&ferences';
-                    Visible = ItemReferenceVisible;
                     Image = Change;
                     RunObject = Page "Item Reference Entries";
                     RunPageLink = "Item No." = FIELD("No.");
@@ -2561,7 +2561,6 @@ page 30 "Item Card"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         EnvironmentInfo: Codeunit "Environment Information";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
         OnBeforeOnOpenPage(Rec);
         IsFoundationEnabled := ApplicationAreaMgmtFacade.IsFoundationEnabled();
@@ -2569,7 +2568,9 @@ page 30 "Item Card"
         IsSaaS := EnvironmentInfo.IsSaaS();
         DescriptionFieldVisible := true;
         SetOverReceiptControlsVisibility();
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+#if not CLEAN19
+        ItemReferenceVisible := true;
+#endif        
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         if CRMIntegrationEnabled then
             if IntegrationTableMapping.Get('ITEM-PRODUCT') then
@@ -2633,8 +2634,10 @@ page 30 "Item Card"
         IsInventoriable: Boolean;
         ExpirationCalculationEditable: Boolean;
         OverReceiptAllowed: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif
         ExtendedPriceEnabled: Boolean;
         [InDataSet]
         TimeBucketEnable: Boolean;

@@ -1261,7 +1261,7 @@
                     end;
                 end;
         end;
-        OnAfterSetTypeForContact(Rec);
+        OnAfterSetTypeForContact(Rec, xRec);
         Validate("Lookup Contact No.");
 
         if Cont.Get("No.") then begin
@@ -1633,7 +1633,13 @@
     var
         Cust: Record Customer;
         ContBusRel: Record "Contact Business Relation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateCustomerLink(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckForExistingRelationships(ContBusRel."Link to Table"::Customer);
         CheckIfPrivacyBlockedGeneric;
         RMSetup.Get();
@@ -2320,7 +2326,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateQuotesFromTemplate(Customer, CustomerTemplateCode, IsHandled);
+        OnBeforeUpdateQuotesFromTemplate(Customer, CustomerTemplateCode, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -2674,7 +2680,7 @@
         ContBusRel.SetRange("Contact No.", "Company No.");
         if ContBusRel.FindFirst then
             if Customer.Get(ContBusRel."No.") then
-                if Customer."Primary Contact No." = "No." then begin
+                if (("No." <> '') and (Customer."Primary Contact No." = "No.")) then begin
                     Customer.Contact := Name;
                     Customer.Modify();
                 end;
@@ -2682,7 +2688,7 @@
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
         if ContBusRel.FindFirst then
             if Vendor.Get(ContBusRel."No.") then
-                if Vendor."Primary Contact No." = "No." then begin
+                if (("No." <> '') and (Vendor."Primary Contact No." = "No.")) then begin
                     Vendor.Contact := Name;
                     Vendor.Modify();
                 end;
@@ -3465,7 +3471,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetTypeForContact(var Contact: Record Contact)
+    local procedure OnAfterSetTypeForContact(var Contact: Record Contact; xContact: Record Contact)
     begin
     end;
 
@@ -3581,6 +3587,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCustomerLink(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateBankAccount(var Contact: Record Contact; var BankAccountNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -3661,7 +3672,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateQuotesFromTemplate(Customer: Record Customer; CustomerTemplateCode: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateQuotesFromTemplate(Customer: Record Customer; CustomerTemplateCode: Code[20]; var IsHandled: Boolean; var Contact: Record Contact)
     begin
     end;
 

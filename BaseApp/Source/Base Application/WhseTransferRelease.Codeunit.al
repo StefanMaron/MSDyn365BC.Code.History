@@ -156,6 +156,7 @@ codeunit 5773 "Whse.-Transfer Release"
         TransLine.SetRange("Document No.", DocumentNo);
         TransLine.SetRange("Unit of Measure Code", '');
         TransLine.SetFilter("Item No.", '<>%1', '');
+        OnCheckUnitOfMeasureCodeOnAfterTransLineSetFilters(TransLine, DocumentNo);
         if TransLine.FindFirst then
             TransLine.TestField("Unit of Measure Code");
     end;
@@ -192,6 +193,11 @@ codeunit 5773 "Whse.-Transfer Release"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReopen(var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckUnitOfMeasureCodeOnAfterTransLineSetFilters(var TransLine: Record "Transfer Line"; DocumentNo: Code[20])
     begin
     end;
 }
