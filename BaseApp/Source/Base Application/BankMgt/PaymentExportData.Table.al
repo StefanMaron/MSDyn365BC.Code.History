@@ -1,4 +1,4 @@
-table 1226 "Payment Export Data"
+﻿table 1226 "Payment Export Data"
 {
     Caption = 'Payment Export Data';
 
@@ -565,6 +565,14 @@ table 1226 "Payment Export Data"
                 PaymentExportRemittanceText := TempPaymentExportRemittanceText;
                 PaymentExportRemittanceText.Insert();
             until TempPaymentExportRemittanceText.Next() = 0;
+    end;
+
+    procedure GetOrganizationID(): Text
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        exit(CompanyInformation."VAT Registration No.");
     end;
 
     procedure AddGenJnlLineErrorText(GenJnlLine: Record "Gen. Journal Line"; NewText: Text)
