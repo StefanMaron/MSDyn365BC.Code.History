@@ -30,6 +30,7 @@ codeunit 135000 "Error Message Tests"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         DevMsgNotTemporaryErr: Label 'This function can only be used when the record is temporary.';
         DrillDownErr: Label 'The NavDrilldownAction method is not supported.';
 
@@ -1324,6 +1325,7 @@ codeunit 135000 "Error Message Tests"
         DataTypeBuffer: Record "Data Type Buffer";
         ErrorMessage: Record "Error Message";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Error Message Tests");
         DataTypeBuffer.DeleteAll();
         ErrorMessage.DeleteAll();
 

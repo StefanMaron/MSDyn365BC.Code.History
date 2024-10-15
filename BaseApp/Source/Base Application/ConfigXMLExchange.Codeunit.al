@@ -121,6 +121,8 @@ codeunit 8614 "Config. XML Exchange"
         if ConfigPackageField."Processing Order" <> 0 then
             XMLDOMMgt.AddAttribute(
               FieldNode, GetElementName(ConfigPackageField.FieldName("Processing Order")), Format(ConfigPackageField."Processing Order"));
+
+        OnAfterAddFieldAttributes(ConfigPackageField, FieldNode);
     end;
 
     local procedure AddDimensionFields(var ConfigPackageField: Record "Config. Package Field"; var RecRef: RecordRef; var PackageXML: DotNet XmlDocument; var RecordNode: DotNet XmlNode; var FieldNode: DotNet XmlNode; ExportValue: Boolean)
@@ -426,6 +428,7 @@ codeunit 8614 "Config. XML Exchange"
               DocumentElement, GetElementName(ConfigPackage.FieldName("Product Version")), ConfigPackage."Product Version");
             XMLDOMMgt.AddAttribute(DocumentElement, GetElementName(ConfigPackage.FieldName("Package Name")), ConfigPackage."Package Name");
             XMLDOMMgt.AddAttribute(DocumentElement, GetElementName(ConfigPackage.FieldName(Code)), ConfigPackage.Code);
+            OnExportPackageXMLDocumentOnAfterSetAttributes(ConfigPackage, XMLDOMMgt);
         end;
 
         if not HideDialog then
@@ -539,6 +542,7 @@ codeunit 8614 "Config. XML Exchange"
         ImportedTableFields: Integer;
         ExecutionId: Guid;
         Dimensions: Dictionary of [Text, Text];
+        IsHandled: Boolean;
     begin
         StartTime := CurrentDateTime();
         Session.LogMessage('00009Q6', PackageImportStartMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
@@ -585,8 +589,12 @@ codeunit 8614 "Config. XML Exchange"
             if Value <> '' then
                 Evaluate(ConfigPackage."Exclude Config. Tables", Value);
             Value := GetAttribute(GetElementName(ConfigPackage.FieldName("Min. Count For Async Import")), DocumentElement);
-            if Value <> '' then
-                Evaluate(ConfigPackage."Min. Count For Async Import", Value);
+            if Value <> '' then begin
+                IsHandled := false;
+                OnBeforeEvaluateMinCountForAsyncImport(ConfigPackage, Value, IsHandled);
+                if not IsHandled then
+                    Evaluate(ConfigPackage."Min. Count For Async Import", Value);
+            end;
             ConfigPackage.Modify();
         end;
 
@@ -625,6 +633,7 @@ codeunit 8614 "Config. XML Exchange"
                             begin
                                 ConfigPackageRecord.SetRange("Package Code", PackageCode);
                                 ConfigPackageRecord.SetRange("Table ID", TableID);
+                                OnImportPackageXMLDocumentOnDefaultDimOnAfterConfigPackageRecordSetFilters(ConfigPackageRecord, ConfigPackageData, PackageCode);
                                 if ConfigPackageRecord.FindSet then
                                     repeat
                                         ConfigPackageData.Get(
@@ -1084,23 +1093,14 @@ codeunit 8614 "Config. XML Exchange"
     procedure GetElementName(NameIn: Text[250]): Text[250]
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
-        PercentCharPos: Integer;
-        SubString1: Text;
-        SubString2: Text;
     begin
         OnBeforeGetElementName(NameIn);
 
         if not XMLDOMManagement.IsValidXMLNameStartCharacter(NameIn[1]) then
             NameIn := '_' + NameIn;
-        PercentCharPos := STRPOS(NameIn, '%');
-        IF PercentCharPos > 0 THEN BEGIN
-            SubString1 := COPYSTR(NameIn, 1, PercentCharPos - 1);
-            SubString2 := COPYSTR(NameIn, PercentCharPos + 1, MAXSTRLEN(NameIn));
-            NameIn := SubString1 + '_pct' + SubString2;
-        END;
         NameIn := CopyStr(XMLDOMManagement.ReplaceXMLInvalidCharacters(NameIn, ' '), 1, MaxStrLen(NameIn));
         NameIn := DelChr(NameIn, '=', '?''`');
-        NameIn := ConvertStr(NameIn, '<>,./\+&():', '           ');
+        NameIn := ConvertStr(NameIn, '<>,./\+&()%:', '            ');
         NameIn := ConvertStr(NameIn, '-', '_');
         NameIn := DelChr(NameIn, '=', ' ');
         exit(NameIn);
@@ -1448,7 +1448,27 @@ codeunit 8614 "Config. XML Exchange"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAddFieldAttributes(var ConfigPackageField: Record "Config. Package Field"; var FieldNode: DotNet XmlNode)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEvaluateMinCountForAsyncImport(var ConfigPackage: Record "Config. Package"; var Value: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetElementName(var NameIn: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportPackageXMLDocumentOnAfterSetAttributes(var ConfigPackage: Record "Config. Package"; var XMLDOMMgt: Codeunit "XML DOM Management")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnImportPackageXMLDocumentOnDefaultDimOnAfterConfigPackageRecordSetFilters(var ConfigPackageRecord: Record "Config. Package Record"; ConfigPackageData: Record "Config. Package Data"; PackageCode: Code[20])
     begin
     end;
 }

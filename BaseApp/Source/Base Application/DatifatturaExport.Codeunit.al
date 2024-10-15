@@ -228,7 +228,7 @@ codeunit 12182 "Datifattura Export"
             exit;
 
         if SpesometroVendor.Get(SpesometroAppointment."Vendor No.") then
-            CodiceFiscale := SpesometroVendor."VAT Registration No.";
+            CodiceFiscale := SpesometroVendor."Fiscal Code";
 
         Carica := SpesometroAppointment."Appointment Code";
 

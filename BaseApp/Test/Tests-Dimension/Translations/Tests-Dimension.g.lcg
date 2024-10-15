@@ -725,6 +725,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM - Dimensions 7.0 Test - NamedType WrongConsolidatedDimFilterErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2453870435 - NamedType 1417987097" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[BD_TEMP_B]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Shortcuts - NamedType TempBatchNameTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3227769053 - NamedType 2485937228" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to create the contract using a contract template?]]></Val>

@@ -1,4 +1,4 @@
-codeunit 5521 "Make Supply Orders (Yes/No)"
+﻿codeunit 5521 "Make Supply Orders (Yes/No)"
 {
     TableNo = "Requisition Line";
 
@@ -54,6 +54,8 @@ codeunit 5521 "Make Supply Orders (Yes/No)"
         CarryOutActionMsgPlan.RunModal;
         Clear(CarryOutActionMsgPlan);
         CarriedOut := true;
+
+        OnAfterRunCarryOutActionMsgPlan(CarriedOut, ReqLine, MfgUserTempl);
     end;
 
     procedure SetManufUserTemplate(ManufUserTemplate: Record "Manufacturing User Template")
@@ -79,6 +81,11 @@ codeunit 5521 "Make Supply Orders (Yes/No)"
     procedure ActionMsgCarriedOut(): Boolean
     begin
         exit(CarriedOut);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRunCarryOutActionMsgPlan(CarriedOut: Boolean; ReqLine: Record "Requisition Line"; MfgUserTempl: Record "Manufacturing User Template")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

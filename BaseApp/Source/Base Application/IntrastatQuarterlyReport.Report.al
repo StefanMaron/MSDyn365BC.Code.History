@@ -433,6 +433,8 @@ report 12161 "Intrastat - Quarterly Report"
                             "Intra - form Buffer".Modify();
                         end else begin
                             "Intra - form Buffer".TransferFields("Intrastat Jnl. Line");
+                            "Intra - form Buffer"."VAT Registration No." :=
+                              CopyStr("Partner VAT ID", 1, MaxStrLen("Intra - form Buffer"."VAT Registration No."));
                             "Intra - form Buffer"."User ID" := UserId;
                             "Intra - form Buffer"."Group Code" := '';
                             "Intra - form Buffer"."Transport Method" := '';

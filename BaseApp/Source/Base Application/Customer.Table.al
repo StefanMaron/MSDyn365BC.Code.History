@@ -76,6 +76,8 @@
                 OnBeforeLookupCity(Rec, PostCode);
 
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
+
+                OnAfterLookupCity(Rec, PostCode);
             end;
 
             trigger OnValidate()
@@ -2373,8 +2375,8 @@
             exit(OverDueBalance);
 
         CustLedgEntryRemainAmtQuery.SetRange(Customer_No, "No.");
-        CustLedgEntryRemainAmtQuery.SetRange(IsOpen, true);
-        CustLedgEntryRemainAmtQuery.SetFilter(Due_Date, '<%1', WorkDate);
+        CustLedgEntryRemainAmtQuery.SetFilter(Due_Date, '<%1', Today);
+        CustLedgEntryRemainAmtQuery.SetFilter(Date_Filter, '<%1', Today);
         CustLedgEntryRemainAmtQuery.Open;
 
         if CustLedgEntryRemainAmtQuery.Read then
@@ -3027,7 +3029,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeValidateEmail(Rec, IsHandled);
+        OnBeforeValidateEmail(Rec, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -3294,6 +3296,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupCity(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterLookupPostCode(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
     begin
     end;
@@ -3449,7 +3456,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateEmail(Customer: Record Customer; var IsHandled: Boolean)
+    local procedure OnBeforeValidateEmail(var Customer: Record Customer; var IsHandled: Boolean; xCustomer: Record Customer)
     begin
     end;
 

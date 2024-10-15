@@ -115,6 +115,7 @@ table 291 "Shipping Agent"
     procedure GetTrackingInternetAddr(PackageTrackingNo: Text[30]) TrackingInternetAddr: Text
     var
         HttpStr: Text;
+        HttpsStr: Text;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -123,9 +124,10 @@ table 291 "Shipping Agent"
             exit;
 
         HttpStr := 'http://';
+        HttpsStr := 'https://';
         TrackingInternetAddr := StrSubstNo("Internet Address", PackageTrackingNo);
 
-        if StrPos(TrackingInternetAddr, HttpStr) = 0 then
+        if (StrPos(TrackingInternetAddr, HttpStr) = 0) and (StrPos(TrackingInternetAddr, HttpsStr) = 0) then
             TrackingInternetAddr := HttpStr + TrackingInternetAddr;
     end;
 

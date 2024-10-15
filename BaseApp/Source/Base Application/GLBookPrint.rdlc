@@ -1491,9 +1491,9 @@ Cstr(LAST(Fields!DescrCaption.Value)) + Chr(177)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox1</rd:DefaultName>
-              <Left>24.01984cm</Left>
+              <Left>22.8cm</Left>
               <Height>0.423cm</Height>
-              <Width>2.05cm</Width>
+              <Width>3.25cm</Width>
               <Visibility>
                 <Hidden>=iif(((Globals!PageNumber = 1) AND (Last(Fields!PrintCompanyInformations.Value,"DataSet_Result"))),true,false)</Hidden>
               </Visibility>
@@ -1523,7 +1523,7 @@ Cstr(LAST(Fields!DescrCaption.Value)) + Chr(177)
               </Paragraphs>
               <rd:DefaultName>textbox4</rd:DefaultName>
               <Height>0.423cm</Height>
-              <Width>18.6cm</Width>
+              <Width>17.2cm</Width>
               <ZIndex>1</ZIndex>
               <Visibility>
                 <Hidden>=iif((Globals!PageNumber = 1) AND Last(Fields!PrintCompanyInformations.Value, "DataSet_Result"),true,false)</Hidden>
@@ -1553,7 +1553,7 @@ Cstr(LAST(Fields!DescrCaption.Value)) + Chr(177)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox5</rd:DefaultName>
-              <Left>18.6cm</Left>
+              <Left>17.2cm</Left>
               <Height>0.423cm</Height>
               <Width>1.9cm</Width>
               <ZIndex>2</ZIndex>
@@ -1587,9 +1587,9 @@ Cstr(LAST(Fields!DescrCaption.Value)) + Chr(177)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>textbox6</rd:DefaultName>
-              <Left>20.5cm</Left>
+              <Left>19.3cm</Left>
               <Height>0.423cm</Height>
-              <Width>3.42944cm</Width>
+              <Width>3.4cm</Width>
               <ZIndex>3</ZIndex>
               <Visibility>
                 <Hidden>=iif((Globals!PageNumber = 1) AND Last(Fields!PrintCompanyInformations.Value, "DataSet_Result"),true,false)</Hidden>

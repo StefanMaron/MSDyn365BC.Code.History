@@ -131,8 +131,13 @@
     end;
 
     procedure Reopen(var SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeReopenSalesDoc(SalesHeader, PreviewMode);
+        IsHandled := false;
+        OnBeforeReopenSalesDoc(SalesHeader, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
 
         with SalesHeader do begin
             if Status = Status::Open then
@@ -292,7 +297,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReopenSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
+    local procedure OnBeforeReopenSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 

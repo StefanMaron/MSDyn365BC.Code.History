@@ -618,10 +618,10 @@ report 206 "Sales - Invoice"
                                 VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                             VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
                             VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                            VATAmountLine.InsertLine;
                             CalcVATAmountLineLCY(
                               "Sales Invoice Header", VATAmountLine, TempVATAmountLineLCY,
                               VATBaseRemainderAfterRoundingLCY, AmtInclVATRemainderAfterRoundingLCY);
+                            VATAmountLine.InsertLine();
 
                             if PaymentMethod.Get("Sales Invoice Header"."Payment Method Code") then
                                 case PaymentMethod."Free Type" of

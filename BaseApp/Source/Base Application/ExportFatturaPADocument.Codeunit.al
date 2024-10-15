@@ -83,7 +83,8 @@ codeunit 12179 "Export FatturaPA Document"
         end;
 
         // update Buffer
-        TempXMLBuffer.FindFirst;
+        FileManagement.DeleteServerFile(FileName);
+        TempXMLBuffer.FindFirst();
         TempXMLBuffer.Save(FileName);
         OnAfterCreateXML(TempXMLBuffer);
 
