@@ -511,6 +511,8 @@ codeunit 333 "Req. Wksh.-Make Order"
             PurchOrderLine."Prod. Order No." := "Prod. Order No.";
             PurchOrderLine."Prod. Order Line No." := "Prod. Order Line No.";
             InitPurchOrderLineUpdateQuantity(RequisitionLine);
+
+            Validate("Order Date", PurchOrderHeader."Order Date");
             if PurchOrderHeader."Prices Including VAT" then
                 PurchOrderLine.Validate("Direct Unit Cost", "Direct Unit Cost" * (1 + PurchOrderLine."VAT %" / 100))
             else
@@ -518,6 +520,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             OnInitPurchOrderLineOnBeforeValidateLineDiscount(PurchOrderLine, PurchOrderHeader, RequisitionLine);
             PurchOrderLine.Validate("Line Discount %", "Line Discount %");
             OnInitPurchOrderLineOnAfterValidateLineDiscount(PurchOrderLine, PurchOrderHeader, RequisitionLine);
+
             PurchOrderLine."Vendor Item No." := "Vendor Item No.";
             PurchOrderLine.Description := Description;
             PurchOrderLine."Description 2" := "Description 2";

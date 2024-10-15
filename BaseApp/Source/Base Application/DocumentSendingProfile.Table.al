@@ -532,6 +532,7 @@ table 60 "Document Sending Profile"
 
     local procedure TrySendToEMailGroupedMultipleSelection(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerVendorFieldNo: Integer; IsCustomer: Boolean)
     var
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
         RecRef: RecordRef;
         RecToSend: RecordRef;
         CustomerNoFieldRef: FieldRef;
@@ -567,6 +568,7 @@ table 60 "Document Sending Profile"
                     RecToSend.SetRecFilter();
                     CustomerVendorNo := RecToSend.Field(CustomerVendorFieldNo).Value;
                     DocumentNo := RecToSend.Field(DocumentNoFieldNo).Value;
+                    DocName := ReportDistributionMgt.GetFullDocumentTypeText(RecToSend);
                     if IsCustomer then
                         SendToEMail(ReportUsage, RecToSend, DocumentNo, DocName, CustomerVendorNo, DocumentNoFieldNo)
                     else

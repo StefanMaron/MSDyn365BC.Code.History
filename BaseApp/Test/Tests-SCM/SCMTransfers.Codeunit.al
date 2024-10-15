@@ -2176,6 +2176,142 @@ codeunit 137038 "SCM Transfers"
         Assert.AreNotEqual(TransferHeader."Posting Date", TransferHeader."Receipt Date", '');
     end;
 
+    [Test]
+    procedure PostingDirectTransferDoesNotApplyNegIntermdEntryToExistingILE()
+    var
+        LocationFrom: Record Location;
+        LocationTo: Record Location;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemApplicationEntry: Record "Item Application Entry";
+        QtyOnStock: Decimal;
+        QtyTransferred: Decimal;
+        PositiveInterimILENo: Integer;
+        NegativeInterimILENo: Integer;
+    begin
+        // [FEATURE] [Direct Transfer] [Item Application]
+        // [SCENARIO 412614] Intermediate negative item entry with blank location is not applied to existing positive item entry while posting direct transfer.
+        Initialize();
+        QtyOnStock := LibraryRandom.RandIntInRange(100, 200);
+        QtyTransferred := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Locations "A" and "B".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationFrom);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationTo);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post positive inventory adjustment to location "A".
+        // [GIVEN] Post positive inventory adjustment to blank location.
+        CreateAndPostItemJnlWithCostLocationVariant(
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", QtyOnStock, 0, LocationFrom.Code, '');
+        CreateAndPostItemJnlWithCostLocationVariant(
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", QtyOnStock, 0, '', '');
+
+        // [GIVEN] Direct transfer order from "A" to "B".
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Modify(true);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", QtyTransferred);
+
+        // [WHEN] Post the direct transfer.
+        LibraryInventory.PostDirectTransferOrder(TransferHeader);
+
+        // [THEN] The transfer order is posted successfully.
+        Item.SetRange("Location Filter", LocationTo.Code);
+        Item.CalcFields("Net Change");
+        Item.TestField("Net Change", QtyTransferred);
+
+        // [THEN] The existing positive inventory adjustment to blank location remains unapplied.
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::"Positive Adjmt.", '', true);
+        ItemLedgerEntry.TestField("Remaining Quantity", QtyOnStock);
+
+        // [THEN] Interim transfer entries at blank location are applied to each other.
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::Transfer, '', true);
+        PositiveInterimILENo := ItemLedgerEntry."Entry No.";
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::Transfer, '', false);
+        NegativeInterimILENo := ItemLedgerEntry."Entry No.";
+        ItemApplicationEntry.GetInboundEntriesTheOutbndEntryAppliedTo(NegativeInterimILENo);
+        ItemApplicationEntry.TestField("Inbound Item Entry No.", PositiveInterimILENo);
+    end;
+
+    [Test]
+    procedure TransferOrderPartnerVATID_Post()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+        TransferReceiptHeader: Record "Transfer Receipt Header";
+        FromLocationCode: Code[10];
+        ToLocationCode: Code[10];
+        PartnerVATID: Text[20];
+        Length: Integer;
+    begin
+        // [FEATURE] [Intrastat] [Partner VAT ID]
+        // [SCENARIO 417835] Post Transfer Order with typed header field "Partner VAT ID"
+        Initialize();
+        Length := MaxStrLen(TransferHeader."Partner VAT ID");
+        PartnerVATID := CopyStr(LibraryUtility.GenerateRandomText(Length), 1, Length);
+
+        // [GIVEN] Item "I" on Location "A"
+        CreateLocations(FromLocationCode, ToLocationCode);
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostItemJnlWithCostLocationVariant(
+            ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 1, 0, FromLocationCode, '');
+
+        // [GIVEN] Transfer Order to transfer item "I" from location "A" to location "B",
+        // [GIVEN] Transfer Order header's "Partner VAT ID" = "X",
+        LibraryInventory.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Validate("Partner VAT ID", PartnerVATID);
+        TransferHeader.Modify(true);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 1);
+
+        // [WHEN] Post Ship and Receive transfer order
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+
+        // [THEN] Posted Transfer Shipment header's "Partner VAT ID" = "X"
+        TransferShipmentHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+        TransferShipmentHeader.FindFirst();
+        TransferShipmentHeader.TestField("Partner VAT ID", PartnerVATID);
+
+        // [THEN] Posted Transfer Receipt header's "Partner VAT ID" = "X"
+        TransferReceiptHeader.SetRange("Transfer Order No.", TransferHeader."No.");
+        TransferReceiptHeader.FindFirst();
+        TransferReceiptHeader.TestField("Partner VAT ID", PartnerVATID);
+    end;
+
+    [Test]
+    procedure TransferOrderPartnerVATID_UI()
+    var
+        TransferOrder: TestPage "Transfer Order";
+        PostedTransferShipment: TestPage "Posted Transfer Shipment";
+        PostedTransferReceipt: TestPage "Posted Transfer Receipt";
+    begin
+        // [FEATURE] [Intrastat] [Partner VAT ID] [UI]
+        // [SCENARIO 417835] Transfer Order, Posted Transfer Shipment, Posted Transfer Receipt have header field "Partner VAT ID"
+        Initialize();
+
+        TransferOrder.OpenNew();
+        Assert.IsTrue(TransferOrder."Partner VAT ID".Visible(), '');
+        Assert.IsTrue(TransferOrder."Partner VAT ID".Editable(), '');
+        TransferOrder.Close();
+
+        PostedTransferShipment.OpenEdit();
+        Assert.IsTrue(PostedTransferShipment."Partner VAT ID".Visible(), '');
+        Assert.IsFalse(PostedTransferShipment."Partner VAT ID".Editable(), '');
+        PostedTransferShipment.Close();
+
+        PostedTransferReceipt.OpenEdit();
+        Assert.IsTrue(PostedTransferReceipt."Partner VAT ID".Visible(), '');
+        Assert.IsFalse(PostedTransferReceipt."Partner VAT ID".Editable(), '');
+        PostedTransferReceipt.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2408,7 +2544,8 @@ codeunit 137038 "SCM Transfers"
         RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
     end;
 
-    local procedure CreateAndPostItemJrnl(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Qty: Decimal)
+    local procedure CreateAndPostItemJrnl(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20];
+                                                         Qty: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -2416,7 +2553,11 @@ codeunit 137038 "SCM Transfers"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateAndPostItemJnlWithCostLocationVariant(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Qty: Decimal; Cost: Decimal; LocationCode: Code[10]; VariantCode: Code[10])
+    local procedure CreateAndPostItemJnlWithCostLocationVariant(EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20];
+                                                                               Qty: Decimal;
+                                                                               Cost: Decimal;
+                                                                               LocationCode: Code[10];
+                                                                               VariantCode: Code[10])
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -2487,7 +2628,8 @@ codeunit 137038 "SCM Transfers"
         exit(PurchRcptHeader."No.");
     end;
 
-    local procedure CreateItemJrnl(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Qty: Decimal)
+    local procedure CreateItemJrnl(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20];
+                                                                                                   Qty: Decimal)
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -2757,7 +2899,8 @@ codeunit 137038 "SCM Transfers"
         end;
     end;
 
-    local procedure MockWhseRequest(RequestType: Enum "Warehouse Request Type"; LocCode: Code[10]; SourceNo: Code[20])
+    local procedure MockWhseRequest(RequestType: Enum "Warehouse Request Type"; LocCode: Code[10];
+                                                     SourceNo: Code[20])
     var
         WarehouseRequest: Record "Warehouse Request";
     begin
@@ -2774,7 +2917,9 @@ codeunit 137038 "SCM Transfers"
         end;
     end;
 
-    local procedure FilterWhseRequest(var WarehouseRequest: Record "Warehouse Request"; RequestType: Enum "Warehouse Request Type"; LocCode: Code[10]; SourceSubtype: Option; SourceNo: Code[20])
+    local procedure FilterWhseRequest(var WarehouseRequest: Record "Warehouse Request"; RequestType: Enum "Warehouse Request Type"; LocCode: Code[10];
+                                                                                                         SourceSubtype: Option;
+                                                                                                         SourceNo: Code[20])
     begin
         with WarehouseRequest do begin
             SetRange(Type, RequestType);
@@ -2876,7 +3021,8 @@ codeunit 137038 "SCM Transfers"
         TransferRoute.Modify(true);
     end;
 
-    local procedure UpdateStockKeepingUnit(LocationCode: Code[10]; ItemNo: Code[20]; ReplenishmentSystem: Enum "Replenishment System"; VendorNo: Code[20]; TransferfromCode: Code[10])
+    local procedure UpdateStockKeepingUnit(LocationCode: Code[10]; ItemNo: Code[20]; ReplenishmentSystem: Enum "Replenishment System"; VendorNo: Code[20];
+                                                                                                              TransferfromCode: Code[10])
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
@@ -2982,6 +3128,16 @@ codeunit 137038 "SCM Transfers"
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
         RequisitionLine.DeleteAll();
+    end;
+
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; LocationCode: Code[10];
+                                                                                                                          IsPositive: Boolean)
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Location Code", LocationCode);
+        ItemLedgerEntry.SetRange(Positive, IsPositive);
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindLastILENo(ItemNo: Code[20]): Integer
@@ -3149,7 +3305,10 @@ codeunit 137038 "SCM Transfers"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedPurchaseReceiptsModalPageHandler(var PostedPurchaseReceipts: Page "Posted Purchase Receipts"; var Response: Action)
+    procedure PostedPurchaseReceiptsModalPageHandler(var PostedPurchaseReceipts: Page "Posted Purchase Receipts";
+
+    var
+        Response: Action)
     var
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
@@ -3161,7 +3320,10 @@ codeunit 137038 "SCM Transfers"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure PostedPurchaseReceiptLinesModalPageHandler(var PostedPurchaseReceiptLines: Page "Posted Purchase Receipt Lines"; var Response: Action)
+    procedure PostedPurchaseReceiptLinesModalPageHandler(var PostedPurchaseReceiptLines: Page "Posted Purchase Receipt Lines";
+
+    var
+        Response: Action)
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin

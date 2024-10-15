@@ -1825,6 +1825,17 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         Assert.ExpectedError(StrSubstNo(EarlierPostingDateErr, PurchaseHeader."Document Type", PostedInvoiceNo));
 
         LibraryVariableStorage.AssertEmpty();
+
+        // Bug 415621
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(WorkDate() - 1);
+
+        asserterror VendorLedgerEntries."Create Payment".Invoke();
+
+        Assert.ExpectedError(StrSubstNo(EarlierPostingDateErr, PurchaseHeader."Document Type", PostedInvoiceNo));
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3569,7 +3580,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsUseDueDateAsPostingDateRPH(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
     begin
-        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestVendorPayments.UseDueDateAsPostingDate.SetValue(true);
         Assert.IsFalse(SuggestVendorPayments.PostingDate.Editable, '');
         Assert.IsTrue(SuggestVendorPayments.DueDateOffset.Enabled, '');
@@ -3619,9 +3630,9 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     [Scope('OnPrem')]
     procedure PickReportModalPageHandler(var PickReport: TestPage "Pick Report")
     begin
-        PickReport.Name.SetValue(LibraryVariableStorage.DequeueText);
+        PickReport.Name.SetValue(LibraryVariableStorage.DequeueText());
         PickReport."Report ID".SetValue(REPORT::"Suggest Vendor Payments");
-        PickReport.OK.Invoke;
+        PickReport.OK.Invoke();
     end;
 }
 

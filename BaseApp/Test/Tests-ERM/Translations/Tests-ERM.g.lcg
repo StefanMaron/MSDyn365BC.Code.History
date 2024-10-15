@@ -3578,6 +3578,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intrastat Journal - NamedType ShptMethodCodeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 557694651 - NamedType 308412515" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be 4 characters, for example, 9410 for October, 1994.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - field caption]D;]A;(LookupHint=Codeunit ERM Intrastat Journal - NamedType StatPeriodFormatErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 557694651 - NamedType 913875334" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Please check the month number.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intrastat Journal - NamedType StatPeriodMonthErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 557694651 - NamedType 3800651618" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
@@ -5945,6 +5963,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Batch Posting - NamedType DefaultCategoryCodeLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1561933298 - NamedType 2117039878" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[General Journal IC Batch - %1.zip]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - today date, Sample: Sales IC Batch - 23-01-2024.zip]D;]A;(LookupHint=Codeunit ERM Sales Batch Posting - NamedType GLInterCompanyZipFileNamePatternTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1561933298 - NamedType 1295316563" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sales IC Batch - %1.zip]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Batch Posting - NamedType InterCompanyZipFileNamePatternTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1561933298 - NamedType 1304771032" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[An error or warning occured during operation Batch processing of Sales Header records.]]></Val>
@@ -6107,13 +6143,13 @@
       <Cmt Name="Dev"><![CDATA[%1 - Invoice No.]D;]A;(LookupHint=Codeunit ERM Sales Documents III - NamedType ConfirmCreateEmptyPostedInvMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2641639841 - NamedType 1560862995" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2641639841 - NamedType 3318668803" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You can also download the Sales - Shipment document now. Alternatively, you can access it from the Posted Sales Shipments window later.\\Do you want to download the Sales - Shipment document now?]]></Val>
+      <Val><![CDATA[You can take the same actions for the related Sales - Shipment document.\\Do you want to do that now?]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents III - NamedType ConfirmDownloadPostedShipmentQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents III - NamedType ConfirmSendPostedShipmentQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2641639841 - NamedType 1740051646" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -8357,15 +8393,6 @@
       <Cmt Name="Dev"><![CDATA[%1=table name, %2=field name. Example: Customer must have a value in Name.]D;]A;(LookupHint=Codeunit Payment Export Validation UT - NamedType FieldBlankErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2745462368 - NamedType 3719928791" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 cannot be used while %2 has a value.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Field;%2=Field]D;]A;(LookupHint=Codeunit Payment Export Validation UT - NamedType FieldIsNotEmptyErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2745462368 - NamedType 2630528958" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 %2 must have a value in %3.]]></Val>
@@ -8571,6 +8598,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 is the amount that is not applied (there is filed on the page named Remaining Amount To Apply)]D;]A;(LookupHint=Codeunit Payment Recon. E2E Tests 2 - NamedType ExcessiveAmountErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1570463600 - NamedType 3505668044" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[One or more lines must be reviewed before posting, because they were matched automatically with rules that require review.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 number of lines for review]D;]A;(LookupHint=Codeunit Payment Recon. E2E Tests 2 - NamedType LinesForReviewNotificationMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1570463600 - NamedType 971919354" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No bank transaction lines exist. Choose the Import Bank Transactions action to fill in the lines from a file, or enter lines manually.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Payment Recon. E2E Tests 2 - NamedType ListEmptyMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1570463600 - NamedType 2958350076" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

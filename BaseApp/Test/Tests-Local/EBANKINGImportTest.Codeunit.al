@@ -38,6 +38,7 @@ codeunit 144022 "E-BANKING Import Test"
         FileName: Text;
     begin
         Initialize;
+        WorkDate(20051122D);
 
         // Setup
         Setup(BankAccount, GenJournalBatch, GenJournalTemplate);
@@ -75,6 +76,7 @@ codeunit 144022 "E-BANKING Import Test"
         FileName: Text;
     begin
         Initialize;
+        WorkDate(20060823D);
 
         // Setup
         CreateDomesticCustomer(Customer);
@@ -118,6 +120,7 @@ codeunit 144022 "E-BANKING Import Test"
     begin
         // [SCENARIO 334605] Stan can import reference file two times being under Windows User Group permissions.
         Initialize;
+        WorkDate(20060823D);
 
         CreateDomesticCustomer(Customer);
         ReferenceNo := CreateAndPostSalesInvoice(Customer, PostingNo); // Not specifying specific Posting No.
@@ -149,6 +152,7 @@ codeunit 144022 "E-BANKING Import Test"
         FileName: Text;
     begin
         Initialize;
+        WorkDate(20060823D);
 
         // Setup
         Setup(BankAccount, GenJournalBatch, GenJournalTemplate);
@@ -178,6 +182,75 @@ codeunit 144022 "E-BANKING Import Test"
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         Assert.AreEqual(0, GenJournalLine.Count, 'Expected number of entries in Gen. Journal Lines does not match');
+    end;
+
+    [Test]
+    [HandlerFunctions('PageReqHandler')]
+    procedure GenJnlLineBalAccWithBankAccBatchBalAcc()
+    var
+        Customer: Record Customer;
+        BankAccount: Record "Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalLine: Record "Gen. Journal Line";
+        PostingNo: Code[20];
+        FileName: Text;
+        ReferenceNo: Code[20];
+    begin
+        // [SCENARIO 415567] "Bal. Account No." should be filled from journal batch "Bal. Account No." if the balance account is empty in reference file and customer ledger entry
+        Initialize();
+        WorkDate(20060823D);
+
+        // [GIVEN] Bank reference setup, reference file, general journal batch with filled balance account "BA" and "Bank Account" type
+        CreateDomesticCustomer(Customer);
+        ReferenceNo := CreateAndPostSalesInvoice(Customer, PostingNo);
+        Setup(BankAccount, GenJournalBatch, GenJournalTemplate);
+        FileName := FillInDomesticPaymentFileSample4(ReferenceNo);
+
+        // [WHEN] Read reference file (general journal line "GJL" is created)
+        ImportDomesticPaymentFile(GenJournalBatch.Name, GenJournalTemplate.Name, BankAccount."No.", FileName);
+
+        // [THEN] "GJL"."Bal. Account No." = "BA"
+        GenJournalLine.SetRange("Journal Template Name", GenJournalTemplate.Name);
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Bal. Account No.", GenJournalBatch."Bal. Account No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('PageReqHandler')]
+    procedure GenJnlLineBalAccWithGLAccBatchBalAcc()
+    var
+        Customer: Record Customer;
+        BankAccount: Record "Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalLine: Record "Gen. Journal Line";
+        PostingNo: Code[20];
+        FileName: Text;
+        ReferenceNo: Code[20];
+    begin
+        // [SCENARIO 415567] "Bal. Account No." should be empty if the balance account type is "G/L Account" in general journal batch
+        Initialize();
+        WorkDate(20060823D);
+
+        // [GIVEN] Bank reference setup, reference file, general journal batch with filled balance account "BA" and "G/L Account" type
+        CreateDomesticCustomer(Customer);
+        ReferenceNo := CreateAndPostSalesInvoice(Customer, PostingNo);
+        Setup(BankAccount, GenJournalBatch, GenJournalTemplate);
+        FileName := FillInDomesticPaymentFileSample4(ReferenceNo);
+        GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
+        GenJournalBatch."Bal. Account No." := LibraryERM.CreateGLAccountNo();
+        GenJournalBatch.Modify();
+
+        // [WHEN] Read reference file (general journal line "GJL" is created)
+        ImportDomesticPaymentFile(GenJournalBatch.Name, GenJournalTemplate.Name, BankAccount."No.", FileName);
+
+        // [THEN] "GJL"."Bal. Account No." = " "
+        GenJournalLine.SetRange("Journal Template Name", GenJournalTemplate.Name);
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Bal. Account No.", '');
     end;
 
     local procedure Initialize()

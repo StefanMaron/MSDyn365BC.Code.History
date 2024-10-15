@@ -9,174 +9,106 @@ report 593 "Intrastat - Make Disk Tax Auth"
         {
             DataItemTableView = SORTING("Journal Template Name", Name);
             RequestFilterFields = "Journal Template Name", Name;
-            dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
+            dataitem(IntrastatJnlLine; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method");
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", "Country/Region of Origin Code", "Partner VAT ID");
 
                 trigger OnAfterGetRecord()
                 begin
-                    if IntraJnlLineType = 0 then
-                        "Intrastat Jnl. Batch".TestField("Reported Receipt", false)
-                    else
-                        if IntraJnlLineType = 1 then
-                            "Intrastat Jnl. Batch".TestField("Reported Shipment", false);
-
-                    if ("Tariff No." = '') and
-                       ("Country/Region Code" = '') and
-                       ("Transaction Type" = '') and
-                       ("Transport Method" = '') and
-                       ("Total Weight" = 0)
-                    then
+                    if IsBlankedLine(IntrastatJnlLine) then
                         CurrReport.Skip();
 
-#if CLEAN19
-                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", false);
-#else
-                    if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", false)
-                    else begin
-                        TestField("Tariff No.");
-                        TestField("Country/Region Code");
-                        TestField("Transaction Type");
-                        TestField("Total Weight");
-                        if "Supplementary Units" then
-                            TestField(Quantity);
-                    end;
-#endif
+                    CheckLine(IntrastatJnlLine);
 
-                    CompoundField :=
-                      Format("Country/Region Code", 10) + Format(DelChr("Tariff No."), 10) +
-                      Format("Transaction Type", 10) + Format("Transport Method", 10);
-
-                    if (TempType <> Type) or (StrLen(TempCompoundField) = 0) then begin
-                        TempType := Type;
-                        TempCompoundField := CompoundField;
+                    CompoundField := GetCompound(IntrastatJnlLine);
+                    if (PrevType <> Type) or (StrLen(PrevCompoundField) = 0) then begin
+                        PrevType := Type;
                         IntraReferenceNo := CopyStr(IntraReferenceNo, 1, 4) + Format(Type, 1, 2) + '01001';
                     end else
-                        if TempCompoundField <> CompoundField then begin
-                            TempCompoundField := CompoundField;
+                        if PrevCompoundField <> CompoundField then
                             if CopyStr(IntraReferenceNo, 8, 3) = '999' then
                                 IntraReferenceNo := IncStr(CopyStr(IntraReferenceNo, 1, 7)) + '001'
                             else
                                 IntraReferenceNo := IncStr(IntraReferenceNo);
-                        end;
 
                     "Internal Ref. No." := IntraReferenceNo;
-                    Modify;
+                    Modify();
+                    PrevCompoundField := CompoundField;
+
+                    case Type of
+                        Type::Receipt:
+                            ReceiptExists := true;
+                        Type::Shipment:
+                            ShipmentExists := true;
+                    end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    "Intrastat Jnl. Line".SetRange(Type, IntraJnlLineType);
+                    SetRange(Type, IntraJnlLineType);
                 end;
 
                 trigger OnPostDataItem()
                 begin
 #if CLEAN19
-                    IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
+                    IntraJnlManagement.CheckForJournalBatchError(IntrastatJnlLine, true);
 #else
                     if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
+                        IntraJnlManagement.CheckForJournalBatchError(IntrastatJnlLine, true);
 #endif                
                 end;
             }
-            dataitem(IntrastatJnlLine2; "Intrastat Jnl. Line")
+            dataitem(ShipmentAndReceiptIntrastatJnlLine; "Intrastat Jnl. Line")
             {
-                DataItemTableView = SORTING("Internal Ref. No.");
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", Type, "Internal Ref. No.");
 
                 trigger OnAfterGetRecord()
                 begin
-                    if ("Tariff No." = '') and
-                       ("Country/Region Code" = '') and
-                       ("Transaction Type" = '') and
-                       ("Transport Method" = '') and
-                       ("Total Weight" = 0)
-                    then
-                        CurrReport.Skip();
-                    "Tariff No." := DelChr("Tariff No.");
-
-                    TotalWeightAmt += "Total Weight";
-                    QuantityAmt += "Quantity 2";
-                    StatisticalValueAmt += "Statistical Value";
-                    GrTotalAmt += Amount;
-
-                    IntrastatJnlLine5.Copy(IntrastatJnlLine2);
-                    if IntrastatJnlLine5.Next = 1 then begin
-                        if (DelChr(IntrastatJnlLine5."Tariff No.") = "Tariff No.") and
-                           (IntrastatJnlLine5."Country/Region Code" = "Country/Region Code") and
-                           (IntrastatJnlLine5."Transaction Type" = "Transaction Type") and
-                           (IntrastatJnlLine5."Transport Method" = "Transport Method") and
-                           (IntrastatJnlLine5."Partner VAT ID" = "Partner VAT ID") and
-                           (IntrastatJnlLine5."Country/Region of Origin Code" = "Country/Region of Origin Code")
-                        then
-                            GroupTotal := false
-                        else
-                            GroupTotal := true;
-                    end else
-                        GroupTotal := true;
-
-                    if GroupTotal then begin
-                        TotalWeightAmt := IntraJnlManagement.RoundTotalWeight(TotalWeightAmt);
-
-                        WriteGrTotalsToFile(TotalWeightAmt, QuantityAmt, StatisticalValueAmt);
-                        StatisticalValueTotalAmt += StatisticalValueAmt;
-                        TotalWeightAmt := 0;
-                        QuantityAmt := 0;
-                        StatisticalValueAmt := 0;
-                        GrTotalAmt := 0;
-                    end;
+                    ProcessNextLine(ShipmentAndReceiptIntrastatJnlLine);
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    WriteFooter(IntrastatJnlLine2);
-                    IntraFile.Close;
-
-                    if IntraJnlLineType = 0 then begin
-                        "Intrastat Jnl. Batch"."Reported Receipt" := true;
-                        "Intrastat Jnl. Batch".Modify();
-                        IntraSetup.Modify();
-                    end
-                    else
-                        if IntraJnlLineType = 1 then begin
-                            "Intrastat Jnl. Batch"."Reported Shipment" := true;
-                            "Intrastat Jnl. Batch".Modify();
-                            IntraSetup.Modify();
-                        end;
-
-                    if ServerFileName = '' then
-                        FileMgt.DownloadHandler(FileName, '', '', FileMgt.GetToFilterText('', DefaultFilenameTxt), DefaultFilenameTxt)
-                    else
-                        FileMgt.CopyServerFile(FileName, ServerFileName, true);
+                    if ReceiptExists or ShipmentExists then
+                        WriteGroupTotalsToFile(TempIntrastatJnlLineGroupTotals);
+                    WriteFooter(ShipmentAndReceiptIntrastatJnlLine);
+                    IntrastatFileWriter.AddCurrFileToResultFile();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    IntrastatJnlLine2.SetRange(Type, IntraJnlLineType);
+                    SetRange(Type, IntraJnlLineType);
                     CompanyInfo.Get();
-                    if not IntraSetup.Get then
-                        Error(MissingFileSetupConfigErr);
 
                     LineNo := '00000';
-                    WriteHeader();
 
                     SetRange("Internal Ref. No.", CopyStr(IntraReferenceNo, 1, 4), CopyStr(IntraReferenceNo, 1, 4) + '9');
-
-                    IntrastatJnlLine3.SetCurrentKey("Internal Ref. No.");
+                    PrevCompoundField := '';
+                    IntrastatFileWriter.InitializeNextFile(IntrastatFileWriter.GetDefaultFileName());
+                    WriteHeader();
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
+                if IntraJnlLineType = 0 then
+                    TestField("Reported Receipt", false)
+                else
+                    TestField("Reported Shipment", false);
+
+                TestField("Statistics Period");
                 IntraReferenceNo := "Statistics Period" + '000000';
                 IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
+                SetBatchIsExported("Intrastat Jnl. Batch");
+                IntrastatFileWriter.SetStatisticsPeriod("Statistics Period");
             end;
 
             trigger OnPreDataItem()
             begin
-                IntrastatJnlLine4.CopyFilter("Journal Template Name", "Journal Template Name");
-                IntrastatJnlLine4.CopyFilter("Journal Batch Name", Name);
+                SetFilter("Journal Template Name", IntrastatJnlLine.GetFilter("Journal Template Name"));
+                SetFilter(Name, IntrastatJnlLine.GetFilter("Journal Batch Name"));
             end;
         }
     }
@@ -187,7 +119,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         layout
         {
-            area(content)
+            area(Content)
             {
                 group(Options)
                 {
@@ -214,17 +146,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         trigger OnOpenPage()
         begin
-            if not IntrastatSetup.Get then
-                exit;
-
-            if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
-                exit;
-
-            if IntrastatSetup."Report Receipts" then
-                "Intrastat Jnl. Line".SetRange(Type, "Intrastat Jnl. Line".Type::Receipt)
-            else
-                if IntrastatSetup."Report Shipments" then
-                    "Intrastat Jnl. Line".SetRange(Type, "Intrastat Jnl. Line".Type::Shipment)
+            FilterSourceLinesByIntrastatSetupExportTypes();
         end;
     }
 
@@ -234,68 +156,135 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
     trigger OnPreReport()
     begin
-        FileName := FileMgt.ServerTempFileName('');
+        if not IntrastatFileSetup.Get() then
+            Error(MissingFileSetupConfigErr);
 
-        IntrastatJnlLine4.CopyFilters("Intrastat Jnl. Line");
-        if FileName = '' then
-            Error(Text000);
-        IntraFile.TextMode := true;
-        IntraFile.WriteMode := true;
-        IntraFile.Create(FileName);
+        IntrastatFileWriter.Initialize(false, false, 0);
 
         if ExportFormatIsSpecified then
             ExportFormat := SpecifiedExportFormat;
     end;
 
+    trigger OnPostReport()
+    begin
+        IntrastatFileWriter.CloseAndDownloadResultFile();
+    end;
+
     var
-        Text000: Label 'Enter the file name.';
         Text001: Label 'WwWw';
         Text002: Label 'INTRASTAT';
         Text003: Label 'It is not possible to display %1 in a field with a length of %2.';
-        IntrastatJnlLine3: Record "Intrastat Jnl. Line";
-        IntrastatJnlLine4: Record "Intrastat Jnl. Line";
-        IntrastatJnlLine5: Record "Intrastat Jnl. Line";
+        TempIntrastatJnlLineGroupTotals: Record "Intrastat Jnl. Line" temporary;
         CompanyInfo: Record "Company Information";
-        IntraSetup: Record "Intrastat - File Setup";
         IntrastatSetup: Record "Intrastat Setup";
+        IntrastatFileSetup: Record "Intrastat - File Setup";
         IntraJnlManagement: Codeunit IntraJnlManagement;
-        FileMgt: Codeunit "File Management";
-        IntraFile: File;
-        QuantityAmt: Decimal;
-        StatisticalValueAmt: Decimal;
-        StatisticalValueTotalAmt: Decimal;
-        TotalWeightAmt: Decimal;
-        FileName: Text;
+        IntrastatFileWriter: Codeunit "Intrastat File Writer";
         IntraReferenceNo: Text[10];
-        CompoundField: Text[40];
-        TempCompoundField: Text[40];
-        ServerFileName: Text;
-        TempType: Integer;
-        NoOfEntries: Text[3];
-        Receipt: Boolean;
-        Shipment: Boolean;
-        DefaultFilenameTxt: Label 'Default.txt', Locked = true;
-        GroupTotal: Boolean;
+        CompoundField: Text;
+        PrevCompoundField: Text;
+        PrevType: Integer;
+        ReceiptExists: Boolean;
+        ShipmentExists: Boolean;
         ExportFormat: Enum "Intrastat Export Format";
         SpecifiedExportFormat: Enum "Intrastat Export Format";
         ExportFormatIsSpecified: Boolean;
-        TmpDate: Date;
-        CountryFormat: Text[6];
-        Quantity2Code: Text[3];
         TotalAmount: Decimal;
-        GrTotalAmt: Decimal;
         Text1090000: Label 'must be either Receipt or Shipment';
         IntraJnlLineType: Option Receipt,Shipment;
         LineNo: Text[5];
-        InternalReference: Text[15];
         MissingFileSetupConfigErr: Label 'You have not set up any Intrastat transfer files. To set up a transfer file, go to the Transfer File window.';
+
+    local procedure FilterSourceLinesByIntrastatSetupExportTypes()
+    begin
+        if not IntrastatSetup.Get() then
+            exit;
+
+        if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
+            exit;
+
+        if IntrastatSetup."Report Receipts" then
+            IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Receipt)
+        else
+            if IntrastatSetup."Report Shipments" then
+                IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Shipment)
+    end;
+
+    local procedure CheckLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+#if CLEAN19
+        IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Make Disk Tax Auth", false);
+#else
+        if IntrastatSetup."Use Advanced Checklist" then
+            IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Make Disk Tax Auth", false)
+        else begin
+            IntrastatJnlLine.TestField("Tariff No.");
+            IntrastatJnlLine.TestField("Country/Region Code");
+            IntrastatJnlLine.TestField("Transaction Type");
+            IntrastatJnlLine.TestField("Total Weight");
+            if IntrastatJnlLine."Supplementary Units" then
+                IntrastatJnlLine.TestField(Quantity);
+        end;
+#endif
+    end;
+
+    local procedure ProcessNextLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+        if IsBlankedLine(IntrastatJnlLine) then
+            CurrReport.Skip();
+
+        CompoundField := GetCompound(IntrastatJnlLine);
+        if (StrLen(PrevCompoundField) <> 0) and (CompoundField <> PrevCompoundField) then
+            WriteGroupTotalsToFile(TempIntrastatJnlLineGroupTotals);
+
+        UpdateGroupTotals(TempIntrastatJnlLineGroupTotals, IntrastatJnlLine, CompoundField <> PrevCompoundField);
+        PrevCompoundField := CompoundField;
+    end;
+
+    local procedure UpdateGroupTotals(var GroupIntrastatJnlLine: Record "Intrastat Jnl. Line"; var IntrastatJnlLine: Record "Intrastat Jnl. Line"; newGroup: Boolean)
+    begin
+        if not newGroup then begin
+            GroupIntrastatJnlLine."Total Weight" += IntrastatJnlLine."Total Weight";
+            GroupIntrastatJnlLine."Quantity 2" += IntrastatJnlLine."Quantity 2";
+            GroupIntrastatJnlLine."Statistical Value" += IntrastatJnlLine."Statistical Value";
+            GroupIntrastatJnlLine.Amount += IntrastatJnlLine.Amount;
+        end else
+            GroupIntrastatJnlLine := IntrastatJnlLine;
+    end;
+
+    local procedure IsBlankedLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"): Boolean
+    begin
+        exit(
+            (IntrastatJnlLine."Tariff No." = '') and
+            (IntrastatJnlLine."Country/Region Code" = '') and
+            (IntrastatJnlLine."Transaction Type" = '') and
+            (IntrastatJnlLine."Transport Method" = '') and
+            (IntrastatJnlLine."Total Weight" = 0));
+    end;
+
+    local procedure GetCompound(var IntrastatJnlLine: Record "Intrastat Jnl. Line"): Text
+    begin
+        exit(
+            Format(IntrastatJnlLine."Country/Region Code", 10) + Format(DelChr(IntrastatJnlLine."Tariff No."), 20) +
+            Format(IntrastatJnlLine."Transaction Type", 10) + Format(IntrastatJnlLine."Transport Method", 10) +
+            Format(IntrastatJnlLine."Partner VAT ID", 50) + Format(IntrastatJnlLine."Country/Region of Origin Code", 10));
+    end;
+
+    local procedure SetBatchIsExported(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
+    begin
+        if IntraJnlLineType = 0 then
+            IntrastatJnlBatch.Validate("Reported Receipt", true)
+        else
+            IntrastatJnlBatch.Validate("Reported Shipment", true);
+        IntrastatJnlBatch.Modify(true);
+    end;
 
     local procedure DecimalNumeralZeroFormat(DecimalNumeral: Decimal; Length: Integer): Text[250]
     begin
         exit(TextZeroFormat(DelChr(Format(Round(Abs(DecimalNumeral), 1, '<'), 0, 1)), Length));
     end;
 
-    local procedure TextZeroFormat(Text: Text[250]; Length: Integer): Text[250]
+    local procedure TextZeroFormat(Text: Text; Length: Integer): Text
     begin
         if StrLen(Text) > Length then
             Error(
@@ -304,18 +293,29 @@ report 593 "Intrastat - Make Disk Tax Auth"
         exit(PadStr('', Length - StrLen(Text), '0') + Text);
     end;
 
+#if not CLEAN20
     procedure InitializeRequest(newServerFileName: Text; newIntraJnlLineType: Option)
     begin
-        ServerFileName := newServerFileName;
+        IntrastatFileWriter.SetServerFileName(newServerFileName);
         IntraJnlLineType := newIntraJnlLineType;
     end;
 
     procedure InitializeRequestWithExportFormat(newServerFileName: Text; newIntraJnlLineType: Option; NewExportFormat: Enum "Intrastat Export Format")
     begin
-        ServerFileName := newServerFileName;
+        IntrastatFileWriter.SetServerFileName(newServerFileName);
         IntraJnlLineType := newIntraJnlLineType;
         SpecifiedExportFormat := NewExportFormat;
         ExportFormatIsSpecified := true;
+    end;
+#endif
+
+    procedure InitializeRequest(var newResultFileOutStream: OutStream; NewExportFormat: Enum "Intrastat Export Format"; newIntraJnlLineType: Option)
+    begin
+        IntrastatFileWriter.SetResultFileOutStream(newResultFileOutStream);
+        SpecifiedExportFormat := NewExportFormat;
+        ExportFormatIsSpecified := true;
+
+        IntraJnlLineType := newIntraJnlLineType;
     end;
 
     local procedure WriteHeader()
@@ -326,14 +326,15 @@ report 593 "Intrastat - Make Disk Tax Auth"
         CompanyCode: Code[3];
         LinePos: Integer;
         BusinessIdCode: Code[20];
+        TempDate: Date;
     begin
         BusinessIdCode := CompanyInfo."Business Identity Code";
-        CompanyCode := IntraSetup."Company Serial No.";
+        CompanyCode := IntrastatFileSetup."Company Serial No.";
         StatPeriod := "Intrastat Jnl. Batch"."Statistics Period";
-        StatCustChamber := IntraSetup."Custom Code";
+        StatCustChamber := IntrastatFileSetup."Custom Code";
         LinePos := StrPos(BusinessIdCode, '-');
 
-        if "Intrastat Jnl. Line".Type = 0 then
+        if IntraJnlLineType = 0 then
             FileType := 'A'
         else
             FileType := 'D';
@@ -341,97 +342,87 @@ report 593 "Intrastat - Make Disk Tax Auth"
         if LinePos <> 0 then
             BusinessIdCode := DelStr(BusinessIdCode, LinePos, 1);
 
-        if IntraSetup."Last Transfer Date" = Today then
-            IntraSetup."File No." := IncStr(IntraSetup."File No.")
+        if IntrastatFileSetup."Last Transfer Date" = Today then
+            IntrastatFileSetup."File No." := IncStr(IntrastatFileSetup."File No.")
         else begin
-            IntraSetup."Last Transfer Date" := Today;
-            IntraSetup."File No." := '001';
+            IntrastatFileSetup."Last Transfer Date" := Today;
+            IntrastatFileSetup."File No." := '001';
         end;
 
-        IntraFile.Write(Format('KON0037' + Format(BusinessIdCode, 8), 20));
+        IntrastatFileWriter.WriteLine(Format('KON0037' + Format(BusinessIdCode, 8), 20));
 
-        Evaluate(TmpDate, '0101' + Format(Today, 0, '<Year,2>'));
-        IntraFile.Write(
+        Evaluate(TempDate, '0101' + Format(Today, 0, '<Year,2>'));
+        IntrastatFileWriter.WriteLine(
             Format('OTS' + Format(Today, 0, '<Year,2>') + StatCustChamber +
-            TextZeroFormat(Format(Today - TmpDate + 1), 3) + CompanyCode +
-            IntraSetup."File No." + FileType + StatPeriod + 'T  ' + '             ' +
+            TextZeroFormat(Format(Today - TempDate + 1), 3) + CompanyCode +
+            IntrastatFileSetup."File No." + FileType + StatPeriod + 'T  ' + '             ' +
             'FI' + BusinessIdCode + '       ' + '                           ' + StatCustChamber +
             '               ' + 'EUR', 101));
 
+        IntrastatFileSetup.Modify();
     end;
 
-    local procedure WriteFooter(IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    local procedure WriteFooter(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
-        IntraFile.Write(
+        IntrastatFileWriter.WriteLine(
             Format(
             'SUM' + TextZeroFormat(CopyStr(IntrastatJnlLine."Internal Ref. No.", 8, 3), 18) +
             DecimalNumeralZeroFormat(Round(TotalAmount, 1, '>'), 18), 39));
     end;
 
-    [Scope('OnPrem')]
-    procedure WriteGrTotalsToFile(TotalWeightAmt: Decimal; QuantityAmt: Decimal; StatisticalValueAmt: Decimal)
+    local procedure WriteGroupTotalsToFile(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     var
-        OK: Boolean;
+        Quantity2Code: Text[3];
+        CountryFormat: Text[6];
     begin
-        with IntrastatJnlLine2 do begin
-            OK := CopyStr("Internal Ref. No.", 8, 3) = '001';
-            if OK then begin
-                IntrastatJnlLine3.SetRange(
-                  "Internal Ref. No.",
-                  CopyStr("Internal Ref. No.", 1, 7) + '000',
-                  CopyStr("Internal Ref. No.", 1, 7) + '999');
-                IntrastatJnlLine3.FindLast;
-                NoOfEntries := CopyStr(IntrastatJnlLine3."Internal Ref. No.", 8, 3);
-            end;
+        if IntrastatJnlLine."Quantity 2" <> 0 then begin
+            Quantity2Code := 'AAE';
+            IntrastatJnlLine.TestField("Unit of Measure");
+        end else
+            IntrastatJnlLine."Unit of Measure" := '';
 
-            if "Quantity 2" <> 0 then begin
-                Quantity2Code := 'AAE';
-                TestField("Unit of Measure");
-            end
-            else begin
-                Quantity2Code := '';
-                "Unit of Measure" := '';
-            end;
-            if Type = Type::Receipt then begin
-                Receipt := true;
-                CountryFormat := Format("Country/Region of Origin Code", 2) + Format("Country/Region Code", 2) + '  ';
-            end
-            else begin
-                Shipment := true;
-                CountryFormat := '    ' + Format("Country/Region Code", 2)
-            end;
-            LineNo := IncStr(LineNo);
-            InternalReference := Format("Internal Ref. No.", 15);
-            if ExportFormat = ExportFormat::"2022" then
-                WriteGrTotalsToFile2022(IntrastatJnlLine2, TotalWeightAmt, QuantityAmt, StatisticalValueAmt)
-            else
-                IntraFile.Write(
-                      Format('NIM' + LineNo +
-                      PadStr("Tariff No.", 8, '0') + Format("Transaction Type", 2) +
-                      CountryFormat + Format("Transport Method", 1) +
-                      DecimalNumeralZeroFormat(Round(StatisticalValueAmt, 1, '>'), 10) +
-                      InternalReference + 'WT ' + 'KGM' +
-                      DecimalNumeralZeroFormat(TotalWeightAmt, 10) +
-                      Format(Quantity2Code, 3) + Format("Unit of Measure", 3) +
-                      DecimalNumeralZeroFormat(Round(QuantityAmt, 1, '>'), 10) +
-                      DecimalNumeralZeroFormat(Round(GrTotalAmt, 1, '>'), 10), 92));
+        if IntrastatJnlLine.Type = IntrastatJnlLine.Type::Receipt then
+            CountryFormat := Format(IntrastatJnlLine."Country/Region of Origin Code", 2) + Format(IntrastatJnlLine."Country/Region Code", 2) + '  '
+        else
+            CountryFormat := '    ' + Format(IntrastatJnlLine."Country/Region Code", 2);
 
-            TotalAmount := TotalAmount + GrTotalAmt;
-        end;
+        LineNo := IncStr(LineNo);
+        IntrastatJnlLine."Total Weight" := IntraJnlManagement.RoundTotalWeight(IntrastatJnlLine."Total Weight");
+
+        if ExportFormat = ExportFormat::"2021" then
+            WriteGroupTotalsToFile2021(IntrastatJnlLine, Quantity2Code, CountryFormat)
+        else
+            WriteGroupTotalsToFile2022(IntrastatJnlLine, Quantity2Code, CountryFormat);
+
+        TotalAmount += IntrastatJnlLine.Amount;
     end;
 
-    local procedure WriteGrTotalsToFile2022(IntrastatJnlLine: Record "Intrastat Jnl. Line"; TotalWeightAmt: Decimal; QuantityAmt: Decimal; StatisticalValueAmt: Decimal)
+    local procedure WriteGroupTotalsToFile2021(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Quantity2Code: Text[3]; CountryFormat: Text[6])
     begin
-        IntraFile.Write(
+        IntrastatFileWriter.WriteLine(
             Format('NIM' + LineNo +
             PadStr(IntrastatJnlLine."Tariff No.", 8, '0') + Format(IntrastatJnlLine."Transaction Type", 2) +
             CountryFormat + Format(IntrastatJnlLine."Transport Method", 1) +
-            DecimalNumeralZeroFormat(Round(StatisticalValueAmt, 1, '>'), 10) +
-            InternalReference + 'WT ' + 'KGM' +
-            DecimalNumeralZeroFormat(TotalWeightAmt, 10) +
+            DecimalNumeralZeroFormat(Round(IntrastatJnlLine."Statistical Value", 1, '>'), 10) +
+            Format(IntrastatJnlLine."Internal Ref. No.", 15) + 'WT ' + 'KGM' +
+            DecimalNumeralZeroFormat(IntrastatJnlLine."Total Weight", 10) +
             Format(Quantity2Code, 3) + Format(IntrastatJnlLine."Unit of Measure", 3) +
-            DecimalNumeralZeroFormat(Round(QuantityAmt, 1, '>'), 10) +
-            DecimalNumeralZeroFormat(Round(GrTotalAmt, 1, '>'), 10) +
+            DecimalNumeralZeroFormat(Round(IntrastatJnlLine."Quantity 2", 1, '>'), 10) +
+            DecimalNumeralZeroFormat(Round(IntrastatJnlLine.Amount, 1, '>'), 10), 92));
+    end;
+
+    local procedure WriteGroupTotalsToFile2022(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Quantity2Code: Text[3]; CountryFormat: Text[6])
+    begin
+        IntrastatFileWriter.WriteLine(
+            Format('NIM' + LineNo +
+            PadStr(IntrastatJnlLine."Tariff No.", 8, '0') + Format(IntrastatJnlLine."Transaction Type", 2) +
+            CountryFormat + Format(IntrastatJnlLine."Transport Method", 1) +
+            DecimalNumeralZeroFormat(Round(IntrastatJnlLine."Statistical Value", 1, '>'), 10) +
+            Format(IntrastatJnlLine."Internal Ref. No.", 15) + 'WT ' + 'KGM' +
+            DecimalNumeralZeroFormat(IntrastatJnlLine."Total Weight", 10) +
+            Format(Quantity2Code, 3) + Format(IntrastatJnlLine."Unit of Measure", 3) +
+            DecimalNumeralZeroFormat(Round(IntrastatJnlLine."Quantity 2", 1, '>'), 10) +
+            DecimalNumeralZeroFormat(Round(IntrastatJnlLine.Amount, 1, '>'), 10) +
             Format(IntrastatJnlLine."Partner VAT ID", 14), 106));
     end;
 }
