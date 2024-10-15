@@ -532,6 +532,13 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         exit(GuidVar);
     end;
 
+    internal procedure GetFeatureTelemetryName(): Text
+    var
+        DocumentExchangeTelemetryNameTxt: Label 'Document Exchange', Locked = true;
+    begin
+        exit(DocumentExchangeTelemetryNameTxt);
+    end;
+
     [TryFunction]
     [NonDebuggable]
     local procedure TryCheckConnection()
@@ -568,8 +575,11 @@ codeunit 1410 "Doc. Exch. Service Mgt."
     procedure SendUBLDocument(DocVariant: Variant; var TempBlob: Codeunit "Temp Blob"): Text
     var
         DocRecRef: RecordRef;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         CheckServiceEnabled();
+        FeatureTelemetry.LogUptake('0000IM9', TelemetryCategoryTok, Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IMP', TelemetryCategoryTok, 'Document send');
 
         DocRecRef.GetTable(DocVariant);
 

@@ -426,12 +426,12 @@ codeunit 1104 "Cost Account Allocation"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcDateFilter(CostAllocationTarget: Record "Cost Allocation Target"; var StartDate: Date; var EndDate: Date; var IsHandled: Boolean)
+    local procedure OnBeforeCalcDateFilter(var CostAllocationTarget: Record "Cost Allocation Target"; var StartDate: Date; var EndDate: Date; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcLineShare(CostAllocationTarget: Record "Cost Allocation Target"; var IsHandled: Boolean)
+    local procedure OnBeforeCalcLineShare(var CostAllocationTarget: Record "Cost Allocation Target"; var IsHandled: Boolean)
     begin
     end;
 

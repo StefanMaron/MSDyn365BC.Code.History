@@ -326,18 +326,20 @@ codeunit 311 "Item-Check Avail."
             CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc."));
     end;
 
-    local procedure ConvertQty(Qty: Decimal): Decimal
+    local procedure ConvertQty(Qty: Decimal) Result: Decimal
     begin
         if QtyPerUnitOfMeasure = 0 then
             QtyPerUnitOfMeasure := 1;
-        exit(Round(Qty / QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision()));
+        Result := Round(Qty / QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision());
+        OnAfterConvertQty(ItemNo, Qty, QtyPerUnitOfMeasure, Result);
     end;
 
-    local procedure ConvertQtyToBaseQty(Qty: Decimal): Decimal
+    local procedure ConvertQtyToBaseQty(Qty: Decimal) Result: Decimal
     begin
         if QtyPerUnitOfMeasure = 0 then
             QtyPerUnitOfMeasure := 1;
-        exit(Round(Qty * QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision()));
+        Result := Round(Qty * QtyPerUnitOfMeasure, UOMMgt.QtyRndPrecision());
+        OnAfterConvertQtyToBaseQty(ItemNo, Qty, QtyPerUnitOfMeasure, Result);
     end;
 
     procedure TransferLineShowWarning(TransLine: Record "Transfer Line") IsWarning: Boolean
@@ -751,6 +753,16 @@ codeunit 311 "Item-Check Avail."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculate(var Item: Record Item; var InitialQtyAvailable: Decimal; OldItemNetChange: Decimal; QtyPerUnitOfMeasure: Decimal; var ContextInfo: Dictionary of [Text, Text])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterConvertQty(ItemNo: Code[20]; Qty: Decimal; var QtyPerUnitOfMeasure: Decimal; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterConvertQtyToBaseQty(ItemNo: Code[20]; QtyBase: Decimal; var QtyPerUnitOfMeasure: Decimal; var Result: Decimal)
     begin
     end;
 

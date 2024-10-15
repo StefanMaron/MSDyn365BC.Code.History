@@ -2598,6 +2598,7 @@ codeunit 6500 "Item Tracking Management"
         SignFactor: Integer;
         LinkThisEntry: Boolean;
         EntriesExist: Boolean;
+        AppliedToItemEntry: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2658,8 +2659,12 @@ codeunit 6500 "Item Tracking Management"
                         QtyBase := Abs(ItemLedgEntry.Quantity) * SignFactor;
                     end;
 
+                    AppliedToItemEntry :=
+                        FillExactCostRevLink and LinkThisEntry and
+                        not (ToPurchLine.IsCreditDocType() and (ToPurchLine."Job No." <> ''));
+
                     InsertReservEntryForPurchLine(
-                      ItemLedgEntryBuf, ToPurchLine, QtyBase, FillExactCostRevLink and LinkThisEntry, EntriesExist);
+                      ItemLedgEntryBuf, ToPurchLine, QtyBase, AppliedToItemEntry, EntriesExist);
                 until Next() = 0;
 
                 if FillExactCostRevLink and not MissingExCostRevLink then begin

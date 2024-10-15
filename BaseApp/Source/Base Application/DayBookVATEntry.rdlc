@@ -689,7 +689,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!VAT_Entry__FIELDNAME__Posting_Date__________FORMAT_Date__Period_Start__0_4_.Value</Value>
+                                  <Value>=Fields!VAT_Entry__FIELDNAME__VAT_Date__________FORMAT_Date__Period_Start__0_4_.Value</Value>
                                   <Style>
                                     <FontSize>7pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2371,11 +2371,11 @@
                 <TablixMember>
                   <Group Name="Table1_Group2">
                     <GroupExpressions>
-                      <GroupExpression>=Fields!VAT_Entry__FIELDNAME__Posting_Date__________FORMAT_Date__Period_Start__0_4_.Value</GroupExpression>
+                      <GroupExpression>=Fields!VAT_Entry__FIELDNAME__VAT_Date__________FORMAT_Date__Period_Start__0_4_.Value</GroupExpression>
                     </GroupExpressions>
                     <Filters>
                       <Filter>
-                        <FilterExpression>=Fields!VAT_Entry__FIELDNAME__Posting_Date__________FORMAT_Date__Period_Start__0_4_.Value</FilterExpression>
+                        <FilterExpression>=Fields!VAT_Entry__FIELDNAME__VAT_Date__________FORMAT_Date__Period_Start__0_4_.Value</FilterExpression>
                         <Operator>GreaterThan</Operator>
                         <FilterValues>
                           <FilterValue />
@@ -2878,8 +2878,8 @@ End Function</Code>
         <Field Name="VAT_Entry__VAT_Calculation_Type_Caption">
           <DataField>VAT_Entry__VAT_Calculation_Type_Caption</DataField>
         </Field>
-        <Field Name="VAT_Entry__FIELDNAME__Posting_Date__________FORMAT_Date__Period_Start__0_4_">
-          <DataField>VAT_Entry__FIELDNAME__Posting_Date__________FORMAT_Date__Period_Start__0_4_</DataField>
+        <Field Name="VAT_Entry__FIELDNAME__VAT_Date__________FORMAT_Date__Period_Start__0_4_">
+          <DataField>VAT_Entry__FIELDNAME__VAT_Date__________FORMAT_Date__Period_Start__0_4_</DataField>
         </Field>
         <Field Name="Integer_Number">
           <DataField>Integer_Number</DataField>

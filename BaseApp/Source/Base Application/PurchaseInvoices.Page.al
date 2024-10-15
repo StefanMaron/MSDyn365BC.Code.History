@@ -253,16 +253,6 @@ page 9308 "Purchase Invoices"
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
             }
-#if not CLEAN21
-            part("Power BI Report FactBox"; "Power BI Report FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                Visible = false;
-                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
-                ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
-            }
-#endif
             part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
             {
                 ApplicationArea = Basic, Suite;
@@ -279,6 +269,16 @@ page 9308 "Purchase Invoices"
                 SubPageLink = "No." = FIELD("Buy-from Vendor No."),
                               "Date Filter" = FIELD("Date Filter");
             }
+#if not CLEAN21
+            part("Power BI Report FactBox"; "Power BI Report FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
+                ObsoleteState = Pending;
+                ObsoleteTag = '21.0';
+            }
+#endif
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;

@@ -322,8 +322,8 @@ page 1132 "Cost Bdgt. per Center Matrix"
     begin
         for MATRIX_CurrentColumnOrdinal := 1 to MATRIX_CurrentNoOfMatrixColumn do
             MATRIX_OnAfterGetRecord(MATRIX_CurrentColumnOrdinal);
-        NameIndent := Indentation;
-        Emphasize := Type <> Type::"Cost Type";
+        NameIndent := Rec.Indentation;
+        Emphasize := Rec.Type <> Rec.Type::"Cost Type";
     end;
 
     var
@@ -380,44 +380,72 @@ page 1132 "Cost Bdgt. per Center Matrix"
 
     local procedure MATRIX_OnDrillDown(ColumnID: Integer)
     begin
+        OnBeforeMATRIX_OnDrillDown(CostBudgetEntry);
+
         CostBudgetEntry.SetCurrentKey("Budget Name", "Cost Type No.", "Cost Center Code", "Cost Object Code", Date);
-        if Type in [Type::Total, Type::"End-Total"] then
-            CostBudgetEntry.SetFilter("Cost Type No.", Totaling)
+        if Rec.Type in [Rec.Type::Total, Rec.Type::"End-Total"] then
+            CostBudgetEntry.SetFilter("Cost Type No.", Rec.Totaling)
         else
-            CostBudgetEntry.SetRange("Cost Type No.", "No.");
+            CostBudgetEntry.SetRange("Cost Type No.", Rec."No.");
         CostBudgetEntry.SetFilter("Cost Center Code", CostCenterMatrixRecords[ColumnID].Code);
         CostBudgetEntry.SetFilter("Budget Name", BudgetFilter);
-        CostBudgetEntry.SetFilter(Date, GetFilter("Date Filter"));
+        CostBudgetEntry.SetFilter(Date, Rec.GetFilter("Date Filter"));
         PAGE.Run(0, CostBudgetEntry);
     end;
 
     local procedure MATRIX_OnAfterGetRecord(ColumnID: Integer)
     begin
-        SetFilters(ColumnID);
-        CalcFields("Budget Amount");
-        MATRIX_CellData[ColumnID] := MatrixMgt.RoundAmount("Budget Amount", RoundingFactor);
+        SetRecordFilters(ColumnID);
+        Rec.CalcFields("Budget Amount");
+        MATRIX_CellData[ColumnID] := MatrixMgt.RoundAmount(Rec."Budget Amount", RoundingFactor);
+
+        OnAfterMATRIX_OnAfterGetRecord(Rec, MATRIX_CellData, ColumnID, RoundingFactor);
     end;
 
     local procedure UpdateAmount(ColumnID: Integer)
     begin
-        SetFilters(ColumnID);
-        if GetRangeMin("Date Filter") = 0D then
+        SetRecordFilters(ColumnID);
+        if Rec.GetRangeMin("Date Filter") = 0D then
             Error(Text000);
 
-        CalcFields("Budget Amount");
-        Validate("Budget Amount", MATRIX_CellData[ColumnID]);
+        Rec.CalcFields("Budget Amount");
+        Rec.Validate("Budget Amount", MATRIX_CellData[ColumnID]);
+
+        OnAfterUpdateAmount(Rec, MATRIX_CellData, ColumnID);
     end;
 
-    local procedure SetFilters(ColumnID: Integer)
+    local procedure SetRecordFilters(ColumnID: Integer)
     begin
-        SetFilter("Date Filter", DateFilter);
-        SetFilter("Cost Center Filter", CostCenterMatrixRecords[ColumnID].Code);
-        SetFilter("Budget Filter", BudgetFilter);
+        Rec.SetFilter("Date Filter", DateFilter);
+        Rec.SetFilter("Cost Center Filter", CostCenterMatrixRecords[ColumnID].Code);
+        Rec.SetFilter("Budget Filter", BudgetFilter);
+
+        OnAfterSetRecordFilters(Rec);
     end;
 
     local procedure FormatStr(): Text
     begin
         exit(RoundingFactorFormatString);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetRecordFilters(var CostType: Record "Cost Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMATRIX_OnDrillDown(var CostBudgetEntry: Record "Cost Budget Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateAmount(var CostType: Record "Cost Type"; var MATRIX_CellData: array[12] of Decimal; ColumnID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMATRIX_OnAfterGetRecord(var CostType: Record "Cost Type"; var MATRIX_CellData: array[12] of Decimal; ColumnID: Integer; RoundingFactor: Enum "Analysis Rounding Factor")
+    begin
     end;
 }
 

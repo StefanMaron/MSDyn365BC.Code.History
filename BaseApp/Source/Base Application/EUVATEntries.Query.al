@@ -13,6 +13,12 @@ query 141 "EU VAT Entries"
             column(PostingDate; "Posting Date")
             {
             }
+            column(VATReportingDate; "VAT Reporting Date")
+            {
+            }
+            column(DocumentDate; "Document Date")
+            {
+            }
             column(Type; Type)
             {
             }

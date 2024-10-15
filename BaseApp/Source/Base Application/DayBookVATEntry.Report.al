@@ -10,8 +10,8 @@ report 2500 "Day Book VAT Entry"
     {
         dataitem(ReqVATEntry; "VAT Entry")
         {
-            DataItemTableView = SORTING(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date");
-            RequestFilterFields = Type, "Posting Date";
+            DataItemTableView = SORTING(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date");
+            RequestFilterFields = Type, "VAT Reporting Date";
 
             trigger OnPreDataItem()
             begin
@@ -128,7 +128,7 @@ report 2500 "Day Book VAT Entry"
             dataitem("Integer"; "Integer")
             {
                 DataItemTableView = SORTING(Number);
-                column(VAT_Entry__FIELDNAME__Posting_Date__________FORMAT_Date__Period_Start__0_4_; "VAT Entry".FieldCaption("Posting Date") + ' ' + Format(Date."Period Start", 0, 4))
+                column(VAT_Entry__FIELDNAME__VAT_Date__________FORMAT_Date__Period_Start__0_4_; "VAT Entry".FieldCaption("VAT Reporting Date") + ' ' + Format(Date."Period Start", 0, 4))
                 {
                 }
                 column(Integer_Number; Number)
@@ -136,7 +136,7 @@ report 2500 "Day Book VAT Entry"
                 }
                 dataitem("VAT Entry"; "VAT Entry")
                 {
-                    DataItemTableView = SORTING("Document No.", "Posting Date");
+                    DataItemTableView = SORTING("Document No.", "VAT Reporting Date");
                     column(FIELDNAME_Type__________FORMAT_Type_; FieldCaption(Type) + ' ' + Format(Type))
                     {
                     }
@@ -246,7 +246,7 @@ report 2500 "Day Book VAT Entry"
                     trigger OnPreDataItem()
                     begin
                         CopyFilters(ReqVATEntry);
-                        SetRange("Posting Date", Date."Period Start");
+                        SetRange("VAT Reporting Date", Date."Period Start");
                         FilterGroup(5);
                         SetFilter(Type, Format(Integer.Number));
                         Clear(Base);
@@ -262,20 +262,20 @@ report 2500 "Day Book VAT Entry"
                 begin
                     SetRange(Number, 0, 3);
 
-                    if ReqVATEntry.GetFilter("Posting Date") = '' then
+                    if ReqVATEntry.GetFilter("VAT Reporting Date") = '' then
                         Error(MissingDateRangeFilterErr);
 
-                    PostingDateStart := ReqVATEntry.GetRangeMin("Posting Date");
+                    PostingDateStart := ReqVATEntry.GetRangeMin("VAT Reporting Date");
                     PostingDateEnd := CalcDate('<+1Y>', PostingDateStart);
 
-                    if ReqVATEntry.GetRangeMax("Posting Date") > PostingDateEnd then
+                    if ReqVATEntry.GetRangeMax("VAT Reporting Date") > PostingDateEnd then
                         Error(MaxPostingDateErr);
                 end;
             }
 
             trigger OnPreDataItem()
             begin
-                ReqVATEntry.CopyFilter("Posting Date", "Period Start");
+                ReqVATEntry.CopyFilter("VAT Reporting Date", "Period Start");
             end;
         }
     }
@@ -326,7 +326,7 @@ report 2500 "Day Book VAT Entry"
         PrevType: Enum "General Posting Type";
         UseAmtsInAddCurr: Boolean;
         Text000Lbl: Label 'All amounts are in %1.', Comment = 'All amounts are in GBP';
-        Text001Lbl: Label 'Total for %1 %2.', Comment = 'Total for posting date 12122012';
+        Text001Lbl: Label 'Total for %1 %2.', Comment = 'Total for VAT date 12122012';
         Text002Lbl: Label 'Total for %1.', Comment = 'total for 121212';
         Text003Lbl: Label 'Total for  %1 : %2.', Comment = 'Total for VAT Entry Vat%       ';
         Day_Book_VAT_EntryCaptionLbl: Label 'Day Book VAT Entry';
@@ -334,7 +334,7 @@ report 2500 "Day Book VAT Entry"
         All_amounts_are_in_Add__Reporting_CurrencyCaptionLbl: Label 'All amounts are in Add. Reporting Currency';
         SellToBuyFromNameCaptionLbl: Label 'Sell-to/Buy-from Name';
         Sell_to__Buy_from_No_CaptionLbl: Label 'Sell-to/\Buy-from No.';
-        MaxPostingDateErr: Label 'Posting Date period must not be longer than 1 year.';
-        MissingDateRangeFilterErr: Label 'Posting Date filter must be set.';
+        MaxPostingDateErr: Label 'VAT Date period must not be longer than 1 year.';
+        MissingDateRangeFilterErr: Label 'VAT Date filter must be set.';
 }
 

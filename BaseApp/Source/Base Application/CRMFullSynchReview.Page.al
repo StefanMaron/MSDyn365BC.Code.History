@@ -108,7 +108,7 @@ page 5331 "CRM Full Synch. Review"
                 Caption = 'Sync All';
                 Enabled = ActionStartEnabled;
                 Image = Start;
-                ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page.';
+                ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page. Mappings with finished job status will be skipped.';
 
                 trigger OnAction()
                 var
@@ -220,7 +220,10 @@ page 5331 "CRM Full Synch. Review"
             else
                 InitialSynchRecommendation := CouplingCriteriaSelectedTxt
         end;
-        InitialSynchRecommendationStyle := GetInitialSynchRecommendationStyleExpression(Format("Initial Synch Recommendation"));
+        if InitialSynchRecommendation = CouplingCriteriaSelectedTxt then
+            InitialSynchRecommendationStyle := 'Favorable'
+        else
+            InitialSynchRecommendationStyle := GetInitialSynchRecommendationStyleExpression(Format("Initial Synch Recommendation"));
         SynchRecommendationDrillDownEnabled := (InitialSynchRecommendation in [MatchBasedCouplingTxt, CouplingCriteriaSelectedTxt]);
     end;
 
