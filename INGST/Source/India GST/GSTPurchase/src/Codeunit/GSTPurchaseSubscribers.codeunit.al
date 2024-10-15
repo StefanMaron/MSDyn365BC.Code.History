@@ -1141,9 +1141,14 @@ codeunit 18080 "GST Purchase Subscribers"
     local procedure ItemValue(var PurchaseLine: Record "Purchase Line"; Item: Record Item)
     var
         GSTGroup: Record "GST Group";
+        PurchaseHeader: Record "Purchase Header";
     begin
         if Item."GST Group Code" <> '' then
             GSTGroup.Get(Item."GST Group Code");
+
+        if not PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.") then
+            exit;
+        PurchaseLine.Validate("GST Vendor Type", PurchaseHeader."GST Vendor Type");
 
         UpdatePurchLineForGST(Item."GST Credit", Item."GST Group Code", GSTGroup."GST Group Type", Item."HSN/SAC Code", Item.Exempted, PurchaseLine);
     end;

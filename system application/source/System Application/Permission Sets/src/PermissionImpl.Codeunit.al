@@ -138,7 +138,7 @@ codeunit 9864 "Permission Impl."
         end;
     end;
 
-    procedure GetObjectionCaptionAndName(var MetadataPermission: Record "Metadata Permission"; var ObjectCaption: Text; var ObjectName: Text)
+    procedure GetObjectCaptionAndName(var MetadataPermission: Record "Metadata Permission"; var ObjectCaption: Text; var ObjectName: Text)
     var
         AllObj: Record AllObj;
     begin
@@ -150,6 +150,22 @@ codeunit 9864 "Permission Impl."
                 ObjectName := AllObj."Object Name";
         end else begin
             ObjectName := CopyStr(StrSubstNo(AllObjTxt, MetadataPermission."Object Type"), 1, MaxStrLen(MetadataPermission."Object Name"));
+            ObjectCaption := ObjectName;
+        end;
+    end;
+
+    procedure GetObjectCaptionAndName(var ExpandedPermission: Record "Expanded Permission"; var ObjectCaption: Text; var ObjectName: Text)
+    var
+        AllObj: Record AllObj;
+    begin
+        if ExpandedPermission."Object ID" <> 0 then begin
+            ExpandedPermission.CalcFields("Object Name");
+            ObjectCaption := ExpandedPermission."Object Name";
+            ObjectName := '';
+            if AllObj.Get(ExpandedPermission."Object Type", ExpandedPermission."Object ID") then
+                ObjectName := AllObj."Object Name";
+        end else begin
+            ObjectName := CopyStr(StrSubstNo(AllObjExceptTxt, ExpandedPermission."Object Type"), 1, MaxStrLen(ExpandedPermission."Object Name"));
             ObjectCaption := ObjectName;
         end;
     end;

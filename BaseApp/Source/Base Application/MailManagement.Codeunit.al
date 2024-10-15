@@ -93,8 +93,10 @@ codeunit 9520 "Mail Management"
             Commit();
             MailSent := Email.OpenInEditorModallyWithScenario(Message, TempEmailModuleAccount, CurrentEmailScenario) = Enum::"Email Action"::Sent;
             Cancelled := not MailSent;
-        end else
+        end else begin
+            Email.AddDefaultAttachments(Message, CurrentEmailScenario);
             MailSent := Email.Send(Message, TempEmailModuleAccount);
+        end;
 
         OnSendViaEmailModuleOnAfterEmailSend(Message, TempEmailItem, MailSent, Cancelled, HideEmailSendingError);
 

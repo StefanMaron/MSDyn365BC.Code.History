@@ -1278,6 +1278,7 @@ codeunit 18143 "GST Sales Validation"
     begin
         Salesheader.Get(SalesLine."Document Type", SalesLine."Document No.");
         SalesLine."Invoice Type" := SalesHeader."Invoice Type";
+        SalesLine."GST Customer Type" := SalesHeader."GST Customer Type";
         UpdateGSTPlaceOfSupply(GLAccount."HSN/SAC Code", GLAccount."GST Group Code", GLAccount.Exempted, GLAccount."GST Credit", SalesLine);
     end;
 
@@ -1291,6 +1292,8 @@ codeunit 18143 "GST Sales Validation"
         SalesLine."Invoice Type" := SalesHeader."Invoice Type";
         if SalesLine."Location Code" = '' then
             SalesLine."Location Code" := SalesHeader."Location Code";
+
+        SalesLine."GST Customer Type" := SalesHeader."GST Customer Type";
         UpdateGSTPlaceOfSupply(Item."HSN/SAC Code", Item."GST Group Code", Item.Exempted, Item."GST Credit", SalesLine);
     end;
 
@@ -1300,6 +1303,7 @@ codeunit 18143 "GST Sales Validation"
     begin
         Salesheader.Get(SalesLine."Document Type", SalesLine."Document No.");
         SalesLine."Invoice Type" := SalesHeader."Invoice Type";
+        SalesLine."GST Customer Type" := SalesHeader."GST Customer Type";
         UpdateGSTPlaceOfSupply(Resource."HSN/SAC Code", Resource."GST Group Code", Resource.Exempted, Resource."GST Credit", SalesLine);
     end;
 
@@ -1309,6 +1313,7 @@ codeunit 18143 "GST Sales Validation"
     begin
         Salesheader.Get(SalesLine."Document Type", SalesLine."Document No.");
         SalesLine."Invoice Type" := SalesHeader."Invoice Type";
+        SalesLine."GST Customer Type" := SalesHeader."GST Customer Type";
         UpdateGSTPlaceOfSupply(FixedAsset."HSN/SAC Code", FixedAsset."GST Group Code", FixedAsset.Exempted, FixedAsset."GST Credit", SalesLine);
     end;
 
