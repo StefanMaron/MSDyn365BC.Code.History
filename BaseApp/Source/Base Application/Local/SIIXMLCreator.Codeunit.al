@@ -887,7 +887,8 @@ codeunit 10750 "SII XML Creator"
             if NeedNombreRazon then
                 XMLDOMManagement.AddElementWithPrefix(XMLNode, 'NombreRazon', Name, 'sii', SiiTxt, TempXMLNode);
             XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDOtro', '', 'sii', SiiTxt, XMLNode);
-            XMLDOMManagement.AddElementWithPrefix(XMLNode, 'CodigoPais', CountryCode, 'sii', SiiTxt, TempXMLNode);
+            if not SIIManagement.CountryIsNorthernIreland(CountryCode) then
+                XMLDOMManagement.AddElementWithPrefix(XMLNode, 'CodigoPais', CountryCode, 'sii', SiiTxt, TempXMLNode);
 
             if IsIntraCommunity then
                 XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDType', IDType, 'sii', SiiTxt, TempXMLNode)

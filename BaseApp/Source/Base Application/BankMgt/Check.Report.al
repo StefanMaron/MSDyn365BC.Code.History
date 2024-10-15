@@ -1069,8 +1069,8 @@ report 1401 Check
         Text1100752: Label 'SIETE ';
         Text1100753: Label 'OCHO ';
         Text1100754: Label 'NUEVE ';
-        Text1100755: Label ' CNTIMOS';
-        Text1100756: Label ' CNTIMOS';
+        Text1100755: Label ' CENTIMOS';
+        Text1100756: Label ' CENTIMOS';
         Text1100757: Label 'MILSIMAS';
         Text1100758: Label 'DIEZMILSIMAS';
         Text1100759: Label ' CNTIMO';
