@@ -533,7 +533,9 @@
 
                     if ("Entry Type" = "Entry Type"::Transfer) then begin
                         CheckDimensionsAfterAssignDimTableIDs(ItemJnlLine, TableID, No, "Dimension Set ID");
-                        if DimMgt.CheckDefaultDimensionHasCodeMandatory(TableID, No) then
+                        if (DimMgt.CheckDefaultDimensionHasCodeMandatory(TableID, No)) and
+                           (ItemJnlLine."Value Entry Type" <> ItemJnlLine."Value Entry Type"::Revaluation)
+                        then
                             CheckDimensionsAfterAssignDimTableIDs(ItemJnlLine, TableID, No, "New Dimension Set ID");
                     end else
                         CheckDimensionsAfterAssignDimTableIDs(ItemJnlLine, TableID, No, "Dimension Set ID");
