@@ -728,6 +728,8 @@ table 901 "Assembly Line"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         TestStatusOpen();
+        ConfirmDeletion();
+
         WhseValidateSourceLine.AssemblyLineDelete(Rec);
         WhseAssemblyRelease.DeleteLine(Rec);
         AssemblyLineReserve.DeleteLine(Rec);
@@ -741,6 +743,7 @@ table 901 "Assembly Line"
     trigger OnInsert()
     begin
         TestStatusOpen();
+
         VerifyReservationQuantity(Rec, xRec);
     end;
 
@@ -768,6 +771,7 @@ table 901 "Assembly Line"
         StatusCheckSuspended: Boolean;
         TestReservationDateConflict: Boolean;
         SkipVerificationsThatChangeDatabase: Boolean;
+        CalledFromHeader: Boolean;
 
         Text001: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
         Text002: Label 'You cannot rename an %1.';
@@ -778,6 +782,7 @@ table 901 "Assembly Line"
         Text050: Label 'Due Date %1 is before work date %2.';
         Text99000002: Label 'You cannot change %1 when %2 is ''%3''.';
         AvailabilityPageTitleLbl: Label 'The available inventory for item %1 is lower than the entered quantity at this location.', Comment = '%1=Item No.';
+        ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = FieldCaption(Consumed Quantity), %4 = Consumed Quantity, %5 = TableCaption';
 
     procedure InitRemainingQty()
     begin
@@ -1999,6 +2004,30 @@ table 901 "Assembly Line"
                 TableValuePair.Add(Database::Location, Rec."Location Code");
         end;
         OnAfterInitTableValuePair(TableValuePair, FieldNo, Rec);
+    end;
+
+    local procedure ConfirmDeletion()
+    begin
+        if CalledFromHeader then
+            exit;
+
+        if "Consumed Quantity" < "Qty. Picked" then
+            if not Confirm(
+                StrSubstNo(
+                    ConfirmDeleteQst,
+                    FieldCaption("Qty. Picked"),
+                    "Qty. Picked",
+                    FieldCaption("Consumed Quantity"),
+                    "Consumed Quantity",
+                    TableCaption),
+                false)
+            then
+                Error('');
+    end;
+
+    procedure SuspendDeletionCheck(Suspend: Boolean)
+    begin
+        CalledFromHeader := Suspend;
     end;
 
 #if not CLEAN20
