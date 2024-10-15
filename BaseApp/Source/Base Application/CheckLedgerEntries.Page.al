@@ -199,6 +199,7 @@ page 374 "Check Ledger Entries"
 
     trigger OnOpenPage()
     begin
+        OnBeforeOnOpenPage();
         if (GetFilters() <> '') and not Find() then
             if FindFirst() then;
     end;
@@ -207,5 +208,10 @@ page 374 "Check Ledger Entries"
         Navigate: Page Navigate;
         BankAcc: Record "Bank Account";
         CheckLedgEntry: Record "Check Ledger Entry";
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage()
+    begin
+    end;
 }
 

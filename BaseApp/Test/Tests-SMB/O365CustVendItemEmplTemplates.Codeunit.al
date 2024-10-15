@@ -100,7 +100,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Initialize();
 
         // [GIVEN] Source template "ST" with data and dimensions
-        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(SourceVendorTempl);
+        CreateVendorTemplateWithDataAndDimensions(SourceVendorTempl);
 
         // [GIVEN] Destination empty template "DT"
         LibraryTemplates.CreateVendorTemplate(DestVendorTempl);
@@ -130,7 +130,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T" with data and dimensions
-        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl);
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl);
 
         // [WHEN] Create new vendor
         VendorTemplMgt.InsertVendorFromTemplate(Vendor);
@@ -160,10 +160,10 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T1" with data and dimensions
-        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl1);
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl1);
 
         // [GIVEN] Template "T2" with data and dimensions
-        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl2);
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl2);
         LibraryVariableStorage.Enqueue(VendorTempl2.Code);
 
         // [WHEN] Create new vendor from "T2" (VendorTemplListHandler)
@@ -309,7 +309,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Initialize();
 
         // [GIVEN] Source template "ST" with data and dimensions
-        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(SourceCustomerTempl);
+        CreateCustomerTemplateWithDataAndDimensions(SourceCustomerTempl);
 
         // [GIVEN] Destination empty template "DT"
         LibraryTemplates.CreateCustomerTemplate(DestCustomerTempl);
@@ -339,7 +339,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T" with data and dimensions
-        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
 
         // [WHEN] Create new customer
         CustomerTemplMgt.InsertCustomerFromTemplate(Customer);
@@ -369,7 +369,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T" with data and dimensions
-        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
         UpdateDocSendingProfile(DocumentSendingProfile, CustomerTempl);
 
         // [WHEN] Create new customer
@@ -402,10 +402,10 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T1" with data and dimensions
-        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl1);
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl1);
 
         // [GIVEN] Template "T2" with data and dimensions
-        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl2);
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl2);
         LibraryVariableStorage.Enqueue(CustomerTempl2.Code);
 
         // [WHEN] Create new customer from "T2" (CustomerTemplListHandler)
@@ -577,7 +577,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
 
         // [GIVEN] Template with data and dimensions
-        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
 
         // [WHEN] Create new Item
         ItemTemplMgt.InsertItemFromTemplate(Item);
@@ -605,10 +605,10 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T1" with data and dimensions
-        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl1);
+        CreateItemTemplateWithDataAndDimensions(ItemTempl1);
 
         // [GIVEN] Template "T2" with data and dimensions
-        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl2);
+        CreateItemTemplateWithDataAndDimensions(ItemTempl2);
         LibraryVariableStorage.Enqueue(ItemTempl2.Code);
 
         // [WHEN] Create new Item from "T2" (ItemTemplListHandler)
@@ -942,10 +942,10 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T1" with data and dimensions
-        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl1);
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl1);
 
         // [GIVEN] Template "T2" with data and dimensions
-        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl2);
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl2);
         VendorTempl2.Get(VendorTempl2.Code);
         LibraryVariableStorage.Enqueue(VendorTempl2.Code);
 
@@ -988,7 +988,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [GIVEN] Two templates
         for i := 1 to 2 do
-            LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl);
+            CreateVendorTemplateWithDataAndDimensions(VendorTempl);
 
         // [GIVEN] Company contact "C"
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -1021,7 +1021,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [GIVEN] Two templates
         for i := 1 to 2 do
-            LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+            CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
 
         // [GIVEN] Company contact "C"
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -1051,15 +1051,16 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T1" with data and dimensions
-        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl1);
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl1);
 
         // [GIVEN] Template "T2" with data and dimensions
-        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl2);
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl2);
         CustomerTempl2.Get(CustomerTempl2.Code);
         LibraryVariableStorage.Enqueue(CustomerTempl2.Code);
 
         // [GIVEN] Customer "C"
-        LibrarySales.CreateCustomer(Customer);
+        Customer.Init();
+        Customer.Insert(true);
 
         // [WHEN] Apply "T2" to "C"
         CustomerTemplMgt.UpdateCustomerFromTemplate(Customer);
@@ -1091,15 +1092,16 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T1" with data and dimensions
-        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl1);
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl1);
 
         // [GIVEN] Template "T2" with data and dimensions
-        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl2);
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl2);
         VendorTempl2.Get(VendorTempl2.Code);
         LibraryVariableStorage.Enqueue(VendorTempl2.Code);
 
         // [GIVEN] Vendor "V"
-        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Init();
+        Vendor.Insert(true);
 
         // [WHEN] Apply "T2" to "V"
         VendorTemplMgt.UpdateVendorFromTemplate(Vendor);
@@ -1139,7 +1141,8 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryVariableStorage.Enqueue(ItemTempl2.Code);
 
         // [GIVEN] Item "I"
-        LibraryInventory.CreateItem(Item);
+        Item.Init();
+        Item.Insert(true);
 
         // [WHEN] Apply "T2" to "I"
         ItemTemplMgt.UpdateItemFromTemplate(Item);
@@ -1171,16 +1174,18 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T1" with data and dimensions
-        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl1);
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl1);
 
         // [GIVEN] Template "T2" with data and dimensions
-        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl2);
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl2);
         CustomerTempl2.Get(CustomerTempl2.Code);
         LibraryVariableStorage.Enqueue(CustomerTempl2.Code);
 
         // [GIVEN] Tow customers "C1" and "C2"
-        LibrarySales.CreateCustomer(Customer[1]);
-        LibrarySales.CreateCustomer(Customer[2]);
+        Customer[1].Init();
+        Customer[1].Insert(true);
+        Customer[2].Init();
+        Customer[2].Insert(true);
         Customer[3].SetFilter("No.", '%1|%2', Customer[1]."No.", Customer[2]."No.");
 
         // [WHEN] Apply "T2" for "C1" and "C2" at one time
@@ -1220,16 +1225,18 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T1" with data and dimensions
-        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl1);
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl1);
 
         // [GIVEN] Template "T2" with data and dimensions
-        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl2);
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl2);
         VendorTempl2.Get(VendorTempl2.Code);
         LibraryVariableStorage.Enqueue(VendorTempl2.Code);
 
         // [GIVEN] Two vendors "V1" and "V2"
-        LibraryPurchase.CreateVendor(Vendor[1]);
-        LibraryPurchase.CreateVendor(Vendor[2]);
+        Vendor[1].Init();
+        Vendor[1].Insert(true);
+        Vendor[2].Init();
+        Vendor[2].Insert(true);
         Vendor[3].SetFilter("No.", '%1|%2', Vendor[1]."No.", Vendor[2]."No.");
 
         // [WHEN] Apply "T2" for "V1" and "V2" at one time
@@ -1277,8 +1284,10 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryVariableStorage.Enqueue(ItemTempl2.Code);
 
         // [GIVEN] Two items "I1" and "I2"
-        LibraryInventory.CreateItem(Item[1]);
-        LibraryInventory.CreateItem(Item[2]);
+        Item[1].Init();
+        Item[1].Insert(true);
+        Item[2].Init();
+        Item[2].Insert(true);
         Item[3].SetFilter("No.", '%1|%2', Item[1]."No.", Item[2]."No.");
 
         // [WHEN] Apply "T2" for "I1" and "I2" at one time
@@ -2040,7 +2049,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T" with data and dimensions
-        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl);
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl);
         LibraryVariableStorage.Enqueue(VendorTempl.Code);
 
         // [WHEN] Create new vendor
@@ -2072,7 +2081,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T" with data and dimensions
-        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
         LibraryVariableStorage.Enqueue(CustomerTempl.Code);
 
         // [WHEN] Create new Customer
@@ -2102,7 +2111,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T" with additional data and dimensions
-        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+        CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
         UpdateCustomerTemplateAdditionalFields(CustomerTempl);
 
         // [WHEN] Create new customer
@@ -2135,7 +2144,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T" with data and dimensions
-        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl);
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl);
         UpdateVendorTemplDocSendingProfile(DocumentSendingProfile, VendorTempl);
 
         // [WHEN] Create new Vendor
@@ -2235,6 +2244,77 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Vendor.TestField(County);
         Vendor.TestField("Language Code");
         Vendor.TestField("Currency Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerTemplCardControls()
+    var
+        CustomerCardPageControlField: Record "Page Control Field";
+        CustomerTemplCardPageControlField: Record "Page Control Field";
+        CustomerTemplField: Record Field;
+    begin
+        CustomerTemplCardPageControlField.SetRange(PageNo, Page::"Customer Templ. Card");
+
+        CustomerCardPageControlField.SetRange(PageNo, Page::"Customer Card");
+        CustomerCardPageControlField.SetFilter(FieldNo, '<>0');
+        if CustomerCardPageControlField.FindSet() then
+            repeat
+                if CustomerTemplField.Get(Database::"Customer Templ.", CustomerCardPageControlField.FieldNo) then begin
+                    CustomerTemplCardPageControlField.SetRange(FieldNo, CustomerCardPageControlField.FieldNo);
+                    if CustomerTemplCardPageControlField.IsEmpty then
+                        Error('%1 should exist on the customer template card.', CustomerCardPageControlField.ControlName);
+                end;
+            until CustomerCardPageControlField.Next() = 0;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorTemplCardControls()
+    var
+        VendorCardPageControlField: Record "Page Control Field";
+        VendorTemplCardPageControlField: Record "Page Control Field";
+        VendorTemplField: Record Field;
+    begin
+        VendorTemplCardPageControlField.SetRange(PageNo, Page::"Vendor Templ. Card");
+
+        VendorCardPageControlField.SetRange(PageNo, Page::"Vendor Card");
+        VendorCardPageControlField.SetFilter(FieldNo, '<>0');
+        if VendorCardPageControlField.FindSet() then
+            repeat
+                if VendorTemplField.Get(Database::"Vendor Templ.", VendorCardPageControlField.FieldNo) then begin
+                    VendorTemplCardPageControlField.SetRange(FieldNo, VendorCardPageControlField.FieldNo);
+                    if VendorTemplCardPageControlField.IsEmpty then
+                        Error('%1 should exist on the Vendor template card.', VendorCardPageControlField.ControlName);
+                end;
+            until VendorCardPageControlField.Next() = 0;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTemplCardControls()
+    var
+        Item: Record Item;
+        ItemCardPageControlField: Record "Page Control Field";
+        ItemTemplCardPageControlField: Record "Page Control Field";
+        ItemTemplField: Record Field;
+        FieldExclusionList: List of [Integer];
+    begin
+        FieldExclusionList.Add(Item.FieldNo("Prevent Negative Inventory"));
+        FieldExclusionList.Add(Item.FieldNo("Stockout Warning"));
+
+        ItemTemplCardPageControlField.SetRange(PageNo, Page::"Item Templ. Card");
+
+        ItemCardPageControlField.SetRange(PageNo, Page::"Item Card");
+        ItemCardPageControlField.SetFilter(FieldNo, '<>0');
+        if ItemCardPageControlField.FindSet() then
+            repeat
+                if ItemTemplField.Get(Database::"Item Templ.", ItemCardPageControlField.FieldNo) and not (FieldExclusionList.Contains(ItemCardPageControlField.FieldNo)) then begin
+                    ItemTemplCardPageControlField.SetRange(FieldNo, ItemCardPageControlField.FieldNo);
+                    if ItemTemplCardPageControlField.IsEmpty then
+                        Error('%1 should exist on the Item template card.', ItemCardPageControlField.ControlName);
+                end;
+            until ItemCardPageControlField.Next() = 0;
     end;
 
     local procedure Initialize()
@@ -2353,6 +2433,42 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         NonstockItem.Validate("Item Templ. Code", ItemTemplCode);
         NonstockItem.Validate(Description, NonstockItem."Entry No.");
         NonstockItem.Modify(true);
+    end;
+
+    local procedure CreateCustomerTemplateWithDataAndDimensions(var CustomerTempl: Record "Customer Templ.")
+    var
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        CustomerTempl."Global Dimension 1 Code" := DimensionValue.Code;
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        CustomerTempl."Global Dimension 2 Code" := DimensionValue.Code;
+        CustomerTempl.Modify();
+    end;
+
+    local procedure CreateVendorTemplateWithDataAndDimensions(var VendorTempl: Record "Vendor Templ.")//r01
+    var
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryTemplates.CreateVendorTemplateWithDataAndDimensions(VendorTempl);
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        VendorTempl."Global Dimension 1 Code" := DimensionValue.Code;
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        VendorTempl."Global Dimension 2 Code" := DimensionValue.Code;
+        VendorTempl.Modify();
+    end;
+
+    procedure CreateItemTemplateWithDataAndDimensions(var ItemTempl: Record "Item Templ.")
+    var
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        ItemTempl."Global Dimension 1 Code" := DimensionValue.Code;
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        ItemTempl."Global Dimension 2 Code" := DimensionValue.Code;
+        ItemTempl.Modify();
     end;
 
     local procedure CreateShipmentMethodCode(): Code[10]

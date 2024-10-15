@@ -508,6 +508,29 @@
         until ReservEntry.Next() = 0;
     end;
 
+    procedure NonSpecificReservedQtyExceptForSource(ItemLedgerEntryNo: Integer; TempTrackingSpecification: Record "Tracking Specification" temporary) UnspecificQty: Decimal
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ReservEntry: Record "Reservation Entry";
+        OppositeReservEntry: Record "Reservation Entry";
+        ItemLedgerEntryReserve: Codeunit "Item Ledger Entry-Reserve";
+    begin
+        UnspecificQty := 0;
+
+        ItemLedgerEntry.Get(ItemLedgerEntryNo);
+        ItemLedgerEntryReserve.FilterReservFor(ReservEntry, ItemLedgerEntry);
+        ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
+        ReservEntry.SetRange(Positive, true);
+        if ReservEntry.FindSet() then
+            repeat
+                OppositeReservEntry.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
+                if not OppositeReservEntry.TrackingExists() and
+                   not OppositeReservEntry.HasSamePointerWithSpec(TempTrackingSpecification)
+                then
+                    UnspecificQty -= OppositeReservEntry."Quantity (Base)";
+            until ReservEntry.Next() = 0;
+    end;
+
 #if not CLEAN17
     [Obsolete('Replaced by ReleaseForReservation(ItemNo, VariantCode, LocationCode, ItemTrackingSetup, QtyToRelease)', '17.0')]
     procedure ReleaseForReservation(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; SerialNo: Code[50]; LotNo: Code[50]; CDNo: Code[30]; QtyToRelease: Decimal) AllocationsChanged: Boolean

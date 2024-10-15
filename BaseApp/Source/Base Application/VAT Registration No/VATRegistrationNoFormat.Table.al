@@ -124,6 +124,7 @@ table 381 "VAT Registration No. Format"
         Cust.SetCurrentKey("VAT Registration No.");
         Cust.SetRange("VAT Registration No.", VATRegNo);
         Cust.SetFilter("No.", '<>%1', Number);
+        OnCheckCustOnBeforeCustFindSet(Cust);
         if Cust.FindSet then begin
             Check := false;
             Finish := false;
@@ -137,11 +138,23 @@ table 381 "VAT Registration No. Format"
             until (Cust.Next() = 0) or Finish;
         end;
         if not Check then begin
-            Message(StrSubstNo(Text002, TextString));
+            ShowCheckCustMessage(TextString);
             exit(false);
         end;
 
         exit(true);
+    end;
+
+    local procedure ShowCheckCustMessage(TextString: Text)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowCheckCustMessage(TextString, IsHandled);
+        if IsHandled then
+            exit;
+
+        Message(StrSubstNo(Text002, TextString));
     end;
 
     local procedure CheckVendor(VATRegNo: Text[20]; Number: Code[20]): Boolean
@@ -162,6 +175,7 @@ table 381 "VAT Registration No. Format"
         Vend.SetCurrentKey("VAT Registration No.");
         Vend.SetRange("VAT Registration No.", VATRegNo);
         Vend.SetFilter("No.", '<>%1', Number);
+        OnCheckVendOnBeforeVendFindSet(Vend);
         if Vend.FindSet then begin
             Check := false;
             Finish := false;
@@ -170,11 +184,23 @@ table 381 "VAT Registration No. Format"
             until (Vend.Next() = 0) or Finish;
         end;
         if not Check then begin
-            Message(StrSubstNo(Text003, TextString));
+            ShowCheckVendMessage(TextString);
             exit(false);
         end;
 
         exit(true);
+    end;
+
+    local procedure ShowCheckVendMessage(TextString: Text)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowCheckVendMessage(TextString, IsHandled);
+        if IsHandled then
+            exit;
+
+        Message(StrSubstNo(Text003, TextString));
     end;
 
     local procedure CheckContact(VATRegNo: Text[20]; Number: Code[20]): Boolean
@@ -386,6 +412,16 @@ table 381 "VAT Registration No. Format"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowCheckCustMessage(TextString: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowCheckVendMessage(TextString: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckVend(VATRegNo: Text[20]; Number: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -397,6 +433,16 @@ table 381 "VAT Registration No. Format"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTest(VATRegNo: Text[20]; CountryCode: Code[10]; Number: Code[20]; TableID: Option; Check: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckCustOnBeforeCustFindSet(var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckVendOnBeforeVendFindSet(var Vendor: Record Vendor)
     begin
     end;
 

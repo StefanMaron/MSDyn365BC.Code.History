@@ -1,4 +1,4 @@
-codeunit 9998 "Upgrade Tag Definitions"
+﻿codeunit 9998 "Upgrade Tag Definitions"
 {
     // Tag Structure - MS-[TFSID]-[Description]-[DateChangeWasDoneToSeeHowOldItWas]
     // Tags must be the same in all branches
@@ -31,6 +31,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetGLBankAccountNoTag());
         PerCompanyUpgradeTags.Add(GetServicePasswordToIsolatedStorageTag());
         PerCompanyUpgradeTags.Add(GetAddingIDToJobsUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetJobPlanningLinePlanningDueDateUpgradeTag());
         PerCompanyUpgradeTags.Add(GetEncryptedKeyValueToIsolatedStorageTag());
         PerCompanyUpgradeTags.Add(GetGraphMailRefreshCodeToIsolatedStorageTag());
         PerCompanyUpgradeTags.Add(GetStandardSalesCodeUpgradeTag());
@@ -87,6 +88,9 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetPriceSourceGroupFixedUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSyncPriceListLineStatusUpgradeTag());
         PerCompanyUpgradeTags.Add(GetAdvancedIntrastatBaseDemoDataUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetVendorTemplatesUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetCustomerTemplatesUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetItemTemplatesUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -750,6 +754,26 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetAdvancedIntrastatBaseDemoDataUpgradeTag(): Code[250]
     begin
         exit('MS-395476-AdvancedIntrastatChecklistSetup-20210525');
+    end;
+
+    procedure GetJobPlanningLinePlanningDueDateUpgradeTag(): Code[250]
+    begin
+        exit('MS-402915-JobPlanningLinePlanningDueDate-20210809');
+    end;
+
+    procedure GetVendorTemplatesUpgradeTag(): Code[250];
+    begin
+        exit('MS-332155-VendorTemplates-20210817');
+    end;
+
+    procedure GetCustomerTemplatesUpgradeTag(): Code[250];
+    begin
+        exit('MS-332155-CustomerTemplates-20210817');
+    end;
+
+    procedure GetitemTemplatesUpgradeTag(): Code[250];
+    begin
+        exit('MS-332155-ItemTemplates-20210817');
     end;
 }
 

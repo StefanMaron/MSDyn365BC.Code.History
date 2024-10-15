@@ -1143,6 +1143,7 @@
                 SetRange("Location Code", AvgCostAdjmtEntryPoint."Location Code");
                 SetRange("Variant Code", AvgCostAdjmtEntryPoint."Variant Code");
             end;
+            OnAvgValueEntriesToAdjustExistOnAfterSetAvgValueEntryFilters(ValueEntry);
 
             if FindFirst then begin
                 FindNextRange := true;
@@ -1168,6 +1169,7 @@
                     SetRange("Location Code", AvgCostAdjmtEntryPoint."Location Code");
                     SetRange("Variant Code", AvgCostAdjmtEntryPoint."Variant Code");
                 end;
+                OnAvgValueEntriesToAdjustExistOnAfterSetChildValueEntryFilters(ValueEntry);
 
                 OutbndValueEntry.Copy(ValueEntry);
                 if not OutbndValueEntry.IsEmpty() then begin
@@ -1351,6 +1353,7 @@
                 ItemLedgEntryInChain.SetRange("Location Code", "Location Code");
                 ItemLedgEntryInChain.SetRange("Variant Code", "Variant Code");
             end;
+            OnExcludeAvgCostOnValuationDateOnAfterSetItemLedgEntryInChainFilters(ItemLedgEntryInChain);
 
             if FindSet() then
                 repeat
@@ -1512,6 +1515,7 @@
                         ItemLedgEntry.SetRange("Location Code", "Location Code");
                     end;
                     ItemLedgEntry.SetRange("Posting Date", 0D, "Valuation Date");
+                    OnUpdateConsumpAvgEntryOnAfterSetItemLedgEntryFilters(ItemLedgEntry);
                     ItemLedgEntry.CalcSums("Invoiced Quantity");
                     if ItemLedgEntry."Invoiced Quantity" >= 0 then begin
                         ConsumpItemLedgEntry.SetCompletelyInvoiced;
@@ -2449,6 +2453,7 @@
                 SetRange("Location Code", AvgCostAdjmtEntryPoint."Location Code");
                 SetRange("Variant Code", AvgCostAdjmtEntryPoint."Variant Code");
             end;
+            OnOpenOutbndItemLedgEntriesExistOnAfterSetOpenItemLedgEntryFilters(OpenItemLedgEntry);
             exit(FindSet);
         end;
     end;
@@ -2629,6 +2634,7 @@
                 SetRange("Variant Code", InbndValueEntry."Variant Code");
                 SetRange("Location Code", InbndValueEntry."Location Code");
             end;
+            OnIsOutputWithSelfConsumptionOnAfterSetConsumpValueEntryFilters(ConsumpValueEntry);
 
             if FindFirst then begin
                 ConsumpItemLedgEntry.Get("Item Ledger Entry No.");
@@ -2640,6 +2646,7 @@
                     TempItemLedgEntry.SetRange("Location Code", "Location Code");
                     TempItemLedgEntry.SetRange("Variant Code", "Variant Code");
                 end;
+                OnIsOutputWithSelfConsumptionOnAfterSetTempItemLedgEntryFilter(TempItemLedgEntry);
 
                 if TempItemLedgEntry.FindSet() then
                     repeat
@@ -2829,6 +2836,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAvgValueEntriesToAdjustExistOnAfterSetAvgValueEntryFilters(var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAvgValueEntriesToAdjustExistOnAfterSetChildValueEntryFilters(var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetValuationPeriod(var CalendarPeriod: Record Date; Item: record Item)
     begin
     end;
@@ -2904,12 +2921,32 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnExcludeAvgCostOnValuationDateOnAfterSetItemLedgEntryInChainFilters(var ItemLedgerEntryInChain: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnForwardAppliedCostOnAfterSetAppliedQty(ItemLedgerEntry: Record "Item Ledger Entry"; var AppliedQty: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnGetOrigValueEntryOnAfterOrigValueEntryFound(var OrigValueEntry: Record "Value Entry"; ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsOutputWithSelfConsumptionOnAfterSetTempItemLedgEntryFilter(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsOutputWithSelfConsumptionOnAfterSetConsumpValueEntryFilters(var ConsumpValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenOutbndItemLedgEntriesExistOnAfterSetOpenItemLedgEntryFilters(var OpenItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 
@@ -2950,6 +2987,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateItemUnitCostOnBeforeModifyItemNotStandardCostingMethod(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateConsumpAvgEntryOnAfterSetItemLedgEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 

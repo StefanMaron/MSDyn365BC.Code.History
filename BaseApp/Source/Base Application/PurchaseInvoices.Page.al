@@ -296,9 +296,7 @@ page 9308 "Purchase Invoices"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
-                        PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
+                        OpenDocumentStatistics();
                     end;
                 }
                 action("Co&mments")

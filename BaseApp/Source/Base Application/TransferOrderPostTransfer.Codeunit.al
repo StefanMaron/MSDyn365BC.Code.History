@@ -257,6 +257,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         DirectTransLine."Unit of Measure" := TransLine."Unit of Measure";
         DirectTransLine."Shortcut Dimension 1 Code" := TransLine."Shortcut Dimension 1 Code";
         DirectTransLine."Shortcut Dimension 2 Code" := TransLine."Shortcut Dimension 2 Code";
+        DirectTransLine."Dimension Set ID" := TransLine."Dimension Set ID";
         DirectTransLine."Gen. Prod. Posting Group" := TransLine."Gen. Prod. Posting Group";
         DirectTransLine."Inventory Posting Group" := TransLine."Inventory Posting Group";
         DirectTransLine.Quantity := TransLine.Quantity;

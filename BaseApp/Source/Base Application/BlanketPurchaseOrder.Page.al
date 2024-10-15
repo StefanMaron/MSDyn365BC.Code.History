@@ -606,8 +606,7 @@ page 509 "Blanket Purchase Order"
 
                     trigger OnAction()
                     begin
-                        OpenPurchaseOrderStatistics;
-                        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                        OpenPurchaseOrderStatistics();
                     end;
                 }
                 action(Card)
@@ -857,6 +856,7 @@ page 509 "Blanket Purchase Order"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
                 action(Reopen)
@@ -875,6 +875,7 @@ page 509 "Blanket Purchase Order"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
             }

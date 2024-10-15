@@ -1,4 +1,4 @@
-page 9192 "Company Creation Wizard"
+﻿page 9192 "Company Creation Wizard"
 {
     Caption = 'Create New Company';
     PageType = NavigatePage;
@@ -455,7 +455,13 @@ page 9192 "Company Creation Wizard"
         ConfigurationPackageFile: Record "Configuration Package File";
         UserPersonalization: Record "User Personalization";
         Language: Codeunit Language;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateCompanyType(NewCompanyData, ConfigurationPackageExists, IsHandled);
+        if IsHandled then
+            exit;
+
         ConfigurationPackageExists := false;
         if NewCompanyData in [NewCompanyData::None, NewCompanyData::"Full No Data"] then
             exit;
@@ -511,6 +517,11 @@ page 9192 "Company Creation Wizard"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateCompanyName(var NewCompanyName: Text[30])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCompanyType(NewCompanyData: Enum "Company Data Type (Internal)"; var ConfigurationPackageExists: Boolean; var IsHandled: Boolean)
     begin
     end;
 

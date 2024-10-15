@@ -788,7 +788,7 @@ page 233 "Apply Vendor Entries"
     var
         Vendor: Record Vendor;
     begin
-        OnBeforeSetApplyingVendLedgEntry(ApplyingVendLedgEntry, GenJnlLine);
+        OnBeforeSetApplyingVendLedgEntry(ApplyingVendLedgEntry, GenJnlLine, PurchHeader, CalcType);
 
         case CalcType of
             CalcType::"Purchase Header":
@@ -1461,7 +1461,7 @@ page 233 "Apply Vendor Entries"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeSetApplyingVendLedgEntry(var ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnBeforeSetApplyingVendLedgEntry(var ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line"; PurchHeader: Record "Purchase Header"; var CalcType: enum "Vendor Apply Calculation Type")
     begin
     end;
 

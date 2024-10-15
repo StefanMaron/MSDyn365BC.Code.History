@@ -20,6 +20,7 @@ codeunit 6503 "Item Tracking Doc. Management"
             TempItemLedgEntry.Quantity *= SignFactor;
             TempItemLedgEntry."Remaining Quantity" *= SignFactor;
             TempItemLedgEntry."Invoiced Quantity" *= SignFactor;
+            OnAddTempRecordToSetOnAfterApplySignFactor(TempItemLedgEntry, SignFactor);
         end;
         ItemTrackingMgt.RetrieveAppliedExpirationDate(TempItemLedgEntry);
         TempItemLedgEntry2 := TempItemLedgEntry;
@@ -893,6 +894,11 @@ codeunit 6503 "Item Tracking Doc. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAddTempRecordToSetOnAfterTempItemLedgEntrySetFilters(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; TempItemLedgEntry2: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddTempRecordToSetOnAfterApplySignFactor(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; SignFactor: Integer)
     begin
     end;
 

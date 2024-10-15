@@ -1,4 +1,4 @@
-codeunit 410 "Update Analysis View"
+﻿codeunit 410 "Update Analysis View"
 {
     Permissions = TableData "G/L Entry" = r,
                   TableData "G/L Budget Entry" = r,
@@ -116,7 +116,7 @@ codeunit 410 "Update Analysis View"
 
         AnalysisView := NewAnalysisView;
         AnalysisView.TestField(Blocked, false);
-        ShowProgressWindow := ShowWindow;
+        ShowProgressWindow := ShowWindow and GuiAllowed;
         if ShowProgressWindow then
             InitWindow;
 
@@ -232,6 +232,8 @@ codeunit 410 "Update Analysis View"
                 SetFilter("G/L Account No.", AnalysisView."Account Filter");
             if AnalysisView."Business Unit Filter" <> '' then
                 SetFilter("Business Unit Code", AnalysisView."Business Unit Filter");
+
+            OnUpdateEntriesForGLAccountDetailedOnAfterGLEntrySetFilters(GLEntry, AnalysisView);
 
             if FindSet then
                 repeat
@@ -391,6 +393,8 @@ codeunit 410 "Update Analysis View"
         TempAnalysisViewBudgetEntry."Dimension 4 Value Code" := DimValue4;
         TempAnalysisViewBudgetEntry."Entry No." := GLBudgetEntry."Entry No.";
 
+        OnUpdateAnalysisViewBudgetEntryOnAfterTempAnalysisViewBudgetEntryAssignment(TempAnalysisViewBudgetEntry, AnalysisView, GLBudgetEntry, DimValue1, DimValue2, DimValue3, DimValue4);
+
         if TempAnalysisViewBudgetEntry.Find then begin
             TempAnalysisViewBudgetEntry.Amount := TempAnalysisViewBudgetEntry.Amount + GLBudgetEntry.Amount;
             TempAnalysisViewBudgetEntry.Modify();
@@ -432,6 +436,8 @@ codeunit 410 "Update Analysis View"
                     PostingDate := PrevCalculatedPostingDate;
                 end;
         end;
+
+        OnAfterCalculatePeriodStart(AnalysisView, DateCompression, AccountingPeriod, PostingDate, PrevCalculatedPostingDate, PrevPostingDate);
         exit(PostingDate);
     end;
 
@@ -650,6 +656,21 @@ codeunit 410 "Update Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateOneOnBeforeUpdateEntries(var AnalysisView: Record "Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; LastGLEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateEntriesForGLAccountDetailedOnAfterGLEntrySetFilters(var GLEntry: Record "G/L Entry"; var AnalysisView: Record "Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAnalysisViewBudgetEntryOnAfterTempAnalysisViewBudgetEntryAssignment(var TempAnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; var AnalysisView: Record "Analysis View"; var GLBudgetEntry: Record "G/L Budget Entry"; DimValue1: Code[20]; DimValue2: code[20]; DimValue3: Code[20]; DimValue4: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculatePeriodStart(var AnalysisView: Record "Analysis View"; DateCompression: Integer; var AccountingPeriod: Record "Accounting Period"; var PostingDate: Date; var PrevCalculatedPostingDate: Date; PrevPostingDate: Date)
     begin
     end;
 }

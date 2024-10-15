@@ -1,4 +1,4 @@
-table 5621 "FA Journal Line"
+﻿table 5621 "FA Journal Line"
 {
     Caption = 'FA Journal Line';
 
@@ -75,6 +75,9 @@ table 5621 "FA Journal Line"
                     "Location Code" := FA."FA Location Code";
                 if "Employee No." = '' then
                     "Employee No." := FA."Responsible Employee";
+
+                OnValidateFANoOnAfterInitFields(Rec);
+
                 CreateDim(DATABASE::"Fixed Asset", "FA No.");
             end;
         }
@@ -585,10 +588,14 @@ table 5621 "FA Journal Line"
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
         TableID[1] := Type1;
         No[1] := No1;
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        IsHandled := false;
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No, IsHandled);
+        if IsHandled then
+            exit;
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
@@ -643,6 +650,8 @@ table 5621 "FA Journal Line"
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec);
     end;
 
     [Scope('OnPrem')]
@@ -696,12 +705,17 @@ table 5621 "FA Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDimTableIDs(var FAJournalLine: Record "FA Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    local procedure OnAfterCreateDimTableIDs(var FAJournalLine: Record "FA Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var FAJournalLine: Record "FA Journal Line"; FAJnlTemplate: Record "FA Journal Template"; FAJnlBatch: Record "FA Journal Batch"; LastFAJnlLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var FAJournalLine: Record "FA Journal Line")
     begin
     end;
 
@@ -717,6 +731,11 @@ table 5621 "FA Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnConvertToLedgEntryCase(var FALedgerEntry: Record "FA Ledger Entry"; FAJournalLine: Record "FA Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateFANoOnAfterInitFields(var FAJournalLine: Record "FA Journal Line")
     begin
     end;
 }

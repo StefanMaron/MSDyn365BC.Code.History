@@ -77,6 +77,7 @@ codeunit 5760 "Whse.-Post Receipt"
             Clear(CreatePutAway);
 
             WhseRcptHeader.Get("No.");
+            OnCodeOnAfterGetWhseRcptHeader(WhseRcptHeader);
             WhseRcptHeader.TestField("Posting Date");
             OnAfterCheckWhseRcptLines(WhseRcptHeader, WhseRcptLine);
             if WhseRcptHeader."Receiving No." = '' then begin
@@ -227,6 +228,7 @@ codeunit 5760 "Whse.-Post Receipt"
                         OnInitSourceDocumentHeaderOnBeforePurchHeaderModify(PurchHeader, WhseRcptHeader, ModifyHeader);
                         if ModifyHeader then
                             PurchHeader.Modify();
+                        OnInitSourceDocumentHeaderOnAfterPurchHeaderModify(PurchHeader, WhseRcptLine, ModifyHeader);
                     end;
                 DATABASE::"Sales Line": // Return Order
                     begin
@@ -245,6 +247,7 @@ codeunit 5760 "Whse.-Post Receipt"
                         OnInitSourceDocumentHeaderOnBeforeSalesHeaderModify(SalesHeader, WhseRcptHeader, ModifyHeader);
                         if ModifyHeader then
                             SalesHeader.Modify();
+                        OnInitSourceDocumentHeaderOnAfterSalesHeaderModify(SalesHeader, WhseRcptLine, ModifyHeader);
                     end;
                 DATABASE::"Transfer Line":
                     begin
@@ -263,6 +266,7 @@ codeunit 5760 "Whse.-Post Receipt"
                         OnInitSourceDocumentHeaderOnBeforeTransHeaderModify(TransHeader, WhseRcptHeader, ModifyHeader);
                         if ModifyHeader then
                             TransHeader.Modify();
+                        OnInitSourceDocumentHeaderOnAfterTransHeaderModify(TransHeader, WhseRcptLine, ModifyHeader);
                     end;
                 else
                     OnInitSourceDocumentHeader(WhseRcptHeader, WhseRcptLine);
@@ -310,15 +314,7 @@ codeunit 5760 "Whse.-Post Receipt"
                                     end;
                                     OnInitSourceDocumentLinesOnAfterSourcePurchLineFound(PurchLine, WhseRcptLine2, ModifyLine, WhseRcptHeader);
                                 end else
-                                    if "Source Document" = "Source Document"::"Purchase Order" then begin
-                                        ModifyLine := PurchLine."Qty. to Receive" <> 0;
-                                        if ModifyLine then
-                                            PurchLine.Validate("Qty. to Receive", 0);
-                                    end else begin
-                                        ModifyLine := PurchLine."Return Qty. to Ship" <> 0;
-                                        if ModifyLine then
-                                            PurchLine.Validate("Return Qty. to Ship", 0);
-                                    end;
+                                    ClearPurchLineQtyToShipReceive(PurchLine, WhseRcptLine2, ModifyLine);
                                 OnBeforePurchLineModify(PurchLine, WhseRcptLine2, ModifyLine);
                                 if ModifyLine then
                                     PurchLine.Modify();
@@ -347,15 +343,7 @@ codeunit 5760 "Whse.-Post Receipt"
                                     CheckUpdateSalesLineBinCode(SalesLine, WhseRcptLine2, ModifyLine);
                                     OnInitSourceDocumentLinesOnAfterSourceSalesLineFound(SalesLine, WhseRcptLine2, ModifyLine, WhseRcptHeader, WhseRcptLine);
                                 end else
-                                    if "Source Document" = "Source Document"::"Sales Order" then begin
-                                        ModifyLine := SalesLine."Qty. to Ship" <> 0;
-                                        if ModifyLine then
-                                            SalesLine.Validate("Qty. to Ship", 0);
-                                    end else begin
-                                        ModifyLine := SalesLine."Return Qty. to Receive" <> 0;
-                                        if ModifyLine then
-                                            SalesLine.Validate("Return Qty. to Receive", 0);
-                                    end;
+                                    ClearSalesLineQtyToShipReceive(SalesLine, WhseRcptLine2, ModifyLine);
                                 OnBeforeSalesLineModify(SalesLine, WhseRcptLine2, ModifyLine);
                                 if ModifyLine then
                                     SalesLine.Modify();
@@ -384,6 +372,7 @@ codeunit 5760 "Whse.-Post Receipt"
                                     ModifyLine := TransLine."Qty. to Receive" <> 0;
                                     if ModifyLine then
                                         TransLine.Validate("Qty. to Receive", 0);
+                                    OnInitSourceDocumentLinesOnAfterClearTransLineQtyToReceive(TransLine, WhseRcptLine2, ModifyLine);
                                 end;
                                 OnBeforeTransLineModify(TransLine, WhseRcptLine2, ModifyLine, WhseRcptHeader);
                                 if ModifyLine then
@@ -397,6 +386,48 @@ codeunit 5760 "Whse.-Post Receipt"
         end;
 
         OnAfterInitSourceDocumentLines(WhseRcptLine2);
+    end;
+
+    local procedure ClearSalesLineQtyToShipReceive(var SalesLine: Record "Sales Line"; WhseRcptLine2: Record "Warehouse Receipt Line"; var ModifyLine: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeClearSalesLineQtyToShipReceive(SalesLine, WhseRcptLine2, ModifyLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseRcptLine2 do
+            if "Source Document" = "Source Document"::"Sales Order" then begin
+                ModifyLine := SalesLine."Qty. to Ship" <> 0;
+                if ModifyLine then
+                    SalesLine.Validate("Qty. to Ship", 0);
+            end else begin
+                ModifyLine := SalesLine."Return Qty. to Receive" <> 0;
+                if ModifyLine then
+                    SalesLine.Validate("Return Qty. to Receive", 0);
+            end;
+    end;
+
+    local procedure ClearPurchLineQtyToShipReceive(var PurchLine: Record "Purchase Line"; WhseRcptLine2: Record "Warehouse Receipt Line"; var ModifyLine: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeClearPurchLineQtyToShipReceive(PurchLine, WhseRcptLine2, ModifyLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with WhseRcptLine2 do
+            if "Source Document" = "Source Document"::"Purchase Order" then begin
+                ModifyLine := PurchLine."Qty. to Receive" <> 0;
+                if ModifyLine then
+                    PurchLine.Validate("Qty. to Receive", 0);
+            end else begin
+                ModifyLine := PurchLine."Return Qty. to Ship" <> 0;
+                if ModifyLine then
+                    PurchLine.Validate("Return Qty. to Ship", 0);
+            end;
     end;
 
     local procedure CheckUpdateSalesLineBinCode(var SalesLine: Record "Sales Line"; WhseRcptLine2: Record "Warehouse Receipt Line"; var ModifyLine: Boolean)
@@ -1145,6 +1176,11 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterGetWhseRcptHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetSourceDocument(SourceHeader: Variant)
     begin
     end;
@@ -1191,6 +1227,16 @@ codeunit 5760 "Whse.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckUpdateSalesLineBinCode(var SalesLine: Record "Sales Line"; WhseRcptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearSalesLineQtyToShipReceive(var SalesLine: Record "Sales Line"; WhseRcptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearPurchLineQtyToShipReceive(var PurchLine: Record "Purchase Line"; WhseRcptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1325,6 +1371,11 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnAfterPurchHeaderModify(var PurchaseHeader: Record "Purchase Header"; WhseReceiptLine: Record "Warehouse Receipt Line"; var ModifyHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitSourceDocumentHeaderOnBeforePurchHeaderModify(var PurchaseHeader: Record "Purchase Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var ModifyHeader: Boolean)
     begin
     end;
@@ -1340,12 +1391,22 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnAfterSalesHeaderModify(var SalesHeader: Record "Sales Header"; WhseReceiptLine: Record "Warehouse Receipt Line"; var ModifyHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitSourceDocumentHeaderOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var ModifyHeader: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnInitSourceDocumentOnBeforeSalesHeaderInit(var SalesHeader: Record "Sales Header"; var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnAfterTransHeaderModify(var TransferHeader: Record "Transfer Header"; WhseReceiptLine: Record "Warehouse Receipt Line"; var ModifyHeader: Boolean)
     begin
     end;
 
@@ -1365,12 +1426,12 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitSourceDocumentLinesOnAfterSourceSalesLineFound(var SalesLine: Record "Sales Line"; WhseRcptLine: Record "Warehouse Receipt Line"; ModifyLine: Boolean; WhseRcptHeader: Record "Warehouse Receipt Header"; OldWhseRcptLine: Record "Warehouse Receipt Line")
+    local procedure OnInitSourceDocumentLinesOnAfterSourceSalesLineFound(var SalesLine: Record "Sales Line"; WhseRcptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean; WhseRcptHeader: Record "Warehouse Receipt Header"; OldWhseRcptLine: Record "Warehouse Receipt Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitSourceDocumentLinesOnAfterSourcePurchLineFound(var PurchaseLine: Record "Purchase Line"; WhseRcptLine: Record "Warehouse Receipt Line"; ModifyLine: Boolean; WhseRcptHeader: Record "Warehouse Receipt Header")
+    local procedure OnInitSourceDocumentLinesOnAfterSourcePurchLineFound(var PurchaseLine: Record "Purchase Line"; WhseRcptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean; WhseRcptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 
@@ -1395,7 +1456,12 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitSourceDocumentLinesOnAfterSourceTransLineFound(var TransferLine: Record "Transfer Line"; WhseRcptLine: Record "Warehouse Receipt Line"; ModifyLine: Boolean)
+    local procedure OnInitSourceDocumentLinesOnAfterSourceTransLineFound(var TransferLine: Record "Transfer Line"; WhseRcptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentLinesOnAfterClearTransLineQtyToReceive(var TransferLine: Record "Transfer Line"; var WhseReceiptLine: Record "Warehouse Receipt Line"; var ModifyLine: Boolean)
     begin
     end;
 

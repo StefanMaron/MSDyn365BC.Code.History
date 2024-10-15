@@ -28,6 +28,7 @@
         ReservMgt: Codeunit "Reservation Management";
         TrackingSpecificationExists: Boolean;
         FirstSplit: Boolean;
+        IsHandled: Boolean;
     begin
         TempTrkgSpec1.Reset();
         TempTrkgSpec2.Reset();
@@ -123,21 +124,24 @@
         OnCreateEntryOnBeforeOnBeforeSplitReservEntry(ReservEntry, ReservEntry2);
 
         FirstSplit := true;
-        while SplitReservEntry(ReservEntry, ReservEntry2, TrackingSpecificationExists, FirstSplit) do begin
-            ReservEntry."Entry No." := 0;
-            ReservEntry.UpdateItemTracking;
-            OnBeforeReservEntryInsert(ReservEntry);
-            ReservEntry.Insert();
-            OnAfterReservEntryInsert(ReservEntry);
-            if (Status = Status::Reservation) or (Status = Status::Tracking) then begin
-                ReservEntry2."Entry No." := ReservEntry."Entry No.";
-                OnBeforeReservEntryUpdateItemTracking(ReservEntry, ReservEntry2);
-                ReservEntry2.UpdateItemTracking();
-                OnBeforeReservEntryInsertNonSurplus(ReservEntry2);
-                ReservEntry2.Insert();
-                OnAfterReservEntryInsertNonSurplus(ReservEntry2, ReservEntry);
+        IsHandled := false;
+        OnCreateEntryOnBeforeSplitReservEntryLoop(ReservEntry, ReservEntry2, TrackingSpecificationExists, FirstSplit, IsHandled);
+        if not IsHandled then
+            while SplitReservEntry(ReservEntry, ReservEntry2, TrackingSpecificationExists, FirstSplit) do begin
+                ReservEntry."Entry No." := 0;
+                ReservEntry.UpdateItemTracking;
+                OnBeforeReservEntryInsert(ReservEntry);
+                ReservEntry.Insert();
+                OnAfterReservEntryInsert(ReservEntry);
+                if (Status = Status::Reservation) or (Status = Status::Tracking) then begin
+                    ReservEntry2."Entry No." := ReservEntry."Entry No.";
+                    OnBeforeReservEntryUpdateItemTracking(ReservEntry, ReservEntry2);
+                    ReservEntry2.UpdateItemTracking();
+                    OnBeforeReservEntryInsertNonSurplus(ReservEntry2);
+                    ReservEntry2.Insert();
+                    OnAfterReservEntryInsertNonSurplus(ReservEntry2, ReservEntry);
+                end;
             end;
-        end;
 
         LastReservEntry := ReservEntry;
 
@@ -501,6 +505,7 @@
                         if NewReservEntry.Get(NewReservEntry."Entry No.", not NewReservEntry.Positive) then; // Get partner-record
             end;
 
+        OnTransferReservEntryOnBeforeCheckCarriedItemTrackingSetupTrackingExists(NewReservEntry, OldReservEntry);
         if CarriedItemTrackingSetup.TrackingExists() then begin
             if NewReservEntry."Qty. to Handle (Base)" = 0 then
                 NewReservEntry.Validate("Quantity (Base)");
@@ -702,6 +707,7 @@
         TempTrkgSpec4: Record "Tracking Specification" temporary;
         LastEntryNo: Integer;
         NextState: Option SetFilter1,SetFilter2,LoosenFilter1,LoosenFilter2,Split,Error,Finish;
+        IsHandled: Boolean;
     begin
         TempTrkgSpec1.Reset();
         TempTrkgSpec2.Reset();
@@ -801,7 +807,12 @@
                         LastEntryNo := TempTrkgSpec3."Entry No.";
                     end;
                 NextState::Error:
-                    Error(Text001);
+                    begin
+                        IsHandled := false;
+                        OnBalanceListsOnBeforeNextStateError(NextState, IsHandled);
+                        if not IsHandled then
+                            Error(Text001);
+                    end;
             end;
         until NextState = NextState::Finish;
 
@@ -1170,6 +1181,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnTransferReservEntryOnBeforeCheckCarriedItemTrackingSetupTrackingExists(var NewReservEntry: Record "Reservation Entry"; OldReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTransferReservEntryOnNewItemTracking(var NewReservEntry: Record "Reservation Entry"; var InsertReservEntry: Record "Reservation Entry"; TransferQty: Decimal)
     begin
     end;
@@ -1201,6 +1217,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetQtyToHandleAndInvoice(var InsertReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBalanceListsOnBeforeNextStateError(var NextState: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateEntryOnBeforeSplitReservEntryLoop(var ReservEntry: Record "Reservation Entry"; var ReservEntry2: Record "Reservation Entry"; TrackingSpecificationExists: Boolean; var FirstSplit: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

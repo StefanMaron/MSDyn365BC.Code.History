@@ -78,6 +78,8 @@ page 695 "Confirm Financial Void"
 
     trigger OnOpenPage()
     begin
+        OnBeforeOnOpenPage(CheckLedgerEntry, VoidDate);
+
         with CheckLedgerEntry do begin
             VoidDate := "Check Date";
             if "Bal. Account Type" in ["Bal. Account Type"::Vendor, "Bal. Account Type"::Customer] then
@@ -114,6 +116,11 @@ page 695 "Confirm Financial Void"
     begin
         VoidDate := VoidCheckdate;
         VoidType := VoiceCheckType;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage(var CheckLedgerEntry: Record "Check Ledger Entry"; var VoidDate: Date)
+    begin
     end;
 }
 

@@ -963,9 +963,9 @@
                 exit;
 
             PostInvtPostBufInitGenJnlLine(GenJnlLine, ValueEntry, DocNo, ExternalDocNo, Desc);
-            
+
             PostInvtPostBufProcessGlobalInvtPostBuf(GenJnlLine, ValueEntry, PostPerPostGrp);
-            
+
             RunOnlyCheck := RunOnlyCheckSaved;
             OnPostInvtPostBufferOnAfterPostInvtPostBuf(GlobalInvtPostBuf, ValueEntry, CalledFromItemPosting, CalledFromTestReport, RunOnlyCheck, PostPerPostGrp);
 
@@ -1011,7 +1011,7 @@
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       "Dimension Set ID", GenJnlLine."Shortcut Dimension 1 Code",
                       GenJnlLine."Shortcut Dimension 2 Code");
-                    OnPostInvtPostBufOnAfterUpdateGlobalDimFromDimSetID(GenJnlLine);
+                    OnPostInvtPostBufOnAfterUpdateGlobalDimFromDimSetID(GenJnlLine, GlobalInvtPostBuf);
                     if not CalledFromTestReport then begin
                         GenJnlPostLine.SetPreviewMode(PreviewMode);
                         if not RunOnlyCheck then begin
@@ -1027,6 +1027,8 @@
                     end else
                         InsertTempInvtPostToGLTestBuf(GenJnlLine, ValueEntry);
                 end;
+                OnPostInvtPostBufProcessGlobalInvtPostBufOnAfterSetAmt(GenJnlLine);
+
                 if not PreviewMode and not CalledFromTestReport and not RunOnlyCheck then
                     CreateGLItemLedgRelation(ValueEntry);
             until Next() = 0;
@@ -1563,12 +1565,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostInvtPostBufOnAfterUpdateGlobalDimFromDimSetID(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnPostInvtPostBufOnAfterUpdateGlobalDimFromDimSetID(var GenJournalLine: Record "Gen. Journal Line"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer" temporary)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnPostInvtPostBufOnBeforeSetAmt(var GenJournalLine: Record "Gen. Journal Line"; var ValueEntry: Record "Value Entry"; var GlobalInvtPostingBuffer: Record "Invt. Posting Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostInvtPostBufProcessGlobalInvtPostBufOnAfterSetAmt(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

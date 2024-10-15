@@ -3285,19 +3285,20 @@
         exit(not TrackingSpecification.IsEmpty() or not ReservEntry.IsEmpty());
     end;
 
-    procedure CalcQtyToHandleForTrackedQtyOnDocumentLine(SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer): Decimal
+    procedure CalcQtyToHandleForTrackedQtyOnDocumentLine(SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer) Result: Decimal
     var
         ReservEntry: Record "Reservation Entry";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcQtyToHandleForTrackedQtyOnDocumentLine(ReservEntry, IsHandled);
+        OnBeforeCalcQtyToHandleForTrackedQtyOnDocumentLine(ReservEntry, IsHandled, SourceType, SourceSubtype, SourceID, SourceRefNo, Result);
         If IsHandled then
-            exit;
+            exit(Result);
 
         ReservEntry.SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
         ReservEntry.SetSourceFilter('', 0);
         ReservEntry.SetFilter("Item Tracking", '<>%1', ReservEntry."Item Tracking"::None);
+        OnCalcQtyToHandleForTrackedQtyOnDocumentLineOnAfterReservEntrySetFilters(ReservEntry);
         ReservEntry.CalcSums("Qty. to Handle (Base)");
         exit(ReservEntry."Qty. to Handle (Base)");
     end;
@@ -3529,7 +3530,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcQtyToHandleForTrackedQtyOnDocumentLine(var ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeCalcQtyToHandleForTrackedQtyOnDocumentLine(var ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean; SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer; var Result: Decimal)
     begin
     end;
 
@@ -3630,6 +3631,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcWhseItemTrkgLineOnAfterCalcBaseQuantities(var WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyToHandleForTrackedQtyOnDocumentLineOnAfterReservEntrySetFilters(var ReservEntry: Record "Reservation Entry")
     begin
     end;
 

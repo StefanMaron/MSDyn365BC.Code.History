@@ -1,4 +1,4 @@
-table 210 "Job Journal Line"
+﻿table 210 "Job Journal Line"
 {
     Caption = 'Job Journal Line';
 
@@ -1114,6 +1114,7 @@ table 210 "Job Journal Line"
     begin
         Resource.Get("No.");
         CheckResource(Resource);
+        OnCopyFromResourceOnAfterCheckResource(Rec, Resource, CurrFieldNo);
 
         Description := Resource.Name;
         "Description 2" := Resource."Name 2";
@@ -1157,6 +1158,7 @@ table 210 "Job Journal Line"
     begin
         GetItem;
         Item.TestField(Blocked, false);
+        OnCopyFromItemOnAfterCheckItem(Rec, Item);
         Description := Item.Description;
         "Description 2" := Item."Description 2";
         GetJob;
@@ -1557,7 +1559,13 @@ table 210 "Job Journal Line"
     procedure UpdateUnitCost()
     var
         RetrievedCost: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateUnitCost(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if (Type = Type::Item) and Item.Get("No.") then begin
             if Item."Costing Method" = Item."Costing Method"::Standard then begin
                 if not DontCheckStandardCost then begin
@@ -2071,6 +2079,11 @@ table 210 "Job Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateUnitCost(var JobJounralLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; JobJournalLine: Record "Job Journal Line");
     begin
     end;
@@ -2117,6 +2130,16 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateWorkTypeCode(var JobJournalLine: Record "Job Journal Line"; var xJobJournalLine: Record "Job Journal Line"; var IsLineDiscountHandled: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromItemOnAfterCheckItem(var JobJournalLine: Record "Job Journal Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromResourceOnAfterCheckResource(var JobJournalLine: Record "Job Journal Line"; Resource: Record Resource; CurrentFieldNo: Integer)
     begin
     end;
 

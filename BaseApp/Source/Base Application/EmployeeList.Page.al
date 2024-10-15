@@ -579,4 +579,3 @@ page 5201 "Employee List"
         CurrPage.SetSelectionFilter(Employee);
     end;
 }
-

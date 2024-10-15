@@ -1730,4 +1730,3 @@ codeunit 134987 "ERM Financial Reports III"
         GeneralJournalTemplateList.OK.Invoke;
     end;
 }
-

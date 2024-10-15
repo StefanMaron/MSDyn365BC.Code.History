@@ -906,7 +906,7 @@ table 21 "Cust. Ledger Entry"
         DtldCustLedgEntry.CopyFilter("Initial Entry Global Dim. 2", CustLedgEntry."Global Dimension 2 Code");
         DtldCustLedgEntry.CopyFilter("Agreement No.", CustLedgEntry."Agreement No.");
         CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
-        CustLedgEntry.SetFilter("Date Filter", '<%1', Today);
+        CustLedgEntry.SetFilter("Date Filter", '..%1', Today);
         CustLedgEntry.SetFilter("Due Date", '<%1', Today);
         CustLedgEntry.SetFilter("Remaining Amount", '<>%1', 0);
         OnBeforeDrillDownOnOverdueEntries(CustLedgEntry, DtldCustLedgEntry, DrillDownPageID);

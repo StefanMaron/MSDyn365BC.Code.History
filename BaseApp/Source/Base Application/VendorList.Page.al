@@ -496,9 +496,8 @@ page 27 "Vendor List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sent Emails';
                     Image = ShowList;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'View a list of emails that you have sent to this vendor.';
+                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -1152,12 +1151,10 @@ page 27 "Vendor List"
 
                 trigger OnAction()
                 var
-                    Email: Codeunit Email;
-                    EmailMessage: Codeunit "Email Message";
+                    EmailMgt: Codeunit "Mail Management";
                 begin
-                    EmailMessage.Create(Rec."E-Mail", '', '', true);
-                    Email.AddRelation(EmailMessage, Database::Vendor, Rec.SystemId, Enum::"Email Relation Type"::"Primary Source");
-                    Email.OpenInEditorModally(EmailMessage);
+                    EmailMgt.AddSource(Database::Vendor, Rec.SystemId);
+                    EmailMgt.Run();
                 end;
             }
             group(Display)
@@ -1397,6 +1394,7 @@ page 27 "Vendor List"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ItemReferenceMgt: Codeunit "Item Reference Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        EmailFeature: Codeunit "Email Feature";
     begin
         SetRange("Date Filter", 0D, WorkDate());
         with SocialListeningSetup do
@@ -1404,6 +1402,7 @@ page 27 "Vendor List"
         ResyncVisible := ReadSoftOCRMasterDataSync.IsSyncEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
             if IntegrationTableMapping.Get('VENDOR') then
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field39=1(0)');
@@ -1430,6 +1429,7 @@ page 27 "Vendor List"
         CRMIsCoupledToRecord: Boolean;
         BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
         [InDataSet]
         ItemReferenceVisible: Boolean;
 

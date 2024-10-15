@@ -107,6 +107,7 @@
             RegisterWhseActivityLines(WhseActivLine, TempWhseActivLineToReserve, TempWhseActivityLineGrouped);
             WhseActivLine.SetRange("Breakbulk No.");
 
+            OnCodeOnBeforeTempWhseActivityLineGroupedLoop(WhseActivHeader, WhseActivLine, RegisteredWhseActivHeader);
             TempWhseActivityLineGrouped.Reset();
             if TempWhseActivityLineGrouped.FindSet then
                 repeat
@@ -177,6 +178,8 @@
         QtyBaseDiff: Decimal;
         SkipDelete: Boolean;
     begin
+        OnBeforeRegisterWhseActivityLines(WarehouseActivityLine);
+
         with WarehouseActivityLine do begin
             if not FindSet then
                 exit;
@@ -211,6 +214,8 @@
                 end;
             until Next() = 0;
         end;
+
+        OnAfterRegisterWhseActivityLines(WarehouseActivityLine);
     end;
 
     local procedure UpdateWhseActivLineQtyOutstanding(var WarehouseActivityLine: Record "Warehouse Activity Line"; QtyDiff: Decimal; QtyBaseDiff: Decimal)
@@ -753,7 +758,8 @@
                 UOMCode := "Unit of Measure Code"
             else
                 UOMCode := WMSMgt.GetBaseUOM("Item No.");
-            if not TempBinContentBuffer.Get("Location Code", "Bin Code", "Item No.", "Variant Code", UOMCode, "Lot No.", "Serial No.", "Package No.")
+            if not TempBinContentBuffer.Get(
+                "Location Code", "Bin Code", "Item No.", "Variant Code", UOMCode, "Lot No.", "Serial No.", "Package No.")
             then begin
                 TempBinContentBuffer.Init();
                 TempBinContentBuffer."Location Code" := "Location Code";
@@ -1421,6 +1427,7 @@
                 SetTrackingFilterToWhseEntryIfRequired(WhseEntry, WhseItemTrackingSetup);
                 WhseEntry.CalcSums("Qty. (Base)");
                 QtyInWhseBase := WhseEntry."Qty. (Base)";
+                OnCalcTotalAvailQtyToPickOnAfterCalcQtyInWhseBase(WhseEntry, QtyInWhseBase, "Location Code");
 
                 BinTypeFilter := CreatePick.GetBinTypeFilter(0);
                 if BinTypeFilter <> '' then
@@ -1747,6 +1754,7 @@
     local procedure AutoReserveForSalesLine(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; var TempReservEntryBefore: Record "Reservation Entry" temporary; var TempReservEntryAfter: Record "Reservation Entry" temporary)
     var
         SalesLine: Record "Sales Line";
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
         ReservMgt: Codeunit "Reservation Management";
         FullAutoReservation: Boolean;
         IsHandled: Boolean;
@@ -1761,24 +1769,28 @@
         with TempWhseActivLineToReserve do
             if FindSet() then
                 repeat
-                    SalesLine.Get("Source Subtype", "Source No.", "Source Line No.");
+                    ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+                    if HasRequiredTracking(WhseItemTrackingSetup) then begin
+                        SalesLine.Get("Source Subtype", "Source No.", "Source Line No.");
 
-                    TempReservEntryBefore.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
-                    TempReservEntryBefore.SetTrackingFilterFromWhseActivityLine(TempWhseActivLineToReserve);
-                    TempReservEntryBefore.CalcSums(Quantity, "Quantity (Base)");
+                        TempReservEntryBefore.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
+                        TempReservEntryBefore.SetTrackingFilterFromWhseActivityLine(TempWhseActivLineToReserve);
+                        TempReservEntryBefore.CalcSums(Quantity, "Quantity (Base)");
 
-                    TempReservEntryAfter.CopyFilters(TempReservEntryBefore);
-                    TempReservEntryAfter.CalcSums(Quantity, "Quantity (Base)");
+                        TempReservEntryAfter.CopyFilters(TempReservEntryBefore);
+                        TempReservEntryAfter.CalcSums(Quantity, "Quantity (Base)");
 
-                    QtyToReserve :=
-                      "Qty. to Handle" + (TempReservEntryAfter.Quantity - TempReservEntryBefore.Quantity);
-                    QtyToReserveBase :=
-                      "Qty. to Handle (Base)" + (TempReservEntryAfter."Quantity (Base)" - TempReservEntryBefore."Quantity (Base)");
+                        QtyToReserve :=
+                          "Qty. to Handle" + (TempReservEntryAfter.Quantity - TempReservEntryBefore.Quantity);
+                        QtyToReserveBase :=
+                          "Qty. to Handle (Base)" + (TempReservEntryAfter."Quantity (Base)" - TempReservEntryBefore."Quantity (Base)");
 
-                    if not IsSalesLineCompletelyReserved(SalesLine) and (QtyToReserve > 0) then begin
-                        ReservMgt.SetReservSource(SalesLine);
-                        ReservMgt.SetTrackingFromWhseActivityLine(TempWhseActivLineToReserve);
-                        ReservMgt.AutoReserve(FullAutoReservation, '', SalesLine."Shipment Date", QtyToReserve, QtyToReserveBase);
+                        if not IsSalesLineCompletelyReserved(SalesLine) and (QtyToReserve > 0) then begin
+                            ReservMgt.SetReservSource(SalesLine);
+                            ReservMgt.SetTrackingFromWhseActivityLine(TempWhseActivLineToReserve);
+                            OnAutoReserveForSalesLineOnBeforeRunAutoReserve(TempWhseActivLineToReserve);
+                            ReservMgt.AutoReserve(FullAutoReservation, '', SalesLine."Shipment Date", QtyToReserve, QtyToReserveBase);
+                        end;
                     end;
                 until Next() = 0;
     end;
@@ -2065,6 +2077,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterRegisterWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterRegisteredInvtMovementHdrInsert(var RegisteredInvtMovementHdr: Record "Registered Invt. Movement Hdr."; WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
@@ -2091,6 +2108,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterWhseInternalPutAwayLineModify(var WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAutoReserveForSalesLineOnBeforeRunAutoReserve(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary)
     begin
     end;
 
@@ -2230,6 +2252,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRegisterWhseActivityLines(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSourceLineQtyBase(var WarehouseActivityLine: Record "Warehouse Activity Line"; var QtyBase: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -2291,6 +2318,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcTotalAvailQtyToPickOnAfterItemLedgEntryCalcSums(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcTotalAvailQtyToPickOnAfterCalcQtyInWhseBase(var WarehouseEntry: Record "Warehouse Entry"; var QtyInWhseBase: Decimal; LocationCode: Code[10])
     begin
     end;
 
@@ -2386,6 +2418,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckWhseItemTrkgLineOnAfterTempWhseActivLineSetFilters(var TempWhseActivLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeTempWhseActivityLineGroupedLoop(var WhseActivHeader: Record "Warehouse Activity Header"; var WhseActivLine: Record "Warehouse Activity Line"; var RegisteredWhseActivHeader: Record "Registered Whse. Activity Hdr.")
     begin
     end;
 }

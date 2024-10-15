@@ -749,11 +749,12 @@ page 507 "Blanket Sales Order"
                     var
                         Handled: Boolean;
                     begin
+                        Handled := false;
                         OnBeforeStatisticsAction(Rec, Handled);
-                        if not Handled then begin
-                            OpenSalesOrderStatistics;
-                            SalesCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
-                        end
+                        if Handled then
+                            exit;
+
+                        OpenSalesOrderStatistics();
                     end;
                 }
                 action(Card)
@@ -985,6 +986,7 @@ page 507 "Blanket Sales Order"
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
                 action(Reopen)
@@ -1003,6 +1005,7 @@ page 507 "Blanket Sales Order"
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
             }

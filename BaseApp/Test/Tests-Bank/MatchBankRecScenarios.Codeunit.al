@@ -258,6 +258,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure GLEntryPaymentDocTypeAfterPostPmtReconJnlWithGLAccAndPositiveAmount()
     begin
@@ -269,6 +270,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure GLEntryPaymentDocTypeAfterPostPmtReconJnlWithGLAccAndNegativeAmount()
     begin
@@ -544,6 +546,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
         GLAccountNo := LibraryERM.CreateGLAccountNo;
         CreateBankAccReconLineWithGLAcc(BankAccReconciliation, BankAccReconciliationLine, GLAccountNo, AmountToApply);
         CreatePaymentApplication(BankAccReconciliationLine, AmountToApply);
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
         VerifyGLEntryDocType(GLAccountNo, BankAccReconciliation."Statement No.", GLEntry."Document Type"::Payment);
     end;
@@ -607,7 +610,7 @@ codeunit 134253 "Match Bank Rec. Scenarios"
             Insert;
         end;
 
-        BankAccReconLine."Applied Amount" := AmountToApply;
+        BankAccReconLine.Validate("Applied Amount", AmountToApply);
         BankAccReconLine.Modify();
     end;
 
@@ -909,6 +912,19 @@ codeunit 134253 "Match Bank Rec. Scenarios"
 
         BankAccReconciliationLine.TestField("Applied Amount", -AppliedAmount);
         BankAccReconciliationLine.TestField("Applied Entries", AppliedEntries);
+    end;
+
+    local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
+    begin
+        BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
+        BankAccRecon.Modify();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
+    begin
+        PostPmtsAndRecBankAcc.OK.Invoke();
     end;
 
     [RequestPageHandler]

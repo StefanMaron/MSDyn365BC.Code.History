@@ -344,7 +344,8 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             CollectAffectedLedgerEntries(TempVendorLedgerEntry, DtldVendLedgEntry2);
             GenJnlPostLine.UnapplyVendLedgEntry(GenJnlLine, DtldVendLedgEntry2);
             AdjustExchangeRates.AdjustExchRateVend(GenJnlLine, TempVendorLedgerEntry);
-            OnAfterPostUnapplyVendLedgEntry(GenJnlLine, VendLedgEntry, DtldVendLedgEntry2, GenJnlPostLine);
+            OnAfterPostUnapplyVendLedgEntry(
+                GenJnlLine, VendLedgEntry, DtldVendLedgEntry2, GenJnlPostLine, TempVendorLedgerEntry);
 
             if GLSetup."Enable Russian Accounting" then begin
                 AmtDiffManagement.SetInitialVATTransactionNo("Transaction No.");
@@ -583,7 +584,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostUnapplyVendLedgEntry(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnAfterPostUnapplyVendLedgEntry(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
     begin
     end;
 

@@ -820,6 +820,9 @@ codeunit 1991 "Guided Experience Impl."
     [EventSubscriber(ObjectType::Table, Database::"Guided Experience Item", 'OnAfterDeleteEvent', '', true, true)]
     local procedure OnAfterGuidedExperienceItemDelete(var Rec: Record "Guided Experience Item")
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         LogMessageOnDatabaseEvent(Rec, '0000EIN', GuidedExperienceItemDeletedLbl);
     end;
 }

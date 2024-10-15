@@ -44,6 +44,7 @@ codeunit 97 "Blanket Purch. Order to Order"
                     CheckBlanketOrderLineQuantity();
 
                     PurchOrderLine := PurchBlanketOrderLine;
+                    OnRunOnAfterInitPurchOrderLineFromBlanketOrderLine(PurchOrderLine);
                     ResetQuantityFields(PurchOrderLine);
                     PurchOrderLine."Document Type" := PurchOrderHeader."Document Type";
                     PurchOrderLine."Document No." := PurchOrderHeader."No.";
@@ -90,7 +91,7 @@ codeunit 97 "Blanket Purch. Order to Order"
                         PurchBlanketOrderLine.Modify();
                     end;
 
-                    OnRunOnAfterPurchBlanketOrderLineLoop(PurchOrderLine, PurchLine);
+                    OnRunOnAfterPurchBlanketOrderLineLoop(PurchOrderLine, PurchLine, PurchBlanketOrderLine);
                 end;
             until PurchBlanketOrderLine.Next() = 0;
 
@@ -332,12 +333,17 @@ codeunit 97 "Blanket Purch. Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterPurchBlanketOrderLineLoop(var PurchOrderLine: Record "Purchase Line"; var PurchLine: Record "Purchase Line")
+    local procedure OnRunOnAfterPurchBlanketOrderLineLoop(var PurchOrderLine: Record "Purchase Line"; var PurchLine: Record "Purchase Line"; var PurchBlanketOrderLine: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterPurchBlanketOrderLineSetFilters(var PurchBlanketOrderLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterInitPurchOrderLineFromBlanketOrderLine(var PurchaseOrderLine: Record "Purchase Line")
     begin
     end;
 

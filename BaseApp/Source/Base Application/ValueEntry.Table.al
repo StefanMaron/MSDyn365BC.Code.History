@@ -611,6 +611,7 @@ table 5802 "Value Entry"
             SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
             SetRange("Item No.", ValueEntry."Item No.");
             SetRange("Valuation Date", FromDate, ToDate);
+            OnSumCostsTillValuationDateOnAfterSetFilters(Rec, ValueEntry, Item);
             CheckApplyLocationVariantFilters(AccountingPeriod, ValueEntry, Item, CostCalcIsChanged, QtyFactor, FromDate, ToDate);
 
             CalcSums(
@@ -643,7 +644,7 @@ table 5802 "Value Entry"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckApplyLocationVariantFilters(Rec, AccountingPeriod, ValueEntry, IsHandled);
+        OnBeforeCheckApplyLocationVariantFilters(Rec, AccountingPeriod, ValueEntry, IsHandled, Item, CostCalcIsChanged, QtyFactor, FromDate, ToDate);
         if IsHandled then
             exit;
 
@@ -860,7 +861,7 @@ table 5802 "Value Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckApplyLocationVariantFilters(var RecValueEntry: Record "Value Entry"; AccountingPeriod: Record "Accounting Period"; ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckApplyLocationVariantFilters(var RecValueEntry: Record "Value Entry"; AccountingPeriod: Record "Accounting Period"; ValueEntry: Record "Value Entry"; var IsHandled: Boolean; Item: Record Item; CostCalcIsChanged: Boolean; var QtyFactor: Decimal; FromDate: Date; ToDate: Date)
     begin
     end;
 
@@ -871,6 +872,11 @@ table 5802 "Value Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnSumCostsTillValuationDateOnAfterGetItem(var Item: Record Item; var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumCostsTillValuationDateOnAfterSetFilters(var ValueEntryRec: Record "Value Entry"; var ValueEntry: Record "Value Entry"; var Item: Record Item)
     begin
     end;
 

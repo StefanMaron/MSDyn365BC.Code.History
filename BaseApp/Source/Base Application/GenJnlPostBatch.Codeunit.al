@@ -7,11 +7,16 @@
     trigger OnRun()
     var
         GenJnlLine: Record "Gen. Journal Line";
+        StartDateTime: DateTime;
+        FinishDateTime: DateTime;
     begin
+        StartDateTime := CurrentDateTime();
         GenJnlLine.Copy(Rec);
         GenJnlLine.SetAutoCalcFields;
         Code(GenJnlLine);
         Rec := GenJnlLine;
+        FinishDateTime := CurrentDateTime();
+        LogSuccessPostTelemetry(Rec, StartDateTime, FinishDateTime, NoOfRecords);
     end;
 
     var
@@ -120,6 +125,8 @@
         TwoPlaceHoldersTok: Label '%1%2', Locked = true;
         ServiceSessionTok: Label '#%1#%2#', Locked = true;
         GlblDimNoInconsistErr: Label 'A setting for one or more global or shortcut dimensions is incorrect. To fix it, choose the link in the Source column. For more information, choose the link in the Support URL column.';
+        TelemetryCategoryTxt: Label 'GenJournal', Locked = true;
+        GenJournalPostedTxt: Label 'General journal posted successfully. Journal Template: %1, Journal Batch: %2', Locked = true;
 
     local procedure "Code"(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -200,8 +207,10 @@
                 exit;
             end;
 
-            Window.Open(PostingStateMsg);
-            Window.Update(1, "Journal Batch Name");
+            if GuiAllowed() then begin
+                Window.Open(PostingStateMsg);
+                Window.Update(1, "Journal Batch Name");
+            end;
 
             // Check lines
             LineCount := 0;
@@ -1096,19 +1105,24 @@
 
     procedure UpdateDialog(PostingState: Integer; LineNo: Integer; TotalLinesQty: Integer)
     begin
-        UpdatePostingState(PostingState, LineNo);
-        Window.Update(2, GetProgressBarValue(PostingState, LineNo, TotalLinesQty));
+        if GuiAllowed() then begin
+            UpdatePostingState(PostingState, LineNo);
+            Window.Update(2, GetProgressBarValue(PostingState, LineNo, TotalLinesQty));
+        end;
     end;
 
     procedure UpdateDialogUpdateBalLines(PostingSubState: Integer; LineNo: Integer; TotalLinesQty: Integer)
     begin
-        UpdatePostingState(RefPostingState::"Updating bal. lines", LineNo);
-        Window.Update(2, GetProgressBarUpdateBalLinesValue(CalcProgressPercent(PostingSubState, 3, LineCount, TotalLinesQty)));
+        if GuiAllowed() then begin
+            UpdatePostingState(RefPostingState::"Updating bal. lines", LineNo);
+            Window.Update(2, GetProgressBarUpdateBalLinesValue(CalcProgressPercent(PostingSubState, 3, LineCount, TotalLinesQty)));
+        end;
     end;
 
     local procedure UpdatePostingState(PostingState: Integer; LineNo: Integer)
     begin
-        Window.Update(3, StrSubstNo('%1 (%2)', GetPostingStateMsg(PostingState), LineNo));
+        if GuiAllowed() then
+            Window.Update(3, StrSubstNo('%1 (%2)', GetPostingStateMsg(PostingState), LineNo));
     end;
 
     local procedure UpdateCurrencyBalanceForRecurringLine(var GenJnlLine: Record "Gen. Journal Line")
@@ -1128,7 +1142,7 @@
         end;
     end;
 
-    local procedure GetPostingStateMsg(PostingState: Integer): Text
+    local procedure GetPostingStateMsg(PostingState: Integer) Result: Text
     begin
         case PostingState of
             RefPostingState::"Checking lines":
@@ -1144,6 +1158,8 @@
             RefPostingState::"Updating lines":
                 exit(UpdatingLinesMsg);
         end;
+
+        OnAfterGetPostingStateMsg(PostingState, Result);
     end;
 
     local procedure GetProgressBarValue(PostingState: Integer; LineNo: Integer; TotalLinesQty: Integer): Integer
@@ -1585,6 +1601,7 @@
                 UpdateDialog(RefPostingState::"Updating lines", LineCount, NoOfRecords);
                 OldVATAmount := GenJnlLine2."VAT Amount";
                 OldVATPct := GenJnlLine2."VAT %";
+                OnUpdateAndDeleteLinesOnBeforeUpdatePostingDate(GenJnlLine2);
                 if GenJnlLine2."Posting Date" <> 0D then
                     GenJnlLine2.Validate(
                       "Posting Date", CalcDate(GenJnlLine2."Recurring Frequency", GenJnlLine2."Posting Date"));
@@ -1599,6 +1616,7 @@
                         GenJnlLine2.Validate("VAT Amount", OldVATAmount);
                 OnUpdateAndDeleteLinesOnBeforeModifyRecurringLine(GenJnlLine2);
                 GenJnlLine2.Modify();
+                OnUpdateAndDeleteLinesOnAfterModifyRecurringLine(GenJnlLine2);
             until GenJnlLine2.Next() = 0;
         end else begin
             // Not a recurring journal
@@ -1631,6 +1649,7 @@
                     GenJnlLine3.SetUpNewLine(TempGenJnlLine2, 0, true);
                     OnUpdateAndDeleteLinesOnBeforeModifyNonRecurringLine(GenJnlTemplate, GenJnlLine3, TempGenJnlLine2);
                     GenJnlLine3.Modify();
+                    OnUpdateAndDeleteLinesOnAfterModifyNonRecurringLine(GenJnlTemplate, GenJnlLine3, TempGenJnlLine2);
                 end;
             end;
         end;
@@ -1656,7 +1675,13 @@
     local procedure ClearDataExchEntries(var PassedGenJnlLine: Record "Gen. Journal Line")
     var
         GenJnlLine: Record "Gen. Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeClearDataExchEntries(PassedGenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlLine.Copy(PassedGenJnlLine);
         if GenJnlLine.FindSet then
             repeat
@@ -1689,7 +1714,7 @@
             PrepareGenJnlLineAddCurr(GenJnlLine5);
             UpdateIncomingDocument(GenJnlLine5);
             UpdateDimBalBatchName(GenJnlLine5);
-            OnBeforePostGenJnlLine(GenJnlLine5, SuppressCommit, IsPosted, GenJnlPostLine);
+            OnBeforePostGenJnlLine(GenJnlLine5, SuppressCommit, IsPosted, GenJnlPostLine, GenJournalLine);
             if not IsPosted then begin
                 GenJnlPostLine.SetPreviewMode(PreviewMode);
                 GenJnlPostLine.RunWithoutCheck(GenJnlLine5);
@@ -1735,6 +1760,7 @@
               PostingSetupMgt.ConfirmPostingAfterCurrentCalendarDate(
                 ConfirmPostingAfterCurrentPeriodQst, GenJnlLine5."Posting Date");
         PrepareGenJnlLineAddCurr(GenJnlLine5);
+        OnCheckLineOnBeforeRunCheck(GenJnlLine5);
         GenJnlCheckLine.RunCheck(GenJnlLine5);
         CheckRestrictions(GenJnlLine5);
         GenJnlLine.Copy(GenJournalLineToUpdate);
@@ -2025,6 +2051,20 @@
         end;
     end;
 
+    local procedure LogSuccessPostTelemetry(GenJournalLine: Record "Gen. Journal Line"; StartDateTime: DateTime; FinishDateTime: DateTime; NumberOfRecords: Integer)
+    var
+        Dimensions: Dictionary of [Text, Text];
+        PostingDuration: BigInteger;
+    begin
+        PostingDuration := FinishDateTime - StartDateTime;
+        Dimensions.Add('Category', TelemetryCategoryTxt);
+        Dimensions.Add('PostingStartTime', Format(StartDateTime, 0, 9));
+        Dimensions.Add('PostingFinishTime', Format(FinishDateTime, 0, 9));
+        Dimensions.Add('PostingDuration', Format(PostingDuration));
+        Dimensions.Add('NumberOfLines', Format(NumberOfRecords));
+        Session.LogMessage('0000F9I', StrSubstNo(GenJournalPostedTxt, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; LastDocNo: code[20]; LastPostedDocNo: code[20])
     begin
@@ -2037,6 +2077,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGenJnlLineBalancingData(var GenJnlLineTo: Record "Gen. Journal Line"; GenJnlLineFrom: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetPostingStateMsg(PostingState: Integer; var Result: Text)
     begin
     end;
 
@@ -2062,6 +2107,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckGenPostingType(GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearDataExchEntries(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2101,7 +2151,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CommitIsSuppressed: Boolean; var Posted: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnBeforePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CommitIsSuppressed: Boolean; var Posted: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var PostingGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -2137,6 +2187,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateIncomingDocument(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckLineOnBeforeRunCheck(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -2256,7 +2311,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateAndDeleteLinesOnAfterModifyRecurringLine(var GenJnlLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateAndDeleteLinesOnBeforeModifyNonRecurringLine(GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAndDeleteLinesOnAfterModifyNonRecurringLine(GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line");
     begin
     end;
 
@@ -2267,6 +2332,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAndDeleteLinesOnBeforeInBatchName(var GenJnlBatch: Record "Gen. Journal Batch"; var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAndDeleteLinesOnBeforeUpdatePostingDate(var GenJnlLine2: Record "Gen. Journal Line")
     begin
     end;
 }

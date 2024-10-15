@@ -1171,6 +1171,8 @@
         FindPostedWhseRcptLine();
         FindPostedInvtReceipt();
         FindPostedInvtShipment();
+
+        OnAfterFindPostedDocuments(DocNoFilter, PostingDateFilter);
     end;
 
     local procedure FindIncomingDocumentRecords()
@@ -2229,6 +2231,11 @@
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnAfterFindPostedDocuments(var DocNoFilter: Text; var PostingDateFilter: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterGetDocumentCount(var DocCount: Integer)
     begin
     end;
@@ -2264,7 +2271,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterSetSource(SourceType2: Integer; var SourceType: Text[30]; SourceNo: Code[20]; var SourceName: Text[100])
+    local procedure OnAfterSetSource(var SourceType2: Integer; var SourceType: Text[30]; SourceNo: Code[20]; var SourceName: Text[100])
     begin
     end;
 
