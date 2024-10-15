@@ -1,4 +1,4 @@
-report 81 "Import Budget from Excel"
+﻿report 81 "Import Budget from Excel"
 {
     Caption = 'Import Budget from Excel';
     ProcessingOnly = true;
@@ -7,11 +7,14 @@ report 81 "Import Budget from Excel"
     {
         dataitem(BudgetBuf; "Budget Buffer")
         {
+            UseTemporary = true;
             DataItemTableView = SORTING("G/L Account No.", "Dimension Value Code 1", "Dimension Value Code 2", "Dimension Value Code 3", "Dimension Value Code 4", "Dimension Value Code 5", "Dimension Value Code 6", "Dimension Value Code 7", "Dimension Value Code 8", Date);
 
             trigger OnAfterGetRecord()
             begin
                 RecNo := RecNo + 1;
+                if (RecNo mod 100) = 0 then
+                    Window.Update(1, 100 * RecNo div TotalRecNo);
 
                 if ImportOption = ImportOption::"Replace entries" then begin
                     GLBudgetEntry.SetRange("G/L Account No.", "G/L Account No.");
@@ -62,13 +65,13 @@ report 81 "Import Budget from Excel"
             trigger OnPostDataItem()
             begin
                 if RecNo > 0 then
-                    Message(Text004, GLBudgetEntry.TableCaption, RecNo);
+                    Message(Text004, GLBudgetEntry.TableCaption(), RecNo);
 
                 if ImportOption = ImportOption::"Replace entries" then begin
                     AnalysisView.SetRange("Include Budgets", true);
                     if AnalysisView.FindSet(true, false) then
                         repeat
-                            AnalysisView.AnalysisviewBudgetReset;
+                            AnalysisView.AnalysisviewBudgetReset();
                             AnalysisView.Modify();
                         until AnalysisView.Next() = 0;
                 end;
@@ -82,7 +85,7 @@ report 81 "Import Budget from Excel"
 
                 if not GLBudgetName.Get(ToGLBudgetName) then begin
                     if not ConfirmManagement.GetResponseOrDefault(
-                         StrSubstNo(Text001, GLBudgetName.TableCaption, ToGLBudgetName), true)
+                         StrSubstNo(Text001, GLBudgetName.TableCaption(), ToGLBudgetName), true)
                     then
                         CurrReport.Break();
                     GLBudgetName.Name := ToGLBudgetName;
@@ -99,6 +102,7 @@ report 81 "Import Budget from Excel"
                         CurrReport.Break();
                 end;
 
+                GLBudgetEntry3.LockTable();
                 LastEntryNoBeforeImport := GLBudgetEntry3.GetLastEntryNo();
                 EntryNo := LastEntryNoBeforeImport + 1;
             end;
@@ -146,7 +150,7 @@ report 81 "Import Budget from Excel"
 
         trigger OnOpenPage()
         begin
-            Description := Text005 + Format(WorkDate);
+            Description := Text005 + Format(WorkDate());
         end;
 
         trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -168,7 +172,8 @@ report 81 "Import Budget from Excel"
 
     trigger OnPostReport()
     begin
-        ExcelBuf.DeleteAll();
+        Window.Close();
+        TempGlobalExcelBuf.DeleteAll();
         BudgetBuf.DeleteAll();
     end;
 
@@ -181,33 +186,31 @@ report 81 "Import Budget from Excel"
             Error(Text000);
 
         if SheetName = '' then
-            SheetName := ExcelBuf.SelectSheetsName(ServerFileName);
+            SheetName := TempGlobalExcelBuf.SelectSheetsName(ServerFileName);
 
         BusUnitDimCode := 'BUSINESSUNIT_TAB220';
         TempDim.Init();
         TempDim.Code := BusUnitDimCode;
-        TempDim."Code Caption" := BusUnit.TableCaption;
+        TempDim."Code Caption" := BusUnit.TableCaption();
         TempDim.Insert();
 
-        if Dim.Find('-') then begin
+        if Dim.Find('-') then
             repeat
                 TempDim.Init();
                 TempDim := Dim;
                 TempDim."Code Caption" := TempDim."Code Caption";
+                if TempDim."Code Caption" = '' then
+                    Error(DimensionsNeedsCodeCaptionErr);
                 TempDim.Insert();
             until Dim.Next() = 0;
-        end;
 
-        if GLAcc.Find('-') then begin
+        if GLAcc.Find('-') then
             repeat
                 TempGLAcc.Init();
                 TempGLAcc := GLAcc;
                 TempGLAcc.Insert();
             until GLAcc.Next() = 0;
-        end;
 
-        ExcelBuf.LockTable();
-        BudgetBuf.LockTable();
         GLBudgetEntry.SetRange("Budget Name", ToGLBudgetName);
         if not GLBudgetName.Get(ToGLBudgetName) then
             Clear(GLBudgetName);
@@ -220,44 +223,20 @@ report 81 "Import Budget from Excel"
         BudgetDim3Code := GLBudgetName."Budget Dimension 3 Code";
         BudgetDim4Code := GLBudgetName."Budget Dimension 4 Code";
 
-        ExcelBuf.OpenBook(ServerFileName, SheetName);
-        ExcelBuf.SetReadDateTimeInUtcDate(true);
-        ExcelBuf.ReadSheet;
-        ExcelBuf.SetReadDateTimeInUtcDate(false);
+        TempGlobalExcelBuf.OpenBook(ServerFileName, SheetName);
+        TempGlobalExcelBuf.SetReadDateTimeInUtcDate(true);
+        TempGlobalExcelBuf.ReadSheet();
+        TempGlobalExcelBuf.SetReadDateTimeInUtcDate(false);
 
-        AnalyzeData;
+        AnalyzeData();
+
+        TotalRecNo := BudgetBuf.Count();
+        Window.Open(InsertingEntriesLbl);
+        Window.Update(1, 0);
     end;
 
     var
-        Text000: Label 'You must specify a budget name to import to.';
-        Text001: Label 'Do you want to create a %1 with the name %2?';
-        Text002: Label '%1 %2 is blocked. You cannot import entries.';
-        Text003: Label 'Are you sure that you want to %1 for the budget name %2?';
-        Text004: Label '%1 table has been successfully updated with %2 entries.';
-        Text005: Label 'Imported from Excel ';
-        Text006: Label 'Import Excel File';
-        Text007: Label 'Analyzing Data...\\';
-        Text008: Label 'You cannot specify more than 8 dimensions in your Excel worksheet.';
-        Text010: Label 'G/L Account No.';
-        Text011: Label 'The text G/L Account No. can only be specified once in the Excel worksheet.';
-        DimensionValueCodeEqualToDimensionCodeTelemetryMsg: Label 'Detected dimension value code in the Excel budget that is equal to the code of a dimension.', Locked = true;
-        TelemetryCategoryTxt: Label 'AL Import Budget', Locked = true;
-        Text013: Label 'Dimension', Locked = true;
-        Text014: Label 'Date';
-        Text015: Label 'Dimension1', Locked = true;
-        Text016: Label 'Dimension2', Locked = true;
-        Text017: Label 'Dimension3', Locked = true;
-        Text018: Label 'Dimension4', Locked = true;
-        Text019: Label 'Dimension5', Locked = true;
-        Text020: Label 'Dimension6', Locked = true;
-        Text021: Label 'Dimension7', Locked = true;
-        Text022: Label 'Dimension8', Locked = true;
-        Text023: Label 'You cannot import the same information twice.\';
-        Text024: Label 'The combination G/L Account No. - Dimensions - Date must be unique.';
-        Text025: Label 'G/L Accounts have not been found in the Excel worksheet.';
-        Text026: Label 'Dates have not been recognized in the Excel worksheet.';
-        TheUsedDimensionValueAreAlsoUsedAsACaptionForADimensionErr: Label 'The used Dimension value %1 are also used as a caption for a Dimension.', Comment = '%1 is a dimension value';
-        ExcelBuf: Record "Excel Buffer";
+        TempGlobalExcelBuf: Record "Excel Buffer" temporary;
         Dim: Record Dimension;
         TempDim: Record Dimension temporary;
         GLBudgetEntry: Record "G/L Budget Entry";
@@ -287,84 +266,115 @@ report 81 "Import Budget from Excel"
         BudgetDim3Code: Code[20];
         BudgetDim4Code: Code[20];
         ImportOption: Option "Replace entries","Add entries";
+
+        Text000: Label 'You must specify a budget name to import to.';
+        Text001: Label 'Do you want to create a %1 with the name %2?';
+        Text002: Label '%1 %2 is blocked. You cannot import entries.';
+        Text003: Label 'Are you sure that you want to %1 for the budget name %2?';
+        Text004: Label '%1 table has been successfully updated with %2 entries.';
+        Text005: Label 'Imported from Excel ';
+        Text006: Label 'Import Excel File';
+        Text007: Label 'Analyzing Data % #1###', Comment = 'Progress indicator. % #1### just means %';
+        Text008: Label 'You cannot specify more than 8 dimensions in your Excel worksheet.';
+        Text010: Label 'G/L Account No.';
+        Text011: Label 'The text G/L Account No. can only be specified once in the Excel worksheet.';
+        DimensionValueCodeEqualToDimensionCodeTelemetryMsg: Label 'Detected dimension value code in the Excel budget that is equal to the code of a dimension.', Locked = true;
+        DimensionsNeedsCodeCaptionErr: Label 'To be able to import Budget from Excel. Dimensions need a Code Caption Please specify Code Caption for Dimension %1.', Comment = '%1 is a dimension value';
+        TelemetryCategoryTxt: Label 'AL Import Budget', Locked = true;
+        Text013: Label 'Dimension', Locked = true;
+        Text014: Label 'Date';
+        Text015: Label 'Dimension1', Locked = true;
+        Text016: Label 'Dimension2', Locked = true;
+        Text017: Label 'Dimension3', Locked = true;
+        Text018: Label 'Dimension4', Locked = true;
+        Text019: Label 'Dimension5', Locked = true;
+        Text020: Label 'Dimension6', Locked = true;
+        Text021: Label 'Dimension7', Locked = true;
+        Text022: Label 'Dimension8', Locked = true;
+        Text023: Label 'You cannot import the same information twice.\';
+        Text024: Label 'The combination G/L Account No. - Dimensions - Date must be unique: %1', Comment = '%1 - Record ID';
+        Text025: Label 'G/L Accounts have not been found in the Excel worksheet.';
+        Text026: Label 'Dates have not been recognized in the Excel worksheet.';
+        TheUsedDimensionValueAreAlsoUsedAsACaptionForADimensionErr: Label 'The used Dimension value %1 are also used as a caption for a Dimension.', Comment = '%1 is a dimension value';
         Text027: Label 'Replace Entries,Add Entries';
         Text028: Label 'A filter has been used on the %1 when the budget was exported. When a filter on a dimension has been used, a column with the same dimension must be present in the worksheet imported. The column in the worksheet must specify the dimension value codes the program should use when importing the budget.';
+        InsertingEntriesLbl: Label 'Inserting new entries % #1###', Comment = 'Progress indicator. % #1### just means %';
         ExcelFileExtensionTok: Label '.xlsx', Locked = true;
 
     local procedure AnalyzeData()
     var
         TempExcelBuf: Record "Excel Buffer" temporary;
-        BudgetBuf: Record "Budget Buffer";
-        DummyBudgetBuf: Record "Budget Buffer";
+        TempLocalBudgetBuf: Record "Budget Buffer" temporary;
         HeaderRowNo: Integer;
         CountDim: Integer;
         TestDateTime: DateTime;
         OldRowNo: Integer;
         DimRowNo: Integer;
         DimCode3: Code[20];
+        IsHandled: Boolean;
     begin
-        Window.Open(
-          Text007 +
-          '@1@@@@@@@@@@@@@@@@@@@@@@@@@\');
+        Window.Open(Text007);
         Window.Update(1, 0);
-        TotalRecNo := ExcelBuf.Count();
+        TotalRecNo := TempGlobalExcelBuf.Count();
         RecNo := 0;
         CountDim := 0;
         BudgetBuf.DeleteAll();
 
-        if ExcelBuf.Find('-') then begin
+        HeaderRowNo := 0;
+        OldRowNo := 0;
+
+        if TempGlobalExcelBuf.Find('-') then
             repeat
                 RecNo := RecNo + 1;
-                Window.Update(1, Round(RecNo / TotalRecNo * 10000, 1));
+                if (RecNo mod 1000) = 0 then
+                    Window.Update(1, 100 * RecNo div TotalRecNo);
                 TempDim.SetRange(
-                  "Code Caption", CopyStr(ExcelBuf."Cell Value as Text", 1, MaxStrLen(TempDim."Code Caption")));
+                  "Code Caption", CopyStr(TempGlobalExcelBuf."Cell Value as Text", 1, MaxStrLen(TempDim."Code Caption")));
                 case true of
-                    ExcelBuf."Cell Value as Text" = GLBudgetEntry.FieldCaption("G/L Account No."):
-                        begin
-                            if HeaderRowNo = 0 then begin
-                                HeaderRowNo := ExcelBuf."Row No.";
-                                TempExcelBuf := ExcelBuf;
-                                TempExcelBuf.Comment := Text010;
-                                TempExcelBuf.Insert();
-                            end else
-                                Error(Text011);
-                        end;
-                    TempDim.FindFirst and (ExcelBuf."Row No." <> HeaderRowNo):
+                    TempGlobalExcelBuf."Cell Value as Text" = GLBudgetEntry.FieldCaption("G/L Account No."):
+                        if HeaderRowNo = 0 then begin
+                            HeaderRowNo := TempGlobalExcelBuf."Row No.";
+                            TempExcelBuf := TempGlobalExcelBuf;
+                            TempExcelBuf.Comment := Text010;
+                            TempExcelBuf.Insert();
+                        end else
+                            Error(Text011);
+                    TempDim.FindFirst() and (TempGlobalExcelBuf."Row No." <> HeaderRowNo):
                         if HeaderRowNo <> 0 then begin
                             Session.LogMessage('0000G7G', DimensionValueCodeEqualToDimensionCodeTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTxt);
                             Error(TheUsedDimensionValueAreAlsoUsedAsACaptionForADimensionErr, Format(TempDim.Code));
                         end else begin
                             IncreaseAndCheckCountDim(CountDim);
                             DimCode[CountDim] := TempDim.Code;
-                            DimRowNo := ExcelBuf."Row No.";
+                            DimRowNo := TempGlobalExcelBuf."Row No.";
                             DimCode3 := TempDim.Code;
                         end;
-                    (ExcelBuf."Row No." = DimRowNo) and (ExcelBuf."Column No." > 1) and (ImportOption = ImportOption::"Replace entries"):
+                    (TempGlobalExcelBuf."Row No." = DimRowNo) and (TempGlobalExcelBuf."Column No." > 1) and (ImportOption = ImportOption::"Replace entries"):
                         begin
                             case DimCode3 of
                                 BusUnitDimCode:
-                                    GLBudgetEntry.SetFilter("Business Unit Code", ExcelBuf."Cell Value as Text");
+                                    GLBudgetEntry.SetFilter("Business Unit Code", TempGlobalExcelBuf."Cell Value as Text");
                                 GlobalDim1Code:
-                                    GLBudgetEntry.SetFilter("Global Dimension 1 Code", ExcelBuf."Cell Value as Text");
+                                    GLBudgetEntry.SetFilter("Global Dimension 1 Code", TempGlobalExcelBuf."Cell Value as Text");
                                 GlobalDim2Code:
-                                    GLBudgetEntry.SetFilter("Global Dimension 2 Code", ExcelBuf."Cell Value as Text");
+                                    GLBudgetEntry.SetFilter("Global Dimension 2 Code", TempGlobalExcelBuf."Cell Value as Text");
                                 BudgetDim1Code:
-                                    GLBudgetEntry.SetFilter("Budget Dimension 1 Code", ExcelBuf."Cell Value as Text");
+                                    GLBudgetEntry.SetFilter("Budget Dimension 1 Code", TempGlobalExcelBuf."Cell Value as Text");
                                 BudgetDim2Code:
-                                    GLBudgetEntry.SetFilter("Budget Dimension 2 Code", ExcelBuf."Cell Value as Text");
+                                    GLBudgetEntry.SetFilter("Budget Dimension 2 Code", TempGlobalExcelBuf."Cell Value as Text");
                                 BudgetDim3Code:
-                                    GLBudgetEntry.SetFilter("Budget Dimension 3 Code", ExcelBuf."Cell Value as Text");
+                                    GLBudgetEntry.SetFilter("Budget Dimension 3 Code", TempGlobalExcelBuf."Cell Value as Text");
                                 BudgetDim4Code:
-                                    GLBudgetEntry.SetFilter("Budget Dimension 4 Code", ExcelBuf."Cell Value as Text");
+                                    GLBudgetEntry.SetFilter("Budget Dimension 4 Code", TempGlobalExcelBuf."Cell Value as Text");
                             end;
-                            OnAnalyzeDataOnAfterGLBudgetEntrySetFilters(GLBudgetEntry, ExcelBuf, DimCode3);
+                            OnAnalyzeDataOnAfterGLBudgetEntrySetFilters(GLBudgetEntry, TempGlobalExcelBuf, DimCode3);
                         end;
 
-                    ExcelBuf."Row No." = HeaderRowNo:
+                    TempGlobalExcelBuf."Row No." = HeaderRowNo:
                         begin
-                            TempExcelBuf := ExcelBuf;
+                            TempExcelBuf := TempGlobalExcelBuf;
                             case true of
-                                TempDim.FindFirst:
+                                TempDim.FindFirst():
                                     begin
                                         TempDim.Mark(false);
                                         IncreaseAndCheckCountDim(CountDim);
@@ -380,14 +390,14 @@ report 81 "Import Budget from Excel"
                                     end;
                             end;
                         end;
-                    (ExcelBuf."Row No." > HeaderRowNo) and (HeaderRowNo > 0):
+                    (TempGlobalExcelBuf."Row No." > HeaderRowNo) and (HeaderRowNo > 0):
                         begin
-                            if ExcelBuf."Row No." <> OldRowNo then begin
-                                OldRowNo := ExcelBuf."Row No.";
-                                Clear(DummyBudgetBuf);
+                            if TempGlobalExcelBuf."Row No." <> OldRowNo then begin
+                                OldRowNo := TempGlobalExcelBuf."Row No.";
+                                Clear(TempLocalBudgetBuf);
                             end;
 
-                            TempExcelBuf.SetRange("Column No.", ExcelBuf."Column No.");
+                            TempExcelBuf.SetRange("Column No.", TempGlobalExcelBuf."Column No.");
                             if TempExcelBuf.FindFirst() then
                                 case TempExcelBuf.Comment of
                                     Text010:
@@ -395,59 +405,59 @@ report 81 "Import Budget from Excel"
                                             TempGLAcc.SetRange(
                                               "No.",
                                               CopyStr(
-                                                ExcelBuf."Cell Value as Text",
-                                                1, MaxStrLen(DummyBudgetBuf."G/L Account No.")));
+                                                TempGlobalExcelBuf."Cell Value as Text",
+                                                1, MaxStrLen(TempLocalBudgetBuf."G/L Account No.")));
                                             if TempGLAcc.FindFirst() then
-                                                DummyBudgetBuf."G/L Account No." :=
+                                                TempLocalBudgetBuf."G/L Account No." :=
                                                   CopyStr(
-                                                    ExcelBuf."Cell Value as Text",
-                                                    1, MaxStrLen(DummyBudgetBuf."G/L Account No."))
+                                                    TempGlobalExcelBuf."Cell Value as Text",
+                                                    1, MaxStrLen(TempLocalBudgetBuf."G/L Account No."))
                                             else
-                                                DummyBudgetBuf."G/L Account No." := '';
+                                                TempLocalBudgetBuf."G/L Account No." := '';
                                         end;
                                     Text015:
-                                        DummyBudgetBuf."Dimension Value Code 1" :=
+                                        TempLocalBudgetBuf."Dimension Value Code 1" :=
                                           CopyStr(
-                                            ExcelBuf."Cell Value as Text",
-                                            1, MaxStrLen(DummyBudgetBuf."Dimension Value Code 1"));
+                                            TempGlobalExcelBuf."Cell Value as Text",
+                                            1, MaxStrLen(TempLocalBudgetBuf."Dimension Value Code 1"));
                                     Text016:
-                                        DummyBudgetBuf."Dimension Value Code 2" :=
+                                        TempLocalBudgetBuf."Dimension Value Code 2" :=
                                           CopyStr(
-                                            ExcelBuf."Cell Value as Text",
-                                            1, MaxStrLen(DummyBudgetBuf."Dimension Value Code 2"));
+                                            TempGlobalExcelBuf."Cell Value as Text",
+                                            1, MaxStrLen(TempLocalBudgetBuf."Dimension Value Code 2"));
                                     Text017:
-                                        DummyBudgetBuf."Dimension Value Code 3" :=
+                                        TempLocalBudgetBuf."Dimension Value Code 3" :=
                                           CopyStr(
-                                            ExcelBuf."Cell Value as Text",
-                                            1, MaxStrLen(DummyBudgetBuf."Dimension Value Code 3"));
+                                            TempGlobalExcelBuf."Cell Value as Text",
+                                            1, MaxStrLen(TempLocalBudgetBuf."Dimension Value Code 3"));
                                     Text018:
-                                        DummyBudgetBuf."Dimension Value Code 4" :=
+                                        TempLocalBudgetBuf."Dimension Value Code 4" :=
                                           CopyStr(
-                                            ExcelBuf."Cell Value as Text",
-                                            1, MaxStrLen(DummyBudgetBuf."Dimension Value Code 4"));
+                                            TempGlobalExcelBuf."Cell Value as Text",
+                                            1, MaxStrLen(TempLocalBudgetBuf."Dimension Value Code 4"));
                                     Text019:
-                                        DummyBudgetBuf."Dimension Value Code 5" :=
+                                        TempLocalBudgetBuf."Dimension Value Code 5" :=
                                           CopyStr(
-                                            ExcelBuf."Cell Value as Text",
-                                            1, MaxStrLen(DummyBudgetBuf."Dimension Value Code 5"));
+                                            TempGlobalExcelBuf."Cell Value as Text",
+                                            1, MaxStrLen(TempLocalBudgetBuf."Dimension Value Code 5"));
                                     Text020:
-                                        DummyBudgetBuf."Dimension Value Code 6" :=
+                                        TempLocalBudgetBuf."Dimension Value Code 6" :=
                                           CopyStr(
-                                            ExcelBuf."Cell Value as Text",
-                                            1, MaxStrLen(DummyBudgetBuf."Dimension Value Code 6"));
+                                            TempGlobalExcelBuf."Cell Value as Text",
+                                            1, MaxStrLen(TempLocalBudgetBuf."Dimension Value Code 6"));
                                     Text021:
-                                        DummyBudgetBuf."Dimension Value Code 7" :=
+                                        TempLocalBudgetBuf."Dimension Value Code 7" :=
                                           CopyStr(
-                                            ExcelBuf."Cell Value as Text",
-                                            1, MaxStrLen(DummyBudgetBuf."Dimension Value Code 7"));
+                                            TempGlobalExcelBuf."Cell Value as Text",
+                                            1, MaxStrLen(TempLocalBudgetBuf."Dimension Value Code 7"));
                                     Text022:
-                                        DummyBudgetBuf."Dimension Value Code 8" :=
+                                        TempLocalBudgetBuf."Dimension Value Code 8" :=
                                           CopyStr(
-                                            ExcelBuf."Cell Value as Text",
-                                            1, MaxStrLen(DummyBudgetBuf."Dimension Value Code 8"));
+                                            TempGlobalExcelBuf."Cell Value as Text",
+                                            1, MaxStrLen(TempLocalBudgetBuf."Dimension Value Code 8"));
                                     Text014:
-                                        if DummyBudgetBuf."G/L Account No." <> '' then begin
-                                            BudgetBuf := DummyBudgetBuf;
+                                        if TempLocalBudgetBuf."G/L Account No." <> '' then begin
+                                            BudgetBuf := TempLocalBudgetBuf;
                                             if GLBudgetEntry.GetFilter("Global Dimension 1 Code") <> '' then
                                                 Evaluate(BudgetBuf."Dimension Value Code 1", GLBudgetEntry.GetFilter("Global Dimension 1 Code"));
                                             if GLBudgetEntry.GetFilter("Global Dimension 2 Code") <> '' then
@@ -463,17 +473,20 @@ report 81 "Import Budget from Excel"
                                             if GLBudgetEntry.GetFilter("Business Unit Code") <> '' then
                                                 Evaluate(BudgetBuf."Dimension Value Code 7", GLBudgetEntry.GetFilter("Business Unit Code"));
                                             Evaluate(BudgetBuf.Date, TempExcelBuf."Cell Value as Text");
-                                            Evaluate(BudgetBuf.Amount, ExcelBuf."Cell Value as Text");
+                                            Evaluate(BudgetBuf.Amount, TempGlobalExcelBuf."Cell Value as Text");
                                             if not BudgetBuf.Find('=') then
-                                                BudgetBuf.Insert
-                                            else
-                                                Error(Text023 + Text024);
+                                                BudgetBuf.Insert()
+                                            else begin
+                                                IsHandled := false;
+                                                OnAnalyzeDataOnBeforeCombinationMustBeUniqueError(BudgetBuf, IsHandled);
+                                                if not IsHandled then
+                                                    Error(Text023 + Text024 + Format(BudgetBuf.RecordId()));
+                                            end;
                                         end;
                                 end;
                         end;
                 end;
-            until ExcelBuf.Next() = 0;
-        end;
+            until TempGlobalExcelBuf.Next() = 0;
 
         TempDim.SetRange("Code Caption");
         TempDim.MarkedOnly(true);
@@ -482,13 +495,13 @@ report 81 "Import Budget from Excel"
             Error(Text028, Dim."Code Caption");
         end;
 
-        Window.Close;
+        Window.Close();
         TempExcelBuf.Reset();
         TempExcelBuf.SetRange(Comment, Text010);
         if not TempExcelBuf.FindFirst() then
             Error(Text025);
         TempExcelBuf.SetRange(Comment, Text014);
-        if not TempExcelBuf.FindFirst() then
+        if TempExcelBuf.IsEmpty() then
             Error(Text026);
     end;
 
@@ -608,7 +621,7 @@ report 81 "Import Budget from Excel"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAnalyzeDataOnAfterGLBudgetEntrySetFilters(var GLBudgetEntry: Record "G/L Budget Entry"; ExcelBuf: Record "Excel Buffer"; DimCode3: Code[20]);
+    local procedure OnAnalyzeDataOnAfterGLBudgetEntrySetFilters(var GLBudgetEntry: Record "G/L Budget Entry"; var ExcelBuf: Record "Excel Buffer"; DimCode3: Code[20]);
     begin
     end;
 
@@ -634,6 +647,11 @@ report 81 "Import Budget from Excel"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnPreReport(var TempDimension: Record Dimension temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAnalyzeDataOnBeforeCombinationMustBeUniqueError(var BudgetBuf: Record "Budget Buffer"; var IsHandled: Boolean)
     begin
     end;
 }
