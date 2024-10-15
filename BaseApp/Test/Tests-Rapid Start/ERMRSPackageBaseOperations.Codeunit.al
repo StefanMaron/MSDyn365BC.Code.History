@@ -867,7 +867,7 @@ codeunit 136610 "ERM RS Package Base Operations"
         // [SCENARIO 217924] COD8614.GetElementName removes invalid characters and spaces from given argument and adds _ sign if resulting name begins from invalid character (digit i.e.)
         // or is a not recommended char
         Name := NameTok;
-        Assert.AreEqual('_1__pctAB_', ConfigXMLExchange.GetElementName(Name), Name);
+        Assert.AreEqual('_1_AB_', ConfigXMLExchange.GetElementName(Name), Name);
     end;
 
     [Test]
