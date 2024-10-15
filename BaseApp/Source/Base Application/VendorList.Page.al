@@ -1,4 +1,4 @@
-﻿page 27 "Vendor List"
+page 27 "Vendor List"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Vendors';
@@ -998,6 +998,14 @@
                     RunObject = Report "Outstanding Order Stat. by PO";
                     ToolTip = 'View a list of items that have been ordered, but not yet received, from each vendor. The order amounts are totaled for each vendor and for the entire list. The report can be used, for example, to obtain an overview of purchases over the short term or to analyze possible receipt problems.';
                 }
+                action("Outstanding Purch.Order Status")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Outstanding Purch.Order Status';
+                    Image = "Report";
+                    RunObject = Report "Outstanding Purch.Order Status";
+                    ToolTip = 'View detailed outstanding order information for each vendor. This report includes shipping information, quantities ordered, and the amount that is back-ordered.';
+            }
             }
             group(Purchase)
             {

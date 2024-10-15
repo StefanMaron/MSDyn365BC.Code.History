@@ -230,8 +230,9 @@ table 37 "Sales Line"
 
                 UpdatePrepmtSetupFields;
 
-                if HasTypeToFillMandatoryFields then begin
-                    Validate("Unit of Measure Code");
+                if HasTypeToFillMandatoryFields() then begin
+                    if not (Type in [Type::"Charge (Item)", Type::"Fixed Asset"]) then
+                        Validate("Unit of Measure Code");
                     if Quantity <> 0 then begin
                         InitOutstanding;
                         if IsCreditDocType then
@@ -6566,7 +6567,7 @@ table 37 "Sales Line"
         if (FieldNumber = FieldNo("Line Discount Amount")) and ("Line Discount Amount" = 0) then
             exit;
         DiscountNotificationMgt.NotifyAboutMissingSetup(
-          SalesSetup.RecordId, "Gen. Bus. Posting Group",
+          SalesSetup.RecordId, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
           SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Invoice Discounts");
     end;
 

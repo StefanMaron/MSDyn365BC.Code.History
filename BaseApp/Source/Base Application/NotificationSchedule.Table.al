@@ -129,7 +129,6 @@ table 1513 "Notification Schedule"
 
     var
         NotifyNowDescriptionTxt: Label 'Instant Notification Job';
-        NoWritePermissionsErr: Label 'You are not allowed to send notifications. Ask your system administrator to give you permission to do so. Specifically, you need the Write permission for the Sent Notification Entry table.';
         NotifyNowLbl: Label 'NOTIFYNOW', Locked = true;
         NotifyLaterLbl: Label 'NOTIFYLTR', Locked = true;
 
@@ -295,14 +294,6 @@ table 1513 "Notification Schedule"
             ScheduleForLater
     end;
 
-    local procedure CheckSentNotificationEntryPermissions()
-    var
-        DummySentNotificationEntry: Record "Sent Notification Entry";
-    begin
-        if not DummySentNotificationEntry.WritePermission() then
-            Error(NoWritePermissionsErr);
-    end;
-
     procedure ScheduleNotification(NotificationEntry: Record "Notification Entry")
     begin
         // Try to get a schedule if none exist use the default record values
@@ -321,7 +312,6 @@ table 1513 "Notification Schedule"
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueCategory: Record "Job Queue Category";
     begin
-        CheckSentNotificationEntryPermissions();
         if JobQueueEntry.ReuseExistingJobFromCatagory(NotifyNowLbl, OneMinuteFromNow()) then
             exit;
 
@@ -336,7 +326,6 @@ table 1513 "Notification Schedule"
         NotificationEntry: Record "Notification Entry";
         ExcetutionDateTime: DateTime;
     begin
-        CheckSentNotificationEntryPermissions();
         ExcetutionDateTime := CalculateExecutionTime(CurrentDateTime);
         if JobQueueEntry.ReuseExistingJobFromID("Last Scheduled Job", ExcetutionDateTime) then
             exit;

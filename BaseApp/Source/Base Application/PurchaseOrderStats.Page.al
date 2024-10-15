@@ -670,7 +670,7 @@ page 10039 "Purchase Order Stats."
                                 BrkIdx := BrkIdx - 1;
                                 BreakdownLabel[i, BrkIdx] := Text1020012;
                             end else
-                                BreakdownLabel[i, BrkIdx] := StrSubstNo("Print Description", "Tax %");
+                                BreakdownLabel[i, BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[i, BrkIdx]));
                         end;
                         BreakdownAmt[i, BrkIdx] := BreakdownAmt[i, BrkIdx] + "Tax Amount";
                         VATAmount[i] := VATAmount[i] + "Tax Amount";

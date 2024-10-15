@@ -140,6 +140,7 @@ page 10140 Deposit
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Change &Batch';
+                    Image = ChangeBatch;
                     ToolTip = 'Edit the journal batch that the deposit is based on.';
 
                     trigger OnAction()

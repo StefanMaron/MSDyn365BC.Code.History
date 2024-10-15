@@ -2,6 +2,7 @@ report 10094 "Outstanding Order Stat. by PO"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './OutstandingOrderStatbyPO.rdlc';
+    ApplicationArea = Basic, Suite;
     Caption = 'Outstanding Order Stat. by PO';
     UsageCategory = ReportsAndAnalysis;
 

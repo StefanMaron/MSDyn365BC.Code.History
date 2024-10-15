@@ -42,7 +42,7 @@ codeunit 134386 "ERM Sales Documents II"
         RecurrentExpiredDateErr: Label 'No sales invoice must be created for expired Valid To Date in Standard Customer Sales Code.';
         IncorrectSalesTypeToCopyPricesErr: Label 'To copy sales prices, The Sales Type Filter field must contain Customer.';
         MultipleCustomersSelectedErr: Label 'More than one customer uses these sales prices. To copy prices, the Sales Code Filter field must contain one customer only.';
-        NotExistingFreightGLAccNoErr: Label 'The field Freight G/L Acc. No. of table Sales & Receivables Setup contains a value (%1) that cannot be found in the related table', Comment = '%1 - G\L Acc No';
+        NotExistingFreightGLAccNoErr: Label 'The field %1 of table Sales & Receivables Setup contains a value (%2) that cannot be found in the related table', Comment = '%1 - caption of "Freight G/L Acc. No.", %2 - G/L Account No.';
         ShipToAdressTestValueTxt: Label 'ShipToAdressTestValue';
         EmptyStartingDateRecIsNotFoundErr: Label 'The record with empty starting date field is not found.';
         WorkStartingDateRecIsNotFoundErr: Label 'The record with specified starting date (%1) is not found.';
@@ -1682,6 +1682,68 @@ codeunit 134386 "ERM Sales Documents II"
     end;
 
     [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure UT_SalesLineItemChargeUOMWhenPacEnabled()
+    var
+        ItemCharge: Record "Item Charge";
+        ItemCharge2: Record "Item Charge";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // Given Pac Environment is not Disabled
+        // A Sales line of type should be able to be created without the validation for Unit of measure triggering an error.
+
+        Initialize;
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."PAC Environment" := GeneralLedgerSetup."PAC Environment"::Test;
+        GeneralLedgerSetup.Modify();
+
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        MockSalesLine(SalesLine, LibrarySales.CreateCustomerNo, SalesLine.Type::"Charge (Item)", ItemCharge."No.");
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."PAC Environment" := GeneralLedgerSetup."PAC Environment"::Production;
+        GeneralLedgerSetup.Modify();
+
+        LibraryInventory.CreateItemCharge(ItemCharge2);
+        MockSalesLine(SalesLine2, LibrarySales.CreateCustomerNo, SalesLine2.Type::"Charge (Item)", ItemCharge2."No.");
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure UT_SalesLineFixedAssetUOMWhenPacEnabled()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FixedAsset2: Record "Fixed Asset";
+        SalesLine: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // Given Pac Environment is not Disabled
+        // A Sales line of type should be able to be created without the validation for Unit of measure triggering an error.
+
+        Initialize;
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."PAC Environment" := GeneralLedgerSetup."PAC Environment"::Test;
+        GeneralLedgerSetup.Modify();
+
+        LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset);
+        MockSalesLine(SalesLine, LibrarySales.CreateCustomerNo, SalesLine.Type::"Fixed Asset", FixedAsset."No.");
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."PAC Environment" := GeneralLedgerSetup."PAC Environment"::Production;
+        GeneralLedgerSetup.Modify();
+
+        LibraryFixedAsset.CreateFixedAssetWithSetup(FixedAsset2);
+        MockSalesLine(SalesLine2, LibrarySales.CreateCustomerNo, SalesLine2.Type::"Fixed Asset", FixedAsset2."No.");
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure PostAndCreateNewSalesInvoice()
@@ -2937,7 +2999,8 @@ codeunit 134386 "ERM Sales Documents II"
         GLAccNo := LibraryUtility.GenerateGUID;
         SalesReceivablesSetup.Get;
         asserterror SalesReceivablesSetup.Validate("Freight G/L Acc. No.", GLAccNo);
-        Assert.ExpectedError(StrSubstNo(NotExistingFreightGLAccNoErr, GLAccNo));
+        Assert.ExpectedError(
+            StrSubstNo(NotExistingFreightGLAccNoErr, SalesReceivablesSetup.FieldCaption("Freight G/L Acc. No."), GLAccNo));
     end;
 
     [Test]

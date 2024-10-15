@@ -3283,6 +3283,9 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     begin
         CreateSalesTaxDetailWithTaxType(TaxDetail, TaxType);
         LibraryERM.CreateTaxArea(TaxArea);
+        // TFS ID 343371: Check that TaxArea with maxstrlen Description doesn't raise StringOverflow
+        TaxArea.Validate(Description, LibraryUtility.GenerateRandomXMLText(MaxStrLen(TaxArea.Description)));
+        TaxArea.Modify(true);
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxDetail."Tax Jurisdiction Code");
         exit(TaxArea.Code);
     end;

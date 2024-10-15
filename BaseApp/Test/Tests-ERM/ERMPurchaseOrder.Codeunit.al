@@ -15,6 +15,7 @@ codeunit 134327 "ERM Purchase Order"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryPermissions: Codeunit "Library - Permissions";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -5343,6 +5344,30 @@ codeunit 134327 "ERM Purchase Order"
         // [WHEN] GetFullDocTypeTxt is called
         // [THEN] 'Purchase Order' is returned
         Assert.AreEqual('Purchase Order', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OutstandingPOReportsVisibility()
+    var
+        VendorListPage: TestPage "Vendor List";
+    begin
+        // [FEATURE] [Report] [UI] [Application Area]
+        // [SCENARIO 347245] Otstanding PO reports are available from Vendor List page in SaaS
+        Initialize();
+
+        // [GIVEN] Enabled SaaS setup       
+        LibraryPermissions.SetTestabilitySoftwareAsAService(true);
+
+        // [WHEN] Vendor List page
+        VendorListPage.OpenEdit();
+
+        // [THEN] Otstanding PO reports are available        
+        Assert.AreEqual(true, VendorListPage."Vendor - Order Summary".Visible, '');
+        Assert.AreEqual(true, VendorListPage."Vendor - Order Detail".Visible, '');
+        Assert.AreEqual(true, VendorListPage."Outstanding Purch.Order Status".Visible, '');
+        VendorListPage.Close();
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
     end;
 
     local procedure Initialize()

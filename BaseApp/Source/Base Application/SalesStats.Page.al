@@ -514,7 +514,7 @@ page 10042 "Sales Stats."
                             BrkIdx := BrkIdx - 1;
                             BreakdownLabel[BrkIdx] := Text008;
                         end else
-                            BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
+                            BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
                     end;
                     BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
                     if UpdateTaxAmount then

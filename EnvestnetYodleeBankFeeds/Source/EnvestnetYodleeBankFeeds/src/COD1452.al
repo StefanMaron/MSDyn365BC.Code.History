@@ -88,6 +88,9 @@ codeunit 1452 "MS - Yodlee Service Upgrade"
         YodleeServiceSetup: Record "MS - Yodlee Bank Service Setup";
         UpgradeTag: Codeunit "Upgrade Tag";
     begin
+        if UpgradeTag.HasUpgradeTag(GetYodleeSecretsToISUpgradeTag(), '') then
+            exit;
+
         if UpgradeTag.HasUpgradeTag(GetYodleeSecretsToISUpgradeTag()) then
             exit;
 
@@ -109,6 +112,9 @@ codeunit 1452 "MS - Yodlee Service Upgrade"
         YodleeServiceSetup: Record "MS - Yodlee Bank Service Setup";
         UpgradeTag: Codeunit "Upgrade Tag";
     begin
+        if UpgradeTag.HasUpgradeTag(GetYodleeSecretsToISValidationTag(), '') then
+            exit;
+
         if UpgradeTag.HasUpgradeTag(GetYodleeSecretsToISValidationTag()) then
             exit;
 
@@ -177,21 +183,26 @@ codeunit 1452 "MS - Yodlee Service Upgrade"
         end;
     end;
 
-    local procedure GetYodleeSecretsToISUpgradeTag(): Code[250]
+    internal procedure GetYodleeSecretsToISUpgradeTag(): Code[250]
     begin
         exit('MS-328257-YodleeSecretsToIS-20190925');
     end;
 
-    local procedure GetYodleeSecretsToISValidationTag(): Code[250]
+    internal procedure GetYodleeSecretsToISValidationTag(): Code[250]
     begin
         exit('MS-328257-YodleeSecretsToIS-Validate-20190925');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
-    local procedure RegisterPerDatabaseTags(var PerDatabaseUpgradeTags: List of [Code[250]])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]
+    local procedure RegisterPerCompanyags(var PerCompanyUpgradeTags: List of [Code[250]])
+    var
+        UpgradeTag: Codeunit "Upgrade Tag";
     begin
-        PerDatabaseUpgradeTags.Add(GetYodleeSecretsToISUpgradeTag());
-        PerDatabaseUpgradeTags.Add(GetYodleeSecretsToISValidationTag());
+        if not UpgradeTag.HasUpgradeTag(GetYodleeSecretsToISUpgradeTag()) then
+            PerCompanyUpgradeTags.Add(GetYodleeSecretsToISUpgradeTag());
+
+        if not UpgradeTag.HasUpgradeTag(GetYodleeSecretsToISValidationTag()) then
+            PerCompanyUpgradeTags.Add(GetYodleeSecretsToISValidationTag());
     end;
 }
 

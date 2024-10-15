@@ -759,6 +759,10 @@ table 18 Customer
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
         }
+        field(95; "Use GLN in Electronic Document"; Boolean)
+        {
+            Caption = 'Use GLN in Electronic Documents';
+        }
         field(97; "Debit Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
