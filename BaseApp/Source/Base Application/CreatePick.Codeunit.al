@@ -2216,8 +2216,11 @@
                 ValidateQtyForSN(TempWhseItemTrackingLine);
             WhseActivLine2.CopyTrackingFromWhseItemTrackingLine(TempWhseItemTrackingLine);
             WhseActivLine2."Warranty Date" := TempWhseItemTrackingLine."Warranty Date";
-            if TempWhseItemTrackingLine.TrackingExists() then
+            if TempWhseItemTrackingLine.TrackingExists() then begin
                 WhseActivLine2."Expiration Date" := ItemTrackingMgt.ExistingExpirationDate(WhseActivLine2, false, EntriesExist);
+                if not EntriesExist then
+                    WhseActivLine2."Expiration Date" := TempWhseItemTrackingLine."Expiration Date";
+            end;
             OnAfterTransferItemTrkgFields(WhseActivLine2, TempWhseItemTrackingLine, EntriesExist);
         end else begin
             ItemTrackingMgt.GetWhseItemTrkgSetup(TempWhseItemTrackingLine."Item No.", WhseItemTrackingSetup);
@@ -3122,6 +3125,7 @@
         WhseActivLine2: Record "Warehouse Activity Line";
         TempUOM: Record "Unit of Measure" temporary;
         QtyOnBreakbulk: Decimal;
+        BreakbulkBinFound: Boolean;
     begin
         with WhseActivLine1 do begin
             CopyFilters(WhseActivLine);
@@ -3155,14 +3159,19 @@
                         else
                             BinContent.SetFilter("Lot No. Filter", '%1|%2', "Lot No.", '');
 
+                        BreakbulkBinFound := false;
                         if BinContent.FindSet() then
                             repeat
-                                BinContent.SetFilterOnUnitOfMeasure();
-                                BinContent.CalcFields("Quantity (Base)", "Pick Quantity (Base)");
-                                if BinContent."Pick Quantity (Base)" > BinContent."Quantity (Base)" then
-                                    QtyOnBreakbulk -= (BinContent."Pick Quantity (Base)" - BinContent."Quantity (Base)");
-                            until BinContent.Next() = 0
-                        else begin
+                                if UseForPick(BinContent) then begin
+                                    BreakbulkBinFound := true;
+                                    BinContent.SetFilterOnUnitOfMeasure();
+                                    BinContent.CalcFields("Quantity (Base)", "Pick Quantity (Base)");
+                                    if BinContent."Pick Quantity (Base)" > BinContent."Quantity (Base)" then
+                                        QtyOnBreakbulk -= (BinContent."Pick Quantity (Base)" - BinContent."Quantity (Base)");
+                                end;
+                            until BinContent.Next() = 0;
+
+                        if not BreakbulkBinFound then begin
                             WhseActivLine2.CopyFilters(WhseActivLine1);
                             WhseActivLine2.SetFilter("Action Type", '%1|%2', "Action Type"::" ", "Action Type"::Take);
                             WhseActivLine2.SetRange("Breakbulk No.", 0);

@@ -75,7 +75,14 @@ table 232 "Gen. Journal Batch"
             TableRelation = "No. Series";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeNoSeriesValidate(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "No. Series" <> '' then begin
                     GenJnlTemplate.Get("Journal Template Name");
                     if GenJnlTemplate.Recurring then
@@ -149,6 +156,11 @@ table 232 "Gen. Journal Batch"
         field(23; "Suggest Balancing Amount"; Boolean)
         {
             Caption = 'Suggest Balancing Amount';
+        }
+        field(28; "Pending Approval"; Boolean)
+        {
+            Caption = 'Pending Approval';
+            Editable = false;
         }
         field(31; "Copy to Posted Jnl. Lines"; Boolean)
         {
@@ -294,7 +306,14 @@ table 232 "Gen. Journal Batch"
     end;
 
     local procedure CheckJnlIsNotRecurring()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckJnlIsNotRecurring(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Bal. Account No." = '' then
             exit;
 
@@ -304,7 +323,14 @@ table 232 "Gen. Journal Batch"
     end;
 
     local procedure ModifyLines(i: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeModifyLines(Rec, i, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlLine.LockTable();
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", Name);
@@ -393,6 +419,21 @@ table 232 "Gen. Journal Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewBatch(var GenJnlBatch: Record "Gen. Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckJnlIsNotRecurring(var GenJournalBatch: Record "Gen. Journal Batch"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyLines(var GenJournalBatch: Record "Gen. Journal Batch"; i: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoSeriesValidate(var GenJournalBatch: Record "Gen. Journal Batch"; var IsHandled: Boolean)
     begin
     end;
 

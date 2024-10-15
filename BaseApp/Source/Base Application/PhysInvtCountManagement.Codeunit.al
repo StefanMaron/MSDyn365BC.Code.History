@@ -302,22 +302,24 @@ codeunit 7380 "Phys. Invt. Count.-Management"
                     Calendar.SetRange("Period Start", StartDate, YearEndDate);
                     Calendar.SetRange("Period No.");
                     Days := (Calendar.Count div CountFrequency);
-                    if NextCountingStartDate <> 0D then begin
-                        if LastCountDate < NextCountingStartDate then
-                            exit;
-                        StartDate := NextCountingStartDate;
-                        EndDate := NextCountingEndDate;
-                        while LastCountDate >= StartDate do begin
-                            StartDate := EndDate + 1;
-                            EndDate := CalcDate('<+' + Format(Days) + 'D>', StartDate);
-                        end;
-                    end;
-
-                    if LastDate = 0D then
-                        NextCountingStartDate := CalcDate('<+' + Format(Days) + 'D>', LastCountDate)
+                    if NextCountingStartDate <> 0D then
+                        case LastCountDate of
+                            0D .. NextCountingStartDate - 1:
+                                StartDate := LastCountDate + Days;
+                            NextCountingStartDate .. NextCountingEndDate:
+                                StartDate := NextCountingEndDate + 1;
+                            (NextCountingEndDate + 1) .. DMY2Date(31, 12, 9998):
+                                begin
+                                    StartDate := NextCountingEndDate + 1;
+                                    while StartDate < LastCountDate do
+                                        StartDate := StartDate + Days;
+                                end;
+                        end
                     else
-                        NextCountingStartDate := StartDate;
-                    NextCountingEndDate := CalcDate('<+' + Format(Days) + 'D>', NextCountingStartDate);
+                        StartDate := LastCountDate + Days;
+
+                    NextCountingStartDate := StartDate;
+                    NextCountingEndDate := StartDate + Days - 1;
                 end;
         end;
     end;

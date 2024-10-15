@@ -30,6 +30,7 @@ Codeunit 104021 "Upgrade Item Cross Reference"
         DisableAggregateTableUpdate.SetDisableAllRecords(true);
         BindSubscription(DisableAggregateTableUpdate);
         UpdateData();
+        UpdateDateExchFieldMapping();
     end;
 
     procedure UpdateData();
@@ -566,5 +567,23 @@ Codeunit 104021 "Upgrade Item Cross Reference"
                     SalesInvoiceLine."IC Item Reference No." := SalesInvoiceLine."IC Partner Reference";
                 SalesInvoiceLine.Modify();
             until SalesInvoiceLine.Next() = 0;
+    end;
+
+    local procedure UpdateDateExchFieldMapping()
+    var
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetItemCrossReferenceInPEPPOLUpgradeTag()) then
+            exit;
+
+        DataExchFieldMapping.SetFilter("Data Exch. Def Code", 'PEPPOLINVOICE|PEPPOLCREDITMEMO');
+        DataExchFieldMapping.SetRange("Target Table ID", Database::"Purchase Line");
+        DataExchFieldMapping.SetRange("Target Field ID", 5705); // this is the old cross-reference no. field id
+        if not DataExchFieldMapping.IsEmpty() then
+            DataExchFieldMapping.ModifyAll("Target Field ID", 5725); // this is new Item Reference No. field id
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemCrossReferenceInPEPPOLUpgradeTag());
     end;
 }

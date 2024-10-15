@@ -427,7 +427,9 @@
         TempSalesLineLocal.Modify();
         SalesLine.Get(TempSalesLineLocal.RecordId);
         SalesLine.TransferFields(TempSalesLineLocal, false);
+        OnModifyTempLineOnBeforeSalesLineModify(SalesLine);
         SalesLine.Modify();
+        OnModifyTempLineOnAfterSalesLineModify(SalesLine);
     end;
 
     procedure RefreshTempLines(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
@@ -809,7 +811,7 @@
                             SalesInvLine2.Modify();
                         end;
                         IsHandled := false;
-                        OnBeforeSalesInvLineInsert(SalesInvLine, SalesInvHeader, xSalesLine, SuppressCommit, IsHandled, SalesLine);
+                        OnBeforeSalesInvLineInsert(SalesInvLine, SalesInvHeader, xSalesLine, SuppressCommit, IsHandled, SalesLine, SalesShptHeader, SalesHeader);
                         if IsHandled then
                             exit;
                         if not IsNullGuid(xSalesLine.SystemId) then begin
@@ -1058,7 +1060,7 @@
         end;
     end;
 
-    local procedure PostItemChargeLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
+    local procedure PostItemChargeLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
         SalesLineBackup: Record "Sales Line";
     begin
@@ -1123,7 +1125,7 @@
             SaveInvoiceSpecification(TempTrackingSpecification);
     end;
 
-    procedure PostItemJnlLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal; ItemLedgShptEntryNo: Integer; ItemChargeNo: Code[20]; TrackingSpecification: Record "Tracking Specification"; IsATO: Boolean): Integer
+    procedure PostItemJnlLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal; ItemLedgShptEntryNo: Integer; ItemChargeNo: Code[20]; TrackingSpecification: Record "Tracking Specification"; IsATO: Boolean) Result: Integer
     var
         ItemJnlLine: Record "Item Journal Line";
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
@@ -1136,9 +1138,9 @@
         IsHandled := false;
         OnBeforePostItemJnlLine(
           SalesHeader, SalesLine, QtyToBeShipped, QtyToBeShippedBase, QtyToBeInvoiced, QtyToBeInvoicedBase,
-          ItemLedgShptEntryNo, ItemChargeNo, TrackingSpecification, IsATO, SuppressCommit, IsHandled);
+          ItemLedgShptEntryNo, ItemChargeNo, TrackingSpecification, IsATO, SuppressCommit, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         if SalesLine."No Ledger Entry" then
             exit;
@@ -1432,6 +1434,7 @@
         ItemTrackingMgt.SplitWhseJnlLine(TempWhseJnlLine, TempWhseJnlLine2, TempWhseTrackingSpecification, false);
         if TempWhseJnlLine2.FindSet() then
             repeat
+                OnPostItemJnlLineWhseLineOnBeforePostTempWhseJnlLine2(TempWhseJnlLine2, WhseShip, WhseReceive, InvtPickPutaway);
                 WhseJnlPostLine.Run(TempWhseJnlLine2);
             until TempWhseJnlLine2.Next() = 0;
         TempWhseTrackingSpecification.DeleteAll();
@@ -1911,7 +1914,6 @@
 
     local procedure TestSalesLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     var
-        DummyTrackingSpecification: Record "Tracking Specification";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1922,9 +1924,7 @@
         with SalesLine do begin
             case Type of
                 Type::Item:
-                    DummyTrackingSpecification.CheckItemTrackingQuantity(
-                        DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.",
-                        "Qty. to Ship (Base)", "Qty. to Invoice (Base)", SalesHeader.Ship, SalesHeader.Invoice);
+                    CheckItemTrackingQuantity(SalesLine, SalesHeader);
                 Type::"Charge (Item)":
                     TestSalesLineItemCharge(SalesLine);
                 Type::"Fixed Asset":
@@ -1958,6 +1958,19 @@
 
             OnAfterTestSalesLine(SalesHeader, SalesLine, WhseShip, WhseReceive, SuppressCommit);
         end;
+    end;
+
+    local procedure CheckItemTrackingQuantity(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
+    var
+        TrackingSpecification: Record "Tracking Specification";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckItemTrackingQuantity(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TrackingSpecification.CheckItemTrackingQuantity(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", SalesLine."Qty. to Ship (Base)", SalesLine."Qty. to Invoice (Base)", SalesHeader.Ship, SalesHeader.Invoice);
     end;
 
     local procedure TestSalesLineItemCharge(SalesLine: Record "Sales Line")
@@ -2040,7 +2053,13 @@
     local procedure TestUpdatedSalesLine(SalesLine: Record "Sales Line")
     var
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestUpdatedSalesLine(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesLine do begin
             if "Drop Shipment" then begin
                 if Type <> Type::Item then
@@ -5761,6 +5780,8 @@
                     end;
                 end;
             end;
+
+        OnAfterUpdateWonOpportunities(SalesHeader, SalesInvHeader);
     end;
 
     local procedure UpdateQtyToBeInvoicedForShipment(var QtyToBeInvoiced: Decimal; var QtyToBeInvoicedBase: Decimal; TrackingSpecificationExists: Boolean; HasATOShippedNotInvoiced: Boolean; SalesLine: Record "Sales Line"; SalesShptLine: Record "Sales Shipment Line"; InvoicingTrackingSpecification: Record "Tracking Specification"; ItemLedgEntryNotInvoiced: Record "Item Ledger Entry")
@@ -8122,11 +8143,7 @@
                       SalesInvHeader, SalesShptLine, TempTrackingSpecification, TrackingSpecificationExists,
                       SalesCrMemoHeader, ReturnRcptLine, SalesLine, QtyToBeInvoiced, QtyToBeInvoicedBase);
 
-                    if TrackingSpecificationExists then
-                        EndLoop := (TempTrackingSpecification.Next() = 0) or (RemQtyToBeInvoiced = 0)
-                    else
-                        EndLoop :=
-                          (ReturnRcptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs(SalesLine."Return Qty. to Receive"));
+                    EndLoop := IsEndLoopForReceivedNotInvoiced(RemQtyToBeInvoiced, TrackingSpecificationExists, ReturnRcptLine, TempTrackingSpecification, SalesLine);
                 until EndLoop;
             end else begin
                 IsHandled := false;
@@ -8137,6 +8154,21 @@
                       SalesLine."Return Receipt Line No.", SalesLine."Return Receipt No.");
             end;
         end;
+    end;
+
+    local procedure IsEndLoopForReceivedNotInvoiced(RemQtyToBeInvoiced: Decimal; TrackingSpecificationExists: Boolean; var ReturnReceiptLine: Record "Return Receipt Line"; var TempTrackingSpecification: Record "Tracking Specification"; SalesLine: Record "Sales Line") EndLoop: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeIsEndLoopForReceivedNotInvoiced(RemQtyToBeInvoiced, TrackingSpecificationExists, ReturnReceiptLine, TempTrackingSpecification, SalesLine, EndLoop, IsHandled);
+        if IsHandled then
+            exit;
+
+        if TrackingSpecificationExists then
+            exit((TempTrackingSpecification.Next() = 0) or (RemQtyToBeInvoiced = 0));
+
+        exit((ReturnReceiptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs(SalesLine."Return Qty. to Receive")));
     end;
 
     local procedure GetItemEntryRelation(var SalesHeader: Record "Sales Header"; var ItemEntryRelation: Record "Item Entry Relation"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
@@ -8845,7 +8877,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemTrackingQuantity(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostCommitSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean; var ModifyHeader: Boolean; var CommitIsSuppressed: Boolean; var TempSalesLineGlobal: Record "Sales Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsEndLoopForReceivedNotInvoiced(RemQtyToBeInvoiced: Decimal; TrackingSpecificationExists: Boolean; var ReturnReceiptLine: Record "Return Receipt Line"; var TempTrackingSpecification: Record "Tracking Specification"; SalesLine: Record "Sales Line"; var EndLoop: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -9068,6 +9110,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateShippingNo(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateWonOpportunities(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 
@@ -9325,7 +9372,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesInvLineInsert(var SalesInvLine: Record "Sales Invoice Line"; SalesInvHeader: Record "Sales Invoice Header"; SalesLine: Record "Sales Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; PostingSalesLine: Record "Sales Line")
+    local procedure OnBeforeSalesInvLineInsert(var SalesInvLine: Record "Sales Invoice Line"; SalesInvHeader: Record "Sales Invoice Header"; SalesLine: Record "Sales Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; PostingSalesLine: Record "Sales Line"; SalesShipmentHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -9417,7 +9464,7 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforePostItemJnlLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var QtyToBeShipped: Decimal; var QtyToBeShippedBase: Decimal; var QtyToBeInvoiced: Decimal; var QtyToBeInvoicedBase: Decimal; var ItemLedgShptEntryNo: Integer; var ItemChargeNo: Code[20]; var TrackingSpecification: Record "Tracking Specification"; var IsATO: Boolean; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforePostItemJnlLine(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var QtyToBeShipped: Decimal; var QtyToBeShippedBase: Decimal; var QtyToBeInvoiced: Decimal; var QtyToBeInvoicedBase: Decimal; var ItemLedgShptEntryNo: Integer; var ItemChargeNo: Code[20]; var TrackingSpecification: Record "Tracking Specification"; var IsATO: Boolean; CommitIsSuppressed: Boolean; var IsHandled: Boolean; var Result: Integer)
     begin
     end;
 
@@ -9715,7 +9762,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItemTracking(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; TrackingSpecificationExists: Boolean; var TempTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
+    local procedure OnBeforePostItemTracking(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TrackingSpecificationExists: Boolean; var TempTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
     begin
     end;
 
@@ -9809,6 +9856,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestSalesLineJob(SalesLine: Record "Sales Line"; var SkipTestJobNo: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestUpdatedSalesLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -9969,7 +10021,7 @@
           BatchProcessingMgt.GetBooleanParameter(
             SalesHeader.RecordId, "Batch Posting Parameter Type"::"Replace Document Date", ReplaceDocumentDate) and
           BatchProcessingMgt.GetDateParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::"Posting Date", PostingDate);
-        OnValidatePostingAndDocumentDateOnAfterCalcPostingDateExists(PostingDateExists, ReplacePostingDate, ReplaceDocumentDate, PostingDate);
+        OnValidatePostingAndDocumentDateOnAfterCalcPostingDateExists(PostingDateExists, ReplacePostingDate, ReplaceDocumentDate, PostingDate, SalesHeader);
 
         if PostingDateExists and (ReplacePostingDate or (SalesHeader."Posting Date" = 0D)) then begin
             SalesHeader."Posting Date" := PostingDate;
@@ -10507,7 +10559,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnSumSalesLines2OnBeforeDivideAmount(var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option; SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; IncludePrepayments: Boolean)
+    local procedure OnSumSalesLines2OnBeforeDivideAmount(var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option; var SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; IncludePrepayments: Boolean)
     begin
     end;
 
@@ -10533,6 +10585,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSumSalesLines2SetFilter(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; InsertSalesLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineWhseLineOnBeforePostTempWhseJnlLine2(var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; WhseShip: Boolean; WhseReceive: Boolean; InvtPickPutaway: Boolean)
     begin
     end;
 
@@ -11209,7 +11266,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostItemChargeLine(SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line")
+    local procedure OnAfterPostItemChargeLine(var SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line")
     begin
     end;
 
@@ -11249,6 +11306,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnModifyTempLineOnAfterSalesLineModify(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyTempLineOnBeforeSalesLineModify(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnNeedUpdateGenProdPostingGroupOnItemChargeOnSalesLine(SalesLine: Record "Sales Line"; var NeedUpdate: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -11284,7 +11351,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidatePostingAndDocumentDateOnAfterCalcPostingDateExists(var PostingDateExists: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PostingDate: Date)
+    local procedure OnValidatePostingAndDocumentDateOnAfterCalcPostingDateExists(var PostingDateExists: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PostingDate: Date; var SalesHeader: Record "Sales Header")
     begin
     end;
 

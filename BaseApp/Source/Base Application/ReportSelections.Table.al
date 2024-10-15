@@ -1564,7 +1564,7 @@
                 SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                 TempBlob.CreateInStream(AttachmentInStream);
                 ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(DocNo, DocName, 'pdf');
-                DownloadFromStream(AttachmentInStream, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
+                DownloadAttachmentFromStream(TempReportSelections, RecordVariant, AttachmentInStream, ClientAttachmentFileName);
             until Next() = 0;
     end;
 
@@ -1595,8 +1595,20 @@
                 SaveReportAsPDFInTempBlob(TempBlob, "Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                 TempBlob.CreateInStream(AttachmentInStream);
                 ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(DocNo, DocName, 'pdf');
-                DownloadFromStream(AttachmentInStream, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
+                DownloadAttachmentFromStream(TempReportSelections, RecordVariant, AttachmentInStream, ClientAttachmentFileName);
             until Next() = 0;
+    end;
+
+    local procedure DownloadAttachmentFromStream(var TempReportSelections: Record "Report Selections" temporary; RecordVariant: Variant; var AttachmentInStream: InStream; ClientAttachmentFileName: Text)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDownloadAttachmentFromStream(TempReportSelections, RecordVariant, AttachmentInStream, ClientAttachmentFileName, IsHandled);
+        if IsHandled then
+            exit;
+
+        DownloadFromStream(AttachmentInStream, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
     end;
 
 #if not CLEAN17
@@ -2313,6 +2325,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrintDocumentsWithCheckGUIYesNoCommon(ReportUsage: Integer; RecVarToPrint: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadAttachmentFromStream(var TempReportSelections: Record "Report Selections" temporary; RecordVariant: Variant; var AttachmentInStream: InStream; ClientAttachmentFileName: Text; var IsHandled: Boolean)
     begin
     end;
 

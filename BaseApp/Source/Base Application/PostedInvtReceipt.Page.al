@@ -210,6 +210,7 @@ page 6567 "Posted Invt. Receipt"
                 var
                     InvtRcptHeader: Record "Invt. Receipt Header";
                 begin
+                    InvtRcptHeader := Rec;
                     CurrPage.SetSelectionFilter(InvtRcptHeader);
                     InvtRcptHeader.PrintRecords(true);
                 end;

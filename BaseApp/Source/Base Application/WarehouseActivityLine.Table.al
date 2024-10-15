@@ -266,7 +266,7 @@ table 5767 "Warehouse Activity Line"
                         UOMMgt.RoundAndValidateQty("Qty. to Handle", "Qty. Rounding Precision", FieldCaption("Qty. to Handle"));
                     "Qty. to Handle (Base)" :=
                         CalcBaseQty("Qty. to Handle", FieldCaption("Qty. to Handle"), FieldCaption("Qty. to Handle (Base)"));
-                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Qty. (Base)", "Qty. to Handle", "Qty. to Handle (Base)", "Qty. Handled", "Qty. Handled (Base)");
+                    ValidateQuantityIsBalanced();
                     if "Qty. to Handle (Base)" > "Qty. Outstanding (Base)" then begin // rounding error- qty same, not base qty
                         QtyToHandleBase := "Qty. Outstanding (Base)";
                         OnValidateQtyToHandleOnAfterCalcQtyToHandleBase(Rec, "Qty. To Handle (Base)", QtyToHandleBase);
@@ -1571,7 +1571,7 @@ table 5767 "Warehouse Activity Line"
                 if Location."Directed Put-away and Pick" then
                     WMSMgt.CalcCubageAndWeight(
                       "Item No.", "Unit of Measure Code", "Qty. to Handle", Cubage, Weight);
-                OnChangeUOMCodeOnBeforeRecModify(Rec);
+                OnChangeUOMCodeOnBeforeRecModify(Rec, Location);
                 Modify;
             end;
     end;
@@ -2071,6 +2071,8 @@ table 5767 "Warehouse Activity Line"
         AsmHeader.CalcFields("Assemble to Order");
         "Assemble to Order" := AsmHeader."Assemble to Order";
         "ATO Component" := true;
+
+        OnAfterTransferAllButWhseDocDetailsFromAssemblyLine(Rec, AssemblyLine);
     end;
 
     local procedure CheckSNSpecificationExists()
@@ -2697,6 +2699,18 @@ table 5767 "Warehouse Activity Line"
             Error(ValidValuesIfSNDefinedErr, Rec.FieldCaption("Qty. to Handle (Base)"), Rec."Qty. to Handle (Base)");
     end;
 
+    local procedure ValidateQuantityIsBalanced()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQuantityIsBalanced(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        UOMMgt.ValidateQtyIsBalanced(Quantity, "Qty. (Base)", "Qty. to Handle", "Qty. to Handle (Base)", "Qty. Handled", "Qty. Handled (Base)");
+    end;
+
     local procedure RunWhsePickCard(var WhseActivHeader: Record "Warehouse Activity Header")
     var
         WhsePickCard: Page "Warehouse Pick";
@@ -2932,6 +2946,11 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferAllButWhseDocDetailsFromAssemblyLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromMovWkshLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseWorksheetLine: Record "Whse. Worksheet Line")
     begin
     end;
@@ -3127,7 +3146,7 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnChangeUOMCodeOnBeforeRecModify(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnChangeUOMCodeOnBeforeRecModify(var WarehouseActivityLine: Record "Warehouse Activity Line"; Location: Record Location)
     begin
     end;
 
@@ -3137,7 +3156,7 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateNewUOMLineOnBeforeNewWhseActivLineModify(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnCreateNewUOMLineOnBeforeNewWhseActivLineModify(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 
@@ -3203,6 +3222,11 @@ table 5767 "Warehouse Activity Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeReNumberWhseActivityLines(var NewWarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseActivityLine: Record "Warehouse Activity Line"; var NewLineNo: Integer; var LineSpacing: Integer; var sHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityIsBalanced(var WhseActivLine: Record "Warehouse Activity Line"; xWhseActivLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 

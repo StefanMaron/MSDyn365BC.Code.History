@@ -56,6 +56,7 @@ codeunit 5340 "CRM Integration Table Synch."
         ModifiedByFieldMustBeGUIDErr: Label 'The field %1 in the table %2 must be of type GUID.', Comment = '%1 - a field name, %2 - a table name';
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         ClearCacheTxt: Label 'Clear cache.', Locked = true;
+        CannotSplitTxt: Label 'Cannot split list of IDs.', Locked = true;
         CopyRecordRefFailedTxt: Label 'Copy record reference failed. Dataverse ID: %1', Locked = true, Comment = '%1 - Dataverse record id';
         UnableToFindMappingErr: Label 'Unable to find Integration Table Mapping %1', Locked = true, Comment = '%1 - Mapping name';
         FieldKeyTxt: Label '%1-%2', Locked = true;
@@ -178,8 +179,13 @@ codeunit 5340 "CRM Integration Table Synch."
         I: Integer;
         CannotSplit: Boolean;
     begin
+        if DelChr(FieldFilter, '=', '.&<>=*@') <> FieldFilter then begin
+            Session.LogMessage('0000GI3', CannotSplitTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            exit(false);
+        end;
+
         MaxCount := GetMaxNumberOfConditions();
-        ConditionList := FieldFilter.Split('|');
+        ConditionList := FieldFilter.Replace('(', '').Replace(')', '').Split('|');
         if ConditionList.Count() > MaxCount then begin
             foreach Condition in ConditionList do begin
                 I += 1;
@@ -188,10 +194,12 @@ codeunit 5340 "CRM Integration Table Synch."
                 else
                     if Length <> StrLen(Condition) then begin
                         CannotSplit := true;
+                        Session.LogMessage('0000GGX', CannotSplitTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                         break;
                     end;
                 if not Evaluate(Id, Condition) then begin
                     CannotSplit := true;
+                    Session.LogMessage('0000GGY', CannotSplitTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     break;
                 end;
                 if PartFilter <> '' then
@@ -213,7 +221,6 @@ codeunit 5340 "CRM Integration Table Synch."
             exit(true);
 
         Clear(FilterList);
-        FilterList.Add(FieldFilter);
         exit(false);
     end;
 

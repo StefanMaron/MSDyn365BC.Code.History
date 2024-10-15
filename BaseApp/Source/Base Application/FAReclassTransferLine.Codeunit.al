@@ -1,4 +1,4 @@
-codeunit 5642 "FA Reclass. Transfer Line"
+﻿codeunit 5642 "FA Reclass. Transfer Line"
 {
 
     trigger OnRun()
@@ -54,7 +54,13 @@ codeunit 5642 "FA Reclass. Transfer Line"
     procedure FAReclassLine(var FAReclassJnlLine: Record "FA Reclass. Journal Line"; var Done: Boolean)
     var
         CurrFA: Record "Fixed Asset";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFAReclassLine(FAReclassJnlLine, Done, IsHandled);
+        if IsHandled then
+            exit;
+
         with FAReclassJnlLine do begin
             if ("FA No." = '') and ("New FA No." = '') then
                 exit;
@@ -605,6 +611,11 @@ codeunit 5642 "FA Reclass. Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcAmounts(FAReclassJnlLine: Record "FA Reclass. Journal Line"; var Amounts: array[9] of Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFAReclassLine(var FAReclassJnlLine: Record "FA Reclass. Journal Line"; var Done: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

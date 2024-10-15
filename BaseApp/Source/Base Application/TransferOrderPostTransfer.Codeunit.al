@@ -160,45 +160,53 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
     local procedure PostItemJnlLine(var TransLine3: Record "Transfer Line"; DirectTransHeader2: Record "Direct Trans. Header"; DirectTransLine2: Record "Direct Trans. Line")
     begin
-        ItemJnlLine.Init();
-        ItemJnlLine."Posting Date" := DirectTransHeader2."Posting Date";
-        ItemJnlLine."Document Date" := DirectTransHeader2."Posting Date";
-        ItemJnlLine."Document No." := DirectTransHeader2."No.";
-        ItemJnlLine."Document Type" := ItemJnlLine."Document Type"::"Direct Transfer";
-        ItemJnlLine."Document Line No." := DirectTransLine2."Line No.";
-        ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Transfer;
-        ItemJnlLine."Order No." := DirectTransHeader2."Transfer Order No.";
-        ItemJnlLine."External Document No." := DirectTransHeader2."External Document No.";
-        ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Transfer;
-        ItemJnlLine."Item No." := DirectTransLine2."Item No.";
-        ItemJnlLine.Description := DirectTransLine2.Description;
-        ItemJnlLine."Shortcut Dimension 1 Code" := DirectTransLine2."Shortcut Dimension 1 Code";
-        ItemJnlLine."New Shortcut Dimension 1 Code" := DirectTransLine2."Shortcut Dimension 1 Code";
-        ItemJnlLine."Shortcut Dimension 2 Code" := DirectTransLine2."Shortcut Dimension 2 Code";
-        ItemJnlLine."New Shortcut Dimension 2 Code" := DirectTransLine2."Shortcut Dimension 2 Code";
-        ItemJnlLine."Dimension Set ID" := DirectTransLine2."Dimension Set ID";
-        ItemJnlLine."New Dimension Set ID" := DirectTransLine2."Dimension Set ID";
-        ItemJnlLine."Location Code" := DirectTransHeader2."Transfer-from Code";
-        ItemJnlLine."New Location Code" := DirectTransHeader2."Transfer-to Code";
-        ItemJnlLine.Quantity := DirectTransLine2.Quantity;
-        ItemJnlLine."Invoiced Quantity" := DirectTransLine2.Quantity;
-        ItemJnlLine."Quantity (Base)" := DirectTransLine2."Quantity (Base)";
-        ItemJnlLine."Invoiced Qty. (Base)" := DirectTransLine2."Quantity (Base)";
-        ItemJnlLine."Source Code" := SourceCode;
-        ItemJnlLine."Gen. Prod. Posting Group" := DirectTransLine2."Gen. Prod. Posting Group";
-        ItemJnlLine."Inventory Posting Group" := DirectTransLine2."Inventory Posting Group";
-        ItemJnlLine."Unit of Measure Code" := DirectTransLine2."Unit of Measure Code";
-        ItemJnlLine."Qty. per Unit of Measure" := DirectTransLine2."Qty. per Unit of Measure";
-        ItemJnlLine."Variant Code" := DirectTransLine2."Variant Code";
-        ItemJnlLine."Bin Code" := TransLine3."Transfer-from Bin Code";
-        ItemJnlLine."New Bin Code" := TransLine3."Transfer-To Bin Code";
-        ItemJnlLine."Country/Region Code" := DirectTransHeader2."Trsf.-from Country/Region Code";
-        ItemJnlLine."Item Category Code" := TransLine3."Item Category Code";
-
+        CreateItemJnlLine(TransLine3, DirectTransHeader2, DirectTransLine2);
         ReserveTransLine.TransferTransferToItemJnlLine(TransLine3,
           ItemJnlLine, ItemJnlLine."Quantity (Base)", "Transfer Direction"::Outbound, true);
 
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
+    end;
+
+    local procedure CreateItemJnlLine(TransLine3: Record "Transfer Line"; DirectTransHeader2: Record "Direct Trans. Header"; DirectTransLine2: Record "Direct Trans. Line")
+    begin
+        with ItemJnlLine do begin
+            Init();
+            "Posting Date" := DirectTransHeader2."Posting Date";
+            "Document Date" := DirectTransHeader2."Posting Date";
+            "Document No." := DirectTransHeader2."No.";
+            "Document Type" := "Document Type"::"Direct Transfer";
+            "Document Line No." := DirectTransLine2."Line No.";
+            "Order Type" := "Order Type"::Transfer;
+            "Order No." := DirectTransHeader2."Transfer Order No.";
+            "External Document No." := DirectTransHeader2."External Document No.";
+            "Entry Type" := "Entry Type"::Transfer;
+            "Item No." := DirectTransLine2."Item No.";
+            Description := DirectTransLine2.Description;
+            "Shortcut Dimension 1 Code" := DirectTransLine2."Shortcut Dimension 1 Code";
+            "New Shortcut Dimension 1 Code" := DirectTransLine2."Shortcut Dimension 1 Code";
+            "Shortcut Dimension 2 Code" := DirectTransLine2."Shortcut Dimension 2 Code";
+            "New Shortcut Dimension 2 Code" := DirectTransLine2."Shortcut Dimension 2 Code";
+            "Dimension Set ID" := DirectTransLine2."Dimension Set ID";
+            "New Dimension Set ID" := DirectTransLine2."Dimension Set ID";
+            "Location Code" := DirectTransHeader2."Transfer-from Code";
+            "New Location Code" := DirectTransHeader2."Transfer-to Code";
+            Quantity := DirectTransLine2.Quantity;
+            "Invoiced Quantity" := DirectTransLine2.Quantity;
+            "Quantity (Base)" := DirectTransLine2."Quantity (Base)";
+            "Invoiced Qty. (Base)" := DirectTransLine2."Quantity (Base)";
+            "Source Code" := SourceCode;
+            "Gen. Prod. Posting Group" := DirectTransLine2."Gen. Prod. Posting Group";
+            "Inventory Posting Group" := DirectTransLine2."Inventory Posting Group";
+            "Unit of Measure Code" := DirectTransLine2."Unit of Measure Code";
+            "Qty. per Unit of Measure" := DirectTransLine2."Qty. per Unit of Measure";
+            "Variant Code" := DirectTransLine2."Variant Code";
+            "Bin Code" := TransLine3."Transfer-from Bin Code";
+            "New Bin Code" := TransLine3."Transfer-To Bin Code";
+            "Country/Region Code" := DirectTransHeader2."Trsf.-from Country/Region Code";
+            "Item Category Code" := TransLine3."Item Category Code";
+        end;
+
+        OnAfterCreateItemJnlLine(ItemJnlLine, TransLine3, DirectTransHeader2, DirectTransLine2);
     end;
 
     local procedure InsertDirectTransHeader(TransferHeader: Record "Transfer Header"; var DirectTransHeader: Record "Direct Trans. Header")
@@ -382,7 +390,13 @@ codeunit 5856 "TransferOrder-Post Transfer"
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         WMSMgmt: Codeunit "WMS Management";
         WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification, Direction, IsHandled);
+        if IsHandled then
+            exit;
+
         with ItemJnlLine do begin
             Quantity := OriginalQuantity;
             "Quantity (Base)" := OriginalQuantityBase;
@@ -413,6 +427,16 @@ codeunit 5856 "TransferOrder-Post Transfer"
     begin
         if InvtSetup.AutomaticCostAdjmtRequired() then
             InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; TransLine: Record "Transfer Line"; DirectTransHeader: Record "Direct Trans. Header"; DirectTransLine: Record "Direct Trans. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var TempHandlingSpecification: Record "Tracking Specification" temporary; Direction: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

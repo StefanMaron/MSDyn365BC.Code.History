@@ -2392,7 +2392,7 @@
                     repeat
                         // buffer is filled with couple of entries which are applied and contains revaluation
                         Number := ItemApplnEntry."Item Ledger Entry No.";
-                        Insert();
+                        if Insert() then;
                     until ItemApplnEntry.Next() = 0;
                 end;
     end;

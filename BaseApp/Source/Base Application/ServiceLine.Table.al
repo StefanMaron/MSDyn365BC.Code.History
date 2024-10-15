@@ -340,7 +340,7 @@ table 5902 "Service Line"
                     InitQtyToInvoice
                 else begin
                     "Qty. to Invoice (Base)" := CalcBaseQty("Qty. to Invoice", FieldCaption("Qty. to Invoice"), FieldCaption("Qty. to Invoice (Base)"));
-                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Invoice", "Qty. to Invoice (Base)", "Quantity Invoiced", "Qty. Invoiced (Base)");
+                    ValidateQuantityInvIsBalanced();
                 end;
                 if ("Qty. to Invoice" * Quantity < 0) or
                (Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice))
@@ -386,7 +386,7 @@ table 5902 "Service Line"
                         InitQtyToShip
                     else begin
                         "Qty. to Ship (Base)" := CalcBaseQty("Qty. to Ship", FieldCaption("Qty. to Ship"), FieldCaption("Qty. to Ship (Base)"));
-                        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
+                        ValidateQuantityShipIsBalanced();
                     end;
                     if "Qty. to Consume" <> 0 then
                         Validate("Qty. to Consume", "Qty. to Ship")
@@ -394,7 +394,7 @@ table 5902 "Service Line"
                         Validate("Qty. to Consume", 0);
                 end else begin
                     "Qty. to Ship (Base)" := CalcBaseQty("Qty. to Ship", FieldCaption("Qty. to Ship"), FieldCaption("Qty. to Ship (Base)"));
-                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
+                    ValidateQuantityShipIsBalanced();
 
                     if "Qty. to Consume" <> 0 then
                         Validate("Qty. to Consume", "Qty. to Ship")
@@ -2054,7 +2054,7 @@ table 5902 "Service Line"
                     InitQtyToConsume
                 else begin
                     "Qty. to Consume (Base)" := CalcBaseQty("Qty. to Consume", FieldCaption("Qty. to Consume"), FieldCaption("Qty. to Consume (Base)"));
-                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Consume", "Qty. to Consume (Base)", "Quantity Consumed", "Qty. Consumed (Base)");
+                    ValidateQuantityConsumeIsBalanced();
 
                     InitQtyToInvoice;
                 end;
@@ -2062,7 +2062,7 @@ table 5902 "Service Line"
                 if "Qty. to Consume" > 0 then begin
                     "Qty. to Ship" := "Qty. to Consume";
                     "Qty. to Ship (Base)" := "Qty. to Consume (Base)";
-                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
+                    ValidateQuantityShipIsBalanced();
                     "Qty. to Invoice" := 0;
                     "Qty. to Invoice (Base)" := 0;
                 end;
@@ -2770,7 +2770,6 @@ table 5902 "Service Line"
         Text037: Label 'You cannot change %1 when %2 is %3 and %4 is positive.';
         Text038: Label 'You cannot change %1 when %2 is %3 and %4 is negative.';
         Text039: Label 'You cannot return more than %1 units for %2 %3.';
-        Text040: Label 'You must use form %1 to enter %2, if item tracking is used.';
         Text041: Label 'There were no Resource Lines to split.';
         Text042: Label 'When posting the Applied to Ledger Entry %1 will be opened first';
         HideCostWarning: Boolean;
@@ -4818,7 +4817,6 @@ table 5902 "Service Line"
 
     local procedure CheckApplFromItemLedgEntry(var ItemLedgEntry: Record "Item Ledger Entry")
     var
-        ItemTrackingLines: Page "Item Tracking Lines";
         QtyBase: Decimal;
         ShippedQtyNotReturned: Decimal;
     begin
@@ -4839,8 +4837,7 @@ table 5902 "Service Line"
         ItemLedgEntry.TestField(Positive, false);
         ItemLedgEntry.TestField("Item No.", "No.");
         ItemLedgEntry.TestField("Variant Code", "Variant Code");
-        if ItemLedgEntry.TrackingExists then
-            Error(Text040, ItemTrackingLines.Caption, FieldCaption("Appl.-from Item Entry"));
+        ItemLedgEntry.CheckTrackingDoesNotExist(RecordId, FieldCaption("Appl.-from Item Entry"));
 
         if "Document Type" in ["Document Type"::"Credit Memo"] then
             QtyBase := "Quantity (Base)"
@@ -5179,7 +5176,43 @@ table 5902 "Service Line"
         OnAfterValidateServiceItemLineNumber(Rec, ServiceLine);
     end;
 
-    local procedure UpdateWithWarehouseShip()
+    local procedure ValidateQuantityInvIsBalanced()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQuantityInvIsBalanced(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Invoice", "Qty. to Invoice (Base)", "Quantity Invoiced", "Qty. Invoiced (Base)");
+    end;
+
+    local procedure ValidateQuantityShipIsBalanced()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQuantityShipIsBalanced(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
+    end;
+
+    local procedure ValidateQuantityConsumeIsBalanced()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateQuantityConsumeIsBalanced(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Consume", "Qty. to Consume (Base)", "Quantity Consumed", "Qty. Consumed (Base)");
+    end;
+
+    protected procedure UpdateWithWarehouseShip()
     begin
         if Type <> Type::Item then
             exit;
@@ -5911,6 +5944,21 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateServiceItemLineNumber(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityInvIsBalanced(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityShipIsBalanced(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityConsumeIsBalanced(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 

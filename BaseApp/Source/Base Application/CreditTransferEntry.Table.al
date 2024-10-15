@@ -121,6 +121,8 @@ table 1206 "Credit Transfer Entry"
             GenJnlLine."Account Type"::Vendor:
                 "Account Type" := "Account Type"::Vendor;
         end;
+        OnCreateNewOnAfterInitAccountType(Rec, GenJnlAccountType);
+
         "Account No." := AccountNo;
         "Applies-to Entry No." := LedgerEntryNo;
         "Transfer Date" := TransferDate;
@@ -170,6 +172,8 @@ table 1206 "Credit Transfer Entry"
                         end;
                 end;
         end;
+
+        OnAfterFillRecipientData(Rec);
     end;
 
 #if not CLEAN19
@@ -218,6 +222,8 @@ table 1206 "Credit Transfer Entry"
                     CVLedgerEntryBuffer.CopyFromVendLedgEntry(VendLedgerEntry)
                 end;
         end;
+
+        OnAfterGetAppliesToEntry(Rec, CVLedgerEntryBuffer);
     end;
 
     procedure AppliesToEntryDocumentNo(): Code[20]
@@ -266,6 +272,21 @@ table 1206 "Credit Transfer Entry"
     begin
         GetAppliesToEntry(CVLedgerEntryBuffer);
         exit(CVLedgerEntryBuffer."Remaining Amount");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillRecipientData(var CreditTransferEntry: Record "Credit Transfer Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAppliesToEntry(var CreditTransferEntry: Record "Credit Transfer Entry"; var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewOnAfterInitAccountType(var CreditTransferEntry: Record "Credit Transfer Entry"; GenJnlAccountType: Enum "Gen. Journal Account Type")
+    begin
     end;
 }
 
