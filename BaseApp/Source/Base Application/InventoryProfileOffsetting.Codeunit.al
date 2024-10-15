@@ -3902,14 +3902,12 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     local procedure ScheduleAllOutChangesSequence(var SupplyInvtProfile: Record "Inventory Profile"; NewDate: Date): Boolean
     var
-        xSupplyInvtProfile: Record "Inventory Profile";
         TempRescheduledSupplyInvtProfile: Record "Inventory Profile" temporary;
-        TryRescheduleSupply: Boolean;
-        HasLooped: Boolean;
-        Continue: Boolean;
         NumberofSupplies: Integer;
+        NextRecExists: Integer;
+        SavedPosition: Integer;
     begin
-        xSupplyInvtProfile.Copy(SupplyInvtProfile);
+        SavedPosition := SupplyInvtProfile."Line No.";
         if (SupplyInvtProfile."Due Date" = 0D) or
            (SupplyInvtProfile."Planning Flexibility" <> SupplyInvtProfile."Planning Flexibility"::Unlimited)
         then
@@ -3918,31 +3916,27 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if not AllowScheduleOut(SupplyInvtProfile, NewDate) then
             exit(false);
 
-        Continue := true;
-        TryRescheduleSupply := true;
+        NextRecExists := 1;
 
-        while Continue do begin
+        // check if reschedule is needed
+        while (SupplyInvtProfile."Due Date" < NewDate) and
+              (SupplyInvtProfile."Action Message" <> SupplyInvtProfile."Action Message"::New) and
+              (SupplyInvtProfile."Planning Flexibility" = SupplyInvtProfile."Planning Flexibility"::Unlimited) and
+              (SupplyInvtProfile."Fixed Date" = 0D) and
+              (NextRecExists <> 0)
+        do begin
             NumberofSupplies += 1;
             TempRescheduledSupplyInvtProfile := SupplyInvtProfile;
-            TempRescheduledSupplyInvtProfile."Line No." := -TempRescheduledSupplyInvtProfile."Line No."; // Use negative Line No. to shift sequence
-            TempRescheduledSupplyInvtProfile.Insert;
-            if TryRescheduleSupply then begin
-                Reschedule(TempRescheduledSupplyInvtProfile, NewDate, 0T);
-                Continue := TempRescheduledSupplyInvtProfile."Due Date" <> SupplyInvtProfile."Due Date";
-            end;
-            if Continue then
-                if SupplyInvtProfile.Next <> 0 then begin
-                    Continue := SupplyInvtProfile."Due Date" <= NewDate;
-                    TryRescheduleSupply :=
-                      (SupplyInvtProfile."Planning Flexibility" = SupplyInvtProfile."Planning Flexibility"::Unlimited) and
-                      (SupplyInvtProfile."Fixed Date" = 0D);
-                end else
-                    Continue := false;
+            TempRescheduledSupplyInvtProfile."Line No." := -TempRescheduledSupplyInvtProfile."Line No.";
+            TempRescheduledSupplyInvtProfile.Insert();
+            Reschedule(TempRescheduledSupplyInvtProfile, NewDate, 0T);
+
+            NextRecExists := SupplyInvtProfile.Next();
         end;
 
-        // If there is only one supply before the demand we roll back
-        if NumberofSupplies = 1 then begin
-            SupplyInvtProfile.Copy(xSupplyInvtProfile);
+        // if there is only one supply before the demand we roll back
+        if NumberofSupplies <= 1 then begin
+            SupplyInvtProfile.Get(SavedPosition);
             exit(false);
         end;
 
@@ -3952,18 +3946,22 @@ codeunit 99000854 "Inventory Profile Offsetting"
         // If we have resheduled we replace the original supply records with the resceduled ones,
         // we re-write the primary key to make sure that the supplies are handled in the right order.
         if TempRescheduledSupplyInvtProfile.FindSet then begin
+            if NextRecExists <> 0 then
+                SavedPosition := SupplyInvtProfile."Line No."
+            else
+                SavedPosition := 0;
+
             repeat
                 SupplyInvtProfile."Line No." := -TempRescheduledSupplyInvtProfile."Line No.";
-                SupplyInvtProfile.Delete;
+                SupplyInvtProfile.Delete();
                 SupplyInvtProfile := TempRescheduledSupplyInvtProfile;
                 SupplyInvtProfile."Line No." := NextLineNo;
-                SupplyInvtProfile.Insert;
-                if not HasLooped then begin
-                    xSupplyInvtProfile := SupplyInvtProfile; // The first supply is bookmarked
-                    HasLooped := true;
-                end;
-            until TempRescheduledSupplyInvtProfile.Next = 0;
-            SupplyInvtProfile := xSupplyInvtProfile;
+                SupplyInvtProfile.Insert();
+                if SavedPosition = 0 then
+                    SavedPosition := SupplyInvtProfile."Line No.";
+            until TempRescheduledSupplyInvtProfile.Next() = 0;
+
+            SupplyInvtProfile.Get(SavedPosition);
         end;
 
         exit(true);
