@@ -246,7 +246,7 @@ Codeunit 7009 CopyFromToPriceListLine
                     InsertPriceListLine(PriceListLine);
                 end;
 
-                if JobItemPrice."Apply Job Discount" and (JobItemPrice."Line Discount %" > 0) then begin
+                if JobItemPrice."Apply Job Discount" then begin
                     PriceListLine."Price List Code" := '';
                     PriceListLine.Status := PriceListLine.Status::Draft;
                     PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Discount);
@@ -346,7 +346,7 @@ Codeunit 7009 CopyFromToPriceListLine
                     InsertPriceListLine(PriceListLine);
                 end;
 
-                if JobResourcePrice."Apply Job Discount" and (JobResourcePrice."Line Discount %" > 0) then begin
+                if JobResourcePrice."Apply Job Discount" then begin
                     PriceListLine."Price List Code" := '';
                     PriceListLine.Status := PriceListLine.Status::Draft;
                     PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Discount);

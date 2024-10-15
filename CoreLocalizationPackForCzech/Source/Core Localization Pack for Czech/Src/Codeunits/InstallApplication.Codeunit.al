@@ -237,6 +237,7 @@ codeunit 11748 "Install Application CZL"
             repeat
                 if not RegistrationLogCZL.Get(RegistrationLog."Entry No.") then begin
                     RegistrationLogCZL.Init();
+                    RegistrationLogCZL."Entry No." := RegistrationLog."Entry No.";
                     RegistrationLogCZL.Insert();
                 end;
                 RegistrationLogCZL."Registration No." := RegistrationLog."Registration No.";
