@@ -18,7 +18,7 @@
         Text004: Label 'Transaction %1 for %2 %3 already exists in the %4 table.';
         Text005: Label '%1 must be %2 or %3 in order to be re-created.';
         NoItemForCommonItemErr: Label 'There is no Item related to Common Item No. %1.', Comment = '%1 = Common Item No value';
-        TheTransactionAlreadyExistInOutboxHandledErr: Label 'Document %1 %2 for %3 %4 already exists in the %5 table.', Comment = '%1 - Document Type, %2 - Document No, %3 "IC Parthner Code" caption, %4 - IC parthner code, %5 - name of the table, where the lines were found';
+        TransactionAlreadyExistsInOutboxHandledQst: Label '%1 %2 has already been sent to intercompany partner %3. Resending it will create a duplicate %1 for them. Do you want to send it again?', Comment = '%1 - Document Type, %2 - Document No, %3 - IC parthner code';
 
     procedure CreateOutboxJnlTransaction(TempGenJnlLine: Record "Gen. Journal Line" temporary; Rejection: Boolean): Integer
     var
@@ -2466,6 +2466,7 @@
     local procedure CheckICSalesDocumentAlreadySent(SalesHeader: Record "Sales Header")
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ConfirmManagement: Codeunit "Confirm Management";
     begin
         HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Sales Document");
         case SalesHeader."Document Type" of
@@ -2483,15 +2484,19 @@
         HandledICOutboxTrans.SetRange("Document No.", SalesHeader."No.");
 
         if HandledICOutboxTrans.FindFirst() then
-            Error(
-              TheTransactionAlreadyExistInOutboxHandledErr, HandledICOutboxTrans."Document Type", HandledICOutboxTrans."Document No.",
-              HandledICOutboxTrans.FieldCaption("IC Partner Code"),
-              HandledICOutboxTrans."IC Partner Code", HandledICOutboxTrans.TableCaption);
+            if not ConfirmManagement.GetResponseOrDefault(
+                StrSubstNo(
+                    TransactionAlreadyExistsInOutboxHandledQst, HandledICOutboxTrans."Document Type",
+                    HandledICOutboxTrans."Document No.", HandledICOutboxTrans."IC Partner Code"),
+                true)
+            then
+                Error('');
     end;
 
     local procedure CheckICPurchaseDocumentAlreadySent(PurchaseHeader: Record "Purchase Header")
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
+        ConfirmManagement: Codeunit "Confirm Management";
     begin
         HandledICOutboxTrans.SetRange("Source Type", HandledICOutboxTrans."Source Type"::"Purchase Document");
         case PurchaseHeader."Document Type" of
@@ -2509,10 +2514,13 @@
         HandledICOutboxTrans.SetRange("Document No.", PurchaseHeader."No.");
 
         if HandledICOutboxTrans.FindFirst() then
-            Error(
-              TheTransactionAlreadyExistInOutboxHandledErr, HandledICOutboxTrans."Document Type", HandledICOutboxTrans."Document No.",
-              HandledICOutboxTrans.FieldCaption("IC Partner Code"),
-              HandledICOutboxTrans."IC Partner Code", HandledICOutboxTrans.TableCaption);
+            if not ConfirmManagement.GetResponseOrDefault(
+                StrSubstNo(
+                    TransactionAlreadyExistsInOutboxHandledQst, HandledICOutboxTrans."Document Type",
+                    HandledICOutboxTrans."Document No.", HandledICOutboxTrans."IC Partner Code"),
+                true)
+            then
+                Error('');
     end;
 
     [IntegrationEvent(false, false)]

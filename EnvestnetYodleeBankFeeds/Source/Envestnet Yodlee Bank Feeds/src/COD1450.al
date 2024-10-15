@@ -192,6 +192,7 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         MESSAGE(SetupSuccessMsg);
     end;
 
+    [NonDebuggable]
     local procedure TryAuthenticate(var CobrandToken: Text; var ConsumerToken: Text; var ErrorText: Text): Boolean;
     var
         MSYodleeBankServiceSetup: Record 1450;
@@ -1823,6 +1824,7 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         EXIT(MSYodleeBankServiceSetup.GetCobrandName(MSYodleeBankServiceSetup."Cobrand Name"));
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetCobrandPassword(): Text;
     var
@@ -1836,6 +1838,7 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         EXIT(MSYodleeBankServiceSetup.GetCobrandPassword(MSYodleeBankServiceSetup."Cobrand Password"));
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetConsumerPassword(): Text;
     var

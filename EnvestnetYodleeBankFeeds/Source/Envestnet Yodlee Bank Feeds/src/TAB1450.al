@@ -209,6 +209,7 @@ table 1450 "MS - Yodlee Bank Service Setup"
         EXIT('');
     end;
 
+    [NonDebuggable]
     procedure GetCobrandPassword(PasswordKey: Guid): Text;
     var
         CompanyInformationMgt: Codeunit 1306;
@@ -244,6 +245,7 @@ table 1450 "MS - Yodlee Bank Service Setup"
         EXIT('');
     end;
 
+    [NonDebuggable]
     procedure GetPassword(PasswordKey: Guid): Text;
     var
         PasswordValue: Text;
@@ -261,6 +263,7 @@ table 1450 "MS - Yodlee Bank Service Setup"
             IsolatedStorage.Delete(PasswordKey, DataScope::Company);
     end;
 
+    [NonDebuggable]
     procedure HasPassword(PasswordKey: Guid): Boolean;
     var
         PasswordValue: Text;
@@ -281,6 +284,7 @@ table 1450 "MS - Yodlee Bank Service Setup"
         EXIT(GetCobrandName(NameKey) <> '');
     end;
 
+    [NonDebuggable]
     procedure HasCobrandPassword(PasswordKey: Guid): Boolean;
     begin
         EXIT(GetCobrandPassword(PasswordKey) <> '');

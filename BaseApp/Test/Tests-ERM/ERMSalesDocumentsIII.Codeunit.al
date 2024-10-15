@@ -352,6 +352,15 @@ codeunit 134387 "ERM Sales Documents III"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure TotalsShouldBeRecalculatedByPriceInclVAT()
+    begin
+        // [FEATURE] [Totals] [UI]
+        // [SCENARIO 401966] Changing "Price Incl VAT" forces the totals calculation.
+        // Disabled in N/A 
+    end;
+
+    [Test]
     [HandlerFunctions('QuantityOnGetShipmentLinesPageHandler')]
     [Scope('OnPrem')]
     procedure GetShipmentLinesAfterPartialPosting()

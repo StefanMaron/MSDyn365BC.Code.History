@@ -55,6 +55,7 @@ page 1665 "MS - Ceridian Payroll Setup"
     end;
 
     var
+        [NonDebuggable]
         Password: Text[50];
         EncryptionIsNotActivatedQst: Label 'Data encryption is not activated. It is recommended that you encrypt data. \Do you want to open the Data Encryption Management window?';
 

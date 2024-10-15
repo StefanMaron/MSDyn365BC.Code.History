@@ -20,6 +20,7 @@
         TempSalesInvLine: Record "Sales Invoice Line" temporary;
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         GLSetup: Record "General Ledger Setup";
+        TempLineNumberBuffer: Record "Line Number Buffer" temporary;
         TranslationHelper: Codeunit "Translation Helper";
         CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
@@ -312,6 +313,7 @@
             LinkJobPlanningLine(ToSalesHeader);
         end;
         SalesCalcSalesTaxLines(ToSalesHeader);
+        UpdateRetentionSalesLines(ToSalesHeader);
 
         OnCopySalesDocOnAfterCopySalesDocLines(
           FromDocType, FromDocNo, FromDocOccurrenceNo, FromDocVersionNo, FromSalesHeader, IncludeHeader, ToSalesHeader);
@@ -388,6 +390,7 @@
                                 CopyFromSalesDocAssgntToLine(
                                   ToSalesLine, FromSalesLine."Document Type", FromSalesLine."Document No.", FromSalesLine."Line No.",
                                   ItemChargeAssgntNextLineNo);
+                            InsertTempLineBufer(FromSalesline."Line No.", NextLineNo); // NextLineNo                                  
                             OnAfterCopySalesLineFromSalesDocSalesLine(
                               ToSalesHeader, ToSalesLine, FromSalesLine, IncludeHeader, RecalculateLines);
                         end;
@@ -1387,6 +1390,9 @@
             ToSalesLine."Shortcut Dimension 2 Code" := FromSalesLine."Shortcut Dimension 2 Code";
             OnCopySalesLineOnAfterSetDimensions(ToSalesLine, FromSalesLine);
         end;
+
+        ToSalesLine."Retention Attached to Line No." := FromSalesLine."Retention Attached to Line No.";
+        ToSalesLine."Retention VAT %" := FromSalesLine."Retention VAT %";
 
         if CopyThisLine then begin
             OnBeforeInsertToSalesLine(
@@ -2641,6 +2647,7 @@
                                       FillExactCostRevLink and ExactCostRevMandatory, MissingExCostRevLink,
                                       FromSalesHeader."Prices Including VAT", ToSalesHeader."Prices Including VAT", true);
                                 end;
+                                InsertTempLineBufer(FromSalesShptLine."Line No.", NextLineNo);
                                 OnAfterCopySalesLineFromSalesShptLineBuffer(
                                   ToSalesLine, FromSalesShptLine, IncludeHeader, RecalculateLines, TempDocSalesLine, ToSalesHeader, FromSalesLineBuf);
                             end;
@@ -2789,7 +2796,11 @@
                     OnCopySalesInvLinesToDocOnBeforeCopySalesLine(ToSalesHeader, FromSalesLine2);
 
                     AsmHdrExistsForFromDocLine := false;
-                    if Type = Type::Item then
+                    if (Type = Type::Item) and
+                       (ToSalesHeader."Document Type" in [ToSalesHeader."Document Type"::Quote,
+                                                          ToSalesHeader."Document Type"::Order,
+                                                          ToSalesHeader."Document Type"::"Blanket Order"])
+                    then
                         CheckAsmHdrExistsForFromDocLine(ToSalesHeader, FromSalesLine2, BufferCount, SalesLineCount = SalesInvLineCount);
 
                     if CopySalesLine(ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine2, NextLineNo, LinesNotCopied,
@@ -2820,6 +2831,7 @@
                                   FromSalesHeader."Prices Including VAT", FillExactCostRevLink, MissingExCostRevLink);
                         end;
 
+                        InsertTempLineBufer(FromSalesInvLine."Line No.", NextLineNo);
                         OnAfterCopySalesLineFromSalesLineBuffer(
                           ToSalesLine, FromSalesInvLine, IncludeHeader, RecalculateLines, TempDocSalesLine, ToSalesHeader, TempSalesLineBuf,
                           FromSalesLine2);
@@ -2981,6 +2993,7 @@
                                   FromSalesHeader."Prices Including VAT", ToSalesHeader."Prices Including VAT", false);
                             end;
                         end;
+                        InsertTempLineBufer(FromSalesCrMemoLine."Line No.", NextLineNo);
                         OnAfterCopySalesLineFromSalesCrMemoLineBuffer(
                           ToSalesLine, FromSalesCrMemoLine, IncludeHeader, RecalculateLines, TempDocSalesLine, ToSalesHeader, FromSalesLineBuf);
                     end;
@@ -3093,6 +3106,7 @@
                                       FillExactCostRevLink and ExactCostRevMandatory, MissingExCostRevLink,
                                       FromSalesHeader."Prices Including VAT", ToSalesHeader."Prices Including VAT", true);
                                 end;
+                                InsertTempLineBufer(FromReturnRcptLine."Line No.", NextLineNo);
                                 OnAfterCopySalesLineFromReturnRcptLineBuffer(
                                   ToSalesLine, FromReturnRcptLine, IncludeHeader, RecalculateLines,
                                   TempDocSalesLine, ToSalesHeader, FromSalesLineBuf, CopyItemTrkg);
@@ -6395,6 +6409,32 @@
     begin
         if RecalculateLines then
             PurchaseLine.CalcSalesTaxLines(ToPurchaseHeader, PurchaseLine);
+    end;
+
+    local procedure InsertTempLineBufer(OldLineNo: Integer; NewLineNo: Integer)
+    begin
+        TempLineNumberBuffer.Init();
+        TempLineNumberBuffer."Old Line Number" := OldLineNo;
+        TempLineNumberBuffer."New Line Number" := NewLineNo;
+        if not TempLineNumberBuffer.Insert() then;
+    end;
+
+    local procedure UpdateRetentionSalesLines(ToSalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", ToSalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", ToSalesHeader."No.");
+        SalesLine.SetFilter("Retention Attached to Line No.", '<>0');
+        if SalesLine.FindSet(true) then
+            repeat
+                if TempLineNumberBuffer.Get(SalesLine."Retention Attached to Line No.") then begin
+                    SalesLine."Retention Attached to Line No." := TempLineNumberBuffer."New Line Number";
+                    SalesLine.Modify();
+                end;
+            until SalesLine.Next() = 0;
+
+        TempLineNumberBuffer.DeleteAll();
     end;
 
     procedure CheckDateOrder(PostingNo: Code[20]; PostingNoSeries: Code[20]; OldPostingDate: Date; NewPostingDate: Date): Boolean
