@@ -122,7 +122,7 @@ report 12173 "Issued Cust Bills Floppy"
             exit;
         end;
 
-        if not Download(FileName, '', 'C:', '', ToFile) then
+        if not RBMgt.DownloadHandler(FileName, '', 'C:', '', ToFile) then
             exit;
 
         Message(Text1130023, ToFile);

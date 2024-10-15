@@ -117,5 +117,16 @@ table 12177 "Issued Customer Bill Header"
     begin
         SEPADDExportMgt.ExportBillToFile("No.", "Bank Account No.", "Partner Type", DATABASE::"Issued Customer Bill Header");
     end;
+
+    procedure ExportToFloppyFile()
+    var
+        IssuedCustomerBillHeader: Record "Issued Customer Bill Header";
+        IssuedCustBillsFloppy: Report "Issued Cust Bills Floppy";
+    begin
+        IssuedCustomerBillHeader.SetRange("No.", "No.");
+        IssuedCustBillsFloppy.SetTableView(IssuedCustomerBillHeader);
+        IssuedCustBillsFloppy.UseRequestPage(false);
+        IssuedCustBillsFloppy.Run();
+    end;
 }
 

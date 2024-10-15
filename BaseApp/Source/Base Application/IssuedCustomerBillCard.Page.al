@@ -155,6 +155,20 @@ page 12180 "Issued Customer Bill Card"
                     ExportToFile;
                 end;
             }
+            action(ExportIssuedBillToFloppyFile)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Export Issued Bill to Floppy File';
+                Image = Export;
+                Promoted = true;
+                PromotedCategory = Process;
+                ToolTip = 'Export the document in the local format.';
+
+                trigger OnAction()
+                begin
+                    ExportToFloppyFile();
+                end;
+            }
             action("Issued Cust Bills Report")
             {
                 ApplicationArea = Basic, Suite;
