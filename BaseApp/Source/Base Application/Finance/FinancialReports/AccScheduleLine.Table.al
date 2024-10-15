@@ -22,6 +22,7 @@ table 85 "Acc. Schedule Line"
         {
             Caption = 'Schedule Name';
             TableRelation = "Acc. Schedule Name";
+            ToolTip = 'Specifies the unique name (code) of the financial report row definition. You can use up to 10 characters.';
         }
         field(2; "Line No."; Integer)
         {

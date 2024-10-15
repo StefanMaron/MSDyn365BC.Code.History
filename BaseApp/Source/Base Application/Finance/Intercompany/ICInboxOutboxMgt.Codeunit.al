@@ -1035,6 +1035,7 @@ codeunit 427 ICInboxOutboxMgt
                 if not IsHandled then begin
                     SalesLine.Validate("Unit Price", ICInboxSalesLine."Unit Price");
                     SalesLine."Amount Including VAT" := ICInboxSalesLine."Amount Including VAT";
+                    SalesLine."VAT Difference" := ICInboxSalesLine."VAT Difference";
                     SalesLine.Validate("Line Discount %", ICInboxSalesLine."Line Discount %");
                     SalesLine.Validate("Inv. Discount Amount", ICInboxSalesLine."Inv. Discount Amount");
                     SalesLine.UpdateAmounts();
@@ -1309,6 +1310,7 @@ codeunit 427 ICInboxOutboxMgt
                     PurchLine.Validate("Line Discount Amount", ICInboxPurchLine."Line Discount Amount");
                     PurchLine.Validate("Inv. Discount Amount", ICInboxPurchLine."Inv. Discount Amount");
                     PurchLine."VAT Base Amount" := Round(ICInboxPurchLine."Amount Including VAT" / (1 + (PurchLine."VAT %" / 100)), Precision2);
+                    PurchLine."VAT Difference" := ICInboxPurchLine."VAT Difference";
                     if PurchHeader."Prices Including VAT" then
                         PurchLine."Line Amount" := ICInboxPurchLine."Amount Including VAT"
                     else
@@ -2395,6 +2397,7 @@ codeunit 427 ICInboxOutboxMgt
         ICInboxPurchLine."Amount Including VAT" := ICOutboxSalesLine."Amount Including VAT";
         ICInboxPurchLine."Job No." := ICOutboxSalesLine."Job No.";
         ICInboxPurchLine."VAT Base Amount" := ICOutboxSalesLine."VAT Base Amount";
+        ICInboxPurchLine."VAT Difference" := ICOutboxSalesLine."VAT Difference";
         ICInboxPurchLine."Unit Cost" := ICOutboxSalesLine."Unit Price";
         ICInboxPurchLine."Line Amount" := ICOutboxSalesLine."Line Amount";
         ICInboxPurchLine.Amount := ICOutboxSalesLine.Amount;
@@ -2508,6 +2511,7 @@ codeunit 427 ICInboxOutboxMgt
         ICInboxSalesLine."Inv. Discount Amount" := ICOutboxPurchLine."Inv. Discount Amount";
         ICInboxSalesLine."Job No." := ICOutboxPurchLine."Job No.";
         ICInboxSalesLine."VAT Base Amount" := ICOutboxPurchLine."VAT Base Amount";
+        ICInboxSalesLine."VAT Difference" := ICOutboxPurchLine."VAT Difference";
         ICInboxSalesLine."Unit Price" := ICOutboxPurchLine."Direct Unit Cost";
         ICInboxSalesLine."Line Amount" := ICOutboxPurchLine."Line Amount";
         ICInboxSalesLine."Line Discount %" := ICOutboxPurchLine."Line Discount %";

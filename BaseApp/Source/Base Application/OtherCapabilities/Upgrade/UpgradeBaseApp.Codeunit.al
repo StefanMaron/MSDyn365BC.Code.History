@@ -35,7 +35,6 @@ using Microsoft.Foundation.Reporting;
 using Microsoft.Foundation.Task;
 using Microsoft.Foundation.UOM;
 using Microsoft.HumanResources.Employee;
-using Microsoft.HumanResources.Payables;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Entity;
@@ -45,9 +44,6 @@ using Microsoft.Intercompany.Inbox;
 using Microsoft.Intercompany.Journal;
 using Microsoft.Intercompany.Outbox;
 using Microsoft.Intercompany.Setup;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Requisition;
@@ -61,10 +57,6 @@ using Microsoft.Pricing.Source;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Setup;
 using Microsoft.Projects.Resources.Resource;
-#if not CLEAN22
-using Microsoft.Projects.Resources.Setup;
-using Microsoft.Projects.TimeSheet;
-#endif
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Vendor;
@@ -97,14 +89,15 @@ using System.Upgrade;
 using System.Utilities;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Setup;
+using Microsoft.Bank.Setup;
+using Microsoft.Bank.DirectDebit;
 
 codeunit 104000 "Upgrade - BaseApp"
 {
     Subtype = Upgrade;
     Permissions =
         TableData "User Group Plan" = rimd,
-        TableData "Cust. Ledger Entry" = rm,
-        TableData "Employee Ledger Entry" = rm;
+        TableData "Cust. Ledger Entry" = rm;
 
     var
         HybridDeployment: Codeunit "Hybrid Deployment";
@@ -127,6 +120,8 @@ codeunit 104000 "Upgrade - BaseApp"
         ProductionOrderLbl: Label 'PRODUCTION', Locked = true;
         ProductionOrderTxt: Label 'Production Order', Locked = true;
         ServiceBlockedAlreadySetLbl: Label 'CopyItemSalesBlockedToServiceBlocked skipped. %1 already set for at least one record in table %2.', Comment = '%1 = Field Caption, %2 = Table Caption', Locked = true;
+        XGenericSEPA09Txt: Label 'Generic SEPA09';
+        XGenericSEPADesc09Txt: Label 'SEPA CT pain.001.001.09', Locked = true;
 
     trigger OnCheckPreconditionsPerDatabase()
     begin
@@ -186,9 +181,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradePurchaseRcptLineOverReceiptCode();
         UpgradeContactMobilePhoneNo();
         UpgradePostCodeServiceKey();
-#if not CLEAN22
-        UpgradeIntrastatJnlLine();
-#endif
         UpgradeDimensionSetEntry();
         UpgradeUserTaskDescriptionToUTF8();
         UpgradeRemoveSmartListGuidedExperience();
@@ -228,17 +220,15 @@ codeunit 104000 "Upgrade - BaseApp"
         UpdateProductionSourceCode();
         UpgradeICGLAccountNoInPostedGenJournalLine();
         UpgradeICGLAccountNoInStandardGeneralJournalLine();
+        UpgradeBankExportImportSetup();
         UpgradePurchasesPayablesAndSalesReceivablesSetups();
         UpgradeLocationBinPolicySetups();
         UpgradeInventorySetupAllowInvtAdjmt();
         UpgradeGranularWarehouseHandlingSetup();
         UpgradeVATSetup();
-#if not CLEAN22
-        UpgradeTimesheetExperience();
-#endif
         UpgradeVATSetupAllowVATDate();
         CopyItemSalesBlockedToServiceBlocked();
-        SetEmployeeLedgerEntryCurrencyFactor();
+        UpgradeCountryVATSchemeDK();
     end;
 
     local procedure ClearTemporaryTables()
@@ -281,6 +271,47 @@ codeunit 104000 "Upgrade - BaseApp"
         ParallelSessionEntry.DeleteAll();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetClearTemporaryTablesUpgradeTag());
+    end;
+
+    local procedure UpgradeBankExportImportSetup()
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        ExportProtocol: Record "Export Protocol";
+        CompanyInitialize: Codeunit "Company-Initialize";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetBankExportImportSetupSEPACT09UpgradeTag()) then
+            exit;
+
+        if not BankExportImportSetup.Get(CompanyInitialize.GetSEPACT09Code()) then
+            CompanyInitialize.InsertBankExportImportSetup(CompanyInitialize.GetSEPACT09Code(), CompanyInitialize.GetSEPACT09Name(), BankExportImportSetup.Direction::Export,
+              CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.09", CODEUNIT::"SEPA CT-Check Line");
+
+        if not BankExportImportSetup.Get(CompanyInitialize.GetSEPADD08Code()) then
+            CompanyInitialize.InsertBankExportImportSetup(CompanyInitialize.GetSEPADD08Code(), CompanyInitialize.GetSEPADD08Name(), BankExportImportSetup.Direction::Export,
+              CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.08", CODEUNIT::"SEPA DD-Check Line");
+
+	if not ExportProtocol.Get(XGenericSEPA09Txt) then
+            CreateExportProtocol(XGenericSEPA09Txt, XGenericSEPADesc09Txt, Codeunit::"Check BTL91", Report::Docket, Report::"SEPA ISO20022 Pain 01.01.09", '');
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBankExportImportSetupSEPACT09UpgradeTag());
+    end;
+
+    local procedure CreateExportProtocol("Code": Code[20]; Description: Text[30]; CheckID: Integer; DocketID: Integer; ExportID: Integer; FileNames: Text[80])
+    var
+        ExportProtocol: Record "Export Protocol";
+    begin
+        ExportProtocol.Init();
+        ExportProtocol.Validate(Code, Code);
+        ExportProtocol.Validate(Description, Description);
+        ExportProtocol.Validate("Check ID", CheckID);
+        ExportProtocol.Validate("Export ID", ExportID);
+        ExportProtocol.Validate("Docket ID", DocketID);
+        ExportProtocol.Validate("Default File Names", FileNames);
+
+        if not ExportProtocol.Insert() then
+            ExportProtocol.Modify();
     end;
 
     internal procedure UpgradeWordTemplateTables()
@@ -1492,8 +1523,6 @@ codeunit 104000 "Upgrade - BaseApp"
     local procedure UpgradeSearchEmail()
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
-        Contact: Record Contact;
-        ContactAltAddress: Record "Contact Alt. Address";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
@@ -1509,26 +1538,6 @@ codeunit 104000 "Upgrade - BaseApp"
                     SalespersonPurchaser.Modify();
                 end;
             until SalespersonPurchaser.Next() = 0;
-
-        Contact.SetCurrentKey("Search E-Mail");
-        Contact.SetRange("Search E-Mail", '');
-        if Contact.FindFirst() then
-            repeat
-                if Contact."E-Mail" <> '' then begin
-                    Contact."Search E-Mail" := Contact."E-Mail";
-                    Contact.Modify();
-                end;
-            until Contact.Next() = 0;
-
-        ContactAltAddress.SetCurrentKey("Search E-Mail");
-        ContactAltAddress.SetRange("Search E-Mail", '');
-        if ContactAltAddress.FindFirst() then
-            repeat
-                if ContactAltAddress."E-Mail" <> '' then begin
-                    ContactAltAddress."Search E-Mail" := ContactAltAddress."E-Mail";
-                    ContactAltAddress.Modify();
-                end;
-            until ContactAltAddress.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSearchEmailUpgradeTag());
     end;
@@ -2420,28 +2429,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPostCodeServiceKeyUpgradeTag());
     end;
 
-#if not CLEAN22
-    local procedure UpgradeIntrastatJnlLine()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        UpgradeTag: Codeunit "Upgrade Tag";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag()) then
-            exit;
-
-        IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Shipment);
-        if IntrastatJnlLine.FindSet() then
-            repeat
-                IntrastatJnlLine."Country/Region of Origin Code" := IntrastatJnlLine.GetCountryOfOriginCode();
-                IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine.GetPartnerID();
-                IntrastatJnlLine.Modify();
-            until IntrastatJnlLine.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag());
-    end;
-#endif
-
     local procedure UpgradeDimensionSetEntry()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -2917,9 +2904,6 @@ codeunit 104000 "Upgrade - BaseApp"
                 CRMConnectionSetup.Modify();
 
                 IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
-#if not CLEAN22
-                IntegrationFieldMapping.SetRange("Field No.", UnitGroup.FieldNo("Code"));
-#endif
                 IntegrationFieldMapping.ModifyAll("Field No.", UnitGroup.FieldNo("Source No."));
             end else begin
                 UnitGroup.DeleteAll();
@@ -3439,9 +3423,6 @@ codeunit 104000 "Upgrade - BaseApp"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
-#if not CLEAN22
-        CDSFailedOptionMapping: Record "CDS Failed Option Mapping";
-#endif
         TempCRMAccount: Record "CRM Account" temporary;
         TempCRMInvoice: Record "CRM Invoice" temporary;
         TempCRMSalesorder: Record "CRM Salesorder" temporary;
@@ -3507,10 +3488,6 @@ codeunit 104000 "Upgrade - BaseApp"
             IntegrationTableMapping."Dependency Filter" += '|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT';
             IntegrationTableMapping.Modify();
         end;
-
-#if not CLEAN22
-        CDSFailedOptionMapping.DeleteAll();
-#endif
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetOptionMappingUpgradeTag());
     end;
@@ -3766,34 +3743,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCheckLedgerEntriesMoveFromRecordIDToSystemIdUpgradeTag());
     end;
 
-#if not CLEAN22
-    local procedure UpgradeTimesheetExperience()
-    var
-        ResourcesSetup: Record "Resources Setup";
-        FeatureDataUpdateStatus: Record "Feature Data Update Status";
-        TimeSheetManagement: Codeunit "Time Sheet Management";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewTimeSheetExperienceUpgradeTag()) then
-            exit;
-
-        if TimeSheetManagement.GetTimeSheetV2FeatureKey() <> '' then
-            if ResourcesSetup.Get() then
-                if not ResourcesSetup."Use New Time Sheet Experience" then begin
-                    // Set to True if the feature NewTimeSheetExperience is enabled for any company
-                    FeatureDataUpdateStatus.SetFilter("Feature Key", TimeSheetManagement.GetTimeSheetV2FeatureKey());
-                    FeatureDataUpdateStatus.SetRange("Feature Status", FeatureDataUpdateStatus."Feature Status"::"Enabled");
-                    if not FeatureDataUpdateStatus.IsEmpty() then begin
-                        ResourcesSetup."Use New Time Sheet Experience" := true;
-                        ResourcesSetup.Modify();
-                    end;
-                end;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewTimeSheetExperienceUpgradeTag());
-    end;
-#endif
-
     local procedure UpgradeVATSetupAllowVATDate()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -3897,26 +3846,21 @@ codeunit 104000 "Upgrade - BaseApp"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCopyItemSalesBlockedToServiceBlockedUpgradeTag());
     end;
-
-    local procedure SetEmployeeLedgerEntryCurrencyFactor()
+    
+    local procedure UpgradeCountryVATSchemeDK()
     var
-        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+        CountryRegion: Record "Country/Region";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-        EmployeeLedgerEntryDataTransfer: DataTransfer;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetEmployeeLedgerEntryCurrencyFactorUpgradeTag()) then
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryVATSchemeDKTag()) then
             exit;
 
-        EmployeeLedgerEntryDataTransfer.SetTables(Database::"Employee Ledger Entry", Database::"Employee Ledger Entry");
-        EmployeeLedgerEntryDataTransfer.AddSourceFilter(EmployeeLedgerEntry.FieldNo("Original Currency Factor"), '=%1', 0);
-        EmployeeLedgerEntryDataTransfer.AddConstantValue(1.0, EmployeeLedgerEntry.FieldNo("Original Currency Factor"));
-        EmployeeLedgerEntryDataTransfer.AddConstantValue(1.0, EmployeeLedgerEntry.FieldNo("Adjusted Currency Factor"));
-        EmployeeLedgerEntryDataTransfer.UpdateAuditFields := false;
-        EmployeeLedgerEntryDataTransfer.CopyFields();
-        Clear(EmployeeLedgerEntryDataTransfer);
+        CountryRegion.SetRange("ISO Code", 'DK'); // ISO 3166 Country Codes
+        if not CountryRegion.IsEmpty() then
+            CountryRegion.ModifyAll("VAT Scheme", '0184'); // ISO 6523 ICD Codes
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEmployeeLedgerEntryCurrencyFactorUpgradeTag());
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryVATSchemeDKTag());
     end;
 
     [IntegrationEvent(false, false)]

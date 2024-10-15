@@ -13,6 +13,7 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemReference: Codeunit "Library - Item Reference";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
@@ -43,6 +44,7 @@ codeunit 137074 "SCM Capacity Requirements"
         OutputQuantityMustMatchErr: Label 'Output Quantity muct match.';
         CapacityErr: Label '%1 must be %2 in %3', Comment = '%1 = Capacity, %2 = value, %3 = WorkCenterGroupLoadlines';
         ProdOrderNeedQtyErr: Label '%1 must be %2 in %3', Comment = '%1 = Prod. Order Need (Qty.), %2 = value, %3 = WorkCenterGroupLoadlines';
+        Description2Err: Label 'Description must not be blank in %1.', Comment = '%1 = Table Caption.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4709,6 +4711,54 @@ codeunit 137074 "SCM Capacity Requirements"
             WorkCenterGroupLoad.WorkCtrGroupLoadLines.Caption()));
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandlerWithoutExpectedMessage')]
+    [Scope('OnPrem')]
+    procedure Description2InFirmPlannedProdOrderIsPopulatedFromSO()
+    var
+        Item: Record Item;
+        ItemReference: Record "Item Reference";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ProductionOrder: Record "Production Order";
+    begin
+        // [SCENARIO 538824] Description 2 is populated from Sales Line when Firm Planned Prod. Order is created from Sales Order.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Item Reference for the Item and Validate Reference No. and Desciption 2.
+        LibraryItemReference.CreateItemReference(ItemReference, Item."No.", ItemReference."Reference Type"::" ", '');
+        ItemReference.Validate("Reference No.", Item."No.");
+        ItemReference.Validate("Description 2", LibraryRandom.RandText(20));
+        ItemReference.Insert(true);
+
+        // [GIVEN] Create a Sales Order.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+
+        // [GIVEN] Create a Sales Line and Validate Item Referene No.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+        SalesLine.Validate("Item Reference No.", ItemReference."Reference No.");
+        SalesLine.Modify(true);
+
+        // [WHEN] Create Production Order from Sales Order.
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+          SalesHeader,
+          ProductionOrder.Status::"Firm Planned",
+          "Create Production Order Type"::ItemOrder);
+
+        // [THEN] Description 2 in Production Order must be same as Description 2 in Sales Line.
+        ProductionOrder.SetRange("Source No.", Item."No.");
+        ProductionOrder.FindLast();
+        Assert.AreEqual(
+          ProductionOrder."Description 2",
+          ItemReference."Description 2",
+          StrSubstNo(
+            Description2Err,
+            ProductionOrder.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6093,6 +6143,12 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         LibraryVariableStorage.Dequeue(ExpectedMessage);
         Assert.IsTrue(AreSameMessages(Message, ExpectedMessage), Message);
+    end;
+
+    [MessageHandler]
+    procedure MessageHandlerWithoutExpectedMessage(Message: Text[1024])
+    begin
+
     end;
 }
 

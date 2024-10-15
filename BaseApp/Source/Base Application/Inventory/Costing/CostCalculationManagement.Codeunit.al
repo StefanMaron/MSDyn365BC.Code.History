@@ -1101,6 +1101,7 @@ codeunit 5836 "Cost Calculation Management"
         ValueEntry.SetFilter("Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
         ValueEntry.SetFilter("Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
         ValueEntry.SetFilter("Entry Type", '<> %1', ValueEntry."Entry Type"::Revaluation);
+        OnCalcCustActualCostLCYOnAfterFilterValueEntry(Customer, ValueEntry);
         ValueEntry.CalcSums("Cost Amount (Actual)");
         CostAmt := ValueEntry."Cost Amount (Actual)";
 
@@ -1110,6 +1111,7 @@ codeunit 5836 "Cost Calculation Management"
         ResLedgerEntry.SetFilter("Posting Date", Customer.GetFilter("Date Filter"));
         ResLedgerEntry.SetFilter("Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
         ResLedgerEntry.SetFilter("Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
+        OnCalcCustActualCostLCYOnAfterFilterResLedgerEntry(Customer, ResLedgerEntry);
         ResLedgerEntry.CalcSums(ResLedgerEntry."Total Cost");
         CostAmt += ResLedgerEntry."Total Cost";
     end;
@@ -1447,6 +1449,16 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcOutputQtyBaseOnPurchOrder(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"; var OutstandingBaseQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCustActualCostLCYOnAfterFilterValueEntry(var Customer: Record Customer; var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCustActualCostLCYOnAfterFilterResLedgerEntry(var Customer: Record Customer; var ResLedgerEntry: Record "Res. Ledger Entry")
     begin
     end;
 }

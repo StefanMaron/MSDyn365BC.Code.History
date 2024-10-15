@@ -284,7 +284,12 @@ table 11401 "CBG Statement Line"
             trigger OnLookup()
             var
                 GenJnlLine: Record "Gen. Journal Line" temporary;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupAppliesToDocNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
                 CreateGenJournalLine(GenJnlLine);
                 LookupAppliesToDocNo(GenJnlLine);
                 ReadGenJournalLine(GenJnlLine);
@@ -1974,6 +1979,11 @@ table 11401 "CBG Statement Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitRecord(var CBGStatementLine: Record "CBG Statement Line"; var CBGStatementLineLast: Record "CBG Statement Line"; CBGStatement: Record "CBG Statement")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupAppliesToDocNo(var CBGStatementLine: Record "CBG Statement Line"; var IsHandled: Boolean)
     begin
     end;
 

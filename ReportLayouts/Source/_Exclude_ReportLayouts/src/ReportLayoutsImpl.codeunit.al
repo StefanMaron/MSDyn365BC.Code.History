@@ -439,7 +439,7 @@ codeunit 9660 "Report Layouts Impl."
         TempBlob.CreateOutStream(MediaOutStream);
         SelectedReportLayoutList."Layout".ExportStream(MediaOutStream);
         FileName := GetFileName(SelectedReportLayoutList);
-
+        
         CustomDimensions.Add('ReportId', Format(SelectedReportLayoutList."Report ID"));
         CustomDimensions.Add('LayoutName', SelectedReportLayoutList."Name");
         CustomDimensions.Add('Action', 'Export');

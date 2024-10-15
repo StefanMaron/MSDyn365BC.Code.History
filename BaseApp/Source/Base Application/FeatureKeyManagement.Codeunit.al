@@ -167,6 +167,13 @@ codeunit 265 "Feature Key Management"
                 FeatureTelemetry.LogUptake('0000JRC', EU3PartyTradePurchaseTxt, Enum::"Feature Uptake Status"::Discovered);
         end;
 #endif
+#if not CLEAN24
+        // Log feature uptake
+        case FeatureKey.ID of
+            GLCurrencyRevaluationTxt:
+                FeatureTelemetry.LogUptake('0000JRR', GLCurrencyRevaluationTxt, Enum::"Feature Uptake Status"::Discovered);
+        end;
+#endif
     end;
 
 #if not CLEAN23

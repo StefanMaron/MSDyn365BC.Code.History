@@ -1,19 +1,17 @@
 {
-    "id":  "fe2381dc-81ce-4d36-9107-6aae586a6720",
-    "name":  "English language (Canada)",
-    "publisher":  "Microsoft",
-    "version":  "24.2.20227.20424",
-    "dependencies":  [
-
-                     ],
-    "target":  "Cloud",
-    "showMyCode":  true,
-    "brief":  "This application adds the English language (Canada) to Dynamics 365 Business Central",
-    "description":  "Dynamics 365 Business Central is available in many languages. By installing this application you add the capability of showing the base application in the English language (Canada)",
-    "logo":  "ExtensionLogo.png",
-    "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
-    "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
-    "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
-    "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "24.2.0.0"
+  "id": "fe2381dc-81ce-4d36-9107-6aae586a6720",
+  "name": "English language (Canada)",
+  "publisher": "Microsoft",
+  "version": "24.3.21374.21517",
+  "dependencies": [],
+  "target": "Cloud",
+  "showMyCode": true,
+  "brief": "This application adds the English language (Canada) to Dynamics 365 Business Central",
+  "description": "Dynamics 365 Business Central is available in many languages. By installing this application you add the capability of showing the base application in the English language (Canada)",
+  "logo": "ExtensionLogo.png",
+  "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
+  "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
+  "help": "https://go.microsoft.com/fwlink/?linkid=2115116",
+  "url": "https://www.microsoft.com/en-us/dynamics365/contact-us",
+  "application": "24.3.0.0"
 }
