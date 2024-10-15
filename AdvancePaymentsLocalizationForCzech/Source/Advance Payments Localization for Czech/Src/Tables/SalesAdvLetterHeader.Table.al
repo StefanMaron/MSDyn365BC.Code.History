@@ -1353,6 +1353,7 @@ table 31004 "Sales Adv. Letter Header CZZ"
                 SalesAdvLetterLineCZZ.Init();
                 SalesAdvLetterLineCZZ."Document No." := "No.";
                 SalesAdvLetterLineCZZ."Line No." += 10000;
+                SalesAdvLetterLineCZZ."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
                 SalesAdvLetterLineCZZ.Validate("VAT Prod. Posting Group", TempSalesAdvLetterLineCZZ."VAT Prod. Posting Group");
                 SalesAdvLetterLineCZZ.Description := TempSalesAdvLetterLineCZZ.Description;
                 SalesAdvLetterLineCZZ.Validate("Amount Including VAT", TempSalesAdvLetterLineCZZ."Amount Including VAT");

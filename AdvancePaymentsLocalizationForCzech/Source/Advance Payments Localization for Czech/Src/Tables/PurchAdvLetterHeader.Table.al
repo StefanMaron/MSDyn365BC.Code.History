@@ -1267,6 +1267,7 @@ table 31008 "Purch. Adv. Letter Header CZZ"
                 PurchAdvLetterLineCZZ.Init();
                 PurchAdvLetterLineCZZ."Document No." := "No.";
                 PurchAdvLetterLineCZZ."Line No." += 10000;
+                PurchAdvLetterLineCZZ."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
                 PurchAdvLetterLineCZZ.Validate("VAT Prod. Posting Group", TempPurchAdvLetterLineCZZ."VAT Prod. Posting Group");
                 PurchAdvLetterLineCZZ.Description := TempPurchAdvLetterLineCZZ.Description;
                 PurchAdvLetterLineCZZ.Validate("Amount Including VAT", TempPurchAdvLetterLineCZZ."Amount Including VAT");

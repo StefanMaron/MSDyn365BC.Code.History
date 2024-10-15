@@ -554,6 +554,12 @@ page 5972 "Posted Service Credit Memo"
         }
         area(factboxes)
         {
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Service;
+                ShowFilter = false;
+                Visible = false;
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -744,6 +750,7 @@ page 5972 "Posted Service Credit Memo"
     begin
         DocExchStatusStyle := GetDocExchStatusStyle();
         DocExchStatusVisible := "Document Exchange Status" <> "Document Exchange Status"::"Not Sent";
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
     trigger OnAfterGetRecord()
