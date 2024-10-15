@@ -403,7 +403,7 @@
   </Item>
   <Item ItemId=";Codeunit 1515146399 - NamedType 906751469" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Ending Date must be specified.]]></Val>
+      <Val><![CDATA[You must specify an ending date.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

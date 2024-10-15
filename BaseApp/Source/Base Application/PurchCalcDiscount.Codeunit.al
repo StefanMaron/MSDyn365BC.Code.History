@@ -175,7 +175,7 @@ codeunit 70 "Purch.-Calc.Discount"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetVendInvDisc(PurchHeader, CurrencyDate, ChargeBase, InvDiscBase, BaseAmount, IsHandled);
+        OnBeforeGetVendInvDisc(PurchHeader, CurrencyDate, ChargeBase, InvDiscBase, BaseAmount, IsHandled, VendInvDisc);
         if IsHandled then
             exit;
 
@@ -250,7 +250,7 @@ codeunit 70 "Purch.-Calc.Discount"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetVendInvDisc(var PurchaseHeader: Record "Purchase Header"; CurrencyDate: Date; ChargeBase: Decimal; InvDiscBase: Decimal; BaseAmount: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeGetVendInvDisc(var PurchaseHeader: Record "Purchase Header"; CurrencyDate: Date; ChargeBase: Decimal; InvDiscBase: Decimal; BaseAmount: Decimal; var IsHandled: Boolean; var VendInvDisc: Record "Vendor Invoice Disc.")
     begin
     end;
 

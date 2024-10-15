@@ -93,6 +93,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
 
         // Create Intrastat Journal Line with Transaction specification.
         CreateIntrastatJournalLine(IntrastatJnlLine, Item, LibraryUTUtility.GetNewCode10, IntrastatJnlLine.Type::Receipt);
+        IntrastatJnlLine."Total Weight" := 10;
         UpdateIntrastatJnlLineTransactionSpecification(IntrastatJnlLine, '100000');  // Transaction specification more than 5 digits.
 
         // Exercise: Run Report Intrastat - Form AT.
@@ -150,6 +151,7 @@ codeunit 142037 "UT REP INTRASTAT AT"
 
         // Create Intrastat Journal Line without Transport Method.
         CreateIntrastatJournalLine(IntrastatJnlLine, Item, '', IntrastatJnlLine.Type::Receipt);
+        IntrastatJnlLine."Total Weight" := 10;
         UpdateIntrastatJnlLineTransactionSpecification(IntrastatJnlLine, '10000');  // Transaction specification should be of 5 digits.
 
         // Exercise: Run Report Intrastat - Form AT.

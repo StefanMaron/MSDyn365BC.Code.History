@@ -726,6 +726,66 @@ codeunit 134371 "Dimension Correction Tests"
     [Test]
     [HandlerFunctions('HandleEnterGLEntriesFilterSelection')]
     [Scope('OnPrem')]
+    procedure TestDimCorrectionEntryLogAreGeneratedMultipeRanges()
+    var
+        DimensionCorrection: Record "Dimension Correction";
+        DimCorrectionEntryLog: Record "Dim Correction Entry Log";
+        TempSourceGLEntry: Record "G/L Entry" temporary;
+        TempGLEntry: Record "G/L Entry" temporary;
+        TemporaryDimCorrectionChange: Record "Dim Correction Change" temporary;
+        TemporaryDimCorrectionSetBuffer: Record "Dim Correction Set Buffer" temporary;
+        DimensionCorrectionMgt: Codeunit "Dimension Correction Mgt";
+        DimensionCorrectionDraft: TestPage "Dimension Correction Draft";
+    begin
+        Initialize();
+
+        // [SCENARIO] "Verify Log Entries are generated correctly"
+
+        // [GIVEN] "User has created a dimension correction with GL Entries with GAP"
+        CreateGLEntries(10, TempSourceGLEntry);
+        TempSourceGLEntry.FindFirst();
+        TempGLEntry.Copy(TempSourceGLEntry);
+        TempGLEntry.Insert();
+        TempSourceGLEntry.Next(2);
+        TempGLEntry.Copy(TempSourceGLEntry);
+        TempGLEntry.Insert();
+        TempSourceGLEntry.Next(2);
+        TempGLEntry.Copy(TempSourceGLEntry);
+        TempGLEntry.Insert();
+        TempSourceGLEntry.Next(2);
+        TempGLEntry.Copy(TempSourceGLEntry);
+        TempGLEntry.Insert();
+
+        AddDimensionToGLEntries(TempGLEntry);
+        CreateDimensionCorrection(DimensionCorrection, DimensionCorrectionDraft);
+        AddGLEntriesByFilter(DimensionCorrectionDraft, TempGLEntry);
+        CreateNewDimensionToAdd(TemporaryDimCorrectionChange);
+        AddDimensionToCorrection(DimensionCorrectionDraft, TemporaryDimCorrectionChange);
+        DimensionCorrectionDraft.Close();
+
+        DimensionCorrectionMgt.GenerateTargetDimensionSetIds(DimensionCorrection);
+        DimensionCorrectionMgt.LoadTempDimCorrectionSetBuffer(DimensionCorrection."Entry No.", TemporaryDimCorrectionSetBuffer);
+
+        // [WHEN] We call the function to generate selected entries
+        DimensionCorrectionMgt.GenerateSelectedEntries(DimensionCorrection, TemporaryDimCorrectionSetBuffer);
+
+        // [THEN] Four Records are Generated
+        DimCorrectionEntryLog.SetRange("Dimension Correction Entry No.", DimensionCorrection."Entry No.");
+        Assert.AreEqual(4, DimCorrectionEntryLog.Count(), 'Wrong number of generated entries');
+        DimCorrectionEntryLog.FindFirst();
+        TempGLEntry.FindFirst();
+        repeat
+            Assert.AreEqual(TempGLEntry."Entry No.", DimCorrectionEntryLog."Start Entry No.", 'Wrong starting entry');
+            Assert.AreEqual(TempGLEntry."Entry No.", DimCorrectionEntryLog."End Entry No.", 'Wrong last entry');
+            DimCorrectionEntryLog.Next();
+        until TempGLEntry.Next() = 0;
+
+        VerifyDimensionSetLogs(DimensionCorrection, TempGLEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('HandleEnterGLEntriesFilterSelection')]
+    [Scope('OnPrem')]
     procedure TestDimCorrectionEntryLogAreGeneratedTwoRanges()
     var
         DimensionCorrection: Record "Dimension Correction";

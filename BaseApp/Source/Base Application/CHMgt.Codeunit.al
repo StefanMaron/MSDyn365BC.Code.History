@@ -25,6 +25,7 @@ codeunit 11503 CHMgt
         // *** P R E P A R E   A M O U N T  - i.e. 25.82
         _Head.CalcFields("Amount Including VAT");
         Amt := _Head."Amount Including VAT";
+        OnPrepareEsrOnAfterCalcAmt(_Head, Amt);
 
         PrepareEsrConsolidate(_EsrBank, _EsrType, _AmtTxt, _CurrencyCode, _DocType, _RefNo, _CodingLine, _Head."Currency Code",
           _Head."Payment Method Code", _Head."No.", Amt);
@@ -421,6 +422,11 @@ codeunit 11503 CHMgt
     local procedure HandleOnCalculateSalesSubPageTotalsOnAfterSetFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
         SalesLine.SetFilter("Quote Variant", '<>%1', SalesLine."Quote Variant"::Variant);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareEsrOnAfterCalcAmt(var SalesInvoiceHeader: Record "Sales Invoice Header"; var Amt: Decimal)
+    begin
     end;
 }
 

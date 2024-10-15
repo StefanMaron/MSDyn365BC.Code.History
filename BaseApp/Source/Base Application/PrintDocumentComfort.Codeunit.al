@@ -50,7 +50,7 @@ codeunit 5005396 "Print Document Comfort"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIssuedDeliveryRemindPrint(var IssuedDeliveryReminderHeader: Record "Issued Deliv. Reminder Header"; ShowRequestForm: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeIssuedDeliveryRemindPrint(var IssuedDeliveryReminderHeader: Record "Issued Deliv. Reminder Header"; var ShowRequestForm: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -24,6 +24,7 @@ codeunit 144054 "Test CH FCY"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         IsInitialized: Boolean;
         WrongNoOfEntriesErr: Label 'Number of VAT Entries is not %1.';
         ExchRateAdjustedMsg: Label 'One or more currency exchange rates have been adjusted.';
@@ -76,16 +77,21 @@ codeunit 144054 "Test CH FCY"
         DateComprRegister: Record "Date Compr. Register";
         SourceCodeSetup: Record "Source Code Setup";
         DateCompressGeneralLedger: Report "Date Compress General Ledger";
+        SaveWorkDate: Date;
     begin
         Initialize;
 
         // Setup.
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
+        SaveWorkDate := WorkDate();
+        WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         SetupFCYGLEntries(GenJournalLine,
           LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2)));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateGenJournalLine(GenJournalLine2, GenJournalLine."Account No.", GenJournalLine."Bal. Account No.",
           CalcDate('<CM>', GenJournalLine."Posting Date"));
         LibraryERM.PostGeneralJnlLine(GenJournalLine2);
+        WorkDate(SaveWorkDate);
 
         // Exercise.
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.", GenJournalLine2."Document No.");

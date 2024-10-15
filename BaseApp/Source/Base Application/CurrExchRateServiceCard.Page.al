@@ -39,6 +39,7 @@ page 1651 "Curr. Exch. Rate Service Card"
                 {
                     ApplicationArea = Suite;
                     Editable = false;
+                    ShowCaption = false;
                     Enabled = EnabledAndCurrPageEditable;
 
                     trigger OnDrillDown()

@@ -76,6 +76,194 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         WorkDate := CurrentDate;
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestFinChargeMemoLinesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure IssueFinanceChargeMemoWithInvoiceRounding()
+    var
+        Customer: Record Customer;
+        FinanceChargeTerms: Record "Finance Charge Terms";
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        InvoiceRoundingPrecision: Decimal;
+        InvoiceDate: Date;
+        FinanceChargeDate: Date;
+    begin
+        // [FEATURE] [Invoice Rounding] [Additional Fee]
+        // [SCENARIO 390927] System posts positive invoice rounding amount on issueing finance charge memo when "Post Addition Fee" = FALSE in finance charge term.
+        Initialize();
+
+        InvoiceRoundingPrecision := 1;
+        LibraryERM.SetInvRoundingPrecisionLCY(InvoiceRoundingPrecision);
+
+        InvoiceDate := WorkDate();
+        FinanceChargeDate := InvoiceDate + 62;
+
+        CreateFinanceChargeTerms(FinanceChargeTerms, true, false);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
+        Customer.Modify(true);
+
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+
+        CreateAndPostSalesInvoice(Customer, InvoiceDate, 1000);
+
+        CreateFinanceChargeMemoWithLines(FinanceChargeMemoHeader, Customer, FinanceChargeDate);
+
+        VerifyFinChargeMemoRoundingLineExists(FinanceChargeMemoHeader."No.", CustomerPostingGroup."Invoice Rounding Account");
+
+        LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
+
+        FindIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, FinanceChargeMemoHeader);
+
+        VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, CustomerPostingGroup."Invoice Rounding Account");
+        VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, CustomerPostingGroup."Additional Fee Account");
+        VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, CustomerPostingGroup."Receivables Account");
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestFinChargeMemoLinesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure IssueFinanceChargeMemoWithInvoiceRoundingPostAdditionalFee()
+    var
+        Customer: Record Customer;
+        FinanceChargeTerms: Record "Finance Charge Terms";
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        InvoiceRoundingPrecision: Decimal;
+        InvoiceDate: Date;
+        FinanceChargeDate: Date;
+    begin
+        // [FEATURE] [Invoice Rounding] [Additional Fee]
+        // [SCENARIO 390927] System posts positive invoice rounding amount on issueing finance charge memo when "Post Addition Fee" = TRUE in finance charge term.
+        Initialize();
+
+        InvoiceRoundingPrecision := 1;
+        LibraryERM.SetInvRoundingPrecisionLCY(InvoiceRoundingPrecision);
+
+        InvoiceDate := WorkDate();
+        FinanceChargeDate := InvoiceDate + 62;
+
+        CreateFinanceChargeTerms(FinanceChargeTerms, true, true);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
+        Customer.Modify(true);
+
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+
+        CreateAndPostSalesInvoice(Customer, InvoiceDate, 1000);
+
+        CreateFinanceChargeMemoWithLines(FinanceChargeMemoHeader, Customer, FinanceChargeDate);
+
+        VerifyFinChargeMemoRoundingLineExists(FinanceChargeMemoHeader."No.", CustomerPostingGroup."Invoice Rounding Account");
+
+        LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
+
+        FindIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, FinanceChargeMemoHeader);
+
+        VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, CustomerPostingGroup."Invoice Rounding Account");
+        VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, CustomerPostingGroup."Additional Fee Account");
+        VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, CustomerPostingGroup."Receivables Account");
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestFinChargeMemoLinesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure IssueFinanceChargeMemoWithNegativeInvoiceRounding()
+    var
+        Customer: Record Customer;
+        FinanceChargeTerms: Record "Finance Charge Terms";
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        InvoiceRoundingPrecision: Decimal;
+        InvoiceDate: Date;
+        FinanceChargeDate: Date;
+    begin
+        // [FEATURE] [Invoice Rounding] [Additional Fee]
+        // [SCENARIO 390927] System posts negative invoice rounding amount on issueing finance charge memo when "Post Addition Fee" = FALSE in finance charge term.
+        Initialize();
+
+        InvoiceRoundingPrecision := 1;
+        LibraryERM.SetInvRoundingPrecisionLCY(InvoiceRoundingPrecision);
+
+        InvoiceDate := WorkDate();
+        FinanceChargeDate := InvoiceDate + 62;
+
+        CreateFinanceChargeTerms(FinanceChargeTerms, true, false);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
+        Customer.Modify(true);
+
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+
+        CreateAndPostSalesInvoice(Customer, InvoiceDate, 900);
+
+        CreateFinanceChargeMemoWithLines(FinanceChargeMemoHeader, Customer, FinanceChargeDate);
+
+        VerifyFinChargeMemoRoundingLineExists(FinanceChargeMemoHeader."No.", CustomerPostingGroup."Invoice Rounding Account");
+
+        LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
+
+        FindIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, FinanceChargeMemoHeader);
+
+        VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, CustomerPostingGroup."Invoice Rounding Account");
+        VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, CustomerPostingGroup."Additional Fee Account");
+        VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, CustomerPostingGroup."Receivables Account");
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestFinChargeMemoLinesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure IssueFinanceChargeMemoWithNegativeInvoiceRoundingPostAdditionalFee()
+    var
+        Customer: Record Customer;
+        FinanceChargeTerms: Record "Finance Charge Terms";
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        InvoiceRoundingPrecision: Decimal;
+        InvoiceDate: Date;
+        FinanceChargeDate: Date;
+    begin
+        // [FEATURE] [Invoice Rounding] [Additional Fee]
+        // [SCENARIO 390927] System posts negative invoice rounding amount on issueing finance charge memo when "Post Addition Fee" = TRUE in finance charge term.
+        Initialize();
+
+        InvoiceRoundingPrecision := 1;
+        LibraryERM.SetInvRoundingPrecisionLCY(InvoiceRoundingPrecision);
+
+        InvoiceDate := WorkDate();
+        FinanceChargeDate := InvoiceDate + 62;
+
+        CreateFinanceChargeTerms(FinanceChargeTerms, true, true);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
+        Customer.Modify(true);
+
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+
+        CreateAndPostSalesInvoice(Customer, InvoiceDate, 900);
+
+        CreateFinanceChargeMemoWithLines(FinanceChargeMemoHeader, Customer, FinanceChargeDate);
+
+        VerifyFinChargeMemoRoundingLineExists(FinanceChargeMemoHeader."No.", CustomerPostingGroup."Invoice Rounding Account");
+
+        LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
+
+        FindIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, FinanceChargeMemoHeader);
+
+        VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, CustomerPostingGroup."Invoice Rounding Account");
+        VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, CustomerPostingGroup."Additional Fee Account");
+        VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader, CustomerPostingGroup."Receivables Account");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -197,6 +385,58 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         FinChrgMemoMake.Code;
     end;
 
+    local procedure CreateFinanceChargeTerms(var FinanceChargeTerms: Record "Finance Charge Terms"; PostInterest: Boolean; PostAdditioanalFee: Boolean)
+    begin
+        LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
+        with FinanceChargeTerms do begin
+            Validate("Interest Calculation", "Interest Calculation"::"Open Entries");
+            Validate("Interest Calculation Method", "Interest Calculation Method"::"Average Daily Balance");
+            Validate("Interest Rate", 1.5);
+            Validate("Interest Period (Days)", 30);
+            Validate("Minimum Amount (LCY)", 10);
+            Validate("Additional Fee (LCY)", 0);
+            Evaluate("Grace Period", '<5D>');
+            Evaluate("Due Date Calculation", '<1M>');
+            Validate("Post Interest", PostInterest);
+            Validate("Post Additional Fee", PostAdditioanalFee);
+            Modify(true);
+        end;
+    end;
+
+    local procedure CreateAndPostSalesInvoice(Customer: Record Customer; PostingDate: Date; LineAmount: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        SalesLine.Validate("Unit Price", LineAmount);
+        SalesLine.Validate("VAT %", 10);
+        SalesLine.Modify(true);
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure CreateFinanceChargeMemoWithLines(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; Customer: Record Customer; PostingDate: Date)
+    var
+        FinanceChargeMemoPage: TestPage "Finance Charge Memo";
+    begin
+        LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, Customer."No.");
+        FinanceChargeMemoHeader.Validate("Posting Date", PostingDate);
+        FinanceChargeMemoHeader.Validate("Document Date", PostingDate);
+        FinanceChargeMemoHeader.Modify(true);
+
+        Commit;
+
+        FinanceChargeMemoPage.OpenEdit();
+        FinanceChargeMemoPage.FILTER.SetFilter("No.", FinanceChargeMemoHeader."No.");
+        FinanceChargeMemoPage.SuggestFinChargeMemoLines.Invoke;
+        FinanceChargeMemoPage.Close();
+    end;
+
     local procedure GetFinanceChargeMinAmount(CustomerNo: Code[20]): Decimal
     var
         FinanceChargeTerms: Record "Finance Charge Terms";
@@ -205,6 +445,13 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         Customer.Get(CustomerNo);
         FinanceChargeTerms.Get(Customer."Fin. Charge Terms Code");
         exit(FinanceChargeTerms."Minimum Amount (LCY)");
+    end;
+
+    local procedure FindIssuedFinanceChargeMemo(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    begin
+        IssuedFinChargeMemoHeader.SetRange("Customer No.", FinanceChargeMemoHeader."Customer No.");
+        IssuedFinChargeMemoHeader.SetRange("Pre-Assigned No.", FinanceChargeMemoHeader."No.");
+        IssuedFinChargeMemoHeader.FindFirst();
     end;
 
     local procedure IssueFinanceChargeMemo(DocumentNo: Code[20]): Code[20]
@@ -246,6 +493,17 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
 
+    local procedure VerifyFinChargeMemoRoundingLineExists(FinanceChargeMemoHeaderNo: Code[20]; InvoiceRoundingAccountNo: Code[20])
+    var
+        FinanceChargeMemoLine: Record "Finance Charge Memo Line";
+    begin
+        FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoHeaderNo);
+        FinanceChargeMemoLine.SetRange(Type, FinanceChargeMemoLine.Type::"G/L Account");
+        FinanceChargeMemoLine.SetRange("No.", InvoiceRoundingAccountNo);
+        FinanceChargeMemoLine.FindFirst();
+        FinanceChargeMemoLine.TestField(Amount);
+    end;
+
     local procedure VerifyUnappliedDtldLedgEntry(CustomerNo: Code[20]; DocumentNo: Code[20])
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -273,6 +531,23 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         CustLedgerEntry.CalcFields("Remaining Amount");
         Assert.AreNearlyEqual(GenJournalLine.Amount, CustLedgerEntry."Remaining Amount", GeneralLedgerSetup."Amount Rounding Precision",
           StrSubstNo(RemainingAmountError, CustLedgerEntry."Remaining Amount", GenJournalLine.Amount));
+    end;
+
+    local procedure VerifyGLAccountOnGLEntryIssuedFinanceChargeMemo(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; AccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::"Finance Charge Memo");
+        GLEntry.SetRange("Document No.", IssuedFinChargeMemoHeader."No.");
+        GLEntry.SetRange("G/L Account No.", AccountNo);
+        Assert.RecordIsNotEmpty(GLEntry);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SuggestFinChargeMemoLinesRequestPageHandler(var SuggestFinChargeMemoLines: TestRequestPage "Suggest Fin. Charge Memo Lines")
+    begin
+        SuggestFinChargeMemoLines.OK.Invoke();
     end;
 }
 

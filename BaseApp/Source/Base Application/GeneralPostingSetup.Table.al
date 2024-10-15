@@ -645,6 +645,7 @@ table 252 "General Posting Setup"
 
     procedure GetSalesPrepmtAccount() AccountNo: Code[20]
     var
+        GLAccount: Record "G/L Account";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -652,7 +653,10 @@ table 252 "General Posting Setup"
         if IsHandled then
             exit(AccountNo);
 
-        if "Sales Prepayments Account" = '' then
+        if "Sales Prepayments Account" <> '' then begin
+            GLAccount.Get("Sales Prepayments Account");
+            GLAccount.CheckGenProdPostingGroup();
+        end else
             PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Sales Prepayments Account"));
         TestField("Sales Prepayments Account");
         exit("Sales Prepayments Account");
@@ -719,8 +723,13 @@ table 252 "General Posting Setup"
     end;
 
     procedure GetPurchPrepmtAccount(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
     begin
-        if "Purch. Prepayments Account" = '' then
+        if "Purch. Prepayments Account" <> '' then begin
+            GLAccount.Get("Purch. Prepayments Account");
+            GLAccount.CheckGenProdPostingGroup();
+        end else
             PostingSetupMgt.SendGenPostingSetupNotification(Rec, FieldCaption("Purch. Prepayments Account"));
         TestField("Purch. Prepayments Account");
         exit("Purch. Prepayments Account");

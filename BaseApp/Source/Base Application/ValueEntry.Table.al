@@ -574,6 +574,7 @@ table 5802 "Value Entry"
               "Item Ledger Entry Quantity", "Invoiced Quantity",
               "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)",
               "Cost Amount (Expected)", "Cost Amount (Expected) (ACY)");
+            OnSumCostsTillValuationDateOnAfterCalcSums(Rec);
 
             "Item Ledger Entry Quantity" :=
               Round("Item Ledger Entry Quantity" * QtyFactor, UOMMgt.QtyRndPrecision) + PrevValueEntrySum."Item Ledger Entry Quantity";
@@ -798,6 +799,11 @@ table 5802 "Value Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckApplyLocationVariantFilters(var RecValueEntry: Record "Value Entry"; AccountingPeriod: Record "Accounting Period"; ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumCostsTillValuationDateOnAfterCalcSums(var ValueEntry: Record "Value Entry")
     begin
     end;
 

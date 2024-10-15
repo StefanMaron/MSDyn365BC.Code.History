@@ -665,6 +665,23 @@ table 5107 "Sales Header Archive"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+        field(3998; "Source Doc. Exists"; Boolean)
+        {
+            FieldClass = Flowfield;
+            CalcFormula = Exist("Sales Header" WHERE("Document Type" = FIELD("Document Type"),
+                                                            "No." = FIELD("No.")));
+            Caption = 'Source Doc. Exists';
+            Editable = false;
+        }
+        field(3999; "Last Archived Date"; DateTime)
+        {
+            Caption = 'Last Archived Date';
+            FieldClass = FlowField;
+            CalcFormula = Max("Sales Header Archive".SystemCreatedAt where("Document Type" = FIELD("Document Type"),
+                                                            "No." = FIELD("No."),
+                                                            "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence")));
+            Editable = false;
+        }
         field(5043; "Interaction Exist"; Boolean)
         {
             Caption = 'Interaction Exist';

@@ -181,6 +181,7 @@
                         NoOnAfterValidate();
                         UpdateTypeText();
                         DeltaUpdateTotals();
+                        OnAfterValidateDescription(Rec, xRec);
                     end;
                 }
                 field("Location Code"; "Location Code")
@@ -1402,6 +1403,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateEditableOnRow(SalesLine: Record "Sales Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterValidateDescription(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 

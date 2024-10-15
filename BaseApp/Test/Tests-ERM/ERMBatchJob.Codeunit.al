@@ -143,6 +143,7 @@ codeunit 134900 "ERM Batch Job"
         Assert.RecordIsEmpty(PurchaseHeader);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -170,6 +171,7 @@ codeunit 134900 "ERM Batch Job"
         PurchaseHeaderArchive.SetRange("No.", DocumentNo);
         Assert.RecordIsEmpty(PurchaseHeaderArchive);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1425,6 +1427,7 @@ codeunit 134900 "ERM Batch Job"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure DropShipmentSalesOrderFCYPurchOrderLCY()
     var
@@ -1437,6 +1440,7 @@ codeunit 134900 "ERM Batch Job"
         // [FEATURE] [Drop Shipment] [Purchase]
         // [SCENARIO 375430] Amounts should be recalculated to LCY in Value Entries when post Purchase Order for FCY Sales Order with Drop Shipment
         Initialize;
+        ExecuteUIHandlers;
 
         // [GIVEN] Currency 'HUF' has exch. rates: 3 on 01.07; 4 on 05.07
         LibrarySales.CreateCustomer(Customer);
@@ -2597,13 +2601,12 @@ codeunit 134900 "ERM Batch Job"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // Create Fiscal Year, Close Fiscal Year, General Journal Batch. Create and Post General Journal Lines.
-        LibraryFiscalYear.CreateFiscalYear;
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         CreateGeneralJournalBatch(GenJournalBatch);
-        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, LibraryFiscalYear.GetLastPostingDate(true));
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch,
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', LibraryFiscalYear.GetLastPostingDate(true)));
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', LibraryFiscalYear.GetFirstPostingDate(true)));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Journal Batch Name");
     end;
@@ -3347,6 +3350,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
     end;
 
+#if not CLEAN19
     local procedure DeletePurchaseOrderArchive(PurchaseHeader: Record "Purchase Header")
     var
         PurchaseHeaderArchive: Record "Purchase Header Archive";
@@ -3358,6 +3362,7 @@ codeunit 134900 "ERM Batch Job"
         DeletePurchaseOrderVersions.UseRequestPage(false);
         DeletePurchaseOrderVersions.Run;
     end;
+#endif
 
     local procedure DeleteBlanketPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
     var
@@ -4238,6 +4243,11 @@ codeunit 134900 "ERM Batch Job"
         end;
     end;
 
+    local procedure ExecuteUIHandlers()
+    begin
+        if Confirm('') then;
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BatchPostSalesOrderRequestPageHandler(var BatchPostSalesOrders: TestRequestPage "Batch Post Sales Orders")
@@ -4317,10 +4327,11 @@ codeunit 134900 "ERM Batch Job"
     procedure DateCompressGenLedgerHandler(var DateCompressGeneralLedger: TestRequestPage "Date Compress General Ledger")
     var
         DateComprRegister: Record "Date Compr. Register";
+        DateCompression: Codeunit "Date Compression";
     begin
         // Perform Date Compression with Retain field is set to True.
-        DateCompressGeneralLedger."EntrdDateComprReg.""Starting Date""".SetValue(LibraryFiscalYear.GetLastPostingDate(true));
-        DateCompressGeneralLedger.EndingDate.SetValue(LibraryFiscalYear.GetLastPostingDate(false));
+        DateCompressGeneralLedger."EntrdDateComprReg.""Starting Date""".SetValue(LibraryFiscalYear.GetFirstPostingDate(true));
+        DateCompressGeneralLedger.EndingDate.SetValue(DateCompression.CalcMaxEndDate());
         DateCompressGeneralLedger."EntrdDateComprReg.""Period Length""".SetValue(DateComprRegister."Period Length"::Week);
         DateCompressGeneralLedger."Retain[1]".SetValue(true);
         DateCompressGeneralLedger."Retain[2]".SetValue(true);

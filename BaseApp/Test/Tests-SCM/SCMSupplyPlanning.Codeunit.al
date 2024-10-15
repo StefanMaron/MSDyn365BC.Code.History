@@ -13,7 +13,7 @@ codeunit 137054 "SCM Supply Planning"
     var
         GlobalPurchaseHeader: array[2] of Record "Purchase Header";
         GlobalSalesHeader: array[3] of Record "Sales Header";
-        GlobalProductionOrder: array[3] of Record "Production Order";
+        GlobalProductionOrder: array[5] of Record "Production Order";
         GlobalTransferHeader: array[3] of Record "Transfer Header";
         GlobalAssemblyHeader: array[3] of Record "Assembly Header";
         ItemJournalTemplate: Record "Item Journal Template";
@@ -4850,7 +4850,6 @@ codeunit 137054 "SCM Supply Planning"
     end;
 
     [Test]
-    [Scope('OnPrem')]
     procedure DemandThreeSuppliesWithMaxOrderQuantityThirdSupplyHasLessDueDate()
     var
         Item: Record Item;
@@ -4867,11 +4866,13 @@ codeunit 137054 "SCM Supply Planning"
         // [GIVEN] Item with Replenishment System = "Prod. Order" and with Maximum Order Quantity = 10.
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, 0, 0);
         UpdateItem(Item, Item.FieldNo("Maximum Order Quantity"), 10);
+        CreateAndUpdateStockKeepingUnit(Item, LocationBlue.Code, Item."Replenishment System"::"Prod. Order");
+        UpdateMaxOrderQtyOnSKU(Item."No.", LocationBlue.Code, 10);
 
         // [GIVEN] One demand with "Due Date" = 20.02.2021 and with Quantity = 30.
         CreateDemandDate(DemandDateValue, GetRandomDateUsingWorkDate(20), 0D, 0D);
         CreateDemandQuantity(DemandQuantityValue, 30, 0, 0);
-        CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1);
+        CreateDemandOnLocation(DemandTypeOption::"Sales Order", DemandDateValue, DemandQuantityValue, Item."No.", 1, LocationBlue.Code);
 
         // [GIVEN] Three supplies, each has Quantity = 10.
         // [GIVEN] First two supplies have Due Date = 20.02.2021. The third one has Due Date = 15.02.2021, which is less than demand's Due Date.
@@ -4881,19 +4882,20 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupplyDate(
           SupplyDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(15), 0D, 0D);
         CreateSupplyQuantity(SupplyQuantityValue, 10, 10, 10, 0, 0);
-        CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', '');
+        CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', LocationBlue.Code);
 
         // [WHEN] Calculate Regenerative Plan.
+        Item.SetRecFilter();
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
 
         // [THEN] One Requisition Line is created. It has Action Message = "Reschedule", Original Due Date = 15.02.2021, Due Date = 20.02.2021, Quantity = 10.
         VerifyRequisitionLine(
-          Item."No.", RequisitionLine."Action Message"::Reschedule, DemandDateValue[1], 0, SupplyQuantityValue[3], SupplyDateValue[3], '', '');
+          Item."No.", RequisitionLine."Action Message"::Reschedule, DemandDateValue[1],
+          0, SupplyQuantityValue[3], SupplyDateValue[3], LocationBlue.Code, '');
         VerifyRequisitionLineCount(1);
     end;
 
     [Test]
-    [Scope('OnPrem')]
     procedure DemandThreeSuppliesWithMaxOrderQuantityThirdSupplyHasLessDueDateAndLessQty()
     var
         Item: Record Item;
@@ -4910,11 +4912,13 @@ codeunit 137054 "SCM Supply Planning"
         // [GIVEN] Item with Replenishment System = "Prod. Order" and with Maximum Order Quantity = 10.
         CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, 0, 0);
         UpdateItem(Item, Item.FieldNo("Maximum Order Quantity"), 10);
+        CreateAndUpdateStockKeepingUnit(Item, LocationBlue.Code, Item."Replenishment System"::"Prod. Order");
+        UpdateMaxOrderQtyOnSKU(Item."No.", LocationBlue.Code, 10);
 
         // [GIVEN] One demand with "Due Date" = 20.02.2021 and with Quantity = 24.
         CreateDemandDate(DemandDateValue, GetRandomDateUsingWorkDate(20), 0D, 0D);
         CreateDemandQuantity(DemandQuantityValue, 24, 0, 0);
-        CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1);
+        CreateDemandOnLocation(DemandTypeOption::"Sales Order", DemandDateValue, DemandQuantityValue, Item."No.", 1, LocationBlue.Code);
 
         // [GIVEN] Three supplies, first two have Quantity = 10, the third one has Quantity = 4.
         // [GIVEN] First two supplies have Due Date = 20.02.2021. The third one has Due Date = 15.02.2021, which is less than demand's Due Date.
@@ -4924,20 +4928,413 @@ codeunit 137054 "SCM Supply Planning"
         CreateSupplyDate(
           SupplyDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(15), 0D, 0D);
         CreateSupplyQuantity(SupplyQuantityValue, 10, 10, 4, 0, 0);
-        CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', '');
+        CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', LocationBlue.Code);
 
         // [WHEN] Calculate Regenerative Plan.
+        Item.SetRecFilter();
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
 
         // [THEN] Two Requisition Lines are created. The first line has Action Message = "Resched. & Chg. Qty.", Original Due Date = 15.02.2021, Due Date = 20.02.2021, Original Quantity = 4, Quantity = 10.
         // [THEN] The second line has Action Message = "Change Qty.", Due Date = 20.02.2021, Original Quantity = 10, Quantity = 4.
         VerifyRequisitionLine(
-          Item."No.", RequisitionLine."Action Message"::"Resched. & Chg. Qty.", DemandDateValue[1],
-          SupplyQuantityValue[3], Item."Maximum Order Quantity", SupplyDateValue[3], '', '');
+          Item."No.", RequisitionLine."Action Message"::"Resched. & Chg. Qty.", DemandDateValue[1], SupplyQuantityValue[3],
+          Item."Maximum Order Quantity", SupplyDateValue[3], LocationBlue.Code, '');
         VerifyRequisitionLine(
-          Item."No.", RequisitionLine."Action Message"::"Change Qty.", DemandDateValue[1],
-          SupplyQuantityValue[2], SupplyQuantityValue[2] - (Item."Maximum Order Quantity" - SupplyQuantityValue[3]), 0D, '', '');
+          Item."No.", RequisitionLine."Action Message"::"Change Qty.", DemandDateValue[1], SupplyQuantityValue[2],
+          SupplyQuantityValue[2] - (Item."Maximum Order Quantity" - SupplyQuantityValue[3]), 0D, LocationBlue.Code, '');
         VerifyRequisitionLineCount(2);
+    end;
+
+    [Test]
+    procedure DemandFourSuppliesWithMaxOrderQtyFirstTwoSameDueDateLastTwoLessDueDate()
+    var
+        Item: Record Item;
+        DemandDateValue: array[3] of Date;
+        SupplyDateValue: array[5] of Date;
+        DemandQuantityValue: array[3] of Decimal;
+        SupplyQuantityValue: array[5] of Decimal;
+        SupplyType: array[5] of Option;
+    begin
+        // [FEATURE] [Maximum Order Quantity]
+        // [SCENARIO 395054] Calculate regenerative plan for one demand and four supplies when "Maximum Order Quantity" is set, two supplies have Due Date = Demand's "Due Date", two supplies have "Due Date" < Demand's "Due Date".
+        Initialize();
+
+        // [GIVEN] Item with Replenishment System = "Prod. Order" and with Maximum Order Quantity = 10.
+        CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, 0, 0);
+        UpdateItem(Item, Item.FieldNo("Maximum Order Quantity"), 10);
+        CreateAndUpdateStockKeepingUnit(Item, LocationBlue.Code, Item."Replenishment System"::"Prod. Order");
+        UpdateMaxOrderQtyOnSKU(Item."No.", LocationBlue.Code, 10);
+
+        // [GIVEN] One demand with "Due Date" = 20.02.2021 and with Quantity = 40.
+        CreateDemandDate(DemandDateValue, GetRandomDateUsingWorkDate(20), 0D, 0D);
+        CreateDemandQuantity(DemandQuantityValue, 40, 0, 0);
+        CreateDemandOnLocation(DemandTypeOption::"Sales Order", DemandDateValue, DemandQuantityValue, Item."No.", 1, LocationBlue.Code);
+
+        // [GIVEN] Four supplies, each has Quantity = 10.
+        // [GIVEN] First two supplies have Due Date = 20.02.2021. The last two have Due Date = 15.02.2021 and 16.02.2021, which is less than demand's Due Date.
+        CreateSupplyType(
+          SupplyType, SupplyTypeOption::FirmPlanned, SupplyTypeOption::FirmPlanned,
+          SupplyTypeOption::FirmPlanned, SupplyTypeOption::FirmPlanned, SupplyTypeOption::None);
+        CreateSupplyDate(
+          SupplyDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(20),
+          GetRandomDateUsingWorkDate(15), GetRandomDateUsingWorkDate(16), 0D);
+        CreateSupplyQuantity(SupplyQuantityValue, 10, 10, 10, 10, 0);
+        CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', LocationBlue.Code);
+
+        // [WHEN] Calculate Regenerative Plan.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+
+        // [THEN] Two Requisition Lines are created. They have Action Message = "Reschedule", Original Due Date = 15.02.2021 / 16.02.2021, Due Date = 20.02.2021, Quantity = 10.
+        VerifyRequisitionLineWithOriginalDueDate(
+          Item."No.", RequisitionLine."Action Message"::Reschedule, SupplyDateValue[3],
+          DemandDateValue[1], 0, SupplyQuantityValue[3], LocationBlue.Code);
+        VerifyRequisitionLineWithOriginalDueDate(
+          Item."No.", RequisitionLine."Action Message"::Reschedule, SupplyDateValue[4],
+          DemandDateValue[1], 0, SupplyQuantityValue[4], LocationBlue.Code);
+        VerifyRequisitionLineCount(2);
+    end;
+
+    [Test]
+    procedure DemandFourSuppliesWithMaxOrderQtyFirstTwoSameDueDateLastTwoLessDueDateAndLastLessQty()
+    var
+        Item: Record Item;
+        DemandDateValue: array[3] of Date;
+        SupplyDateValue: array[5] of Date;
+        DemandQuantityValue: array[3] of Decimal;
+        SupplyQuantityValue: array[5] of Decimal;
+        SupplyType: array[5] of Option;
+    begin
+        // [FEATURE] [Maximum Order Quantity]
+        // [SCENARIO 395054] Calculate regenerative plan for one demand and four supplies when "Maximum Order Quantity" is set, two supplies have Due Date = Demand's "Due Date", two supplies have "Due Date" < Demand's "Due Date", last one has Quantity < Maximum Order Quantity of SKU.
+        Initialize();
+
+        // [GIVEN] Item with Replenishment System = "Prod. Order" and with Maximum Order Quantity = 10. Lot Accumulation Period = ''.
+        CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '', true, 0, 0);
+        UpdateItem(Item, Item.FieldNo("Maximum Order Quantity"), 10);
+        CreateAndUpdateStockKeepingUnit(Item, LocationBlue.Code, Item."Replenishment System"::"Prod. Order");
+        UpdateMaxOrderQtyOnSKU(Item."No.", LocationBlue.Code, 10);
+
+        // [GIVEN] One demand with "Due Date" = 20.02.2021 and with Quantity = 34.
+        CreateDemandDate(DemandDateValue, GetRandomDateUsingWorkDate(20), 0D, 0D);
+        CreateDemandQuantity(DemandQuantityValue, 34, 0, 0);
+        CreateDemandOnLocation(DemandTypeOption::"Sales Order", DemandDateValue, DemandQuantityValue, Item."No.", 1, LocationBlue.Code);
+
+        // [GIVEN] Four supplies, first three have Quantity = 10, the forth one has Quantity = 4.
+        // [GIVEN] First two supplies have Due Date = 20.02.2021. The last two have Due Date = 15.02.2021 and 16.02.2021, which is less than demand's Due Date.
+        CreateSupplyType(
+          SupplyType, SupplyTypeOption::FirmPlanned, SupplyTypeOption::FirmPlanned,
+          SupplyTypeOption::FirmPlanned, SupplyTypeOption::FirmPlanned, SupplyTypeOption::None);
+        CreateSupplyDate(
+          SupplyDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(20),
+          GetRandomDateUsingWorkDate(15), GetRandomDateUsingWorkDate(16), 0D);
+        CreateSupplyQuantity(SupplyQuantityValue, 10, 10, 10, 4, 0);
+        CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', LocationBlue.Code);
+
+        // [WHEN] Calculate Regenerative Plan.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+
+        // [THEN] Two Requisition Lines are created. The first line has Action Message = "Reschedule", Original Due Date = 15.02.2021, Due Date = 20.02.2021, Quantity = 10.
+        // [THEN] The second line has Action Message = "Reschedule", Original Due Date = 16.02.2021, Due Date = 20.02.2021, Quantity = 4.
+        VerifyRequisitionLineWithOriginalDueDate(
+          Item."No.", RequisitionLine."Action Message"::Reschedule, SupplyDateValue[3],
+          DemandDateValue[1], 0, SupplyQuantityValue[3], LocationBlue.Code);
+        VerifyRequisitionLineWithOriginalDueDate(
+          Item."No.", RequisitionLine."Action Message"::Reschedule, SupplyDateValue[4],
+          DemandDateValue[1], 0, SupplyQuantityValue[4], LocationBlue.Code);
+        VerifyRequisitionLineCount(2);
+    end;
+
+    [Test]
+    procedure ThreeDemandsThreeSuppliesWithMaxOrderQtyFirstSameDueDateLastTwoLessDueDate()
+    var
+        Item: Record Item;
+        DemandDateValue: array[3] of Date;
+        SupplyDateValue: array[5] of Date;
+        DemandQuantityValue: array[3] of Decimal;
+        SupplyQuantityValue: array[5] of Decimal;
+        SupplyType: array[5] of Option;
+    begin
+        // [FEATURE] [Maximum Order Quantity]
+        // [SCENARIO 395054] Calculate regenerative plan for three demands and three supplies when "Maximum Order Quantity" is set, one supply has Due Date = Demand's "Due Date", two have "Due Date" < Demand's "Due Date".
+        Initialize();
+
+        // [GIVEN] Item with Replenishment System = "Prod. Order" and with Maximum Order Quantity = 10. Lot Accumulation Period = ''.
+        CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '', true, 0, 0);
+        UpdateItem(Item, Item.FieldNo("Maximum Order Quantity"), 10);
+        CreateAndUpdateStockKeepingUnit(Item, LocationBlue.Code, Item."Replenishment System"::"Prod. Order");
+        UpdateMaxOrderQtyOnSKU(Item."No.", LocationBlue.Code, 10);
+
+        // [GIVEN] Three demands with "Due Date" = 20.02.2021, 16.02.2021, 18.02.2021 and each with Quantity = 10.
+        CreateDemandDate(DemandDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(18));
+        CreateDemandQuantity(DemandQuantityValue, 10, 10, 10);
+        CreateDemandOnLocation(DemandTypeOption::"Sales Order", DemandDateValue, DemandQuantityValue, Item."No.", 3, LocationBlue.Code);
+
+        // [GIVEN] Three supplies, each has Quantity = 10.
+        // [GIVEN] First supply has Due Date = 20.02.2021 (= demand's Due Date). The last two have Due Date = 12.02.2021 and 14.02.2021 (< demand's Due Date).
+        CreateSupplyType(
+          SupplyType, SupplyTypeOption::FirmPlanned, SupplyTypeOption::FirmPlanned,
+          SupplyTypeOption::FirmPlanned, SupplyTypeOption::None, SupplyTypeOption::None);
+        CreateSupplyDate(
+          SupplyDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(12),
+          GetRandomDateUsingWorkDate(14), 0D, 0D);
+        CreateSupplyQuantity(SupplyQuantityValue, 10, 10, 10, 0, 0);
+        CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', LocationBlue.Code);
+
+        // [WHEN] Calculate Regenerative Plan.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+
+        // [THEN] Two Requisition Lines are created. They have Action Message = "Reschedule", Original Due Date = 12.02.2021 / 14.02.2021, Due Date = 16.02.2021 / 18.02.2021, Quantity = 10.
+        VerifyRequisitionLine(
+          Item."No.", RequisitionLine."Action Message"::Reschedule, DemandDateValue[2],
+          0, SupplyQuantityValue[2], SupplyDateValue[2], LocationBlue.Code, '');
+        VerifyRequisitionLine(
+          Item."No.", RequisitionLine."Action Message"::Reschedule, DemandDateValue[3],
+          0, SupplyQuantityValue[3], SupplyDateValue[3], LocationBlue.Code, '');
+        VerifyRequisitionLineCount(2);
+    end;
+
+    [Test]
+    procedure ThreeDemandsThreeSuppliesWithMaxOrderQtyFirstSameDueDateLastTwoLessDueDateAndLessQty()
+    var
+        Item: Record Item;
+        DemandDateValue: array[3] of Date;
+        SupplyDateValue: array[5] of Date;
+        DemandQuantityValue: array[3] of Decimal;
+        SupplyQuantityValue: array[5] of Decimal;
+        SupplyType: array[5] of Option;
+    begin
+        // [FEATURE] [Maximum Order Quantity]
+        // [SCENARIO 395054] Calculate regenerative plan for three demands and three supplies when "Maximum Order Quantity" is set, one supply has Due Date = Demand's "Due Date", two have "Due Date" < Demand's "Due Date", last one has Quantity < Maximum Order Quantity of SKU.
+        Initialize();
+
+        // [GIVEN] Item with Replenishment System = "Prod. Order" and with Maximum Order Quantity = 10. Lot Accumulation Period = ''.
+        CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '', true, 0, 0);
+        UpdateItem(Item, Item.FieldNo("Maximum Order Quantity"), 10);
+        CreateAndUpdateStockKeepingUnit(Item, LocationBlue.Code, Item."Replenishment System"::"Prod. Order");
+        UpdateMaxOrderQtyOnSKU(Item."No.", LocationBlue.Code, 10);
+
+        // [GIVEN] Three demands with "Due Date" = 20.02.2021, 16.02.2021, 18.02.2021; first two have Quantity = 10, the last one has Quantity = 4.
+        CreateDemandDate(DemandDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(18));
+        CreateDemandQuantity(DemandQuantityValue, 10, 10, 4);
+        CreateDemandOnLocation(DemandTypeOption::"Sales Order", DemandDateValue, DemandQuantityValue, Item."No.", 3, LocationBlue.Code);
+
+        // [GIVEN] Three supplies, first two have Quantity = 10, the third one has Quantity = 4.
+        // [GIVEN] First supply has Due Date = 20.02.2021 (= demand's Due Date). The last two have Due Date = 12.02.2021 and 14.02.2021 (< demand's Due Date).
+        CreateSupplyType(
+          SupplyType, SupplyTypeOption::FirmPlanned, SupplyTypeOption::FirmPlanned,
+          SupplyTypeOption::FirmPlanned, SupplyTypeOption::None, SupplyTypeOption::None);
+        CreateSupplyDate(
+          SupplyDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(12),
+          GetRandomDateUsingWorkDate(14), 0D, 0D);
+        CreateSupplyQuantity(SupplyQuantityValue, 10, 10, 4, 0, 0);
+        CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', LocationBlue.Code);
+
+        // [WHEN] Calculate Regenerative Plan.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, GetRandomDateUsingWorkDate(60));
+
+        // [THEN] Two Requisition Lines are created. They have Action Message = "Reschedule", Original Due Date = 12.02.2021 / 14.02.2021, Due Date = 16.02.2021 / 18.02.2021, Quantity = 10 and 4.
+        VerifyRequisitionLine(
+          Item."No.", RequisitionLine."Action Message"::Reschedule, DemandDateValue[2],
+          0, SupplyQuantityValue[2], SupplyDateValue[2], LocationBlue.Code, '');
+        VerifyRequisitionLine(
+          Item."No.", RequisitionLine."Action Message"::Reschedule, DemandDateValue[3],
+          0, SupplyQuantityValue[3], SupplyDateValue[3], LocationBlue.Code, '');
+        VerifyRequisitionLineCount(2);
+    end;
+
+    [Test]
+    procedure ThreeDemandsThreeSuppliesWithMinMaxOrderQtyLotAccumPeriodSetLessQtyFirstSameDueDate()
+    var
+        Item: Record Item;
+        DemandDateValue: array[3] of Date;
+        SupplyDateValue: array[5] of Date;
+        DemandQuantityValue: array[3] of Decimal;
+        SupplyQuantityValue: array[5] of Decimal;
+        SupplyType: array[5] of Option;
+    begin
+        // [FEATURE] [Maximum Order Quantity] [Minimum Order Quantity]
+        // [SCENARIO 386848] Calculate regenerative plan for three demands and three supplies when Minimum / Maximum Order Quantity and Lot Accumulation Period are set, demands' Quantity < Minimum Order Quantity of SKU, supplies' Due Date = Due Date of first demand.
+        Initialize();
+
+        // [GIVEN] Item with Replenishment System = "Prod. Order" and with Maximum Order Quantity = Minimum Order Quantity = 14. Lot Accumulation Period = 1Y.
+        CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, 0, 0);
+        UpdateItem(Item, Item.FieldNo("Maximum Order Quantity"), 14);
+        UpdateItem(Item, Item.FieldNo("Minimum Order Quantity"), 14);
+        CreateAndUpdateStockKeepingUnit(Item, LocationBlue.Code, Item."Replenishment System"::"Prod. Order");
+        UpdateMinOrderQtyOnSKU(Item."No.", LocationBlue.Code, 14);
+        UpdateMaxOrderQtyOnSKU(Item."No.", LocationBlue.Code, 14);
+
+        // [GIVEN] Three demands with "Due Date" = 20.02.2021, 16.02.2021, 18.02.2021; all three have Quantity = 10.
+        CreateDemandDate(DemandDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(18));
+        CreateDemandQuantity(DemandQuantityValue, 10, 10, 10);
+        CreateDemandOnLocation(DemandTypeOption::"Sales Order", DemandDateValue, DemandQuantityValue, Item."No.", 3, LocationBlue.Code);
+
+        // [GIVEN] Three supplies with Quantity = 14 and Due Date = 16.02.2021.
+        CreateSupplyType(
+          SupplyType, SupplyTypeOption::FirmPlanned, SupplyTypeOption::FirmPlanned,
+          SupplyTypeOption::FirmPlanned, SupplyTypeOption::None, SupplyTypeOption::None);
+        CreateSupplyDate(
+          SupplyDateValue, GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(16), 0D, 0D);
+        CreateSupplyQuantity(SupplyQuantityValue, 14, 14, 14, 0, 0);
+        CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', LocationBlue.Code);
+
+        // [WHEN] Calculate Regenerative Plan.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
+
+        // [THEN] Requisition Lines are not created.
+        VerifyRequisitionLineCount(0);
+    end;
+
+    [Test]
+    procedure ThreeDemandsThreeSuppliesWithMinMaxOrderQtyLotAccumPeriodNotSetLessQtyFirstSameDueLessQty()
+    var
+        Item: Record Item;
+        DemandDateValue: array[3] of Date;
+        SupplyDateValue: array[5] of Date;
+        DemandQuantityValue: array[3] of Decimal;
+        SupplyQuantityValue: array[5] of Decimal;
+        SupplyType: array[5] of Option;
+    begin
+        // [FEATURE] [Maximum Order Quantity] [Minimum Order Quantity]
+        // [SCENARIO 386848] Calculate regenerative plan for three demands and three supplies when Minimum / Maximum Order Quantity are set, Lot Accumulation Period = '', demands' Quantity < Minimum Order Quantity of SKU, supplies' Due Date = Due Date of first demand.
+        Initialize();
+
+        // [GIVEN] Item with Replenishment System = "Prod. Order" and with Maximum Order Quantity = Minimum Order Quantity = 14. Lot Accumulation Period = ''.
+        CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '', true, 0, 0);
+        UpdateItem(Item, Item.FieldNo("Maximum Order Quantity"), 14);
+        UpdateItem(Item, Item.FieldNo("Minimum Order Quantity"), 14);
+        CreateAndUpdateStockKeepingUnit(Item, LocationBlue.Code, Item."Replenishment System"::"Prod. Order");
+        UpdateMinOrderQtyOnSKU(Item."No.", LocationBlue.Code, 14);
+        UpdateMaxOrderQtyOnSKU(Item."No.", LocationBlue.Code, 14);
+
+        // [GIVEN] Three demands with "Due Date" = 20.02.2021, 16.02.2021, 18.02.2021; all three have Quantity = 10.
+        CreateDemandDate(DemandDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(18));
+        CreateDemandQuantity(DemandQuantityValue, 10, 10, 10);
+        CreateDemandOnLocation(DemandTypeOption::"Sales Order", DemandDateValue, DemandQuantityValue, Item."No.", 3, LocationBlue.Code);
+
+        // [GIVEN] Three supplies with Quantity = 14 and Due Date = 16.02.2021.
+        CreateSupplyType(
+          SupplyType, SupplyTypeOption::FirmPlanned, SupplyTypeOption::FirmPlanned,
+          SupplyTypeOption::FirmPlanned, SupplyTypeOption::None, SupplyTypeOption::None);
+        CreateSupplyDate(
+          SupplyDateValue, GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(16), 0D, 0D);
+        CreateSupplyQuantity(SupplyQuantityValue, 14, 14, 14, 0, 0);
+        CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', LocationBlue.Code);
+
+        // [WHEN] Calculate Regenerative Plan.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
+
+        // [THEN] Two Requisition Lines are created. They have Action Message = "Reschedule", Original Due Date = 16.02.2021, Due Date = 18.02.2021 / 20.02.2021, Quantity = 14.
+        VerifyRequisitionLine(
+          Item."No.", RequisitionLine."Action Message"::Reschedule, DemandDateValue[1],
+          0, SupplyQuantityValue[1], SupplyDateValue[1], LocationBlue.Code, '');
+        VerifyRequisitionLine(
+          Item."No.", RequisitionLine."Action Message"::Reschedule, DemandDateValue[3],
+          0, SupplyQuantityValue[3], SupplyDateValue[3], LocationBlue.Code, '');
+        VerifyRequisitionLineCount(2);
+    end;
+
+    [Test]
+    procedure ThreeDemandsThreeSuppliesWithMaxOrderQtyLotAccumPeriodSetSameQtySameDueDate()
+    var
+        Item: Record Item;
+        DemandDateValue: array[3] of Date;
+        SupplyDateValue: array[5] of Date;
+        DemandQuantityValue: array[3] of Decimal;
+        SupplyQuantityValue: array[5] of Decimal;
+        SupplyType: array[5] of Option;
+    begin
+        // [FEATURE] [Maximum Order Quantity]
+        // [SCENARIO 386848] Calculate regenerative plan for three demands and three supplies when Maximum Order Quantity and Lot Accumulation Period are set, supplies' Due Date = demands' "Due Date" (different dates), all demands have Quantity < Maximum Order Quantity of SKU.
+        Initialize();
+
+        // [GIVEN] Item with Replenishment System = "Prod. Order" and with Maximum Order Quantity = 12. Lot Accumulation Period = 1Y.
+        CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '<1Y>', true, 0, 0);
+        UpdateItem(Item, Item.FieldNo("Maximum Order Quantity"), 12);
+        CreateAndUpdateStockKeepingUnit(Item, LocationBlue.Code, Item."Replenishment System"::"Prod. Order");
+        UpdateMaxOrderQtyOnSKU(Item."No.", LocationBlue.Code, 12);
+
+        // [GIVEN] Three demands with "Due Date" = 20.02.2021, 16.02.2021, 18.02.2021; first two have Quantity = 10, the last one has Quantity = 6.
+        CreateDemandDate(DemandDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(18));
+        CreateDemandQuantity(DemandQuantityValue, 10, 10, 6);
+        CreateDemandOnLocation(DemandTypeOption::"Sales Order", DemandDateValue, DemandQuantityValue, Item."No.", 3, LocationBlue.Code);
+
+        // [GIVEN] Three supplies, first two have Quantity = 10, the third one has Quantity = 6.
+        // [GIVEN] Supplies have Due Date = 20.02.2021, 16.02.2021, 18.02.2021 (= demand's Due Date).
+        CreateSupplyType(
+          SupplyType, SupplyTypeOption::FirmPlanned, SupplyTypeOption::FirmPlanned,
+          SupplyTypeOption::FirmPlanned, SupplyTypeOption::None, SupplyTypeOption::None);
+        CreateSupplyDate(
+          SupplyDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(18), 0D, 0D);
+        CreateSupplyQuantity(SupplyQuantityValue, 10, 10, 6, 0, 0);
+        CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', LocationBlue.Code);
+
+        // [WHEN] Calculate Regenerative Plan.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
+
+        // [THEN] Three Requisition Lines are created. The first line has Action Message = "Change Qty.", Due Date = 16.02.2021, Original Quantity = 10, Quantity = 12.
+        // [THEN] The second line has Action Message = "Resched. & Chg. Qty.", Original Due Date = 18.02.2021, Due Date = 16.02.2021, Original Quantity = 6, Quantity = 12.
+        // [THEN] The third line has Action Message = "Resched. & Chg. Qty.", Original Due Date = 20.02.2021, Due Date = 16.02.2021, Original Quantity = 10, Quantity = 2.
+        VerifyRequisitionLineWithOriginalDueDate(
+          Item."No.", RequisitionLine."Action Message"::"Change Qty.", 0D, DemandDateValue[2],
+          SupplyQuantityValue[2], Item."Maximum Order Quantity", LocationBlue.Code);
+        VerifyRequisitionLineWithOriginalDueDate(
+          Item."No.", RequisitionLine."Action Message"::"Resched. & Chg. Qty.", SupplyDateValue[3], DemandDateValue[2],
+          SupplyQuantityValue[3], Item."Maximum Order Quantity", LocationBlue.Code);
+        VerifyRequisitionLineWithOriginalDueDate(
+          Item."No.", RequisitionLine."Action Message"::"Resched. & Chg. Qty.", SupplyDateValue[1], DemandDateValue[2],
+          SupplyQuantityValue[1], SupplyQuantityValue[1] - (2 * Item."Maximum Order Quantity" - SupplyQuantityValue[2] - SupplyQuantityValue[3]), LocationBlue.Code);
+        VerifyRequisitionLineCount(3);
+    end;
+
+    [Test]
+    procedure ThreeDemandsThreeSuppliesWithMaxOrderQtyLotAccumPeriodNotSetSameQtySameDueDate()
+    var
+        Item: Record Item;
+        DemandDateValue: array[3] of Date;
+        SupplyDateValue: array[5] of Date;
+        DemandQuantityValue: array[3] of Decimal;
+        SupplyQuantityValue: array[5] of Decimal;
+        SupplyType: array[5] of Option;
+    begin
+        // [FEATURE] [Maximum Order Quantity]
+        // [SCENARIO 386848] Calculate regenerative plan for three demands and three supplies when Maximum Order Quantity is set, Lot Accumulation Period = '', supplies' Due Date = demands' "Due Date" (different dates), all demands have Quantity < Maximum Order Quantity of SKU.
+        Initialize();
+
+        // [GIVEN] Item with Replenishment System = "Prod. Order" and with Maximum Order Quantity = 12. Lot Accumulation Period = ''.
+        CreateLFLItem(Item, Item."Replenishment System"::"Prod. Order", '<1Y>', '', true, 0, 0);
+        UpdateItem(Item, Item.FieldNo("Maximum Order Quantity"), 12);
+        CreateAndUpdateStockKeepingUnit(Item, LocationBlue.Code, Item."Replenishment System"::"Prod. Order");
+        UpdateMaxOrderQtyOnSKU(Item."No.", LocationBlue.Code, 12);
+
+        // [GIVEN] Three demands with "Due Date" = 20.02.2021, 16.02.2021, 18.02.2021; first two have Quantity = 10, the last one has Quantity = 6.
+        CreateDemandDate(DemandDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(18));
+        CreateDemandQuantity(DemandQuantityValue, 10, 10, 6);
+        CreateDemandOnLocation(DemandTypeOption::"Sales Order", DemandDateValue, DemandQuantityValue, Item."No.", 3, LocationBlue.Code);
+
+        // [GIVEN] Three supplies, first two have Quantity = 10, the third one has Quantity = 6.
+        // [GIVEN] Supplies have Due Date = 20.02.2021, 16.02.2021, 18.02.2021 (= demand's Due Date).
+        CreateSupplyType(
+          SupplyType, SupplyTypeOption::FirmPlanned, SupplyTypeOption::FirmPlanned,
+          SupplyTypeOption::FirmPlanned, SupplyTypeOption::None, SupplyTypeOption::None);
+        CreateSupplyDate(
+          SupplyDateValue, GetRandomDateUsingWorkDate(20), GetRandomDateUsingWorkDate(16), GetRandomDateUsingWorkDate(18), 0D, 0D);
+        CreateSupplyQuantity(SupplyQuantityValue, 10, 10, 6, 0, 0);
+        CreateSupply(SupplyDateValue, SupplyQuantityValue, SupplyType, Item."No.", '', LocationBlue.Code);
+
+        // [WHEN] Calculate Regenerative Plan.
+        Item.SetRecFilter();
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), GetRandomDateUsingWorkDate(60));
+
+        // [THEN] Requisition Lines are not created.
+        VerifyRequisitionLineCount(0);
     end;
 
     local procedure Initialize()
@@ -6261,6 +6658,24 @@ codeunit 137054 "SCM Supply Planning"
         ManufacturingSetup.Modify(true);
     end;
 
+    local procedure UpdateMinOrderQtyOnSKU(ItemNo: Code[20]; LocationCode: Code[10]; MinOrderQty: Decimal)
+    var
+        StockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        StockkeepingUnit.Get(LocationCode, ItemNo, '');
+        StockkeepingUnit.Validate("Minimum Order Quantity", MinOrderQty);
+        StockkeepingUnit.Modify(true);
+    end;
+
+    local procedure UpdateMaxOrderQtyOnSKU(ItemNo: Code[20]; LocationCode: Code[10]; MaxOrderQty: Decimal)
+    var
+        StockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        StockkeepingUnit.Get(LocationCode, ItemNo, '');
+        StockkeepingUnit.Validate("Maximum Order Quantity", MaxOrderQty);
+        StockkeepingUnit.Modify(true);
+    end;
+
     local procedure PostPositiveAdjustmentAndCreateSalesOrderWithThreeLines(Item: Record Item; PositiveAdjustmentQuantity: Decimal; MaximumOrderQuantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
@@ -6507,6 +6922,20 @@ codeunit 137054 "SCM Supply Planning"
         VerifyQuantityAndDateOnRequisitionLine(RequisitionLine2, OriginalDueDate, Quantity, OriginalQuantity);
         RequisitionLine2.TestField("Location Code", LocationCode);
         RequisitionLine2.TestField("Variant Code", VariantCode);
+    end;
+
+    local procedure VerifyRequisitionLineWithOriginalDueDate(No: Code[20]; ActionMessage: Option; OriginalDueDate: Date; DueDate: Date; OriginalQuantity: Decimal; QuantityValue: Decimal; LocationCode: Code[10])
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        FilterRequisitionLine(RequisitionLine, No);
+        RequisitionLine.SetRange("Action Message", ActionMessage);
+        RequisitionLine.SetRange("Original Due Date", OriginalDueDate);
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Due Date", DueDate);
+        RequisitionLine.TestField(Quantity, QuantityValue);
+        RequisitionLine.TestField("Original Quantity", OriginalQuantity);
+        RequisitionLine.TestField("Location Code", LocationCode);
     end;
 
     local procedure VerifyPlanningWorksheetEmpty(PlanningLinesCountBeforeCarryOut: Integer; ItemNo: Code[20])

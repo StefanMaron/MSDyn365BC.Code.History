@@ -645,7 +645,10 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Intermediate Data Import" = RM,
                   tabledata "Internal Movement Header" = RM,
                   tabledata "Internal Movement Line" = RM,
+#if not CLEAN19
                   tabledata "Intrastat Checklist Setup" = RIMD,
+#endif
+                  tabledata "Advanced Intrastat Checklist" = RIMD,
                   tabledata "Intrastat Jnl. Batch" = RM,
                   tabledata "Intrastat Jnl. Line" = RM,
                   tabledata "Intrastat Jnl. Template" = RM,
