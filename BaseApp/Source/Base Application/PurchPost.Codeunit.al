@@ -5387,7 +5387,7 @@
                                     Error(PrepAmountToDeductToBigErr, FieldCaption("Prepmt Amt to Deduct"), MaxAmtToDeduct);
 
                                 if (TempTotalPurchLine."Qty. to Invoice" = PurchaseOrderLine.Quantity - PurchaseOrderLine."Quantity Invoiced") and
-                                   (TempTotalPurchLine."Prepmt Amt to Deduct" <> MaxAmtToDeduct)
+                                   (PurchaseOrderLine."Prepmt Amt to Deduct" <> MaxAmtToDeduct)
                                 then
                                     Error(PrepAmountToDeductToSmallErr, FieldCaption("Prepmt Amt to Deduct"), MaxAmtToDeduct);
                             end;
