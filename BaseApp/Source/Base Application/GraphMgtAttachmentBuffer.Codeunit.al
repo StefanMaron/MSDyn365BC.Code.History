@@ -18,7 +18,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         DocumentTypeErr: Label 'Only Sales Invoices and Sales Quotes can have attachments.', Locked = true;
         CannotFindRelatedDocumentErr: Label 'Cannot find a document which the attachment is linked to.', Locked = true;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure LoadAttachments(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; DocumentIdFilter: Text; AttachmentIdFilter: Text)
     var
         IncomingDocument: Record "Incoming Document";
@@ -26,8 +26,8 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         DocumentId: Guid;
         GLEntryNo: Integer;
     begin
-        TempAttachmentEntityBuffer.Reset;
-        TempAttachmentEntityBuffer.DeleteAll;
+        TempAttachmentEntityBuffer.Reset();
+        TempAttachmentEntityBuffer.DeleteAll();
 
         if not IsLinkedAttachment(DocumentIdFilter) then begin
             LoadUnlinkedAttachmentsToBuffer(TempAttachmentEntityBuffer, AttachmentIdFilter);
@@ -54,7 +54,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             until TempAttachmentEntityBuffer.Next = 0;
     end;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure PropagateInsertAttachment(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary)
     var
         ErrorMsg: Text;
@@ -65,7 +65,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         PropagateInsertUnlinkedAttachment(TempAttachmentEntityBuffer, TempFieldBuffer);
     end;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure PropagateInsertAttachmentSafe(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary)
     var
         ErrorMsg: Text;
@@ -181,7 +181,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         exit(true);
     end;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure PropagateModifyAttachment(var TempAttachmentEntityBuffer: Record "Attachment Entity Buffer" temporary; var TempFieldBuffer: Record "Field Buffer" temporary)
     var
         IncomingDocument: Record "Incoming Document";
@@ -285,7 +285,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         else begin
             IncomingDocumentAttachment.Default := false;
             IncomingDocumentAttachment."Main Attachment" := false;
-            IncomingDocumentAttachment.Modify;
+            IncomingDocumentAttachment.Modify();
             IncomingDocumentAttachment.Delete(true);
             AdditionalIncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
             AdditionalIncomingDocumentAttachment.SetFilter("Line No.", '<>%1', LineNo);
@@ -296,7 +296,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             end;
         end;
 
-        IncomingDocumentAttachment.Reset;
+        IncomingDocumentAttachment.Reset();
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
         if IncomingDocumentAttachment.FindFirst then
             exit;
@@ -428,7 +428,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         TempFieldBuffer.Order := LastOrderNo;
         TempFieldBuffer."Table ID" := DATABASE::"Attachment Entity Buffer";
         TempFieldBuffer."Field ID" := FieldNo;
-        TempFieldBuffer.Insert;
+        TempFieldBuffer.Insert();
     end;
 
     local procedure GetDocumentIdFilter(var AttachmentEntityBuffer: Record "Attachment Entity Buffer"): Text
@@ -790,7 +790,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         if FindIncomingDocument(DocumentRecordRef, IncomingDocument) then
             exit;
 
-        IncomingDocument.Init;
+        IncomingDocument.Init();
         IncomingDocument."Related Record ID" := DocumentRecordRef.RecordId;
 
         if IsSalesInvoice(DocumentRecordRef) and IsPostedDocument(DocumentRecordRef) then begin
@@ -812,7 +812,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             IncomingDocument."Document Type" := IncomingDocument."Document Type"::Journal;
             IncomingDocument.Insert(true);
             GenJournalLine."Incoming Document Entry No." := IncomingDocument."Entry No.";
-            GenJournalLine.Modify;
+            GenJournalLine.Modify();
             DocumentRecordRef.GetTable(GenJournalLine);
             exit;
         end;
@@ -835,7 +835,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             IncomingDocument."Document No." := SalesHeader."No.";
             IncomingDocument.Insert(true);
             SalesHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-            SalesHeader.Modify;
+            SalesHeader.Modify();
             exit;
         end;
 
@@ -859,7 +859,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
             IncomingDocument."Document No." := PurchaseHeader."No.";
             IncomingDocument.Insert(true);
             PurchaseHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-            PurchaseHeader.Modify;
+            PurchaseHeader.Modify();
             exit;
         end;
     end;
@@ -999,10 +999,10 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                         exit;
 
                     if OldIntegrationRecord.Get(AttachmentId) then
-                        OldIntegrationRecord.Delete;
+                        OldIntegrationRecord.Delete();
 
                     if NewIntegrationRecord.Get(IncomingDocumentAttachment.Id) then
-                        NewIntegrationRecord.Delete;
+                        NewIntegrationRecord.Delete();
 
                     IncomingDocumentAttachment.Id := AttachmentId;
                     IncomingDocumentAttachment.Modify(true);
@@ -1014,10 +1014,10 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
                         exit;
 
                     if OldIntegrationRecord.Get(AttachmentId) then
-                        OldIntegrationRecord.Delete;
+                        OldIntegrationRecord.Delete();
 
                     if NewIntegrationRecord.Get(UnlinkedAttachment.Id) then
-                        NewIntegrationRecord.Delete;
+                        NewIntegrationRecord.Delete();
 
                     UnlinkedAttachment.Rename(AttachmentId);
                 end;
@@ -1026,7 +1026,7 @@ codeunit 5503 "Graph Mgt - Attachment Buffer"
         IntegrationManagement.InsertUpdateIntegrationRecord(RecordRef, CurrentDateTime);
     end;
 
-    [Scope('OnPrem')]
+    [Scope('Cloud')]
     procedure GetContentLength(var TempBlob: Codeunit "Temp Blob"): Integer
     var
         InStream: InStream;

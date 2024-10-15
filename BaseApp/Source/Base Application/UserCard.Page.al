@@ -91,15 +91,25 @@ page 9807 "User Card"
                 }
                 field("Windows User Name Desktop"; WindowsUserName)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Windows Client only functionality. Will be removed. Use "Windows User Name" instead.';
+                    ObsoleteTag = '15.3';
                     ApplicationArea = Basic, Suite;
                     AssistEdit = true;
                     Caption = 'Windows User Name';
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of a valid Active Directory user, using the format domain\username.';
                     Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Desktop client is not supported in versions 15 and higher.';
-                    ObsoleteTag = '15.3';
+
+                    trigger OnAssistEdit()
+                    begin
+                        error(''); // client side DLL not supported.
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        ValidateWindowsUserName;
+                    end;
                 }
             }
             group("ACS Authentication")
@@ -302,11 +312,11 @@ page 9807 "User Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Update user from Office 365';
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    ToolTip = 'Update user''s name, authentication email address, and contact email address from Office 365.';
+                    ToolTip = 'Update user''s name, authentication email address, and contact email address from Office 365';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Use the ''Update users from Office'' action on the ''Users'' page instead.';
                     Visible = IsSaaS;
+                    ObsoleteTag = '16.0';
 
                     trigger OnAction()
                     var
@@ -474,7 +484,7 @@ page 9807 "User Card"
         AllowChangeWebServiceAccessKey: Boolean;
         InitialState: Option;
         CreateFirstUserQst: Label 'You will be locked out after creating first user. Would you first like to create a SUPER user for %1?', Comment = 'USERID';
-        InfoUpToDateMsg: Label 'The information about this user is up-to-date.';
+        InfoUpToDateMsg: Label 'The information about this user is up to date.';
 
     local procedure ValidateSid()
     var
@@ -496,7 +506,7 @@ page 9807 "User Card"
     var
         ValidationField: Text;
     begin
-        UserSecID.Reset;
+        UserSecID.Reset();
         if (UserSecID.Count = 1) or (UserSecurityId = "User Security ID") then begin
             if IdentityManagement.IsWindowsAuthentication and ("Windows Security ID" = '') then
                 ValidationField := 'Windows User Name';
@@ -559,7 +569,7 @@ page 9807 "User Card"
         TestField("User Name");
 
         CurrPage.SaveRecord;
-        Commit;
+        Commit();
 
         Password := PasswordDialogManagement.OpenPasswordDialog();
 

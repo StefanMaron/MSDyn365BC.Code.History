@@ -36,17 +36,13 @@ table 1700 "Deferral Template"
                     Error(DeferralPercentageErr);
             end;
         }
-        field(5; "Calc. Method"; Option)
+        field(5; "Calc. Method"; Enum "Deferral Calculation Method")
         {
             Caption = 'Calc. Method';
-            OptionCaption = 'Straight-Line,Equal per Period,Days per Period,User-Defined';
-            OptionMembers = "Straight-Line","Equal per Period","Days per Period","User-Defined";
         }
-        field(6; "Start Date"; Option)
+        field(6; "Start Date"; Enum "Deferral Calculation Start Date")
         {
             Caption = 'Start Date';
-            OptionCaption = 'Posting Date,Beginning of Period,End of Period,Beginning of Next Period';
-            OptionMembers = "Posting Date","Beginning of Period","End of Period","Beginning of Next Period";
         }
         field(7; "No. of Periods"; Integer)
         {

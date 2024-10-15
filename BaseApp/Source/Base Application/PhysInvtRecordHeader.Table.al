@@ -115,16 +115,16 @@ table 5877 "Phys. Invt. Record Header"
     begin
         TestField(Status, Status::Open);
 
-        PhysInvtRecordLine.Reset;
+        PhysInvtRecordLine.Reset();
         PhysInvtRecordLine.SetRange("Order No.", "Order No.");
         PhysInvtRecordLine.SetRange("Recording No.", "Recording No.");
         PhysInvtRecordLine.DeleteAll(true);
 
-        PhysInvtCommentLine.Reset;
+        PhysInvtCommentLine.Reset();
         PhysInvtCommentLine.SetRange("Document Type", PhysInvtCommentLine."Document Type"::Recording);
         PhysInvtCommentLine.SetRange("Order No.", "Order No.");
         PhysInvtCommentLine.SetRange("Recording No.", "Recording No.");
-        PhysInvtCommentLine.DeleteAll;
+        PhysInvtCommentLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -134,8 +134,8 @@ table 5877 "Phys. Invt. Record Header"
         PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Open);
 
         if "Recording No." = 0 then begin
-            LockTable;
-            PhysInvtRecordHeader.Reset;
+            LockTable();
+            PhysInvtRecordHeader.Reset();
             PhysInvtRecordHeader.SetRange("Order No.", "Order No.");
             if PhysInvtRecordHeader.FindLast then
                 "Recording No." := PhysInvtRecordHeader."Recording No." + 1

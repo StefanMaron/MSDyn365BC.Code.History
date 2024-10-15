@@ -1,4 +1,4 @@
-﻿page 63 "Applied Employee Entries"
+page 63 "Applied Employee Entries"
 {
     Caption = 'Applied Employee Entries';
     DataCaptionExpression = Heading;
@@ -239,7 +239,7 @@
                 if DtldEmplLedgEntry1."Employee Ledger Entry No." =
                    DtldEmplLedgEntry1."Applied Empl. Ledger Entry No."
                 then begin
-                    DtldEmplLedgEntry2.Init;
+                    DtldEmplLedgEntry2.Init();
                     DtldEmplLedgEntry2.SetCurrentKey("Applied Empl. Ledger Entry No.", "Entry Type");
                     DtldEmplLedgEntry2.SetRange(
                       "Applied Empl. Ledger Entry No.", DtldEmplLedgEntry1."Applied Empl. Ledger Entry No.");
@@ -269,7 +269,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
         DimVisible1 := GLSetup."Global Dimension 1 Code" <> '';

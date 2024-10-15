@@ -9,6 +9,7 @@ codeunit 104030 "Upgrade Plan Permissions"
     trigger OnUpgradePerDatabase()
     begin
         SetBackupRestorePermissions();
+        SetExcelExportActionPermissions();
         RemoveExtensionManagementFromPlan();
         RemoveExtensionManagementFromUsers();
     end;
@@ -16,6 +17,8 @@ codeunit 104030 "Upgrade Plan Permissions"
     var
         BackupRestoreTok: Label 'D365 BACKUP/RESTORE', Locked = true;
         BackupRestoreDescriptionTxt: Label 'Backup or restore database', Comment = 'Maximum length is 30';
+        ExcelExportActionTok: Label 'EXCEL EXPORT ACTION', Locked = true;
+        ExcelExportActionDescriptionTxt: Label 'D365 Excel Export Action', Locked = true;
 
     local procedure RemoveExtensionManagementFromPlan()
     var
@@ -80,7 +83,7 @@ codeunit 104030 "Upgrade Plan Permissions"
         UserGroup: Record "User Group";
     begin
         InsertUserGroup(CopyStr(BackupRestoreTok, 1, MaxStrLen(UserGroup.Code)),
-            CopyStr(BackupRestoreDescriptionTxt, 1, MaxStrLen(UserGroup.Name)));
+            CopyStr(BackupRestoreDescriptionTxt, 1, MaxStrLen(UserGroup.Name)), false);
     end;
 
     local procedure AddBackupRestorePermissionSetToGroup();
@@ -139,7 +142,7 @@ codeunit 104030 "Upgrade Plan Permissions"
         Permission.Insert();
     end;
 
-    local procedure InsertUserGroup(UserGroupCode: Code[20]; UserGroupName: Text[50])
+    local procedure InsertUserGroup(UserGroupCode: Code[20]; UserGroupName: Text[50]; AssignToAllNewUsers: Boolean)
     var
         UserGroup: Record 9000;
     begin
@@ -148,7 +151,8 @@ codeunit 104030 "Upgrade Plan Permissions"
 
         UserGroup.Code := UserGroupCode;
         UserGroup.Name := UserGroupName;
-        UserGroup.Insert;
+        UserGroup."Assign to All New Users" := AssignToAllNewUsers;
+        UserGroup.Insert();
     end;
 
     local procedure AddPermissionSetToUserGroup(PermissionSetId: Code[20]; UserGroupCode: Code[20])
@@ -173,5 +177,90 @@ codeunit 104030 "Upgrade Plan Permissions"
         UserGroupPlan."Plan ID" := PlanId;
         UserGroupPlan."User Group Code" := UserGroupCode;
         UserGroupPlan.Insert();
+    end;
+
+    local procedure SetExcelExportActionPermissions()
+    var
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetExcelExportActionPermissionSetUpgradeTag()) then
+            exit;
+
+        AddExcelExportActionPermissionSet();
+        AddExcelExportActionUserGroup();
+        AddExcelExportActionPermissionSetToGroup();
+        AddExcelExportActionUserGroupToExistingPlans();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetExcelExportActionPermissionSetUpgradeTag());
+    end;
+
+    local procedure AddExcelExportActionPermissionSet();
+    var
+        PermissionSet: Record "Permission Set";
+        Permission: Record Permission;
+    begin
+        InsertPermissionSet(CopyStr(ExcelExportActionTok, 1, MaxStrLen(PermissionSet."Role ID")),
+            CopyStr(ExcelExportActionDescriptionTxt, 1, MaxStrLen(PermissionSet.Name)));
+        InsertPermission(CopyStr(ExcelExportActionTok, 1, MaxStrLen(Permission."Role ID")), 10, 6110, 0, 0, 0, 0, 1);
+    end;
+
+    local procedure AddExcelExportActionUserGroup();
+    var
+        UserGroup: Record "User Group";
+    begin
+        InsertUserGroup(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroup.Code)),
+            CopyStr(ExcelExportActionDescriptionTxt, 1, MaxStrLen(UserGroup.Name)), true);
+    end;
+
+    local procedure AddExcelExportActionPermissionSetToGroup();
+    var
+        UserGroupPermissionSet: Record "User Group Permission Set";
+    begin
+        AddPermissionSetToUserGroup(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPermissionSet."Role ID")),
+            CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPermissionSet."User Group Code")));
+    end;
+
+    local procedure AddExcelExportActionUserGroupToExistingPlans();
+    var
+        UserGroupPlan: Record "User Group Plan";
+        PlanIds: Codeunit "Plan Ids";
+    begin
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetBasicPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetTeamMemberPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetEssentialPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetPremiumPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetInvoicingPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetViralSignupPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetExternalAccountantPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetDelegatedAdminPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetInternalAdminPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetTeamMemberISVPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetEssentialISVPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetPremiumISVPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetDeviceISVPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetDevicePlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetBasicFinancialsISVPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetAccountantHubPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetHelpDeskPlanId());
+        AddUserGroupToPlan(CopyStr(ExcelExportActionTok, 1, MaxStrLen(UserGroupPlan."User Group Code")),
+            PlanIds.GetInfrastructurePlanId());
     end;
 }

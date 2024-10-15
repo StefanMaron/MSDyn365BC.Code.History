@@ -47,14 +47,14 @@ table 2170 "O365 Default Email Message"
         if not Get("Document Type"::Quote) then begin
             // Create default estimate message
             QuoteO365DefaultEmailMsg."Document Type" := "Document Type"::Quote;
-            QuoteO365DefaultEmailMsg.Insert;
+            QuoteO365DefaultEmailMsg.Insert();
             QuoteO365DefaultEmailMsg.SetMessage(StrSubstNo(GreetingTxt, CustomerLbl) + CR + CR + QuoteEmailBodyTxt)
         end;
 
         if not Get("Document Type"::Invoice) then begin
             // Create default invoice message
             InvoiceO365DefaultEmailMsg."Document Type" := "Document Type"::Invoice;
-            InvoiceO365DefaultEmailMsg.Insert;
+            InvoiceO365DefaultEmailMsg.Insert();
             InvoiceO365DefaultEmailMsg.SetMessage(StrSubstNo(GreetingTxt, CustomerLbl) + CR + CR + InvoiceEmailBodyTxt)
         end;
     end;

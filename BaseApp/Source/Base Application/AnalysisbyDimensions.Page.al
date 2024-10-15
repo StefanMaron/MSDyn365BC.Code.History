@@ -1,14 +1,13 @@
 page 554 "Analysis by Dimensions"
 {
     Caption = 'Analysis by Dimensions';
-    DataCaptionExpression = AnalysisViewCode;
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
-    ModifyAllowed = false;
     PageType = Card;
     SaveValues = true;
-    SourceTable = "Dimension Code Buffer";
+    SourceTable = "Analysis by Dim. Parameters";
+    SourceTableTemporary = true;
 
     layout
     {
@@ -17,7 +16,7 @@ page 554 "Analysis by Dimensions"
             group(General)
             {
                 Caption = 'General';
-                field(AnalysisViewCode; AnalysisViewCode)
+                field(AnalysisViewCode; "Analysis View Code")
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Analysis View Code';
@@ -34,12 +33,11 @@ page 554 "Analysis by Dimensions"
                         AnalysisViewList.SetRecord(AnalysisView);
                         if AnalysisViewList.RunModal = ACTION::LookupOK then begin
                             AnalysisViewList.GetRecord(AnalysisView);
-                            AnalysisViewCode := AnalysisView.Code;
+                            "Analysis View Code" := AnalysisView.Code;
                             Text := AnalysisView.Code;
                             ValidateAnalysisViewCode;
                             ValidateColumnDimCode;
                             ValidateLineDimCode;
-                            CurrPage.Update;
                             exit(true);
                         end;
                     end;
@@ -68,7 +66,6 @@ page 554 "Analysis by Dimensions"
                         Text := NewCode;
                         LineDimCode := NewCode;
                         ValidateLineDimCode;
-                        CurrPage.Update;
                         exit(true);
                     end;
 
@@ -79,11 +76,10 @@ page 554 "Analysis by Dimensions"
                             ValidateColumnDimCode;
                         end;
                         ValidateLineDimCode;
-                        if LineDimOption = LineDimOption::Period then
-                            SetCurrentKey("Period Start")
+                        if "Line Dim Option" = "Line Dim Option"::Period then
+                            DimensionCodeBuffer.SetCurrentKey("Period Start")
                         else
-                            SetCurrentKey(Code);
-                        CurrPage.Update;
+                            DimensionCodeBuffer.SetCurrentKey(Code);
                     end;
                 }
                 field(ColumnDimCode; ColumnDimCode)
@@ -103,8 +99,7 @@ page 554 "Analysis by Dimensions"
                         Text := NewCode;
                         ColumnDimCode := NewCode;
                         ValidateColumnDimCode;
-                        CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
-                        CurrPage.Update;
+                        CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                         exit(true);
                     end;
 
@@ -116,15 +111,14 @@ page 554 "Analysis by Dimensions"
                         end;
                         ValidateColumnDimCode;
 
-                        CurrPage.Update;
-                        CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
+                        CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
             }
             group(Filters)
             {
                 Caption = 'Filters';
-                field(DateFilter; DateFilter)
+                field(DateFilter; "Date Filter")
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Date Filter';
@@ -135,16 +129,15 @@ page 554 "Analysis by Dimensions"
                         GLAcc: Record "G/L Account";
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
-                        FilterTokens.MakeDateFilter(DateFilter);
-                        GLAcc.SetFilter("Date Filter", DateFilter);
-                        DateFilter := GLAcc.GetFilter("Date Filter");
-                        InternalDateFilter := DateFilter;
-                        if ColumnDimOption = ColumnDimOption::Period then
-                            CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
-                        CurrPage.Update;
+                        FilterTokens.MakeDateFilter("Date Filter");
+                        GLAcc.SetFilter("Date Filter", "Date Filter");
+                        "Date Filter" := GLAcc.GetFilter("Date Filter");
+                        InternalDateFilter := "Date Filter";
+                        if "Column Dim Option" = "Column Dim Option"::Period then
+                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
-                field(AccFilter; AccFilter)
+                field(AccFilter; "Account Filter")
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Account Filter';
@@ -173,12 +166,11 @@ page 554 "Analysis by Dimensions"
 
                     trigger OnValidate()
                     begin
-                        if (ColumnDimOption = ColumnDimOption::"G/L Account") or (ColumnDimOption = ColumnDimOption::"Cash Flow Account") then
-                            CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
-                        CurrPage.Update;
+                        if ("Column Dim Option" = "Column Dim Option"::"G/L Account") or ("Column Dim Option" = "Column Dim Option"::"Cash Flow Account") then
+                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
-                field(BusUnitFilter; BusUnitFilter)
+                field(BusUnitFilter; "Bus. Unit Filter")
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '3,' + BusUnitFilterCaption;
@@ -195,7 +187,7 @@ page 554 "Analysis by Dimensions"
                         exit(true);
                     end;
                 }
-                field(CashFlowFilter; CashFlowFilter)
+                field(CashFlowFilter; "Cash Flow Forecast Filter")
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Cash Flow Forecast Filter';
@@ -206,12 +198,11 @@ page 554 "Analysis by Dimensions"
 
                     trigger OnValidate()
                     begin
-                        if ColumnDimOption = ColumnDimOption::"Cash Flow Forecast" then
-                            CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
-                        CurrPage.Update;
+                        if "Column Dim Option" = "Column Dim Option"::"Cash Flow Forecast" then
+                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
-                field(BudgetFilter; BudgetFilter)
+                field(BudgetFilter; "Budget Filter")
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Budget Filter';
@@ -220,7 +211,7 @@ page 554 "Analysis by Dimensions"
                     ToolTip = 'Specifies the budget that information in the matrix is shown for.';
                     Visible = GLAccountSource;
                 }
-                field(Dim1Filter; Dim1Filter)
+                field(Dim1Filter; "Dimension 1 Filter")
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = GetCaptionClass(1);
@@ -235,12 +226,11 @@ page 554 "Analysis by Dimensions"
 
                     trigger OnValidate()
                     begin
-                        if ColumnDimOption = ColumnDimOption::"Dimension 1" then
-                            CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
-                        CurrPage.Update;
+                        if "Column Dim Option" = "Column Dim Option"::"Dimension 1" then
+                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
-                field(Dim2Filter; Dim2Filter)
+                field(Dim2Filter; "Dimension 2 Filter")
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = GetCaptionClass(2);
@@ -255,12 +245,11 @@ page 554 "Analysis by Dimensions"
 
                     trigger OnValidate()
                     begin
-                        if ColumnDimOption = ColumnDimOption::"Dimension 2" then
-                            CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
-                        CurrPage.Update;
+                        if "Column Dim Option" = "Column Dim Option"::"Dimension 2" then
+                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
-                field(Dim3Filter; Dim3Filter)
+                field(Dim3Filter; "Dimension 3 Filter")
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = GetCaptionClass(3);
@@ -275,12 +264,11 @@ page 554 "Analysis by Dimensions"
 
                     trigger OnValidate()
                     begin
-                        if ColumnDimOption = ColumnDimOption::"Dimension 3" then
-                            CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
-                        CurrPage.Update;
+                        if "Column Dim Option" = "Column Dim Option"::"Dimension 3" then
+                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
-                field(Dim4Filter; Dim4Filter)
+                field(Dim4Filter; "Dimension 4 Filter")
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = GetCaptionClass(4);
@@ -295,34 +283,30 @@ page 554 "Analysis by Dimensions"
 
                     trigger OnValidate()
                     begin
-                        if ColumnDimOption = ColumnDimOption::"Dimension 4" then
-                            CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
-                        CurrPage.Update;
+                        if "Column Dim Option" = "Column Dim Option"::"Dimension 4" then
+                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
             }
             group(Options)
             {
                 Caption = 'Options';
-                field(ShowActualBudg; ShowActualBudg)
+                field(ShowActualBudg; "Show Actual/Budgets")
                 {
                     ApplicationArea = Dimensions;
-                    Caption = 'Show';
-                    OptionCaption = 'Actual Amounts,Budgeted Amounts,Variance,Variance%,Index%,Amounts';
                     ToolTip = 'Specifies if the selected value is shown in the window.';
                     Visible = GLAccountSource;
                 }
-                field(AmountField; AmountField)
+                field(AmountField; "Show Amount Field")
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Show Amount Field';
                     OptionCaption = 'Amount,Debit Amount,Credit Amount';
                     ToolTip = 'Specifies the type of entries that will be included in the matrix window. The Amount options means that amounts that are the sum of debit and credit amounts are shown.';
                 }
-                field(ClosingEntryFilter; ClosingEntryFilter)
+                field(ClosingEntryFilter; "Closing Entries")
                 {
                     ApplicationArea = Dimensions;
-                    Caption = 'Closing Entries';
                     OptionCaption = 'Include,Exclude';
                     ToolTip = 'Specifies whether the amounts shown in the matrix window will include closing entries.';
                     Visible = GLAccountSource;
@@ -332,36 +316,31 @@ page 554 "Analysis by Dimensions"
                         FindPeriod('=');
                     end;
                 }
-                field(RoundingFactor; RoundingFactor)
+                field(RoundingFactor; "Rounding Factor")
                 {
                     ApplicationArea = Dimensions;
-                    Caption = 'Rounding Factor';
-                    OptionCaption = 'None,1,1000,1000000';
                     ToolTip = 'Specifies the factor that is used to round the amounts.';
                 }
-                field(ShowInAddCurr; ShowInAddCurr)
+                field(ShowInAddCurr; "Show In Add. Currency")
                 {
                     ApplicationArea = Dimensions;
-                    Caption = 'Show Amounts in Add. Reporting Currency';
                     MultiLine = true;
                     ToolTip = 'Specifies if the reported amounts are shown in the additional reporting currency.';
                     Visible = GLAccountSource;
                 }
-                field(ShowColumnName; ShowColumnName)
+                field(ShowColumnName; "Show Column Name")
                 {
                     ApplicationArea = Dimensions;
-                    Caption = 'Show Column Name';
                     ToolTip = 'Specifies that the names of columns are shown in the matrix window.';
 
                     trigger OnValidate()
                     begin
-                        CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
+                        CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
-                field(ShowOppositeSign; ShowOppositeSign)
+                field(ShowOppositeSign; "Show Opposite Sign")
                 {
                     ApplicationArea = Dimensions;
-                    Caption = 'Show Opposite Sign';
                     MultiLine = true;
                     ToolTip = 'Specifies whether to show debits as negative amounts (with minus signs) and credits as positive amounts in the matrix window.';
                 }
@@ -369,32 +348,27 @@ page 554 "Analysis by Dimensions"
             group("Matrix Options")
             {
                 Caption = 'Matrix Options';
-                field(PeriodType; PeriodType)
+                field(PeriodType; "Period Type")
                 {
                     ApplicationArea = Dimensions;
-                    Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        if ColumnDimOption = ColumnDimOption::Period then
-                            CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
+                        if "Column Dim Option" = "Column Dim Option"::Period then
+                            CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
-                field(ColumnsSet; ColumnsSet)
+                field(ColumnsSet; "Column Set")
                 {
                     ApplicationArea = Dimensions;
-                    Caption = 'Column Set';
                     Editable = false;
                     ToolTip = 'Specifies the range of values that are displayed in the matrix window, for example, the total period. To change the contents of the field, choose Next Set or Previous Set.';
                 }
-                field(QtyType; QtyType)
+                field(QtyType; "Amount Type")
                 {
                     ApplicationArea = Dimensions;
-                    Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
                 }
             }
@@ -427,7 +401,7 @@ page 554 "Analysis by Dimensions"
                         LineDimCode := TempDimCode;
                         ValidateLineDimCode;
                         ValidateColumnDimCode;
-                        CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
+                        CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                     end;
                 }
             }
@@ -451,16 +425,9 @@ page 554 "Analysis by Dimensions"
                     Clear(MatrixForm);
 
                     if GLAccountSource then
-                        CashFlowFilter := '';
+                        "Cash Flow Forecast Filter" := '';
 
-                    MatrixForm.Load(
-                      LineDimOption, ColumnDimOption, LineDimCode, ColumnDimCode, PeriodType, DateFilter, AccFilter,
-                      BusUnitFilter, BudgetFilter, Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, CashFlowFilter);
-                    MatrixForm.Load(
-                      QtyType, AnalysisViewCode, ShowOppositeSign, ShowColumnName,
-                      ShowActualBudg, AmountField, ClosingEntryFilter, RoundingFactor, ShowInAddCurr,
-                      ColumnCaptions, PrimaryKeyFirstColInSet);
-
+                    MatrixForm.Load(Rec, LineDimCode, ColumnDimCode, ColumnCaptions, PrimaryKeyFirstColInSet);
                     MatrixForm.RunModal;
                 end;
             }
@@ -477,7 +444,7 @@ page 554 "Analysis by Dimensions"
 
                 trigger OnAction()
                 begin
-                    CreateCaptionSet(Rec, Step::Previous, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
+                    CreateCaptionSet(DimensionCodeBuffer, Step::Previous, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                 end;
             }
             action("Next Set")
@@ -492,7 +459,7 @@ page 554 "Analysis by Dimensions"
 
                 trigger OnAction()
                 begin
-                    CreateCaptionSet(Rec, Step::Next, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
+                    CreateCaptionSet(DimensionCodeBuffer, Step::Next, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
                 end;
             }
         }
@@ -500,7 +467,7 @@ page 554 "Analysis by Dimensions"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(FindRec(LineDimOption, Rec, Which));
+        exit(FindRec("Line Dim Option", DimensionCodeBuffer, Which));
     end;
 
     trigger OnInit()
@@ -513,7 +480,7 @@ page 554 "Analysis by Dimensions"
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(NextRec(LineDimOption, Rec, Steps));
+        exit(NextRec("Line Dim Option", DimensionCodeBuffer, Steps));
     end;
 
     trigger OnOpenPage()
@@ -522,14 +489,14 @@ page 554 "Analysis by Dimensions"
         "Field": Record "Field";
         CashFlowAccount: Record "Cash Flow Account";
     begin
-        if (NewAnalysisViewCode <> '') and (NewAnalysisViewCode <> AnalysisViewCode) then
-            AnalysisViewCode := NewAnalysisViewCode;
+        if (NewAnalysisViewCode <> '') and (NewAnalysisViewCode <> "Analysis View Code") then
+            "Analysis View Code" := NewAnalysisViewCode;
 
         ValidateAnalysisViewCode;
 
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Additional Reporting Currency" = '' then
-            ShowInAddCurr := false
+            "Show In Add. Currency" := false
         else
             Currency.Get(GLSetup."Additional Reporting Currency");
 
@@ -539,8 +506,8 @@ page 554 "Analysis by Dimensions"
             LineDimCode := CashFlowAccount.TableCaption;
         ColumnDimCode := Text000;
 
-        LineDimOption := DimCodeToOption(LineDimCode);
-        ColumnDimOption := DimCodeToOption(ColumnDimCode);
+        "Line Dim Option" := DimCodeToOption(LineDimCode);
+        "Column Dim Option" := DimCodeToOption(ColumnDimCode);
         if GLAccountSource then begin
             Field.Get(DATABASE::"G/L Account", 42);
             BusUnitFilterCaption := Field."Field Caption";
@@ -548,7 +515,7 @@ page 554 "Analysis by Dimensions"
 
         FindPeriod('');
 
-        CreateCaptionSet(Rec, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, ColumnsSet);
+        CreateCaptionSet(DimensionCodeBuffer, Step::First, 32, PrimaryKeyFirstColInSet, ColumnCaptions, "Column Set");
     end;
 
     var
@@ -564,39 +531,18 @@ page 554 "Analysis by Dimensions"
         AnalysisView: Record "Analysis View";
         AnalysisViewEntry: Record "Analysis View Entry";
         Currency: Record Currency;
-        LineDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast";
-        ColumnDimOption: Option "G/L Account",Period,"Business Unit","Dimension 1","Dimension 2","Dimension 3","Dimension 4","Cash Flow Account","Cash Flow Forecast";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        DimensionCodeBuffer: Record "Dimension Code Buffer" temporary;
         AmountType: Option "Net Change","Balance at Date";
-        RoundingFactor: Option "None","1","1000","1000000";
-        AmountField: Option Amount,"Debit Amount","Credit Amount";
-        ShowActualBudg: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%",Amounts;
-        ClosingEntryFilter: Option Include,Exclude;
         [InDataSet]
         GLAccountSource: Boolean;
         LineDimCode: Text[30];
         ColumnDimCode: Text[30];
-        DateFilter: Text;
         InternalDateFilter: Text;
-        CashFlowFilter: Text;
         ColumnCaptions: array[32] of Text[80];
         PrimaryKeyFirstColInSet: Text[1024];
-        ColumnsSet: Text[1024];
-        AnalysisViewCode: Code[10];
         NewAnalysisViewCode: Code[10];
-        AccFilter: Text;
-        BudgetFilter: Text;
-        Dim1Filter: Text;
-        Dim2Filter: Text;
-        Dim3Filter: Text;
-        Dim4Filter: Text;
-        ShowOppositeSign: Boolean;
-        ShowColumnName: Boolean;
         PeriodInitialized: Boolean;
-        ShowInAddCurr: Boolean;
-        BusUnitFilter: Text;
         Step: Option First,Previous,Same,Next;
-        QtyType: Option "Net Change","Balance at Date";
         BusUnitFilterCaption: Text[80];
         [InDataSet]
         Dim1FilterEnable: Boolean;
@@ -657,8 +603,8 @@ page 554 "Analysis by Dimensions"
             DimOption::"G/L Account":
                 begin
                     GLAcc."No." := DimCodeBuf.Code;
-                    if AccFilter <> '' then
-                        GLAcc.SetFilter("No.", AccFilter);
+                    if "Account Filter" <> '' then
+                        GLAcc.SetFilter("No.", "Account Filter");
                     Found := GLAcc.Find(Which);
                     if Found then
                         CopyGLAccToBuf(GLAcc, DimCodeBuf);
@@ -666,8 +612,8 @@ page 554 "Analysis by Dimensions"
             DimOption::"Cash Flow Account":
                 begin
                     CFAccount."No." := DimCodeBuf.Code;
-                    if AccFilter <> '' then
-                        CFAccount.SetFilter("No.", AccFilter);
+                    if "Account Filter" <> '' then
+                        CFAccount.SetFilter("No.", "Account Filter");
                     Found := CFAccount.Find(Which);
                     if Found then
                         CopyCFAccToBuf(CFAccount, DimCodeBuf);
@@ -675,23 +621,23 @@ page 554 "Analysis by Dimensions"
             DimOption::Period:
                 begin
                     if not PeriodInitialized then
-                        DateFilter := '';
+                        "Date Filter" := '';
                     PeriodInitialized := true;
                     Period."Period Start" := DimCodeBuf."Period Start";
-                    if DateFilter <> '' then
-                        Period.SetFilter("Period Start", DateFilter)
+                    if "Date Filter" <> '' then
+                        Period.SetFilter("Period Start", "Date Filter")
                     else
                         if InternalDateFilter <> '' then
                             Period.SetFilter("Period Start", InternalDateFilter);
-                    Found := PeriodFormMgt.FindDate(Which, Period, PeriodType);
+                    Found := PeriodFormMgt.FindDate(Which, Period, "Period Type");
                     if Found then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
             DimOption::"Business Unit":
                 begin
                     BusUnit.Code := DimCodeBuf.Code;
-                    if BusUnitFilter <> '' then
-                        BusUnit.SetFilter(Code, BusUnitFilter);
+                    if "Bus. Unit Filter" <> '' then
+                        BusUnit.SetFilter(Code, "Bus. Unit Filter");
                     Found := BusUnit.Find(Which);
                     if Found then
                         CopyBusUnitToBuf(BusUnit, DimCodeBuf);
@@ -699,16 +645,16 @@ page 554 "Analysis by Dimensions"
             DimOption::"Cash Flow Forecast":
                 begin
                     CashFlowForecast."No." := DimCodeBuf.Code;
-                    if CashFlowFilter <> '' then
-                        CashFlowForecast.SetFilter("No.", CashFlowFilter);
+                    if "Cash Flow Forecast Filter" <> '' then
+                        CashFlowForecast.SetFilter("No.", "Cash Flow Forecast Filter");
                     Found := CashFlowForecast.Find(Which);
                     if Found then
                         CopyCashFlowToBuf(CashFlowForecast, DimCodeBuf);
                 end;
             DimOption::"Dimension 1":
                 begin
-                    if Dim1Filter <> '' then
-                        DimVal.SetFilter(Code, Dim1Filter);
+                    if "Dimension 1 Filter" <> '' then
+                        DimVal.SetFilter(Code, "Dimension 1 Filter");
                     DimVal."Dimension Code" := AnalysisView."Dimension 1 Code";
                     DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
                     DimVal.Code := DimCodeBuf.Code;
@@ -718,8 +664,8 @@ page 554 "Analysis by Dimensions"
                 end;
             DimOption::"Dimension 2":
                 begin
-                    if Dim2Filter <> '' then
-                        DimVal.SetFilter(Code, Dim2Filter);
+                    if "Dimension 2 Filter" <> '' then
+                        DimVal.SetFilter(Code, "Dimension 2 Filter");
                     DimVal."Dimension Code" := AnalysisView."Dimension 2 Code";
                     DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
                     DimVal.Code := DimCodeBuf.Code;
@@ -729,8 +675,8 @@ page 554 "Analysis by Dimensions"
                 end;
             DimOption::"Dimension 3":
                 begin
-                    if Dim3Filter <> '' then
-                        DimVal.SetFilter(Code, Dim3Filter);
+                    if "Dimension 3 Filter" <> '' then
+                        DimVal.SetFilter(Code, "Dimension 3 Filter");
                     DimVal."Dimension Code" := AnalysisView."Dimension 3 Code";
                     DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
                     DimVal.Code := DimCodeBuf.Code;
@@ -740,8 +686,8 @@ page 554 "Analysis by Dimensions"
                 end;
             DimOption::"Dimension 4":
                 begin
-                    if Dim4Filter <> '' then
-                        DimVal.SetFilter(Code, Dim4Filter);
+                    if "Dimension 4 Filter" <> '' then
+                        DimVal.SetFilter(Code, "Dimension 4 Filter");
                     DimVal."Dimension Code" := AnalysisView."Dimension 4 Code";
                     DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
                     DimVal.Code := DimCodeBuf.Code;
@@ -768,8 +714,8 @@ page 554 "Analysis by Dimensions"
             DimOption::"G/L Account":
                 begin
                     GLAcc."No." := DimCodeBuf.Code;
-                    if AccFilter <> '' then
-                        GLAcc.SetFilter("No.", AccFilter);
+                    if "Account Filter" <> '' then
+                        GLAcc.SetFilter("No.", "Account Filter");
                     ResultSteps := GLAcc.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyGLAccToBuf(GLAcc, DimCodeBuf);
@@ -777,26 +723,26 @@ page 554 "Analysis by Dimensions"
             DimOption::"Cash Flow Account":
                 begin
                     CFAccount."No." := DimCodeBuf.Code;
-                    if AccFilter <> '' then
-                        CFAccount.SetFilter("No.", AccFilter);
+                    if "Account Filter" <> '' then
+                        CFAccount.SetFilter("No.", "Account Filter");
                     ResultSteps := CFAccount.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyCFAccToBuf(CFAccount, DimCodeBuf);
                 end;
             DimOption::Period:
                 begin
-                    if DateFilter <> '' then
-                        Period.SetFilter("Period Start", DateFilter);
+                    if "Date Filter" <> '' then
+                        Period.SetFilter("Period Start", "Date Filter");
                     Period."Period Start" := DimCodeBuf."Period Start";
-                    ResultSteps := PeriodFormMgt.NextDate(Steps, Period, PeriodType);
+                    ResultSteps := PeriodFormMgt.NextDate(Steps, Period, "Period Type");
                     if ResultSteps <> 0 then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
             DimOption::"Business Unit":
                 begin
                     BusUnit.Code := DimCodeBuf.Code;
-                    if BusUnitFilter <> '' then
-                        BusUnit.SetFilter(Code, BusUnitFilter);
+                    if "Bus. Unit Filter" <> '' then
+                        BusUnit.SetFilter(Code, "Bus. Unit Filter");
                     ResultSteps := BusUnit.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyBusUnitToBuf(BusUnit, DimCodeBuf);
@@ -804,16 +750,16 @@ page 554 "Analysis by Dimensions"
             DimOption::"Cash Flow Forecast":
                 begin
                     CashFlowForecast."No." := DimCodeBuf.Code;
-                    if CashFlowFilter <> '' then
-                        CashFlowForecast.SetFilter("No.", CashFlowFilter);
+                    if "Cash Flow Forecast Filter" <> '' then
+                        CashFlowForecast.SetFilter("No.", "Cash Flow Forecast Filter");
                     ResultSteps := CashFlowForecast.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyCashFlowToBuf(CashFlowForecast, DimCodeBuf);
                 end;
             DimOption::"Dimension 1":
                 begin
-                    if Dim1Filter <> '' then
-                        DimVal.SetFilter(Code, Dim1Filter);
+                    if "Dimension 1 Filter" <> '' then
+                        DimVal.SetFilter(Code, "Dimension 1 Filter");
                     DimVal."Dimension Code" := AnalysisView."Dimension 1 Code";
                     DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
                     DimVal.Code := DimCodeBuf.Code;
@@ -823,8 +769,8 @@ page 554 "Analysis by Dimensions"
                 end;
             DimOption::"Dimension 2":
                 begin
-                    if Dim2Filter <> '' then
-                        DimVal.SetFilter(Code, Dim2Filter);
+                    if "Dimension 2 Filter" <> '' then
+                        DimVal.SetFilter(Code, "Dimension 2 Filter");
                     DimVal."Dimension Code" := AnalysisView."Dimension 2 Code";
                     DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
                     DimVal.Code := DimCodeBuf.Code;
@@ -834,8 +780,8 @@ page 554 "Analysis by Dimensions"
                 end;
             DimOption::"Dimension 3":
                 begin
-                    if Dim3Filter <> '' then
-                        DimVal.SetFilter(Code, Dim3Filter);
+                    if "Dimension 3 Filter" <> '' then
+                        DimVal.SetFilter(Code, "Dimension 3 Filter");
                     DimVal."Dimension Code" := AnalysisView."Dimension 3 Code";
                     DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
                     DimVal.Code := DimCodeBuf.Code;
@@ -845,8 +791,8 @@ page 554 "Analysis by Dimensions"
                 end;
             DimOption::"Dimension 4":
                 begin
-                    if Dim4Filter <> '' then
-                        DimVal.SetFilter(Code, Dim4Filter);
+                    if "Dimension 4 Filter" <> '' then
+                        DimVal.SetFilter(Code, "Dimension 4 Filter");
                     DimVal."Dimension Code" := AnalysisView."Dimension 4 Code";
                     DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
                     DimVal.Code := DimCodeBuf.Code;
@@ -890,12 +836,12 @@ page 554 "Analysis by Dimensions"
             Init;
             Code := Format(ThePeriod."Period Start");
             "Period Start" := ThePeriod."Period Start";
-            if ClosingEntryFilter = ClosingEntryFilter::Include then
+            if "Closing Entries" = "Closing Entries"::Include then
                 "Period End" := ClosingDate(ThePeriod."Period End")
             else
                 "Period End" := ThePeriod."Period End";
-            if DateFilter <> '' then begin
-                Period2.SetFilter("Period End", DateFilter);
+            if "Date Filter" <> '' then begin
+                Period2.SetFilter("Period End", "Date Filter");
                 if Period2.GetRangeMax("Period End") < "Period End" then
                     "Period End" := Period2.GetRangeMax("Period End");
             end;
@@ -941,15 +887,15 @@ page 554 "Analysis by Dimensions"
         TempDate: Date;
     begin
         if not PeriodInitialized then
-            DateFilter := '';
-        if (DateFilter <> '') and Evaluate(TempDate, DateFilter) then begin
-            Calendar.SetFilter("Period Start", DateFilter);
-            if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+            "Date Filter" := '';
+        if ("Date Filter" <> '') and Evaluate(TempDate, "Date Filter") then begin
+            Calendar.SetFilter("Period Start", "Date Filter");
+            if not PeriodFormMgt.FindDate('+', Calendar, "Period Type") then
+                PeriodFormMgt.FindDate('+', Calendar, "Period Type"::Day);
             Calendar.SetRange("Period Start");
         end;
-        if PeriodFormMgt.FindDate(SearchText, Calendar, PeriodType) then
-            if ClosingEntryFilter = ClosingEntryFilter::Include then
+        if PeriodFormMgt.FindDate(SearchText, Calendar, "Period Type") then
+            if "Closing Entries" = "Closing Entries"::Include then
                 Calendar."Period End" := ClosingDate(Calendar."Period End");
         if AmountType = AmountType::"Net Change" then begin
             AnalysisViewEntry.SetRange("Posting Date", Calendar."Period Start", Calendar."Period End");
@@ -959,8 +905,8 @@ page 554 "Analysis by Dimensions"
             AnalysisViewEntry.SetRange("Posting Date", 0D, Calendar."Period End");
 
         InternalDateFilter := AnalysisViewEntry.GetFilter("Posting Date");
-        if (LineDimOption <> LineDimOption::Period) and (ColumnDimOption <> ColumnDimOption::Period) then
-            DateFilter := InternalDateFilter;
+        if ("Line Dim Option" <> "Line Dim Option"::Period) and ("Column Dim Option" <> "Column Dim Option"::Period) then
+            "Date Filter" := InternalDateFilter;
     end;
 
     local procedure GetDimSelection(OldDimSelCode: Text[30]): Text[30]
@@ -1012,48 +958,45 @@ page 554 "Analysis by Dimensions"
     var
         AnalysisViewFilter: Record "Analysis View Filter";
     begin
-        AnalysisView.Code := AnalysisViewCode;
+        AnalysisView.Code := "Analysis View Code";
         if not AnalysisView.Find('=<>') then
             Error(Text002);
-        AnalysisViewCode := AnalysisView.Code;
-        AccFilter := AnalysisView."Account Filter";
-        Dim1Filter := '';
-        Dim2Filter := '';
-        Dim3Filter := '';
-        Dim4Filter := '';
-        Dim1Filter := GetFilter("Dimension 1 Value Filter");
-        Dim2Filter := GetFilter("Dimension 2 Value Filter");
-        Dim3Filter := GetFilter("Dimension 3 Value Filter");
-        Dim4Filter := GetFilter("Dimension 4 Value Filter");
+        "Analysis View Code" := AnalysisView.Code;
+        "Account Filter" := AnalysisView."Account Filter";
+
+        "Dimension 1 Filter" := '';
+        "Dimension 2 Filter" := '';
+        "Dimension 3 Filter" := '';
+        "Dimension 4 Filter" := '';
 
         Dim1FilterEnable :=
           (AnalysisView."Dimension 1 Code" <> '') and
-          (GetFilter("Dimension 1 Value Filter") = '');
+          ("Dimension 1 Filter" = '');
         Dim2FilterEnable :=
           (AnalysisView."Dimension 2 Code" <> '') and
-          (GetFilter("Dimension 2 Value Filter") = '');
+          ("Dimension 2 Filter" = '');
         Dim3FilterEnable :=
           (AnalysisView."Dimension 3 Code" <> '') and
-          (GetFilter("Dimension 3 Value Filter") = '');
+          ("Dimension 3 Filter" = '');
         Dim4FilterEnable :=
           (AnalysisView."Dimension 4 Code" <> '') and
-          (GetFilter("Dimension 4 Value Filter") = '');
+          ("Dimension 4 Filter" = '');
 
         if Dim1FilterEnable then
             if AnalysisViewFilter.Get(AnalysisView.Code, AnalysisView."Dimension 1 Code") then
-                Dim1Filter := AnalysisViewFilter."Dimension Value Filter";
+                "Dimension 1 Filter" := AnalysisViewFilter."Dimension Value Filter";
 
         if Dim2FilterEnable then
             if AnalysisViewFilter.Get(AnalysisView.Code, AnalysisView."Dimension 2 Code") then
-                Dim2Filter := AnalysisViewFilter."Dimension Value Filter";
+                "Dimension 2 Filter" := AnalysisViewFilter."Dimension Value Filter";
 
         if Dim3FilterEnable then
             if AnalysisViewFilter.Get(AnalysisView.Code, AnalysisView."Dimension 3 Code") then
-                Dim3Filter := AnalysisViewFilter."Dimension Value Filter";
+                "Dimension 3 Filter" := AnalysisViewFilter."Dimension Value Filter";
 
         if Dim4FilterEnable then
             if AnalysisViewFilter.Get(AnalysisView.Code, AnalysisView."Dimension 4 Code") then
-                Dim4Filter := AnalysisViewFilter."Dimension Value Filter";
+                "Dimension 4 Filter" := AnalysisViewFilter."Dimension Value Filter";
 
         case AnalysisView."Account Source" of
             AnalysisView."Account Source"::"G/L Account":
@@ -1084,12 +1027,12 @@ page 554 "Analysis by Dimensions"
             Message(Text003, LineDimCode);
             LineDimCode := '';
         end;
-        LineDimOption := DimCodeToOption(LineDimCode);
+        "Line Dim Option" := DimCodeToOption(LineDimCode);
         InternalDateFilter := AnalysisViewEntry.GetFilter("Posting Date");
-        if (LineDimOption <> LineDimOption::Period) and (ColumnDimOption <> ColumnDimOption::Period) then begin
-            DateFilter := InternalDateFilter;
-            if StrPos(DateFilter, '&') > 1 then
-                DateFilter := CopyStr(DateFilter, 1, StrPos(DateFilter, '&') - 1);
+        if ("Line Dim Option" <> "Line Dim Option"::Period) and ("Column Dim Option" <> "Column Dim Option"::Period) then begin
+            "Date Filter" := InternalDateFilter;
+            if StrPos("Date Filter", '&') > 1 then
+                "Date Filter" := CopyStr("Date Filter", 1, StrPos("Date Filter", '&') - 1);
         end;
     end;
 
@@ -1112,20 +1055,20 @@ page 554 "Analysis by Dimensions"
             Message(Text004, ColumnDimCode);
             ColumnDimCode := '';
         end;
-        ColumnDimOption := DimCodeToOption(ColumnDimCode);
+        "Column Dim Option" := DimCodeToOption(ColumnDimCode);
         InternalDateFilter := AnalysisViewEntry.GetFilter("Posting Date");
-        if (LineDimOption <> LineDimOption::Period) and (ColumnDimOption <> ColumnDimOption::Period) then begin
-            DateFilter := InternalDateFilter;
-            if StrPos(DateFilter, '&') > 1 then
-                DateFilter := CopyStr(DateFilter, 1, StrPos(DateFilter, '&') - 1);
+        if ("Line Dim Option" <> "Line Dim Option"::Period) and ("Column Dim Option" <> "Column Dim Option"::Period) then begin
+            "Date Filter" := InternalDateFilter;
+            if StrPos("Date Filter", '&') > 1 then
+                "Date Filter" := CopyStr("Date Filter", 1, StrPos("Date Filter", '&') - 1);
         end else
             PeriodInitialized := false;
     end;
 
     local procedure GetCaptionClass(AnalysisViewDimType: Integer): Text[250]
     begin
-        if AnalysisView.Code <> AnalysisViewCode then
-            AnalysisView.Get(AnalysisViewCode);
+        if AnalysisView.Code <> "Analysis View Code" then
+            if AnalysisView.Get("Analysis View Code") then;
         case AnalysisViewDimType of
             1:
                 begin
@@ -1170,39 +1113,39 @@ page 554 "Analysis by Dimensions"
         case Step of
             Step::First:
                 begin
-                    if (ColumnDimOption = ColumnDimOption::Period) and (DateFilter = '') then
-                        FindRec(ColumnDimOption, RecRef, '=><')
+                    if ("Column Dim Option" = "Column Dim Option"::Period) and ("Date Filter" = '') then
+                        FindRec("Column Dim Option", RecRef, '=><')
                     else
-                        if not FindRec(ColumnDimOption, RecRef, '-') then
+                        if not FindRec("Column Dim Option", RecRef, '-') then
                             exit;
                 end;
             Step::Previous:
                 begin
                     RecRef.SetPosition(PrimaryKeyFirstCaptionInCurrSe);
-                    if ColumnDimOption = ColumnDimOption::Period then
+                    if "Column Dim Option" = "Column Dim Option"::Period then
                         Evaluate(RecRef."Period Start", RecRef.Code);
-                    if not FindRec(ColumnDimOption, RecRef, '=') then
+                    if not FindRec("Column Dim Option", RecRef, '=') then
                         exit;
-                    NextRec(ColumnDimOption, RecRef, -MaximumNoOfCaptions);
+                    NextRec("Column Dim Option", RecRef, -MaximumNoOfCaptions);
                 end;
             Step::Same:
                 begin
                     RecRef.SetPosition(PrimaryKeyFirstCaptionInCurrSe);
-                    if ColumnDimOption = ColumnDimOption::Period then
+                    if "Column Dim Option" = "Column Dim Option"::Period then
                         Evaluate(RecRef."Period Start", RecRef.Code);
-                    if not FindRec(ColumnDimOption, RecRef, '=') then
+                    if not FindRec("Column Dim Option", RecRef, '=') then
                         exit;
                 end;
             Step::Next:
                 begin
                     RecRef.SetPosition(PrimaryKeyFirstCaptionInCurrSe);
-                    if ColumnDimOption = ColumnDimOption::Period then
+                    if "Column Dim Option" = "Column Dim Option"::Period then
                         Evaluate(RecRef."Period Start", RecRef.Code);
-                    if not FindRec(ColumnDimOption, RecRef, '=') then
+                    if not FindRec("Column Dim Option", RecRef, '=') then
                         exit;
-                    if not (NextRec(ColumnDimOption, RecRef, MaximumNoOfCaptions) = MaximumNoOfCaptions) then begin
+                    if not (NextRec("Column Dim Option", RecRef, MaximumNoOfCaptions) = MaximumNoOfCaptions) then begin
                         RecRef.SetPosition(PrimaryKeyFirstCaptionInCurrSe);
-                        FindRec(ColumnDimOption, RecRef, '=');
+                        FindRec("Column Dim Option", RecRef, '=');
                     end;
                 end;
         end;
@@ -1211,11 +1154,11 @@ page 554 "Analysis by Dimensions"
 
         repeat
             CurrentCaptionOrdinal := CurrentCaptionOrdinal + 1;
-            if ShowColumnName then
+            if "Show Column Name" then
                 CaptionSet[CurrentCaptionOrdinal] := RecRef.Name
             else
                 CaptionSet[CurrentCaptionOrdinal] := RecRef.Code;
-        until (CurrentCaptionOrdinal = MaximumNoOfCaptions) or (NextRec(ColumnDimOption, RecRef, 1) <> 1);
+        until (CurrentCaptionOrdinal = MaximumNoOfCaptions) or (NextRec("Column Dim Option", RecRef, 1) <> 1);
 
         if CurrentCaptionOrdinal = 1 then
             CaptionRange := CaptionSet[1]
@@ -1226,6 +1169,8 @@ page 554 "Analysis by Dimensions"
     procedure SetAnalysisViewCode(NextAnalysisViewCode: Code[10])
     begin
         NewAnalysisViewCode := NextAnalysisViewCode;
+        "Analysis View Code" := NextAnalysisViewCode;
+        Insert();
     end;
 
     local procedure GetAccountCaption(var AccountCaption: Text[30]; var UnitCaption: Text[30])

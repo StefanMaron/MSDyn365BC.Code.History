@@ -37,7 +37,7 @@ codeunit 869 "Cash Flow Chart Mgt."
 
         CashFlowChartSetup.Get(UserId);
         BusChartBuf."Period Length" := CashFlowChartSetup."Period Length";
-        CashFlowForecast.Reset;
+        CashFlowForecast.Reset();
         CashFlowForecast.SetCashFlowDateFilter(BusChartBuf.CalcFromDate(ToDate), ToDate);
         DrillDownAmountForGroupBy(CashFlowForecast, CashFlowChartSetup."Group By", BusChartBuf.GetCurrMeasureValueString);
     end;
@@ -122,7 +122,7 @@ codeunit 869 "Cash Flow Chart Mgt."
                                 end else
                                     FromDate := CalcFromDate(ToDate);
 
-                                CashFlowForecast.Reset;
+                                CashFlowForecast.Reset();
                                 CashFlowForecast.SetCashFlowDateFilter(FromDate, ToDate);
                                 Amount := CalcAmountForGroupBy(CashFlowForecast, CashFlowChartSetup."Group By", BusChartMapMeasure."Value String");
 

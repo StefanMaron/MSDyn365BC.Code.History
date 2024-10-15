@@ -41,7 +41,7 @@ codeunit 1016 "Jobs-Send"
             if not DocumentSendingProfile.Get(Customer."Document Sending Profile") then
                 DocumentSendingProfile.GetDefault(DocumentSendingProfile);
 
-            Commit;
+            Commit();
             with TempDocumentSendingProfile do begin
                 Copy(DocumentSendingProfile);
                 SetDocumentUsage(Job);

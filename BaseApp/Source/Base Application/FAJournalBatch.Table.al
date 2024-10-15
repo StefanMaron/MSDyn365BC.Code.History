@@ -99,7 +99,7 @@ table 5620 "FA Journal Batch"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         FAJnlTemplate.Get("Journal Template Name");
     end;
 

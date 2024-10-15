@@ -1,4 +1,4 @@
-﻿page 517 "Requisition Lines"
+page 517 "Requisition Lines"
 {
     Caption = 'Requisition Lines';
     Editable = false;
@@ -75,6 +75,13 @@
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the number of the vendor who will ship the items in the purchase order.';
+                }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies the method that will be used for price calculation in the requisition line.';
                 }
                 field("Sell-to Customer No."; "Sell-to Customer No.")
                 {

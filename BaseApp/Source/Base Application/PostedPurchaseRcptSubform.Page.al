@@ -1,4 +1,4 @@
-﻿page 137 "Posted Purchase Rcpt. Subform"
+page 137 "Posted Purchase Rcpt. Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';

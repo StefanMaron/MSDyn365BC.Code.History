@@ -121,7 +121,7 @@ table 7310 "Warehouse Journal Batch"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         WhseJnlTemplate.Get("Journal Template Name");
     end;
 

@@ -1,5 +1,8 @@
 codeunit 7010 "Purch. Price Calc. Mgt."
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteTag = '16.0';
 
     trigger OnRun()
     begin
@@ -30,7 +33,14 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         Text001: Label 'The %1 in the %2 must be same as in the %3.';
 
     procedure FindPurchLinePrice(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; CalledByFieldNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindPurchLinePrice(PurchLine, PurchHeader, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchLine do begin
             SetCurrency(
               PurchHeader."Currency Code", PurchHeader."Currency Factor", PurchHeaderExchDate(PurchHeader));
@@ -57,13 +67,30 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                         then
                             "Direct Unit Cost" := TempPurchPrice."Direct Unit Cost";
                     end;
+                Type::Resource:
+                    begin
+                        ResCost.Init();
+                        ResCost.Code := "No.";
+                        ResCost."Work Type Code" := '';
+                        CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
+                        ConvertPriceLCYToFCY("Currency Code", ResCost."Unit Cost");
+                        "Direct Unit Cost" :=
+                          Round(ResCost."Direct Unit Cost" * "Qty. per Unit of Measure", Currency."Unit-Amount Rounding Precision");
+                    end;
             end;
-            OnAfterFindPurchLinePrice(PurchLine, PurchHeader, TempPurchPrice, CalledByFieldNo);
+            OnAfterFindPurchLinePrice(PurchLine, PurchHeader, TempPurchPrice, CalledByFieldNo, PriceInSKU);
         end;
     end;
 
     procedure FindItemJnlLinePrice(var ItemJnlLine: Record "Item Journal Line"; CalledByFieldNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindItemJnlLinePrice(ItemJnlLine, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         with ItemJnlLine do begin
             TestField("Qty. per Unit of Measure");
             SetCurrency('', 0, 0D);
@@ -93,6 +120,11 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         VendorNo: Code[20];
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindReqLinePriceOnBeforeWith(ReqLine, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReqLine do
             if Type = Type::Item then begin
                 if not Vend.Get("Vendor No.") then
@@ -100,7 +132,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                 else
                     if Vend."Pay-to Vendor No." <> '' then
                         if not Vend.Get(Vend."Pay-to Vendor No.") then
-                            Vend.Init;
+                            Vend.Init();
                 if Vend."No." <> '' then
                     VendorNo := Vend."No."
                 else
@@ -162,7 +194,14 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     end;
 
     procedure FindStdItemJnlLinePrice(var StdItemJnlLine: Record "Standard Item Journal Line"; CalledByFieldNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindStdItemJnlLinePrice(StdItemJnlLine, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         with StdItemJnlLine do begin
             TestField("Qty. per Unit of Measure");
             SetCurrency('', 0, 0D);
@@ -189,6 +228,11 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindReqLineDiscOnBeforeWith(ReqLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReqLine do begin
             SetCurrency("Currency Code", 0, 0D);
             SetUoM(Abs(Quantity), "Qty. per Unit of Measure");
@@ -211,7 +255,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         end;
     end;
 
-    local procedure CalcBestDirectUnitCost(var PurchPrice: Record "Purchase Price")
+    procedure CalcBestDirectUnitCost(var PurchPrice: Record "Purchase Price")
     var
         BestPurchPrice: Record "Purchase Price";
         BestPurchPriceFound: Boolean;
@@ -227,6 +271,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
             if FoundPurchPrice then
                 repeat
                     if IsInMinQty("Unit of Measure Code", "Minimum Quantity") then begin
+                        OnCalcBestDirectUnitCostOnBeforeConvertPriceToVAT(PurchPrice);
                         ConvertPriceToVAT(
                           Vend."Prices Including VAT", Item."VAT Prod. Posting Group",
                           Vend."VAT Bus. Posting Group", "Direct Unit Cost");
@@ -252,6 +297,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                     end;
                 until Next = 0;
         end;
+        OnAfterCalcBestDirectUnitCostFound(PurchPrice, BestPurchPriceFound);
 
         // No price found in agreement
         if not BestPurchPriceFound then begin
@@ -273,10 +319,16 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         PurchPrice := BestPurchPrice;
     end;
 
-    local procedure CalcBestLineDisc(var PurchLineDisc: Record "Purchase Line Discount")
+    procedure CalcBestLineDisc(var PurchLineDisc: Record "Purchase Line Discount")
     var
         BestPurchLineDisc: Record "Purchase Line Discount";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcBestLineDisc(PurchLineDisc, Item, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchLineDisc do
             if Find('-') then
                 repeat
@@ -292,6 +344,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                         end;
                 until Next = 0;
 
+        OnAfterCalcBestLineDisc(PurchLineDisc, BestPurchLineDisc);
         PurchLineDisc := BestPurchLineDisc;
     end;
 
@@ -313,12 +366,12 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                 SetFilter("Unit of Measure Code", '%1|%2', UOM, '');
             end;
 
-            ToPurchPrice.Reset;
-            ToPurchPrice.DeleteAll;
+            ToPurchPrice.Reset();
+            ToPurchPrice.DeleteAll();
             if Find('-') then
                 repeat
                     ToPurchPrice := FromPurchPrice;
-                    ToPurchPrice.Insert;
+                    ToPurchPrice.Insert();
                 until Next = 0;
         end;
 
@@ -342,13 +395,13 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                 SetFilter("Unit of Measure Code", '%1|%2', UOM, '');
             end;
 
-            ToPurchLineDisc.Reset;
-            ToPurchLineDisc.DeleteAll;
+            ToPurchLineDisc.Reset();
+            ToPurchLineDisc.DeleteAll();
 
             if Find('-') then
                 repeat
                     ToPurchLineDisc := FromPurchLineDisc;
-                    ToPurchLineDisc.Insert;
+                    ToPurchLineDisc.Insert();
                 until Next = 0;
         end;
 
@@ -364,7 +417,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
             CurrencyFactor := CurrencyFactor2;
             ExchRateDate := ExchRateDate2;
         end else
-            GLSetup.Get;
+            GLSetup.Get();
     end;
 
     procedure SetVAT(PriceInclVAT2: Boolean; VATPerCent2: Decimal; VATBusPostingGr2: Code[20])
@@ -380,7 +433,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         QtyPerUOM := QtyPerUoM2;
     end;
 
-    local procedure SetLineDisc(LineDiscPerCent2: Decimal)
+    procedure SetLineDisc(LineDiscPerCent2: Decimal)
     begin
         LineDiscPerCent := LineDiscPerCent2;
     end;
@@ -398,7 +451,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     begin
         if FromPriceInclVAT then begin
             if not VATPostingSetup.Get(FromVATBusPostingGr, FromVATProdPostingGr) then
-                VATPostingSetup.Init;
+                VATPostingSetup.Init();
             OnBeforeConvertPriceToVAT(VATPostingSetup);
 
             if PricesInclVAT then begin
@@ -436,7 +489,8 @@ codeunit 7010 "Purch. Price Calc. Mgt."
             exit("Direct Unit Cost" * (1 - LineDiscPerCent / 100));
     end;
 
-    local procedure PurchLinePriceExists(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ShowAll: Boolean): Boolean
+    [Scope('OnPrem')]
+    procedure PurchLinePriceExists(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ShowAll: Boolean): Boolean
     var
         IsHandled: Boolean;
     begin
@@ -454,7 +508,8 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         exit(false);
     end;
 
-    local procedure PurchLineLineDiscExists(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ShowAll: Boolean): Boolean
+    [Scope('OnPrem')]
+    procedure PurchLineLineDiscExists(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ShowAll: Boolean): Boolean
     var
         IsHandled: Boolean;
     begin
@@ -505,7 +560,13 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     procedure FindJobPlanningLinePrice(var JobPlanningLine: Record "Job Planning Line"; CalledByFieldNo: Integer)
     var
         JTHeader: Record Job;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindJobPlanningLinePrice(JobPlanningLine, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         with JobPlanningLine do begin
             SetCurrency("Currency Code", "Currency Factor", "Planning Date");
             SetVAT(false, 0, '');
@@ -523,7 +584,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                         FindPurchPrice(
                           TempPurchPrice, '', "No.", "Variant Code", "Unit of Measure Code", '', "Planning Date", false);
                         PricesInCurrency := false;
-                        GLSetup.Get;
+                        GLSetup.Get();
                         CalcBestDirectUnitCost(TempPurchPrice);
                         SetCurrency("Currency Code", "Currency Factor", "Planning Date");
 
@@ -535,7 +596,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                     end;
                 Type::Resource:
                     begin
-                        ResCost.Init;
+                        ResCost.Init();
                         ResCost.Code := "No.";
                         ResCost."Work Type Code" := "Work Type Code";
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
@@ -556,6 +617,11 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         Job: Record Job;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindJobJnlLinePrice(JobJnlLine, CalledByFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         with JobJnlLine do begin
             SetCurrency("Currency Code", "Currency Factor", "Posting Date");
             SetVAT(false, 0, '');
@@ -573,7 +639,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                         FindPurchPrice(
                           TempPurchPrice, '', "No.", "Variant Code", "Unit of Measure Code", "Country/Region Code", "Posting Date", false);
                         PricesInCurrency := false;
-                        GLSetup.Get;
+                        GLSetup.Get();
 
                         OnFindJobJnlLinePriceOnBeforeCalcBestDirectUnitCost(JobJnlLine, TempPurchPrice);
                         CalcBestDirectUnitCost(TempPurchPrice);
@@ -588,7 +654,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                     end;
                 Type::Resource:
                     begin
-                        ResCost.Init;
+                        ResCost.Init();
                         ResCost.Code := "No.";
                         ResCost."Work Type Code" := "Work Type Code";
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
@@ -607,20 +673,41 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         end;
     end;
 
-    procedure NoOfPurchLinePrice(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ShowAll: Boolean): Integer
+    procedure NoOfPurchLinePrice(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ShowAll: Boolean) ReturnValue: Integer
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNoOfPurchLinePrice(PurchHeader, PurchLine, ShowAll, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         if PurchLinePriceExists(PurchHeader, PurchLine, ShowAll) then
             exit(TempPurchPrice.Count);
     end;
 
-    procedure NoOfPurchLineLineDisc(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ShowAll: Boolean): Integer
+    procedure NoOfPurchLineLineDisc(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; ShowAll: Boolean) ReturnValue: Integer
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNoOfPurchLineLineDisc(PurchHeader, PurchLine, ShowAll, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         if PurchLineLineDiscExists(PurchHeader, PurchLine, ShowAll) then
             exit(TempPurchLineDisc.Count);
     end;
 
     procedure GetPurchLinePrice(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPurchLinePrice(PurchHeader, PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchLinePriceExists(PurchHeader, PurchLine, true);
 
         with PurchLine do
@@ -668,7 +755,14 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     end;
 
     procedure GetPurchLineLineDisc(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPurchLineDisc(PurchHeader, PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchLineLineDiscExists(PurchHeader, PurchLine, true);
 
         with PurchLine do
@@ -707,6 +801,27 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         OnAfterGetPurchLineLineDisc(PurchLine, TempPurchLineDisc);
     end;
 
+    procedure SetItem(ItemNo: Code[20])
+    begin
+        Item.Get(ItemNo);
+    end;
+
+    procedure SetVendor(VendorNo: Code[20])
+    begin
+        Vend.Get(VendorNo);
+    end;
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcBestDirectUnitCostFound(var PurchPrice: Record "Purchase Price"; var BestPurchPriceFound: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcBestLineDisc(var PurchaLineDisc: Record "Purchase Line Discount"; var BestPurchLineDisc: Record "Purchase Line Discount");
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindJobJnlLinePrice(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
@@ -728,7 +843,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFindPurchLinePrice(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var PurchasePrice: Record "Purchase Price"; CalledByFieldNo: Integer)
+    local procedure OnAfterFindPurchLinePrice(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var PurchasePrice: Record "Purchase Price"; CalledByFieldNo: Integer; PriceInSKU: Boolean)
     begin
     end;
 
@@ -788,7 +903,32 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBestLineDisc(var PurchLineDisc: Record "Purchase Line Discount"; Item: Record Item; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeConvertPriceToVAT(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindItemJnlLinePrice(var ItemJournalLine: Record "Item Journal Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindJobJnlLinePrice(var JobJnlLine: Record "Job Journal Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindJobPlanningLinePrice(var JobPlanningLine: Record "Job Planning Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindPurchLinePrice(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; CalledByFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -803,7 +943,42 @@ codeunit 7010 "Purch. Price Calc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindReqLinePriceOnBeforeWith(var RequisitionLine: Record "Requisition Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFindReqLineDisc(var ReqLine: Record "Requisition Line"; var TempPurchaseLineDiscount: Record "Purchase Line Discount" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindReqLineDiscOnBeforeWith(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindStdItemJnlLinePrice(var StandardItemJnlLine: Record "Standard Item Journal Line"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPurchLineDisc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPurchLinePrice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoOfPurchLineLineDisc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ShowAll: Boolean; var ReturnValue: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNoOfPurchLinePrice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; ShowAll: Boolean; var ReturnValue: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -829,6 +1004,11 @@ codeunit 7010 "Purch. Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcBestDirectUnitCostOnAfterSetUnitCost(var PurchasePrice: Record "Purchase Price")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcBestDirectUnitCostOnBeforeConvertPriceToVAT(var PurchasePrice: Record "Purchase Price")
     begin
     end;
 

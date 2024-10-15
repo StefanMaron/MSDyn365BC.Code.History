@@ -31,7 +31,7 @@ table 5633 "Insurance Journal Template"
                     "Page ID" := PAGE::"Insurance Journal";
                 "Test Report ID" := REPORT::"Insurance Journal - Test";
                 "Posting Report ID" := REPORT::"Insurance Register";
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 "Source Code" := SourceCodeSetup."Insurance Journal";
             end;
         }
@@ -130,7 +130,7 @@ table 5633 "Insurance Journal Template"
         InsuranceJnlLine.SetRange("Journal Template Name", Name);
         InsuranceJnlLine.DeleteAll(true);
         InsuranceJnlBatch.SetRange("Journal Template Name", Name);
-        InsuranceJnlBatch.DeleteAll;
+        InsuranceJnlBatch.DeleteAll();
     end;
 
     trigger OnInsert()

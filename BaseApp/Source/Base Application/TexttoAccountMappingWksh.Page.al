@@ -127,7 +127,7 @@ page 1254 "Text-to-Account Mapping Wksh."
     var
         GLAccount: Record "G/L Account";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         DefaultDebitAccNo := PurchasesPayablesSetup."Debit Acc. for Non-Item Lines";
         DefaultDebitAccName := '';
         DefaultCreditAccNo := PurchasesPayablesSetup."Credit Acc. for Non-Item Lines";
@@ -147,14 +147,14 @@ page 1254 "Text-to-Account Mapping Wksh."
         GLAccount.SetRange("Direct Posting", true);
         if PAGE.RunModal(PAGE::"G/L Account List", GLAccount) = ACTION::LookupOK then
             if Account <> GLAccount."No." then begin
-                PurchasesPayablesSetup.Get;
+                PurchasesPayablesSetup.Get();
                 case Type of
                     Type::Debit:
                         PurchasesPayablesSetup."Debit Acc. for Non-Item Lines" := GLAccount."No.";
                     Type::Credit:
                         PurchasesPayablesSetup."Credit Acc. for Non-Item Lines" := GLAccount."No.";
                 end;
-                PurchasesPayablesSetup.Modify;
+                PurchasesPayablesSetup.Modify();
                 UpdateDefaultGLAccounts;
             end;
     end;

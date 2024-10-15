@@ -150,7 +150,7 @@ report 716 "Inventory Cost and Price List"
                 trigger OnPreDataItem()
                 begin
                     if not UseStockkeepingUnit then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SKUPrintLoop := 0;
                 end;
@@ -221,7 +221,7 @@ report 716 "Inventory Cost and Price List"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 

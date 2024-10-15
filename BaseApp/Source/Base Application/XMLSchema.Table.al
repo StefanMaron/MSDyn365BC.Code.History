@@ -105,7 +105,7 @@ table 9600 "XML Schema"
             TestField(Code);
             XMLSchema := Rec;
             Delete(true);
-            XMLSchema.Insert;
+            XMLSchema.Insert();
             Rec := XMLSchema;
         end;
 

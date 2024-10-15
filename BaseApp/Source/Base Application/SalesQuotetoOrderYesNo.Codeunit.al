@@ -23,7 +23,7 @@ codeunit 83 "Sales-Quote to Order (Yes/No)"
 
         SalesQuoteToOrder.Run(Rec);
         SalesQuoteToOrder.GetSalesOrderHeader(SalesHeader2);
-        Commit;
+        Commit();
 
         OnAfterSalesQuoteToOrderRun(SalesHeader2);
 

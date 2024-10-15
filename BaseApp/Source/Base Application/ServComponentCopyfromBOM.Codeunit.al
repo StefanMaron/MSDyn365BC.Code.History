@@ -7,8 +7,8 @@ codeunit 5921 "ServComponent-Copy from BOM"
         ServItem.Get("No.");
         ServItem.TestField("Item No.");
 
-        ServItemComponent.LockTable;
-        ServItemComponent.Reset;
+        ServItemComponent.LockTable();
+        ServItemComponent.Reset();
         ServItemComponent.SetRange(Active, true);
         ServItemComponent.SetRange("Parent Service Item No.", ServItem."No.");
         if ServItemComponent.FindLast then
@@ -28,7 +28,7 @@ codeunit 5921 "ServComponent-Copy from BOM"
                     Item.Get(BOMComp."No.");
                     Clear(ServItemComponent);
                     ServItemComponent.Active := true;
-                    ServItemComponent.Init;
+                    ServItemComponent.Init();
                     ServItemComponent."Parent Service Item No." := ServItem."No.";
                     ServItemComponent."Line No." := LineNo;
                     ServItemComponent.Type := ServItemComponent.Type::Item;
@@ -38,8 +38,8 @@ codeunit 5921 "ServComponent-Copy from BOM"
                     ServItemComponent.Description := Item.Description;
                     ServItemComponent."Description 2" := Item."Description 2";
                     ServItemComponent."From Line No." := 0;
-                    if not ServItemComponent.Insert then
-                        ServItemComponent.Modify;
+                    if not ServItemComponent.Insert() then
+                        ServItemComponent.Modify();
                 end;
             until BOMComp.Next = 0;
         end else

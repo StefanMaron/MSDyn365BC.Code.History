@@ -51,7 +51,7 @@ table 560 "VAT Clause"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATClauseTranslation.SetRange("VAT Clause Code", Code);
-        VATClauseTranslation.DeleteAll;
+        VATClauseTranslation.DeleteAll();
 
         VATPostingSetup.SetRange("VAT Clause Code", Code);
         VATPostingSetup.ModifyAll("VAT Clause Code", '');

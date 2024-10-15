@@ -54,7 +54,7 @@ codeunit 179 "Reversal-Post"
                         REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg);
                 end;
         end;
-        DeleteAll;
+        DeleteAll();
         PostedDeferralHeader.DeleteForDoc(DeferralUtilities.GetGLDeferralDocType, ReversalEntry."Document No.", '', 0, '');
         if not HideDialog then
             Message(Text003);

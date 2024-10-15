@@ -312,37 +312,37 @@ page 9086 "Service Hist. Bill-to FactBox"
         ServInvHeader: Record "Service Invoice Header";
         ServCrMemoHeader: Record "Service Cr.Memo Header";
     begin
-        ServHeader.Reset;
+        ServHeader.Reset();
         ServHeader.SetRange("Document Type", ServHeader."Document Type"::Quote);
         ServHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfQuotes := ServHeader.Count;
+        NoOfQuotes := ServHeader.Count();
 
-        ServHeader.Reset;
+        ServHeader.Reset();
         ServHeader.SetRange("Document Type", ServHeader."Document Type"::Order);
         ServHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfOrders := ServHeader.Count;
+        NoOfOrders := ServHeader.Count();
 
-        ServHeader.Reset;
+        ServHeader.Reset();
         ServHeader.SetRange("Document Type", ServHeader."Document Type"::Invoice);
         ServHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfInvoices := ServHeader.Count;
+        NoOfInvoices := ServHeader.Count();
 
-        ServHeader.Reset;
+        ServHeader.Reset();
         ServHeader.SetRange("Document Type", ServHeader."Document Type"::"Credit Memo");
         ServHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfCreditMemos := ServHeader.Count;
+        NoOfCreditMemos := ServHeader.Count();
 
-        ServShptHeader.Reset;
+        ServShptHeader.Reset();
         ServShptHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfPostedShipments := ServShptHeader.Count;
+        NoOfPostedShipments := ServShptHeader.Count();
 
-        ServInvHeader.Reset;
+        ServInvHeader.Reset();
         ServInvHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfPostedInvoices := ServInvHeader.Count;
+        NoOfPostedInvoices := ServInvHeader.Count();
 
-        ServCrMemoHeader.Reset;
+        ServCrMemoHeader.Reset();
         ServCrMemoHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfPostedCreditMemos := ServCrMemoHeader.Count;
+        NoOfPostedCreditMemos := ServCrMemoHeader.Count();
     end;
 }
 

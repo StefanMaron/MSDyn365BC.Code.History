@@ -17,7 +17,7 @@ report 5697 "Date Compress Insurance Ledger"
             trigger OnAfterGetRecord()
             begin
                 if ("Insurance No." <> '') and OnlyIndexEntries and not "Index Entry" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 InsCoverageLedgEntry2 := "Ins. Coverage Ledger Entry";
                 with InsCoverageLedgEntry2 do begin
                     SetCurrentKey("FA No.", "Insurance No.");
@@ -74,7 +74,7 @@ report 5697 "Date Compress Insurance Ledger"
                 GLSetup: Record "General Ledger Setup";
             begin
                 if not Confirm(Text000, false) then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if EntrdDateComprReg."Ending Date" = 0D then
                     Error(Text003, EntrdDateComprReg.FieldCaption("Ending Date"));
@@ -86,12 +86,12 @@ report 5697 "Date Compress Insurance Ledger"
                   Text007 +
                   Text008);
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
                 SourceCodeSetup.TestField("Compress Insurance Ledger");
 
                 SelectedDim.GetSelectedDim(
                   UserId, 3, REPORT::"Date Compress Insurance Ledger", '', TempSelectedDim);
-                GLSetup.Get;
+                GLSetup.Get();
                 Retain[2] :=
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Insurance Ledger", '', GLSetup."Global Dimension 1 Code");
@@ -99,12 +99,11 @@ report 5697 "Date Compress Insurance Ledger"
                   TempSelectedDim.Get(
                     UserId, 3, REPORT::"Date Compress Insurance Ledger", '', GLSetup."Global Dimension 2 Code");
 
-                NewInsCoverageLedgEntry.LockTable;
-                InsuranceReg.LockTable;
-                DateComprReg.LockTable;
+                NewInsCoverageLedgEntry.LockTable();
+                InsuranceReg.LockTable();
+                DateComprReg.LockTable();
 
-                if InsCoverageLedgEntry2.Find('+') then;
-                LastEntryNo := InsCoverageLedgEntry2."Entry No.";
+                LastEntryNo := InsCoverageLedgEntry2.GetLastEntryNo();
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
@@ -255,17 +254,15 @@ report 5697 "Date Compress Insurance Ledger"
     var
         NextRegNo: Integer;
     begin
-        if InsuranceReg.Find('+') then;
-        InsuranceReg.Init;
-        InsuranceReg."No." := InsuranceReg."No." + 1;
+        InsuranceReg.Init();
+        InsuranceReg."No." := InsuranceReg.GetLastEntryNo() + 1;
         InsuranceReg."Creation Date" := Today;
         InsuranceReg."Creation Time" := Time;
         InsuranceReg."Source Code" := SourceCodeSetup."Compress Insurance Ledger";
         InsuranceReg."User ID" := UserId;
         InsuranceReg."From Entry No." := LastEntryNo + 1;
 
-        if DateComprReg.FindLast then
-            NextRegNo := DateComprReg."No." + 1;
+        NextRegNo := DateComprReg.GetLastEntryNo() + 1;
 
         DateComprReg.InitRegister(
           DATABASE::"Ins. Coverage Ledger Entry", NextRegNo,
@@ -285,27 +282,29 @@ report 5697 "Date Compress Insurance Ledger"
     end;
 
     local procedure InsertRegisters(var InsuranceReg: Record "Insurance Register"; var DateComprReg: Record "Date Compr. Register")
+    var
+        CurrLastEntryNo: Integer;
     begin
         InsuranceReg."To Entry No." := NewInsCoverageLedgEntry."Entry No.";
 
         if InsuranceRegExists then begin
-            InsuranceReg.Modify;
-            DateComprReg.Modify;
+            InsuranceReg.Modify();
+            DateComprReg.Modify();
         end else begin
-            InsuranceReg.Insert;
-            DateComprReg.Insert;
+            InsuranceReg.Insert();
+            DateComprReg.Insert();
             InsuranceRegExists := true;
         end;
-        Commit;
+        Commit();
 
-        NewInsCoverageLedgEntry.LockTable;
-        InsuranceReg.LockTable;
-        DateComprReg.LockTable;
+        NewInsCoverageLedgEntry.LockTable();
+        InsuranceReg.LockTable();
+        DateComprReg.LockTable();
 
-        InsCoverageLedgEntry2.Reset;
-        if InsCoverageLedgEntry2.Find('+') then;
-        if LastEntryNo <> InsCoverageLedgEntry2."Entry No." then begin
-            LastEntryNo := InsCoverageLedgEntry2."Entry No.";
+        InsCoverageLedgEntry2.Reset();
+        CurrLastEntryNo := InsCoverageLedgEntry2.GetLastEntryNo();
+        if LastEntryNo <> CurrLastEntryNo then begin
+            LastEntryNo := CurrLastEntryNo;
             InitRegisters;
         end;
     end;
@@ -369,7 +368,7 @@ report 5697 "Date Compress Insurance Ledger"
     begin
         LastEntryNo := LastEntryNo + 1;
         with InsCoverageLedgEntry2 do begin
-            NewInsCoverageLedgEntry.Init;
+            NewInsCoverageLedgEntry.Init();
             NewInsCoverageLedgEntry."Entry No." := LastEntryNo;
 
             NewInsCoverageLedgEntry."Insurance No." := "Insurance No.";
@@ -401,11 +400,11 @@ report 5697 "Date Compress Insurance Ledger"
         TempDimBuf: Record "Dimension Buffer" temporary;
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        TempDimBuf.DeleteAll;
+        TempDimBuf.DeleteAll();
         DimBufMgt.GetDimensions(DimEntryNo, TempDimBuf);
         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
         NewInsCoverageLedgEntry."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry);
-        NewInsCoverageLedgEntry.Insert;
+        NewInsCoverageLedgEntry.Insert();
     end;
 }
 

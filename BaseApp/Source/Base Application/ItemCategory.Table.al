@@ -82,7 +82,7 @@ table 5722 "Item Category"
 
     trigger OnDelete()
     begin
-        if HasChildren() then
+        if "Has Children" then
             Error(DeleteWithChildrenErr);
         UpdateDeletedCategoryItems;
         DeleteAssignedAttributes;
@@ -91,21 +91,19 @@ table 5722 "Item Category"
     trigger OnInsert()
     begin
         TestField(Code);
-        UpdateIndentation();
-        ItemCategoryManagement.CalcPresentationOrder(Rec);
+        UpdatePresentationOrderAfterTheTrigger();
         "Last Modified Date Time" := CurrentDateTime;
     end;
 
     trigger OnModify()
     begin
-        UpdateIndentation();
-        ItemCategoryManagement.CalcPresentationOrder(Rec);
+        UpdatePresentationOrderAfterTheTrigger;
         "Last Modified Date Time" := CurrentDateTime;
     end;
 
     trigger OnRename()
     begin
-        "Presentation Order" := 0;
+        UpdatePresentationOrderAfterTheTrigger;
         "Last Modified Date Time" := CurrentDateTime;
     end;
 
@@ -123,12 +121,17 @@ table 5722 "Item Category"
         exit(not ItemCategory.IsEmpty)
     end;
 
+    local procedure UpdatePresentationOrderAfterTheTrigger()
+    begin
+        if BindSubscription(ItemCategoryManagement) then;
+    end;
+
     procedure GetStyleText(): Text
     begin
         if Indentation = 0 then
             exit('Strong');
 
-        if HasChildren() then
+        if "Has Children" then
             exit('Strong');
 
         exit('');
@@ -150,7 +153,7 @@ table 5722 "Item Category"
         if CategoryItem.Find('-') then
             repeat
                 CategoryItem.Validate("Item Category Code", '');
-                CategoryItem.Modify;
+                CategoryItem.Modify();
                 if DeleteItemInheritedAttributes then
                     ItemAttributeManagement.DeleteItemAttributeValueMapping(CategoryItem, TempCategoryItemAttributeValue);
             until CategoryItem.Next = 0;
@@ -162,32 +165,7 @@ table 5722 "Item Category"
     begin
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::"Item Category");
         ItemAttributeValueMapping.SetRange("No.", Code);
-        ItemAttributeValueMapping.DeleteAll;
-    end;
-
-    local procedure UpdateIndentation()
-    var
-        ParentItemCategory: Record "Item Category";
-    begin
-        if ParentItemCategory.Get("Parent Category") then
-            UpdateIndentationTree(ParentItemCategory.Indentation + 1)
-        else
-            UpdateIndentationTree(0);
-    end;
-
-    [Scope('OnPrem')]
-    procedure UpdateIndentationTree(Level: Integer)
-    var
-        ItemCategory: Record "Item Category";
-    begin
-        Indentation := Level;
-
-        ItemCategory.SetRange("Parent Category", Code);
-        if ItemCategory.FindSet() then
-            repeat
-                ItemCategory.UpdateIndentationTree(Level + 1);
-                ItemCategory.Modify();
-            until ItemCategory.Next() = 0;
+        ItemAttributeValueMapping.DeleteAll();
     end;
 }
 

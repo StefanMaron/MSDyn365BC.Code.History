@@ -59,7 +59,7 @@ table 8625 "Config. Related Table"
     begin
         ConfigRelatedField.SetRange("Table ID", "Table ID");
         ConfigRelatedField.SetRange("Relation Table ID", "Relation Table ID");
-        ConfigRelatedField.DeleteAll;
+        ConfigRelatedField.DeleteAll();
     end;
 }
 

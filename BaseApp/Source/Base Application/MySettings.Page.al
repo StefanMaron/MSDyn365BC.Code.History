@@ -262,7 +262,7 @@ page 9176 "My Settings"
             // change notification state from Clicked to Enabled in order to avoid appearing a new notification
             // on this page after decline of terms & conditions in the 30 days trial wizard
             RoleCenterNotificationMgt.EnableEvaluationNotification;
-            Commit;
+            Commit();
         end;
         RoleCenterOverviewEnabled := RolecenterSelectorMgt.GetShowStateFromUserPreference(UserId);
     end;
@@ -289,7 +289,7 @@ page 9176 "My Settings"
                    (Scope <> ProfileScope)
                 then begin
                     AnythingUpdated := true;
-                    sessionSetting.Init;
+                    sessionSetting.Init();
 
                     if Company <> VarCompany then begin
                         WasEvaluation := TenantLicenseState.IsEvaluationMode();

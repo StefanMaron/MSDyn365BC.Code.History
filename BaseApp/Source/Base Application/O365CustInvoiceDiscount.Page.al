@@ -61,7 +61,7 @@ page 2156 "O365 Cust. Invoice Discount"
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
     begin
         CustInvoiceDisc.SetRange(Code, Code);
-        CustInvoiceDisc.DeleteAll;
+        CustInvoiceDisc.DeleteAll();
 
         Reset;
         if FindSet then
@@ -69,7 +69,7 @@ page 2156 "O365 Cust. Invoice Discount"
                 CustInvoiceDisc.Code := Code;
                 CustInvoiceDisc."Minimum Amount" := "Minimum Amount";
                 CustInvoiceDisc."Discount %" := "Discount %";
-                CustInvoiceDisc.Insert;
+                CustInvoiceDisc.Insert();
             until Next = 0;
     end;
 }

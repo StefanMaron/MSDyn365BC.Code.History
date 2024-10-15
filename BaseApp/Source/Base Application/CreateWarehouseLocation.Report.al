@@ -54,7 +54,7 @@ report 5756 "Create Warehouse Location"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            Bin.Reset;
+                            Bin.Reset();
                             if LocCode <> '' then
                                 Bin.SetRange("Location Code", LocCode);
 
@@ -97,7 +97,7 @@ report 5756 "Create Warehouse Location"
         Location."Bin Mandatory" := true;
         Location.Validate("Directed Put-away and Pick", true);
         Location.Validate("Adjustment Bin Code", AdjBinCode);
-        Location.Modify;
+        Location.Modify();
 
         if TempWhseJnlLine.Find('-') then
             repeat
@@ -119,7 +119,7 @@ report 5756 "Create Warehouse Location"
         if AdjBinCode = '' then
             Error(Text002);
 
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.", Open);
         if ItemLedgEntry.Find('-') then
             repeat
@@ -148,8 +148,8 @@ report 5756 "Create Warehouse Location"
             Error(
               Text019, LocCode, WhseEntry.TableCaption);
 
-        TempWhseJnlLine.Reset;
-        TempWhseJnlLine.DeleteAll;
+        TempWhseJnlLine.Reset();
+        TempWhseJnlLine.DeleteAll();
 
         LastLineNo := 0;
 
@@ -305,7 +305,7 @@ report 5756 "Create Warehouse Location"
         LastLineNo := LastLineNo + 10000;
 
         with ItemLedgEntry do begin
-            TempWhseJnlLine.Init;
+            TempWhseJnlLine.Init();
             TempWhseJnlLine."Entry Type" := TempWhseJnlLine."Entry Type"::"Positive Adjmt.";
             TempWhseJnlLine."Line No." := LastLineNo;
             TempWhseJnlLine."Location Code" := "Location Code";
@@ -333,7 +333,7 @@ report 5756 "Create Warehouse Location"
             TempWhseJnlLine.Weight := TempWhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Weight;
             OnCreateWhseJnlLineOnBeforeCheck(TempWhseJnlLine, ItemLedgEntry);
             WMSMgt.CheckWhseJnlLine(TempWhseJnlLine, 0, 0, false);
-            TempWhseJnlLine.Insert;
+            TempWhseJnlLine.Insert();
         end;
     end;
 
@@ -343,7 +343,7 @@ report 5756 "Create Warehouse Location"
            (ItemUnitOfMeasure.Code <> UOMCode)
         then
             if not ItemUnitOfMeasure.Get(ItemNo, UOMCode) then
-                ItemUnitOfMeasure.Init;
+                ItemUnitOfMeasure.Init();
     end;
 
     local procedure BuildErrorText(): Text[250]

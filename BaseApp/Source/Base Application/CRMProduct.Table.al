@@ -509,6 +509,14 @@ table 5348 "CRM Product"
             ExternalName = 'hierarchypath';
             ExternalType = 'String';
         }
+        field(62; CompanyId; Guid)
+        {
+            Caption = 'Company Id';
+            Description = 'Unique identifier of the company that owns the product.';
+            ExternalName = 'bcbi_companyid';
+            ExternalType = 'Lookup';
+            TableRelation = "CDS Company".CompanyId;
+        }
     }
 
     keys

@@ -117,7 +117,7 @@ report 5938 "Service Profit (Service Items)"
                     until ServLedgerEntry.Next = 0;
 
                 if (SalesAmount = 0) and (CostAmount = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 ProfitAmount := SalesAmount - CostAmount;
             end;

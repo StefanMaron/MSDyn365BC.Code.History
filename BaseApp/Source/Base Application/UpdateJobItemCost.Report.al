@@ -11,7 +11,7 @@ report 1095 "Update Job Item Cost"
     {
         dataitem(Job; Job)
         {
-            DataItemTableView = SORTING("No.") WHERE(Status = FILTER(<> Completed));
+            DataItemTableView = SORTING("No.") WHERE(Status = FILTER(Planning | Quote | Open));
             RequestFilterFields = "No.";
             dataitem("Job Ledger Entry"; "Job Ledger Entry")
             {
@@ -31,7 +31,7 @@ report 1095 "Update Job Item Cost"
                         begin
                             CalcFields("Qty. Transferred to Invoice");
                             if ("Qty. Transferred to Invoice" <> 0) or not "System-Created Entry" or ("Ledger Entry Type" <> "Ledger Entry Type"::Item) then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             Validate("Unit Cost (LCY)", "Job Ledger Entry"."Unit Cost (LCY)");
                             Validate("Line Discount Amount (LCY)", "Job Ledger Entry"."Line Discount Amount (LCY)");
@@ -42,14 +42,14 @@ report 1095 "Update Job Item Cost"
                             "Job Ledger Entry".Validate("Total Price (LCY)", "Total Price (LCY)");
                             "Job Ledger Entry".Validate("Line Amount (LCY)", "Line Amount (LCY)");
                             "Job Ledger Entry".Validate("Line Amount", "Line Amount");
-                            "Job Ledger Entry".Modify;
+                            "Job Ledger Entry".Modify();
                         end;
 
                         trigger OnPreDataItem()
                         begin
                             if NoOfJobLedgEntry = 0 then
-                                CurrReport.Break;
-                            LockTable;
+                                CurrReport.Break();
+                            LockTable();
                         end;
                     }
 
@@ -104,13 +104,13 @@ report 1095 "Update Job Item Cost"
 
                     trigger OnPreDataItem()
                     begin
-                        LockTable;
+                        LockTable();
                     end;
                 }
 
                 trigger OnPreDataItem()
                 begin
-                    LockTable;
+                    LockTable();
                 end;
             }
 
@@ -127,7 +127,7 @@ report 1095 "Update Job Item Cost"
             trigger OnPreDataItem()
             begin
                 NoOfJobLedgEntry := 0;
-                LockTable;
+                LockTable();
             end;
         }
     }
@@ -190,7 +190,7 @@ report 1095 "Update Job Item Cost"
             repeat
                 JobPlanningLine.Get(JobUsageLink."Job No.", JobUsageLink."Job Task No.", JobUsageLink."Line No.");
                 JobPlanningLine.UpdatePostedTotalCost(AdjustJobCost, AdjustJobCostLCY);
-                JobPlanningLine.Modify;
+                JobPlanningLine.Modify();
             until JobUsageLink.Next = 0;
     end;
 
@@ -231,7 +231,7 @@ report 1095 "Update Job Item Cost"
 
             JobLedgEntry.Adjusted := true;
             JobLedgEntry."DateTime Adjusted" := CurrentDateTime;
-            JobLedgEntry.Modify;
+            JobLedgEntry.Modify();
 
             UpdatePostedTotalCost(JobLedgEntry, AdjustJobCost, AdjustJobCostLCY);
 

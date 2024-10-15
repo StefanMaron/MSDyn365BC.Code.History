@@ -222,7 +222,7 @@ page 5930 "Fault/Resol. Cod. Relationship"
                     ServInvLine."Symptom Code" := "Symptom Code";
                     ServInvLine."Fault Code" := "Fault Code";
                     ServInvLine."Resolution Code" := "Resolution Code";
-                    ServInvLine.Modify;
+                    ServInvLine.Modify();
                 end;
         end;
     end;

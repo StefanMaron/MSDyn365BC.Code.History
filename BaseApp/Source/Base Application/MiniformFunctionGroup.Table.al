@@ -36,9 +36,9 @@ table 7702 "Miniform Function Group"
 
     trigger OnDelete()
     begin
-        MiniFunc.Reset;
+        MiniFunc.Reset();
         MiniFunc.SetRange("Function Code", Code);
-        MiniFunc.DeleteAll;
+        MiniFunc.DeleteAll();
     end;
 
     var

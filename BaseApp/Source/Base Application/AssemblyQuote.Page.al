@@ -1,4 +1,4 @@
-﻿page 930 "Assembly Quote"
+page 930 "Assembly Quote"
 {
     Caption = 'Assembly Quote';
     DeleteAllowed = false;

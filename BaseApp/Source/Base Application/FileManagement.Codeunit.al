@@ -247,7 +247,13 @@ codeunit 419 "File Management"
     procedure UploadFileWithFilter(WindowTitle: Text[50]; ClientFileName: Text; FileFilter: Text; ExtFilter: Text) ServerFileName: Text
     var
         Uploaded: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUploadFileWithFilter(ServerFileName, WindowTitle, ClientFileName, FileFilter, ExtFilter, IsHandled);
+        if IsHandled then
+            exit;
+
         ClearLastError;
 
         if (FileFilter = '') xor (ExtFilter = '') then
@@ -608,14 +614,14 @@ codeunit 419 "File Management"
         if not IsLocalFileSystemAccessible then
             Error(LocalFileSystemNotAccessibleErr);
 
-        NameValueBuffer.Reset;
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.Reset();
+        NameValueBuffer.DeleteAll();
 
         ArrayHelper := DirectoryHelper.GetFiles(DirectoryPath);
         for i := 1 to ArrayHelper.GetLength(0) do begin
             NameValueBuffer.ID := i;
             Evaluate(NameValueBuffer.Name, ArrayHelper.GetValue(i - 1));
-            NameValueBuffer.Insert;
+            NameValueBuffer.Insert();
         end;
     end;
 
@@ -625,23 +631,23 @@ codeunit 419 "File Management"
         ArrayHelper: DotNet Array;
         i: Integer;
     begin
-        NameValueBuffer.Reset;
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.Reset();
+        NameValueBuffer.DeleteAll();
 
         ArrayHelper := ServerDirectoryHelper.GetFiles(DirectoryPath);
         for i := 1 to ArrayHelper.GetLength(0) do begin
             NameValueBuffer.ID := i;
             Evaluate(NameValueBuffer.Name, ArrayHelper.GetValue(i - 1));
             NameValueBuffer.Value := CopyStr(GetFileNameWithoutExtension(NameValueBuffer.Name), 1, 250);
-            NameValueBuffer.Insert;
+            NameValueBuffer.Insert();
         end;
     end;
 
     [Scope('OnPrem')]
     procedure GetServerDirectoryFilesListInclSubDirs(var TempNameValueBuffer: Record "Name/Value Buffer" temporary; DirectoryPath: Text)
     begin
-        TempNameValueBuffer.Reset;
-        TempNameValueBuffer.DeleteAll;
+        TempNameValueBuffer.Reset();
+        TempNameValueBuffer.DeleteAll();
 
         GetServerDirectoryFilesListInclSubDirsInner(TempNameValueBuffer, DirectoryPath);
     end;
@@ -664,7 +670,7 @@ codeunit 419 "File Management"
                 NameValueBuffer.ID := LastId + 1;
                 NameValueBuffer.Name := CopyStr(FileSystemEntry, 1, 250);
                 NameValueBuffer.Value := CopyStr(GetFileNameWithoutExtension(NameValueBuffer.Name), 1, 250);
-                NameValueBuffer.Insert;
+                NameValueBuffer.Insert();
             end;
         end;
     end;
@@ -1013,7 +1019,7 @@ codeunit 419 "File Management"
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
         FileManagement: Codeunit "File Management";
     begin
-        NameValueBuffer.DeleteAll;
+        NameValueBuffer.DeleteAll();
         FileManagement.GetServerDirectoryFilesList(TempNameValueBuffer, TemporaryPath);
         TempNameValueBuffer.SetFilter(Name, StrSubstNo('%1*', ImagetPath));
         TempNameValueBuffer.FindFirst;
@@ -1077,6 +1083,11 @@ codeunit 419 "File Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUploadFileWithFilter(var ServerFileName: Text; WindowTitle: Text[50]; ClientFileName: Text; FileFilter: Text; ExtFilter: Text; var IsHandled: Boolean)
     begin
     end;
 

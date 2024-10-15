@@ -249,7 +249,7 @@ report 99000788 "Prod. Order - Shortage List"
                         if (NeededQty = 0) and (QtyOnHandAfterProd >= 0) or
                            (RemainingQty = 0)
                         then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     trigger OnPreDataItem()

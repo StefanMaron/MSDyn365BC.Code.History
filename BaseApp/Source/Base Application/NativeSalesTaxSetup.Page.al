@@ -103,7 +103,7 @@ page 2865 "Native - Sales Tax Setup"
         LoadSetupRecords;
 
         if Type = Type::VAT then
-            DeleteAll;
+            DeleteAll();
     end;
 
     var

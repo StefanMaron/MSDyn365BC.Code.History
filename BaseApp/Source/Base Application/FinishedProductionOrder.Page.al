@@ -1,4 +1,4 @@
-﻿page 99000867 "Finished Production Order"
+page 99000867 "Finished Production Order"
 {
     Caption = 'Finished Production Order';
     InsertAllowed = false;
@@ -90,7 +90,6 @@
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting time of the production order.';
-                    Visible = DateAndTimeFieldVisible;
                 }
                 field("Starting Date"; StartingDate)
                 {
@@ -99,7 +98,6 @@
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the starting date of the production order.';
-                    Visible = DateAndTimeFieldVisible;
                 }
                 field("Ending Time"; EndingTime)
                 {
@@ -108,7 +106,6 @@
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the ending time of the production order.';
-                    Visible = DateAndTimeFieldVisible;
                 }
                 field("Ending Date"; EndingDate)
                 {
@@ -117,21 +114,6 @@
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the ending date of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                }
-                field("Starting Date-Time"; "Starting Date-Time")
-                {
-                    ApplicationArea = Manufacturing;
-                    Editable = false;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the starting date and starting time of the production order.';
-                }
-                field("Ending Date-Time"; "Ending Date-Time")
-                {
-                    ApplicationArea = Manufacturing;
-                    Editable = false;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the ending date and ending time of the production order.';
                 }
             }
             group(Posting)
@@ -328,21 +310,10 @@
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
     end;
 
-    trigger OnInit()
-    begin
-        DateAndTimeFieldVisible := false;
-    end;
-
-    trigger OnOpenPage()
-    begin
-        DateAndTimeFieldVisible := false;
-    end;
-
     var
         StartingTime: Time;
         EndingTime: Time;
         StartingDate: Date;
         EndingDate: Date;
-        DateAndTimeFieldVisible: Boolean;
 }
 

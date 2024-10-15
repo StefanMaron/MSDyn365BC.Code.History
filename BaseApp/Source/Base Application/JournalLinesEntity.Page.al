@@ -153,7 +153,7 @@ page 5478 "Journal Lines Entity"
     var
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
     begin
-        TempGenJournalLine.Reset;
+        TempGenJournalLine.Reset();
         TempGenJournalLine.Copy(Rec);
 
         Clear(Rec);

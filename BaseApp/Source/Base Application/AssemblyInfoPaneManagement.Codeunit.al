@@ -112,7 +112,7 @@ codeunit 915 "Assembly Info-Pane Management"
 
     local procedure SetItemFilter(var Item: Record Item; AsmLine: Record "Assembly Line")
     begin
-        Item.Reset;
+        Item.Reset();
         Item.SetRange("Date Filter", 0D, CalcAvailabilityDate(AsmLine));
         Item.SetRange("Variant Filter", AsmLine."Variant Code");
         Item.SetRange("Location Filter", AsmLine."Location Code");

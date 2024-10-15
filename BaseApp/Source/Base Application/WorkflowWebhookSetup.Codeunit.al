@@ -186,7 +186,7 @@ codeunit 1540 "Workflow Webhook Setup"
         WorkflowStepArgument: Record "Workflow Step Argument";
         OutStream: OutStream;
     begin
-        WorkflowStepArgument.Init;
+        WorkflowStepArgument.Init();
         WorkflowStepArgument.ID := CreateGuid;
         WorkflowStepArgument.Type := WorkflowStepArgument.Type::"Event";
 
@@ -195,7 +195,7 @@ codeunit 1540 "Workflow Webhook Setup"
             OutStream.WriteText(EventConditions);
         end;
 
-        WorkflowStepArgument.Insert;
+        WorkflowStepArgument.Insert();
         exit(WorkflowStepArgument.ID);
     end;
 
@@ -203,7 +203,7 @@ codeunit 1540 "Workflow Webhook Setup"
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
-        WorkflowStepArgument.Init;
+        WorkflowStepArgument.Init();
         WorkflowStepArgument.ID := CreateGuid;
         WorkflowStepArgument.Type := WorkflowStepArgument.Type::Response;
         WorkflowStepArgument."Response Function Name" := FunctionName;
@@ -213,7 +213,7 @@ codeunit 1540 "Workflow Webhook Setup"
             WorkflowStepArgument."Response User ID" := ResponseUserID;
         end;
 
-        WorkflowStepArgument.Insert;
+        WorkflowStepArgument.Insert();
         exit(WorkflowStepArgument.ID);
     end;
 
@@ -237,7 +237,7 @@ codeunit 1540 "Workflow Webhook Setup"
     var
         WorkflowStep: Record "Workflow Step";
     begin
-        WorkflowStep.Init;
+        WorkflowStep.Init();
         WorkflowStep."Workflow Code" := WorkflowCode;
         WorkflowStep."Entry Point" := IsEntryPoint;
         WorkflowStep."Previous Workflow Step ID" := PreviousStepID;
@@ -245,7 +245,7 @@ codeunit 1540 "Workflow Webhook Setup"
         WorkflowStep."Function Name" := FunctionName;
         WorkflowStep.Argument := CreateArgumentForEvent(EventConditions);
         WorkflowStep."Sequence No." := SequenceNumber;
-        WorkflowStep.Insert;
+        WorkflowStep.Insert();
 
         exit(WorkflowStep.ID);
     end;
@@ -254,7 +254,7 @@ codeunit 1540 "Workflow Webhook Setup"
     var
         WorkflowStep: Record "Workflow Step";
     begin
-        WorkflowStep.Init;
+        WorkflowStep.Init();
         WorkflowStep."Workflow Code" := WorkflowCode;
         WorkflowStep."Entry Point" := false;
         WorkflowStep."Previous Workflow Step ID" := PreviousStepID;
@@ -263,7 +263,7 @@ codeunit 1540 "Workflow Webhook Setup"
         WorkflowStep.Argument := CreateArgumentForResponse(FunctionName, ResponseUserID);
         WorkflowStep."Sequence No." := SequenceNumber;
 
-        WorkflowStep.Insert;
+        WorkflowStep.Insert();
         exit(WorkflowStep.ID);
     end;
 
@@ -436,13 +436,13 @@ codeunit 1540 "Workflow Webhook Setup"
         if not WorkflowEvent.Get(WorkflowWebhookEvents.WorkflowWebhookResponseReceivedEventCode) then
             WorkflowSetup.InitWorkflow;
 
-        Workflow.Init;
+        Workflow.Init();
         Workflow.Code := WorkflowCode;
         Workflow.Description := Name;
         Workflow.Enabled := false;
         Workflow.Template := false;
         Workflow.Category := Category;
-        Workflow.Insert;
+        Workflow.Insert();
     end;
 
     procedure GetSalesDocCategoryTxt(): Code[20]

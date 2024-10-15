@@ -75,7 +75,7 @@ report 795 "Adjust Cost - Item Entries"
 
         trigger OnOpenPage()
         begin
-            InvtSetup.Get;
+            InvtSetup.Get();
             PostToGL := InvtSetup."Automatic Cost Posting";
             PostEnable := PostToGL;
         end;
@@ -96,15 +96,15 @@ report 795 "Adjust Cost - Item Entries"
     begin
         OnBeforePreReport(ItemNoFilter, ItemCategoryFilter, PostToGL);
 
-        ItemApplnEntry.LockTable;
+        ItemApplnEntry.LockTable();
         if not ItemApplnEntry.FindLast then
             exit;
-        ItemLedgEntry.LockTable;
+        ItemLedgEntry.LockTable();
         if not ItemLedgEntry.FindLast then
             exit;
-        AvgCostAdjmtEntryPoint.LockTable;
+        AvgCostAdjmtEntryPoint.LockTable();
         if AvgCostAdjmtEntryPoint.FindLast then;
-        ValueEntry.LockTable;
+        ValueEntry.LockTable();
         if not ValueEntry.FindLast then
             exit;
 

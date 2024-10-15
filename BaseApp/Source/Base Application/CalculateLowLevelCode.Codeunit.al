@@ -15,7 +15,7 @@ codeunit 99000793 "Calculate Low-Level Code"
         if ProdBOM.Get(Item."Production BOM No.") then
             SetRecursiveLevelsOnBOM(ProdBOM, Item2."Low-Level Code" + 1, false);
         OnBeforeItemModify(Item2);
-        Item2.Modify;
+        Item2.Modify();
         Copy(Item2);
     end;
 
@@ -184,7 +184,7 @@ codeunit 99000793 "Calculate Low-Level Code"
                 if EntityPresent or (not IgnoreMissingItemsOrBOMs) then
                     SetRecursiveLevelsOnBOM(CompBOM, CompItem."Low-Level Code" + 1, IgnoreMissingItemsOrBOMs);
             end;
-            CompItem.Modify;
+            CompItem.Modify();
         end;
     end;
 
@@ -198,7 +198,7 @@ codeunit 99000793 "Calculate Low-Level Code"
             CompBOM."Low-Level Code" := GetMax(CompBOM."Low-Level Code", LowLevelCode);
             if xLowLevelCode <> CompBOM."Low-Level Code" then begin
                 RecalcLowerLevels(CompBOM."No.", LowLevelCode, IgnoreMissingItemsOrBOMs);
-                CompBOM.Modify;
+                CompBOM.Modify();
             end;
         end;
     end;

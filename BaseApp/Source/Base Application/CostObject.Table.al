@@ -172,7 +172,7 @@ table 1113 "Cost Object"
         DimensionMgt: Codeunit DimensionManagement;
         DimFilter: Text;
     begin
-        CostAccSetup.Get;
+        CostAccSetup.Get();
         if CostObject.FindSet then
             repeat
                 DimensionMgt.GetDimSetIDsForFilter(CostAccSetup."Cost Center Dimension", CostObject.Code);
@@ -203,7 +203,7 @@ table 1113 "Cost Object"
             if not Confirm(Text001, true) then
                 Error('');
         if not CalledFromOnInsert then
-            CostObject.DeleteAll;
+            CostObject.DeleteAll();
     end;
 
     local procedure ConfirmModifyIfEntriesExist(var CostObject: Record "Cost Object")

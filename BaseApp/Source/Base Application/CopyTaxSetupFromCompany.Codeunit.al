@@ -44,14 +44,14 @@ codeunit 399 "Copy Tax Setup From Company"
         SourceTaxJurisdiction.ChangeCompany(SourceCompany.Name);
         if not SourceTaxJurisdiction.Find('-') then
             exit;
-        RecordCount := SourceTaxJurisdiction.Count;
+        RecordCount := SourceTaxJurisdiction.Count();
         CurrentRecord := 0;
         repeat
             CurrentRecord := CurrentRecord + 1;
             Window.Update(2, Round(CurrentRecord / RecordCount * 10000, 1));
-            TaxJurisdiction.Init;
+            TaxJurisdiction.Init();
             TaxJurisdiction.TransferFields(SourceTaxJurisdiction);
-            if TaxJurisdiction.Insert then;
+            if TaxJurisdiction.Insert() then;
         until SourceTaxJurisdiction.Next = 0;
     end;
 
@@ -63,14 +63,14 @@ codeunit 399 "Copy Tax Setup From Company"
         SourceTaxGroup.ChangeCompany(SourceCompany.Name);
         if not SourceTaxGroup.Find('-') then
             exit;
-        RecordCount := SourceTaxGroup.Count;
+        RecordCount := SourceTaxGroup.Count();
         CurrentRecord := 0;
         repeat
             CurrentRecord := CurrentRecord + 1;
             Window.Update(1, Round(CurrentRecord / RecordCount * 10000, 1));
-            TaxGroup.Init;
+            TaxGroup.Init();
             TaxGroup.TransferFields(SourceTaxGroup);
-            if TaxGroup.Insert then;
+            if TaxGroup.Insert() then;
         until SourceTaxGroup.Next = 0;
     end;
 
@@ -85,20 +85,20 @@ codeunit 399 "Copy Tax Setup From Company"
         SourceTaxAreaLine.ChangeCompany(SourceCompany.Name);
         if not SourceTaxArea.Find('-') then
             exit;
-        RecordCount := SourceTaxArea.Count;
+        RecordCount := SourceTaxArea.Count();
         CurrentRecord := 0;
         repeat
             CurrentRecord := CurrentRecord + 1;
             Window.Update(3, Round(CurrentRecord / RecordCount * 10000, 1));
-            TaxArea.Init;
+            TaxArea.Init();
             TaxArea.TransferFields(SourceTaxArea);
-            if TaxArea.Insert then;
+            if TaxArea.Insert() then;
             SourceTaxAreaLine.SetRange("Tax Area", SourceTaxArea.Code);
             if SourceTaxAreaLine.Find('-') then
                 repeat
-                    TaxAreaLine.Init;
+                    TaxAreaLine.Init();
                     TaxAreaLine.TransferFields(SourceTaxAreaLine);
-                    if TaxAreaLine.Insert then;
+                    if TaxAreaLine.Insert() then;
                 until SourceTaxAreaLine.Next = 0;
         until SourceTaxArea.Next = 0;
     end;
@@ -111,14 +111,14 @@ codeunit 399 "Copy Tax Setup From Company"
         SourceTaxDetail.ChangeCompany(SourceCompany.Name);
         if not SourceTaxDetail.Find('-') then
             exit;
-        RecordCount := SourceTaxDetail.Count;
+        RecordCount := SourceTaxDetail.Count();
         CurrentRecord := 0;
         repeat
             CurrentRecord := CurrentRecord + 1;
             Window.Update(4, Round(CurrentRecord / RecordCount * 10000, 1));
-            TaxDetail.Init;
+            TaxDetail.Init();
             TaxDetail.TransferFields(SourceTaxDetail);
-            if TaxDetail.Insert then;
+            if TaxDetail.Insert() then;
         until SourceTaxDetail.Next = 0;
     end;
 }

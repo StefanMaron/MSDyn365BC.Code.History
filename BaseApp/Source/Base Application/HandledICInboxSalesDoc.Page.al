@@ -1,4 +1,4 @@
-﻿page 648 "Handled IC Inbox Sales Doc."
+page 648 "Handled IC Inbox Sales Doc."
 {
     Caption = 'Handled IC Inbox Sales Doc.';
     DeleteAllowed = false;

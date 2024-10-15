@@ -38,7 +38,7 @@ page 99000902 "Item Availability Line List"
 
     trigger OnOpenPage()
     begin
-        DeleteAll;
+        DeleteAll();
         MakeWhat;
     end;
 
@@ -326,7 +326,7 @@ page 99000902 "Item Availability Line List"
                 end;
             DATABASE::"Prod. Order Line":
                 begin
-                    ProdOrderLine.Reset;
+                    ProdOrderLine.Reset();
                     ProdOrderLine.SetCurrentKey(Status, "Item No.");
                     case QuerySource of
                         Item.FieldNo("Planned Order Receipt (Qty.)"):
@@ -375,7 +375,7 @@ page 99000902 "Item Availability Line List"
         OnAfterLookupEntries(Item, "Table No.", Rec);
     end;
 
-    local procedure InsertEntry("Table": Integer; "Field": Integer; TableName: Text[100]; Qty: Decimal)
+    procedure InsertEntry("Table": Integer; "Field": Integer; TableName: Text[100]; Qty: Decimal)
     begin
         if Qty = 0 then
             exit;

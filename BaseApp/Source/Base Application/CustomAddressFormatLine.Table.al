@@ -81,7 +81,7 @@ table 726 "Custom Address Format Line"
         CustomAddressFormatLine.SetRange("Field Position", "Field Position" + MoveBy);
         if CustomAddressFormatLine.FindFirst then begin
             CustomAddressFormatLine."Field Position" -= MoveBy;
-            CustomAddressFormatLine.Modify;
+            CustomAddressFormatLine.Modify();
             "Field Position" += MoveBy;
             Modify;
         end;

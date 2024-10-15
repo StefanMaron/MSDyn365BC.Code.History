@@ -54,22 +54,6 @@ page 5730 "Item Categories"
     {
         area(creation)
         {
-            action(Recalculate)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Recalculate';
-                Image = Hierarchy;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
-                ToolTip = 'Update the tree of item categories based on recent changes.';
-
-                trigger OnAction()
-                begin
-                    ItemCategoryManagement.UpdatePresentationOrder();
-                end;
-            }
         }
     }
 
@@ -95,12 +79,13 @@ page 5730 "Item Categories"
     end;
 
     trigger OnOpenPage()
+    var
+        ItemCategoryManagement: Codeunit "Item Category Management";
     begin
-        ItemCategoryManagement.CheckPresentationOrder();
+        ItemCategoryManagement.UpdatePresentationOrder;
     end;
 
     var
-        ItemCategoryManagement: Codeunit "Item Category Management";
         StyleTxt: Text;
 
     procedure GetSelectionFilter(): Text

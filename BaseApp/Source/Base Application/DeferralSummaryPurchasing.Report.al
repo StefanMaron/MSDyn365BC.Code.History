@@ -150,7 +150,7 @@ report 1702 "Deferral Summary - Purchasing"
                 end;
 
                 if PrintOnlyOnePerPage and (PreviousVendor <> WorkingVendor) then begin
-                    PostedDeferralHeaderPage.Reset;
+                    PostedDeferralHeaderPage.Reset();
                     PostedDeferralHeaderPage.SetRange(CustVendorNo, CustVendorNo);
                     if PostedDeferralHeaderPage.FindFirst then
                         PageGroupNo := PageGroupNo + 1;

@@ -366,7 +366,7 @@ codeunit 9520 "Mail Management"
             end;
         end;
 
-        TempPossibleEmailNameValueBuffer.Reset;
+        TempPossibleEmailNameValueBuffer.Reset();
         exit(false);
     end;
 

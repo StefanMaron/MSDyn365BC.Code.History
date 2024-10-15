@@ -97,7 +97,7 @@ table 5304 "Outlook Synch. Field"
                         exit;
                     end;
 
-                    OSynchOptionCorrel.DeleteAll;
+                    OSynchOptionCorrel.DeleteAll();
                 end;
 
                 if "Outlook Property" <> '' then
@@ -158,12 +158,12 @@ table 5304 "Outlook Synch. Field"
                         exit;
                     end;
 
-                    OSynchOptionCorrel.DeleteAll;
+                    OSynchOptionCorrel.DeleteAll();
 
-                    OSynchFilter.Reset;
+                    OSynchFilter.Reset();
                     OSynchFilter.SetRange("Record GUID", "Record GUID");
                     OSynchFilter.SetRange("Filter Type", OSynchFilter."Filter Type"::"Table Relation");
-                    OSynchFilter.DeleteAll;
+                    OSynchFilter.DeleteAll();
 
                     "Table Relation" := '';
                 end;
@@ -239,7 +239,7 @@ table 5304 "Outlook Synch. Field"
                         exit;
                     end;
 
-                    OSynchOptionCorrel.DeleteAll;
+                    OSynchOptionCorrel.DeleteAll();
                 end;
 
                 "Field Default Value" := '';
@@ -346,15 +346,15 @@ table 5304 "Outlook Synch. Field"
         OSynchFilter: Record "Outlook Synch. Filter";
         OSynchOptionCorrel: Record "Outlook Synch. Option Correl.";
     begin
-        OSynchFilter.Reset;
+        OSynchFilter.Reset();
         OSynchFilter.SetRange("Record GUID", "Record GUID");
-        OSynchFilter.DeleteAll;
+        OSynchFilter.DeleteAll();
 
-        OSynchOptionCorrel.Reset;
+        OSynchOptionCorrel.Reset();
         OSynchOptionCorrel.SetRange("Synch. Entity Code", "Synch. Entity Code");
         OSynchOptionCorrel.SetRange("Element No.", "Element No.");
         OSynchOptionCorrel.SetRange("Field Line No.", "Line No.");
-        OSynchOptionCorrel.DeleteAll;
+        OSynchOptionCorrel.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -431,7 +431,7 @@ table 5304 "Outlook Synch. Field"
                 if OSynchProcessLine.CheckKeyField("Master Table No.", "Field No.") or (Field.Class = Field.Class::FlowField) then
                     IsReadOnlyNavision := true;
             end else begin
-                OSynchFilter.Reset;
+                OSynchFilter.Reset();
                 OSynchFilter.SetRange("Record GUID", "Record GUID");
                 OSynchFilter.SetRange("Filter Type", OSynchFilter."Filter Type"::"Table Relation");
                 OSynchFilter.SetRange(Type, OSynchFilter.Type::FIELD);
@@ -510,7 +510,7 @@ table 5304 "Outlook Synch. Field"
     var
         OSynchField: Record "Outlook Synch. Field";
     begin
-        OSynchField.Reset;
+        OSynchField.Reset();
         OSynchField.SetRange("Synch. Entity Code", "Synch. Entity Code");
         OSynchField.SetRange("Element No.", "Element No.");
         OSynchField.SetFilter("Line No.", '<>%1', "Line No.");
@@ -534,7 +534,7 @@ table 5304 "Outlook Synch. Field"
 
     local procedure SetOSynchOptionCorrelFilter(var outlookSynchOptionCorrel: Record "Outlook Synch. Option Correl."): Boolean
     begin
-        outlookSynchOptionCorrel.Reset;
+        outlookSynchOptionCorrel.Reset();
         outlookSynchOptionCorrel.SetRange("Synch. Entity Code", "Synch. Entity Code");
         outlookSynchOptionCorrel.SetRange("Element No.", "Element No.");
         outlookSynchOptionCorrel.SetRange("Field Line No.", "Line No.");

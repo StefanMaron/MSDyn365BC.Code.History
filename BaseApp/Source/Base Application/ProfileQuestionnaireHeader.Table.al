@@ -60,7 +60,7 @@ table 5087 "Profile Questionnaire Header"
 
     trigger OnDelete()
     begin
-        ProfileQuestnLine.Reset;
+        ProfileQuestnLine.Reset();
         ProfileQuestnLine.SetRange("Profile Questionnaire Code", Code);
         ProfileQuestnLine.DeleteAll(true);
     end;

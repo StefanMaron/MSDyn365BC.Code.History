@@ -233,7 +233,7 @@ report 5802 "Inventory Valuation - WIP"
                     TotalLastWIP := TotalLastWIP + LastWIP;
 
                     if CountRecord <> LengthRecord then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPostDataItem()
@@ -272,7 +272,7 @@ report 5802 "Inventory Valuation - WIP"
             trigger OnAfterGetRecord()
             begin
                 if FinishedProdOrderIsCompletelyInvoiced then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 EntryFound := ValueEntryExist("Production Order", StartDate, EndDate);
             end;
         }

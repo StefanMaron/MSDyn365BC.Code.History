@@ -31,7 +31,7 @@ page 6513 "Enter Quantity to Create"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        ItemVariant.Reset;
+                        ItemVariant.Reset();
                         ItemVariant.SetRange("Item No.", ItemNo);
                         ItemVariant."Item No." := ItemNo;
                         ItemVariant.Code := VariantCode;
