@@ -2669,12 +2669,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimComb(DimensionCombination: Record "Dimension Combination")
+    local procedure OnBeforeCheckDimComb(var DimensionCombination: Record "Dimension Combination")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimValueComb(DimensionValueCombination: Record "Dimension Value Combination")
+    local procedure OnBeforeCheckDimValueComb(var DimensionValueCombination: Record "Dimension Value Combination")
     begin
     end;
 

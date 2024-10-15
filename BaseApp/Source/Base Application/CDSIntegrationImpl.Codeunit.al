@@ -1,4 +1,4 @@
-codeunit 7201 "CDS Integration Impl."
+﻿codeunit 7201 "CDS Integration Impl."
 {
     SingleInstance = true;
 
@@ -1114,10 +1114,7 @@ codeunit 7201 "CDS Integration Impl."
                 Session.LogMessage('0000ASK', GLSetupNotFoundTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Error(GLSetupNotFoundErr);
             end;
-            if DelChr(CRMTransactioncurrency.ISOCurrencyCode) <> DelChr(GeneralLedgerSetup."LCY Code") then begin
-                Session.LogMessage('0000ASL', CurrencyMismatchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                Error(LCYMustMatchBaseCurrencyErr, GeneralLedgerSetup."LCY Code", CRMTransactioncurrency.ISOCurrencyCode);
-            end;
+            CheckGLSetupLCYCode(GeneralLedgerSetup, CRMTransactioncurrency);
             CDSCompany.ExternalId := CompanyId;
             CDSCompany.Name := CompanyName;
             CDSCompany.DefaultOwningTeam := DefaultCRMTeam.TeamId;
@@ -1207,6 +1204,21 @@ codeunit 7201 "CDS Integration Impl."
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, TempConnectionName);
 
         Session.LogMessage('0000AT4', CompanySynchronizedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+    end;
+
+    local procedure CheckGLSetupLCYCode(GeneralLedgerSetup: Record "General Ledger Setup"; CRMTransactioncurrency: Record "CRM Transactioncurrency")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckGLSetupLCYCode(GeneralLedgerSetup, CRMTransactioncurrency, IsHandled);
+        if IsHandled then
+            exit;
+
+        if DelChr(CRMTransactioncurrency.ISOCurrencyCode) <> DelChr(GeneralLedgerSetup."LCY Code") then begin
+            Session.LogMessage('0000ASL', CurrencyMismatchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            Error(LCYMustMatchBaseCurrencyErr, GeneralLedgerSetup."LCY Code", CRMTransactioncurrency.ISOCurrencyCode);
+        end;
     end;
 
     local procedure EnrichWithDotNetException(ErrorMessage: Text): Text
@@ -4077,6 +4089,11 @@ codeunit 7201 "CDS Integration Impl."
     begin
         if not IsIntegrationEnabled then
             IsIntegrationEnabled := CDSIntegrationMgt.IsIntegrationEnabled();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckGLSetupLCYCode(GLSetup: Record "General Ledger Setup"; CRMTransactioncurrency: Record "CRM Transactioncurrency"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

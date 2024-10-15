@@ -1,4 +1,4 @@
-table 179 "Reversal Entry"
+﻿table 179 "Reversal Entry"
 {
     Caption = 'Reversal Entry';
     PasteIsValid = false;
@@ -815,7 +815,14 @@ table 179 "Reversal Entry"
     end;
 
     local procedure CheckPostingDate(PostingDate: Date; Caption: Text[50]; EntryNo: Integer; JnlTemplName: Code[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPostingDate(PostingDate, Caption, EntryNo, JnlTemplName, IsHandled);
+        if IsHandled then
+            exit;
+
         if GenJnlCheckLine.DateNotAllowed(PostingDate, JnlTemplName) then
             Error(Text001, Caption, EntryNo);
         if PostingDate > MaxPostingDate then
@@ -1604,6 +1611,11 @@ table 179 "Reversal Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckGLAccOnBeforeTestFields(GLAcc: Record "G/L Account"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPostingDate(PostingDate: Date; Caption: Text[50]; EntryNo: Integer; JnlTemplName: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

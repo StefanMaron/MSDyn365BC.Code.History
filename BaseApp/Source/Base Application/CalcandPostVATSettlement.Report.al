@@ -343,6 +343,8 @@
                     VATEntry.SetRange("VAT Bus. Posting Group", "VAT Posting Setup"."VAT Bus. Posting Group");
                     VATEntry.SetRange("VAT Prod. Posting Group", "VAT Posting Setup"."VAT Prod. Posting Group");
 
+                    OnClosingGLAndVATEntryOnAfterGetRecordOnAfterSetVATEntryFilters("VAT Posting Setup", VATEntry);
+
                     case "VAT Posting Setup"."VAT Calculation Type" of
                         "VAT Posting Setup"."VAT Calculation Type"::"Normal VAT",
                         "VAT Posting Setup"."VAT Calculation Type"::"Reverse Charge VAT",
@@ -942,6 +944,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIncrementGenPostingType(OldGenPostingType: Enum "General Posting Type"; var NewGenPostingType: Enum "General Posting Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnClosingGLAndVATEntryOnAfterGetRecordOnAfterSetVATEntryFilters(VATPostingSetup: Record "VAT Posting Setup"; var VATEntry: Record "VAT Entry")
     begin
     end;
 

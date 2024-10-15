@@ -25,6 +25,12 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 var
                     ExportType: Option Receipt,Shipment;
                 begin
+#if CLEAN19
+                    IntraJnlManagement.CheckForJournalBatchError(IntrastatJnlLine, true);
+#else
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.CheckForJournalBatchError(IntrastatJnlLine, true);
+#endif
                     TempIntrastatJnlLine.Reset();
 
                     // Reciepts
@@ -360,10 +366,10 @@ report 593 "Intrastat - Make Disk Tax Auth"
         TariffNumber: Record "Tariff Number";
     begin
 #if CLEAN19
-        IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Make Disk Tax Auth", true);
+        IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Make Disk Tax Auth", false);
 #else
         if IntrastatSetup."Use Advanced Checklist" then
-            IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Make Disk Tax Auth", true)
+            IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Make Disk Tax Auth", false)
         else begin
             IntrastatJnlLine.TestField("Country/Region Code");
             IntrastatJnlLine.TestField("Transaction Type");
@@ -460,7 +466,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     end;
         end;
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateXMLDocument(var EnterpriseNo: Text[30])
     begin
