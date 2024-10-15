@@ -54,6 +54,7 @@ codeunit 10145 "E-Invoice Mgt."
         WrongFieldValueErr: Label 'Wrong value %1 in field %2 of table %3.', Comment = '%1 - field value, %2 - field caption, %3 - table caption.';
         WrongSATCatalogErr: Label 'Catalog %1 contains incorrect data.', Comment = '%1 - table name.';
         CombinationCannotBeUsedErr: Label '%1 %2 cannot be used with %3 %4.', Comment = '%1 - field 1, %2 - value of field 1, %3 - field 2, %4 - value of field 2.';
+        NumeroPedimentoFormatTxt: Label '%1  %2  %3  %4', Comment = '%1 year; %2 - customs office; %3 patent number; %4 progressive number.';
         // fault model labels
         MXElectronicInvoicingTok: Label 'MXElectronicInvoicingTelemetryCategoryTok', Locked = true;
         SATCertificateNotValidErr: Label 'The SAT certificate is not valid', Locked = true;
@@ -1571,6 +1572,7 @@ codeunit 10145 "E-Invoice Mgt."
         TaxCode: Code[10];
         TaxType: Option Translado,Retencion;
         LineTaxes: Boolean;
+        NumeroPedimento: Text;
     begin
         InitXML33(XMLDoc, XMLCurrNode);
         with TempDocumentHeader do begin
@@ -1697,6 +1699,15 @@ codeunit 10145 "E-Invoice Mgt."
                         XMLCurrNode := XMLCurrNode.ParentNode;
                         // End of tax info per line
                     end;
+
+                    NumeroPedimento := FormatNumeroPedimento(TempDocumentLine);
+                    if NumeroPedimento <> '' then begin
+                        AddElementCFDI(XMLCurrNode, 'InformacionAduanera', '', DocNameSpace, XMLNewChild);
+                        XMLCurrNode := XMLNewChild;
+                        AddAttributeSimple(XMLDoc, XMLCurrNode, 'NumeroPedimento', NumeroPedimento);
+                        XMLCurrNode := XMLCurrNode.ParentNode;
+                    end;
+
                     XMLCurrNode := XMLCurrNode.ParentNode;
                 until TempDocumentLine.Next = 0;
 
@@ -2230,6 +2241,8 @@ codeunit 10145 "E-Invoice Mgt."
                         end else
                             WriteOutStr(OutStream, 'Exento' + '|'); // TipoFactor
                     end;
+
+                    WriteOutStr(OutStream, RemoveInvalidChars(FormatNumeroPedimento(TempDocumentLine)) + '|'); // NumeroPedimento
                 until TempDocumentLine.Next = 0;
 
             if LineTaxes then begin
@@ -2764,6 +2777,12 @@ codeunit 10145 "E-Invoice Mgt."
     end;
 
     local procedure AddAttribute(var XMLDomDocParam: DotNet XmlDocument; var XMLDomNode: DotNet XmlNode; AttribName: Text; AttribValue: Text): Boolean
+    begin
+        AddAttributeSimple(
+          XMLDomDocParam, XMLDomNode, AttribName, RemoveInvalidChars(AttribValue));
+    end;
+
+    local procedure AddAttributeSimple(var XMLDomDocParam: DotNet XmlDocument; var XMLDomNode: DotNet XmlNode; AttribName: Text; AttribValue: Text): Boolean
     var
         XMLDomAttribute: DotNet XmlAttribute;
     begin
@@ -2772,7 +2791,7 @@ codeunit 10145 "E-Invoice Mgt."
             exit(false);
 
         if AttribValue <> '' then begin
-            XMLDomAttribute.Value := RemoveInvalidChars(AttribValue);
+            XMLDomAttribute.Value := AttribValue;
             XMLDomNode.Attributes.SetNamedItem(XMLDomAttribute);
         end;
         Clear(XMLDomAttribute);
@@ -3703,6 +3722,7 @@ codeunit 10145 "E-Invoice Mgt."
     begin
         InitPaymentXML33(XMLDoc, XMLCurrNode);
         with TempCustLedgerEntry do begin
+            TempCustomer."Currency Code" := "Currency Code";
             if TempCustomer."Currency Code" = '' then begin
                 TempCustomer."Currency Code" := GLSetup."LCY Code";
                 "Original Currency Factor" := 1.0;
@@ -3819,6 +3839,8 @@ codeunit 10145 "E-Invoice Mgt."
                         AddAttribute(XMLDoc, XMLCurrNode, 'MonedaDR', CustLedgerEntry2."Currency Code")
                     else
                         AddAttribute(XMLDoc, XMLCurrNode, 'MonedaDR', GLSetup."LCY Code");
+                    if CustLedgerEntry2."Currency Code" <> "Currency Code" then
+                        AddAttribute(XMLDoc, XMLCurrNode, 'TipoCambioDR', FormatDecimal(1 / CustLedgerEntry2."Original Currency Factor", 6));
 
                     GetDocumentDataForPmt(AmountInclVAT, SATPaymentTerm, CustLedgerEntry2."Document No.", ServiceDoc, InvoiceDoc);
                     AddAttribute(XMLDoc, XMLCurrNode, 'MetodoDePagoDR', SATPaymentTerm);
@@ -3855,6 +3877,7 @@ codeunit 10145 "E-Invoice Mgt."
         SATPaymentTerm: Code[10];
     begin
         with TempCustLedgerEntry do begin
+            TempCustomer."Currency Code" := "Currency Code";
             if TempCustomer."Currency Code" = '' then begin
                 TempCustomer."Currency Code" := GLSetup."LCY Code";
                 "Original Currency Factor" := 1.0;
@@ -3945,6 +3968,9 @@ codeunit 10145 "E-Invoice Mgt."
                         WriteOutStr(OutStream, CustLedgerEntry2."Currency Code" + '|') // MonedaDR
                     else
                         WriteOutStr(OutStream, GLSetup."LCY Code" + '|'); // MonedaDR
+                    if CustLedgerEntry2."Currency Code" <> "Currency Code" then
+                        WriteOutStr(OutStream, FormatDecimal(1 / CustLedgerEntry2."Original Currency Factor", 6) + '|'); // TipoCambioDR
+
                     GetDocumentDataForPmt(AmountInclVAT, SATPaymentTerm, CustLedgerEntry2."Document No.", ServiceDoc, InvoiceDoc);
                     WriteOutStr(OutStream, SATPaymentTerm + '|');// MetodoDePagoDr
                     SumStampedPayments(TempCustLedgerEntry, SumOfStamped, PaymentNo);
@@ -4651,8 +4677,39 @@ codeunit 10145 "E-Invoice Mgt."
         end;
     end;
 
+    local procedure GetNumeroPedimento(TempDocumentLine: Record "Document Line" temporary) NumeroPedimento: Text
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetNumeroPedimento(TempDocumentLine, NumeroPedimento, IsHandled);
+        if IsHandled then
+            exit(NumeroPedimento);
+
+        exit('');
+    end;
+
+    local procedure FormatNumeroPedimento(TempDocumentLine: Record "Document Line" temporary): Text
+    var
+        NumeroPedimento: Text;
+    begin
+        NumeroPedimento := DelChr(GetNumeroPedimento(TempDocumentLine));
+        if NumeroPedimento = '' then
+            exit('');
+
+        NumeroPedimento :=
+          StrSubstNo(NumeroPedimentoFormatTxt,
+            CopyStr(NumeroPedimento, 1, 2), CopyStr(NumeroPedimento, 3, 2), CopyStr(NumeroPedimento, 5, 4), CopyStr(NumeroPedimento, 9, 7));
+        exit(NumeroPedimento);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnSendEmailOnBeforeSMTPMailSend(var SMTPMail: Codeunit "SMTP Mail"; DocumentHeaderRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNumeroPedimento(TempDocumentLine: Record "Document Line" temporary; var NumberPedimento: Text; var IsHandled: Boolean)
     begin
     end;
 }

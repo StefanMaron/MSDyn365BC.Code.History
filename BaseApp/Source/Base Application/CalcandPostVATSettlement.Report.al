@@ -332,7 +332,6 @@
                                                 PostGenJnlLine(GenJnlLine);
 
                                             CreateGenJnlLine(GenJnlLine2, "VAT Posting Setup".GetRevChargeAccount(false));
-                                            SetVatPostingSetupToGenJnlLine(GenJnlLine2, "VAT Posting Setup");
                                             OnBeforePostGenJnlLineReverseChargeVAT(GenJnlLine2, VATEntry, VATAmount, VATAmountAddCurr);
                                             if PostSettlement then
                                                 PostGenJnlLine(GenJnlLine2);
