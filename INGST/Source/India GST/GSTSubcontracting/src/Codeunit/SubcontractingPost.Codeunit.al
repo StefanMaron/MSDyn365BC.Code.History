@@ -115,10 +115,10 @@ codeunit 18466 "Subcontracting Post"
         ItemJnlLine."Order No." := SubOrderCompList."Production Order No.";
         ItemJnlLine."Order Line No." := SubOrderCompList."Production Order Line No.";
         ItemJnlLine."Prod. Order Comp. Line No." := SubOrderCompList."Line No.";
-        ItemJnlLine."Location Code" := SubOrderCompList."Company Location";
         ItemJnlLine."New Location Code" := SubOrderCompList."Vendor Location";
         ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Transfer;
         ItemJnlLine."Item No." := SubOrderCompList."Item No.";
+        ItemJnlLine.Validate("Location Code", SubOrderCompList."Company Location");
         ItemJnlLine.Description := SubOrderCompList.Description;
         ItemJnlLine."Gen. Prod. Posting Group" := SubOrderCompList."Gen. Prod. Posting Group";
         ItemJnlLine.Quantity := SubOrderCompList."Quantity To Send";

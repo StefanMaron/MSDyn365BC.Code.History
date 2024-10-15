@@ -112,6 +112,7 @@ pageextension 18150 "GST Sales Order Ext" extends "Sales Order"
                 var
                     GSTSalesValidation: Codeunit "GST Sales Validation";
                 begin
+                    CurrPage.SaveRecord();
                     GSTSalesValidation.CallTaxEngineOnSalesHeader(Rec);
                 end;
             }

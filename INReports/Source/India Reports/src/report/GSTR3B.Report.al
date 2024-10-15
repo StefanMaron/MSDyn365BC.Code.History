@@ -561,7 +561,7 @@ report 18042 "GSTR-3B"
 
                 Month := Date2DMY(PeriodDate, 2) - 1;
                 Year := Format(Date2DMY(PeriodDate, 3));
-                StartingDate := CalcDate('<CM-1M+1D>', PeriodDate);
+                StartingDate := CalcDate('<-CM>', PeriodDate);
                 EndingDate := CalcDate('<CM>', PeriodDate);
                 CompanyInformation.Get();
                 CalculateValues();

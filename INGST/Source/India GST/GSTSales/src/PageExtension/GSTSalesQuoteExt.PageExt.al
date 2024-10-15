@@ -101,6 +101,7 @@ pageextension 18153 "GST Sales Quote Ext" extends "Sales Quote"
                 var
                     GSTSalesValidation: Codeunit "GST Sales Validation";
                 begin
+                    CurrPage.SaveRecord();
                     GSTSalesValidation.CallTaxEngineOnSalesHeader(Rec);
                 end;
             }

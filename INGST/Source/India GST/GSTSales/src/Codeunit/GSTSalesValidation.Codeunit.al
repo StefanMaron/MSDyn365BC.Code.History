@@ -1,4 +1,4 @@
-codeunit 18143 "GST Sales Validation"
+﻿codeunit 18143 "GST Sales Validation"
 {
     var
         GSTBaseValidation: Codeunit "GST Base Validation";
@@ -556,6 +556,7 @@ codeunit 18143 "GST Sales Validation"
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterValidateEvent', 'Ship-To Code', false, false)]
     local procedure OnAfterUpdateShipToAddress(var Rec: Record "Sales Header")
     begin
+        OnValidateShipToCodeForUpdateShipToAddress(Rec);
         if (Rec."Ship-to Code" = '') or (Rec."GST Customer Type" = Rec."GST Customer Type"::Unregistered) then
             Rec."GST-Ship to Customer Type" := Rec."GST Customer Type";
 
@@ -780,7 +781,7 @@ codeunit 18143 "GST Sales Validation"
 
     local procedure GSTWithoutPaymentOfDuty(var SalesHeader: Record "Sales Header")
     begin
-        if not (SalesHeader."GST Customer Type" in [
+        if not (SalesHeader."GST-Ship to Customer Type" in [
             "GST Customer Type"::Export,
             "GST Customer Type"::"Deemed Export",
             "GST Customer Type"::"SEZ Development",
@@ -2047,6 +2048,11 @@ codeunit 18143 "GST Sales Validation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckHeaderLocation(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShipToCodeForUpdateShipToAddress(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

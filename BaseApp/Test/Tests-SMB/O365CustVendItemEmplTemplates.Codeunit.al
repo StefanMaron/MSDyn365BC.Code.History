@@ -2484,6 +2484,36 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     end;
 
     [Test]
+    procedure S481873_ItemTemplateNonDefaultCostingMethodIsEnumDefaultFIFO()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        InventorySetup: Record "Inventory Setup";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO 481873] Creation item from template with "Costing Method" enum default FIFO, but different from the inventory setup "Default Costing Method"
+        Initialize();
+
+        // Inventory setup with "Default Costing Method" = "Average"
+        InventorySetup.Get();
+        InventorySetup."Default Costing Method" := InventorySetup."Default Costing Method"::Average;
+        InventorySetup.Modify(true);
+
+        // [GIVEN] Item template with "Costing Method" = "FIFO", which is defaut value in enum, but not in Inventory Setup
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        ItemTempl.Validate("Costing Method", ItemTempl."Costing Method"::FIFO);
+        ItemTempl.Modify(true);
+
+        // [WHEN] Create item "I"
+        Item.Init();
+        Item.Insert(true);
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] "I" has "Costing Method" = "FIFO"
+        Item.TestField("Costing Method", Item."Costing Method"::FIFO);
+    end;
+
+    [Test]
     procedure ItemTemplateReorderingPolicyValidation()
     var
         ItemTempl: Record "Item Templ.";

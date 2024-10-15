@@ -133,6 +133,7 @@ pageextension 18148 "GST Sales Invoice Ext" extends "Sales Invoice"
                 var
                     GSTSalesValidation: Codeunit "GST Sales Validation";
                 begin
+                    CurrPage.SaveRecord();
                     GSTSalesValidation.CallTaxEngineOnSalesHeader(Rec);
                 end;
 

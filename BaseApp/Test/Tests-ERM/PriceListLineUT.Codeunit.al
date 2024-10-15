@@ -1750,9 +1750,9 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", Item."No.");
 
-        // [THEN] Price List Line, where "Unit of Measure Code" is 'PUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
+        // [THEN] Price List Line, where "Unit of Measure Code" is 'PUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VBG'
-        VerifyLineVariant(PriceListLine, Item."Purch. Unit of Measure", false, Vendor."Prices Including VAT", Vendor."VAT Bus. Posting Group", '', '', Vendor."Currency Code");
+        VerifyLineVariant(PriceListLine, Item."Purch. Unit of Measure", Item."Allow Invoice Disc.", Vendor."Prices Including VAT", Vendor."VAT Bus. Posting Group", '', '', Vendor."Currency Code");
     end;
 
     [Test]
@@ -1808,9 +1808,9 @@ codeunit 134123 "Price List Line UT"
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", Item."No.");
 
-        // [THEN] Price List Line, where "Unit of Measure Code" is 'PUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
+        // [THEN] Price List Line, where "Unit of Measure Code" is 'PUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>
-        VerifyLineVariant(PriceListLine, Item."Purch. Unit of Measure", false, false, '', '', '', Job."Currency Code");
+        VerifyLineVariant(PriceListLine, Item."Purch. Unit of Measure", Item."Allow Invoice Disc.", false, '', '', '', Job."Currency Code");
     end;
 
     [Test]

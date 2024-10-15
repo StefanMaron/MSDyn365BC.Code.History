@@ -966,6 +966,8 @@ page 554 "Analysis by Dimensions"
             AnalysisViewEntry.SetRange("Posting Date", 0D, Calendar."Period End");
 
         InternalDateFilter := AnalysisViewEntry.GetFilter("Posting Date");
+        OnFindPeriodOnAfterSetInternalDateFilter(Rec."Period Type", InternalDateFilter);
+
         if ("Line Dim Option" <> "Line Dim Option"::Period) and ("Column Dim Option" <> "Column Dim Option"::Period) then
             "Date Filter" := InternalDateFilter;
     end;
@@ -1382,6 +1384,11 @@ page 554 "Analysis by Dimensions"
 
     [IntegrationEvent(false, false)]
     local procedure OnOpenPageOnGetBusUnitFilterCaptionElseCase(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; AnalysisView: Record "Analysis View"; var BusUnitFilterCaption: Text[80])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindPeriodOnAfterSetInternalDateFilter(PeriodType: Enum "Analysis Period Type"; var DateFilter: Text)
     begin
     end;
 }
