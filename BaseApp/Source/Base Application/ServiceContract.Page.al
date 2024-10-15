@@ -1219,8 +1219,8 @@ page 6050 "Service Contract"
     trigger OnAfterGetRecord()
     begin
         UpdateShiptoCode;
-        if SellToContact.Get("Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnInit()
@@ -1237,13 +1237,9 @@ page 6050 "Service Contract"
 
     trigger OnOpenPage()
     begin
-        if UserMgt.GetServiceFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetServiceFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
-        ActivateFields;
+        ActivateFields();
     end;
 
     var

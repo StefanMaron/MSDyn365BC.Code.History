@@ -577,7 +577,7 @@ codeunit 6224 "XML DOM Management"
         LoadXMLNodeFromText(XmlText, XMLRootNode);
     end;
 
-    local procedure ClearUTF8BOMSymbols(var XmlText: Text)
+    procedure ClearUTF8BOMSymbols(var XmlText: Text)
     var
         UTF8Encoding: DotNet UTF8Encoding;
         ByteOrderMarkUtf8: Text;
@@ -810,7 +810,7 @@ codeunit 6224 "XML DOM Management"
     [Scope('OnPrem')]
     procedure XMLTextIndent(InputXMLText: Text): Text
     var
-        TempBlob: Codeunit "Temp Blob";        
+        TempBlob: Codeunit "Temp Blob";
         TypeHelper: Codeunit "Type Helper";
         XMLDocument: DotNet XmlDocument;
         OutStream: OutStream;
@@ -826,7 +826,7 @@ codeunit 6224 "XML DOM Management"
         ClearLastError();
         exit(InputXMLText);
     end;
-	
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddElementWithPrefix(var NodeName: Text)
     begin

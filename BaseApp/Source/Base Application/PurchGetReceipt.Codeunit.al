@@ -1,4 +1,4 @@
-﻿codeunit 74 "Purch.-Get Receipt"
+codeunit 74 "Purch.-Get Receipt"
 {
     TableNo = "Purchase Line";
 

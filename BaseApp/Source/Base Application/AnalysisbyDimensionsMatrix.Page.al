@@ -1,4 +1,4 @@
-﻿page 9249 "Analysis by Dimensions Matrix"
+page 9249 "Analysis by Dimensions Matrix"
 {
     Caption = 'Analysis by Dimensions Matrix';
     DataCaptionExpression = AnalysisViewCode;
@@ -639,7 +639,7 @@
         MATRIX_CurrentColumnOrdinal: Integer;
         MATRIX_Steps: Integer;
     begin
-        Amount := MatrixMgt.RoundValue(CalcAmount(false), AnalysisByDimParameters."Rounding Factor");
+        Amount := MatrixMgt.RoundAmount(CalcAmount(false), AnalysisByDimParameters."Rounding Factor");
 
         MATRIX_CurrentColumnOrdinal := 0;
         if MATRIX_PrimKeyFirstCol <> '' then
@@ -914,7 +914,7 @@
           DimOption::"Dimension 4":
                 exit(DimCodeBuf.Find(Which));
             DimOption::Period:
-                // Make specifial length of Which parameter in order to find PeriodFormmgt.FindDate procedure
+                // Make specifial length of Which parameter in order to find PeriodPageMgt.FindDate procedure
                 exit(FindPeriod(DimCodeBuf, CopyStr(Which, 1, 3)));
         end;
     end;
@@ -1453,7 +1453,7 @@
 
     local procedure MATRIX_OnAfterGetRecord()
     begin
-        MatrixAmount := MatrixMgt.RoundValue(CalcAmount(true), AnalysisByDimParameters."Rounding Factor");
+        MatrixAmount := MatrixMgt.RoundAmount(CalcAmount(true), AnalysisByDimParameters."Rounding Factor");
 
         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixAmount;
     end;
@@ -1494,17 +1494,6 @@
         Field32Visible := ColumnCaptions[32] <> '';
     end;
 
-#if not CLEAN16
-    [Obsolete('This function is replaced with another overload', '16.0')]
-    procedure Load(LineDimOptionLocal: Option; ColumnDimOptionLocal: Option; LineDimCodeLocal: Text[30]; ColumnDimCodeLocal: Text[30]; NewPeriodType: Option; NewDateFilter: Text; NewAccountFilter: Text; NewBusUnitFilter: Text; NewBudgetFilter: Text; NewDim1Filter: Text; NewDim2Filter: Text; NewDim3Filter: Text; NewDim4Filter: Text; NewCashFlowFilter: Text)
-    begin
-    end;
-
-    [Obsolete('This function is replaced with another overload', '16.0')]
-    procedure Load(NewAmountType: Option; ViewCode: Code[50]; ShowOp: Boolean; ShowColumnNameLocal: Boolean; NewShowActualBudg: Option; NewAmountField: Option; NewClosingEntryFilter: Option; NewRoundingFactor: Option; NewShowInAddCurr: Boolean; NewMATRIX_ColumnCaptions: array[32] of Text[250]; NewPrimKeyFirstCol: Text[1024])
-    begin
-    end;
-#endif
 
     procedure Load(NewAnalysisByDimParameters: Record "Analysis by Dim. Parameters"; LineDimCodeLocal: Text[30]; ColumnDimCodeLocal: Text[30]; NewMATRIX_ColumnCaptions: array[32] of Text[250]; NewPrimKeyFirstCol: Text[1024])
     begin
@@ -1514,7 +1503,7 @@
         ColumnDimCode := ColumnDimCodeLocal;
         CopyArray(ColumnCaptions, NewMATRIX_ColumnCaptions, 1);
         MATRIX_PrimKeyFirstCol := NewPrimKeyFirstCol;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(AnalysisByDimParameters."Rounding Factor", false);
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(AnalysisByDimParameters."Rounding Factor", false);
     end;
 
     local procedure FormatLine()
@@ -1524,11 +1513,11 @@
 
     local procedure FindPeriod(var DimCodeBuf: Record "Dimension Code Buffer"; Which: Text[3]) Found: Boolean
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         Evaluate(PeriodOption."Period Start", DimCodeBuf.Code);
         FilterLinePeriod(DimCodeBuf);
-        Found := PeriodFormMgt.FindDate(Which, PeriodOption, AnalysisByDimParameters."Period Type");
+        Found := PeriodPageMgt.FindDate(Which, PeriodOption, AnalysisByDimParameters."Period Type");
         if Found then
             CopyPeriodToBuf(PeriodOption, DimCodeBuf);
         exit(Found);
@@ -1536,11 +1525,11 @@
 
     local procedure NextPeriod(var DimCodeBuf: Record "Dimension Code Buffer"; Steps: Integer) ResultSteps: Integer
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         Evaluate(PeriodOption."Period Start", DimCodeBuf.Code);
         FilterLinePeriod(DimCodeBuf);
-        ResultSteps := PeriodFormMgt.NextDate(Steps, PeriodOption, AnalysisByDimParameters."Period Type");
+        ResultSteps := PeriodPageMgt.NextDate(Steps, PeriodOption, AnalysisByDimParameters."Period Type");
         if ResultSteps <> 0 then
             CopyPeriodToBuf(PeriodOption, DimCodeBuf);
         exit(ResultSteps);

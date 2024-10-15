@@ -354,8 +354,10 @@ codeunit 134118 "Price List Header UT"
         PriceListLine: Record "Price List Line";
     begin
         Initialize();
-        // [GIVEN] Price List with one line, where "Starting Date" is '010220'
+        // [GIVEN] Price List with one line, where "Starting Date" is '010220', "Allow Updating Defaults" is 'Yes'
         CreatePriceList(PriceListHeader, PriceListLine);
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
 
         // [WHEN] Set "Starting Date" as '310120', answer 'Yes' to confirm
         PriceListHeader.Validate("Starting Date", PriceListHeader."Starting Date" - 1);
@@ -378,8 +380,10 @@ codeunit 134118 "Price List Header UT"
         PriceListLine: Record "Price List Line";
     begin
         Initialize();
-        // [GIVEN] Price List with one line, where "Ending Date" is '300120'
+        // [GIVEN] Price List with one line, where "Ending Date" is '300120', "Allow Updating Defaults" is 'Yes'
         CreatePriceList(PriceListHeader, PriceListLine);
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
 
         // [WHEN] Set "Ending Date" as '310120', answer 'Yes' to confirm
         PriceListHeader.Validate("Ending Date", PriceListHeader."Ending Date" + 1);
@@ -403,8 +407,10 @@ codeunit 134118 "Price List Header UT"
         ExpectedDate: Date;
     begin
         Initialize();
-        // [GIVEN] Price List with one line, where "Starting Date" is '010220'
+        // [GIVEN] Price List with one line, where "Starting Date" is '010220', "Allow Updating Defaults" is 'Yes'
         CreatePriceList(PriceListHeader, PriceListLine);
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
 
         // [WHEN] Set "Starting Date" as '310120', answer 'No' to confirm
         ExpectedDate := PriceListHeader."Starting Date";
@@ -414,6 +420,8 @@ codeunit 134118 "Price List Header UT"
         Assert.AreEqual(
             StrSubstNo(DateConfirmQst, PriceListHeader.FieldCaption("Starting Date")),
             LibraryVariableStorage.DequeueText(), 'Confirm question'); // from ConfirmNoHandler
+        // [THEN] Price List Hader, where "Starting Date" is changed to '310120'
+        PriceListHeader.TestField("Starting Date", ExpectedDate - 1);
         // [THEN] Price List Line, where "Starting Date" is '010220'
         PriceListLine.Find();
         PriceListLine.TestField("Starting Date", ExpectedDate);
@@ -429,8 +437,10 @@ codeunit 134118 "Price List Header UT"
         ExpectedDate: Date;
     begin
         Initialize();
-        // [GIVEN] Price List with one line, where "Ending Date" is '300120'
+        // [GIVEN] Price List with one line, where "Ending Date" is '300120', "Allow Updating Defaults" is 'Yes'
         CreatePriceList(PriceListHeader, PriceListLine);
+        PriceListHeader.Validate("Allow Updating Defaults", true);
+        PriceListHeader.Modify();
 
         // [WHEN] Set "Ending Date" as '310120', answer 'No' to confirm
         ExpectedDate := PriceListHeader."Ending Date";
@@ -440,6 +450,8 @@ codeunit 134118 "Price List Header UT"
         Assert.AreEqual(
             StrSubstNo(DateConfirmQst, PriceListHeader.FieldCaption("Ending Date")),
             LibraryVariableStorage.DequeueText(), 'Confirm question'); // from ConfirmNoHandler
+        // [THEN] Price List Hader, where "Ending Date" is changed to '310120'
+        PriceListHeader.TestField("Ending Date", ExpectedDate + 1);
         // [THEN] Price List Line, where "Ending Date" is '300120'
         PriceListLine.Find();
         PriceListLine.TestField("Ending Date", ExpectedDate);
@@ -1844,10 +1856,10 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [ModalPageHandler]
-    procedure LookupCustomerModalHandler(var CustomerList: testpage "Customer List")
+    procedure LookupCustomerModalHandler(var CustomerLookup: TestPage "Customer Lookup")
     begin
-        CustomerList.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
-        CustomerList.OK().Invoke();
+        CustomerLookup.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        CustomerLookup.OK().Invoke();
     end;
 
     [ConfirmHandler]

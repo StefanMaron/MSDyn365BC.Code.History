@@ -730,7 +730,6 @@ codeunit 137004 "SCM WIP Costing Production-II"
         CurrencyCode: Code[10];
         ProductionOrderNo: Code[20];
         AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
-        AverageCostCalcType: Option " ",Item,"Item & Location & Variant";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         SetupTime: Decimal;
         RunTime: Decimal;
@@ -744,7 +743,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         LibraryManufacturing.CreateWorkCenterGroup(WorkCenterGroup);
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, true, false, AutomaticCostAdjustment::Never, AverageCostCalcType::Item, AverageCostPeriod::Day);
+          InventorySetup, true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays;
         if AdditionalCurrencyExist then

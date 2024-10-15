@@ -20,6 +20,7 @@ codeunit 9510 "Document Service Management"
         RequiredTargetURIErr: Label 'You must specify the URI that you want to open.';
         ValidateConnectionErr: Label 'Cannot connect because the user name and password have not been specified, or because the connection was canceled.';
         AccessTokenErrMsg: Label 'Failed to acquire an access token.';
+        AccessTokenEmptyErr: Label 'There was a problem authenticating. Please try to sign out and sign in again.';
         MissingClientIdOrSecretErr: Label 'The client ID or client secret have not been initialized.';
         SharePointIsoStorageSecretNotConfiguredErr: Label 'Client secret for SharePoint has not been configured.';
         SharePointIsoStorageSecretNotConfiguredLbl: Label 'Client secret for SharePoint has not been configured.', Locked = true;
@@ -33,6 +34,24 @@ codeunit 9510 "Document Service Management"
         MissingClientSecretTelemetryTxt: Label 'The client secret has not been initialized.', Locked = true;
         InitializedClientIdTelemetryTxt: Label 'The client ID has been initialized.', Locked = true;
         InitializedClientSecretTelemetryTxt: Label 'The client secret has been initialized.', Locked = true;
+        CantFindMySiteErr: Label 'Could not determine the location of your OneDrive for Business, contact your partner to set this up.';
+        UnknownLocationErr: Label 'An unexpected error occured while trying to configure the Document Service. Try again later.';
+        DocumentSharingNoNameErr: Label 'The document to be shared has not specified a name.';
+        DocumentSharingNoExtErr: Label 'The document to be shared has not specified a file extension.';
+        SharePointFileExistsInstructionsTxt: Label 'The specified file name "%1" already exists.\ Do you want to overwrite the file?', Comment = '%1=a file name, for example "CustomerCard.xlsx"';
+        SharePointFileExistsOptionsTxt: Label 'Keep both,Overwrite', Comment = 'A comma separated list with two options.';
+        DocumentServiceCategoryLbl: Label 'AL DocumentService', Locked = true;
+        DocumentSharingStartLbl: Label 'Handling document sharing event.', Locked = true;
+        DocumentServiceDefaultingLbl: Label 'Configuring defaults for document service', Locked = true;
+        DefaultLocationErrCodeErr: Label 'Graph request to determine root storage location resulted in status code: %1', Locked = true;
+        CouldNotFindLocationInResponseErr: Label 'Graph request could not find the webUrl property for the default location.', Locked = true;
+        LocationResponseInvalidErr: Label 'Graph request did not return a JSON document.', Locked = true;
+        LocationFoundTxt: Label 'A default location was found of length %1', Locked = true;
+        CheckingDriveProgressTxt: Label 'Checking that you have a valid drive.';
+        GraphApiUrlOnPremTxt: Label 'https://graph.microsoft.com', Locked = true;
+        StartingLinkGenerationTelemetryMsg: Label 'Starting OneDrive link generation.', Locked = true;
+        ConfigurationForTestConnectionTelemetryMsg: Label 'Configuration for test connection retrieved, with authentication: %1.', Locked = true;
+
 
     [Scope('OnPrem')]
     procedure TestConnection()
@@ -44,19 +63,39 @@ codeunit 9510 "Document Service Management"
         // An error occurrs if unable to successfully connect.
         if not IsConfigured then
             Error(NoConfigErr);
+
         DocumentServiceHelper.Reset();
-        SetDocumentService;
-        SetProperties(false);
-        if DocumentServiceRec.FindFirst() then
+        SetDocumentService();
+
+        if DocumentServiceRec.FindFirst() then begin
+            Session.LogMessage('0000FR2', StrSubstNo(ConfigurationForTestConnectionTelemetryMsg, DocumentServiceRec."Authentication Type"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentServiceCategoryLbl);
+
+            SetProperties(false, DocumentServiceRec);
+
             if DocumentServiceRec."Authentication Type" = DocumentServiceRec."Authentication Type"::Legacy then
                 if IsNull(DocumentService.Credentials) then
                     Error(ValidateConnectionErr);
+        end else
+            Error(NoConfigErr);
+
         DocumentService.ValidateConnection;
         CheckError;
     end;
 
+#if not CLEAN19
     [Scope('OnPrem')]
+    [Obsolete('Use SaveFile(SourcePath; TargetName; ConflictBehavior) instead', '19.0')]
     procedure SaveFile(SourcePath: Text; TargetName: Text; Overwrite: Boolean): Text
+    begin
+        if Overwrite then
+            exit(SaveFile(SourcePath, TargetName, Enum::"Doc. Service Conflict Behavior"::Replace))
+        else
+            exit(SaveFile(SourcePath, TargetName, Enum::"Doc. Service Conflict Behavior"::Rename));
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure SaveFile(SourcePath: Text; TargetName: Text; ConflictBehavior: Enum "Doc. Service Conflict Behavior"): Text
     var
         SourceFile: File;
         SourceStream: InStream;
@@ -82,7 +121,7 @@ codeunit 9510 "Document Service Management"
 
         SourceFile.CreateInStream(SourceStream);
 
-        exit(SaveStream(SourceStream, TargetName, Overwrite));
+        exit(SaveStream(SourceStream, TargetName, ConflictBehavior));
     end;
 
     procedure IsConfigured(): Boolean
@@ -119,8 +158,9 @@ codeunit 9510 "Document Service Management"
         with DocumentServiceRec do begin
             if FindLast then
                 if Location <> '' then begin
-                    SetDocumentService;
-                    SetProperties(true);
+                    SetDocumentService();
+                    SetProperties(true, DocumentServiceRec);
+                    EnsureDocumentServiceCache(DocumentServiceRec, true);
                     IsValid := DocumentService.IsValidUri(TargetURI);
                     CheckError;
                     exit(IsValid);
@@ -161,23 +201,136 @@ codeunit 9510 "Document Service Management"
         if not IsConfigured then
             Error(NoConfigErr);
 
-        SetDocumentService;
+        SetDocumentService();
         HyperLink(DocumentService.GenerateViewableDocumentAddress(TargetURI));
         CheckError;
     end;
 
-    [NonDebuggable]
-    local procedure SetProperties(GetTokenFromCache: Boolean)
+    local procedure InitializeDefaultService(var DocumentServiceRec: Record "Document Service"; Name: Code[30])
     var
-        DocumentServiceRec: Record "Document Service";
+        OAuth2: Codeunit OAuth2;
+        RedirectUrl: Text;
+    begin
+        DocumentServiceRec.Init();
+        DocumentServiceRec."Service ID" := Name;
+        DocumentServiceRec."Authentication Type" := DocumentServiceRec."Authentication Type"::OAuth2;
+        OAuth2.GetDefaultRedirectUrl(RedirectUrl);
+        DocumentServiceRec."Redirect URL" := CopyStr(RedirectUrl, 1, MaxStrLen(DocumentServiceRec."Redirect URL"));
+        DocumentServiceRec.Location := GetDefaultLocation();
+        DocumentServiceRec.Folder := GetDefaultFolderName();
+    end;
+
+    local procedure GetDefaultFolderName(): Text[250]
+    begin
+        exit(CopyStr(GetSafeDocumentServiceFolderName(ProductName.Short()), 1, 250));
+    end;
+
+    local procedure GetSafeCompanyName(): Text
+    var
+        Company: Record "Company";
+        SafeCompanyName: Text;
+    begin
+        if (not Company.Get(CompanyName())) or (Company."Display Name" = '') then
+            exit(GetSafeDocumentServiceFolderName(CompanyName()));
+
+        SafeCompanyName := GetSafeDocumentServiceFolderName(Company."Display Name");
+
+        if SafeCompanyName = '' then
+            exit(GetSafeDocumentServiceFolderName(CompanyName()));
+
+        exit(SafeCompanyName);
+    end;
+
+    local procedure GetSafeDocumentServiceFolderName(FolderName: Text): Text
+    var
+        FileManagement: Codeunit "File Management";
+    begin
+        FolderName := FileManagement.GetSafeFileName(FolderName);
+        FolderName := DelChr(FolderName, '<', ' '); // Remove leading whitespace
+        FolderName := DelChr(FolderName, '>', '. '); // Remove trailing periods and whitespace
+        FolderName := DelChr(FolderName, '=', '%'); // Remove all percentage symbols
+
+        exit(FolderName);
+    end;
+
+    [NonDebuggable]
+    local procedure GetDefaultLocation(): Text[250]
+    var
+        UrlHelper: Codeunit "Url Helper";
+        AzureAdMgt: Codeunit "Azure AD Mgt.";
+        UriBuilder: Codeunit "Uri Builder";
+        HttpWebRequestMgt: Codeunit "Http Web Request Mgt.";
+        ResponseHeaders: DotNet NameValueCollection;
+        StatusCode: DotNet HttpStatusCode;
+        DriveJsonObject: JsonObject;
+        Location: Text;
+        ResponseContent: Text;
+        ResponseErrorMessage: Text;
+        ResponseErrorDetails: Text;
+        Endpoint: Text;
+        Token: Text;
+    begin
+        Endpoint := GetGraphSiteRootUrl();
+        Token := AzureAdMgt.GetOnBehalfAccessToken(UrlHelper.GetGraphUrl());
+
+        if Token = '' then
+            Error(AccessTokenEmptyErr);
+
+        HttpWebRequestMgt.Initialize(Endpoint);
+        HttpWebRequestMgt.DisableUI();
+        HttpWebRequestMgt.SetReturnType('application/json');
+        HttpWebRequestMgt.AddHeader('Authorization', 'Bearer ' + Token);
+
+        if not HttpWebRequestMgt.SendRequestAndReadTextResponse(ResponseContent, ResponseErrorMessage, ResponseErrorDetails, StatusCode, ResponseHeaders) then begin
+            if StatusCode.ToString() = '404' then
+                Error(CantFindMySiteErr);
+
+            Session.LogMessage('0000FJY', StrSubstNo(DefaultLocationErrCodeErr, StatusCode.ToString()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentServiceCategoryLbl);
+            Error(UnknownLocationErr);
+        end;
+
+        if not DriveJsonObject.ReadFrom(ResponseContent) then begin
+            Session.LogMessage('0000FLF', LocationResponseInvalidErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentServiceCategoryLbl);
+            Error(UnknownLocationErr);
+        end;
+
+        if not ExtractWebUrlFromJson(DriveJsonObject, Location) then begin
+            Session.LogMessage('0000FLG', CouldNotFindLocationInResponseErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentServiceCategoryLbl);
+            Error(UnknownLocationErr);
+        end;
+
+        UriBuilder.Init(Location);
+        Location := 'https://' + UriBuilder.GetHost() + '/';
+
+        Session.LogMessage('0000FLH', StrSubstNo(LocationFoundTxt, StrLen(Location)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentServiceCategoryLbl);
+        exit(CopyStr(Location, 1, 250));
+    end;
+
+    local procedure SetResourceLocation(var DocumentServiceRec: Record "Document Service"): Boolean
+    var
+        NewLocation: Text;
+    begin
+        SetDocumentService();
+        SetProperties(true, DocumentServiceRec);
+
+        NewLocation := DocumentService.GetLocation();
+
+        if NewLocation <> '' then begin
+            DocumentServiceRec.Location := CopyStr(NewLocation, 1, MaxStrLen(DocumentServiceRec.Location));
+            exit(true);
+        end;
+
+        exit(false); // Couldn't resolve a location, credentials may be invalid for the target site
+    end;
+
+    [NonDebuggable]
+    local procedure SetProperties(GetTokenFromCache: Boolean; var DocumentServiceRec: Record "Document Service")
+    var
         DocumentServiceCache: Record "Document Service Cache";
         DocumentServiceHelper: DotNet NavDocumentServiceHelper;
         AccessToken: Text;
     begin
         with DocumentServiceRec do begin
-            if not FindFirst then
-                Error(NoConfigErr);
-
             // The Document Service will throw an exception if the property is not known to the service type provider.
             DocumentService.Properties.SetProperty(FieldName(Description), Description);
             DocumentService.Properties.SetProperty(FieldName(Location), Location);
@@ -190,23 +343,66 @@ codeunit 9510 "Document Service Management"
                 DocumentService.Properties.SetProperty(FieldName(Password), Password);
                 DocumentService.Credentials := DocumentServiceHelper.ProvideCredentials;
             end else begin
-                if DocumentServiceCache.Get(SystemId) then begin
+                if DocumentServiceCache.Get(SystemId) then
                     if GetTokenFromCache then
                         GetTokenFromCache := DocumentServiceCache."Use Cached Token";
-                end else
-                    CreateDocumentServiceCache(DocumentServiceCache, DocumentServiceRec, GetTokenFromCache);
 
                 GetAccessToken(Location, AccessToken, GetTokenFromCache);
                 DocumentService.Properties.SetProperty('Token', AccessToken);
-                if not DocumentServiceCache."Use Cached Token" then begin
-                    DocumentServiceCache."Use Cached Token" := true;
-                    DocumentServiceCache.Modify();
-                end;
             end;
 
             if not (DocumentServiceHelper.LastErrorMessage = '') then
                 Error(DocumentServiceHelper.LastErrorMessage);
         end;
+    end;
+
+    procedure GetMyBusinessCentralFilesLink(): Text
+    var
+        TempDocumentServiceRec: Record "Document Service" temporary;
+        ProgressDialog: Dialog;
+    begin
+        Session.LogMessage('0000FMJ', StartingLinkGenerationTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+
+        ProgressDialog.Open(CheckingDriveProgressTxt);
+        InitTempDocumentServiceRecord(TempDocumentServiceRec);
+        exit(TempDocumentServiceRec.Location);
+    end;
+
+    [TryFunction]
+    local procedure ExtractWebUrlFromJson(DriveBcFolderJson: JsonObject; var WebUrl: Text)
+    var
+        DriveWebUrlJson: JsonToken;
+    begin
+        if DriveBcFolderJson.Get('webUrl', DriveWebUrlJson) then
+            if DriveWebUrlJson.IsValue then begin
+                WebUrl := DriveWebUrlJson.AsValue().AsText();
+                exit;
+            end;
+
+        Error('');
+    end;
+
+
+    local procedure GetGraphSiteRootUrl(): Text
+    var
+        Domain: Text;
+    begin
+        Domain := GetGraphDomain();
+
+        Domain := DelChr(Domain, '>', '/');
+        exit(Domain + '/v1.0/sites/root')
+    end;
+
+    local procedure GetGraphDomain(): Text
+    var
+        UrlHelper: Codeunit "Url Helper";
+        Domain: Text;
+    begin
+        Domain := UrlHelper.GetGraphUrl();
+        if Domain = '' then
+            Domain := GraphApiUrlOnPremTxt; // This fallback is needed for OnPremise
+
+        exit(Domain)
     end;
 
     local procedure SetDocumentService()
@@ -234,18 +430,41 @@ codeunit 9510 "Document Service Management"
             Error(DocumentService.LastError.Message);
     end;
 
-    local procedure SaveStream(Stream: InStream; TargetName: Text; Overwrite: Boolean): Text
+    [TryFunction]
+    local procedure TrySaveStreamFromRec(Stream: InStream; TargetName: Text; ConflictBehavior: Enum "Doc. Service Conflict Behavior"; var DocumentServiceRec: Record "Document Service"; var DocumentUri: Text)
     var
-        DocumentURI: Text;
+        LocalDocumentService: Record "Document Service";
+        DotNetConflictBehavior: DotNet ConflictBehavior;
+        DotNetUploadedDocument: DotNet UploadedDocument;
     begin
-        // Saves a stream to the Document Service using the configured location specified in Dynamics NAV.
-        SetDocumentService;
-        SetProperties(true);
+        Clear(DocumentUri);
 
-        DocumentURI := DocumentService.Save(Stream, TargetName, Overwrite);
+        // Saves a stream to the Document Service using the configured location specified in Dynamics NAV.
+        SetDocumentService();
+
+        if DocumentServiceRec."Service ID" <> '' then
+            SetProperties(true, DocumentServiceRec)
+        else begin
+            if not LocalDocumentService.FindFirst() then
+                Error(NoConfigErr);
+
+            SetProperties(true, LocalDocumentService);
+        end;
+
+        DotNetConflictBehavior := ConflictBehavior.AsInteger();
+        DotNetUploadedDocument := DocumentService.Save(Stream, TargetName, DotNetConflictBehavior);
         CheckError;
 
-        exit(DocumentURI);
+        if not IsNull(DotNetUploadedDocument) then
+            if not IsNull(DotNetUploadedDocument.Uri) then
+                DocumentUri := DotNetUploadedDocument.Uri.AbsoluteUri;
+    end;
+
+    local procedure SaveStream(Stream: InStream; TargetName: Text; ConflictBehavior: Enum "Doc. Service Conflict Behavior") DocumentUri: Text
+    var
+        DocumentServiceRec: Record "Document Service";
+    begin
+        TrySaveStreamFromRec(Stream, TargetName, ConflictBehavior, DocumentServiceRec, DocumentUri);
     end;
 
     [NonDebuggable]
@@ -253,34 +472,58 @@ codeunit 9510 "Document Service Management"
     var
         OAuth2: Codeunit OAuth2;
         PromptInteraction: Enum "Prompt Interaction";
+#if CLEAN18
+        Scopes: List of [Text];
+#else
+        ResourceURL: Text;
+#endif
         ClientId: Text;
         ClientSecret: Text;
         RedirectURL: Text;
-        ResourceURL: Text;
         AuthError: Text;
     begin
+#if CLEAN18
+        GetScopes(Location, Scopes);
+#else        
         ResourceURL := GetResourceUrl(Location);
+#endif
         ClientId := GetClientId();
         ClientSecret := GetClientSecret();
         RedirectURL := GetRedirectURL();
 
         if GetTokenFromCache then
+#if CLEAN18
+            OAuth2.AcquireAuthorizationCodeTokenFromCache(ClientId, ClientSecret, RedirectURL, OAuthAuthorityUrlLbl, Scopes, AccessToken);
+#else
             OAuth2.AcquireAuthorizationCodeTokenFromCache(ClientId, ClientSecret, RedirectURL, OAuthAuthorityUrlLbl, ResourceURL, AccessToken);
-
+#endif
         if AccessToken <> '' then
             exit;
 
         Session.LogMessage('0000DB7', AccessTokenAcquiredFromCacheErr, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
+#if CLEAN18
+        OAuth2.AcquireTokenByAuthorizationCode(
+                    ClientId,
+                    ClientSecret,
+                    OAuthAuthorityUrlLbl,
+                    RedirectURL,
+                    Scopes,
+                    PromptInteraction::"Select Account",
+                    AccessToken,
+                    AuthError
+                );
+#else
         OAuth2.AcquireTokenByAuthorizationCode(
                     ClientId,
                     ClientSecret,
                     OAuthAuthorityUrlLbl,
                     RedirectURL,
                     ResourceURL,
-                    PromptInteraction::Consent,
+                    PromptInteraction::"Select Account",
                     AccessToken,
                     AuthError
                 );
+#endif
 
         if AccessToken = '' then begin
             Session.LogMessage('0000DB8', StrSubstNo(AuthTokenOrCodeNotReceivedErr, AuthError), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SharePointTelemetryCategoryTxt);
@@ -369,12 +612,22 @@ codeunit 9510 "Document Service Management"
         exit(RedirectURL);
     end;
 
+#if CLEAN18
+    [NonDebuggable]
+    local procedure GetScopes(Location: Text; var Scopes: List of [Text])
+    begin
+        Scopes.Add(Location.Substring(1, Location.IndexOf('.com') + 3) + '/AllSites.FullControl');
+        Scopes.Add(Location.Substring(1, Location.IndexOf('.com') + 3) + '/EnterpriseResource.Write');
+        Scopes.Add(Location.Substring(1, Location.IndexOf('.com') + 3) + '/MyFiles.Write');
+        Scopes.Add(Location.Substring(1, Location.IndexOf('.com') + 3) + '/User.ReadWrite.All');
+    end;
+#else
     [NonDebuggable]
     local procedure GetResourceUrl(Location: Text): Text
     begin
         exit(Location.Substring(1, Location.IndexOf('.com') + 3));
     end;
-
+#endif
 
     [Scope('OnPrem')]
     [NonDebuggable]
@@ -437,28 +690,18 @@ codeunit 9510 "Document Service Management"
         DocumentServiceRec: Record "Document Service";
         DocumentServiceCache: Record "Document Service Cache";
         GetTokenFromCache: Boolean;
-        CreateCache: Boolean;
         Token: Text;
     begin
-        if DocumentServiceCache.FindFirst() then
+        if DocumentServiceRec.FindFirst() and DocumentServiceCache.Get(DocumentServiceRec.SystemId) then
             GetTokenFromCache := DocumentServiceCache."Use Cached Token"
-        else begin
+        else
             GetTokenFromCache := true;
-            CreateCache := true;
-        end;
 
         GetAccessToken(Location, Token, GetTokenFromCache);
         Session.SetDocumentServiceToken(Token);
 
-        if CreateCache then begin
-            DocumentServiceRec.FindFirst();
-            CreateDocumentServiceCache(DocumentServiceCache, DocumentServiceRec, true);
-        end;
-
-        if not DocumentServiceCache."Use Cached Token" then begin
-            DocumentServiceCache."Use Cached Token" := true;
-            DocumentServiceCache.Modify();
-        end;
+        if not IsNullGuid(DocumentServiceRec.SystemId) then
+            EnsureDocumentServiceCache(DocumentServiceRec, true);
     end;
 
     local procedure CreateDocumentServiceCache(var DocumentServiceCache: Record "Document Service Cache"; DocumentService: Record "Document Service"; UseCache: Boolean)
@@ -468,22 +711,84 @@ codeunit 9510 "Document Service Management"
         DocumentServiceCache.Insert();
     end;
 
+    local procedure EnsureDocumentServiceCache(DocumentService: Record "Document Service"; UseCache: Boolean)
+    var
+        DocumentServiceCache: Record "Document Service Cache";
+    begin
+        DocumentServiceCache.Init();
+        DocumentServiceCache."Document Service Id" := DocumentService.SystemId;
+        DocumentServiceCache."Use Cached Token" := UseCache;
+        if not DocumentServiceCache.Modify() then
+            DocumentServiceCache.Insert();
+    end;
+
+    procedure OpenInOneDrive(FileName: Text; FileExtension: Text; InStream: InStream)
+    var
+        TempDocumentSharing: Record "Document Sharing" temporary;
+        OutStream: OutStream;
+    begin
+        SetFileNameAndExtension(TempDocumentSharing, FileName, FileExtension);
+
+        TempDocumentSharing.Data.CreateOutStream(OutStream);
+        CopyStream(OutStream, InStream);
+        TempDocumentSharing.Insert();
+        Codeunit.Run(Codeunit::"Document Sharing", TempDocumentSharing);
+    end;
+
+    procedure OpenInOneDriveFromMedia(FileName: Text; FileExtension: Text; MediaId: Guid)
+    var
+        TempDocumentSharing: Record "Document Sharing" temporary;
+        TenantMedia: Record "Tenant Media";
+    begin
+        SetFileNameAndExtension(TempDocumentSharing, FileName, FileExtension);
+
+        TenantMedia.Get(MediaId);
+        TenantMedia.CalcFields(Content);
+        TempDocumentSharing.Data := TenantMedia.Content;
+        TempDocumentSharing.Insert();
+        Codeunit.Run(Codeunit::"Document Sharing", TempDocumentSharing);
+    end;
+
+    local procedure InitTempDocumentServiceRecord(var TempDocumentServiceRec: Record "Document Service" temporary)
+    var
+        DocumentServiceRec: Record "Document Service";
+        EnvironmentInformation: Codeunit "Environment Information";
+    begin
+        if not IsConfigured() and EnvironmentInformation.IsSaaSInfrastructure() then begin
+            Session.LogMessage('0000FK0', DocumentServiceDefaultingLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentServiceCategoryLbl);
+            InitializeDefaultService(TempDocumentServiceRec, 'SHARE');
+        end else begin
+            if not DocumentServiceRec.FindFirst() then
+                Error(CantFindMySiteErr);
+
+            TempDocumentServiceRec.TransferFields(DocumentServiceRec);
+        end;
+
+        Clear(TempDocumentServiceRec."User Name"); // Clearing the user name will ensure the NST uploads to the personal store (e.g. OneDrive)
+        TempDocumentServiceRec.Folder := CopyStr(TempDocumentServiceRec.Folder + '/' + GetSafeCompanyName(), 1, MaxStrLen(TempDocumentServiceRec.Folder));
+
+        if not SetResourceLocation(TempDocumentServiceRec) then
+            Error(CantFindMySiteErr);
+    end;
+
+    local procedure SetFileNameAndExtension(var TempDocumentSharing: Record "Document Sharing" temporary; FileName: Text; FileExtension: Text)
+    begin
+        TempDocumentSharing.Name := CopyStr(FileName, 1, MaxStrLen(TempDocumentSharing.Name) - StrLen(FileExtension)) + FileExtension;
+        TempDocumentSharing.Extension := CopyStr(FileExtension, 1, MaxStrLen(TempDocumentSharing.Extension));
+    end;
+
+    internal procedure GetTelemetryCategory(): Text
+    begin
+        exit(DocumentServiceCategoryLbl);
+    end;
 
     [EventSubscriber(ObjectType::Table, Database::"Document Service", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnAfterModifyDocumentService(var Rec: Record "Document Service"; var xRec: Record "Document Service"; RunTrigger: Boolean)
-    var
-        DocumentServiceCache: Record "Document Service Cache";
     begin
         if Rec.IsTemporary() then
             exit;
 
-        if DocumentServiceCache.Get(Rec.SystemId) then begin
-            if DocumentServiceCache."Use Cached Token" then begin
-                DocumentServiceCache."Use Cached Token" := false;
-                DocumentServiceCache.Modify();
-            end;
-        end else
-            CreateDocumentServiceCache(DocumentServiceCache, Rec, false);
+        EnsureDocumentServiceCache(Rec, false);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Document Service", 'OnAfterInsertEvent', '', false, false)]
@@ -492,6 +797,9 @@ codeunit 9510 "Document Service Management"
         DocumentServiceCache: Record "Document Service Cache";
     begin
         if Rec.IsTemporary() then
+            exit;
+
+        if DocumentServiceCache.Get(Rec.SystemId) then
             exit;
 
         CreateDocumentServiceCache(DocumentServiceCache, Rec, false);
@@ -507,6 +815,77 @@ codeunit 9510 "Document Service Management"
 
         if DocumentServiceCache.Get(Rec.SystemId) then
             DocumentServiceCache.Delete();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Database::"Document Sharing", 'OnCanUploadDocument', '', false, false)]
+    local procedure OnCanUploadDocument(var CanUpload: Boolean)
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+    begin
+        if CanUpload then
+            exit;
+
+        CanUpload := IsConfigured() or EnvironmentInformation.IsSaaSInfrastructure();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Database::"Document Sharing", 'OnUploadDocument', '', false, false)]
+    local procedure OnUploadDocument(var DocumentSharing: Record "Document Sharing" temporary; var Handled: Boolean)
+    var
+        TempDocumentServiceRec: Record "Document Service" temporary;
+        EnvironmentInformation: Codeunit "Environment Information";
+        DocumentUri: Text;
+        InStr: InStream;
+    begin
+        if Handled then
+            exit;
+
+        Session.LogMessage('0000FJZ', DocumentSharingStartLbl, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DocumentServiceCategoryLbl);
+
+        if not IsConfigured() and (not EnvironmentInformation.IsSaaSInfrastructure()) then begin
+            Handled := False;
+            exit;
+        end;
+
+        InitTempDocumentServiceRecord(TempDocumentServiceRec);
+
+        if DocumentSharing.Name = '' then
+            Error(DocumentSharingNoNameErr);
+
+        if DocumentSharing.Extension = '' then
+            Error(DocumentSharingNoExtErr);
+
+        DocumentSharing.CalcFields(DocumentSharing.Data);
+        DocumentSharing.Data.CreateInStream(InStr);
+
+        if not TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Fail, TempDocumentServiceRec, DocumentUri)
+            or (DocumentUri = '')
+        then
+            case StrMenu(SharePointFileExistsOptionsTxt, 0, StrSubstNo(SharePointFileExistsInstructionsTxt, DocumentSharing.Name)) of
+                0: // Cancel
+                    begin
+                        Handled := false;
+                        exit;
+                    end;
+                1: // Keep both
+                    TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Rename, TempDocumentServiceRec, DocumentUri);
+                2: // Overwrite
+                    TrySaveStreamFromRec(InStr, DocumentSharing.Name, Enum::"Doc. Service Conflict Behavior"::Replace, TempDocumentServiceRec, DocumentUri);
+            end;
+        EnsureDocumentServiceCache(TempDocumentServiceRec, true);
+
+        DocumentSharing.DocumentUri := CopyStr(DocumentUri, 1, MaxStrLen(DocumentSharing.DocumentUri));
+
+        DocumentSharing.DocumentPreviewUri := CopyStr(
+            DocumentService.GenerateViewableDocumentAddress(DocumentSharing.DocumentUri),
+            1,
+            MaxStrLen(DocumentSharing.DocumentPreviewUri));
+
+        if DocumentService.Properties.IsPropertySet('DocumentRootLocation') then
+            DocumentSharing.DocumentRootUri := DocumentService.Properties.GetProperty('DocumentRootLocation');
+
+        DocumentSharing.Modify();
+
+        Handled := DocumentSharing.DocumentUri <> '';
     end;
 
     [IntegrationEvent(false, false)]

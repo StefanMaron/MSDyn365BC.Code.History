@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 204 "Resource Prices"
 {
     AccessByPermission = TableData Resource = R;
@@ -71,4 +72,4 @@ page 204 "Resource Prices"
         FeaturePriceCalculation.FailIfFeatureEnabled();
     end;
 }
-
+#endif

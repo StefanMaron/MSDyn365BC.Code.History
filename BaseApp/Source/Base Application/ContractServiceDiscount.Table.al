@@ -6,11 +6,9 @@ table 5972 "Contract/Service Discount"
 
     fields
     {
-        field(1; "Contract Type"; Option)
+        field(1; "Contract Type"; Enum "Service Contract Type")
         {
             Caption = 'Contract Type';
-            OptionCaption = 'Quote,Contract,Template';
-            OptionMembers = Quote,Contract,Template;
         }
         field(2; "Contract No."; Code[20])
         {

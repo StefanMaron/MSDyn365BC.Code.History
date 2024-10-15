@@ -81,6 +81,20 @@ table 5336 "Integration Field Mapping"
                 PutTransferDirection();
             end;
         }
+        field(15; "Use For Match-Based Coupling"; Boolean)
+        {
+            Caption = 'Use For Match-Based Coupling';
+        }
+        field(16; "Case-Sensitive Matching"; Boolean)
+        {
+            Caption = 'Case-Sensitive Matching';
+        }
+        field(17; "Match Priority"; Integer)
+        {
+            MinValue = 0;
+            BlankZero = true;
+            Caption = 'Match Priority';
+        }
     }
 
     keys
@@ -88,6 +102,12 @@ table 5336 "Integration Field Mapping"
         key(Key1; "No.")
         {
             Clustered = true;
+        }
+        key(Key2; "Integration Table Mapping Name")
+        {
+        }
+        key(Key3; "Match Priority")
+        {
         }
     }
 

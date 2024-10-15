@@ -36,6 +36,11 @@ table 13 "Salesperson/Purchaser"
         {
             Caption = 'Privacy Blocked';
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+        }
         field(5050; "Global Dimension 1 Code"; Code[20])
         {
             CaptionClass = '1,1,1';
@@ -275,12 +280,10 @@ table 13 "Salesperson/Purchaser"
             MaxValue = 100;
             MinValue = 0;
         }
-        field(5076; "Task Status Filter"; Option)
+        field(5076; "Task Status Filter"; Enum "Task Status")
         {
             Caption = 'Task Status Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Not Started,In Progress,Completed,Waiting,Postponed';
-            OptionMembers = "Not Started","In Progress",Completed,Waiting,Postponed;
         }
         field(5077; "Closed Task Filter"; Boolean)
         {
@@ -372,10 +375,16 @@ table 13 "Salesperson/Purchaser"
         key(Key3; SystemModifiedAt)
         {
         }
+        key(Key4; "Coupled to CRM")
+        {
+        }
     }
 
     fieldgroups
     {
+        fieldgroup(Dropdown; "Code", Name)
+        {
+        }
         fieldgroup(Brick; "Code", Name, Image)
         {
         }

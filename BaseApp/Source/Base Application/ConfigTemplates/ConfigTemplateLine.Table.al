@@ -16,12 +16,10 @@ table 8619 "Config. Template Line"
             Caption = 'Line No.';
             Editable = false;
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Config. Template Line Type")
         {
             Caption = 'Type';
             InitValue = "Field";
-            OptionCaption = 'Field,Template,Related Template';
-            OptionMembers = "Field",Template,"Related Template";
 
             trigger OnValidate()
             begin
@@ -72,7 +70,7 @@ table 8619 "Config. Template Line"
         }
         field(7; "Table Name"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Name" WHERE("Object Type" = FILTER(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Name" WHERE("Object Type" = FILTER(Table),
                                                                         "Object ID" = FIELD("Table ID")));
             Caption = 'Table Name';
             Editable = false;
@@ -123,7 +121,7 @@ table 8619 "Config. Template Line"
         }
         field(9; "Template Description"; Text[50])
         {
-            CalcFormula = Lookup ("Config. Template Header".Description WHERE(Code = FIELD("Data Template Code")));
+            CalcFormula = Lookup("Config. Template Header".Description WHERE(Code = FIELD("Data Template Code")));
             Caption = 'Template Description';
             Editable = false;
             FieldClass = FlowField;
@@ -143,7 +141,9 @@ table 8619 "Config. Template Line"
             Caption = 'Reference';
             ExtendedDatatype = URL;
         }
-        field(12; "Default Value"; Text[250])
+#pragma warning disable AS0086
+        field(12; "Default Value"; Text[2048])
+#pragma warning restore AS0086
         {
             Caption = 'Default Value';
 
@@ -160,7 +160,7 @@ table 8619 "Config. Template Line"
                 ConfigValidateMgt: Codeunit "Config. Validate Management";
                 RecRef: RecordRef;
                 FieldRef: FieldRef;
-                ValidationError: Text[250];
+                ValidationError: Text;
             begin
                 if Mandatory and ("Default Value" = '') then
                     Error(EmptyDefaultValueErr);
@@ -188,7 +188,7 @@ table 8619 "Config. Template Line"
         }
         field(13; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = FILTER(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = FILTER(Table),
                                                                            "Object ID" = FIELD("Table ID")));
             Caption = 'Table Caption';
             Editable = false;
@@ -196,7 +196,7 @@ table 8619 "Config. Template Line"
         }
         field(14; "Field Caption"; Text[250])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table ID"),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table ID"),
                                                               "No." = FIELD("Field ID")));
             Caption = 'Field Caption';
             Editable = false;

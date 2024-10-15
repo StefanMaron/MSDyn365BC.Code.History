@@ -522,7 +522,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     procedure PhysicalInventoryListReportForTrackingAndQuantity()
     var
         PurchaseLine: Record "Purchase Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Verify the Item Tracking numbers and Quantity on the Physical Inventory List report if the option "Show Serial/Lot No" and "Show Qty (Calculated)" are checked.
         LotNo := PhysicalInventoryListReport(PurchaseLine, true, true);  // Booleans value are respective to ShowQuantity and ShowTracking.
@@ -538,7 +538,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     procedure PhysicalInventoryListReportWithShowTrackingAndShowQuantityAsFalse()
     var
         PurchaseLine: Record "Purchase Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Verify the Item Tracking numbers and Quantity are not shown on the Physical Inventory List report if the option "Show Serial/Lot No" and "Show Qty (Calculated)" are not checked.
         LotNo := PhysicalInventoryListReport(PurchaseLine, false, false);  // Booleans value are respective to ShowQuantity and ShowTracking.
@@ -583,7 +583,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     var
         PurchaseLine: Record "Purchase Line";
         ItemJournalTemplate: Record "Item Journal Template";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Verify the Item Tracking numbers and Quantity on the Physical Inventory List report on multiple batches and templates
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::"Phys. Inventory");
@@ -683,7 +683,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         ItemJournalTemplate: Record "Item Journal Template";
         PurchaseLine: Record "Purchase Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Verify Physical Inventory List report for warehouse location.
 
@@ -734,7 +734,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     [Scope('OnPrem')]
     procedure WhsePhysInventoryListReportShowTrackingAsTrue()
     var
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Verify Whse. Phys. Inventory List report when "Show Serial/Lot No" option is checked, if warehouse tracking is defined for a specific Item Tracking Code.
         LotNo := WhsePhysInventoryListReport(true, true, true);  // Booleans value are respective to ShowQuantity, ShowTracking, LotWarehouseTracking.
@@ -746,7 +746,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     [Scope('OnPrem')]
     procedure WhsePhysInventoryListReportShowTrackingAsFalse()
     var
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Verify Whse. Phys. Inventory List report when "Show Serial/Lot No" option is not checked, if warehouse tracking is defined for a specific Item Tracking Code.
         LotNo := WhsePhysInventoryListReport(true, false, true);  // Booleans value are respective to ShowQuantity, ShowTracking, LotWarehouseTracking.
@@ -758,7 +758,7 @@ codeunit 137350 "SCM Inventory Reports - III"
     [Scope('OnPrem')]
     procedure WhsePhysInventoryListReportWithNonWarehouseTracking()
     var
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Verify Whse. Phys. Inventory List report when "Show Serial/Lot No" option is checked, if warehouse tracking is not defined for a specific Item Tracking Code.
         LotNo := WhsePhysInventoryListReport(true, true, false);  // Booleans value are respective to ShowQuantity, ShowTracking, LotWarehouseTracking.
@@ -1365,6 +1365,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         end;
     end;
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('MessageHandlerInvtSetup')]
     [Scope('OnPrem')]
@@ -1397,7 +1398,7 @@ codeunit 137350 "SCM Inventory Reports - III"
             TestField(Description, '');
         end;
     end;
-
+#endif
     [Test]
     [HandlerFunctions('PostInventoryCostToGLRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -1426,6 +1427,58 @@ codeunit 137350 "SCM Inventory Reports - III"
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertCurrentRowValueEquals('CostAmt', ValueEntry[i]."Cost Amount (Actual)");
         end;
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesReservationAvailRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesReservationAvailMustNotUpdateQtyToShipForLocationWithDirectedPickandPutAway()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLineWithLocation: Record "Sales Line";
+        SalesLineWithoutLocation: Record "Sales Line";
+        Location: Record Location;
+        SalesReservationAvail: Report "Sales Reservation Avail.";
+    begin
+        // [SCENARIO] When running the Sales Reservation Avail. report, items having a location with
+        // Directed Put-away and Pick should not have Qty. to Ship updated.
+        Initialize();
+
+        // [GIVEN] A sales order with two sales lines, one with a location with Directed Put-away and Pick and one without.
+        LibraryInventory.CreateItem(Item);
+
+        LibraryWarehouse.CreateLocation(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Directed Put-away and Pick", true);
+        Location.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLineWithLocation, SalesHeader, SalesLine.Type::Item, Item."No.", 3);
+        LibrarySales.CreateSalesLine(SalesLineWithoutLocation, SalesHeader, SalesLine.Type::Item, Item."No.", 3);
+        SalesLineWithLocation."Location Code" := Location.Code;
+        SalesLineWithLocation.Modify(true);
+
+        // [WHEN] Running the Sales Reservation Avail. report for the sales order.
+        LibraryVariableStorage.Enqueue(true);     // Show sales lines
+        LibraryVariableStorage.Enqueue(false);      // Show reservation entries
+        LibraryVariableStorage.Enqueue(true);     // Modify qty...
+        Commit();
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesReservationAvail.SetTableView(SalesLine);
+        SalesReservationAvail.Run();
+
+        // [THEN] The sales line with a location with Directed Put-away and Pick should not have Qty. to Ship updated.
+        SalesLine.SetRange("Line No.", SalesLineWithLocation."Line No.");
+        SalesLine.FindFirst();
+        Assert.AreEqual(3, SalesLine."Qty. to Ship", 'Expected qty. to remain unchanged for line with location.');
+
+        // [THEN] The sales line without a location with Directed Put-away and Pick should have Qty. to Ship updated.
+        SalesLine.SetRange("Line No.", SalesLineWithoutLocation."Line No.");
+        SalesLine.FindFirst();
+        Assert.AreEqual(0, SalesLine."Qty. to Ship", 'Expected qty. to be updated for line without location.');
     end;
 
     local procedure Initialize()
@@ -1887,7 +1940,7 @@ codeunit 137350 "SCM Inventory Reports - III"
         SalesShipmentLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);

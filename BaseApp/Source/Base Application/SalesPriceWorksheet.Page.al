@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 7023 "Sales Price Worksheet"
 {
     AdditionalSearchTerms = 'special price,alternate price';
@@ -195,4 +196,4 @@ page 7023 "Sales Price Worksheet"
         FeaturePriceCalculation.FailIfFeatureEnabled();
     end;
 }
-
+#endif

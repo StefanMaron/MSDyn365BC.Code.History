@@ -1137,7 +1137,7 @@ report 27 "Dimensions - Total"
                         IterationDimValName := TempGLAcc.Name;
                         IterationTotaling := TempGLAcc.Totaling;
                         IterationIndentation := TempGLAcc.Indentation;
-                        IterationPostingType := TempGLAcc."Account Type";
+                        IterationPostingType := TempGLAcc."Account Type".AsInteger();
                     end;
                 end;
             TempBusUnit.TableCaption:
@@ -1173,7 +1173,7 @@ report 27 "Dimensions - Total"
                         IterationDimValName := TempCFAccount.Name;
                         IterationTotaling := TempCFAccount.Totaling;
                         IterationIndentation := TempCFAccount.Indentation;
-                        IterationPostingType := TempCFAccount."Account Type";
+                        IterationPostingType := TempCFAccount."Account Type".AsInteger();
                     end;
                 end;
             TempCashFlowForecast.TableCaption:

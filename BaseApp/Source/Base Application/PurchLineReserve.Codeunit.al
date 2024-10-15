@@ -1,4 +1,4 @@
-﻿codeunit 99000834 "Purch. Line-Reserve"
+codeunit 99000834 "Purch. Line-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd;
 
@@ -70,30 +70,10 @@
         FromTrackingSpecification."Source Type" := 0;
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by CreateReservation(PurchaseLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry)', '16.0')]
-    procedure CreateReservation(var PurchLine: Record "Purchase Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForSerialNo: Code[50]; ForLotNo: Code[50])
-    var
-        ForReservEntry: Record "Reservation Entry";
-    begin
-        ForReservEntry."Serial No." := ForSerialNo;
-        ForReservEntry."Lot No." := ForLotNo;
-        CreateReservation(PurchLine, Description, ExpectedReceiptDate, Quantity, QuantityBase, ForReservEntry);
-    end;
-#endif
-
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
     begin
         FromTrackingSpecification := TrackingSpecification;
     end;
-
-#if not CLEAN16
-    [Obsolete('Replaced by PurchLine.SetReservationFilters(FilterReservEntry)', '16.0')]
-    procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; PurchLine: Record "Purchase Line")
-    begin
-        PurchLine.SetReservationFilters(FilterReservEntry);
-    end;
-#endif
 
     procedure ReservQuantity(PurchLine: Record "Purchase Line") QtyToReserve: Decimal
     begin
@@ -427,9 +407,9 @@
            ((PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo") and
             (PurchLine."Return Shipment No." <> ''))
         then
-            ItemTrackingLines.SetFormRunMode(2); // Combined shipment/receipt
+            ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Combined Ship/Rcpt");
         if PurchLine."Drop Shipment" then begin
-            ItemTrackingLines.SetFormRunMode(3); // Drop Shipment
+            ItemTrackingLines.SetRunMode("Item Tracking Run Mode"::"Drop Shipment");
             if PurchLine."Sales Order No." <> '' then
                 ItemTrackingLines.SetSecondSourceRowID(ItemTrackingMgt.ComposeRowID(DATABASE::"Sales Line",
                     1, PurchLine."Sales Order No.", '', 0, PurchLine."Sales Order Line No."));

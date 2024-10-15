@@ -86,7 +86,7 @@ codeunit 1309 "O365 Getting Started Mgt."
         if not UserHasPermissionsToRunGettingStarted then
             exit;
 
-        if not IsGettingStartedSupported then
+        if not IsGettingStartedSupported() then
             exit;
 
         if EnvironmentInfo.IsSandbox then
@@ -102,16 +102,8 @@ codeunit 1309 "O365 Getting Started Mgt."
     end;
 
     procedure IsGettingStartedSupported(): Boolean
-    var
-        CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
-        if not (ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop]) then
-            exit(false);
-
-        if not CompanyInformationMgt.IsDemoCompany then
-            exit(false);
-
-        exit(true);
+        exit(false);
     end;
 
     procedure AreUserToursEnabled(): Boolean

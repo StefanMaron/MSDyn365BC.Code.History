@@ -123,6 +123,7 @@ codeunit 137062 "SCM Sales & Receivables"
         Assert.AreEqual(Quantity, SalesLine.Quantity, QuantityErr);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('RetrieveDimStrMenuHandler')]
     [Scope('OnPrem')]
@@ -344,6 +345,7 @@ codeunit 137062 "SCM Sales & Receivables"
         VerifyPurchUnitPrice(
           Item."No.", QtyOfUOMPerUOM, UnitCostOnItemCard, UnitPurchasePrice, UnitOfMeasure2.Code, UnitOfMeasure.Code);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -761,60 +763,6 @@ codeunit 137062 "SCM Sales & Receivables"
         // Verify: Check Value Entries for "Sales Amount (Actual)" field and the "Amount" field on Posted Sales Invoice line.
         VerifyValueEntriesForSalesOrder(DocumentNo);
     end;
-
-#if not CLEAN16
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemCrossReferenceOnPurchase()
-    begin
-        // Setup.
-        Initialize(false);
-        SalesPurchaseItemCrossReferenceNo(false);  // Discontinue- False.
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemCrossReferenceErrorOnSales()
-    begin
-        // Setup.
-        Initialize(false);
-        SalesPurchaseItemCrossReferenceNo(true);  // Discontinue- True.
-    end;
-
-    local procedure SalesPurchaseItemCrossReferenceNo(DiscontinueCrossRefNo: Boolean)
-    var
-        Item: Record Item;
-        ItemCrossReference: Record "Item Cross Reference";
-        SalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-    begin
-        // Create an Item with Item Cross Reference.Create and Post a Purchase Order as Receive with Cross Ref. No.
-        LibraryInventory.CreateItem(Item);
-        LibraryInventory.CreateItemCrossReference(
-          ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::"Bar Code", '');
-        CreatePurchaseOrderWithCrossRefNo(ItemCrossReference, PurchaseHeader);
-
-        // Exercise: Post Purchase Order with Receive only.
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-
-        // Verify: Check posted entry for Cross Reference No.
-        VerifyCrossRefNoInItemLedgerEntry(DocumentNo, ItemCrossReference."Cross-Reference No.");
-
-        if DiscontinueCrossRefNo then begin
-            DiscontinueItemCrossReference(ItemCrossReference);
-            CreateSalesDocument(
-              SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", LibraryRandom.RandDec(10, 2));
-
-            // Exercise: Check that the Discontinued Cross Reference No. throws an error when uupdated in Sales Line.
-            asserterror UpdateCrossRefNoSalesLine(SalesLine, ItemCrossReference."Cross-Reference No.");
-
-            // Verify: Verify Cross Reference No. error.
-            Assert.ExpectedError(StrSubstNo(ItemCrossRefErr, ItemCrossReference."Cross-Reference No."));
-        end;
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1267,7 +1215,7 @@ codeunit 137062 "SCM Sales & Receivables"
           SelectedDimension, AllObj."Object Type"::Report, REPORT::"Date Comp. Item Budget Entries", '', DimensionCode5);
     end;
 
-    local procedure CreateBOMComponent(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Option; No: Code[20])
+    local procedure CreateBOMComponent(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Enum "BOM Component Type"; No: Code[20])
     begin
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, Type, No, 1, '');
     end;
@@ -1361,19 +1309,6 @@ codeunit 137062 "SCM Sales & Receivables"
         ExtText := ExtendedTextLine.Text;
     end;
 
-    local procedure CreatePurchaseOrderWithCrossRefNo(ItemCrossReference: Record "Item Cross Reference"; var PurchaseHeader: Record "Purchase Header")
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        // Create and Post Purchase Order
-        CreatePurchaseDocument(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '',
-          ItemCrossReference."Item No.", LibraryRandom.RandDec(10, 2));
-        PurchaseLine.Validate("Cross-Reference No.", ItemCrossReference."Cross-Reference No.");
-        PurchaseLine.Validate("Unit Cost (LCY)", LibraryRandom.RandDec(10, 2));
-        PurchaseLine.Modify(true);
-    end;
-
     local procedure CreatePurchaseOrderWithItemRefNo(ItemReference: Record "Item Reference"; var PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
@@ -1387,13 +1322,6 @@ codeunit 137062 "SCM Sales & Receivables"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure DiscontinueItemCrossReference(var ItemCrossReference: Record "Item Cross Reference")
-    begin
-        // Update Item Cross Reference - Discontinue Bar Code as True.
-        ItemCrossReference.Validate("Discontinue Bar Code", true);
-        ItemCrossReference.Modify(true);
-    end;
-
 #if not CLEAN18
     local procedure DiscontinueItemReference(var ItemReference: Record "Item Reference")
     begin
@@ -1402,13 +1330,6 @@ codeunit 137062 "SCM Sales & Receivables"
         ItemReference.Modify(true);
     end;
 #endif
-
-    local procedure UpdateCrossRefNoSalesLine(SalesLine: Record "Sales Line"; CrossReferenceNo: Code[20])
-    begin
-        // Set a Discontinued Cross Reference No. on Sales Line to generate an error.
-        SalesLine.Validate("Cross-Reference No.", CrossReferenceNo);
-        SalesLine.Modify(true);
-    end;
 
     local procedure UpdateItemRefNoSalesLine(SalesLine: Record "Sales Line"; ReferenceNo: Code[20])
     begin
@@ -1478,6 +1399,7 @@ codeunit 137062 "SCM Sales & Receivables"
         until ItemBudgetEntry.Next = 0;
     end;
 
+#if not CLEAN19
     local procedure VerifyPurchUnitPrice(ItemNo: Text[30]; QtyOfUOMPerUOM2: Decimal; UnitCostOnItemCard: Decimal; UnitPurchPrice: Decimal; UnitOfMeasureCode: Code[10]; UnitOfMeasureCode2: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
@@ -1498,6 +1420,7 @@ codeunit 137062 "SCM Sales & Receivables"
             ExpectedUnitPrice := QtyOfUOMPerUOM2 * UnitPurchPrice;
         PurchaseLine.TestField("Direct Unit Cost", ExpectedUnitPrice);
     end;
+#endif
 
     local procedure VerifyDateComprRegister(var DateComprRegister: Record "Date Compr. Register"; TotalNoOfRecords: Integer; NumsNewRecords: Text[250]; NumsDelRecords: Text[250])
     var
@@ -1516,6 +1439,7 @@ codeunit 137062 "SCM Sales & Receivables"
         until DateComprRegister.Next = 0;
     end;
 
+#if not CLEAN19
     local procedure VerifySalesUnitPrice(ItemNo: Text[30]; QtyOfUOMPerUOM2: Decimal; UnitPriceOnItemCard: Decimal; UnitSalesPrice: Decimal; UnitOfMeasureCode: Code[10]; UnitOfMeasureCode2: Code[10])
     var
         SalesLine: Record "Sales Line";
@@ -1536,6 +1460,7 @@ codeunit 137062 "SCM Sales & Receivables"
             ExpectedUnitPrice := QtyOfUOMPerUOM2 * UnitSalesPrice;
         SalesLine.TestField("Unit Price", ExpectedUnitPrice);
     end;
+#endif
 
     local procedure VerifyPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; ExpectedCount: Integer; LineDate: Date)
     var
@@ -1585,17 +1510,6 @@ codeunit 137062 "SCM Sales & Receivables"
         ValueEntry.SetRange("Document Line No.", SalesInvoiceLine."Line No.");
         ValueEntry.FindFirst;
         ValueEntry.TestField("Sales Amount (Actual)", SalesInvoiceLine.Amount);
-    end;
-
-    local procedure VerifyCrossRefNoInItemLedgerEntry(DocumentNo: Code[20]; CrossReferenceNo: Code[20])
-    var
-        ItemLedgerEntry: Record "Item Ledger Entry";
-    begin
-        // Verify Cross Reference No. in Item Ledger Entry for Posted Receipt.
-        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Purchase Receipt");
-        ItemLedgerEntry.SetRange("Document No.", DocumentNo);
-        ItemLedgerEntry.FindFirst;
-        ItemLedgerEntry.TestField("Cross-Reference No.", CrossReferenceNo);
     end;
 
     local procedure VerifyItemRefNoInItemLedgerEntry(DocumentNo: Code[20]; ReferenceNo: Code[20])

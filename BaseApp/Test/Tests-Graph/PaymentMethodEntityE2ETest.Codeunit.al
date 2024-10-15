@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135518 "Payment Method Entity E2E Test"
 {
     Subtype = Test;
@@ -201,4 +202,4 @@ codeunit 135518 "Payment Method Entity E2E Test"
         VerifyPropertyInJSON(PaymentMethodJSON, 'displayName', PaymentMethod.Description);
     end;
 }
-
+#endif

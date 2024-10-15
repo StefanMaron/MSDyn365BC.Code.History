@@ -19,6 +19,7 @@ codeunit 134640 "Sales E2E"
         LibraryERM: Codeunit "Library - ERM";
         SalesE2E: Codeunit "Sales E2E";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         DummyAddressTxt: Label '667 Fifth avenue';
         DummyCityTxt: Label 'New York';
@@ -30,6 +31,8 @@ codeunit 134640 "Sales E2E"
     [Scope('OnPrem')]
     procedure SalesFromContactToPayment()
     var
+        SalesHeader: Record "Sales Header";
+        CustomerTempl: Record "Customer Templ.";
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         CustomerNo: Code[20];
         ContactNo: Code[20];
@@ -41,6 +44,9 @@ codeunit 134640 "Sales E2E"
         // [SCENARIO] E2E scenario: user is able to manage simple sales activities: create contact, create customer from contact,
         // [SCENARIO] create quote, create order from quote, post order, post payment applied to posted order, and finally to run customer statement
         Initialize;
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
+        CustomerTempl."Contact Type" := CustomerTempl."Contact Type"::Person;
+        CustomerTempl.Modify();
 
         // [GIVEN] Create contact, fill name and address fields, create customer from contact
         ContactNo := CreateContactAsCustomer;
@@ -51,6 +57,9 @@ codeunit 134640 "Sales E2E"
 
         // [GIVEN] Convert sales quote to order from contact list, send e-mail confirmation
         OrderNo := ConvertQuoteToOrderFromContactList(ContactNo, QuoteNo);
+        SalesHeader.Get(SalesHeader."Document Type"::Order, OrderNo);
+        SalesHeader.Validate("Bal. Account No.", '');
+        SalesHeader.Modify();
 
         // [GIVEN] Post and send by e-mail created order
         PostedInvoiceNo := PostSendSalesOrder(OrderNo);
@@ -75,6 +84,7 @@ codeunit 134640 "Sales E2E"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Sales E2E");
 
+        LibraryTemplates.EnableTemplatesFeature();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGenProdPostingGroup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -223,7 +233,7 @@ codeunit 134640 "Sales E2E"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CustTemplateListHandler(var CustomerTemplateList: TestPage "Customer Template List")
+    procedure CustTemplateListHandler(var CustomerTemplateList: TestPage "Select Customer Templ. List")
     begin
         CustomerTemplateList.First;
         CustomerTemplateList.OK.Invoke;

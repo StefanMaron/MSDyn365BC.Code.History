@@ -162,6 +162,9 @@ table 2582 "Dimension Correction"
         else
             Rec."Entry No." := DimensionCorrection."Entry No." + 1;
 
+        if Rec.Description = '' then
+            Rec.Description := StrSubstNo(DimensionCorrectionLbl, Rec."Entry No.");
+
         AnalysisView.SetRange(Blocked, false);
         AnalysisView.SetRange("Account Source", AnalysisView."Account Source"::"G/L Account");
         AnalysisView.SetRange("Update on Posting", true);
@@ -266,4 +269,5 @@ table 2582 "Dimension Correction"
 
     var
         CannotChangeDimensionCorrectionErr: Label 'You cannot change a dimension correction while it is in %1 state.', Comment = '%1 Name of the state';
+        DimensionCorrectionLbl: Label 'Dimension Correction %1', Comment = '%1 Entry No of the dimension correction';
 }

@@ -242,20 +242,18 @@ table 5821 "Item Statistics Buffer"
             Caption = 'Line Option';
             DataClassification = SystemMetadata;
         }
-        field(41; "Column Option"; Option)
+        field(41; "Column Option"; Enum "Item Statistics Column Option")
         {
             Caption = 'Column Option';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Profit Calculation,Cost Specification,Purch. Item Charge Spec.,Sales Item Charge Spec.,Period,Location';
-            OptionMembers = "Profit Calculation","Cost Specification","Purch. Item Charge Spec.","Sales Item Charge Spec.",Period,Location;
         }
-        field(42; "Analysis Area Filter"; Option)
+#pragma warning disable AS0070
+        field(42; "Analysis Area Filter"; Enum "Analysis Area Type")
         {
             Caption = 'Analysis Area Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Sale,Purchase,Inventory';
-            OptionMembers = Sale,Purchase,Inventory;
         }
+#pragma warning restore AS0070
         field(45; Quantity; Decimal)
         {
             CalcFormula = Sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("Item Filter"),

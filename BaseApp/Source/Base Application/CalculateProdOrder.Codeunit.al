@@ -43,8 +43,6 @@ codeunit 99000773 "Calculate Prod. Order"
         RoutingHeader: Record "Routing Header";
         RoutingLine: Record "Routing Line";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-        WorkCenter: Record "Work Center";
-        MachineCenter: Record "Machine Center";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -69,45 +67,53 @@ codeunit 99000773 "Calculate Prod. Order"
         if RoutingLine.Find('-') then
             repeat
                 RoutingLine.TestField(Recalculate, false);
-                ProdOrderRoutingLine.Init();
-                ProdOrderRoutingLine.Status := ProdOrderLine.Status;
-                ProdOrderRoutingLine."Prod. Order No." := ProdOrderLine."Prod. Order No.";
-                ProdOrderRoutingLine."Routing Reference No." := ProdOrderLine."Routing Reference No.";
-                ProdOrderRoutingLine."Routing No." := ProdOrderLine."Routing No.";
-                ProdOrderRoutingLine.CopyFromRoutingLine(RoutingLine);
-                case ProdOrderRoutingLine.Type of
-                    ProdOrderRoutingLine.Type::"Work Center":
-                        begin
-                            WorkCenter.Get(RoutingLine."Work Center No.");
-                            ProdOrderRoutingLine."Flushing Method" := WorkCenter."Flushing Method";
-                        end;
-                    ProdOrderRoutingLine.Type::"Machine Center":
-                        begin
-                            MachineCenter.Get(ProdOrderRoutingLine."No.");
-                            ProdOrderRoutingLine."Flushing Method" := MachineCenter."Flushing Method";
-                        end;
-                end;
-
-                CostCalcMgt.RoutingCostPerUnit(
-                    ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.",
-                    ProdOrderRoutingLine."Direct Unit Cost", ProdOrderRoutingLine."Indirect Cost %", ProdOrderRoutingLine."Overhead Rate",
-                    ProdOrderRoutingLine."Unit Cost per", ProdOrderRoutingLine."Unit Cost Calculation");
-
-                OnTransferRoutingOnbeforeValidateDirectUnitCost(ProdOrderRoutingLine, ProdOrderLine, RoutingLine);
-
-                ProdOrderRoutingLine.Validate("Direct Unit Cost");
-                ProdOrderRoutingLine."Starting Time" := ProdOrderLine."Starting Time";
-                ProdOrderRoutingLine."Starting Date" := ProdOrderLine."Starting Date";
-                ProdOrderRoutingLine."Ending Time" := ProdOrderLine."Ending Time";
-                ProdOrderRoutingLine."Ending Date" := ProdOrderLine."Ending Date";
-                ProdOrderRoutingLine.UpdateDatetime;
-                OnAfterTransferRoutingLine(ProdOrderLine, RoutingLine, ProdOrderRoutingLine);
-                ProdOrderRoutingLine.Insert();
-                OnAfterInsertProdRoutingLine(ProdOrderRoutingLine, ProdOrderLine);
+                InitProdOrderRoutingLine(ProdOrderRoutingLine, RoutingLine);
                 TransferTaskInfo(ProdOrderRoutingLine, ProdOrderLine."Routing Version Code");
             until RoutingLine.Next() = 0;
 
         OnAfterTransferRouting(ProdOrderLine);
+    end;
+
+    procedure InitProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; RoutingLine: Record "Routing Line")
+    var
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+    begin
+        ProdOrderRoutingLine.Init();
+        ProdOrderRoutingLine.Status := ProdOrderLine.Status;
+        ProdOrderRoutingLine."Prod. Order No." := ProdOrderLine."Prod. Order No.";
+        ProdOrderRoutingLine."Routing Reference No." := ProdOrderLine."Routing Reference No.";
+        ProdOrderRoutingLine."Routing No." := ProdOrderLine."Routing No.";
+        ProdOrderRoutingLine.CopyFromRoutingLine(RoutingLine);
+        case ProdOrderRoutingLine.Type of
+            ProdOrderRoutingLine.Type::"Work Center":
+                begin
+                    WorkCenter.Get(RoutingLine."Work Center No.");
+                    ProdOrderRoutingLine."Flushing Method" := WorkCenter."Flushing Method";
+                end;
+            ProdOrderRoutingLine.Type::"Machine Center":
+                begin
+                    MachineCenter.Get(ProdOrderRoutingLine."No.");
+                    ProdOrderRoutingLine."Flushing Method" := MachineCenter."Flushing Method";
+                end;
+        end;
+
+        CostCalcMgt.RoutingCostPerUnit(
+            ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.",
+            ProdOrderRoutingLine."Direct Unit Cost", ProdOrderRoutingLine."Indirect Cost %", ProdOrderRoutingLine."Overhead Rate",
+            ProdOrderRoutingLine."Unit Cost per", ProdOrderRoutingLine."Unit Cost Calculation");
+
+        OnTransferRoutingOnbeforeValidateDirectUnitCost(ProdOrderRoutingLine, ProdOrderLine, RoutingLine);
+
+        ProdOrderRoutingLine.Validate("Direct Unit Cost");
+        ProdOrderRoutingLine."Starting Time" := ProdOrderLine."Starting Time";
+        ProdOrderRoutingLine."Starting Date" := ProdOrderLine."Starting Date";
+        ProdOrderRoutingLine."Ending Time" := ProdOrderLine."Ending Time";
+        ProdOrderRoutingLine."Ending Date" := ProdOrderLine."Ending Date";
+        ProdOrderRoutingLine.UpdateDatetime;
+        OnAfterTransferRoutingLine(ProdOrderLine, RoutingLine, ProdOrderRoutingLine);
+        ProdOrderRoutingLine.Insert();
+        OnAfterInsertProdRoutingLine(ProdOrderRoutingLine, ProdOrderLine);
     end;
 
     procedure TransferTaskInfo(var FromProdOrderRoutingLine: Record "Prod. Order Routing Line"; VersionCode: Code[20])
@@ -120,7 +126,7 @@ codeunit 99000773 "Calculate Prod. Order"
         OnAfterTransferTaskInfo(FromProdOrderRoutingLine, VersionCode);
     end;
 
-    local procedure TransferBOM(ProdBOMNo: Code[20]; Level: Integer; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal): Boolean
+    procedure TransferBOM(ProdBOMNo: Code[20]; Level: Integer; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal): Boolean
     var
         BOMHeader: Record "Production BOM Header";
         ProductionBOMVersion: Record "Production BOM Version";

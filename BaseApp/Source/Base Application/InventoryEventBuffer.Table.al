@@ -14,7 +14,7 @@ table 5530 "Inventory Event Buffer"
         field(9; "Source Line ID"; RecordID)
         {
             Caption = 'Source Line ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
             Editable = false;
         }
         field(10; "Item No."; Code[20])
@@ -468,6 +468,11 @@ table 5530 "Inventory Event Buffer"
 
     procedure TransferFromForecast(ProdForecastEntry: Record "Production Forecast Entry"; UnconsumedQtyBase: Decimal; ForecastOnLocation: Boolean)
     begin
+        TransferFromForecast(ProdForecastEntry, UnconsumedQtyBase, ForecastOnLocation, false);
+    end;
+
+    procedure TransferFromForecast(ProdForecastEntry: Record "Production Forecast Entry"; UnconsumedQtyBase: Decimal; ForecastOnLocation: Boolean; ForecastOnVariant: Boolean)
+    begin
         Init;
         RecRef.GetTable(ProdForecastEntry);
         "Source Line ID" := RecRef.RecordId;
@@ -477,6 +482,10 @@ table 5530 "Inventory Event Buffer"
             "Location Code" := ProdForecastEntry."Location Code"
         else
             "Location Code" := '';
+        if ForecastOnVariant then
+            "Variant Code" := ProdForecastEntry."Variant Code"
+        else
+            "Variant Code" := '';
         "Availability Date" := ProdForecastEntry."Forecast Date";
         Type := Type::Forecast;
         if ProdForecastEntry."Component Forecast" then

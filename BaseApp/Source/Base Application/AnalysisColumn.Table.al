@@ -68,11 +68,9 @@ table 7118 "Analysis Column"
             OptionCaption = 'Always,Never,When Positive,When Negative';
             OptionMembers = Always,Never,"When Positive","When Negative";
         }
-        field(12; "Rounding Factor"; Option)
+        field(12; "Rounding Factor"; Enum "Analysis Rounding Factor")
         {
             Caption = 'Rounding Factor';
-            OptionCaption = 'None,1,1000,1000000';
-            OptionMembers = "None","1","1000","1000000";
         }
         field(13; "Comparison Period Formula"; Code[20])
         {

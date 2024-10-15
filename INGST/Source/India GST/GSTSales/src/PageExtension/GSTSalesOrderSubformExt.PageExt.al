@@ -27,6 +27,13 @@ pageextension 18151 "GST Sales Order Subform Ext" extends "Sales Order Subform"
                 CalculateTax.CallTaxEngineOnSalesLine(Rec, xRec);
             end;
         }
+        modify(Type)
+        {
+            Trigger OnAfterValidate()
+            begin
+                FormatLine();
+            end;
+        }
         modify("Line Discount %")
         {
             Trigger OnAfterValidate()
@@ -45,13 +52,6 @@ pageextension 18151 "GST Sales Order Subform Ext" extends "Sales Order Subform"
             begin
                 CurrPage.SaveRecord();
                 CalculateTax.CallTaxEngineOnSalesLine(Rec, xRec);
-            end;
-        }
-        modify(Type)
-        {
-            Trigger OnAfterValidate()
-            begin
-                FormatLine();
             end;
         }
         addafter("Line Amount")

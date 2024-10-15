@@ -1,11 +1,16 @@
 table 335 "Resource Price Change"
 {
     Caption = 'Resource Price Change';
+#if not CLEAN19
     DrillDownPageID = "Resource Price Changes";
     LookupPageID = "Resource Price Changes";
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
     ObsoleteTag = '16.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
+#endif    
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price Worksheet Line';
 
     fields
     {

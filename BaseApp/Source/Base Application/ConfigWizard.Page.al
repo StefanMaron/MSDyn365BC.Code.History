@@ -220,8 +220,12 @@ page 8629 "Config. Wizard"
                             trigger OnAssistEdit()
                             var
                                 AllProfileTable: Record "All Profile";
+                                Roles: Page Roles;
                             begin
-                                if PAGE.RunModal(PAGE::"Available Roles", AllProfileTable) = ACTION::LookupOK then begin
+                                Roles.Initialize();
+                                Roles.LookupMode(true);
+                                if Roles.RunModal() = Action::LookupOK then begin
+                                    Roles.GetRecord(AllProfileTable);
                                     YourProfileCode := AllProfileTable."Profile ID";
                                     "Your Profile Code" := AllProfileTable."Profile ID";
                                     "Your Profile App ID" := AllProfileTable."App ID";
@@ -299,12 +303,12 @@ page 8629 "Config. Wizard"
                 action("Users Personalization")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Users Personalization';
+                    Caption = 'Users Settings';
                     Image = UserSetup;
                     Promoted = true;
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
-                    RunObject = Page "User Personalization List";
+                    RunObject = Page "User Settings List";
                     ToolTip = 'Open the list of personalized UIs that are registered in the system.';
                 }
             }

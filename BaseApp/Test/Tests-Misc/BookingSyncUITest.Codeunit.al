@@ -101,6 +101,7 @@ codeunit 133783 "Booking Sync UI Test"
         Assert.AreEqual(CustomerFilterTxt, BookingSync.GetCustomerFilter, 'Customer Filter is not saved');
     end;
 
+#if not CLEAN18
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -138,7 +139,7 @@ codeunit 133783 "Booking Sync UI Test"
         // [THEN] Item template is set to previous value
         Assert.AreEqual('ITEM000001', BookingSyncSetup."Item Template Code".Value, 'Item template is not set correctly');
     end;
-
+#endif
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]

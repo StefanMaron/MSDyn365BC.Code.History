@@ -27,6 +27,13 @@ pageextension 18147 "GST Sales. Cr. Memo Subfrm Ext" extends "Sales Cr. Memo Sub
                 CalculateTax.CallTaxEngineOnSalesLine(Rec, xRec);
             end;
         }
+        modify(Type)
+        {
+            Trigger OnAfterValidate()
+            begin
+                FormatLine();
+            end;
+        }
         modify("Line Discount %")
         {
             Trigger OnAfterValidate()
@@ -45,13 +52,6 @@ pageextension 18147 "GST Sales. Cr. Memo Subfrm Ext" extends "Sales Cr. Memo Sub
             begin
                 CurrPage.SaveRecord();
                 CalculateTax.CallTaxEngineOnSalesLine(Rec, xRec);
-            end;
-        }
-        modify(Type)
-        {
-            Trigger OnAfterValidate()
-            begin
-                FormatLine();
             end;
         }
         addafter("Qty. to Assign")
@@ -114,6 +114,11 @@ pageextension 18147 "GST Sales. Cr. Memo Subfrm Ext" extends "Sales Cr. Memo Sub
                     CalculateTax.CallTaxEngineOnSalesLine(Rec, xRec);
                 end;
             }
+            field("GST Jurisdiction Type"; Rec."GST Jurisdiction Type")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the type related to GST jurisdiction. For example, interstate/intrastate.';
+            }
             field("Price Exclusive of Tax"; Rec."Price Inclusive of Tax")
             {
                 ApplicationArea = all;
@@ -139,11 +144,6 @@ pageextension 18147 "GST Sales. Cr. Memo Subfrm Ext" extends "Sales Cr. Memo Sub
                     CurrPage.SaveRecord();
                     CalculateTax.CallTaxEngineOnSalesLine(Rec, xRec);
                 end;
-            }
-            field("GST Jurisdiction Type"; Rec."GST Jurisdiction Type")
-            {
-                ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the type related to GST jurisdiction. For example, interstate/intrastate.';
             }
         }
     }

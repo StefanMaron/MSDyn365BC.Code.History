@@ -27,6 +27,13 @@ pageextension 18161 "GST Sales Return Subform" extends "Sales Return Order Subfo
                 CalculateTax.CallTaxEngineOnSalesLine(Rec, xRec);
             end;
         }
+        modify(Type)
+        {
+            Trigger OnAfterValidate()
+            begin
+                FormatLine();
+            end;
+        }
         modify("Line Discount %")
         {
             Trigger OnAfterValidate()
@@ -45,13 +52,6 @@ pageextension 18161 "GST Sales Return Subform" extends "Sales Return Order Subfo
             begin
                 CurrPage.SaveRecord();
                 CalculateTax.CallTaxEngineOnSalesLine(Rec, xRec);
-            end;
-        }
-        modify(Type)
-        {
-            Trigger OnAfterValidate()
-            begin
-                FormatLine();
             end;
         }
         addafter("Qty. to Assign")
@@ -116,6 +116,11 @@ pageextension 18161 "GST Sales Return Subform" extends "Sales Return Order Subfo
                     CalculateTax.CallTaxEngineOnSalesLine(Rec, xRec);
                 end;
             }
+            field("GST Jurisdiction Type"; Rec."GST Jurisdiction Type")
+            {
+                ApplicationArea = Basic, Suite;
+                ToolTip = 'Specifies the type related to GST jurisdiction. For example, interstate/intrastate.';
+            }
             field("Price Exclusive of Tax"; Rec."Price Inclusive of Tax")
             {
                 ApplicationArea = all;
@@ -141,11 +146,6 @@ pageextension 18161 "GST Sales Return Subform" extends "Sales Return Order Subfo
                     CurrPage.SaveRecord();
                     CalculateTax.CallTaxEngineOnSalesLine(Rec, xRec);
                 end;
-            }
-            field("GST Jurisdiction Type"; Rec."GST Jurisdiction Type")
-            {
-                ApplicationArea = Basic, Suite;
-                ToolTip = 'Specifies the type related to GST jurisdiction. For example, interstate/intrastate.';
             }
         }
     }

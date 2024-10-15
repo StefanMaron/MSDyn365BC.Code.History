@@ -147,7 +147,7 @@ codeunit 1354 "Generate Activity Telemetry"
             repeat
                 GLEntry.SetRange("G/L Account No.", GLAccount."No.");
 
-                GLEntryCount += GLEntry.Count;
+                GLEntryCount += GLEntry.Count();
             until GLAccount.Next() = 0;
 
         Session.LogMessage('0000F0M', StrSubstNo(GLEntriesLbl, GLEntryCount), Verbosity::Normal,

@@ -55,7 +55,7 @@ codeunit 139197 DocumentSendingPostTests
         SalesReceiptTxt: Label 'Sales Receipt';
         YesUseDefaultSettingsTxt: Label 'Yes (Use Default Settings)';
         PdfTxt: Label 'PDF';
-        ProfileSelectionQst: Label 'Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confimation.';
+        ProfileSelectionQst: Label 'Confirm the first profile and use it for all selected documents.,Confirm the profile for each document.,Use the default profile for all selected documents without confirmation.';
         CustomerProfileSelectionInstrTxt: Label 'Customers on the selected documents might use different document sending profiles. Choose one of the following options: ';
         VendorProfileSelectionInstrTxt: Label 'Vendors on the selected documents might use different document sending profiles. Choose one of the following options: ';
         InterruptedByEventSubscriberErr: Label 'Interrupted by an event subscriber';

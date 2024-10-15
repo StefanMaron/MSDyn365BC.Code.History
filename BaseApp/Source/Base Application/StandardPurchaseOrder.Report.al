@@ -466,7 +466,7 @@ report 1322 "Standard Purchase - Order"
                 column(VendorItemNo_PurchLine; "Vendor Item No.")
                 {
                 }
-#if not CLEAN16
+#if not CLEAN17
                 column(CrossReferenceNo_PurchLine; "Cross-Reference No.")
                 {
                     ObsoleteState = Pending;
@@ -590,8 +590,6 @@ report 1322 "Standard Purchase - Order"
                 }
 
                 trigger OnAfterGetRecord()
-                var
-                    ItemReferenceMgt: Codeunit "Item Reference Management";
                 begin
                     AllowInvDisctxt := Format("Allow Invoice Disc.");
                     TotalSubTotal += "Line Amount";
@@ -603,14 +601,9 @@ report 1322 "Standard Purchase - Order"
                     if "Vendor Item No." <> '' then
                         ItemNo := "Vendor Item No.";
 
-                    if ItemReferenceMgt.IsEnabled() then
-                        if "Item Reference No." <> '' then
-                            ItemNo := "Item Reference No.";
-#if not CLEAN16                            
-                    if not ItemReferenceMgt.IsEnabled() then
-                        if "Cross-Reference No." <> '' then
-                            ItemNo := "Cross-Reference No.";
-#endif
+                    if "Item Reference No." <> '' then
+                        ItemNo := "Item Reference No.";
+
                     FormatDocument.SetPurchaseLine("Purchase Line", FormattedQuanitity, FormattedDirectUnitCost, FormattedVATPct, FormattedLineAmount);
                 end;
             }

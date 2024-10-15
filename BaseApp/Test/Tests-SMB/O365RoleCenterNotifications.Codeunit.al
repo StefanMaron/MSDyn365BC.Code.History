@@ -138,7 +138,7 @@ codeunit 138073 "O365 Role Center Notifications"
     end;
 
     [Test]
-    [HandlerFunctions('SendTrialNotificationHandler,BuyPageHandler')]
+    [HandlerFunctions('SendTrialNotificationHandler,HyperlinkHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestTrialNotification()
@@ -170,7 +170,7 @@ codeunit 138073 "O365 Role Center Notifications"
     end;
 
     [Test]
-    [HandlerFunctions('SendTrialSuspendedNotificationHandler,BuyPageHandler')]
+    [HandlerFunctions('SendTrialSuspendedNotificationHandler,HyperlinkHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestTrialSuspendedNotification()
@@ -204,7 +204,7 @@ codeunit 138073 "O365 Role Center Notifications"
     end;
 
     [Test]
-    [HandlerFunctions('SendTrialExtendedNotificationHandler,BuyPageHandler,ContactAPartnerHyperlinkHandler')]
+    [HandlerFunctions('SendTrialExtendedNotificationHandler,HyperlinkHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestTrialExtendedNotification()
@@ -238,7 +238,7 @@ codeunit 138073 "O365 Role Center Notifications"
     end;
 
     [Test]
-    [HandlerFunctions('SendTrialExtendedSuspendedNotificationHandler,BuyPageHandler,ContactAPartnerHyperlinkHandler')]
+    [HandlerFunctions('SendTrialExtendedSuspendedNotificationHandler,HyperlinkHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestTrialExtendedSuspendedNotification()
@@ -644,9 +644,9 @@ codeunit 138073 "O365 Role Center Notifications"
         RoleCenterNotificationMgt.DisableChangeToPremiumExpNotification(Notification);
     end;
 
-    [PageHandler]
+    [HyperlinkHandler]
     [Scope('OnPrem')]
-    procedure BuyPageHandler(var BuySubscription: Page "Buy Subscription")
+    procedure HyperlinkHandler(Url: Text)
     begin
     end;
 

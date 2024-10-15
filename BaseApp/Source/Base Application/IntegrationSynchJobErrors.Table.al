@@ -17,12 +17,12 @@ table 5339 "Integration Synch. Job Errors"
         field(3; "Source Record ID"; RecordID)
         {
             Caption = 'Source Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(4; "Destination Record ID"; RecordID)
         {
             Caption = 'Destination Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(5; Message; Text[250])
         {
@@ -110,6 +110,12 @@ table 5339 "Integration Synch. Job Errors"
     procedure ForceSynchronizeDataIntegration(LocalRecordID: RecordID; var SynchronizeHandled: Boolean)
     begin
         OnForceSynchronizeDataIntegration(LocalRecordID, SynchronizeHandled);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ForceSynchronizeDataIntegration(var LocalRecordIdList: List of [RecordId]; var SynchronizeHandled: Boolean)
+    begin
+        OnForceSynchronizeRecords(LocalRecordIdList, SynchronizeHandled);
     end;
 
     [Scope('OnPrem')]
@@ -220,6 +226,11 @@ table 5339 "Integration Synch. Job Errors"
 
     [IntegrationEvent(false, false)]
     local procedure OnForceSynchronizeDataIntegration(LocalRecordID: RecordID; var SynchronizeHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnForceSynchronizeRecords(var LocalRecordIdList: List of [RecordId]; var SynchronizeHandled: Boolean)
     begin
     end;
 

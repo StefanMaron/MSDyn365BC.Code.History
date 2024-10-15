@@ -1,5 +1,6 @@
 codeunit 5402 "Unit of Measure Management"
 {
+    SingleInstance = true;
 
     trigger OnRun()
     begin
@@ -9,6 +10,9 @@ codeunit 5402 "Unit of Measure Management"
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         ResourceUnitOfMeasure: Record "Resource Unit of Measure";
         Text001: Label 'Quantity per unit of measure must be defined.';
+        QuantityImbalanceErr: Label '%1 on %2-%3 causes the %4 and %5 to be out of balance. Rounding of the field %5 results to 0.', Comment = '%1 - field name, %2 - table name, %3 - primary key value, %4 - field name, %5 - field name';
+        InvalidPrecisionErr: Label 'The value %1 in field %2 is of lesser precision than expected. \\Note: Default rounding precision of %3 is used if a rounding precision is not defined.', Comment = '%1 - decimal value, %2 - field name, %3 - default rounding precision.';
+        QtyImbalanceDetectedErr: Label 'This will cause the quantity and base quantity fields to be out of balance.';
 
     procedure GetQtyPerUnitOfMeasure(Item: Record Item; UnitOfMeasureCode: Code[10]) QtyPerUnitOfMeasure: Decimal
     var
@@ -28,6 +32,18 @@ codeunit 5402 "Unit of Measure Management"
             ItemUnitOfMeasure.Get(Item."No.", UnitOfMeasureCode);
         ItemUnitOfMeasure.TestField("Qty. per Unit of Measure");
         exit(ItemUnitOfMeasure."Qty. per Unit of Measure");
+    end;
+
+    procedure GetQtyRoundingPrecision(Item: Record Item; UnitOfMeasureCode: Code[10]) QtyRoundingPrecision: Decimal
+    begin
+        Item.TestField("No.");
+        if UnitOfMeasureCode = '' then
+            exit(0);
+        if (Item."No." <> ItemUnitOfMeasure."Item No.") or
+           (UnitOfMeasureCode <> ItemUnitOfMeasure.Code)
+        then
+            ItemUnitOfMeasure.Get(Item."No.", UnitOfMeasureCode);
+        exit(ItemUnitOfMeasure."Qty. Rounding Precision");
     end;
 
     procedure GetResQtyPerUnitOfMeasure(Resource: Record Resource; UnitOfMeasureCode: Code[10]) QtyPerUnitOfMeasure: Decimal
@@ -57,8 +73,20 @@ codeunit 5402 "Unit of Measure Management"
 
     procedure CalcBaseQty(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal) QtyRounded: Decimal
     begin
-        QtyRounded := RoundQty(QtyBase * QtyPerUOM);
+        QtyRounded := CalcBaseQty(ItemNo, VariantCode, UOMCode, QtyBase, QtyPerUOM, 0, '', '', '');
+    end;
 
+    procedure CalcBaseQty(ItemNo: Code[20]; VariantCode: Code[10]; UOMCode: Code[10]; QtyBase: Decimal; QtyPerUOM: Decimal; QtyRndingPrecision: Decimal; BasedOnField: Text; FromFieldName: Text; ToFieldName: Text) QtyRounded: Decimal
+    var
+        DummyItem: Record Item;
+    begin
+        QtyRounded := 0;
+        if QtyPerUOM <> 0 then begin
+            QtyRounded := RoundQty(QtyBase * QtyPerUOM, QtyRndingPrecision);
+
+            if (QtyRounded = 0) and (QtyBase <> 0) then
+                Error(QuantityImbalanceErr, BasedOnField, DummyItem.TableCaption, ItemNo, FromFieldName, ToFieldName);
+        end;
         OnAfterCalcBaseQtyPerUnitOfMeasure(ItemNo, VariantCode, UOMCode, QtyBase, QtyPerUOM, QtyRounded);
     end;
 
@@ -80,6 +108,35 @@ codeunit 5402 "Unit of Measure Management"
     procedure RoundQty(Qty: Decimal): Decimal
     begin
         exit(Round(Qty, QtyRndPrecision));
+    end;
+
+    procedure RoundQty(Qty: Decimal; QtyRndingPrecision: Decimal): Decimal
+    begin
+        OnBeforeQtyRndPrecision(QtyRndingPrecision);
+        if QtyRndingPrecision = 0 then
+            QtyRndingPrecision := 0.00001;
+        exit(Round(Qty, QtyRndingPrecision));
+    end;
+
+    procedure RoundAndValidateQty(Qty: Decimal; QtyRndingPrecision: Decimal; FieldName: Text) QtyRounded: Decimal
+    begin
+        QtyRounded := RoundQty(Qty, QtyRndingPrecision);
+        if (QtyRndingPrecision > 0) and (Qty <> QtyRounded) then
+            Error(InvalidPrecisionErr, Qty, FieldName, 0.00001);
+
+        exit(QtyRounded);
+    end;
+
+    internal procedure ValidateQtyIsBalanced(TotalQty: Decimal; TotalQtyBase: Decimal; QtyToHandle: Decimal; QtyToHandleBase: Decimal; QtyHandled: Decimal; QtyHandledBase: Decimal)
+    var
+        RemainingQty: Decimal;
+        RemainingQtyBase: Decimal;
+    begin
+        RemainingQty := TotalQty - (QtyToHandle + QtyHandled);
+        RemainingQtyBase := TotalQtyBase - (QtyToHandleBase + QtyHandledBase);
+
+        if ((RemainingQty = 0) and (RemainingQtyBase <> 0)) or ((RemainingQtyBase = 0) and (RemainingQty <> 0)) then
+            Error(QtyImbalanceDetectedErr);
     end;
 
     procedure RoundToItemRndPrecision(Qty: Decimal; ItemRndPrecision: Decimal): Decimal

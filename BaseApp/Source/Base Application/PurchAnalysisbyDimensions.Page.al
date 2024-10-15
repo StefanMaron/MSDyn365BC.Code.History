@@ -28,16 +28,16 @@ page 7157 "Purch. Analysis by Dimensions"
                         ItemAnalysisMgt.LookupItemAnalysisView(
                           CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
                           Dim1Filter, Dim2Filter, Dim3Filter);
-                        ItemAnalysisMgt.SetLineAndColDim(
-                          ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
-                        UpdateFilterFields;
+                        ItemAnalysisMgt.SetLineAndColumnDim(
+                          ItemAnalysisView, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
+                        UpdateFilterFields();
                         CurrPage.Update(false);
                     end;
 
                     trigger OnValidate()
                     begin
                         ItemAnalysisMgt.CheckAnalysisView(CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView);
-                        CurrentItemAnalysisViewCodeOnA;
+                        CurrentItemAnalysisViewCodeOnA();
                     end;
                 }
                 field(LineDimCode; LineDimCode)
@@ -61,18 +61,18 @@ page 7157 "Purch. Analysis by Dimensions"
                     begin
                         if (UpperCase(LineDimCode) = UpperCase(ColumnDimCode)) and (LineDimCode <> '') then begin
                             ColumnDimCode := '';
-                            ItemAnalysisMgt.ValidateColumnDimCode(
-                              ItemAnalysisView, ColumnDimCode, ColumnDimOption, LineDimOption,
+                            ItemAnalysisMgt.ValidateColumnDimTypeAndCode(
+                              ItemAnalysisView, ColumnDimCode, ColumnDimType, LineDimType,
                               InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
                         end;
-                        ItemAnalysisMgt.ValidateLineDimCode(
-                          ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimOption,
+                        ItemAnalysisMgt.ValidateLineDimTypeAndCode(
+                          ItemAnalysisView, LineDimCode, LineDimType, ColumnDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-                        if LineDimOption = LineDimOption::Period then
+                        if LineDimType = LineDimType::Period then
                             SetCurrentKey("Period Start")
                         else
                             SetCurrentKey(Code);
-                        LineDimCodeOnAfterValidate;
+                        LineDimCodeOnAfterValidate();
                     end;
                 }
                 field(ColumnDimCode; ColumnDimCode)
@@ -96,22 +96,21 @@ page 7157 "Purch. Analysis by Dimensions"
                     begin
                         if (UpperCase(LineDimCode) = UpperCase(ColumnDimCode)) and (LineDimCode <> '') then begin
                             LineDimCode := '';
-                            ItemAnalysisMgt.ValidateLineDimCode(
-                              ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimOption,
+                            ItemAnalysisMgt.ValidateLineDimTypeAndCode(
+                              ItemAnalysisView, LineDimCode, LineDimType, ColumnDimType,
                               InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
                         end;
-                        ItemAnalysisMgt.ValidateColumnDimCode(
-                          ItemAnalysisView, ColumnDimCode, ColumnDimOption, LineDimOption,
+                        ItemAnalysisMgt.ValidateColumnDimTypeAndCode(
+                          ItemAnalysisView, ColumnDimCode, ColumnDimType, LineDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-                        SetPoints(MATRIX_SetWanted::Initial);
-                        ColumnDimCodeOnAfterValidate;
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+                        ColumnDimCodeOnAfterValidate();
                     end;
                 }
                 field(ValueType; ValueType)
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Show Value As';
-                    OptionCaption = ',Cost Amount,Quantity';
                     ToolTip = 'Specifies how data is shown in the analysis view.';
                 }
             }
@@ -132,8 +131,8 @@ page 7157 "Purch. Analysis by Dimensions"
                         ItemStatisticsBuffer.SetFilter("Date Filter", DateFilter);
                         DateFilter := ItemStatisticsBuffer.GetFilter("Date Filter");
                         InternalDateFilter := DateFilter;
-                        SetPoints(MATRIX_SetWanted::Initial);
-                        DateFilterOnAfterValidate;
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+                        DateFilterOnAfterValidate();
                     end;
                 }
                 field(ItemFilter; ItemFilter)
@@ -148,15 +147,15 @@ page 7157 "Purch. Analysis by Dimensions"
                     begin
                         ItemList.LookupMode(true);
                         if ItemList.RunModal = ACTION::LookupOK then begin
-                            Text := ItemList.GetSelectionFilter;
+                            Text := ItemList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        SetPoints(MATRIX_SetWanted::Initial);
-                        ItemFilterOnAfterValidate;
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+                        ItemFilterOnAfterValidate();
                     end;
                 }
                 field(LocationFilter; LocationFilter)
@@ -171,14 +170,14 @@ page 7157 "Purch. Analysis by Dimensions"
                     begin
                         LocationList.LookupMode(true);
                         if LocationList.RunModal = ACTION::LookupOK then begin
-                            Text := LocationList.GetSelectionFilter;
+                            Text := LocationList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
-                        LocationFilterOnAfterValidate;
+                        LocationFilterOnAfterValidate();
                     end;
                 }
                 field(BudgetFilter; BudgetFilter)
@@ -202,8 +201,8 @@ page 7157 "Purch. Analysis by Dimensions"
 
                     trigger OnValidate()
                     begin
-                        SetPoints(MATRIX_SetWanted::Initial);
-                        BudgetFilterOnAfterValidate;
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+                        BudgetFilterOnAfterValidate();
                     end;
                 }
                 field(Dim1FilterControl; Dim1Filter)
@@ -222,8 +221,8 @@ page 7157 "Purch. Analysis by Dimensions"
                     trigger OnValidate()
                     begin
                         ItemStatisticsBuffer.SetFilter("Dimension 1 Filter", Dim1Filter);
-                        SetPoints(MATRIX_SetWanted::Initial);
-                        Dim1FilterOnAfterValidate;
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+                        Dim1FilterOnAfterValidate();
                     end;
                 }
                 field(Dim2FilterControl; Dim2Filter)
@@ -242,8 +241,8 @@ page 7157 "Purch. Analysis by Dimensions"
                     trigger OnValidate()
                     begin
                         ItemStatisticsBuffer.SetFilter("Dimension 2 Filter", Dim2Filter);
-                        SetPoints(MATRIX_SetWanted::Initial);
-                        Dim2FilterOnAfterValidate;
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+                        Dim2FilterOnAfterValidate();
                     end;
                 }
                 field(Dim3FilterControl; Dim3Filter)
@@ -262,8 +261,8 @@ page 7157 "Purch. Analysis by Dimensions"
                     trigger OnValidate()
                     begin
                         ItemStatisticsBuffer.SetFilter("Dimension 3 Filter", Dim3Filter);
-                        SetPoints(MATRIX_SetWanted::Initial);
-                        Dim3FilterOnAfterValidate;
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
+                        Dim3FilterOnAfterValidate();
                     end;
                 }
             }
@@ -274,14 +273,12 @@ page 7157 "Purch. Analysis by Dimensions"
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Show';
-                    OptionCaption = 'Actual Amounts,Budgeted Amounts,Variance,Variance%,Index%';
                     ToolTip = 'Specifies if the selected value is shown in the window.';
                 }
                 field(RoundingFactor; RoundingFactor)
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'Rounding Factor';
-                    OptionCaption = 'None,1,1000,1000000';
                     ToolTip = 'Specifies the factor that is used to round the amounts.';
                 }
                 field(ShowColumnName; ShowColumnName)
@@ -292,7 +289,7 @@ page 7157 "Purch. Analysis by Dimensions"
 
                     trigger OnValidate()
                     begin
-                        ShowColumnNameOnAfterValidate;
+                        ShowColumnNameOnAfterValidate();
                     end;
                 }
                 field(ShowOppositeSign; ShowOppositeSign)
@@ -310,13 +307,12 @@ page 7157 "Purch. Analysis by Dimensions"
                 {
                     ApplicationArea = Dimensions;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
                         FindPeriod('');
-                        SetPoints(MATRIX_SetWanted::Initial);
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                     end;
                 }
                 field(ColumnSet; MATRIX_CaptionRange)
@@ -352,13 +348,13 @@ page 7157 "Purch. Analysis by Dimensions"
                         TempDimCode := ColumnDimCode;
                         ColumnDimCode := LineDimCode;
                         LineDimCode := TempDimCode;
-                        ItemAnalysisMgt.ValidateLineDimCode(
-                          ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimOption,
+                        ItemAnalysisMgt.ValidateLineDimTypeAndCode(
+                          ItemAnalysisView, LineDimCode, LineDimType, ColumnDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-                        ItemAnalysisMgt.ValidateColumnDimCode(
-                          ItemAnalysisView, ColumnDimCode, ColumnDimOption, LineDimOption,
+                        ItemAnalysisMgt.ValidateColumnDimTypeAndCode(
+                          ItemAnalysisView, ColumnDimCode, ColumnDimType, LineDimType,
                           InternalDateFilter, DateFilter, ItemStatisticsBuffer, PeriodInitialized);
-                        SetPoints(MATRIX_SetWanted::Initial);
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                     end;
                 }
             }
@@ -378,7 +374,7 @@ page 7157 "Purch. Analysis by Dimensions"
                 trigger OnAction()
                 begin
                     Clear(PurchAnalysisByDimMatrix);
-                    ShowMatrixPage;
+                    ShowMatrixPage();
                 end;
             }
             action(PreviousSet)
@@ -393,7 +389,7 @@ page 7157 "Purch. Analysis by Dimensions"
 
                 trigger OnAction()
                 begin
-                    SetPoints(MATRIX_SetWanted::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action(NextSet)
@@ -408,7 +404,7 @@ page 7157 "Purch. Analysis by Dimensions"
 
                 trigger OnAction()
                 begin
-                    SetPoints(MATRIX_SetWanted::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -417,8 +413,8 @@ page 7157 "Purch. Analysis by Dimensions"
     trigger OnFindRecord(Which: Text): Boolean
     begin
         exit(
-          ItemAnalysisMgt.FindRec(
-            ItemAnalysisView, LineDimOption, Rec, Which,
+          ItemAnalysisMgt.FindRecord(
+            ItemAnalysisView, LineDimType, Rec, Which,
             ItemFilter, LocationFilter, PeriodType, DateFilter, PeriodInitialized, InternalDateFilter,
             Dim1Filter, Dim2Filter, Dim3Filter));
     end;
@@ -433,15 +429,15 @@ page 7157 "Purch. Analysis by Dimensions"
     trigger OnNextRecord(Steps: Integer): Integer
     begin
         exit(
-          ItemAnalysisMgt.NextRec(
-            ItemAnalysisView, LineDimOption, Rec, Steps,
+          ItemAnalysisMgt.NextRecord(
+            ItemAnalysisView, LineDimType, Rec, Steps,
             ItemFilter, LocationFilter, PeriodType, DateFilter,
             Dim1Filter, Dim2Filter, Dim3Filter));
     end;
 
     trigger OnOpenPage()
     begin
-        if ValueType = 0 then
+        if ValueType = ValueType::"Sales Amount" then
             ValueType := ValueType::"Cost Amount";
 
         CurrentAnalysisArea := CurrentAnalysisArea::Purchase;
@@ -460,14 +456,14 @@ page 7157 "Purch. Analysis by Dimensions"
               Dim1Filter, Dim2Filter, Dim3Filter);
         end;
 
-        ItemAnalysisMgt.SetLineAndColDim(
-          ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
-        UpdateFilterFields;
+        ItemAnalysisMgt.SetLineAndColumnDim(
+          ItemAnalysisView, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
+        UpdateFilterFields();
 
         FindPeriod('');
 
         NoOfColumns := PurchAnalysisByDimMatrix.GetMatrixDimension;
-        SetPoints(MATRIX_SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     var
@@ -479,12 +475,12 @@ page 7157 "Purch. Analysis by Dimensions"
         PurchAnalysisByDimMatrix: Page "Purch. Analysis by Dim Matrix";
         CurrentItemAnalysisViewCode: Code[10];
         CurrentAnalysisArea: Enum "Analysis Area Type";
-        ValueType: Option ,"Cost Amount","Sales Quantity";
-        ShowActualBudget: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%";
-        RoundingFactor: Option "None","1","1000","1000000";
-        LineDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3";
-        ColumnDimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        ValueType: Enum "Item Analysis Value Type";
+        ShowActualBudget: Enum "Item Analysis Show Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        LineDimType: Enum "Item Analysis Dimension Type";
+        ColumnDimType:Enum "Item Analysis Dimension Type";
+        PeriodType: Enum "Analysis Period Type";
         BudgetFilter: Code[250];
         LineDimCode: Text[30];
         ColumnDimCode: Text[30];
@@ -506,7 +502,6 @@ page 7157 "Purch. Analysis by Dimensions"
         MATRIX_CaptionRange: Text;
         MATRIX_CodeRange: Text[250];
         MATRIX_CurrSetLength: Integer;
-        MATRIX_SetWanted: Option Initial,Previous,Same,Next;
         NewItemAnalysisCode: Code[10];
         [InDataSet]
         Dim1FilterEnable: Boolean;
@@ -517,11 +512,11 @@ page 7157 "Purch. Analysis by Dimensions"
 
     local procedure FindPeriod(SearchText: Code[3])
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
-        PeriodFormMgt.FindPeriodOnMatrixPage(
+        PeriodPageMgt.FindPeriodOnMatrixPage(
           DateFilter, InternalDateFilter, SearchText, PeriodType,
-          (LineDimOption <> LineDimOption::Period) and (ColumnDimOption <> ColumnDimOption::Period));
+          (LineDimType <> LineDimType::Period) and (ColumnDimType <> ColumnDimType::Period));
     end;
 
     local procedure RefreshInternalDateFilter()
@@ -566,35 +561,44 @@ page 7157 "Purch. Analysis by Dimensions"
                 Dim3Filter := ItemAnalysisViewFilter."Dimension Value Filter";
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by GenerateColumnCaptions().', '19.0')]
     procedure SetPoints(SetWanted: Option Initial,Previous,Same,Next)
+    begin
+        GenerateColumnCaptions("Matrix Page Step Type".FromInteger(SetWanted));
+    end;
+#endif
+
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MATRIX_PeriodRecords: array[32] of Record Date;
     begin
-        case ColumnDimOption of
-            ColumnDimOption::Item:
-                SetPointsItem(SetWanted);
-            ColumnDimOption::Location:
-                SetPointsLocation(SetWanted);
-            ColumnDimOption::Period:
+        case ColumnDimType of
+            ColumnDimType::Item:
+                SetPointsItem(StepType);
+            ColumnDimType::Location:
+                SetPointsLocation(StepType);
+            ColumnDimType::Period:
                 begin
-                    MatrixMgt.GeneratePeriodMatrixData(SetWanted, NoOfColumns, ShowColumnName, PeriodType, DateFilter, MATRIX_PKFirstRecInCurrSet,
-                      MatrixColumnCaptions, MATRIX_CaptionRange, MATRIX_CurrSetLength, MATRIX_PeriodRecords);
+                    MatrixMgt.GeneratePeriodMatrixData(
+                        StepType.AsInteger(), NoOfColumns, ShowColumnName, PeriodType, DateFilter, MATRIX_PKFirstRecInCurrSet,
+                        MatrixColumnCaptions, MATRIX_CaptionRange, MATRIX_CurrSetLength, MATRIX_PeriodRecords);
                     if MATRIX_CurrSetLength > 0 then begin
                         FirstColumnDate := MATRIX_PeriodRecords[1]."Period Start";
                         LastColumnDate := MATRIX_PeriodRecords[MATRIX_CurrSetLength]."Period Start";
                     end;
-                    RefreshInternalDateFilter;
+                    RefreshInternalDateFilter();
                 end;
-            ColumnDimOption::"Dimension 1":
-                SetPointsDim(ItemAnalysisView."Dimension 1 Code", Dim1Filter, SetWanted);
-            ColumnDimOption::"Dimension 2":
-                SetPointsDim(ItemAnalysisView."Dimension 2 Code", Dim2Filter, SetWanted);
-            ColumnDimOption::"Dimension 3":
-                SetPointsDim(ItemAnalysisView."Dimension 3 Code", Dim3Filter, SetWanted);
+            ColumnDimType::"Dimension 1":
+                SetPointsDim(ItemAnalysisView."Dimension 1 Code", Dim1Filter, StepType);
+            ColumnDimType::"Dimension 2":
+                SetPointsDim(ItemAnalysisView."Dimension 2 Code", Dim2Filter, StepType);
+            ColumnDimType::"Dimension 3":
+                SetPointsDim(ItemAnalysisView."Dimension 3 Code", Dim3Filter, StepType);
         end;
     end;
 
-    local procedure SetPointsItem(SetWanted: Option Initial,Previous,Same,Next)
+    local procedure SetPointsItem(StepType: Enum "Matrix Page Step Type")
     var
         Item: Record Item;
         RecRef: RecordRef;
@@ -610,15 +614,16 @@ page 7157 "Purch. Analysis by Dimensions"
         else
             CaptionFieldNo := Item.FieldNo("No.");
 
-        MatrixMgt.GenerateMatrixData(RecRef, SetWanted, NoOfColumns, CaptionFieldNo, MATRIX_PKFirstRecInCurrSet, MatrixColumnCaptions,
-          MATRIX_CaptionRange, MATRIX_CurrSetLength);
+        MatrixMgt.GenerateMatrixData(
+            RecRef, StepType.AsInteger(), NoOfColumns, CaptionFieldNo, MATRIX_PKFirstRecInCurrSet, MatrixColumnCaptions,
+            MATRIX_CaptionRange, MATRIX_CurrSetLength);
 
         if ShowColumnName then
             MATRIX_CodeRange :=
               MatrixMgt.GetPKRange(RecRef, Item.FieldNo("No."), MATRIX_PKFirstRecInCurrSet, MATRIX_CurrSetLength);
     end;
 
-    local procedure SetPointsLocation(SetWanted: Option Initial,Previous,Same,Next)
+    local procedure SetPointsLocation(StepType: Enum "Matrix Page Step Type")
     var
         Location: Record Location;
         RecRef: RecordRef;
@@ -634,15 +639,16 @@ page 7157 "Purch. Analysis by Dimensions"
         else
             CaptionFieldNo := Location.FieldNo(Code);
 
-        MatrixMgt.GenerateMatrixData(RecRef, SetWanted, NoOfColumns, CaptionFieldNo, MATRIX_PKFirstRecInCurrSet, MatrixColumnCaptions,
-          MATRIX_CaptionRange, MATRIX_CurrSetLength);
+        MatrixMgt.GenerateMatrixData(
+            RecRef, StepType.AsInteger(), NoOfColumns, CaptionFieldNo, MATRIX_PKFirstRecInCurrSet, MatrixColumnCaptions,
+            MATRIX_CaptionRange, MATRIX_CurrSetLength);
 
         if ShowColumnName then
             MATRIX_CodeRange :=
               MatrixMgt.GetPKRange(RecRef, Location.FieldNo(Code), MATRIX_PKFirstRecInCurrSet, MATRIX_CurrSetLength);
     end;
 
-    local procedure SetPointsDim(DimensionCode: Code[20]; DimFilter: Code[250]; SetWanted: Option Initial,Previous,Same,Next)
+    local procedure SetPointsDim(DimensionCode: Code[20]; DimFilter: Code[250]; StepType: Enum "Matrix Page Step Type")
     var
         DimVal: Record "Dimension Value";
         MatrixMgt: Codeunit "Matrix Management";
@@ -661,8 +667,9 @@ page 7157 "Purch. Analysis by Dimensions"
         else
             CaptionFieldNo := DimVal.FieldNo(Code);
 
-        MatrixMgt.GenerateMatrixData(RecRef, SetWanted, NoOfColumns, CaptionFieldNo, MATRIX_PKFirstRecInCurrSet, MatrixColumnCaptions,
-          MATRIX_CaptionRange, MATRIX_CurrSetLength);
+        MatrixMgt.GenerateMatrixData(
+            RecRef, StepType.AsInteger(), NoOfColumns, CaptionFieldNo, MATRIX_PKFirstRecInCurrSet, MatrixColumnCaptions,
+            MATRIX_CaptionRange, MATRIX_CurrSetLength);
 
         if ShowColumnName then
             MATRIX_CodeRange :=
@@ -677,18 +684,18 @@ page 7157 "Purch. Analysis by Dimensions"
         CurDim2Filter: Text[250];
         CurDim3Filter: Text[250];
     begin
-        case ColumnDimOption of
-            ColumnDimOption::Item:
+        case ColumnDimType of
+            ColumnDimType::Item:
                 CurItemFilter := MATRIX_CodeRange;
-            ColumnDimOption::Location:
+            ColumnDimType::Location:
                 CurLocationFilter := MATRIX_CodeRange;
-            ColumnDimOption::"Dimension 1":
+            ColumnDimType::"Dimension 1":
                 CurDim1Filter := MATRIX_CodeRange;
-            ColumnDimOption::"Dimension 2":
+            ColumnDimType::"Dimension 2":
                 CurDim2Filter := MATRIX_CodeRange;
-            ColumnDimOption::"Dimension 3":
+            ColumnDimType::"Dimension 3":
                 CurDim3Filter := MATRIX_CodeRange;
-            ColumnDimOption::Period:
+            ColumnDimType::Period:
                 PeriodInitialized := true;
         end;
         if CurItemFilter = '' then
@@ -702,14 +709,15 @@ page 7157 "Purch. Analysis by Dimensions"
         if CurDim3Filter = '' then
             CurDim3Filter := Dim3Filter;
 
-        PurchAnalysisByDimMatrix.LoadVariables(ItemAnalysisView,
-          CurrentItemAnalysisViewCode, CurrentAnalysisArea.AsInteger(),
-          LineDimOption, ColumnDimOption, PeriodType, ValueType,
-          RoundingFactor, ShowActualBudget, MatrixColumnCaptions,
-          ShowOppositeSign, PeriodInitialized, ShowColumnName, MATRIX_CurrSetLength);
+        PurchAnalysisByDimMatrix.LoadMartix(
+            ItemAnalysisView, CurrentItemAnalysisViewCode, CurrentAnalysisArea,
+            LineDimType, ColumnDimType, PeriodType, ValueType,
+            RoundingFactor, ShowActualBudget, MatrixColumnCaptions,
+            ShowOppositeSign, PeriodInitialized, ShowColumnName, MATRIX_CurrSetLength);
 
-        PurchAnalysisByDimMatrix.LoadFilters(CurItemFilter, CurLocationFilter, CurDim1Filter, CurDim2Filter, CurDim3Filter,
-          DateFilter, BudgetFilter, InternalDateFilter);
+        PurchAnalysisByDimMatrix.LoadFilters(
+            CurItemFilter, CurLocationFilter, CurDim1Filter, CurDim2Filter, CurDim3Filter,
+            DateFilter, BudgetFilter, InternalDateFilter);
 
         PurchAnalysisByDimMatrix.RunModal;
     end;
@@ -724,9 +732,9 @@ page 7157 "Purch. Analysis by Dimensions"
         ItemAnalysisMgt.SetItemAnalysisView(
           CurrentAnalysisArea.AsInteger(), CurrentItemAnalysisViewCode, ItemAnalysisView, ItemStatisticsBuffer,
           Dim1Filter, Dim2Filter, Dim3Filter);
-        ItemAnalysisMgt.SetLineAndColDim(
-          ItemAnalysisView, LineDimCode, LineDimOption, ColumnDimCode, ColumnDimOption);
-        UpdateFilterFields;
+        ItemAnalysisMgt.SetLineAndColumnDim(
+          ItemAnalysisView, LineDimCode, LineDimType, ColumnDimCode, ColumnDimType);
+        UpdateFilterFields();
         CurrPage.Update(false);
     end;
 
@@ -743,33 +751,33 @@ page 7157 "Purch. Analysis by Dimensions"
     local procedure Dim2FilterOnAfterValidate()
     begin
         CurrPage.Update();
-        SetPoints(MATRIX_SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     local procedure Dim1FilterOnAfterValidate()
     begin
         CurrPage.Update();
-        SetPoints(MATRIX_SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     local procedure Dim3FilterOnAfterValidate()
     begin
         CurrPage.Update();
-        SetPoints(MATRIX_SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     local procedure ItemFilterOnAfterValidate()
     begin
         ItemStatisticsBuffer.SetFilter("Item Filter", ItemFilter);
         CurrPage.Update(false);
-        SetPoints(MATRIX_SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     local procedure LocationFilterOnAfterValidate()
     begin
         ItemStatisticsBuffer.SetFilter("Location Filter", LocationFilter);
         CurrPage.Update(false);
-        SetPoints(MATRIX_SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     local procedure BudgetFilterOnAfterValidate()
@@ -785,7 +793,7 @@ page 7157 "Purch. Analysis by Dimensions"
 
     local procedure ShowColumnNameOnAfterValidate()
     begin
-        SetPoints(MATRIX_SetWanted::Same);
+        GenerateColumnCaptions("Matrix Page Step Type"::Same);
     end;
 }
 

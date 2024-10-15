@@ -45,20 +45,32 @@ page 3846 "Scheduled Task JQ Factbox"
                 }
             }
 
-            field(ShowJQDetailsTxt; ShowJQDetailsTxt)
+            group(JQDetails)
             {
-                ApplicationArea = All;
                 ShowCaption = false;
-                ToolTip = 'Open the Job Queue Entry Card page.';
+                Visible = ShowJQDetails;
 
-                trigger OnDrillDown()
-                begin
-                    Page.Run(Page::"Job Queue Entry Card", Rec);
-                end;
+                field(ShowJQDetailsTxt; ShowJQDetailsTxt)
+                {
+                    ApplicationArea = All;
+                    ShowCaption = false;
+                    ToolTip = 'Open the Job Queue Entry Card page.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Page.Run(Page::"Job Queue Entry Card", Rec);
+                    end;
+                }
             }
         }
     }
 
     var
+        ShowJQDetails: Boolean;
         ShowJQDetailsTxt: Label 'Show Job Queue details.';
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        ShowJQDetails := not IsNullGuid(Rec.ID);
+    end;
 }

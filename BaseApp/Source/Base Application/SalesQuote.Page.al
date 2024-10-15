@@ -7,6 +7,9 @@ page 41 "Sales Quote"
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = FILTER(Quote));
 
+    AboutTitle = 'About sales quote details';
+    AboutText = 'You can update, send, and resend a quote as needed. If the quote is accepted, the details will transfer to the sales order or invoice you create from it.';
+
     layout
     {
         area(content)
@@ -34,6 +37,9 @@ page 41 "Sales Quote"
                     Importance = Additional;
                     NotBlank = true;
                     ToolTip = 'Specifies the number of the customer who will receive the products and be billed by default.';
+
+                    AboutTitle = 'Who is the quote for?';
+                    AboutText = 'You can choose existing customers, or add new customers when you create quotes. Quotes can automatically choose special prices and discounts that you have set for each customer.';
 
                     trigger OnValidate()
                     begin
@@ -184,14 +190,14 @@ page 41 "Sales Quote"
 #if not CLEAN18
                 field("Sell-to Customer Template Code"; "Sell-to Customer Template Code")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Customer Template Code';
-                    Enabled = EnableOldSellToCustomerTemplateCode;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the template to create a new customer';
                     ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code"';
                     ObsoleteState = Pending;
                     ObsoleteTag = '18.0';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -312,6 +318,9 @@ page 41 "Sales Quote"
                     Importance = Promoted;
                     StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
+
+                    AboutTitle = 'Check the quote status';
+                    AboutText = 'While preparing a quote it''s status is Open. When it''s ready, you can change the status to Released to reserve the items or services you''re selling. To change a released quote you''ll need to reopen it.';
                 }
                 group("Work Description")
                 {
@@ -986,9 +995,9 @@ page 41 "Sales Quote"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action(Dimensions)
@@ -1312,6 +1321,9 @@ page 41 "Sales Quote"
                     PromotedIsBig = true;
                     ToolTip = 'Convert the sales quote to a sales order.';
 
+                    AboutTitle = 'When a quote gets accepted';
+                    AboutText = 'When your customer is ready to buy, you can turn quotes into orders. Or, unless you need partial shipments, skip the order and create an invoice instead.';
+
                     trigger OnAction()
                     var
                         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -1616,8 +1628,8 @@ page 41 "Sales Quote"
         SetControlAppearance;
         WorkDescription := GetWorkDescription;
         UpdateShipToBillToGroupVisibility;
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1659,11 +1671,7 @@ page 41 "Sales Quote"
         OfficeMgt: Codeunit "Office Management";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if UserMgt.GetSalesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetSalesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
         SetRange("Date Filter", 0D, WorkDate());
 
@@ -1715,9 +1723,6 @@ page 41 "Sales Quote"
         IsSellToCustomerNotEmpty: Boolean;
         EnableNewSellToCustomerTemplateCode: Boolean;
         SalesLinesAvailable: Boolean;
-#if not CLEAN18
-        EnableOldSellToCustomerTemplateCode: Boolean;
-#endif
 
     protected var
         ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
@@ -1725,7 +1730,7 @@ page 41 "Sales Quote"
 
     local procedure ActivateFields()
     begin
-        EnableBillToCustomerNo := "Bill-to Customer Template Code" = '';
+        EnableBillToCustomerNo := "Bill-to Customer Templ. Code" = '';
         EnableSellToCustomerTemplateCode := "Sell-to Customer No." = '';
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
@@ -1804,27 +1809,12 @@ page 41 "Sales Quote"
     end;
 
     local procedure SetEnableSellToCustomerTemplateCode()
-    var
-        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
     begin
-        EnableNewSellToCustomerTemplateCode := ("Sell-to Customer No." = '') and CustomerTemplMgt.IsEnabled();
-#if not CLEAN18
-        EnableOldSellToCustomerTemplateCode := ("Sell-to Customer No." = '') and not CustomerTemplMgt.IsEnabled();
-#endif
+        EnableNewSellToCustomerTemplateCode := "Sell-to Customer No." = '';
     end;
 
     local procedure SetSalesLinesAvailability()
-#if not CLEAN18
-    var
-        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
-#endif
     begin
-#if not CLEAN18
-        if not CustomerTemplMgt.IsEnabled() then begin
-            SalesLinesAvailable := ("Sell-to Customer No." <> '') or ("Sell-to Customer Template Code" <> '') or ("Sell-to Contact No." <> '');
-            exit;
-        end;
-#endif
         SalesLinesAvailable := ("Sell-to Customer No." <> '') OR ("Sell-to Customer Templ. Code" <> '') OR ("Sell-to Contact No." <> '');
     end;
 

@@ -33,7 +33,7 @@ codeunit 136103 "Service Items"
         ServiceItemDuplicateErr1: Label 'You cannot change the Customer No. in the service item because of the following outstanding service order line:';
         ServiceItemDuplicateErr2: Label 'Order %1, line %2, service item number %3, serial number %4, customer %5, ship-to code %6.', Comment = '%1 - Service Order No.;%2 - Serice Line No.;%3 - Service Item No.;%4 - Serial No.;%5 - Customer No.;%6 - Ship to Code.';
         RecordExistsErr: Label '%1 %2 must not exist after deletion.', Comment = '%1 = Table Caption,%2 = Field Value';
-        SerialNo: Code[20];
+        SerialNo: Code[50];
         CopyComponentsFrom: Option;
         ItemTrackingLinesAssignment: Option "None",AssignSerialNo,AssignLotNo,SelectEntries,AssistEdit;
         Replacement: Option "Temporary",Permanent;

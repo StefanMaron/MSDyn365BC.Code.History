@@ -80,7 +80,7 @@ page 99000812 "Prod. BOM Matrix per Version"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateMatrix(MATRIX_SetWanted::Previous);
+                    GenerateMatrixColumns("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -95,7 +95,7 @@ page 99000812 "Prod. BOM Matrix per Version"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateMatrix(MATRIX_SetWanted::Next);
+                    GenerateMatrixColumns("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -114,7 +114,6 @@ page 99000812 "Prod. BOM Matrix per Version"
         MATRIX_CaptionSet: array[32] of Text[80];
         MATRIX_CaptionRange: Text;
         ShowLevel: Option Single,Multi;
-        MATRIX_SetWanted: Option First,Previous,Same,Next;
         PKFirstMatrixRecInSet: Text;
         MATRIX_CurrSetLength: Integer;
 
@@ -128,10 +127,10 @@ page 99000812 "Prod. BOM Matrix per Version"
         Clear(BOMMatrixMgt);
         BOMMatrixMgt.BOMMatrixFromBOM(ProdBOM, ShowLevel = ShowLevel::Multi);
         MATRIX_MatrixRecord.SetRange("Production BOM No.", ProdBOM."No.");
-        MATRIX_GenerateMatrix(MATRIX_SetWanted::First);
+        GenerateMatrixColumns("Matrix Page Step Type"::Initial);
     end;
 
-    local procedure MATRIX_GenerateMatrix(SetWanted: Option First,Previous,Same,Next)
+    local procedure GenerateMatrixColumns(StepType: Enum "Matrix Page Step Type")
     var
         MatrixMgt: Codeunit "Matrix Management";
         RecRef: RecordRef;
@@ -143,8 +142,9 @@ page 99000812 "Prod. BOM Matrix per Version"
 
         RecRef.GetTable(MATRIX_MatrixRecord);
         RecRef.SetTable(MATRIX_MatrixRecord);
-        MatrixMgt.GenerateMatrixData(RecRef, SetWanted, ArrayLen(MatrixRecords), 2, PKFirstMatrixRecInSet, MATRIX_CaptionSet,
-          MATRIX_CaptionRange, MATRIX_CurrSetLength);
+        MatrixMgt.GenerateMatrixData(
+            RecRef, StepType.AsInteger(), ArrayLen(MatrixRecords), 2, PKFirstMatrixRecInSet, MATRIX_CaptionSet,
+            MATRIX_CaptionRange, MATRIX_CurrSetLength);
 
         if MATRIX_CurrSetLength > 0 then begin
             MATRIX_MatrixRecord.SetPosition(PKFirstMatrixRecInSet);
