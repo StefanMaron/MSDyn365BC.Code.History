@@ -60,7 +60,10 @@ codeunit 5920 ServItemManagement
         if (ServLine.Type <> ServLine.Type::Item) or (ServLine."Qty. to Ship" = 0) then
             exit;
 
-        OnBeforeReplaceSIComponent(ServLine, ServHeader, ServShptDocNo, ServShptLineNo, TempTrackingSpecification);
+        IsHandled := false;
+        OnBeforeReplaceSIComponent(ServLine, ServHeader, ServShptDocNo, ServShptLineNo, TempTrackingSpecification, IsHandled);
+        if IsHandled then
+            exit;
 
         with ServLine do
             case "Spare Part Action" of
@@ -716,7 +719,7 @@ codeunit 5920 ServItemManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReplaceSIComponent(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServShptDocNo: Code[20]; ServShptLineNo: Integer; var TempTrackingSpecification: Record "Tracking Specification" temporary)
+    local procedure OnBeforeReplaceSIComponent(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ServShptDocNo: Code[20]; ServShptLineNo: Integer; var TempTrackingSpecification: Record "Tracking Specification" temporary; var IsHandled: Boolean)
     begin
     end;
 

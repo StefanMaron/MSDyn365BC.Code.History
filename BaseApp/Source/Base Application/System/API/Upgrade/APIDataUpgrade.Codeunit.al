@@ -15,6 +15,9 @@ using Microsoft.Sales.History;
 using Microsoft.Upgrade;
 using System.Environment;
 using System.Upgrade;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.FixedAssets.Setup;
+using Microsoft.HumanResources.Employee;
 
 codeunit 9994 "API Data Upgrade"
 {
@@ -40,6 +43,7 @@ codeunit 9994 "API Data Upgrade"
         GraphMgtVendor: Codeunit "Graph Mgt - Vendor";
         GraphMgtVendorPayments: Codeunit "Graph Mgt - Vendor Payments";
         GraphMgtPurchOrderBuffer: Codeunit "Graph Mgt - Purch Order Buffer";
+        UpgradeTag: Codeunit "Upgrade Tag";
     begin
         APIDataUpgrade.SetRange(Status, APIDataUpgrade.Status::Scheduled);
         if APIDataUpgrade.FindSet() then
@@ -155,10 +159,20 @@ codeunit 9994 "API Data Upgrade"
                             UpgradePurchaseCreditMemoBuffer();
                             SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
                         end;
+                    'FIXED ASSETS':
+                        begin
+                            UpgradeFixedAssetLocationId();
+                            UpgradeFixedAssetResponsibleEmployeeId();
+                            SetStatus(APIDataUpgrade, APIDataUpgrade.Status::Completed);
+                        end;
                     else
                         OnAPIDataUpgrade(APIDataUpgrade."Upgrade Tag");
                 end;
             until APIDataUpgrade.Next() = 0;
+
+        APIDataUpgrade.SetFilter(Status, '<>%1', APIDataUpgrade.Status::Completed);
+        if APIDataUpgrade.IsEmpty() then
+            UpgradeTag.SetSkippedUpgrade(GetDisableAPIDataUpgradesTag(), false);
     end;
 
     var
@@ -601,6 +615,48 @@ codeunit 9994 "API Data Upgrade"
         end;
     end;
 
+    procedure UpgradeFixedAssetLocationId()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FixedAsset2: Record "Fixed Asset";
+        FALocation: Record "FA Location";
+        RecordCount: Integer;
+    begin
+        FixedAsset.SetLoadFields("FA Location Code", "FA Location Id");
+        FALocation.SetLoadFields(Code, SystemId);
+        if FixedAsset.FindSet() then
+            repeat
+                if FALocation.Get(FixedAsset."FA Location Code") then
+                    if FixedAsset."FA Location Id" <> FALocation.SystemId then begin
+                        FixedAsset2 := FixedAsset;
+                        FixedAsset2."FA Location Id" := FALocation.SystemId;
+                        FixedAsset2.Modify();
+                        CountRecordsAndCommit(RecordCount);
+                    end;
+            until FixedAsset.Next() = 0;
+    end;
+
+    procedure UpgradeFixedAssetResponsibleEmployeeId()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FixedAsset2: Record "Fixed Asset";
+        Employee: Record Employee;
+        RecordCount: Integer;
+    begin
+        FixedAsset.SetLoadFields("Responsible Employee", "Responsible Employee Id");
+        Employee.SetLoadFields("No.", SystemId);
+        if FixedAsset.FindSet() then
+            repeat
+                if Employee.Get(FixedAsset."Responsible Employee") then
+                    if FixedAsset."Responsible Employee Id" <> Employee.SystemId then begin
+                        FixedAsset2 := FixedAsset;
+                        FixedAsset2."Responsible Employee Id" := Employee.SystemId;
+                        FixedAsset2.Modify();
+                        CountRecordsAndCommit(RecordCount);
+                    end;
+            until FixedAsset.Next() = 0;
+    end;
+
     procedure UpdateItemVariants()
     var
         Item: Record Item;
@@ -853,6 +909,7 @@ codeunit 9994 "API Data Upgrade"
         APIDataUpgradeEntities.Add('Accounts', 'accounts');
         APIDataUpgradeEntities.Add('Purchase Receipts', 'purchaseReceipts');
         APIDataUpgradeEntities.Add('Purchase Credit Memos', 'purchaseCreditMemos');
+        APIDataUpgradeEntities.Add('Fixed Assets', 'fixedAssets');
 
         OnGetAPIDataUpgradeEntities(APIDataUpgradeEntities)
     end;

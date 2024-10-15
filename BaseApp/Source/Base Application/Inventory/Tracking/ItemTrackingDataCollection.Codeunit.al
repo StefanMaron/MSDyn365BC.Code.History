@@ -368,6 +368,7 @@ codeunit 6501 "Item Tracking Data Collection"
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
         TempTrackingSpecification2: Record "Tracking Specification" temporary;
+        LotNo: Code[50];
     begin
         LastSummaryEntryNo := 0;
         LastReservEntryNo := 2147483647;
@@ -393,8 +394,7 @@ codeunit 6501 "Item Tracking Data Collection"
             until ReservEntry.Next() = 0;
 
         ItemLedgEntry.Reset();
-        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", "Location Code", "Item Tracking",
-          "Lot No.", "Serial No.");
+        ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
         ItemLedgEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
         ItemLedgEntry.SetRange("Variant Code", TempTrackingSpecification."Variant Code");
         ItemLedgEntry.SetRange(Open, true);
@@ -402,6 +402,7 @@ codeunit 6501 "Item Tracking Data Collection"
 
         OnRetrieveLookupDataOnBeforeTransferToTempRec(TempTrackingSpecification, TempReservEntry, ItemLedgEntry, FullDataSet);
 
+        LotNo := '';
         if FullDataSet then begin
             TransferReservEntryToTempRec(TempReservEntry, TempTrackingSpecification);
             TransferItemLedgToTempRec(ItemLedgEntry, TempTrackingSpecification);
@@ -411,7 +412,8 @@ codeunit 6501 "Item Tracking Data Collection"
                     ItemLedgEntry.ClearTrackingFilter();
                     TempReservEntry.ClearTrackingFilter();
 
-                    if TempTrackingSpecification."Lot No." <> '' then begin
+                    if (TempTrackingSpecification."Lot No." <> '') and (TempTrackingSpecification."Lot No." <> LotNo) then begin
+                        LotNo := TempTrackingSpecification."Lot No.";
                         ItemLedgEntry.SetRange("Lot No.", TempTrackingSpecification."Lot No.");
                         TempReservEntry.SetRange("Lot No.", TempTrackingSpecification."Lot No.");
                         TransferReservEntryToTempRec(TempReservEntry, TempTrackingSpecification);
@@ -420,7 +422,7 @@ codeunit 6501 "Item Tracking Data Collection"
 
                     OnRetrieveLookupDataOnAfterBuildNonSerialDataSet(TempTrackingSpecification, ItemLedgEntry, TempReservEntry);
 
-                    if TempTrackingSpecification."Serial No." <> '' then begin
+                    if (TempTrackingSpecification."Lot No." = '') and (TempTrackingSpecification."Serial No." <> '') then begin
                         ItemLedgEntry.SetTrackingFilterFromSpec(TempTrackingSpecification);
                         TempReservEntry.SetTrackingFilterFromSpec(TempTrackingSpecification);
                         TransferReservEntryToTempRec(TempReservEntry, TempTrackingSpecification);
@@ -456,6 +458,9 @@ codeunit 6501 "Item Tracking Data Collection"
     var
         IsHandled: Boolean;
     begin
+        ItemLedgEntry.SetLoadFields(
+          "Entry No.", "Item No.", "Variant Code", Positive, "Location Code", "Serial No.", "Lot No.", "Package No.",
+          "Remaining Quantity", "Warranty Date", "Expiration Date");
         if ItemLedgEntry.FindSet() then
             repeat
                 if ItemLedgEntry.TrackingExists() and

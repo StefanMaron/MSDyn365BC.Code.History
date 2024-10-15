@@ -128,6 +128,7 @@ table 7303 "Bin Type"
                     BinType.SetRange(Ship, Ship);
                     BinType.SetRange("Put Away", "Put Away");
                     BinType.SetRange(Pick, Pick);
+                    OnCheckCombinationOnBeforeFindFirst(Rec, BinType);
                     if BinType.FindFirst() then
                         Error(Text002, TableCaption(), BinType.Code);
                 end;
@@ -187,6 +188,11 @@ table 7303 "Bin Type"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCombination(var BinType: Record "Bin Type"; CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckCombinationOnBeforeFindFirst(var RecBinType: Record "Bin Type"; var BinType: Record "Bin Type")
     begin
     end;
 }

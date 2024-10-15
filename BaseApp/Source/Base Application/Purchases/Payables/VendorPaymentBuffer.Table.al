@@ -72,6 +72,11 @@ table 475 "Vendor Payment Buffer"
             Caption = 'Vendor Ledg. Entry Doc. No.';
             DataClassification = SystemMetadata;
         }
+        field(11; "Vendor Posting Group"; Code[20])
+        {
+            Caption = 'Vendor Posting Group';
+            DataClassification = SystemMetadata;
+        }
         field(170; "Creditor No."; Code[20])
         {
             Caption = 'Creditor No.';
@@ -142,6 +147,7 @@ table 475 "Vendor Payment Buffer"
         "Payment Reference" := VendorLedgerEntry."Payment Reference";
         "Exported to Payment File" := VendorLedgerEntry."Exported to Payment File";
         "Applies-to Ext. Doc. No." := VendorLedgerEntry."External Document No.";
+        "Vendor Posting Group" := VendorLedgerEntry."Vendor Posting Group";
         "Remit-to Code" := VendorLedgerEntry."Remit-to Code";
 
         OnCopyFieldsFromVendorLedgerEntry(VendorLedgerEntry, Rec);
@@ -153,6 +159,7 @@ table 475 "Vendor Payment Buffer"
         GenJournalLine."Payment Reference" := "Payment Reference";
         GenJournalLine."Exported to Payment File" := "Exported to Payment File";
         GenJournalLine."Applies-to Ext. Doc. No." := "Applies-to Ext. Doc. No.";
+        GenJournalLine."Posting Group" := "Vendor Posting Group";
         GenJournalLine."Remit-to Code" := "Remit-to Code";
 
         OnCopyFieldsToGenJournalLine(Rec, GenJournalLine);

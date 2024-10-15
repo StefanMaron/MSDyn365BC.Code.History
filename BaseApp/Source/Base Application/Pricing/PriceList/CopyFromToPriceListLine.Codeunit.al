@@ -11,6 +11,8 @@ using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 #endif
 using Microsoft.Pricing.Source;
+using System.Telemetry;
+using Microsoft.Pricing.Calculation;
 #if not CLEAN21
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Pricing;
@@ -1000,7 +1002,11 @@ codeunit 7009 CopyFromToPriceListLine
     local procedure InsertHeader(PriceListLine: Record "Price List Line"; var PriceListHeader: Record "Price List Header")
     var
         PriceSource: Record "Price Source";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
+        FeatureTelemetry.LogUptake('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Used");
+
         PriceListLine.CopyTo(PriceSource);
         PriceListHeader.CopyFrom(PriceSource);
         GenerateDescription(PriceListHeader);
@@ -1008,6 +1014,8 @@ codeunit 7009 CopyFromToPriceListLine
         PriceListHeader.Status := PriceListHeader.Status::Active;
         OnBeforeInsertHeader(PriceListLine, PriceListHeader);
         PriceListHeader.Insert(true);
+
+        FeatureTelemetry.LogUsage('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), 'Price List automatically activated');
     end;
 
     /// <summary>

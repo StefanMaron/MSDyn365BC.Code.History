@@ -1410,7 +1410,11 @@ codeunit 1535 "Approvals Mgmt."
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        ApprovalEntry.Init();
+        ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Created, ApprovalEntry.Status::Open);
+        ApprovalEntry.SetFilter("Due Date", '<%1', Today);
+        if not ApprovalEntry.FindSet() then
+            ApprovalEntry.Init();
+
         exit(WorkflowManagement.WorkflowExists(ApprovalEntry, ApprovalEntry,
             WorkflowEventHandling.RunWorkflowOnSendOverdueNotificationsCode()));
     end;
@@ -1904,6 +1908,21 @@ codeunit 1535 "Approvals Mgmt."
         exit(not ApprovalEntry.IsEmpty);
     end;
 
+    procedure HasOpenOrPendingApprovalEntriesForCurrentUser(RecordID: RecordID): Boolean
+    var
+        ApprovalEntry: Record "Approval Entry";
+    begin
+        ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
+        ApprovalEntry.SetRange("Record ID to Approve", RecordID);
+        ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Open, ApprovalEntry.Status::Created);
+        ApprovalEntry.SetRange("Approver ID", UserId);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
+        ApprovalEntry.SetRange("Related to Change", false);
+        exit(not ApprovalEntry.IsEmpty);
+    end;
+
     procedure HasApprovedApprovalEntries(RecordID: RecordID): Boolean
     var
         ApprovalEntry: Record "Approval Entry";
@@ -2334,7 +2353,7 @@ codeunit 1535 "Approvals Mgmt."
         RecRef: RecordRef;
     begin
         RecRef.GetTable(Variant);
-        if HasOpenApprovalEntriesForCurrentUser(RecRef.RecordId) and CanCancelApprovalForRecord(RecRef.RecordId) then
+        if HasOpenOrPendingApprovalEntriesForCurrentUser(RecRef.RecordId) and CanCancelApprovalForRecord(RecRef.RecordId) then
             Error(PreventDeleteRecordWithOpenApprovalEntryForCurrUserMsg);
 
         if (HasOpenApprovalEntries(RecRef.RecordId) and CanCancelApprovalForRecord(RecRef.RecordId))
@@ -2362,7 +2381,7 @@ codeunit 1535 "Approvals Mgmt."
         case RecRef.Number of
             Database::"Gen. Journal Batch":
                 begin
-                    if HasOpenApprovalEntriesForCurrentUser(RecRef.RecordId) and CanCancelApprovalForRecord(RecRef.RecordId) then
+                    if HasOpenOrPendingApprovalEntriesForCurrentUser(RecRef.RecordId) and CanCancelApprovalForRecord(RecRef.RecordId) then
                         Error(PreventInsertRecordWithOpenApprovalEntryForCurrUserMsg);
 
                     if (HasOpenApprovalEntries(RecRef.RecordId) and CanCancelApprovalForRecord(RecRef.RecordId))
@@ -2387,7 +2406,7 @@ codeunit 1535 "Approvals Mgmt."
         ShowCommentsToolTipLbl: Label 'Show approval comments';
     begin
         RecRef.GetTable(Variant);
-        if HasOpenApprovalEntriesForCurrentUser(RecRef.RecordId) or WorkflowWebhookMgt.HasPendingWorkflowWebhookEntryByRecordId(RecRef.RecordId) then begin
+        if HasOpenOrPendingApprovalEntriesForCurrentUser(RecRef.RecordId) or WorkflowWebhookMgt.HasPendingWorkflowWebhookEntryByRecordId(RecRef.RecordId) then begin
             ErrInfo.ErrorType(ErrorType::Client);
             ErrInfo.Verbosity(Verbosity::Error);
             ErrInfo.Message(PreventModifyRecordWithOpenApprovalEntryMsg);

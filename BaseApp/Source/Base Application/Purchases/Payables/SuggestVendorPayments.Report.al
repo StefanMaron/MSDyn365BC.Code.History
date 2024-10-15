@@ -677,7 +677,6 @@ report 393 "Suggest Vendor Payments"
             Vend2.Get(VendLedgEntry."Vendor No.");
             Vend2.CheckBlockedVendOnJnls(Vend2, "Document Type", false);
             Description := Vend2.Name;
-            "Posting Group" := VendLedgEntry."Vendor Posting Group";
             "Salespers./Purch. Code" := Vend2."Purchaser Code";
             "Payment Terms Code" := Vend2."Payment Terms Code";
             Validate("Bill-to/Pay-to No.", "Account No.");

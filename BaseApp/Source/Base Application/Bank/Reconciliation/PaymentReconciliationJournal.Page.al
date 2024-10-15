@@ -8,6 +8,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.FinanceCharge;
 using System.Environment.Configuration;
+using System.Integration;
 using System.Integration.Excel;
 using System.Telemetry;
 using System.Utilities;
@@ -926,8 +927,13 @@ page 1290 "Payment Reconciliation Journal"
                     trigger OnAction()
                     var
                         EditinExcel: Codeunit "Edit in Excel";
+                        EditinExcelFilters: Codeunit "Edit in Excel Filters";
+                        ODataUtility: Codeunit "ODataUtility";
                     begin
-                        EditinExcel.EditPageInExcel(CurrPage.Caption(), Page::"Payment Reconciliation Journal");
+                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Statement Type")), Enum::"Edit in Excel Filter Type"::Equal, Format(Rec."Statement Type"), Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Bank Account No.")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Bank Account No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcelFilters.AddField(ODataUtility.ExternalizeName(Rec.FieldName(Rec."Statement No.")), Enum::"Edit in Excel Filter Type"::Equal, Rec."Statement No.", Enum::"Edit in Excel Edm Type"::"Edm.String");
+                        EditinExcel.EditPageInExcel(Text.CopyStr(CurrPage.Caption, 1, 240), Page::"Payment Reconciliation Journal", EditInExcelFilters);
                     end;
                 }
             }

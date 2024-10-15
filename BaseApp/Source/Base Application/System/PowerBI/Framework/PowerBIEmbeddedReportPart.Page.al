@@ -355,7 +355,7 @@ page 6325 "Power BI Embedded Report Part"
                     if AddInReady then
                         SetReport();
 
-                    FeatureTelemetry.LogUsage('0000L05', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), 'Power BI report changed');
+                    FeatureTelemetry.LogUsage('0000L05', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), 'Power BI report changed', GetTelemetryDimensions());
                 end;
             }
             action("Next Report")
@@ -380,7 +380,7 @@ page 6325 "Power BI Embedded Report Part"
                     if AddInReady then
                         SetReport();
 
-                    FeatureTelemetry.LogUsage('0000L08', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), 'Power BI report changed');
+                    FeatureTelemetry.LogUsage('0000L08', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), 'Power BI report changed', GetTelemetryDimensions());
                 end;
             }
 #if not CLEAN23
@@ -428,7 +428,7 @@ page 6325 "Power BI Embedded Report Part"
                     PowerBIElementCard.Run();
 
                     ReloadPageState(false);
-                    FeatureTelemetry.LogUsage('0000L09', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), 'Power BI element expanded');
+                    FeatureTelemetry.LogUsage('0000L09', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), 'Power BI element expanded', GetTelemetryDimensions());
                 end;
             }
             action(Refresh)
@@ -459,10 +459,53 @@ page 6325 "Power BI Embedded Report Part"
                     ReloadPageState(false);
                 end;
             }
+            action("Reset My Reports")
+            {
+                ApplicationArea = All;
+                Caption = 'Reset My Reports';
+                Image = Reuse;
+                ToolTip = 'Resets all Power BI setup in Business Central, for the current user. Reports in your Power BI workspaces are not affected and need to be removed manually.';
+
+                trigger OnAction()
+                var
+                    PowerBIReportUploads: Record "Power BI Report Uploads";
+                    PowerBIContextSettings: Record "Power BI Context Settings";
+                    LocalPowerBIDisplayedElement: Record "Power BI Displayed Element";
+#if not CLEAN23
+                    PowerBIUserStatus: Record "Power BI User Status";
+                    PowerBIUserConfiguration: Record "Power BI User Configuration";
+                    PowerBIReportConfiguration: Record "Power BI Report Configuration";
+#endif
+                begin
+                    if Confirm(ResetReportsCurrentUserQst, false) then begin
+                        Session.LogMessage('0000LSP', ReportsResetUserTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
+
+#if not CLEAN23
+                        PowerBIUserStatus.SetRange("User Security ID", UserSecurityId());
+                        PowerBIUserStatus.DeleteAll();
+                        PowerBIReportConfiguration.SetRange("User Security ID", UserSecurityId());
+                        PowerBIReportConfiguration.DeleteAll();
+                        PowerBIUserConfiguration.SetRange("User Security ID", UserSecurityId());
+                        PowerBIUserConfiguration.DeleteAll();
+#endif
+                        PowerBIContextSettings.SetRange(UserSID, UserSecurityId());
+                        PowerBIContextSettings.DeleteAll();
+                        LocalPowerBIDisplayedElement.SetRange(UserSID, UserSecurityId());
+                        LocalPowerBIDisplayedElement.DeleteAll();
+                        PowerBIReportUploads.SetRange("User ID", UserSecurityId());
+                        PowerBIReportUploads.DeleteAll();
+
+                        Commit();
+                        ReloadPageState(true);
+
+                        FeatureTelemetry.LogUptake('0000LSO', PowerBIServiceMgt.GetPowerBiFeatureTelemetryName(), Enum::"Feature Uptake Status"::Undiscovered);
+                    end;
+                end;
+            }
             action("Reset All Reports")
             {
                 ApplicationArea = All;
-                Caption = 'Reset All Reports';
+                Caption = 'Reset Reports for All Users';
                 Image = Reuse;
                 ToolTip = 'Resets all Power BI setup in Business Central, for all users. Reports in your Power BI workspaces are not affected and need to be removed manually.';
                 Visible = IsPBIAdmin;
@@ -593,7 +636,8 @@ page 6325 "Power BI Embedded Report Part"
         PowerBiFilterHelper: Codeunit "Power BI Filter Helper";
         ClientTypeManagement: Codeunit "Client Type Management";
         FeatureTelemetry: Codeunit "Feature Telemetry";
-        ResetReportsQst: Label 'This action will clear some or all of of the Power BI report setup for all users in the company you''re currently working with. Note: This action doesn''t delete reports in Power BI workspaces.';
+        ResetReportsQst: Label 'This action will clear some or all of the Power BI report setup for all users in the company you''re currently working with. Note: This action doesn''t delete reports in Power BI workspaces.';
+        ResetReportsCurrentUserQst: Label 'This action will clear all of your Power BI report setup in the company you''re currently working with. Note: This action doesn''t delete reports in Power BI workspaces.\\Do you want to continue?';
         ResetReportsOptionsTxt: Label 'Clear Power BI report selections for all pages and users,Reset the entire Power BI report setup', Comment = 'A comma-separated list of options';
         PowerBiOptInImageNameLbl: Label 'PowerBi-OptIn-480px.png', Locked = true;
         GettingStartedTxt: Label 'Get started with Power BI';
@@ -621,7 +665,8 @@ page 6325 "Power BI Embedded Report Part"
         EmbedCorrelationTelemetryTxt: Label 'Embed element started with type: %1, and correlation: %2', Locked = true;
         EmbedErrorOccurredTelemetryTxt: Label 'Embed error occurred with category: %1', Locked = true;
         NoOptInImageTxt: Label 'There is no Power BI Opt-in image in the Database with ID: %1', Locked = true;
-        ReportsResetTelemetryMsg: Label 'User has reset Power BI setup, option chosen: %1', Locked = true;
+        ReportsResetTelemetryMsg: Label 'User has reset Power BI setup for everyone, option chosen: %1', Locked = true;
+        ReportsResetUserTelemetryMsg: Label 'User has reset their own Power BI setup.', Locked = true;
 
 
     local procedure ReloadPageState(ClearError: Boolean)
@@ -821,6 +866,15 @@ page 6325 "Power BI Embedded Report Part"
             exit(IsPartVisible and (AvailableReportLevelFilters.Count() > 0));
 
         exit(true);
+    end;
+
+    local procedure GetTelemetryDimensions(): Dictionary of [Text, Text]
+    begin
+#if not CLEAN23
+        exit(PowerBIDisplayedElement.GetTelemetryDimensions());
+#else
+        exit(Rec.GetTelemetryDimensions());
+#endif
     end;
 
     local procedure PushFiltersToAddin()

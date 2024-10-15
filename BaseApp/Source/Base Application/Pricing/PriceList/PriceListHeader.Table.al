@@ -19,6 +19,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Setup;
 using System.Utilities;
+using System.Telemetry;
 
 table 7000 "Price List Header"
 {
@@ -249,10 +250,19 @@ table 7000 "Price List Header"
             DataClassification = CustomerContent;
 
             trigger OnValidate()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
-                if Status <> xRec.Status then
+                if Status <> xRec.Status then begin
+                    if Status = Status::Active then
+                        FeatureTelemetry.LogUptake('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Used");
+
                     if not UpdateStatus() then
                         Status := xRec.Status;
+
+                    if Status = Status::Active then
+                        FeatureTelemetry.LogUsage('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), 'Price List activated');
+                end;
             end;
         }
         field(19; "Filter Source No."; Code[20])
@@ -681,7 +691,7 @@ table 7000 "Price List Header"
         IsHandled := false;
         OnUpdateStatusOnBeforeConfirmStatus(Rec, Updated, Confirmed, IsHandled);
         if not IsHandled then
-            Confirmed := ConfirmManagement.GetResponse(StrSubstNo(StatusUpdateQst, Status), true);
+            Confirmed := ConfirmManagement.GetResponseOrDefault(StrSubstNo(StatusUpdateQst, Status), true);
 
         if Confirmed then
             PriceListLine.ModifyAll(Status, Status)

@@ -933,7 +933,7 @@ codeunit 7302 "WMS Management"
             until WarehouseActivityLine.Next() = 0;
     end;
 
-    local procedure GetWrongPickPutAwayQtyErrorText(WarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityLine3: Record "Warehouse Activity Line"; QtyToPick: Decimal; QtyToPutAway: Decimal) ErrorText: Text[250]
+    local procedure GetWrongPickPutAwayQtyErrorText(WarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseActivityLine3: Record "Warehouse Activity Line"; QtyToPick: Decimal; QtyToPutAway: Decimal) ErrorText: Text[250]
     var
         IsHandled: Boolean;
     begin

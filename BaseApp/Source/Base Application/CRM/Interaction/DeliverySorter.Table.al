@@ -44,6 +44,12 @@ table 5074 "Delivery Sorter"
             DataClassification = SystemMetadata;
             Caption = 'Wizard Action';
         }
+        field(19; "Force Hide Email Dialog"; Boolean)
+        {
+            DataClassification = SystemMetadata;
+            Caption = 'Force Hide Email Dialog';
+            InitValue = false;
+        }
     }
 
     keys

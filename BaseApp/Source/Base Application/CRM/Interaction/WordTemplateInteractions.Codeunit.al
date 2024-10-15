@@ -134,6 +134,7 @@ codeunit 5069 "Word Template Interactions"
                 InteractionMergeData."Contact No." := InteractionLogEntry."Contact No.";
                 InteractionMergeData."Salesperson Code" := InteractionLogEntry."Salesperson Code";
                 InteractionMergeData."Log Entry Number" := InteractionLogEntry."Entry No.";
+                OnExecuteMergeOnBeforeInteractionMergeDataInsert(InteractionMergeData, InteractionLogEntry);
                 InteractionMergeData.Insert();
 
                 MailToValue := GetMailToAddress(InteractionLogEntry, TempDeliverySorter);
@@ -207,10 +208,15 @@ codeunit 5069 "Word Template Interactions"
                     InteractionMergeData.DeleteAll();
                 end;
 
-                WordTemplates.Merge(InteractionMergeData, false, SaveFormat); // Only merge, do not edit as the document has been edited.
-                WordTemplates.GetDocument(DocumentInStream);
-                SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractionLogEntry);
-                InteractionMergeData.DeleteAll();
+                if InteractionMergeData.FindSet() then
+                    repeat
+                        InteractionLogEntry.Get(InteractionMergeData."Log Entry Number");
+                        TempDeliverySorter.Get(InteractionLogEntry."Entry No.");
+                        WordTemplates.Merge(InteractionMergeData, false, SaveFormat); // Only merge, do not edit as the document has been edited.
+                        WordTemplates.GetDocument(DocumentInStream);
+                        SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractionLogEntry);
+                        InteractionMergeData.Delete();
+                    until InteractionMergeData.Next() = 0;
             end;
         end else begin
             Attachment.Get(TempDeliverySorter."Attachment No.");
@@ -309,7 +315,7 @@ codeunit 5069 "Word Template Interactions"
         if IsHandled then
             exit;
 
-        HideDialog := not (TempDeliverySorter."Wizard Action" = TempDeliverySorter."Wizard Action"::Open);
+        HideDialog := TempDeliverySorter."Force Hide Email Dialog" or (not (TempDeliverySorter."Wizard Action" = TempDeliverySorter."Wizard Action"::Open));
         Attachment."Read Only" := true;
 
         case TempDeliverySorter."Correspondence Type" of
@@ -765,6 +771,11 @@ codeunit 5069 "Word Template Interactions"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDataSourceOnBeforeAddDataSources(var DataSource: Dictionary of [Text, Text]; var InteractionLogEntry: Record "Interaction Log Entry"; var Contact: Record Contact; var SalespersonPurchaser: Record "Salesperson/Purchaser"; var CountryRegion: Record "Country/Region"; LineNo: Text; ContactAltAddressCode: Code[10]; LanguageCode: Code[10]; ActiveDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExecuteMergeOnBeforeInteractionMergeDataInsert(var InteractionMergeData: Record "Interaction Merge Data"; var InteractionLogEntry: Record "Interaction Log Entry")
     begin
     end;
 }
