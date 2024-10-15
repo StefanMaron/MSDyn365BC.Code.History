@@ -51,6 +51,9 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         NothingToReleaseErr: Label 'There is nothing to release for the incoming document';
         NoDocCreatedForChoiceErr: Label 'The given key was not present in the dictionary.';
         UnknownChoiceErr: Label 'Unknown choice %1.', Comment = '%1=Choice (number)';
+        PEPPOLINVOICELbl: Label 'PEPPOLINVOICE';
+        PEPPOLLbl: Label 'PEPPOL';
+        StatusErr: Label '%1 must be %2 in %3';
 
     [Test]
     [Scope('OnPrem')]
@@ -1472,6 +1475,72 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         end;
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure StatusRemainsCreatedIfHasLinkedDocWhenReopenIncomingDoc()
+    var
+        DataExchDef: Record "Data Exch. Def";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        IncomingDocument: Record "Incoming Document";
+        DataExchangeType: Record "Data Exchange Type";
+        IncomingDocumentCard: TestPage "Incoming Document";
+        XmlPath: Text;
+    begin
+        // [SCENARIO 487620] When Stan runs Reopen action on an Incoming Document hvaing Status as Created, then Status remains as Created if a document is linked to it.
+        Initialize();
+
+        // [GIVEN] Create a Sales Invoice.
+        SalesHeader.Get(
+            SalesHeader."Document Type"::Invoice,
+            CreateSalesDocument(
+                SalesHeader."Document Type"::Invoice,
+                false));
+
+        // [GIVEN] Post Sales Invoice.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [GIVEN] Generate and save XmlPath of Sales Invoice.
+        XmlPath := ExportPEPPOLInvoice(SalesInvoiceHeader);
+
+        // [GIVEN] Setup Company Information for Sales Invoice Import.
+        SetupCompanyForInvoiceImport(SalesInvoiceHeader);
+
+        // [GIVEN] Find Data Exchange Def.
+        DataExchDef.Get(PEPPOLINVOICELbl);
+
+        // [GIVEN] Create Data Exchange Type.
+        CreateDataExchangeType(DataExchangeType, DataExchDef);
+
+        // [GIVEN] Create Incoming Document and Validate Data Exchange Type.
+        LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
+        IncomingDocument."Data Exchange Type" := DataExchangeType.Code;
+        IncomingDocument.Modify(true);
+
+        // [GIVEN] Import Incoming Document.
+        ImportAttachToIncomingDoc(IncomingDocument, XmlPath);
+
+        // [GIVEN] Open Incoming Document Card page and run Create Document action.
+        LibraryVariableStorage.Enqueue(DocCreatedMsg);
+        IncomingDocumentCard.OpenView();
+        IncomingDocumentCard.GotoRecord(IncomingDocument);
+        IncomingDocumentCard.CreateDocument.Invoke();
+
+        // [WHEN] Run Reopen action.
+        IncomingDocumentCard.Reopen.Invoke();
+
+        // [VERIFY] Status of Incoming Document remains as Created.
+        Assert.AreEqual(
+            Format(IncomingDocument.Status::Created),
+            IncomingDocumentCard.StatusField.Value,
+            StrSubstNo(
+                StatusErr,
+                IncomingDocumentCard.StatusField.Caption(),
+                Format(IncomingDocument.Status::Created),
+                IncomingDocument.TableCaption()));
+    end;
+
     local procedure CreateDataExchDefSalesInvoiceAndLinesWithNamespaces(var DataExchDef: Record "Data Exch. Def")
     var
         SalesHeaderDataExchLineDef: Record "Data Exch. Line Def";
@@ -2794,6 +2863,19 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         IncomingDocumentsSetup.Validate("General Journal Batch Name", GenJournalBatch.Name);
         IncomingDocumentsSetup.Validate("Require Approval To Create", false);
         IncomingDocumentsSetup.Insert();
+    end;
+
+    local procedure CreateDataExchangeType(var DataExchangeType: Record "Data Exchange Type"; DataExchDef: Record "Data Exch. Def")
+    begin
+        DataExchDef.SetLoadFields(Code);
+
+        DataExchangeType.SetLoadFields(Code, "Data Exch. Def. Code");
+        DataExchangeType.SetRange("Data Exch. Def. Code", DataExchDef.Code);
+        if not DataExchangeType.FindFirst() then begin
+            DataExchangeType.Code := PEPPOLLbl;
+            DataExchangeType."Data Exch. Def. Code" := DataExchDef.Code;
+            DataExchangeType.Insert();
+        end;
     end;
 
     [MessageHandler]
