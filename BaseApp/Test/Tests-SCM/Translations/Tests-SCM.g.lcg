@@ -5621,6 +5621,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Invt Item Tracking III - NamedType WrongNoOfComponentEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 759729229 - NamedType 1101712672" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Qty. to Handle or Qty. to Invoice, %2 - Item No., %3 - actual value, %4 - expected value, %5 - Serial No., %6 - Lot No.]D;]A;(LookupHint=Codeunit SCM Invt Item Tracking III - NamedType WrongQtyForItemErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 759729229 - NamedType 3721496425" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong Serial No. in Pick Line.]]></Val>

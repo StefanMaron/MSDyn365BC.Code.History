@@ -508,22 +508,22 @@ table 37 "Sales Line"
                                     "No.":
                                         Description := xRec.Description;
                                     else begin
-                                            CurrFieldNo := FieldNo("No.");
-                                            Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
-                                        end;
+                                        CurrFieldNo := FieldNo("No.");
+                                        Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                                    end;
                                 end;
                         end;
                     else begin
-                            IsHandled := false;
-                            OnBeforeFindNoByDescription(Rec, xRec, CurrFieldNo, IsHandled);
-                            if not IsHandled then begin
-                                ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
-                                if ReturnValue <> '' then begin
-                                    CurrFieldNo := FieldNo("No.");
-                                    Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
-                                end;
+                        IsHandled := false;
+                        OnBeforeFindNoByDescription(Rec, xRec, CurrFieldNo, IsHandled);
+                        if not IsHandled then begin
+                            ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
+                            if ReturnValue <> '' then begin
+                                CurrFieldNo := FieldNo("No.");
+                                Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
                             end;
                         end;
+                    end;
                 end;
 
                 IsHandled := false;
@@ -6260,9 +6260,9 @@ table 37 "Sales Line"
                                                     VATAmountLine.Quantity += "Qty. to Invoice (Base)";
                                                 end;
                                             else begin
-                                                    QtyToHandle := "Qty. to Invoice";
-                                                    VATAmountLine.Quantity += "Qty. to Invoice (Base)";
-                                                end;
+                                                QtyToHandle := "Qty. to Invoice";
+                                                VATAmountLine.Quantity += "Qty. to Invoice (Base)";
+                                            end;
                                         end;
 
                                     OnCalcVATAmountLinesOnBeforeAssignAmtToHandle(SalesHeader, SalesLine, VATAmountLine, IncludePrepayments, QtyType, QtyToHandle, AmtToHandle);
@@ -7977,10 +7977,11 @@ table 37 "Sales Line"
     end;
 #endif
 
-    local procedure DivideAmount(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
+    local procedure DivideAmount(SalesHeader2: Record "Sales Header"; var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; SalesLineQty: Decimal; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary)
     begin
         // NAVCZ
-        with SalesLine do
+        with SalesLine do begin
+            SetSalesHeader(SalesHeader2);
             if (SalesLineQty = 0) or ("Unit Price" = 0) then begin
                 "Line Amount" := 0;
                 "Line Discount Amount" := 0;
@@ -8016,7 +8017,7 @@ table 37 "Sales Line"
                           TempVATAmountLineRemainder."Invoice Discount Amount" - "Inv. Discount Amount";
                     end;
 
-                if SalesHeader."Prices Including VAT" then begin
+                if SalesHeader2."Prices Including VAT" then begin
                     if (TempVATAmountLine."Line Amount" - TempVATAmountLine."Invoice Discount Amount" = 0) or
                        ("Line Amount" = 0)
                     then begin
@@ -8038,7 +8039,7 @@ table 37 "Sales Line"
                       Round(TempVATAmountLineRemainder."VAT Amount", Currency."Amount Rounding Precision");
                     "VAT Base Amount" :=
                       Round(
-                        Amount * (1 - SalesHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+                        Amount * (1 - SalesHeader2."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
                     TempVATAmountLineRemainder."Amount Including VAT" :=
                       TempVATAmountLineRemainder."Amount Including VAT" - "Amount Including VAT";
                     TempVATAmountLineRemainder."VAT Amount" :=
@@ -8055,7 +8056,7 @@ table 37 "Sales Line"
                         Amount := CalcLineAmount;
                         "VAT Base Amount" :=
                           Round(
-                            Amount * (1 - SalesHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+                            Amount * (1 - SalesHeader2."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
                         if TempVATAmountLine."VAT Base" = 0 then
                             TempVATAmountLineRemainder."VAT Amount" := 0
                         else
@@ -8072,9 +8073,10 @@ table 37 "Sales Line"
 
                 TempVATAmountLineRemainder.Modify();
             end;
+        end;
     end;
 
-    local procedure RoundAmount(SalesLineQty: Decimal; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    local procedure RoundAmount(SalesLineQty: Decimal; SalesHeader2: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
         NoVAT: Boolean;
     begin
@@ -8082,15 +8084,15 @@ table 37 "Sales Line"
         with SalesLine do begin
             IncrAmount(TotalSalesLine, SalesLine);
 
-            if SalesHeader."Currency Code" <> '' then begin
-                if SalesHeader."Posting Date" = 0D then
-                    SalesHeader."Posting Date" := WorkDate;
+            if SalesHeader2."Currency Code" <> '' then begin
+                if SalesHeader2."Posting Date" = 0D then
+                    SalesHeader2."Posting Date" := WorkDate;
                 NoVAT := Amount = "Amount Including VAT";
                 "Amount Including VAT" :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      SalesHeader."Posting Date", SalesHeader."Currency Code",
-                      TotalSalesLine."Amount Including VAT", SalesHeader."Currency Factor")) -
+                      SalesHeader2."Posting Date", SalesHeader2."Currency Code",
+                      TotalSalesLine."Amount Including VAT", SalesHeader2."Currency Factor")) -
                   TotalSalesLineLCY."Amount Including VAT";
                 if NoVAT then
                     Amount := "Amount Including VAT"
@@ -8098,32 +8100,32 @@ table 37 "Sales Line"
                     Amount :=
                       Round(
                         CurrExchRate.ExchangeAmtFCYToLCY(
-                          SalesHeader."Posting Date", SalesHeader."Currency Code",
-                          TotalSalesLine.Amount, SalesHeader."Currency Factor")) -
+                          SalesHeader2."Posting Date", SalesHeader2."Currency Code",
+                          TotalSalesLine.Amount, SalesHeader2."Currency Factor")) -
                       TotalSalesLineLCY.Amount;
                 "Line Amount" :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      SalesHeader."Posting Date", SalesHeader."Currency Code",
-                      TotalSalesLine."Line Amount", SalesHeader."Currency Factor")) -
+                      SalesHeader2."Posting Date", SalesHeader2."Currency Code",
+                      TotalSalesLine."Line Amount", SalesHeader2."Currency Factor")) -
                   TotalSalesLineLCY."Line Amount";
                 "Line Discount Amount" :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      SalesHeader."Posting Date", SalesHeader."Currency Code",
-                      TotalSalesLine."Line Discount Amount", SalesHeader."Currency Factor")) -
+                      SalesHeader2."Posting Date", SalesHeader2."Currency Code",
+                      TotalSalesLine."Line Discount Amount", SalesHeader2."Currency Factor")) -
                   TotalSalesLineLCY."Line Discount Amount";
                 "Inv. Discount Amount" :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      SalesHeader."Posting Date", SalesHeader."Currency Code",
-                      TotalSalesLine."Inv. Discount Amount", SalesHeader."Currency Factor")) -
+                      SalesHeader2."Posting Date", SalesHeader2."Currency Code",
+                      TotalSalesLine."Inv. Discount Amount", SalesHeader2."Currency Factor")) -
                   TotalSalesLineLCY."Inv. Discount Amount";
                 "VAT Difference" :=
                   Round(
                     CurrExchRate.ExchangeAmtFCYToLCY(
-                      SalesHeader."Posting Date", SalesHeader."Currency Code",
-                      TotalSalesLine."VAT Difference", SalesHeader."Currency Factor")) -
+                      SalesHeader2."Posting Date", SalesHeader2."Currency Code",
+                      TotalSalesLine."VAT Difference", SalesHeader2."Currency Factor")) -
                   TotalSalesLineLCY."VAT Difference";
             end;
 
