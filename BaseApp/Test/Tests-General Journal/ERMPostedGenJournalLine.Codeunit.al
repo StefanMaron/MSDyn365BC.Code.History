@@ -19,7 +19,7 @@ codeunit 134935 "ERM Posted Gen. Journal Line"
         CopyDisabledErr: Label 'Copy to Posted Gen. Journal Lines should not be enabled.';
         PostedGenJournalLineErr: Label 'Posted Gen. Journal Line contains wrong data.';
         GenJournalLineErr: Label 'Gen. Journal Line contains wrong data.';
-        CanBeCopiedErr: Label 'You cannot copy posted gen. journal line with register number %1 because it contains customer or vendor or employee ledger entries that have been posted and applied in the same transaction.';
+        CanBeCopiedErr: Label 'You cannot copy the posted general journal lines with G/L register number %1 because they contain customer, vendor, or employee ledger entries that were posted and applied in the same G/L register.';
         ReverseDateCalcRecurringTypeErr: Label 'Recurring must have a value in Gen. Journal Template';
         ReverseDateCalcRecurringMethodErr: Label 'Recurring Method must not be';
 
@@ -751,6 +751,50 @@ codeunit 134935 "ERM Posted Gen. Journal Line"
         PostedGeneralJournal.First();
         PostedGeneralJournal."Account No.".AssertEquals(PostedGenJournalLine."Account No.");
         Assert.IsFalse(PostedGeneralJournal.Next(), 'Wrong number of filtered entries.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GenJnlBatchCopyToPostedGenJnlLineTrue_UT()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [SCENARIO 400398] "Copy to Posted Jnl. Lines" = true in gen. journal batch when create new batch from template with "Copy to Posted Jnl. Lines" = true
+        Initialize();
+
+        // [GIVEN] Gen. journal template "Copy to Posted Jnl. Lines" = true
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate."Copy to Posted Jnl. Lines" := true;
+        GenJournalTemplate.Modify();
+
+        // [WHEN] Create new gen. journal batch (SetupNewBatch procedure called from OnNewRecord of "General Journal Batches" page)
+        GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
+        GenJournalBatch.SetupNewBatch();
+
+        // [THEN] Gen. journal batch "Copy to Posted Jnl. Lines" = true
+        GenJournalBatch.TestField("Copy to Posted Jnl. Lines");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GenJnlBatchCopyToPostedGenJnlLineFalse_UT()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [SCENARIO 400398] "Copy to Posted Jnl. Lines" = false in gen. journal batch when create new batch from template with "Copy to Posted Jnl. Lines" = false
+        Initialize();
+
+        // [GIVEN] Gen. journal template "Copy to Posted Jnl. Lines" = false
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+
+        // [WHEN] Create new gen. journal batch (SetupNewBatch procedure called from OnNewRecord of "General Journal Batches" page)
+        GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
+        GenJournalBatch.SetupNewBatch();
+
+        // [THEN] Gen. journal batch "Copy to Posted Jnl. Lines" = false
+        GenJournalBatch.TestField("Copy to Posted Jnl. Lines", false);
     end;
 
     local procedure Initialize()

@@ -35,7 +35,7 @@ table 368 "Dimension Selection Buffer"
             ELSE
             IF (Code = CONST('Business Unit')) "Business Unit".Code
             ELSE
-            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code));
+            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code),Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -54,7 +54,7 @@ table 368 "Dimension Selection Buffer"
             ELSE
             IF ("Filter Lookup Table No." = CONST(840)) "Cash Flow Forecast"."No."
             ELSE
-            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code));
+            "Dimension Value".Code WHERE("Dimension Code" = FIELD(Code),Blocked = CONST(false));
             ValidateTableRelation = false;
 
             trigger OnValidate()

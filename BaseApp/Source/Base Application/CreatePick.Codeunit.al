@@ -1123,7 +1123,6 @@
 
     procedure CreateWhseDocument(var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]; ShowError: Boolean)
     var
-        WhseActivLine: Record "Warehouse Activity Line";
         OldNo: Code[20];
         OldSourceNo: Code[20];
         OldLocationCode: Code[10];
@@ -1148,10 +1147,7 @@
         if IsHandled then
             exit;
 
-        WhseActivHeader.LockTable();
-        if WhseActivHeader.FindLast then;
-        WhseActivLine.LockTable();
-        if WhseActivLine.FindLast then;
+        LockTables();
 
         if WhseSource = WhseSource::"Movement Worksheet" then
             TempWhseActivLine.SetRange("Activity Type", TempWhseActivLine."Activity Type"::Movement)
@@ -1791,6 +1787,8 @@
         WhseSetupLocation.GetLocationSetup('', WhseSetupLocation);
         Clear(TempWhseActivLine);
         LastWhseItemTrkgLineNo := 0;
+
+        LockTables();
 
         OnAfterSetValues(
           AssignedID, SortPick, MaxNoOfSourceDoc, MaxNoOfLines, PerBin, PerZone, DoNotFillQtytoHandle, BreakbulkFilter, WhseSource);
@@ -3366,6 +3364,15 @@
         CannotBeHandledReason := CannotBeHandledReasons[1];
         CannotBeHandledReasons[1] := '';
         CompressArray(CannotBeHandledReasons);
+    end;
+
+    local procedure LockTables()
+    var
+        WarehouseActivityHeaderToLock: Record "Warehouse Activity Header";
+        WarehouseActivityLineToLock: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityHeaderToLock.Lock();
+        WarehouseActivityLineToLock.Lock();
     end;
 
     [IntegrationEvent(false, false)]

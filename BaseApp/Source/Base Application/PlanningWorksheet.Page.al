@@ -759,7 +759,7 @@ page 99000852 "Planning Worksheet"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         CurrentWkshBatchName: Code[10];
         ItemDescription: Text[100];
-        RoutingDescription: Text[50];
+        RoutingDescription: Text[100];
         OpenedFromBatch: Boolean;
         [InDataSet]
         DescriptionIndent: Integer;
