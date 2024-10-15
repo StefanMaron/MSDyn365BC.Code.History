@@ -338,7 +338,7 @@ page 11000002 "Proposal Detail Line"
     local procedure AfterGetCurrentRecord()
     begin
         xRec := Rec;
-        CurrPage.Caption(NoSourceName);
+        CurrPage.Caption(GetSourceName());
         SetRange("Line No.");
     end;
 }

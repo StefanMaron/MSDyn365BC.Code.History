@@ -102,7 +102,7 @@ report 11000001 "Proposal Overview"
                 column(AccHolderName_ProposalLine; "Account Holder Name")
                 {
                 }
-                column(NoSourceName; NoSourceName)
+                column(GetSourceName; GetSourceName())
                 {
                 }
                 column(CurrCode_ProposalLine; "Currency Code")

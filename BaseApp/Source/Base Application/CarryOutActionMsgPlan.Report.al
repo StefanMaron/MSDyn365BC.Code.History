@@ -404,6 +404,8 @@ report 99001020 "Carry Out Action Msg. - Plan."
                         Copy(ReqLine);
                     end;
             end;
+
+        OnAfterSetDemandOrder(ReqLine, MfgUserTempl, ReqLineFilters);
     end;
 
     procedure InitializeRequest(NewProdOrderChoice: Option; NewPurchOrderChoice: Option; NewTransOrderChoice: Option; NewAsmOrderChoice: Option)
@@ -618,6 +620,11 @@ report 99001020 "Carry Out Action Msg. - Plan."
                 SetRange("Ref. Order Type", "Ref. Order Type"::Purchase);
         end;
         exit(PurchaseExists);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDemandOrder(var RequisitionLine: Record "Requisition Line"; MfgUserTempl: Record "Manufacturing User Template"; var ReqLineFilters: Record "Requisition Line")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

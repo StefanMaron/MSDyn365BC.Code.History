@@ -1432,11 +1432,7 @@ codeunit 5330 "CRM Integration Management"
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        if not CRMConnectionSetup.TryReadSystemUsers then begin
-            DisableConnection;
-            exit(false);
-        end;
-        exit(true);
+        exit(CRMConnectionSetup.TryReadSystemUsers);
     end;
 
     local procedure DisableConnection()

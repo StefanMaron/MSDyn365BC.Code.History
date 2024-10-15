@@ -36,6 +36,7 @@ codeunit 136300 "Job Consumption Basic"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         RollingBackChangesErr: Label 'Rolling back changes...';
         FieldValueIncorrectErr: Label 'Field %1 value is incorrect.';
@@ -51,10 +52,14 @@ codeunit 136300 "Job Consumption Basic"
         SalesPrice: Record "Sales Price";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Job Consumption Basic");
+
         Clear(DocumentType);
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Job Consumption Basic");
 
         // Removing special prices
         PurchasePrice.DeleteAll(true);
@@ -64,11 +69,11 @@ codeunit 136300 "Job Consumption Basic"
         PurchasesPayablesSetup.Validate("Check Doc. Total Amounts", false);
         PurchasesPayablesSetup.Modify(true);
 
-        LibraryJob.ConfigureGeneralPosting;
-        LibraryJob.ConfigureVATPosting;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryJob.ConfigureGeneralPosting();
+        LibraryJob.ConfigureVATPosting();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
@@ -76,7 +81,9 @@ codeunit 136300 "Job Consumption Basic"
         DummyJobsSetup.Modify;
 
         IsInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Job Consumption Basic");
     end;
 
     [Normal]
@@ -841,9 +848,9 @@ codeunit 136300 "Job Consumption Basic"
             end;
             GeneralLedgerSetup.Get;
             Assert.AreNearlyEqual(UnitCost, "Unit Cost (LCY)",
-            GeneralLedgerSetup."Unit-Amount Rounding Precision", StrSubstNo('JobJournalLine."Unit Cost (LCY)", %1', "No."));
+              GeneralLedgerSetup."Unit-Amount Rounding Precision", StrSubstNo('JobJournalLine."Unit Cost (LCY)", %1', "No."));
             Assert.AreNearlyEqual(UnitPrice, "Unit Price (LCY)",
-            GeneralLedgerSetup."Unit-Amount Rounding Precision", StrSubstNo('JobJournalLine."Unit Price (LCY)", %1', "No."))
+              GeneralLedgerSetup."Unit-Amount Rounding Precision", StrSubstNo('JobJournalLine."Unit Price (LCY)", %1', "No."))
         end
     end;
 

@@ -120,7 +120,7 @@ report 11000002 "Payment History Overview"
                     column(AccHolderName_PaymentHistoryLine; "Account Holder Name")
                     {
                     }
-                    column(NoSourceName; NoSourceName)
+                    column(GetSourceName; GetSourceName())
                     {
                     }
                     column(Desc2_PaymentHistoryLine; "Description 2")

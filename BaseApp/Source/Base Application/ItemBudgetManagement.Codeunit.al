@@ -112,6 +112,7 @@ codeunit 7130 "Item Budget Management"
                     Item."No." := DimCodeBuf.Code;
                     if ItemFilter <> '' then
                         Item.SetFilter("No.", ItemFilter);
+                    OnFindRecOnBeforeItemFind(Item);
                     Found := Item.Find(Which);
                     if Found then
                         CopyItemToBuf(Item, DimCodeBuf);
@@ -202,6 +203,7 @@ codeunit 7130 "Item Budget Management"
                     Item."No." := DimCodeBuf.Code;
                     if ItemFilter <> '' then
                         Item.SetFilter("No.", ItemFilter);
+                    OnNextRecOnBeforeItemFind(Item);
                     ResultSteps := Item.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyItemToBuf(Item, DimCodeBuf);
@@ -585,70 +587,59 @@ codeunit 7130 "Item Budget Management"
 
     local procedure CopyItemToBuf(var Item: Record Item; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with DimCodeBuf do begin
-            Init;
-            Code := Item."No.";
-            Name := Item.Description;
-        end;
+        DimCodeBuf.Init();
+        DimCodeBuf.Code := Item."No.";
+        DimCodeBuf.Name := Item.Description;
+
+        OnAfterCopyItemToBuf(Item, DimCodeBuf);
     end;
 
     local procedure CopyCustToBuf(var Cust: Record Customer; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with DimCodeBuf do begin
-            Init;
-            Code := Cust."No.";
-            Name := Cust.Name;
-        end;
+        DimCodeBuf.Init();
+        DimCodeBuf.Code := Cust."No.";
+        DimCodeBuf.Name := Cust.Name;
     end;
 
     local procedure CopyVendToBuf(var Vend: Record Vendor; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with DimCodeBuf do begin
-            Init;
-            Code := Vend."No.";
-            Name := Vend.Name;
-        end;
+        DimCodeBuf.Init();
+        DimCodeBuf.Code := Vend."No.";
+        DimCodeBuf.Name := Vend.Name;
     end;
 
-    local procedure CopyPeriodToBuf(var Period: Record Date; var DimCodeBuf: Record "Dimension Code Buffer"; DateFilter: Text)
+    local procedure CopyPeriodToBuf(var DatePeriod: Record Date; var DimCodeBuf: Record "Dimension Code Buffer"; DateFilter: Text)
     var
-        Period2: Record Date;
+        DatePeriod2: Record Date;
     begin
-        with DimCodeBuf do begin
-            Init;
-            Code := Format(Period."Period Start");
-            "Period Start" := Period."Period Start";
-            "Period End" := Period."Period End";
-            if DateFilter <> '' then begin
-                Period2.SetFilter("Period End", DateFilter);
-                if Period2.GetRangeMax("Period End") < "Period End" then
-                    "Period End" := Period2.GetRangeMax("Period End");
-            end;
-            Name := Period."Period Name";
+        DimCodeBuf.Init();
+        DimCodeBuf.Code := Format(DatePeriod."Period Start");
+        DimCodeBuf."Period Start" := DatePeriod."Period Start";
+        DimCodeBuf."Period End" := DatePeriod."Period End";
+        if DateFilter <> '' then begin
+            DatePeriod2.SetFilter("Period End", DateFilter);
+            if DatePeriod2.GetRangeMax("Period End") < DimCodeBuf."Period End" then
+                DimCodeBuf."Period End" := DatePeriod2.GetRangeMax("Period End");
         end;
+        DimCodeBuf.Name := DatePeriod."Period Name";
     end;
 
     local procedure CopyLocationToBuf(var Location: Record Location; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with DimCodeBuf do begin
-            Init;
-            Code := Location.Code;
-            if Location.Name <> '' then
-                Name := Location.Name
-        end;
+        DimCodeBuf.Init();
+        DimCodeBuf.Code := Location.Code;
+        if Location.Name <> '' then
+            DimCodeBuf.Name := Location.Name
     end;
 
     local procedure CopyDimValToBuf(var DimVal: Record "Dimension Value"; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with DimCodeBuf do begin
-            Init;
-            Code := DimVal.Code;
-            Name := DimVal.Name;
-            Totaling := DimVal.Totaling;
-            Indentation := DimVal.Indentation;
-            "Show in Bold" :=
-              DimVal."Dimension Value Type" <> DimVal."Dimension Value Type"::Standard;
-        end;
+        DimCodeBuf.Init();
+        DimCodeBuf.Code := DimVal.Code;
+        DimCodeBuf.Name := DimVal.Name;
+        DimCodeBuf.Totaling := DimVal.Totaling;
+        DimCodeBuf.Indentation := DimVal.Indentation;
+        DimCodeBuf."Show in Bold" := DimVal."Dimension Value Type" <> DimVal."Dimension Value Type"::Standard;
     end;
 
     procedure CalcAmount(ValueType: Option "Sales Amount","Cost Amount",Quantity; SetColumnFilter: Boolean; var ItemStatisticsBuf: Record "Item Statistics Buffer"; ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text; SourceTypeFilter: Option " ",Customer,Vendor,Item; SourceNoFilter: Text; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text; RowDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4"; RowDimCodeBuf: Record "Dimension Code Buffer"; ColDimOption: Option Item,Customer,Vendor,Period,Location,"Global Dimension 1","Global Dimension 2","Budget Dimension 1","Budget Dimension 2","Budget Dimension 3","Budget Dimension 4"; ColDimCodeBuf: Record "Dimension Code Buffer"): Decimal
@@ -710,6 +701,21 @@ codeunit 7130 "Item Budget Management"
     local procedure OptionIsPeriod(DimOption: Option): Boolean
     begin
         exit(DimOption = GlobalDimOption::Period);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyItemToBuf(var Item: Record Item; var DimCodeBuf: Record "Dimension Code Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRecOnBeforeItemFind(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNextRecOnBeforeItemFind(var Item: Record Item)
+    begin
     end;
 }
 

@@ -1100,6 +1100,67 @@ codeunit 144037 "ERM Telebank"
         VerifyDimensionsInProposalLine(ProposalLine, DATABASE::Employee, Employee."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProposalLineGetSourceNameCustLength()
+    var
+        Customer: Record Customer;
+        ProposalLine: Record "Proposal Line";
+        SourceName: Text;
+    begin
+        // [FEATURE] [UT] [Proposal Line]
+        // [SCENARIO 341996] GetSourceName returns full name of the source on the Proposal Line
+
+        // [GIVEN] Customer "CU01" with Name of maximal field length
+        Customer.Init();
+        Customer."No." := LibraryUtility.GenerateGUID();
+        Customer.Name := LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name));
+        Customer.Insert();
+
+        // [GIVEN] Proposal Line "PL1" with "Account Type" = "Customer", "Account No." = "CU01"
+        ProposalLine."Line No." := LibraryUtility.GetNewRecNo(ProposalLine, ProposalLine.FieldNo("Line No."));
+        ProposalLine."Account Type" := ProposalLine."Account Type"::Customer;
+        ProposalLine."Account No." := Customer."No.";
+        ProposalLine.Insert();
+
+        // [WHEN] Call GetSourceName on "PL1"
+        SourceName := ProposalLine.GetSourceName();
+
+        // [THEN] Full Customer's name retrieved
+        Assert.AreEqual(Customer.Name, SourceName, 'Source name not retrieved');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentHistoryLineGetSourceNameCustLength()
+    var
+        Customer: Record Customer;
+        PaymentHistoryLine: Record "Payment History Line";
+        SourceName: Text;
+    begin
+        // [FEATURE] [UT] [Payment History]
+        // [SCENARIO 341996] GetSourceName returns full name of the source on the Payment History Line
+
+        // [GIVEN] Customer "CU01" with Name of maximal field length
+        Customer.Init();
+        Customer."No." := LibraryUtility.GenerateGUID();
+        Customer.Name := LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name));
+        Customer.Insert();
+
+        // [GIVEN] Payment History Line "PHL1" with "Account Type" = "Customer", "Account No." = "CU01"
+        PaymentHistoryLine."Run No." := LibraryUtility.GenerateGUID();
+        PaymentHistoryLine."Line No." := LibraryUtility.GetNewRecNo(PaymentHistoryLine, PaymentHistoryLine.FieldNo("Line No."));
+        PaymentHistoryLine."Account Type" := PaymentHistoryLine."Account Type"::Customer;
+        PaymentHistoryLine."Account No." := Customer."No.";
+        PaymentHistoryLine.Insert();
+
+        // [WHEN] Call GetSourceName on "PHL1"
+        SourceName := PaymentHistoryLine.GetSourceName();
+
+        // [THEN] Full Customer's name retrieved
+        Assert.AreEqual(Customer.Name, SourceName, 'Source name not retrieved');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Telebank");

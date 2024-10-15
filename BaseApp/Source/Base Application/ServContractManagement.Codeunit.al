@@ -1160,9 +1160,9 @@ codeunit 5940 ServContractManagement
 
     procedure CalcContractLineAmount(AnnualAmount: Decimal; PeriodStarts: Date; PeriodEnds: Date) AmountCalculated: Decimal
     begin
-        AmountCalculated := 0;
-        AmountCalculated :=
-          AnnualAmount / 12 * NoOfMonthsAndMPartsInPeriod(PeriodStarts, PeriodEnds);
+        AmountCalculated := AnnualAmount / 12 * NoOfMonthsAndMPartsInPeriod(PeriodStarts, PeriodEnds);
+
+        OnAfterCalcContractLineAmount(AnnualAmount, PeriodStarts, PeriodEnds, AmountCalculated);
     end;
 
     procedure CreateRemainingPeriodInvoice(var CurrServContract: Record "Service Contract Header") InvoiceNo: Code[20]
@@ -1305,6 +1305,8 @@ codeunit 5940 ServContractManagement
 
     procedure CopyCheckSCDimToTempSCDim(ServContract: Record "Service Contract Header")
     begin
+        OnBeforeCopyCheckSCDimToTempSCDim(ServContract);
+
         CheckDimComb(ServContract, 0);
         CheckDimValuePosting(ServContract, 0);
     end;
@@ -1735,7 +1737,7 @@ codeunit 5940 ServContractManagement
         StdText: Record "Standard Text";
         IsHandled: Boolean;
     begin
-        OnBeforeServLedgEntryToServiceLine(TotalServLine, TotalServLineLCY, ServHeader, ServLedgEntry, IsHandled);
+        OnBeforeServLedgEntryToServiceLine(TotalServLine, TotalServLineLCY, ServHeader, ServLedgEntry, IsHandled, ServiceLedgerEntry);
         if IsHandled then
             exit;
 
@@ -1795,7 +1797,7 @@ codeunit 5940 ServContractManagement
             "Shortcut Dimension 2 Code" := ServiceLedgerEntry."Global Dimension 2 Code";
             "Dimension Set ID" := ServiceLedgerEntry."Dimension Set ID";
 
-            OnServLedgEntryToServiceLineOnBeforeServLineInsert(ServLine, TotalServLine, TotalServLineLCY, ServHeader, ServLedgEntry);
+            OnServLedgEntryToServiceLineOnBeforeServLineInsert(ServLine, TotalServLine, TotalServLineLCY, ServHeader, ServLedgEntry, ServiceLedgerEntry);
             Insert;
             CreateDim(
               DimMgt.TypeToTableID5(Type), "No.",
@@ -2148,6 +2150,11 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcContractLineAmount(AnnualAmount: Decimal; PeriodStarts: Date; PeriodEnds: Date; var AmountCalculated: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateInvoice(var ServiceContractHeader: Record "Service Contract Header"; PostingDate: Date)
     begin
     end;
@@ -2253,12 +2260,17 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServLedgEntryToServiceLine(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceLedgerEntry: Record "Service Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeCopyCheckSCDimToTempSCDim(var ServContract: Record "Service Contract Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnServLedgEntryToServiceLineOnBeforeServLineInsert(var ServiceLine: Record "Service Line"; TotalServiceLine: Record "Service Line"; TotalServiceLineLCY: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceLedgerEntry: Record "Service Ledger Entry")
+    local procedure OnBeforeServLedgEntryToServiceLine(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceLedgerEntry: Record "Service Ledger Entry"; var IsHandled: Boolean; ServiceLedgerEntryParm: Record "Service Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnServLedgEntryToServiceLineOnBeforeServLineInsert(var ServiceLine: Record "Service Line"; TotalServiceLine: Record "Service Line"; TotalServiceLineLCY: Record "Service Line"; ServiceHeader: Record "Service Header"; ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceLedgerEntryParm: Record "Service Ledger Entry")
     begin
     end;
 

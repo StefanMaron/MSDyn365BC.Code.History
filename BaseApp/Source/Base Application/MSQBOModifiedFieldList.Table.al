@@ -3,6 +3,7 @@ table 7823 "MS-QBO Modified Field List"
     Caption = 'MS-QBO Modified Field List';
     ObsoleteReason = 'replacing burntIn Extension tables with V2 Extension';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

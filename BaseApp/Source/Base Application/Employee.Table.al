@@ -155,6 +155,7 @@ table 5200 Employee
             ObsoleteReason = 'Replaced by Image field';
             ObsoleteState = Pending;
             SubType = Bitmap;
+            ObsoleteTag = '15.0';
         }
         field(20; "Birth Date"; Date)
         {
@@ -451,6 +452,7 @@ table 5200 Employee
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(11000000; "Transaction Mode Code"; Code[20])
         {

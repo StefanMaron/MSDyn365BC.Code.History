@@ -17,6 +17,7 @@ table 277 "Bank Account Posting Group"
             ObsoleteReason = 'Moved to G/L Account No.';
             ObsoleteState = Pending;
             TableRelation = "G/L Account";
+            ObsoleteTag = '15.0';
         }
         field(3; "G/L Account No."; Code[20])
         {

@@ -5,6 +5,7 @@ page 11000013 "Objects (Telebanking)"
     SourceTable = "Object";
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced with the AL Objects (Telebanking) page';
+    ObsoleteTag = '15.2';
 
     layout
     {

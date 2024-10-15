@@ -172,6 +172,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Archive Quotes and Orders';
             ObsoleteReason = 'Replaced by new fields Archive Quotes and Archive Orders';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(38; "Post with Job Queue"; Boolean)
         {
@@ -292,6 +293,7 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Pending;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
+            ObsoleteTag = '15.0';
         }
         field(171; "Insert Std. Lines on Quotes"; Boolean)
         {
@@ -299,6 +301,7 @@ table 312 "Purchases & Payables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(172; "Insert Std. Lines on Orders"; Boolean)
         {
@@ -306,6 +309,7 @@ table 312 "Purchases & Payables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(173; "Insert Std. Lines on Invoices"; Boolean)
         {
@@ -313,6 +317,7 @@ table 312 "Purchases & Payables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(174; "Insert Std. Lines on Cr. Memos"; Boolean)
         {
@@ -320,6 +325,7 @@ table 312 "Purchases & Payables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(210; "Copy Line Descr. to G/L Entry"; Boolean)
         {
@@ -378,6 +384,7 @@ table 312 "Purchases & Payables Setup"
             Caption = 'Show Totals on Purch. Inv./CM.';
             ObsoleteReason = 'Duplicate to W1 document totals';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11313; "Insert Std. Vend. Purch. Lines"; Option)
         {
@@ -386,30 +393,35 @@ table 312 "Purchases & Payables Setup"
             ObsoleteState = Pending;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
+            ObsoleteTag = '15.0';
         }
         field(11314; Quotes; Boolean)
         {
             Caption = 'Quotes';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11316; Orders; Boolean)
         {
             Caption = 'Orders';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11317; Invoices; Boolean)
         {
             Caption = 'Invoices';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11319; "Credit Memos"; Boolean)
         {
             Caption = 'Credit Memos';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(11320; "Check Doc. Total Amounts"; Boolean)
         {

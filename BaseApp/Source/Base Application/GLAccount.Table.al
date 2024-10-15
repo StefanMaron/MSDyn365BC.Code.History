@@ -618,6 +618,7 @@ table 15 "G/L Account"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(11400; "Omit Default Descr. in Jnl."; Boolean)
         {
