@@ -7003,6 +7003,7 @@
 
     local procedure CalculateVATAmountInBuffer(PurchHeader: Record "Purchase Header"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
     var
+        CurrencyDocument: Record Currency;
         VATPostingSetup: Record "VAT Posting Setup";
         CurrExchRate: Record "Currency Exchange Rate";
         VATBaseAmount: Decimal;
@@ -7020,6 +7021,8 @@
 
         VATAmountRemainder := 0;
         VATAmountACYRemainder := 0;
+
+        CurrencyDocument.Initialize(PurchHeader."Currency Code");
 
         if TempInvoicePostBuffer.FindSet() then
             repeat
@@ -7043,13 +7046,13 @@
                             TempInvoicePostBufferReverseCharge := TempInvoicePostBuffer;
                             if TempInvoicePostBufferReverseCharge.Find then begin
                                 VATAmountRemainder += VATAmount;
-                                TempInvoicePostBuffer."VAT Amount" := Round(VATAmountRemainder);
+                                TempInvoicePostBuffer."VAT Amount" := Round(VATAmountRemainder, CurrencyDocument."Amount Rounding Precision");
                                 VATAmountRemainder -= TempInvoicePostBuffer."VAT Amount";
 
                                 if PurchHeader."Currency Code" <> '' then
-                                    TempInvoicePostBuffer."VAT Amount" := Round(CurrExchRate.ExchangeAmtFCYToLCY(
-                                            PurchHeader.GetUseDate(), PurchHeader."Currency Code",
-                                            TempInvoicePostBuffer."VAT Amount", PurchHeader."Currency Factor"));
+                                    TempInvoicePostBuffer."VAT Amount" := Round(
+                                        CurrExchRate.ExchangeAmtFCYToLCY(
+                                            PurchHeader.GetUseDate(), PurchHeader."Currency Code", TempInvoicePostBuffer."VAT Amount", PurchHeader."Currency Factor"));
 
                                 VATAmountACYRemainder += VATAmountACY;
                                 TempInvoicePostBuffer."VAT Amount (ACY)" := Round(VATAmountACYRemainder, Currency."Amount Rounding Precision");
@@ -7058,7 +7061,13 @@
                                 TempInvoicePostBuffer."VAT Base Amount" := Round(TempInvoicePostBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100));
                                 TempInvoicePostBuffer."VAT Base Amount (ACY)" := Round(TempInvoicePostBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
                             end else begin
-                                TempInvoicePostBuffer."VAT Amount" := Round(VATAmount);
+                                if PurchHeader."Currency Code" <> '' then
+                                    VATAmount := Round(
+                                        CurrExchRate.ExchangeAmtFCYToLCY(PurchHeader.GetUseDate(), PurchHeader."Currency Code", VATAmount, PurchHeader."Currency Factor"))
+                                else
+                                    VATAmount := Round(VATAmount);
+
+                                TempInvoicePostBuffer."VAT Amount" := VATAmount;
                                 TempInvoicePostBuffer."VAT Amount (ACY)" := Round(VATAmountACY, Currency."Amount Rounding Precision");
 
                                 TempInvoicePostBuffer."VAT Base Amount" := Round(TempInvoicePostBuffer."VAT Base Amount" * (1 - PurchHeader."VAT Base Discount %" / 100));
