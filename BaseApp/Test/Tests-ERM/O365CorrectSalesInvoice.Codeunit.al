@@ -1462,7 +1462,6 @@ codeunit 138015 "O365 Correct Sales Invoice"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGenProdPostingGroup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryApplicationArea.EnableFoundationSetup;
 
         SalesSetup.Get;

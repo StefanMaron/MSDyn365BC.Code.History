@@ -18,6 +18,67 @@ codeunit 134233 "ERM Base Calendar"
         LibraryService: Codeunit "Library - Service";
 
     [Test]
+    procedure T001_CalcBaseCalendarLocationWithBlankCalendar()
+    var
+        BaseCalendar: Record "Base Calendar";
+        CustomizedCalendarChange: Record "Customized Calendar Change";
+        CompanyInformation: Record "Company Information";
+        Location: Record Location;
+    begin
+        // [FEATURE] [Location]
+        // [SCENARIO 345913] Base calendar is taken from Company Information if Location's base calendar is blank.
+        // [GIVEN] CompanyInformation, where "Base Calendar Code" is 'BC'
+        LibraryService.CreateBaseCalendar(BaseCalendar);
+        CompanyInformation.Get();
+        CompanyInformation."Base Calendar Code" := BaseCalendar.Code;
+        CompanyInformation.Modify();
+        // [GIVEN] Location 'A', where "Base Calendar Code" is <blank>
+        LibraryWarehouse.CreateLocation(Location);
+        Location."Base Calendar Code" := '';
+        Location.Modify();
+        // [GIVEN] Calendar Change, where "Source Type" is Locatio, "Source Code" is 'A'
+        CustomizedCalendarChange."Source Type" := CustomizedCalendarChange."Source Type"::Location;
+        CustomizedCalendarChange."Source Code" := Location.Code;
+
+        // [WHEN] run CalcCalendarCode()
+        CustomizedCalendarChange.CalcCalendarCode();
+
+        // [THEN] Calendar Change, where "Base Calendar Code" is 'BC'
+        CustomizedCalendarChange.testfield("Base Calendar Code", BaseCalendar.Code);
+    end;
+
+    [Test]
+    procedure T002_CalcBaseCalendarShipmentAgentNotExisting()
+    var
+        BaseCalendar: Record "Base Calendar";
+        CustomizedCalendarChange: Record "Customized Calendar Change";
+        CompanyInformation: Record "Company Information";
+        ShippingAgent: Record "Shipping Agent";
+        DateFormula: DateFormula;
+    begin
+        // [FEATURE] [Shipment Agent]
+        // [SCENARIO 345913] Base calendar is taken from Company Information if Shipment Agent Services does not exist.
+        // [GIVEN] CompanyInformation, where "Base Calendar Code" is 'BC'
+        LibraryService.CreateBaseCalendar(BaseCalendar);
+        CompanyInformation.Get();
+        CompanyInformation."Base Calendar Code" := BaseCalendar.Code;
+        CompanyInformation.Modify();
+        // [GIVEN] Shipping Agent 'A', ShippingAgentServices 'A'-'X' does not exist
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+
+        // [GIVEN] Calendar Change, where "Source Type" is 'Shipping Agent', "Source Code" is 'A', "Additional Source Code" is 'X'
+        CustomizedCalendarChange."Source Type" := CustomizedCalendarChange."Source Type"::"Shipping Agent";
+        CustomizedCalendarChange."Source Code" := ShippingAgent.Code;
+        CustomizedCalendarChange."Additional Source Code" := LibraryUtility.GenerateGUID();
+
+        // [WHEN] run CalcCalendarCode()
+        CustomizedCalendarChange.CalcCalendarCode();
+
+        // [THEN] Calendar Change, where "Base Calendar Code" is 'BC'
+        CustomizedCalendarChange.testfield("Base Calendar Code", BaseCalendar.Code);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure DeleteCustomer()
     var

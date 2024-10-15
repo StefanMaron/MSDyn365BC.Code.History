@@ -94,6 +94,9 @@ table 1501 Workflow
         key(Key2; Enabled)
         {
         }
+        key(Key3; Template)
+        {
+        }
     }
 
     fieldgroups

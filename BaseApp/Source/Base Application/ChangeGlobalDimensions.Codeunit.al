@@ -92,6 +92,7 @@ codeunit 483 "Change Global Dimensions"
         SequentialStartTraceTagMsg: Label 'Change Global Dimensions is started, parallel processing is off.';
         FinishTraceTagMsg: Label 'Change Global Dimensions is finished.';
         SessionListActionTxt: Label 'Session List';
+        SessionUpdateRequiredMsg: Label 'All records were successfully updated. To apply the updates, close the General Ledger Setup page.';
 
     procedure ResetIfAllCompleted()
     begin
@@ -389,11 +390,11 @@ codeunit 483 "Change Global Dimensions"
             repeat
                 OnChangeDependentRecords(ChangeGlobalDimLogEntry, RecRef, IsHandled);
                 if not IsHandled then begin
-                ChangeGlobalDimLogEntry.GetFieldRefValues(RecRef, GlobalDimFieldRef, DimValueCode);
-                GlobalDimFieldRef[1].Value(ParentDimValueCode[1]);
-                GlobalDimFieldRef[2].Value(ParentDimValueCode[2]);
-                RecRef.Modify;
-                CurrentRecNo += 1;
+                    ChangeGlobalDimLogEntry.GetFieldRefValues(RecRef, GlobalDimFieldRef, DimValueCode);
+                    GlobalDimFieldRef[1].Value(ParentDimValueCode[1]);
+                    GlobalDimFieldRef[2].Value(ParentDimValueCode[2]);
+                    RecRef.Modify;
+                    CurrentRecNo += 1;
                 end;
             until RecRef.Next = 0;
         end;
@@ -713,6 +714,8 @@ codeunit 483 "Change Global Dimensions"
         if IsWindowOpen then begin
             Window.Close;
             IsWindowOpen := false;
+
+            Message(SessionUpdateRequiredMsg);
         end;
     end;
 

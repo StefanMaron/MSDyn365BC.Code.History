@@ -19,6 +19,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         SetTrackInfoForCancellation(Rec);
         if RedoApplications then
             ItemJnlPostLine.RedoApplications;
+        UpdatePurchaseOrderLinesFromCancelledInvoice("No.");
         Commit;
     end;
 
@@ -420,6 +421,9 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     var
         GenPostingSetup: Record "General Posting Setup";
     begin
+        if PurchInvLine."VAT Calculation Type" = PurchInvLine."VAT Calculation Type"::"Sales Tax" then
+            exit;
+
         PurchasesPayablesSetup.GetRecordOnce;
 
         with GenPostingSetup do begin
@@ -430,12 +434,13 @@ codeunit 1313 "Correct Posted Purch. Invoice"
                 TestField("Purch. Credit Memo Account");
                 TestGLAccount("Purch. Credit Memo Account", PurchInvLine);
             end;
-            TestField("Direct Cost Applied Account");
-            TestGLAccount("Direct Cost Applied Account", PurchInvLine);
-            if PurchasesPayablesSetup."Discount Posting" <> PurchasesPayablesSetup."Discount Posting"::"No Discounts" then begin
-                TestField("Purch. Line Disc. Account");
-                TestGLAccount("Purch. Line Disc. Account", PurchInvLine);
+            if IsCheckDirectCostAppliedAccount(PurchInvLine) then begin
+                TestField("Direct Cost Applied Account");
+                TestGLAccount("Direct Cost Applied Account", PurchInvLine);
             end;
+            if HasLineDiscountSetup() then
+                if "Purch. Line Disc. Account" <> '' then
+                    TestGLAccount("Purch. Line Disc. Account", PurchInvLine);
         end;
     end;
 
@@ -697,6 +702,53 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     local procedure OnAfterSetDefaultCancelReasonCode(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
+    
+    local procedure UpdatePurchaseOrderLinesFromCancelledInvoice(PurchInvHeaderNo: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchInvLine: Record "Purch. Inv. Line";
+    begin
+        PurchInvLine.SetRange("Document No.", PurchInvHeaderNo);
+        if PurchInvLine.FindSet then
+            repeat
+                if PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchInvLine."Order No.", PurchInvLine."Order Line No.") then
+                    UpdatePurchaseOrderLineInvoicedQuantity(PurchaseLine, PurchInvLine.Quantity, PurchInvLine."Quantity (Base)");
+            until PurchInvLine.Next = 0;
+    end;
+
+    local procedure UpdatePurchaseOrderLineInvoicedQuantity(var PurchaseLine: Record "Purchase Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdatePurchaseOrderLineInvoicedQuantity(PurchaseLine, CancelledQuantity, CancelledQtyBase, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchaseLine."Quantity Invoiced" -= CancelledQuantity;
+        PurchaseLine."Qty. Invoiced (Base)" -= CancelledQtyBase;
+        PurchaseLine."Quantity Received" -= CancelledQuantity;
+        PurchaseLine."Qty. Received (Base)" -= CancelledQtyBase;
+        PurchaseLine.InitOutstanding();
+        PurchaseLine.InitQtyToReceive();
+        PurchaseLine.InitQtyToInvoice();
+        PurchaseLine.Modify();
+    end;
+
+    local procedure HasLineDiscountSetup() Result: Boolean
+    begin
+        with PurchasesPayablesSetup do begin
+            GetRecordOnce();
+            Result := "Discount Posting" in ["Discount Posting"::"Line Discounts", "Discount Posting"::"All Discounts"];
+        end;
+        OnHasLineDiscountSetup(PurchasesPayablesSetup, Result);
+    end;
+
+    local procedure IsCheckDirectCostAppliedAccount(PurchInvLine: Record "Purch. Inv. Line") Result: Boolean
+    begin
+        Result := PurchInvLine.Type in [PurchInvLine.Type::"Charge (Item)", PurchInvLine.Type::"Fixed Asset", PurchInvLine.Type::Item];
+        OnAfterIsCheckDirectCostAppliedAccount(PurchInvLine, Result);
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateCorrectivePurchCrMemo(PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"; var CancellingOnly: Boolean)
@@ -710,6 +762,21 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchaseHeaderInsert(var PurchaseHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePurchaseOrderLineInvoicedQuantity(var PurchaseLine: Record "Purchase Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHasLineDiscountSetup(PurchasesPayablesSetup: Record "Purchases & Payables Setup"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsCheckDirectCostAppliedAccount(PurchInvLine: Record "Purch. Inv. Line"; var Result: Boolean)
     begin
     end;
 }
