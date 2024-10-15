@@ -1817,7 +1817,7 @@
         exit(not ReservEntry.IsEmpty);
     end;
 
-    local procedure UpdateAllAmounts()
+    procedure UpdateAllAmounts()
     var
         IsHandled: Boolean;
     begin
