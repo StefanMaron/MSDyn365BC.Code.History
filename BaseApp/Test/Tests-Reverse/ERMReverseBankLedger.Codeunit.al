@@ -324,7 +324,7 @@
 
             // Verify: Verify that Document type is not empty in the bank account ledger entry.
             VerifyRefundBankAccLedgerEntry("Bal. Account No.", "Posting Date", "Document No.", -Amount, GetGenJnlSourceCode);
-            VerifyBankAccLedgerEntry("Bal. Account No.", WorkDate(), "Document No.", Amount, GetFinVoidedSourceCode);
+            VerifyRefundBankAccLedgerEntry("Bal. Account No.", WorkDate(), "Document No.", Amount, GetFinVoidedSourceCode);
         end;
     end;
 
@@ -586,10 +586,10 @@
         // [THEN] Bank account has two ledger entries: "Dcoument Type" = "Payment" with Amount = -100; "Document Type" = "" with Amount = 100.
         VerifyPaymentBankAccLedgerEntry(
           BankAccountNo, GenJournalLine."Posting Date", DocumentNo, -(InvoiceAmount - CrMemoAmount), GetPmtJnlSourceCode);
-        VerifyBankAccLedgerEntry(
+        VerifyPaymentBankAccLedgerEntry(
           BankAccountNo, WorkDate(), DocumentNo, InvoiceAmount - CrMemoAmount, GetFinVoidedSourceCode);
         // [THEN] There are two voided Vendor Ledger Entries with empty "Document Type" related to Void Check
-        VerifyVoidedVendorLedgerEntries(VendorNo, DocumentNo, 2);
+        VerifyVoidedVendorLedgerEntries(VendorNo, Enum::"Gen. Journal Document Type"::Payment, DocumentNo, 2);
     end;
 
     [Test]
@@ -1259,14 +1259,14 @@
         end;
     end;
 
-    local procedure VerifyVoidedVendorLedgerEntries(VendorNo: Code[20]; DocumentNo: Code[20]; ExpectedCount: Integer)
+    local procedure VerifyVoidedVendorLedgerEntries(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedCount: Integer)
     var
         DummyVendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         with DummyVendorLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
             SetRange("Posting Date", WorkDate());
-            SetRange("Document Type", "Document Type"::" ");
+            SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             SetRange("Source Code", GetFinVoidedSourceCode);
             Assert.RecordCount(DummyVendorLedgerEntry, ExpectedCount);

@@ -1442,6 +1442,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 Error(CustomerHasChangedErr, CRMSalesorder.OrderNumber, CRMProductName.CDSServiceName());
             CRMInvoice.CustomerId := CRMSalesorder.CustomerId;
             CRMInvoice.CustomerIdType := CRMSalesorder.CustomerIdType;
+            OnUpdateCRMInvoiceBeforeInsertRecordOnBeforeDestinationRecordRefGetTable(CRMInvoice, SalesInvoiceHeader);
             DestinationRecordRef.GetTable(CRMInvoice);
             if CRMSalesorder.OwnerIdType = CRMSalesorder.OwnerIdType::systemuser then
                 CDSIntegrationImpl.SetOwningUser(DestinationRecordRef, CRMSalesOrder.OwnerId, true)
@@ -3107,6 +3108,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     [IntegrationEvent(false, false)]
     local procedure OnChangeSalesOrderStatusOnBeforeCompareStatus(var SalesHeader: Record "Sales Header"; var NewSalesDocumentStatus: Enum "Sales Document Status")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCRMInvoiceBeforeInsertRecordOnBeforeDestinationRecordRefGetTable(var CRMInvoice: Record "CRM Invoice"; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 }

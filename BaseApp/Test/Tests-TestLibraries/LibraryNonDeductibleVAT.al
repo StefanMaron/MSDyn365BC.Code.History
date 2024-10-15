@@ -104,4 +104,13 @@ codeunit 131344 "Library - NonDeductible VAT"
         VATEntry.TestField("Non-Deductible VAT Base", NonDeductibleBase);
         VATEntry.TestField("Non-Deductible VAT Amount", NonDeductibleAmount);
     end;
+
+    procedure CreateVATPostingSetupWithNonDeductibleDetail(var VATPostingSetup: Record "VAT Posting Setup"; VATPercentage: Decimal; NonDeductibleVATPer: Decimal)
+    begin
+        CreateNonDeductibleNormalVATPostingSetup(VATPostingSetup);
+        VATPostingSetup.Validate("VAT %", VATPercentage);
+        VATPostingSetup.Validate("Non-Ded. Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Non-Deductible VAT %", NonDeductibleVATPer);
+        VATPostingSetup.Modify(true);
+    end;
 }

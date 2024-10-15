@@ -18,11 +18,14 @@ codeunit 134317 "Workflow Additional Scenarios"
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryRandom: Codeunit "Library - Random";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         PurchHeaderTypeCondnTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Purch. Doc. Event Conditions" id="1502"><DataItems><DataItem name="Purchase Header">SORTING(Document Type,No.) WHERE(Document Type=FILTER(%1))</DataItem><DataItem name="Purchase Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>', Locked = true;
         SalesHeaderTypeCondnTxt: Label '<?xml version="1.0" standalone="yes"?><ReportParameters name="Sales Doc. Event Conditions" id="1504"><DataItems><DataItem name="Sales Header">SORTING(Document Type,No.) WHERE(Document Type=FILTER(%1))</DataItem><DataItem name="Sales Line">SORTING(Document Type,Document No.,Line No.)</DataItem></DataItems></ReportParameters>', Locked = true;
         SameEventConditionsErr: Label 'One or more entry-point steps exist that use the same event on table %1. You must specify unique event conditions on entry-point steps that use the same table.', Comment = '%1=Table Caption';
+        ParametersHeaderLineTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Table454">VERSION(1) SORTING(Field29) WHERE(Field2=1(2|3))</DataItem></DataItems></ReportParameters>', Locked = true;
+        UnExpectedOverdueNotificationTxt: Label 'Unexpected overdue notifications.';
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
@@ -491,6 +494,47 @@ codeunit 134317 "Workflow Additional Scenarios"
         CustomerCard.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure SendOverdueNotificationsTestForFilter()
+    var
+        ApprovalWorkflowSalesDoc: Record Workflow;
+        UserSetup: Record "User Setup";
+        ApproverUserSetup: Record "User Setup";
+        WorkflowSetup: Codeunit "Workflow Setup";
+    begin
+        // [SCENARIO 489925] When filter set on Overdue Approval Workflow, Send Overdue Approval Notification says workflow not enabled
+        Initialize();
+
+        // [GIVEN] Enable Overdue Workflow
+        EnableOverdueWorkflow();
+
+        // [GIVEN] Create Sales Invoice WorkFlow from Template
+        LibraryWorkflow.CopyWorkflowTemplate(ApprovalWorkflowSalesDoc, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
+
+        // [GIVEN] Change Approval Workflows With DueDate Formula
+        ChangeApprovalWorkflowsWithDueDateFormula(ApprovalWorkflowSalesDoc, 0);
+
+        // [GIVEN] Create Approver Chain
+        CreateApproverChain(UserSetup, ApproverUserSetup);
+
+        // [GIVEN] Send Document for Approval
+        SendDocumentsForApproval(ApproverUserSetup);
+
+        // [GIVEN] Move due date in the future.
+        ChangeApprovalWorkflowsWithDueDateFormula(ApprovalWorkflowSalesDoc, 5);
+
+        // [GIVEN] Send Document for Approval
+        SendDocumentsForApproval(ApproverUserSetup);
+
+        // [WHEN] Run "Send Overdue Appr. Notif." Report
+        REPORT.Run(REPORT::"Send Overdue Appr. Notif.");
+
+        // [VERIFY] Verify the notification entries has been created.
+        VerifyOverdueNotifications(ApproverUserSetup);
+    end;
+
     local procedure Initialize()
     var
         Workflow: Record Workflow;
@@ -684,6 +728,148 @@ codeunit 134317 "Workflow Additional Scenarios"
         LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode(), StepId);
 
         LibraryWorkflow.EnableWorkflow(Workflow);
+    end;
+
+    local procedure CreateOverdueWorkflow()
+    var
+        Workflow: Record Workflow;
+        WorkflowEvent: Record "Workflow Event";
+        WorkFlowSetup: Codeunit "Workflow Setup";
+        WorkFlowCode: Code[20];
+        EntryPointEventStep: Integer;
+    begin
+        WorkFlowCode := WorkFlowSetup.InsertOverdueApprovalsWorkflow();
+        Workflow.Get(WorkFlowCode);
+        CreateAnyEvent(WorkflowEvent, DATABASE::"Approval Entry");
+        EntryPointEventStep := GetOverdueWorkflowStep(WorkFlowCode);
+        LibraryWorkflow.InsertEventArgument(EntryPointEventStep, ParametersHeaderLineTxt);
+        Workflow.Validate(Enabled, true);
+        Workflow.Modify();
+    end;
+
+    local procedure GetOverdueWorkflowStep(WorkFlowCode: Code[20]): Integer
+    var
+        WorkflowStep: Record "Workflow Step";
+    begin
+        WorkflowStep.SetRange("Workflow Code", WorkFlowCode);
+        WorkflowStep.SetRange("Entry Point", true);
+        WorkflowStep.FindFirst();
+
+        exit(WorkflowStep.ID);
+    end;
+
+    local procedure CreateAnyEvent(var WorkflowEvent: Record "Workflow Event"; TableID: Integer)
+    begin
+        WorkflowEvent.Init();
+        WorkflowEvent."Function Name" := LibraryUtility.GenerateGUID();
+        WorkflowEvent.Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(WorkflowEvent.Description)), 1, MaxStrLen(WorkflowEvent.Description));
+        WorkflowEvent."Table ID" := TableID;
+        WorkflowEvent.Insert(true);
+    end;
+
+    local procedure ChangeApprovalWorkflowsWithDueDateFormula(Workflow: Record Workflow; DueDateDelay: Integer)
+    var
+        WorkflowStep: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        DueDateFormula: DateFormula;
+    begin
+        Workflow.Validate(Enabled, false);
+        Workflow.Modify(true);
+
+        WorkflowStep.SetRange("Workflow Code", Workflow.Code);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
+        WorkflowStep.FindFirst();
+
+        Evaluate(DueDateFormula, '<' + Format(DueDateDelay) + 'D>');
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        WorkflowStepArgument.Validate("Due Date Formula", DueDateFormula);
+        WorkflowStepArgument.Modify(true);
+
+        Workflow.Validate(Enabled, true);
+        Workflow.Modify(true);
+    end;
+
+    local procedure CreateApproverChain(var UserSetup: Record "User Setup"; var ApproverUserSetup: Record "User Setup")
+    begin
+        CreateOrFindUserSetup(UserSetup, UserId);
+        LibraryDocumentApprovals.CreateMockupUserSetup(ApproverUserSetup);
+
+        SetApprover(UserSetup, ApproverUserSetup);
+
+        SetSalesApprovalLimit(UserSetup, 100);
+        SetUnlimitedSalesApprovalLimit(ApproverUserSetup);
+    end;
+
+    local procedure CreateOrFindUserSetup(var UserSetup: Record "User Setup"; UserName: Text[208])
+    begin
+        if not LibraryDocumentApprovals.GetUserSetup(UserSetup, CopyStr(UserName, 1, 50)) then
+            LibraryDocumentApprovals.CreateUserSetup(UserSetup, CopyStr(UserName, 1, 50), '');
+    end;
+
+    local procedure SetApprover(var UserSetup: Record "User Setup"; var ApproverUserSetup: Record "User Setup")
+    begin
+        UserSetup."Approver ID" := ApproverUserSetup."User ID";
+        UserSetup.Modify(true);
+    end;
+
+    local procedure SetSalesApprovalLimit(var UserSetup: Record "User Setup"; SalesApprovalLimit: Integer)
+    begin
+        UserSetup."Sales Amount Approval Limit" := SalesApprovalLimit;
+        UserSetup."Unlimited Sales Approval" := false;
+        UserSetup.Modify(true);
+    end;
+
+    local procedure SetUnlimitedSalesApprovalLimit(var UserSetup: Record "User Setup")
+    begin
+        UserSetup."Unlimited Sales Approval" := true;
+        UserSetup.Modify(true);
+    end;
+
+    local procedure SendDocumentsForApproval(ApproverUserSetup: Record "User Setup")
+    var
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+    begin
+        CreateSalesInvWithLine(SalesHeader, LibraryRandom.RandDecInRange(5000, 15000, 1));
+        UpdateSalesDocSalespersonCode(SalesHeader, ApproverUserSetup."Salespers./Purch. Code");
+
+        // Setup - Send for approval.
+        ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchaseHeader);
+        ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
+    end;
+
+    local procedure CreateSalesInvWithLine(var SalesHeader: Record "Sales Header"; Amount: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', 1);
+        SalesLine.Validate("Unit Price", Amount);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure UpdateSalesDocSalespersonCode(var SalesHeader: Record "Sales Header"; SalespersonCode: Code[20])
+    begin
+        SalesHeader."Salesperson Code" := SalespersonCode;
+        SalesHeader.Modify();
+    end;
+
+    local procedure EnableOverdueWorkflow()
+    var
+        Workflow: Record Workflow;
+        WorkflowSetup: Codeunit "Workflow Setup";
+    begin
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.OverdueNotificationsWorkflowCode());
+    end;
+
+    local procedure VerifyOverdueNotifications(ApproverUserSetup: Record "User Setup")
+    var
+        NotificationEntry: Record "Notification Entry";
+    begin
+        NotificationEntry.SetRange("Recipient User ID", ApproverUserSetup."User ID");
+        NotificationEntry.SetRange(Type, NotificationEntry.Type::Overdue);
+        Assert.AreEqual(1, NotificationEntry.Count, UnExpectedOverdueNotificationTxt);
     end;
 
     [MessageHandler]

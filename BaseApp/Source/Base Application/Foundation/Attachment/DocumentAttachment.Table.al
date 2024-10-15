@@ -7,10 +7,13 @@ namespace Microsoft.Foundation.Attachment;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.History;
+using Microsoft.EServices.EDocument;
 using System.IO;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Utilities;
+using System.Environment;
+using System.Integration;
 
 table 1173 "Document Attachment"
 {
@@ -118,7 +121,7 @@ table 1173 "Document Attachment"
                 if IsHandled then
                     exit;
 
-                if not "Document Reference ID".HasValue() then
+                if not HasContent() then
                     Error(NoDocumentAttachedErr);
             end;
         }
@@ -135,7 +138,7 @@ table 1173 "Document Attachment"
                 if IsHandled then
                     exit;
 
-                if not "Document Reference ID".HasValue() then
+                if not HasContent() then
                     Error(NoDocumentAttachedErr);
             end;
         }
@@ -184,7 +187,7 @@ table 1173 "Document Attachment"
         IsHandled := false;
         OnInsertOnBeforeCheckDocRefID(Rec, IsHandled);
         if not IsHandled then
-            if not "Document Reference ID".HasValue() then
+            if not HasContent() then
                 Error(NoDocumentAttachedErr);
 
         Validate("Attached Date", CurrentDateTime);
@@ -202,8 +205,8 @@ table 1173 "Document Attachment"
 
     procedure ImportAttachment(DocumentInStream: InStream; FileName: Text)
     begin
-        Rec."Document Reference ID".ImportStream(DocumentInStream, '', '', FileName);
-        if not Rec."Document Reference ID".HasValue() then
+        ImportFromStream(DocumentInStream, FileName);
+        if not HasContent() then
             Error(NoDocumentAttachedErr);
 
         Rec.Validate("Attached Date", CurrentDateTime);
@@ -216,7 +219,6 @@ table 1173 "Document Attachment"
     procedure Export(ShowFileDialog: Boolean) Result: Text
     var
         TempBlob: Codeunit "Temp Blob";
-        FileManagement: Codeunit "File Management";
         DocumentStream: OutStream;
         FullFileName: Text;
         IsHandled: Boolean;
@@ -229,13 +231,13 @@ table 1173 "Document Attachment"
         if ID = 0 then
             exit;
         // Ensure document has value in DB
-        if not "Document Reference ID".HasValue() then
+        if not HasContent() then
             exit;
 
         OnBeforeExportAttachment(Rec);
         FullFileName := "File Name" + '.' + "File Extension";
         TempBlob.CreateOutStream(DocumentStream);
-        "Document Reference ID".ExportStream(DocumentStream);
+        ExportToStream(DocumentStream);
         exit(FileManagement.BLOBExport(TempBlob, FullFileName, ShowFileDialog));
     end;
 
@@ -318,8 +320,8 @@ table 1173 "Document Attachment"
         if not IsHandled then begin
             // IMPORTSTREAM(stream,description, mime-type,filename)
             // description and mime-type are set empty and will be automatically set by platform code from the filename
-            "Document Reference ID".ImportStream(DocStream, '', '', FileName);
-            if not "Document Reference ID".HasValue() then
+            ImportFromStream(DocStream, FileName);
+            if not HasContent() then
                 Error(NoDocumentAttachedErr);
         end;
 
@@ -436,10 +438,10 @@ table 1173 "Document Attachment"
 
         DataCompression.CreateZipArchive();
         repeat
-            if "Document Reference ID".HasValue() then begin
+            if HasContent() then begin
                 clear(TempBlob);
                 TempBlob.CreateOutStream(DocumentStream);
-                "Document Reference ID".ExportStream(DocumentStream);
+                ExportToStream(DocumentStream);
                 TempBlob.CreateInStream(ServerFileInStream);
                 DataCompression.AddEntry(ServerFileInStream, "File Name" + '.' + "File Extension");
             end;
@@ -455,6 +457,124 @@ table 1173 "Document Attachment"
     local procedure GetNextFileName(FileName: Text[250]; FileIndex: Integer): Text[250]
     begin
         exit(StrSubstNo('%1 (%2)', FileName, FileIndex));
+    end;
+
+    procedure HasContent() AttachmentHasContent: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeHasContent(Rec, AttachmentHasContent, IsHandled);
+        if IsHandled then
+            exit;
+
+        AttachmentHasContent := "Document Reference ID".HasValue();
+    end;
+
+    procedure ImportFromStream(AttachmentInStream: InStream; FileName: Text)
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeImportFromStream(Rec, AttachmentInStream, FileName, IsHandled);
+        if IsHandled then
+            exit;
+
+        Rec."Document Reference ID".ImportStream(AttachmentInStream, '', '', FileName);
+    end;
+
+    procedure ExportToStream(var AttachmentOutStream: OutStream)
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeExportToStream(Rec, AttachmentOutStream, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Document Reference ID".ExportStream(AttachmentOutStream);
+    end;
+
+    procedure GetAsTempBlob(var TempBlob: Codeunit "Temp Blob")
+    var
+        TenantMedia: Record "Tenant Media";
+        IsHandled: Boolean;
+    begin
+        OnBeforeGetAsTempBlob(Rec, TempBlob, IsHandled);
+        if IsHandled then
+            exit;
+
+        TenantMedia.SetAutoCalcFields(Content);
+        TenantMedia.Get(Rec."Document Reference ID".MediaId());
+        TempBlob.FromRecord(TenantMedia, TenantMedia.FieldNo(Content));
+    end;
+
+    procedure GetContentType() ContentType: Text[100]
+    var
+        TenantMedia: Record "Tenant Media";
+        IsHandled: Boolean;
+    begin
+        OnBeforeGetContentType(Rec, ContentType, IsHandled);
+        if IsHandled then
+            exit;
+
+        TenantMedia.Get(Rec."Document Reference ID".MediaId());
+        exit(TenantMedia."Mime Type");
+    end;
+
+    procedure OpenInOneDrive(DocumentSharingIntent: Enum "Document Sharing Intent")
+    var
+        DocumentServiceMgt: Codeunit "Document Service Management";
+        IsHandled: Boolean;
+        FileName: Text;
+        FileExtension: Text;
+        FileExtensionLbl: Label '.%1', Locked = true;
+    begin
+        OnBeforeOpenInOneDrive(Rec, DocumentSharingIntent, IsHandled);
+        if IsHandled then
+            exit;
+
+        FileName := FileManagement.StripNotsupportChrInFileName(Rec."File Name");
+        FileExtension := StrSubstNo(FileExtensionLbl, Rec."File Extension");
+
+        case DocumentSharingIntent of
+            DocumentSharingIntent::Open:
+                DocumentServiceMgt.OpenInOneDriveFromMedia(FileName, FileExtension, "Document Reference ID".MediaId());
+            DocumentSharingIntent::Edit:
+                if DocumentServiceMgt.EditInOneDriveFromMedia(FileName, FileExtension, "Document Reference ID".MediaId()) then begin
+                    Rec."Attached Date" := CurrentDateTime();
+                    Rec.Modify();
+                end;
+            DocumentSharingIntent::Share:
+                DocumentServiceMgt.ShareWithOneDriveFromMedia(FileName, FileExtension, "Document Reference ID".MediaId())
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasContent(var DocumentAttachment: Record "Document Attachment"; var AttachmentIsAvailable: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeImportFromStream(var DocumentAttachment: Record "Document Attachment"; var AttachmentInStream: InStream; var FileName: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportToStream(var DocumentAttachment: Record "Document Attachment"; var AttachmentOutStream: OutStream; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAsTempBlob(var DocumentAttachment: Record "Document Attachment"; var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenInOneDrive(var Rec: Record "Document Attachment"; DocumentSharingIntent: Enum "Document Sharing Intent"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetContentType(var Rec: Record "Document Attachment"; var ContentType: Text[100]; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -336,7 +336,9 @@ page 9802 "Permission Sets"
                         OutStream: OutStream;
                         UpdateExistingPermissions: Boolean;
                     begin
-                        UploadIntoStream('Import', '', '', FileName, InStream);
+                        if not UploadIntoStream('Import', '', '', FileName, InStream) then
+                            exit;
+                            
                         TempBlob.CreateOutStream(OutStream);
                         CopyStream(OutStream, InStream);
 
