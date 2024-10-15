@@ -12,6 +12,7 @@ codeunit 31357 "Issue Bank Statement CZB"
         BankAccount: Record "Bank Account";
         User: Record User;
         NoSeriesManagement: Codeunit NoSeriesManagement;
+        RecordLinkManagement: Codeunit "Record Link Management";
     begin
         OnBeforeIssueBankStatement(Rec);
         Rec.TestField("Bank Account No.");
@@ -58,6 +59,7 @@ codeunit 31357 "Issue Bank Statement CZB"
             IssBankStatementHeaderCZB."Pre-Assigned User ID" := User."User Name";
         IssBankStatementHeaderCZB.Insert();
         OnAfterIssuedBankStatementHeaderInsert(IssBankStatementHeaderCZB, Rec);
+        RecordLinkManagement.CopyLinks(Rec, IssBankStatementHeaderCZB);
 
         // insert lines
         if BankStatementLineCZB.FindSet() then
@@ -70,6 +72,8 @@ codeunit 31357 "Issue Bank Statement CZB"
             until BankStatementLineCZB.Next() = 0;
 
         // delete non issued bank statement
+        if Rec.HasLinks() then
+            Rec.DeleteLinks();
         Rec.Delete(true);
     end;
 

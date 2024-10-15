@@ -103,6 +103,7 @@ codeunit 31269 "Compensation - Post CZC"
             PostedCompensationHeaderCZC.TransferFields(Rec);
             PostedCompensationHeaderCZC.Insert();
             OnAfterPostedCompensationHeaderInsertCZC(Rec, PostedCompensationHeaderCZC);
+            RecordLinkManagement.CopyLinks(Rec, PostedCompensationHeaderCZC);
 
             Clear(CompensationLineCZC);
             CompensationLineCZC.SetRange("Compensation No.", Rec."No.");
@@ -117,7 +118,10 @@ codeunit 31269 "Compensation - Post CZC"
 
             UpdateIncomingDocument(Rec."Incoming Document Entry No.", Rec."Posting Date", PostedCompensationHeaderCZC."No.");
 
+            RecordLinkManagement.RemoveLinks(CompensationLineCZC);
             CompensationLineCZC.DeleteAll();
+            if Rec.HasLinks() then
+                Rec.DeleteLinks();
             Rec.Delete();
             WindowDialog.Close();
         end else
@@ -137,6 +141,7 @@ codeunit 31269 "Compensation - Post CZC"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         CompensationManagementCZC: Codeunit "Compensation Management CZC";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        RecordLinkManagement: Codeunit "Record Link Management";
         WindowDialog: Dialog;
         Text002Err: Label 'There is nothing to post.';
         Text008Msg: Label 'Posting lines              #2######.', Comment = '%2 = progress bar';

@@ -81,6 +81,13 @@ page 11756 "Registration Log CZL"
                     ToolTip = 'Specifies the post code of customer or vendor was verified.';
                     Visible = false;
                 }
+                field("Verified Country/Region Code"; Rec."Verified Country/Region Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the country/region code of customer or vendor was verified.';
+                    Visible = false;
+                }
                 field("Verified VAT Registration No."; Rec."Verified VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
