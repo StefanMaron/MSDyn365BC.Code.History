@@ -1783,6 +1783,7 @@ codeunit 137407 "SCM Warehouse IV"
         LotNo: Code[50];
         Qty: Integer;
         WarrantyStartDate: Date;
+        WarrantyStartingDateWhenItemTrackingExists: Date;
     begin
         // [FEATURE] [Warranty Date] [Item Tracking] [Service]
         // [SCENARIO 312703] Warranty Date specified via Lot Item Tracking is propagated to Service Item Warranty Starting Dates when Sales Order is posted
@@ -1828,16 +1829,17 @@ codeunit 137407 "SCM Warehouse IV"
 
         // [WHEN] Post Sales Order
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        WarrantyStartingDateWhenItemTrackingExists := CalcDate(StrSubstNo('<-%1>', ItemTrackingCode."Warranty Date Formula"), WarrantyStartDate);
 
         // [THEN] Service Item is created with Warranty Starting Date (Parts) = Warranty Starting Date (Labor)
         // [THEN] Warranty Ending Date (Parts) = 1/2/2020 <> Warranty Ending Date (Labor) = 1/2/2021
         with ServiceItem do begin
             SetRange("Item No.", Item."No.");
             FindFirst();
-            TestField("Warranty Starting Date (Parts)", WarrantyStartDate);
-            TestField("Warranty Starting Date (Labor)", "Warranty Starting Date (Parts)");
-            TestField("Warranty Ending Date (Parts)", CalcDate(WarrantyDateFormula, WarrantyStartDate));
-            TestField("Warranty Ending Date (Labor)", CalcDate(DefaultWarrantyDuration, WarrantyStartDate));
+            TestField("Warranty Starting Date (Parts)", WarrantyStartingDateWhenItemTrackingExists);
+            TestField("Warranty Starting Date (Labor)", WarrantyStartingDateWhenItemTrackingExists);
+            TestField("Warranty Ending Date (Parts)", WarrantyStartDate);
+            TestField("Warranty Ending Date (Labor)", CalcDate(DefaultWarrantyDuration, WarrantyStartingDateWhenItemTrackingExists));
         end;
 
         LibraryVariableStorage.AssertEmpty;
@@ -3797,6 +3799,7 @@ codeunit 137407 "SCM Warehouse IV"
         LotNo: Code[50];
         Qty: Integer;
         WarrantyStartDate: Date;
+        WarrantyStartingDateWhenItemTrackingExists: Date;
     begin
         // [SCENARIO 464877]: Warranty date is recalculated on new Shipment which was previously reversed via Undo shipment.
 
@@ -3839,9 +3842,10 @@ codeunit 137407 "SCM Warehouse IV"
 
         // [WHEN] Post Sales Order
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        WarrantyStartingDateWhenItemTrackingExists := CalcDate(StrSubstNo('<-%1>', ItemTrackingCode."Warranty Date Formula"), WarrantyStartDate);
 
         // [VERIFY] Verify: Warranty date fields in Service Item table
-        VerifyWarrantyDatesOnServiceItem(Item."No.", WarrantyStartDate, WarrantyDateFormula, DefaultWarrantyDuration);
+        VerifyWarrantyDatesOnServiceItem(Item."No.", WarrantyStartingDateWhenItemTrackingExists, WarrantyDateFormula, DefaultWarrantyDuration);
 
         // [THEN] Find Shipment Line
         FindSalesShipmentLine(SalesShipmentLine, SalesLine."Document No.");
@@ -3854,7 +3858,7 @@ codeunit 137407 "SCM Warehouse IV"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [VERIFY] Verify: Warranty date fields in Service Item table
-        VerifyWarrantyDatesOnServiceItem(Item."No.", WarrantyStartDate, WarrantyDateFormula, DefaultWarrantyDuration);
+        VerifyWarrantyDatesOnServiceItem(Item."No.", WarrantyStartingDateWhenItemTrackingExists, WarrantyDateFormula, DefaultWarrantyDuration);
     end;
 
     [Test]
@@ -3958,6 +3962,70 @@ codeunit 137407 "SCM Warehouse IV"
             StrSubstNo(
                 WarrantyDateError,
                 WarehouseActivityLine."Warranty Date"));
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler')]
+    [Scope('OnPrem')]
+    procedure ValidateWarrantyIsCorrectOnServiceItemCreatedFromSalesOrder()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        ServiceItemGroup: Record "Service Item Group";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarrantyDateFormula: DateFormula;
+        DefaultWarrantyDuration: DateFormula;
+        LotNo: Code[50];
+        Qty: Integer;
+        WarrantyStartDate: Date;
+        WarrantyStartingDateWhenItemTrackingExists: Date;
+    begin
+        // [SCENARIO 508064]: When a Warranty Item that has a Service Item Group assigned to it with 'Create Service Item', and a Sales Order creates the Service Item, the Warranty is not correct.
+
+        // [GIVEN] Initialize initials
+        Initialize();
+        Evaluate(WarrantyDateFormula, '<2Y>');
+        Evaluate(DefaultWarrantyDuration, '<1Y>');
+        LotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandIntInRange(1, 1);
+        WarrantyStartDate := WorkDate();
+
+        // [GIVEN] Service Mgt. Setup had Default Warranty Duration = 3Y
+        SetServiceSetupDefaultWarrantyDuration(DefaultWarrantyDuration);
+
+        // [GIVEN] Item Tracking Code with Lot Sales Tracking and Man. Warranty Date Entry Reqd. enabled, Warranty Date Formula = 10Y
+        CreateItemTrackingCode(ItemTrackingCode, true, false, false);
+        ItemTrackingCode.Validate("Warranty Date Formula", WarrantyDateFormula);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Service Item Group with Create Service Item enabled
+        LibraryService.CreateServiceItemGroup(ServiceItemGroup);
+        ServiceItemGroup.Validate("Create Service Item", true);
+        ServiceItemGroup.Modify(true);
+
+        // [GIVEN] Item with Item Tracking Code and Service Item Group had stock of 10 PCS
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Service Item Group", ServiceItemGroup.Code);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+        PostItemJournalLineWithLotTracking(Item."No.", LotNo, Qty);
+
+        // [GIVEN] New Sales Order with Item Tracking
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Posting Date", WorkDate());
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+        EnqueueTrackingLotAndQty(ItemTrackingMode::AssignLotAndQty, LotNo, Qty);
+        SalesLine.OpenItemTrackingLines();
+        ModifyReservationEntryWarrantyDate(Item."No.", WarrantyStartDate);
+
+        // [WHEN] Post Sales Order
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        WarrantyStartingDateWhenItemTrackingExists := CalcDate(StrSubstNo('<-%1>', ItemTrackingCode."Warranty Date Formula"), WarrantyStartDate);
+
+        // [THEN] Verify: Warranty date fields in Service Item table
+        VerifyWarrantyDatesOnServiceItem(Item."No.", WarrantyStartingDateWhenItemTrackingExists, WarrantyDateFormula, DefaultWarrantyDuration);
     end;
 
     local procedure Initialize()

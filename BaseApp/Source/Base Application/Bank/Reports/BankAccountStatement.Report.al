@@ -2,6 +2,7 @@ namespace Microsoft.Bank.Reports;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Reconciliation;
 using Microsoft.Bank.Statement;
 
 report 1407 "Bank Account Statement"
@@ -332,41 +333,22 @@ report 1407 "Bank Account Statement"
 
     local procedure GatherOutstandingTransactions(BankAccountNo: Code[20])
     var
-        BankAccLE_ClosedPayments: Record "Bank Account Ledger Entry";
-        BankAccLE_OpenedPayments: Record "Bank Account Ledger Entry";
+        TempBankAccountReconciliation: Record "Bank Acc. Reconciliation" temporary;
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccReconTest: Codeunit "Bank Acc. Recon. Test";
     begin
-        OutstandingBankTransaction.DeleteAll();
-        OutstandingCheck.DeleteAll();
-        BankAccLE_ClosedPayments.SetRange("Bank Account No.", BankAccountNo);
-        BankAccLE_ClosedPayments.SetRange(Reversed, false);
-        BankAccLE_ClosedPayments.SetRange("Posting Date", 0D, "Bank Account Statement"."Statement Date");
-        if not BankAccLE_ClosedPayments.IsEmpty() then begin
-            BankAccLE_OpenedPayments.CopyFilters(BankAccLE_ClosedPayments);
-            // Gather close payments if they were closed AFTER the reconciliation posting date.
-            BankAccLE_ClosedPayments.SetRange(Open, false);
-            BankAccLE_ClosedPayments.SetRange("Statement Status", BankAccLE_ClosedPayments."Statement Status"::Closed);
-            BankAccLE_ClosedPayments.SetFilter("Closed at Date", '>%1', "Bank Account Statement"."Statement Date");
-            if not BankAccLE_ClosedPayments.IsEmpty() then
-                if BankAccLE_ClosedPayments.FindSet() then
-                    repeat
-                        BankAccLE_ClosedPayments.CalcFields("Check Ledger Entries");
-                        if BankAccLE_ClosedPayments."Check Ledger Entries" <> 0 then
-                            OutstandingCheck.CopyFromBankAccLedgerEntry(BankAccLE_ClosedPayments, "Bank Account Statement"."Statement No.")
-                        else
-                            OutstandingBankTransaction.CopyFromBankAccLedgerEntry(BankAccLE_ClosedPayments, "Bank Account Statement"."Statement No.")
-                    until BankAccLE_ClosedPayments.Next() = 0;
-            // Gather open payments.
-            BankAccLE_OpenedPayments.SetRange(Open, true);
-            BankAccLE_OpenedPayments.SetRange("Statement Status", BankAccLE_ClosedPayments."Statement Status"::Open);
-            if not BankAccLE_OpenedPayments.IsEmpty() then
-                if BankAccLE_OpenedPayments.FindSet() then
-                    repeat
-                        BankAccLE_OpenedPayments.CalcFields("Check Ledger Entries");
-                        if BankAccLE_OpenedPayments."Check Ledger Entries" <> 0 then
-                            OutstandingCheck.CopyFromBankAccLedgerEntry(BankAccLE_OpenedPayments, "Bank Account Statement"."Statement No.")
-                        else
-                            OutstandingBankTransaction.CopyFromBankAccLedgerEntry(BankAccLE_OpenedPayments, "Bank Account Statement"."Statement No.")
-                    until BankAccLE_OpenedPayments.Next() = 0;
-        end;
+        TempBankAccountReconciliation."Bank Account No." := BankAccountNo;
+        TempBankAccountReconciliation."Statement No." := "Bank Account Statement"."Statement No.";
+        TempBankAccountReconciliation."Statement Date" := "Bank Account Statement"."Statement Date";
+        BankAccReconTest.SetOutstandingFilters(TempBankAccountReconciliation, BankAccountLedgerEntry);
+        BankAccountLedgerEntry.SetAutoCalcFields("Check Ledger Entries");
+        if not BankAccountLedgerEntry.FindSet() then
+            exit;
+        repeat
+            if BankAccountLedgerEntry."Check Ledger Entries" <> 0 then
+                OutstandingCheck.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry, "Bank Account Statement"."Statement No.")
+            else
+                OutstandingBankTransaction.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry, "Bank Account Statement"."Statement No.")
+        until BankAccountLedgerEntry.Next() = 0;
     end;
 }

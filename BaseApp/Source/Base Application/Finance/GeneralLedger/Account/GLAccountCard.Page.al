@@ -195,6 +195,7 @@ page 17 "G/L Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general posting type to use when posting to this account.';
+                    ValuesAllowed = " ", Purchase, Sale;
                 }
                 field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {

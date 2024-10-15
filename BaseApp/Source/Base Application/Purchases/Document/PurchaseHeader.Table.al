@@ -717,7 +717,8 @@ table 38 "Purchase Header"
                     MessageIfPurchLinesExist(FieldCaption("Location Code"));
 
                 UpdateShipToAddress();
-                CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
+                if Rec."Location Code" <> xRec."Location Code" then
+                    CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
 
                 PurchSetup.Get();
                 if PurchSetup."Use Vendor's Tax Area Code" then begin
