@@ -201,16 +201,22 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
 
     procedure SetPrice(AmountType: enum "Price Amount Type"; PriceListLine: Record "Price List Line")
     begin
-        if AmountType = AmountType::Discount then
-            PurchaseLine."Line Discount %" := PriceListLine."Line Discount %"
-        else
-            if PurchaseLine.Type in [PurchaseLine.Type::Item, PurchaseLine.Type::Resource] then begin
-                PurchaseLine."Direct Unit Cost" := PriceListLine."Direct Unit Cost";
-                PurchaseLine."Allow Invoice Disc." := PriceListLine."Allow Invoice Disc.";
-                if PriceListLine.IsRealLine() then
-                    DiscountIsAllowed := PriceListLine."Allow Line Disc.";
-                PriceCalculated := true;
-            end;
+        case AmountType of
+            AmountType::Price:
+                case CurrPriceType of
+                    CurrPriceType::Purchase:
+                        begin
+                            PurchaseLine."Direct Unit Cost" := PriceListLine."Direct Unit Cost";
+                            PurchaseLine."Allow Invoice Disc." := PriceListLine."Allow Invoice Disc.";
+                            if PriceListLine.IsRealLine() then
+                                DiscountIsAllowed := PriceListLine."Allow Line Disc.";
+                            PriceCalculated := true;
+                        end;
+                end;
+            AmountType::Discount:
+                PurchaseLine."Line Discount %" := PriceListLine."Line Discount %"
+        end;
+
         OnAfterSetPrice(PurchaseLine, PriceListLine, AmountType);
     end;
 

@@ -26,7 +26,7 @@ page 7003 "Duplicate Price Lines"
                     Editable = false;
                     StyleExpr = Not Remove;
                     Style = Strong;
-                    ToolTip = 'Specifies the code of the price list.';
+                    ToolTip = 'Specifies the unique identifier of the price list.';
 
                     trigger OnDrillDown()
                     begin

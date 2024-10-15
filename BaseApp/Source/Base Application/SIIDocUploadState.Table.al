@@ -69,8 +69,8 @@ table 10752 "SII Doc. Upload State"
         field(20; "Sales Invoice Type"; Option)
         {
             Caption = 'Sales Invoice Type';
-            OptionCaption = ' ,F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry';
-            OptionMembers = " ","F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry";
+            OptionCaption = ' ,F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry,R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices';
+            OptionMembers = " ","F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry","R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices";
 
             trigger OnValidate()
             begin
@@ -109,8 +109,8 @@ table 10752 "SII Doc. Upload State"
         field(23; "Purch. Invoice Type"; Option)
         {
             Caption = 'Purch. Invoice Type';
-            OptionCaption = ' ,F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry,F5 Imports (DUA),F6 Accounting support material,Customs - Complementary Liquidation';
-            OptionMembers = " ","F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry","F5 Imports (DUA)","F6 Accounting support material","Customs - Complementary Liquidation";
+            OptionCaption = ' ,F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry,F5 Imports (DUA),F6 Accounting support material,Customs - Complementary Liquidation,R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices';
+            OptionMembers = " ","F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry","F5 Imports (DUA)","F6 Accounting support material","Customs - Complementary Liquidation","R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices";
 
             trigger OnValidate()
             begin

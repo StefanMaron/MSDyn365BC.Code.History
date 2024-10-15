@@ -1,4 +1,4 @@
-report 105 "Customer - Summary Aging"
+﻿report 105 "Customer - Summary Aging"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './CustomerSummaryAging.rdlc';
@@ -199,6 +199,7 @@ report 105 "Customer - Summary Aging"
 
                     PrintLine := false;
                     LineTotalCustBalance := 0;
+                    OnBeforeFillColumnsInteger(Customer, DtldCustLedgEntry);
                     for i := 1 to 5 do begin
                         DtldCustLedgEntry.SetCurrentKey(
                           "Excluded from calculation", "Customer No.", "Posting Date", "Currency Code",
@@ -239,6 +240,7 @@ report 105 "Customer - Summary Aging"
                 PrintLine := false;
                 LineTotalCustBalance := 0;
                 CopyFilter("Currency Filter", DtldCustLedgEntry."Currency Code");
+                OnBeforeFillColumnsCustomer(Customer, DtldCustLedgEntry);
                 for i := 1 to 5 do begin
                     DtldCustLedgEntry.SetCurrentKey(
                       "Excluded from calculation", "Customer No.", "Posting Date", "Currency Code",
@@ -369,6 +371,16 @@ report 105 "Customer - Summary Aging"
         PeriodStartDate[2] := StartingDate;
         Evaluate(PeriodLength, SetPeriodLength);
         PrintAmountsInLCY := ShowAmountInLCY;
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeFillColumnsInteger(var Customer: Record Customer; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeFillColumnsCustomer(var Customer: Record Customer; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    begin
     end;
 }
 

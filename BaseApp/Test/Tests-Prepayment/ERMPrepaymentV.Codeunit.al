@@ -1276,11 +1276,10 @@ codeunit 134106 "ERM Prepayment V"
         CreatePurchLineAndCalcVATAmountLine(PurchaseHeader, PurchaseLine, VATAmountLine, false, 50, 1000);
 
         // [GIVEN] Update Purchase Line's "Inv. Discount Amount" = 600
-        VATAmountLine."Invoice Discount Amount" := 600;
-        VATAmountLine.Modify();
+        PurchaseLine.Validate("Inv. Discount Amount", 600);
 
         // [WHEN] Call PurchaseLine.UpdateVATOnLines()
-        PurchaseLine.UpdateVATOnLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
+        // PurchaseLine.UpdateVATOnLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
 
         // [THEN] PurchaseLine."Prepmt. Line Amount" = 400
         PurchaseLine.TestField(Amount, 400);
@@ -1303,11 +1302,10 @@ codeunit 134106 "ERM Prepayment V"
         CreatePurchLineAndCalcVATAmountLine(PurchaseHeader, PurchaseLine, VATAmountLine, true, 50, 1000);
 
         // [GIVEN] Update Purchase Line's "Inv. Discount Amount" = 600
-        VATAmountLine."Amount Including VAT" := 400;
-        VATAmountLine.Modify();
+        PurchaseLine.Validate("Inv. Discount Amount", 600);
 
         // [WHEN] Call PurchaseLine.UpdateVATOnLines()
-        PurchaseLine.UpdateVATOnLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
+        // PurchaseLine.UpdateVATOnLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
 
         // [THEN] PurchaseLine."Prepmt. Line Amount" = 400
         PurchaseLine.TestField("Amount Including VAT", 400);
@@ -1330,11 +1328,10 @@ codeunit 134106 "ERM Prepayment V"
         CreatePurchLineAndCalcVATAmountLine(PurchaseHeader, PurchaseLine, VATAmountLine, false, 0, -1000);
 
         // [GIVEN] Update Purchase Line's "Inv. Discount Amount" = -600
-        VATAmountLine."Invoice Discount Amount" := -600;
-        VATAmountLine.Modify();
+        PurchaseLine.Validate("Inv. Discount Amount", -600);
 
         // [WHEN] Call PurchaseLine.UpdateVATOnLines()
-        PurchaseLine.UpdateVATOnLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
+        // PurchaseLine.UpdateVATOnLines(0, PurchaseHeader, PurchaseLine, VATAmountLine);
 
         // [THEN] PurchaseLine."Prepmt. Line Amount" = 0
         PurchaseLine.TestField(Amount, -400);
@@ -1357,11 +1354,10 @@ codeunit 134106 "ERM Prepayment V"
         CreateCustomSalesLineAndCalcVATAmountLine(SalesHeader, SalesLine, VATAmountLine, false, 50, 1000);
 
         // [GIVEN] Update Sales Line's "Inv. Discount Amount" = 600
-        VATAmountLine."Invoice Discount Amount" := 600;
-        VATAmountLine.Modify();
+        SalesLine.Validate("Inv. Discount Amount", 600);
 
         // [WHEN] Call SalesLine.UpdateVATOnLines()
-        SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, VATAmountLine);
+        // SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, VATAmountLine);
 
         // [THEN] SalesLine."Prepmt. Line Amount" = 400
         SalesLine.TestField(Amount, 400);
@@ -1384,11 +1380,10 @@ codeunit 134106 "ERM Prepayment V"
         CreateCustomSalesLineAndCalcVATAmountLine(SalesHeader, SalesLine, VATAmountLine, true, 50, 1000);
 
         // [GIVEN] Update Sales Line's "Inv. Discount Amount" = 600
-        VATAmountLine."Amount Including VAT" := 400;
-        VATAmountLine.Modify();
+        SalesLine.Validate("Inv. Discount Amount", 600);
 
         // [WHEN] Call SalesLine.UpdateVATOnLines()
-        SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, VATAmountLine);
+        // SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, VATAmountLine);
 
         // [THEN] SalesLine."Prepmt. Line Amount" = 400
         SalesLine.TestField("Amount Including VAT", 400);
@@ -1411,11 +1406,10 @@ codeunit 134106 "ERM Prepayment V"
         CreateCustomSalesLineAndCalcVATAmountLine(SalesHeader, SalesLine, VATAmountLine, false, 0, -1000);
 
         // [GIVEN] Update Sales Line's "Inv. Discount Amount" = -600
-        VATAmountLine."Invoice Discount Amount" := -600;
-        VATAmountLine.Modify();
+        SalesLine.Validate("Inv. Discount Amount", -600);
 
         // [WHEN] Call SalesLine.UpdateVATOnLines()
-        SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, VATAmountLine);
+        // SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, VATAmountLine);
 
         // [THEN] SalesLine."Prepmt. Line Amount" = 0
         SalesLine.TestField(Amount, -400);

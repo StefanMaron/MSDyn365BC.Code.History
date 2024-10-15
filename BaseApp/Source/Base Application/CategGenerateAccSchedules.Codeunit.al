@@ -70,6 +70,10 @@
         GrossProfitRowNo: Integer;
         ExpensesRowNo: Integer;
         IsHandled: Boolean;
+        COGSPrefix: Boolean;
+        GrossProfitPrefix: Boolean;
+        ExpensesPrefix: Boolean;
+        TurnoverPrefix: Boolean;
     begin
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
         GeneralLedgerSetup.TestField("Acc. Sched. for Income Stmt.");
@@ -80,9 +84,11 @@
 
         AddAccSchedLineGroup(AccScheduleLine, RowNo, GLAccountCategory."Account Category"::Income);
         TurnoverRownNo := RowNo;
+        TurnoverPrefix := AccScheduleLine."Totaling Type" = AccScheduleLine."Totaling Type"::Formula;
         AddBlankLine(AccScheduleLine, RowNo);
         AddAccSchedLineGroup(AccScheduleLine, RowNo, GLAccountCategory."Account Category"::"Cost of Goods Sold");
         COGSRowNo := RowNo;
+        COGSPrefix := AccScheduleLine."Totaling Type" = AccScheduleLine."Totaling Type"::Formula;
 
         OnCreateIncomeStatementOnAfterCreateCOGSGroup(AccScheduleLine, IsHandled);
         if IsHandled then
@@ -91,16 +97,18 @@
         AddBlankLine(AccScheduleLine, RowNo);
         AddAccShedLine(
           AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::Formula, GrossProfitTxt,
-          StrSubstNo('%1+%2', FormatRowNo(TurnoverRownNo, true), FormatRowNo(COGSRowNo, true)),
+          StrSubstNo('%1+%2', FormatRowNo(TurnoverRownNo, TurnoverPrefix), FormatRowNo(COGSRowNo, COGSPrefix)),
           true, false, true, 0);
         GrossProfitRowNo := RowNo;
+        GrossProfitPrefix := AccScheduleLine."Totaling Type" = AccScheduleLine."Totaling Type"::Formula;
         AddBlankLine(AccScheduleLine, RowNo);
         AddAccSchedLineGroup(AccScheduleLine, RowNo, GLAccountCategory."Account Category"::Expense);
         ExpensesRowNo := RowNo;
+        ExpensesPrefix := AccScheduleLine."Totaling Type" = AccScheduleLine."Totaling Type"::Formula;
         AddBlankLine(AccScheduleLine, RowNo);
         AddAccShedLine(
           AccScheduleLine, RowNo, AccScheduleLine."Totaling Type"::Formula, NetIncomeTxt,
-          StrSubstNo('%1+%2', FormatRowNo(GrossProfitRowNo, true), FormatRowNo(ExpensesRowNo, true)),
+          StrSubstNo('%1+%2', FormatRowNo(GrossProfitRowNo, GrossProfitPrefix), FormatRowNo(ExpensesRowNo, ExpensesPrefix)),
           true, true, true, 0);
     end;
 
@@ -396,6 +404,20 @@
         GLAccount.Reset();
         GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
         exit(CopyStr(SelectionFilterManagement.GetSelectionFilterForGLAccount(GLAccount), 1, 250));
+    end;
+
+    procedure RunGenerateAccSchedules(var AccSchedUpdateNeededNotification: Notification)
+    var
+        GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
+    begin
+        GLAccountCategoryMgt.ConfirmAndRunGenerateAccountSchedules();
+    end;
+
+    procedure HideAccSchedUpdateNeededNotificationForCurrentUser(var AccSchedUpdateNeededNotification: Notification)
+    var
+        GLAccountCategory: Record "G/L Account Category";
+    begin
+        GLAccountCategory.DontNotifyCurrentUserAgain(AccSchedUpdateNeededNotification.Id);
     end;
 
     [IntegrationEvent(false, false)]

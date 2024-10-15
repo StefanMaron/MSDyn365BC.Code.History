@@ -703,8 +703,14 @@
     end;
 
     procedure TestNoSeries()
+    var
+        IsHandled: Boolean;
     begin
         MfgSetup.Get();
+        IsHandled := false;
+        OnBeforeTestNoSeries(Rec, MfgSetup, IsHandled);
+        if IsHandled then
+            exit;
 
         case Status of
             Status::Simulated:
@@ -732,9 +738,14 @@
         end;
     end;
 
-    procedure GetNoSeriesCode(): Code[20]
+    procedure GetNoSeriesCode() NoSeriesCode: Code[20]
+    var
+        IsHandled: Boolean;
     begin
         MfgSetup.Get();
+        OnBeforeGetNoSeriesCode(Rec, MfgSetup, NoSeriesCode, IsHandled);
+        if IsHandled then
+            exit(NoSeriesCode);
 
         case Status of
             Status::Simulated:
@@ -1315,6 +1326,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNoSeriesCode(var ProductionOrder: Record "Production Order"; MfgSetup: Record "Manufacturing Setup"; var NoSeriesCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteFnshdProdOrderRelations(var ProdOrder: Record "Production Order")
     begin
     end;
@@ -1376,6 +1392,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunCreatePickFromWhseSource(var ProductionOrder: Record "Production Order"; AssignedUserID: Code[50]; SortingMethod: Option; PrintDocument: Boolean; DoNotFillQtyToHandle: Boolean; SetBreakBulkFilter: Boolean; HideValidationDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestNoSeries(ProductionOrder: Record "Production Order"; MfgSetup: Record "Manufacturing Setup"; var IsHandled: Boolean)
     begin
     end;
 }

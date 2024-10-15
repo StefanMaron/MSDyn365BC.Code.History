@@ -432,10 +432,7 @@
                         LogTestField(GenJnlLine, FieldNo("Bal. VAT Prod. Posting Group"), '');
                         if (Amount > 0) and ("Bank Payment Type" = "Bank Payment Type"::"Computer Check") then
                             LogTestField(GenJnlLine, FieldNo("Check Printed"), true);
-                        if ("Bank Payment Type" = "Bank Payment Type"::"Electronic Payment") or
-                           ("Bank Payment Type" = "Bank Payment Type"::"Electronic Payment-IAT")
-                        then
-                            LogTestField(GenJnlLine, FieldNo("Exported to Payment File"), true);
+                        CheckElectronicPaymentFields(GenJnlLine);
                     end;
                 "Bal. Account Type"::"IC Partner":
                     begin
@@ -447,6 +444,22 @@
             end;
 
         OnAfterCheckBalAccountNo(GenJnlLine);
+    end;
+
+    local procedure CheckElectronicPaymentFields(GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckElectronicPaymentFields(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with GenJnlLine do
+            if ("Bank Payment Type" = "Bank Payment Type"::"Electronic Payment") or
+               ("Bank Payment Type" = "Bank Payment Type"::"Electronic Payment-IAT")
+            then
+                LogTestField(GenJnlLine, FieldNo("Exported to Payment File"), true);
     end;
 
     local procedure CheckJobNoIsEmpty(GenJnlLine: Record "Gen. Journal Line")
@@ -925,6 +938,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckZeroAmount(GenJnlLine: Record "Gen. Journal Line"; IsBatchMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckElectronicPaymentFields(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,4 +1,4 @@
-page 5510 "Production Journal"
+﻿page 5510 "Production Journal"
 {
     Caption = 'Production Journal';
     DataCaptionExpression = GetCaption;
@@ -844,15 +844,8 @@ page 5510 "Production Journal"
                          "Order No.",
                          "Order Line No.",
                          "Prod. Order Comp. Line No.")
-                    then begin
-                        ProdOrderComp.CalcFields("Act. Consumption (Qty)"); // Base Unit
-                        ActualConsumpQty :=
-                          ProdOrderComp."Act. Consumption (Qty)" / "Qty. per Unit of Measure";
-                        if Item."Rounding Precision" > 0 then
-                            ActualConsumpQty := UOMMgt.RoundToItemRndPrecision(ActualConsumpQty, Item."Rounding Precision")
-                        else
-                            ActualConsumpQty := Round(ActualConsumpQty, UOMMgt.QtyRndPrecision);
-                    end;
+                    then
+                        CalcActualConsumpQty();
                 "Entry Type"::Output:
                     begin
                         if ProdOrderLineNo = 0 then
@@ -878,6 +871,24 @@ page 5510 "Production Journal"
                         end;
                     end;
             end;
+    end;
+
+    local procedure CalcActualConsumpQty()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcActualConsumpQty(ProdOrderComp, Item, ActualConsumpQty, IsHandled);
+        if IsHandled then
+            exit;
+
+        ProdOrderComp.CalcFields("Act. Consumption (Qty)"); // Base Unit
+        ActualConsumpQty :=
+          ProdOrderComp."Act. Consumption (Qty)" / "Qty. per Unit of Measure";
+        if Item."Rounding Precision" > 0 then
+            ActualConsumpQty := UOMMgt.RoundToItemRndPrecision(ActualConsumpQty, Item."Rounding Precision")
+        else
+            ActualConsumpQty := Round(ActualConsumpQty, UOMMgt.QtyRndPrecision);
     end;
 
     local procedure ControlsMngt()
@@ -1104,6 +1115,11 @@ page 5510 "Production Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ItemJournalLine: Record "Item Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcActualConsumpQty(ProdOrderComponent: Record "Prod. Order Component"; Item: Record Item; var ActualConsumpQty: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

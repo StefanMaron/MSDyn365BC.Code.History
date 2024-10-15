@@ -144,6 +144,7 @@ codeunit 130512 "Library - Purchase"
           "Operation Description 2",
           PadStr(PurchaseHeader."Operation Description 2", MaxStrLen(PurchaseHeader."Operation Description 2"), 'B'));
         PurchaseHeader.Modify(true);
+        OnAfterCreatePurchHeader(PurchaseHeader, DocumentType, BuyfromVendorNo);
     end;
 
     procedure CreatePurchHeaderWithDocNo(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyfromVendorNo: Code[20]; DocNo: Code[20])
@@ -1029,6 +1030,11 @@ codeunit 130512 "Library - Purchase"
         PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
     begin
         PurchPostYesNo.Preview(PurchaseHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyfromVendorNo: Code[20])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

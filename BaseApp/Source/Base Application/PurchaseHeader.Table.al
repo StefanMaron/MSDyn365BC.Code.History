@@ -2343,8 +2343,8 @@
         field(10707; "Invoice Type"; Option)
         {
             Caption = 'Invoice Type';
-            OptionCaption = 'F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry,F5 Imports (DUA),F6 Accounting support material,Customs - Complementary Liquidation';
-            OptionMembers = "F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry","F5 Imports (DUA)","F6 Accounting support material","Customs - Complementary Liquidation";
+            OptionCaption = 'F1 Invoice,F2 Simplified Invoice,F3 Invoice issued to replace simplified invoices,F4 Invoice summary entry,F5 Imports (DUA),F6 Accounting support material,Customs - Complementary Liquidation,R1 Corrected Invoice,R2 Corrected Invoice (Art. 80.3),R3 Corrected Invoice (Art. 80.4),R4 Corrected Invoice (Other),R5 Corrected Invoice in Simplified Invoices';
+            OptionMembers = "F1 Invoice","F2 Simplified Invoice","F3 Invoice issued to replace simplified invoices","F4 Invoice summary entry","F5 Imports (DUA)","F6 Accounting support material","Customs - Complementary Liquidation","R1 Corrected Invoice","R2 Corrected Invoice (Art. 80.3)","R3 Corrected Invoice (Art. 80.4)","R4 Corrected Invoice (Other)","R5 Corrected Invoice in Simplified Invoices";
         }
         field(10708; "Cr. Memo Type"; Option)
         {
@@ -4661,10 +4661,16 @@
         exit((not HasPayToAddress) and PayToVendor.HasAddress);
     end;
 
-    procedure ShouldSearchForVendorByName(VendorNo: Code[20]): Boolean
+    procedure ShouldSearchForVendorByName(VendorNo: Code[20]) Result: Boolean
     var
         Vendor: Record Vendor;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShouldSearchForVendorByName(VendorNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if VendorNo = '' then
             exit(true);
 
@@ -5266,7 +5272,6 @@
 
     local procedure SetPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20])
     var
-        UserSetupPurchaserCode: Code[20];
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -5274,17 +5279,15 @@
         if IsHandled then
             exit;
 
-        UserSetupPurchaserCode := GetUserSetupPurchaserCode;
-        if PurchaserCodeToCheck <> '' then begin
-            if SalespersonPurchaser.Get(PurchaserCodeToCheck) then
-                if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then begin
-                    if UserSetupPurchaserCode = '' then
-                        PurchaserCodeToAssign := ''
-                end else
-                    PurchaserCodeToAssign := PurchaserCodeToCheck;
+        if PurchaserCodeToCheck = '' then
+            PurchaserCodeToCheck := GetUserSetupPurchaserCode();
+        if SalespersonPurchaser.Get(PurchaserCodeToCheck) then begin
+            if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+                PurchaserCodeToAssign := ''
+            else
+                PurchaserCodeToAssign := PurchaserCodeToCheck;
         end else
-            if UserSetupPurchaserCode = '' then
-                PurchaserCodeToAssign := '';
+            PurchaserCodeToAssign := '';
     end;
 
     procedure ValidatePurchaserOnPurchHeader(PurchaseHeader2: Record "Purchase Header"; IsTransaction: Boolean; IsPostAction: Boolean)
@@ -5868,6 +5871,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetShipToCodeEmpty(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShouldSearchForVendorByName(VendorNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -6,6 +6,7 @@ codeunit 9178 "Application Area Mgmt."
         HideApplicationAreaError: Boolean;
         PremiumSubscriptionNeededMsg: Label 'You cannot upgrade to the Premium experience because you do not have a Premium license assigned to you. Your administrator must assign the license to you in Office 365 and then synchronize the license information in Business Central from the Users page.';
         AppAreaNotSupportedErr: Label 'Application area Basic %1 is not supported.', Comment = '%1 = application area';
+        DelegatedAdminExperienceTierMsg: Label 'Congratulations on the upgrade to Premium. To help ensure a smooth process, make sure that all users are assigned the license in Office 365, and that the license information is synchronized with Business Central.';
 
     local procedure GetApplicationAreaSetupRec(var ApplicationAreaSetup: Record "Application Area Setup"): Boolean
     var
@@ -541,12 +542,18 @@ codeunit 9178 "Application Area Mgmt."
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
         EnvironmenInformation: Codeunit "Environment Information";
+        IdentityMgmt: Codeunit "Identity Management";
     begin
         if EnvironmenInformation.IsOnPrem() then
             exit(true);
 
         if (SelectedExperienceTier <> ExperienceTierSetup.FieldName(Premium)) or IsPremiumEnabled() then
             exit(true);
+
+        if (SelectedExperienceTier = ExperienceTierSetup.FieldName(Premium)) and IdentityMgmt.IsUserDelegatedAdmin() then begin
+            Message(DelegatedAdminExperienceTierMsg);
+            exit(true);
+        end;
 
         Message(PremiumSubscriptionNeededMsg);
         exit(false);

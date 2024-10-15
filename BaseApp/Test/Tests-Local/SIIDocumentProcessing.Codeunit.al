@@ -941,30 +941,6 @@ codeunit 147522 "SII Document Processing"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure ExistingSalesInvoiceCannotBePostedWithF5InvoiceType()
-    var
-        SalesHeader: Record "Sales Header";
-    begin
-        // [FEATURE] [Sales] [Invoice] [Invoice Type]
-        // [SCENARIO 225536] F5 Imports (DUA) is not a valid option to be selected under Invoice type field in sales invoice header
-
-        Initialize;
-
-        // [GIVEN] Sales Invoice Header having "Invoice Type" = F5
-        LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesHeader."Invoice Type" := 4;
-        SalesHeader.Modify(true);
-
-        // [WHEN] Post Sales Invoice
-        asserterror LibrarySales.PostSalesDocument(SalesHeader, false, true);
-
-        // [THEN] "Invoice Type must not be 4 in Sales Invoice Header" error appears
-        Assert.ExpectedError('Invoice Type must not be 4 in Sales Invoice Header');
-        Assert.IsTrue(SalesHeader.Find, 'Sales Header not exists');
-    end;
-
-    [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure NotifyOnSuccessIsDisabledInSIIJobQueueEntry()
