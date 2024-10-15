@@ -120,12 +120,12 @@ report 7000010 "Payment Order Listing"
                         DataItemTableView = SORTING(Type, "Collection Agent", "Bill Gr./Pmt. Order No.") WHERE("Collection Agent" = CONST(Bank), Type = CONST(Payable));
                         column(PmtOrdAmount; PmtOrdAmount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(PmtOrdAmount_Control23; PmtOrdAmount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Vend_City; Vend.City)
@@ -163,7 +163,7 @@ report 7000010 "Payment Order Listing"
                         }
                         column(PmtOrdAmount_Control31; PmtOrdAmount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Vend_County_Control35; Vend.County)
@@ -192,12 +192,12 @@ report 7000010 "Payment Order Listing"
                         }
                         column(PmtOrdAmount_Control36; PmtOrdAmount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(PmtOrdAmount_Control39; PmtOrdAmount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Cartera_Doc__Type; Type)

@@ -154,7 +154,7 @@ page 7000002 "Payables Cartera Docs"
                 field("Cust./Vendor Bank Acc. Code"; "Cust./Vendor Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;
-		            ToolTip = 'Specifies the bank account code of the customer/vendor associated with this document.';
+                    ToolTip = 'Specifies the bank account code of the customer/vendor associated with this document.';
                 }
             }
             group(Control49)
@@ -221,7 +221,7 @@ page 7000002 "Payables Cartera Docs"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 separator(Action58)
@@ -271,7 +271,7 @@ page 7000002 "Payables Cartera Docs"
                     begin
                         if Doc.Type = Doc.Type::Receivable then
                             if Cust.Get("Account No.") then
-                                Cust.CheckBlockedCustOnJnls(Cust, "Document Type", false);
+                                Cust.CheckBlockedCustOnJnls(Cust, "Gen. Journal Document Type".FromInteger("Document Type"), false);
                         Reject;
                     end;
                 }
@@ -298,7 +298,7 @@ page 7000002 "Payables Cartera Docs"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

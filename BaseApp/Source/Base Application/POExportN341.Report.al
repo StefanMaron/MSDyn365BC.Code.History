@@ -476,7 +476,7 @@ report 7000060 "PO - Export N34.1"
         ExpensesCode: Option Payer,Payee;
         PmtOrderConcept: Option Payroll,RetPayroll,Others;
         ActualTransferType: Option National,International,Special;
-        DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill;
+        DocumentType: Enum "Gen. Journal Document Type";
         VATRegVend: Text[12];
         CCCBankBranchNo: Text[4];
         CCCControlDigits: Text[2];

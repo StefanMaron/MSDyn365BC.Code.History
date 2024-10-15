@@ -202,7 +202,7 @@ table 7000003 "Posted Cartera Doc."
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(10700; "Original Document No."; Code[20])

@@ -849,7 +849,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         VerifyVATEntry(GenJournalLine, -Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"));
     end;
 
-    local procedure ApplyAndPostCustomerEntry(DocumentType: Option; PostedDocumentNo: Code[20]; DocumentNo: Code[20])
+    local procedure ApplyAndPostCustomerEntry(DocumentType: Enum "Gen. Journal Document Type"; PostedDocumentNo: Code[20]; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -868,7 +868,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
     end;
 
-    local procedure CreateAndPostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure CreateAndPostGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -886,7 +886,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure ApplyAndPostVendorEntry(DocumentType: Option; PostedDocumentNo: Code[20]; DocumentNo: Code[20])
+    local procedure ApplyAndPostVendorEntry(DocumentType: Enum "Gen. Journal Document Type"; PostedDocumentNo: Code[20]; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
@@ -961,7 +961,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         exit(Currency.Code);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
@@ -988,7 +988,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1002,7 +1002,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1018,7 +1018,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateAndPostJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1229,7 +1229,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         Assert.IsFalse(VATEntry.FindFirst, 'VAT Entries must not exist.');
     end;
 
-    local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; DocumentType: Option; Amount: Decimal; RemainingAmount: Decimal)
+    local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; RemainingAmount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1241,7 +1241,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         CustLedgerEntry.TestField("Remaining Amt. (LCY)", RemainingAmount);
     end;
 
-    local procedure VerifyGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; DocumentType: Option; Amount: Decimal; AdditionalCurrencyAmount: Decimal)
+    local procedure VerifyGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; AdditionalCurrencyAmount: Decimal)
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", DocumentType);

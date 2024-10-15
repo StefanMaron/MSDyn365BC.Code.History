@@ -202,7 +202,7 @@ table 96 "G/L Budget Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

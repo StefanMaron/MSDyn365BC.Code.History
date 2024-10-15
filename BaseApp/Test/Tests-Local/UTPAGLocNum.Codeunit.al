@@ -81,7 +81,7 @@ codeunit 144071 "UT PAG LocNum"
         CheckPreviewPaymentJournal(GenJournalLine."Account Type"::Customer, CreateCustomer, Amount, 0, Amount);  // Using 0 for Debit Amount, Random - Credit Amount, Amount.
     end;
 
-    local procedure CheckPreviewPaymentJournal(AccountType: Option; AccountNo: Code[20]; CreditAmount: Decimal; DebitAmount: Decimal; Amount: Decimal)
+    local procedure CheckPreviewPaymentJournal(AccountType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; CreditAmount: Decimal; DebitAmount: Decimal; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         DocumentNo: Code[20];
@@ -119,7 +119,7 @@ codeunit 144071 "UT PAG LocNum"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGenJournalLine(AccountType: Option; AccountNo: Code[20]; CreditAmount: Decimal; DebitAmount: Decimal; Amount: Decimal): Code[20]
+    local procedure CreateGenJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CreditAmount: Decimal; DebitAmount: Decimal; Amount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";

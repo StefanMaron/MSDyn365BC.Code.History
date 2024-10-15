@@ -17,7 +17,7 @@ codeunit 143305 "Library - 340 347 Declaration"
         IncorrectVATSetupErr: Label 'Incorrect use of setup function: VATCashRegime can only be TRUE if UnrealizedVAT is TRUE.';
 
     [Scope('OnPrem')]
-    procedure CreateAndPostPaymentForPI(VendorNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; Amount: Decimal): Code[20]
+    procedure CreateAndPostPaymentForPI(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PostingDate: Date; Amount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -67,7 +67,7 @@ codeunit 143305 "Library - 340 347 Declaration"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateAndPostPaymentForSI(CustomerNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; Amount: Decimal): Code[20]
+    procedure CreateAndPostPaymentForSI(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PostingDate: Date; Amount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -361,7 +361,7 @@ codeunit 143305 "Library - 340 347 Declaration"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20]; PostingDate: Date)
+    procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; PostingDate: Date)
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
         ServiceHeader.Validate("Posting Date", PostingDate);
@@ -385,7 +385,7 @@ codeunit 143305 "Library - 340 347 Declaration"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; PostingDate: Date; DocumentDate: Date)
+    procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PostingDate: Date; DocumentDate: Date)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);

@@ -69,7 +69,7 @@
         StartLineNo: Integer;
         StartLineNoReverse: Integer;
         LastDate: Date;
-        LastDocType: Option;
+        LastDocType: Enum "Gen. Journal Document Type";
         LastDocNo: Code[20];
         LastPostedDocNo: Code[20];
         CurrentBalance: Decimal;
@@ -100,6 +100,8 @@
         SkippedLineMsg: Label 'One or more lines has not been posted because the amount is zero.';
         ConfirmPostingAfterCurrentPeriodQst: Label 'The posting date of one or more journal lines is after the current calendar date. Do you want to continue?';
         SuppressCommit: Boolean;
+        ReversePostingDateErr: Label 'Posting Date for reverse cannot be less than %1', Comment = '%1 = Posting Date';
+        FirstLine: Boolean;
 
     local procedure "Code"(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -161,7 +163,7 @@
         LastICTransactionNo: Integer;
         ICTransactionNo: Integer;
         i: Integer;
-        ICLastDocType: Integer;
+        ICLastDocType: Enum "Gen. Journal Document Type";
         ICLastDate: Date;
         VATInfoSourceLineIsInserted: Boolean;
         SkippedLine: Boolean;
@@ -222,6 +224,7 @@
                 SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Transaction No.");
 
             FindSet(true, false);
+            FirstLine := true;
             repeat
                 ProcessICLines(CurrentICPartner, ICTransactionNo, ICLastDocNo, ICLastDate, ICLastDocType, GenJnlLine, TempGenJnlLine);
                 ProcessICTransaction(LastICTransactionNo, ICTransactionNo);
@@ -331,6 +334,7 @@
         VATPostingSetup: Record "VAT Posting Setup";
         BalVATPostingSetup: Record "VAT Posting Setup";
         ErrorMessage: Text;
+        LastDocTypeOption: Option;
         ForceCheckBalance: Boolean;
         IsProcessingKeySet: Boolean;
         IsHandled: Boolean;
@@ -345,7 +349,7 @@
 
         LineCount := 0;
         LastDate := 0D;
-        LastDocType := 0;
+        LastDocType := LastDocType::" ";
         LastDocNo := '';
         LastFAAddCurrExchRate := 0;
         GenJnlLineTemp.Reset();
@@ -381,7 +385,9 @@
                             FieldError(Correction, Text1100001);
                     CheckCorrection(GenJnlLine);
                 end;
-                OnBeforeIfCheckBalance(GenJnlTemplate, GenJnlLine, LastDocType, LastDocNo, LastDate, ForceCheckBalance, SuppressCommit, IsHandled);
+                LastDocTypeOption := LastDocType.AsInteger();
+                OnBeforeIfCheckBalance(GenJnlTemplate, GenJnlLine, LastDocTypeOption, LastDocNo, LastDate, ForceCheckBalance, SuppressCommit, IsHandled);
+                LastDocType := "Gen. Journal Document Type".FromInteger(LastDocTypeOption);
                 if not IsHandled then
                     if ForceCheckBalance or ("Posting Date" <> LastDate) or
                        (GenJnlTemplate."Force Doc. Balance" and (("Document Type" <> LastDocType) or ("Document No." <> LastDocNo))) or
@@ -415,7 +421,7 @@
                     UpdateLineBalance;
                     OnAfterUpdateLineBalance(GenJnlLine);
                     CurrentBalance := CurrentBalance + "Balance (LCY)";
-                    if "Recurring Method" >= "Recurring Method"::"RF Reversing Fixed" then
+                    if "Recurring Method".AsInteger() >= "Recurring Method"::"RF Reversing Fixed".AsInteger() then
                         CurrentBalanceReverse := CurrentBalanceReverse + "Balance (LCY)";
 
                     UpdateCurrencyBalanceForRecurringLine(GenJnlLine);
@@ -466,7 +472,7 @@
         OnAfterProcessBalanceOfLines(GenJnlLine);
     end;
 
-    local procedure ProcessICLines(var CurrentICPartner: Code[20]; var ICTransactionNo: Integer; var ICLastDocNo: Code[20]; var ICLastDate: Date; var ICLastDocType: Integer; var GenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    local procedure ProcessICLines(var CurrentICPartner: Code[20]; var ICTransactionNo: Integer; var ICLastDocNo: Code[20]; var ICLastDate: Date; var ICLastDocType: Enum "Gen. Journal Document Type"; var GenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary)
     var
         HandledICInboxTrans: Record "Handled IC Inbox Trans.";
     begin
@@ -520,7 +526,7 @@
     begin
         OnBeforeCheckBalance(
           GenJnlTemplate, GenJnlLine, CurrentBalance, CurrentBalanceReverse, CurrencyBalance,
-          StartLineNo, StartLineNoReverse, LastDocType, LastDocNo, LastDate, LastCurrencyCode, SuppressCommit);
+          StartLineNo, StartLineNoReverse, LastDocType.AsInteger(), LastDocNo, LastDate, LastCurrencyCode, SuppressCommit);
 
         with GenJnlLine do begin
             if CurrentBalance <> 0 then begin
@@ -695,7 +701,7 @@
     local procedure MakeRecurringTexts(var GenJnlLine2: Record "Gen. Journal Line")
     begin
         with GenJnlLine2 do
-            if ("Account No." <> '') and ("Recurring Method" <> 0) then begin
+            if ("Account No." <> '') and ("Recurring Method" <> "Gen. Journal Recurring Method"::" ") then begin
                 Day := Date2DMY("Posting Date", 1);
                 Week := Date2DWY("Posting Date", 2);
                 Month := Date2DMY("Posting Date", 2);
@@ -988,7 +994,7 @@
         OnAfterCopyGenJnlLineBalancingData(GenJnlLineTo, GenJnlLineFrom);
     end;
 
-    local procedure CheckGenPostingType(GenJnlLine6: Record "Gen. Journal Line"; AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner")
+    local procedure CheckGenPostingType(GenJnlLine6: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type")
     var
         IsHandled: Boolean;
     begin
@@ -1013,7 +1019,7 @@
     local procedure CheckAndCopyBalancingData(var GenJnlLine4: Record "Gen. Journal Line"; var GenJnlLine6: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; CheckBalAcount: Boolean)
     var
         TempGenJournalLineHistory: Record "Gen. Journal Line" temporary;
-        AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner";
+        AccountType: Enum "Gen. Journal Account Type";
         CheckAmount: Decimal;
         JnlLineTotalQty: Integer;
         RefPostingSubState: Option "Check account","Check bal. account","Update lines";
@@ -1090,7 +1096,7 @@
         end;
     end;
 
-    local procedure GetPostingTypeFilter(var GenJnlLine4: Record "Gen. Journal Line"; CheckBalAcount: Boolean): Integer
+    local procedure GetPostingTypeFilter(var GenJnlLine4: Record "Gen. Journal Line"; CheckBalAcount: Boolean): Enum "Gen. Journal Account Type"
     begin
         if CheckBalAcount then
             exit(GenJnlLine4."Bal. Account Type");
@@ -1419,6 +1425,7 @@
         CustLedgEntry2: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
         IsPosted: Boolean;
+        SavedPostingDate: Date;
     begin
         with GenJournalLine do begin
             if NeedCheckZeroAmount and (Amount = 0) and IsRecurring then
@@ -1502,22 +1509,25 @@
 
             UpdateIncomingDocument(GenJnlLine5);
             OnBeforePostGenJnlLine(GenJnlLine5, SuppressCommit, IsPosted, GenJnlPostLine);
-            if not IsPosted then
+            if not IsPosted then begin
                 GenJnlPostLine.RunWithoutCheck(GenJnlLine5);
+                InsertPostedGenJnlLine(GenJournalLine);
+            end;
             OnAfterPostGenJnlLine(GenJnlLine5, SuppressCommit, GenJnlPostLine);
             if (GenJnlTemplate.Type = GenJnlTemplate.Type::Intercompany) and (CurrentICPartner <> '') and
                ("IC Direction" = "IC Direction"::Outgoing) and (ICTransactionNo > 0)
             then
                 ICOutboxMgt.CreateOutboxJnlLine(ICTransactionNo, 1, GenJnlLine5);
-            if ("Recurring Method" >= "Recurring Method"::"RF Reversing Fixed") and ("Posting Date" <> 0D) then begin
-                "Posting Date" := "Posting Date" + 1;
+            if ("Recurring Method".AsInteger() >= "Recurring Method"::"RF Reversing Fixed".AsInteger()) and ("Posting Date" <> 0D) then begin
+                SavedPostingDate := "Posting Date";
+                "Posting Date" := CalcReversePostingDate(GenJournalLine);
                 "Document Date" := "Posting Date";
                 MultiplyAmounts(GenJournalLine, -1);
                 TempGenJnlLine4 := GenJournalLine;
                 TempGenJnlLine4."Reversing Entry" := true;
                 TempGenJnlLine4.Insert();
                 NoOfReversingRecords := NoOfReversingRecords + 1;
-                "Posting Date" := "Posting Date" - 1;
+                "Posting Date" := SavedPostingDate;
                 "Document Date" := "Posting Date";
             end;
             PostAllocations(GenJournalLine, CurrGenJnlLine, false);
@@ -1578,6 +1588,39 @@
         end;
     end;
 
+    local procedure InsertPostedGenJnlLine(GenJournalLine: Record "Gen. Journal Line")
+    var
+        PostedGenJournalBatch: Record "Posted Gen. Journal Batch";
+        PostedGenJournalLine: Record "Posted Gen. Journal Line";
+    begin
+        if GenJnlTemplate.Recurring then
+            exit;
+
+        if not GenJnlBatch."Copy to Posted Jnl. Lines" then
+            exit;
+
+        if GenJournalLine.EmptyLine() then
+            exit;
+
+        if not PostedGenJournalBatch.Get(GenJnlBatch."Journal Template Name", GenJnlBatch.Name) then
+            PostedGenJournalBatch.InsertFromGenJournalBatch(GenJnlBatch);
+
+        PostedGenJournalLine.InsertFromGenJournalLine(GenJournalLine, GLRegNo, FirstLine);
+        FirstLine := false;
+    end;
+
+    local procedure CalcReversePostingDate(GenJournalLine: Record "Gen. Journal Line") PostingDate: Date
+    begin
+        if Format(GenJournalLine."Reverse Date Calculation") <> '' then begin
+            PostingDate := CalcDate(GenJournalLine."Reverse Date Calculation", GenJournalLine."Posting Date");
+            if PostingDate <= GenJournalLine."Posting Date" then
+                Error(ReversePostingDateErr, GenJournalLine."Posting Date" + 1);
+        end else
+            PostingDate := GenJournalLine."Posting Date" + 1;
+
+        OnAfterCalcReversePostingDate(GenJournalLine, PostingDate);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var GenJournalLine: Record "Gen. Journal Line"; PreviewMode: Boolean)
     begin
@@ -1609,7 +1652,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckGenPostingType(GenJnlLine: Record "Gen. Journal Line"; AccountType: Option; var IsHandled: Boolean)
+    local procedure OnBeforeCheckGenPostingType(GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1785,6 +1828,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAndDeleteLinesOnBeforeModifyRecurringLine(var GenJnlLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcReversePostingDate(GenJournalLine: Record "Gen. Journal Line"; var PostingDate: Date)
     begin
     end;
 

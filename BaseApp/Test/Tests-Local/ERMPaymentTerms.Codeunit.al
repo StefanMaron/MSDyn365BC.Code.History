@@ -278,7 +278,7 @@ codeunit 144079 "ERM Payment Terms"
           GeneralLedgerSetup."Payment Discount Type", GeneralLedgerSetup."Discount Calculation");
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20])
     var
         Item: Record Item;
         ServiceHeader: Record "Service Header";

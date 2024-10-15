@@ -169,8 +169,8 @@ codeunit 10753 "SII Job Upload Pending Docs."
             if not IsHandled then
                 SIIDocUploadState.CreateNewRequest(
                   "Entry No.",
-                  SIIDocUploadState."Document Source"::"Customer Ledger",
-                  "Document Type",
+                  SIIDocUploadState."Document Source"::"Customer Ledger".AsInteger(),
+                  "Document Type".AsInteger(),
                   "Document No.", "External Document No.",
                   "Posting Date")
         end;
@@ -199,8 +199,8 @@ codeunit 10753 "SII Job Upload Pending Docs."
 
             SIIDocUploadState.CreateNewRequest(
               "Entry No.",
-              SIIDocUploadState."Document Source"::"Vendor Ledger",
-              "Document Type",
+              SIIDocUploadState."Document Source"::"Vendor Ledger".AsInteger(),
+              "Document Type".AsInteger(),
               "Document No.", "External Document No.",
               "Posting Date")
         end;

@@ -500,7 +500,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
         end;
     end;
 
-    local procedure InsertGenJournalLine(AccType: Integer; AccNo: Code[20]; Amount2: Decimal; Dep: Code[20]; Proj: Code[20]; DimSetID: Integer)
+    local procedure InsertGenJournalLine(AccType: enum "Gen. Journal Account Type"; AccNo: Code[20]; Amount2: Decimal; Dep: Code[20]; Proj: Code[20]; DimSetID: Integer)
     begin
         GenJnlLineNextNo := GenJnlLineNextNo + 10000;
 

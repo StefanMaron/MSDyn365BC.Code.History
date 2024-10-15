@@ -192,7 +192,11 @@ page 5086 "Campaign Card"
                     Image = SalesPrices;
                     Promoted = true;
                     PromotedCategory = Category5;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Define how to set up sales price agreements. These sales prices can be for individual customers, for a group of customers, for all customers, or for a campaign.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -211,7 +215,11 @@ page 5086 "Campaign Card"
                     Image = SalesLineDisc;
                     Promoted = true;
                     PromotedCategory = Category5;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -221,6 +229,44 @@ page 5086 "Campaign Card"
                         SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::Campaign);
                         SalesLineDiscount.SetRange("Sales Code", "No.");
                         Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
+                    end;
+                }
+                action(PriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Prices)';
+                    Image = Price;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different prices for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Price);
+                    end;
+                }
+                action(PriceListsDiscounts)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists (Discounts)';
+                    Image = LineDiscount;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to the customer. A product line discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                        AmountType: Enum "Price Amount Type";
+                        PriceType: Enum "Price Type";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec, PriceType::Sale, AmountType::Discount);
                     end;
                 }
             }
@@ -274,7 +320,14 @@ page 5086 "Campaign Card"
         }
     }
 
+    trigger OnOpenPage()
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
+
     var
         CampaignMgmt: Codeunit "Campaign Target Group Mgt";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        ExtendedPriceEnabled: Boolean;
 }
 

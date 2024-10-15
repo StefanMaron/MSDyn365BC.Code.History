@@ -1,4 +1,4 @@
-﻿page 6640 "Purchase Return Order"
+page 6640 "Purchase Return Order"
 {
     Caption = 'Purchase Return Order';
     PageType = Document;
@@ -54,6 +54,12 @@
                         OnAfterValidateBuyFromVendorNo(Rec, xRec);
 
                         CurrPage.Update;
+                    end;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        if LookupBuyfromVendorName() then
+                            CurrPage.Update();
                     end;
                 }
                 group("Buy-from")
@@ -118,13 +124,40 @@
                         Importance = Additional;
                         ToolTip = 'Specifies the number of your contact at the vendor.';
                     }
+                    field(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactEmail; BuyFromContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
+                    }
                 }
                 field("Buy-from Contact"; "Buy-from Contact")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'Contact';
                     Editable = "Buy-from Vendor No." <> '';
-                    ToolTip = 'Specifies the name of the person to contact about an order from this vendor.';
+                    ToolTip = 'Specifies the name of the vendor contact person.';
                 }
                 field("Document Date"; "Document Date")
                 {
@@ -503,7 +536,7 @@
                         Caption = 'Contact';
                         Editable = ShipToOptions = ShipToOptions::"Custom Address";
                         Importance = Additional;
-                        ToolTip = 'Specifies the name of the person to contact about an order from this vendor.';
+                        ToolTip = 'Specifies the name of the vendor contact person.';
                     }
                 }
                 group("Pay-to")
@@ -598,6 +631,33 @@
                         ToolTip = 'Specifies the number of the contact who sends the invoice.';
                         Visible = "Buy-from Vendor No." <> "Pay-to Vendor No.";
                     }
+                    field(PayToContactPhoneNo; PayToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(PayToContactEmail; PayToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = Email;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
+                    }
                     field("Pay-to Contact"; "Pay-to Contact")
                     {
                         ApplicationArea = PurchReturnOrder;
@@ -605,7 +665,7 @@
                         Editable = "Buy-from Vendor No." <> "Pay-to Vendor No.";
                         Enabled = "Buy-from Vendor No." <> "Pay-to Vendor No.";
                         Importance = Additional;
-                        ToolTip = 'Specifies the name of the person to contact about an order from this vendor.';
+                        ToolTip = 'Specifies the name of the vendor contact person.';
                     }
                 }
             }
@@ -789,7 +849,8 @@
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
+                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
                 action("Co&mments")
@@ -1045,7 +1106,9 @@
 
                     trigger OnAction()
                     begin
-                        GetPstdDocLinesToRevere;
+                        GetPstdDocLinesToReverse();
+                        CurrPage.PurchLines.Page.PurchaseDocTotalsNotUpToDate();
+                        CurrPage.PurchLines.Page.Update(false);
                     end;
                 }
                 action("Apply Entries")
@@ -1370,6 +1433,8 @@
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingOption;
+        if BuyFromContact.Get("Buy-from Contact No.") then;
+        if PayToContact.Get("Pay-to Contact No.") then;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1418,6 +1483,8 @@
     end;
 
     var
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
         DocPrint: Codeunit "Document-Print";
         ReportPrint: Codeunit "Test Report-Print";
@@ -1452,6 +1519,11 @@
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+    end;
+
+    procedure CallPostDocument(PostingCodeunitID: Integer)
+    begin
+        PostDocument(PostingCodeunitID);
     end;
 
     local procedure PostDocument(PostingCodeunitID: Integer)

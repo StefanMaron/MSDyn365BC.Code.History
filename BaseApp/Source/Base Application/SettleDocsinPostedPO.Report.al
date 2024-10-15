@@ -406,7 +406,7 @@ report 7000082 "Settle Docs. in Posted PO"
         ExistsNoRealVAT: Boolean;
         HidePrintDialog: Boolean;
 
-    local procedure InsertGenJournalLine(AccType: Integer; AccNo: Code[20]; Amount2: Decimal; Dep: Code[20]; Proj: Code[20]; DimSetID: Integer)
+    local procedure InsertGenJournalLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Amount2: Decimal; Dep: Code[20]; Proj: Code[20]; DimSetID: Integer)
     begin
         GenJnlLineNextNo := GenJnlLineNextNo + 10000;
 

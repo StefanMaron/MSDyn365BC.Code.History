@@ -19,11 +19,11 @@ codeunit 134920 "ERM General Journal UT"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryGraphMgt: Codeunit "Library - Graph Mgt";
         Assert: Codeunit Assert;
         GenJnlManagement: Codeunit GenJnlManagement;
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryVariableStorageCounter: Codeunit "Library - Variable Storage";
-        LibraryGraphMgt: Codeunit "Library - Graph Mgt";
         IsInitialized: Boolean;
         DocNoFilterErr: Label 'The document numbers cannot be renumbered while there is an active filter on the Document No. field.';
         CheckPrintedIsTrueErr: Label 'Check Printed must be equal to ''No''';
@@ -4798,14 +4798,14 @@ codeunit 134920 "ERM General Journal UT"
         TargetURL: Text;
         ResponseText: text;
     begin
-        // [SCENARIO 357906] Create Gen. Journal batch with Web Service or Excel add-in 
+        // [SCENARIO 357907] Create Gen. Journal batch with Web Service or Excel add-in 
         Initialize;
 
         // [GIVEN] Gen. Journal Template = "GJT"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
 
         // [GIVEN] Web Service for Gen. Journal Batches page = "WS"
-        LibraryGraphMgt.EnsureWebServiceExist('GeneralJournalBatches', PAGE::"General Journal Batches");
+        LibraryGraphMgt.EnsureWebServiceExist('GeneralJournalBatches', 251);
 
         // [WHEN] Post Json request to Web Service "WS" (new Gen. Journal Batch - Name = "GJB", Journal_Template_Name = "GJT")
         NewGenJnlBatchName := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo("Name"), DATABASE::"Gen. Journal Batch");
@@ -4815,6 +4815,19 @@ codeunit 134920 "ERM General Journal UT"
 
         // [THEN] Gen. Journal Batch "GJB" created with Journal Template Name = "GJT"
         Assert.IsTrue(GenJournalBatch.Get(GenJournalTemplate.Name, NewGenJnlBatchName), 'Record not found');
+    end;
+
+    local procedure GetGenJnlBatchJson(NewGenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]) GenJnlBatchJson: Text
+    var
+        JSONManagement: Codeunit "JSON Management";
+        JsonObject: DotNet JObject;
+    begin
+        JSONManagement.InitializeEmptyObject;
+        JSONManagement.GetJSONObject(JsonObject);
+        JSONManagement.AddJPropertyToJObject(JsonObject, 'Name', NewGenJnlBatchName);
+        JSONManagement.AddJPropertyToJObject(JsonObject, 'Journal_Template_Name', GenJnlTemplateName);
+
+        GenJnlBatchJson := JSONManagement.WriteObjectToString;
     end;
 
     local procedure Initialize()
@@ -4847,7 +4860,7 @@ codeunit 134920 "ERM General Journal UT"
         PrepareGeneralJournalBatchesPage(GeneralJournalBatches, GenJournalBatch);
     end;
 
-    local procedure PrepareTemplateBatchAndPageWithTypeAndReccuring(var GeneralJournalBatches: TestPage "General Journal Batches"; GenJournalTemplateType: Option; Recurring: Boolean)
+    local procedure PrepareTemplateBatchAndPageWithTypeAndReccuring(var GeneralJournalBatches: TestPage "General Journal Batches"; GenJournalTemplateType: Enum "Gen. Journal Template Type"; Recurring: Boolean)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -4873,7 +4886,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Validate("Currency Code", CurrencyCode);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Option; AccType: Option; AccNo: Code[20]; BalAccType: Option; BalAccNo: Code[20]; NoSeriesCode: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; NoSeriesCode: Code[20])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -4907,7 +4920,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateSingleLineGenJnlDoc(var GenJournalLine: Record "Gen. Journal Line"; AccType: Option; AccNo: Code[20])
+    local procedure CreateSingleLineGenJnlDoc(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
     begin
         LibraryERM.CreateGeneralJnlLine2(GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           GenJournalLine."Document Type"::" ", AccType, AccNo, LibraryRandom.RandDec(100, 2))
@@ -4983,7 +4996,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalTemplate.Modify(true);
     end;
 
-    local procedure CreateGenJournalTemplateBatchWithTypeAndRecurring(var GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalBatch: Record "Gen. Journal Batch"; GenJournalTemplateType: Option; Recurring: Boolean)
+    local procedure CreateGenJournalTemplateBatchWithTypeAndRecurring(var GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalBatch: Record "Gen. Journal Batch"; GenJournalTemplateType: Enum "Gen. Journal Template Type"; Recurring: Boolean)
     begin
         CreateGenJournalTemplateBatch(GenJournalTemplate, GenJournalBatch);
         GenJournalTemplate.Validate(Type, GenJournalTemplateType);
@@ -5226,7 +5239,7 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLineNew.SetUpNewLine(GenJournalLine, GenJournalLine."Balance (LCY)", true);
     end;
 
-    local procedure ValidateAmountAndVerifySalesPurchLCYGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; RecurringMethod: Option; SystemCreatedEntry: Boolean; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
+    local procedure ValidateAmountAndVerifySalesPurchLCYGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; RecurringMethod: Enum "Gen. Journal Recurring Method"; SystemCreatedEntry: Boolean; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     begin
         with GenJournalLine do begin
             Init;
@@ -5494,7 +5507,7 @@ codeunit 134920 "ERM General Journal UT"
         AppliedCustomerEntries.Close;
     end;
 
-    local procedure VerifySalesPurchLCYAfterValidateAmount(RecurringMethod: Option)
+    local procedure VerifySalesPurchLCYAfterValidateAmount(RecurringMethod: Enum "Gen. Journal Recurring Method")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -5539,7 +5552,7 @@ codeunit 134920 "ERM General Journal UT"
         end;
     end;
 
-    local procedure VerifyGenJournalLineSalesPurchLCY_CustomerInvoice(RecurringMethod: Option; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
+    local procedure VerifyGenJournalLineSalesPurchLCY_CustomerInvoice(RecurringMethod: Enum "Gen. Journal Recurring Method"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -5549,7 +5562,7 @@ codeunit 134920 "ERM General Journal UT"
               LibrarySales.CreateCustomerNo, "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
     end;
 
-    local procedure VerifyGenJournalLineSalesPurchLCY_CustomerCrMemo(RecurringMethod: Option; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
+    local procedure VerifyGenJournalLineSalesPurchLCY_CustomerCrMemo(RecurringMethod: Enum "Gen. Journal Recurring Method"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -5559,7 +5572,7 @@ codeunit 134920 "ERM General Journal UT"
               LibrarySales.CreateCustomerNo, "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
     end;
 
-    local procedure VerifyGenJournalLineSalesPurchLCY_VendorInvoice(RecurringMethod: Option; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
+    local procedure VerifyGenJournalLineSalesPurchLCY_VendorInvoice(RecurringMethod: Enum "Gen. Journal Recurring Method"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -5569,7 +5582,7 @@ codeunit 134920 "ERM General Journal UT"
               LibraryPurchase.CreateVendorNo, "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
     end;
 
-    local procedure VerifyGenJournalLineSalesPurchLCY_VendorCrMemo(RecurringMethod: Option; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
+    local procedure VerifyGenJournalLineSalesPurchLCY_VendorCrMemo(RecurringMethod: Enum "Gen. Journal Recurring Method"; BalAccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -5579,7 +5592,7 @@ codeunit 134920 "ERM General Journal UT"
               LibraryPurchase.CreateVendorNo, "Bal. Account Type"::"G/L Account", BalAccountNo, ValidateAmount, ExpectedValue);
     end;
 
-    local procedure VerifyGenJournalLineSalesPurchLCY_BalCustomerInvoice(RecurringMethod: Option; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
+    local procedure VerifyGenJournalLineSalesPurchLCY_BalCustomerInvoice(RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -5589,7 +5602,7 @@ codeunit 134920 "ERM General Journal UT"
               "Bal. Account Type"::Customer, LibraryERM.CreateGLAccountNo, ValidateAmount, ExpectedValue);
     end;
 
-    local procedure VerifyGenJournalLineSalesPurchLCY_BalCustomerCrMemo(RecurringMethod: Option; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
+    local procedure VerifyGenJournalLineSalesPurchLCY_BalCustomerCrMemo(RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -5599,7 +5612,7 @@ codeunit 134920 "ERM General Journal UT"
               "Bal. Account Type"::Customer, LibraryERM.CreateGLAccountNo, ValidateAmount, ExpectedValue);
     end;
 
-    local procedure VerifyGenJournalLineSalesPurchLCY_BalVendorInvoice(RecurringMethod: Option; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
+    local procedure VerifyGenJournalLineSalesPurchLCY_BalVendorInvoice(RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -5609,7 +5622,7 @@ codeunit 134920 "ERM General Journal UT"
               "Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo, ValidateAmount, ExpectedValue);
     end;
 
-    local procedure VerifyGenJournalLineSalesPurchLCY_BalVendorCrMemo(RecurringMethod: Option; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
+    local procedure VerifyGenJournalLineSalesPurchLCY_BalVendorCrMemo(RecurringMethod: Enum "Gen. Journal Recurring Method"; AccountNo: Code[20]; ValidateAmount: Decimal; ExpectedValue: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -5729,19 +5742,6 @@ codeunit 134920 "ERM General Journal UT"
             LibraryDimension.CreateDimWithDimValue(DimensionValue);
             LibraryERM.SetShortcutDimensionCode(i, DimensionValue."Dimension Code");
         end;
-    end;
-
-    local procedure GetGenJnlBatchJson(NewGenJnlBatchName: Code[10]; GenJnlTemplateName: Code[10]) GenJnlBatchJson: Text
-    var
-        JSONManagement: Codeunit "JSON Management";
-        JsonObject: DotNet JObject;
-    begin
-        JSONManagement.InitializeEmptyObject;
-        JSONManagement.GetJSONObject(JsonObject);
-        JSONManagement.AddJPropertyToJObject(JsonObject, 'Name', NewGenJnlBatchName);
-        JSONManagement.AddJPropertyToJObject(JsonObject, 'Journal_Template_Name', GenJnlTemplateName);
-
-        GenJnlBatchJson := JSONManagement.WriteObjectToString;
     end;
 
     [ModalPageHandler]

@@ -598,7 +598,7 @@ codeunit 147525 "SII Documents Exemption"
         IsInitialized := true;
     end;
 
-    local procedure CreateVATPostingSetupWithSIIExemptVATClause(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Integer; VATRate: Decimal)
+    local procedure CreateVATPostingSetupWithSIIExemptVATClause(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; VATRate: Decimal)
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
@@ -611,7 +611,7 @@ codeunit 147525 "SII Documents Exemption"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocWithVATPostingSetup(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DocType: Integer; CorrectionType: Integer)
+    local procedure CreatePurchaseDocWithVATPostingSetup(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DocType: Enum "Purchase Document Type"; CorrectionType: Integer)
     begin
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, DocType, LibrarySII.CreateVendWithVATSetup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -623,14 +623,14 @@ codeunit 147525 "SII Documents Exemption"
 
     [NonDebuggable]
     [Scope('OnPrem')]
-    procedure CreateSalesDocWithMixedNormalAndExemptLines(var SalesHeader: Record "Sales Header"; var NormalSalesLine: Record "Sales Line"; var ExemptSalesLine: Record "Sales Line"; DocType: Option; CorrectionType: Option)
+    procedure CreateSalesDocWithMixedNormalAndExemptLines(var SalesHeader: Record "Sales Header"; var NormalSalesLine: Record "Sales Line"; var ExemptSalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; CorrectionType: Option)
     begin
         LibrarySII.CreateSalesDocWithVATClause(SalesHeader, DocType, CorrectionType);
         FindLastSalesLine(ExemptSalesLine, SalesHeader);
         AddNormalVATSalesLine(NormalSalesLine, SalesHeader, LibraryRandom.RandInt(50));
     end;
 
-    local procedure CreateSalesDocZeroVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option; CorrectionType: Option)
+    local procedure CreateSalesDocZeroVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; CorrectionType: Option)
     var
         Customer: Record Customer;
     begin

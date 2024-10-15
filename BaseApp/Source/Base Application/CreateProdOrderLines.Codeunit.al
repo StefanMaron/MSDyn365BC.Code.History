@@ -1,4 +1,4 @@
-﻿codeunit 99000787 "Create Prod. Order Lines"
+codeunit 99000787 "Create Prod. Order Lines"
 {
     Permissions = TableData Item = r,
                   TableData "Sales Header" = r,

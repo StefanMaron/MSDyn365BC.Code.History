@@ -160,7 +160,7 @@ report 7000096 "Redraw Receivable Bills"
                         InsertGenJnlLine(
                           "Account Type"::"G/L Account",
                           CustPostingGr."Finance Income Acc.",
-                          0,
+                          "Gen. Journal Document Type"::" ",
                           -(FeeRange.GetTotalDiscExpensesAmt + FeeRange.GetTotalCollExpensesAmt),
                           StrSubstNo(
                             Text1100005,
@@ -177,7 +177,7 @@ report 7000096 "Redraw Receivable Bills"
                             InsertGenJnlLine(
                               "Account Type"::"G/L Account",
                               BankAccPostingGr."Discount Interest Acc.",
-                              0,
+                              "Gen. Journal Document Type"::" ",
                               -FeeRange.GetTotalDiscInterestsAmt,
                               StrSubstNo(
                                 Text1100006,
@@ -197,7 +197,7 @@ report 7000096 "Redraw Receivable Bills"
                         InsertGenJnlLine(
                           "Account Type"::"G/L Account",
                           CustPostingGr."Finance Income Acc.",
-                          0,
+                          "Gen. Journal Document Type"::" ",
                           -FeeRange.GetTotalRejExpensesAmt,
                           StrSubstNo(
                             Text1100007,
@@ -216,7 +216,7 @@ report 7000096 "Redraw Receivable Bills"
                         InsertGenJnlLine(
                           "Account Type"::"G/L Account",
                           CustPostingGr."Finance Income Acc.",
-                          0,
+                          "Gen. Journal Document Type"::" ",
                           -FinanceChargeTerms.GetTotalFinChargesAmt,
                           StrSubstNo(
                             Text1100008,
@@ -244,7 +244,7 @@ report 7000096 "Redraw Receivable Bills"
                             InsertGenJnlLine(
                               "Account Type"::"G/L Account",
                               Account,
-                              0,
+                              "Gen. Journal Document Type"::" ",
                               -SumLCYAmt,
                               Text1100009,
                               '');
@@ -568,7 +568,7 @@ report 7000096 "Redraw Receivable Bills"
         end;
     end;
 
-    local procedure InsertGenJnlLine(AccountType2: Integer; AccountNo2: Code[20]; DocumentType2: Integer; Amount2: Decimal; Description2: Text[250]; DocNo2: Code[20])
+    local procedure InsertGenJnlLine(AccountType2: Enum "Gen. Journal Account Type"; AccountNo2: Code[20]; DocumentType2: Enum "Gen. Journal Document Type"; Amount2: Decimal; Description2: Text[250]; DocNo2: Code[20])
     var
         PreservedDueDate: Date;
         PreservedPaymentMethodCode: Code[10];
@@ -663,7 +663,7 @@ report 7000096 "Redraw Receivable Bills"
                 InsertGenJnlLine(
                   GenJnlLine."Account Type"::"G/L Account",
                   Currency."Realized Gains Acc.",
-                  0,
+                  "Gen. Journal Document Type"::" ",
                   -GainLossAmt,
                   StrSubstNo(
                     Text1100004,
@@ -676,7 +676,7 @@ report 7000096 "Redraw Receivable Bills"
                 InsertGenJnlLine(
                   GenJnlLine."Account Type"::"G/L Account",
                   Currency."Realized Losses Acc.",
-                  0,
+                  "Gen. Journal Document Type"::" ",
                   -GainLossAmt,
                   StrSubstNo(
                     Text1100004,
@@ -690,7 +690,7 @@ report 7000096 "Redraw Receivable Bills"
             InsertGenJnlLine(
               GenJnlLine."Account Type"::"G/L Account",
               BankAccPostingGr."G/L Account No.",
-              0,
+              "Gen. Journal Document Type"::" ",
               GainLossAmt,
               StrSubstNo(
                 Text1100004,

@@ -148,11 +148,9 @@ table 10744 "340 Declaration Line"
         {
             Caption = 'Amount Including VAT / EC';
         }
-        field(35; Type; Option)
+        field(35; Type; Enum "General Posting Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
         }
         field(36; "Unrealized VAT Entry No."; Integer)
         {

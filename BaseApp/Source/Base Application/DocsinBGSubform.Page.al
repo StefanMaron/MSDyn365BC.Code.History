@@ -204,7 +204,7 @@ page 7000004 "Docs. in BG Subform"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
@@ -296,7 +296,7 @@ page 7000004 "Docs. in BG Subform"
     [Scope('OnPrem')]
     procedure ShowDimension()
     begin
-        ShowDimensions;
+        ShowDimensions();
     end;
 }
 

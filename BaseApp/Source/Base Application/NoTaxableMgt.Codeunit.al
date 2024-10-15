@@ -476,7 +476,7 @@ codeunit 10740 "No Taxable Mgt."
         VATPostingSetup: Record "VAT Posting Setup";
         VATProductPostingGroup: Record "VAT Product Posting Group";
         GeneralPostingSetup: Record "General Posting Setup";
-        EntryType: Option;
+        EntryType: Enum "General Posting Type";
     begin
         with GenJournalLine do begin
             if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
@@ -550,7 +550,7 @@ codeunit 10740 "No Taxable Mgt."
         UpdateAmountsInCurrency(NoTaxableEntry);
     end;
 
-    local procedure InsertNoTaxableEntry(var NoTaxableEntry: Record "No Taxable Entry"; EntryType: Option; EntryAmount: Decimal; EUService: Boolean; NotIn347: Boolean; NoTaxableType: Option; DeliveryOperationCode: Option; VATCalculationType: Option; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; GenBusPostingGroupCode: Code[20]; GenProdPostingGroupCode: Code[20])
+    local procedure InsertNoTaxableEntry(var NoTaxableEntry: Record "No Taxable Entry"; EntryType: Enum "General Posting Type"; EntryAmount: Decimal; EUService: Boolean; NotIn347: Boolean; NoTaxableType: Option; DeliveryOperationCode: Option; VATCalculationType: Enum "Tax Calculation Type"; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; GenBusPostingGroupCode: Code[20]; GenProdPostingGroupCode: Code[20])
     begin
         with NoTaxableEntry do begin
             Type := EntryType;
@@ -602,7 +602,7 @@ codeunit 10740 "No Taxable Mgt."
         NoTaxableEntry: Record "No Taxable Entry";
     begin
         NoTaxableEntry.FilterNoTaxableEntriesForSource(
-          NoTaxableEntry.Type::Sale, CustomerNo, NoTaxableEntry."Document Type"::Invoice,
+          "General Posting Type"::Sale.AsInteger(), CustomerNo, "Gen. Journal Document Type"::Invoice.AsInteger(),
           FromDate, ToDate, FilterString);
         if NoTaxableEntry.IsEmpty then
             exit;
@@ -635,7 +635,7 @@ codeunit 10740 "No Taxable Mgt."
         NoTaxableEntry: Record "No Taxable Entry";
     begin
         NoTaxableEntry.FilterNoTaxableEntriesForSource(
-          NoTaxableEntry.Type::Purchase, VendorNo, NoTaxableEntry."Document Type"::Invoice,
+          "General Posting Type"::Purchase.AsInteger(), VendorNo, "Gen. Journal Document Type"::Invoice.AsInteger(),
           FromDate, ToDate, FilterString);
         if NoTaxableEntry.IsEmpty then
             exit;
@@ -790,8 +790,8 @@ codeunit 10740 "No Taxable Mgt."
         DummyNoTaxableEntry: Record "No Taxable Entry";
     begin
         DummyNoTaxableEntry.Reverse(
-          DummyNoTaxableEntry.Type::Purchase, VendLedgEntry."Vendor No.",
-          VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry."Posting Date");
+          "General Posting Type"::Purchase.AsInteger(), VendLedgEntry."Vendor No.",
+          VendLedgEntry."Document Type".AsInteger(), VendLedgEntry."Document No.", VendLedgEntry."Posting Date");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 17, 'OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry', '', false, false)]
@@ -800,8 +800,8 @@ codeunit 10740 "No Taxable Mgt."
         DummyNoTaxableEntry: Record "No Taxable Entry";
     begin
         DummyNoTaxableEntry.Reverse(
-          DummyNoTaxableEntry.Type::Sale, CustLedgerEntry."Customer No.",
-          CustLedgerEntry."Document Type", CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date");
+          "General Posting Type"::Sale.AsInteger(), CustLedgerEntry."Customer No.",
+          CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date");
     end;
 }
 

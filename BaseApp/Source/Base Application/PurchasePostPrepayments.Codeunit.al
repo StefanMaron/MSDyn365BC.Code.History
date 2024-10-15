@@ -42,7 +42,7 @@
         SuppressCommit: Boolean;
         PrepmtDocumentType: Option ,,Invoice,"Credit Memo";
         PreviewMode: Boolean;
-        AutoDocNo: Code[10];
+        AutoDocNo: Code[20];
 
     procedure SetDocumentType(DocumentType: Option ,,Invoice,"Credit Memo")
     begin
@@ -101,7 +101,7 @@
         ModifyHeader: Boolean;
         CalcPmtDiscOnCrMemos: Boolean;
         PostingDescription: Text[100];
-        GenJnlLineDocType: Integer;
+        GenJnlLineDocType: Enum "Gen. Journal Document Type";
         PrevLineNo: Integer;
         LineCount: Integer;
         PostedDocTabNo: Integer;
@@ -979,9 +979,11 @@
         with PurchCommentLine do
             case ToDocType of
                 DATABASE::"Purch. Inv. Header":
-                    CopyHeaderComments("Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber);
+                    CopyHeaderComments(
+                        "Document Type"::Order.AsInteger(), "Document Type"::"Posted Invoice".AsInteger(), FromNumber, ToNumber);
                 DATABASE::"Purch. Cr. Memo Hdr.":
-                    CopyHeaderComments("Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber);
+                    CopyHeaderComments(
+                        "Document Type"::Order.AsInteger(), "Document Type"::"Posted Credit Memo".AsInteger(), FromNumber, ToNumber);
             end;
     end;
 
@@ -995,9 +997,11 @@
         with PurchCommentLine do
             case ToDocType of
                 DATABASE::"Purch. Inv. Header":
-                    CopyLineComments("Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber, FromLineNo, ToLineNo);
+                    CopyLineComments(
+                        "Document Type"::Order.AsInteger(), "Document Type"::"Posted Invoice".AsInteger(), FromNumber, ToNumber, FromLineNo, ToLineNo);
                 DATABASE::"Purch. Cr. Memo Hdr.":
-                    CopyLineComments("Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber, FromLineNo, ToLineNo);
+                    CopyLineComments(
+                        "Document Type"::Order.AsInteger(), "Document Type"::"Posted Credit Memo".AsInteger(), FromNumber, ToNumber, FromLineNo, ToLineNo);
             end;
     end;
 
@@ -1012,10 +1016,10 @@
             case ToDocType of
                 DATABASE::"Purch. Inv. Header":
                     CopyLineCommentsFromPurchaseLines(
-                      "Document Type"::Order, "Document Type"::"Posted Invoice", FromNumber, ToNumber, TempPurchaseLine);
+                      "Document Type"::Order.AsInteger(), "Document Type"::"Posted Invoice".AsInteger(), FromNumber, ToNumber, TempPurchaseLine);
                 DATABASE::"Purch. Cr. Memo Hdr.":
                     CopyLineCommentsFromPurchaseLines(
-                      "Document Type"::Order, "Document Type"::"Posted Credit Memo", FromNumber, ToNumber, TempPurchaseLine);
+                      "Document Type"::Order.AsInteger(), "Document Type"::"Posted Credit Memo".AsInteger(), FromNumber, ToNumber, TempPurchaseLine);
             end;
     end;
 
@@ -1055,7 +1059,7 @@
         end;
     end;
 
-    local procedure PostPrepmtInvLineBuffer(PurchHeader: Record "Purchase Header"; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; DocumentType: Option Invoice,"Credit Memo"; PostingDescription: Text[100]; DocType: Option; DocNo: Code[20]; ExtDocNo: Text[35]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20])
+    local procedure PostPrepmtInvLineBuffer(PurchHeader: Record "Purchase Header"; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; DocumentType: Option Invoice,"Credit Memo"; PostingDescription: Text[100]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20])
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -1081,7 +1085,7 @@
         end;
     end;
 
-    local procedure PostVendorEntry(PurchHeader: Record "Purchase Header"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; DocumentType: Option Invoice,"Credit Memo"; PostingDescription: Text[100]; DocType: Option; DocNo: Code[20]; ExtDocNo: Text[35]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20]; CalcPmtDisc: Boolean)
+    local procedure PostVendorEntry(PurchHeader: Record "Purchase Header"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; DocumentType: Option Invoice,"Credit Memo"; PostingDescription: Text[100]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20]; CalcPmtDisc: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -1109,7 +1113,7 @@
         end;
     end;
 
-    local procedure PostBalancingEntry(PurchHeader: Record "Purchase Header"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; var VendLedgEntry: Record "Vendor Ledger Entry"; DocumentType: Option Invoice,"Credit Memo"; DocType: Option; DocNo: Code[20]; ExtDocNo: Text[35]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20])
+    local procedure PostBalancingEntry(PurchHeader: Record "Purchase Header"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; var VendLedgEntry: Record "Vendor Ledger Entry"; DocumentType: Option Invoice,"Credit Memo"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20])
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin

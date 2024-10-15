@@ -6,6 +6,7 @@ report 111 "Customer - Top 10 List"
     Caption = 'Customer - Top 10 List';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {
@@ -156,8 +157,14 @@ report 111 "Customer - Top 10 List"
                     field(NoOfRecordsToPrint; NoOfRecordsToPrint)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Quantity';
+                        Caption = 'Number of Customers';
                         ToolTip = 'Specifies the number of customers that will be included in the report.';
+
+                        trigger OnValidate()
+                        begin
+                            if NoOfRecordsToPrint <= 0 then
+                                Error(NoOfRecordsToPrintErrMsg);
+                        end;
                     }
                     field(ChartType; ChartType)
                     {
@@ -224,6 +231,7 @@ report 111 "Customer - Top 10 List"
         TotalCaptionLbl: Label 'Total';
         TotalSalesCaptionLbl: Label 'Total Sales';
         PercentofTotalSalesCaptionLbl: Label '% of Total Sales';
+        NoOfRecordsToPrintErrMsg: Label 'The value must be a positive number.';
 
     procedure InitializeRequest(SetChartType: Option; SetShowType: Option; NoOfRecords: Integer)
     begin

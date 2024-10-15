@@ -1319,7 +1319,7 @@ codeunit 147590 "Test VAT Statement"
         VATStatementName.Modify(true);
     end;
 
-    local procedure CreateVATStatementLineAcctTotalling(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; RowNo: Code[10]; VATPostingSetup: Record "VAT Posting Setup"; AccountTotaling: Text[30]; AmountType: Option; Box: Code[5])
+    local procedure CreateVATStatementLineAcctTotalling(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; RowNo: Code[10]; VATPostingSetup: Record "VAT Posting Setup"; AccountTotaling: Text[30]; AmountType: Enum "VAT Statement Line Amount Type"; Box: Code[5])
     var
         RecRef: RecordRef;
     begin
@@ -1350,7 +1350,7 @@ codeunit 147590 "Test VAT Statement"
         VATStatementLine.Modify(true);
     end;
 
-    local procedure CreateVATStatementLineECTotalling(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; RowNo: Code[10]; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Option; AmountType: Option; Box: Code[5])
+    local procedure CreateVATStatementLineECTotalling(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; RowNo: Code[10]; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type"; AmountType: Enum "VAT Statement Line Amount Type"; Box: Code[5])
     var
         RecRef: RecordRef;
     begin
@@ -1367,7 +1367,7 @@ codeunit 147590 "Test VAT Statement"
         VATStatementLine.Modify(true);
     end;
 
-    local procedure CreateVATStatementLineVATTotalling(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; RowNo: Code[10]; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Option; AmountType: Option; Box: Code[5])
+    local procedure CreateVATStatementLineVATTotalling(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; RowNo: Code[10]; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type"; AmountType: Enum "VAT Statement Line Amount Type"; Box: Code[5])
     var
         RecRef: RecordRef;
     begin
@@ -1396,11 +1396,11 @@ codeunit 147590 "Test VAT Statement"
         VATStatementLine.Modify(true);
     end;
 
-    local procedure CreateAndPostGeneralJournalLineToBalAccount(AccountType: Option; AccountNo: Code[20]; BalAccount: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostGeneralJournalLineToBalAccount(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccount: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        DocType: Integer;
+        DocType: Enum "Gen. Journal Document Type";
     begin
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
@@ -1437,7 +1437,7 @@ codeunit 147590 "Test VAT Statement"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure CreateGLAccountWithVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; PostingType: Option): Code[20]
+    local procedure CreateGLAccountWithVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; PostingType: Enum "General Posting Type"): Code[20]
     begin
         VATPostingSetup.SetRange("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -1549,7 +1549,7 @@ codeunit 147590 "Test VAT Statement"
         File.Close;
     end;
 
-    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; VATAmount: Decimal; VATBase: Decimal; VATCalculationType: Option)
+    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; VATAmount: Decimal; VATBase: Decimal; VATCalculationType: Enum "Tax Calculation Type")
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -1570,7 +1570,7 @@ codeunit 147590 "Test VAT Statement"
         end;
     end;
 
-    local procedure CreateVATEntryWithPostingGroups(var VATEntry: Record "VAT Entry"; VATAmount: Decimal; VATBase: Decimal; VATCalculationType: Option)
+    local procedure CreateVATEntryWithPostingGroups(var VATEntry: Record "VAT Entry"; VATAmount: Decimal; VATBase: Decimal; VATCalculationType: Enum "Tax Calculation Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -1588,7 +1588,7 @@ codeunit 147590 "Test VAT Statement"
         VATStatementName.Modify();
     end;
 
-    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; VATEntry: Record "VAT Entry"; AmountType: Option)
+    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; VATEntry: Record "VAT Entry"; AmountType: Enum "VAT Statement Line Amount Type")
     begin
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
         with VATStatementLine do begin

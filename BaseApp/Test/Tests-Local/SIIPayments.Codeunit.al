@@ -1689,7 +1689,7 @@ codeunit 147529 "SII Payments"
         DetailedVendorLedgEntry.FindFirst;
     end;
 
-    local procedure FindSIIDocUploadState(var SIIDocUploadState: Record "SII Doc. Upload State"; DocSource: Option; EntryNo: Integer)
+    local procedure FindSIIDocUploadState(var SIIDocUploadState: Record "SII Doc. Upload State"; DocSource: Enum "SII Doc. Upload State Document Source"; EntryNo: Integer)
     begin
         SIIDocUploadState.SetRange("Document Source", DocSource);
         SIIDocUploadState.SetRange("Entry No", EntryNo);
@@ -1778,7 +1778,7 @@ codeunit 147529 "SII Payments"
         exit(MockCustLedgEntry(DocNo, TransNo, DummyCustLedgerEntry."Document Type"::Bill));
     end;
 
-    local procedure MockCustLedgEntry(DocNo: Code[20]; TransNo: Integer; DocumentType: Option): Integer
+    local procedure MockCustLedgEntry(DocNo: Code[20]; TransNo: Integer; DocumentType: Enum "Gen. Journal Document Type"): Integer
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1826,7 +1826,7 @@ codeunit 147529 "SII Payments"
         exit(MockVendLedgEntry(DocNo, TransNo, DummyCustLedgerEntry."Document Type"::Bill));
     end;
 
-    local procedure MockVendLedgEntry(DocNo: Code[20]; TransNo: Integer; DocumentType: Option): Integer
+    local procedure MockVendLedgEntry(DocNo: Code[20]; TransNo: Integer; DocumentType: Enum "Gen. Journal Document Type"): Integer
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -1947,7 +1947,7 @@ codeunit 147529 "SII Payments"
         Assert.RecordCount(SIIHistory, ExpectedCount);
     end;
 
-    local procedure VerifyOneDocUploadStateAndHistoryEntry(DocumentSource: Option; DocumentNo: Code[35])
+    local procedure VerifyOneDocUploadStateAndHistoryEntry(DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentNo: Code[35])
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin

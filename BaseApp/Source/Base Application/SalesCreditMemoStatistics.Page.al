@@ -275,7 +275,6 @@ page 398 "Sales Credit Memo Statistics"
         AmountInclVAT: Decimal;
         InvDiscAmount: Decimal;
         VATAmount: Decimal;
-        CostLCY: Decimal;
         ProfitLCY: Decimal;
         ProfitPct: Decimal;
         AdjProfitLCY: Decimal;
@@ -285,13 +284,16 @@ page 398 "Sales Credit Memo Statistics"
         TotalGrossWeight: Decimal;
         TotalVolume: Decimal;
         TotalParcels: Decimal;
-        AmountLCY: Decimal;
         CreditLimitLCYExpendedPct: Decimal;
         VATpercentage: Decimal;
         VATAmountText: Text[30];
         PmtDiscAmount: Decimal;
 
-    local procedure CalculateTotals()
+    protected var
+        AmountLCY: Decimal;
+        CostLCY: Decimal;
+
+        local procedure CalculateTotals()
     var
         CostCalcMgt: Codeunit "Cost Calculation Management";
         IsHandled: Boolean;

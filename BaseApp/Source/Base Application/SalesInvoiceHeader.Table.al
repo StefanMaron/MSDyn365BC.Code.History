@@ -199,7 +199,7 @@ table 112 "Sales Invoice Header"
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Sales Comment Line" WHERE("Document Type" = CONST("Posted Invoice"),
+            CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = CONST("Posted Invoice"),
                                                             "No." = FIELD("No."),
                                                             "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -246,7 +246,7 @@ table 112 "Sales Invoice Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Invoice Line".Amount WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Invoice Line".Amount WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -255,7 +255,7 @@ table 112 "Sales Invoice Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Invoice Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Invoice Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -506,7 +506,7 @@ table 112 "Sales Invoice Header"
         }
         field(166; "Last Email Sent Time"; DateTime)
         {
-            CalcFormula = Max ("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = CONST(Invoice),
+            CalcFormula = Max("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = CONST(Invoice),
                                                                                       "Document No." = FIELD("No."),
                                                                                       Posted = CONST(true)));
             Caption = 'Last Email Sent Time';
@@ -514,7 +514,7 @@ table 112 "Sales Invoice Header"
         }
         field(167; "Last Email Sent Status"; Option)
         {
-            CalcFormula = Lookup ("O365 Document Sent History"."Job Last Status" WHERE("Document Type" = CONST(Invoice),
+            CalcFormula = Lookup("O365 Document Sent History"."Job Last Status" WHERE("Document Type" = CONST(Invoice),
                                                                                        "Document No." = FIELD("No."),
                                                                                        Posted = CONST(true),
                                                                                        "Created Date-Time" = FIELD("Last Email Sent Time")));
@@ -525,7 +525,7 @@ table 112 "Sales Invoice Header"
         }
         field(168; "Sent as Email"; Boolean)
         {
-            CalcFormula = Exist ("O365 Document Sent History" WHERE("Document Type" = CONST(Invoice),
+            CalcFormula = Exist("O365 Document Sent History" WHERE("Document Type" = CONST(Invoice),
                                                                     "Document No." = FIELD("No."),
                                                                     Posted = CONST(true),
                                                                     "Job Last Status" = CONST(Finished)));
@@ -534,7 +534,7 @@ table 112 "Sales Invoice Header"
         }
         field(169; "Last Email Notif Cleared"; Boolean)
         {
-            CalcFormula = Lookup ("O365 Document Sent History".NotificationCleared WHERE("Document Type" = CONST(Invoice),
+            CalcFormula = Lookup("O365 Document Sent History".NotificationCleared WHERE("Document Type" = CONST(Invoice),
                                                                                          "Document No." = FIELD("No."),
                                                                                          Posted = CONST(true),
                                                                                          "Created Date-Time" = FIELD("Last Email Sent Time")));
@@ -576,7 +576,7 @@ table 112 "Sales Invoice Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(600; "Payment Service Set ID"; Integer)
@@ -608,7 +608,7 @@ table 112 "Sales Invoice Header"
         }
         field(1302; Closed; Boolean)
         {
-            CalcFormula = - Exist ("Cust. Ledger Entry" WHERE("Entry No." = FIELD("Cust. Ledger Entry No."),
+            CalcFormula = - Exist("Cust. Ledger Entry" WHERE("Entry No." = FIELD("Cust. Ledger Entry No."),
                                                              Open = FILTER(true)));
             Caption = 'Closed';
             Editable = false;
@@ -618,7 +618,7 @@ table 112 "Sales Invoice Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Cust. Ledger Entry No." = FIELD("Cust. Ledger Entry No.")));
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Cust. Ledger Entry No." = FIELD("Cust. Ledger Entry No.")));
             Caption = 'Remaining Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -634,14 +634,14 @@ table 112 "Sales Invoice Header"
         field(1305; "Invoice Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Invoice Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Sales Invoice Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No.")));
             Caption = 'Invoice Discount Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(1310; Cancelled; Boolean)
         {
-            CalcFormula = Exist ("Cancelled Document" WHERE("Source ID" = CONST(112),
+            CalcFormula = Exist("Cancelled Document" WHERE("Source ID" = CONST(112),
                                                             "Cancelled Doc. No." = FIELD("No.")));
             Caption = 'Cancelled';
             Editable = false;
@@ -649,7 +649,7 @@ table 112 "Sales Invoice Header"
         }
         field(1311; Corrective; Boolean)
         {
-            CalcFormula = Exist ("Cancelled Document" WHERE("Source ID" = CONST(114),
+            CalcFormula = Exist("Cancelled Document" WHERE("Source ID" = CONST(114),
                                                             "Cancelled By Doc. No." = FIELD("No.")));
             Caption = 'Corrective';
             Editable = false;
@@ -660,7 +660,7 @@ table 112 "Sales Invoice Header"
             Caption = 'Reversed';
             Editable = false;
             FieldClass = FlowField;
-            CalcFormula = lookup ("Cust. Ledger Entry".Reversed where("Entry No." = field("Cust. Ledger Entry No.")));
+            CalcFormula = lookup("Cust. Ledger Entry".Reversed where("Entry No." = field("Cust. Ledger Entry No.")));
         }
         field(5050; "Campaign No."; Code[20])
         {
@@ -840,6 +840,9 @@ table 112 "Sales Invoice Header"
         key(Key12; "Salesperson Code")
         {
         }
+        key(Key13; SystemModifiedAt)
+        {
+        }
     }
 
     fieldgroups
@@ -856,7 +859,6 @@ table 112 "Sales Invoice Header"
     var
         PostedDeferralHeader: Record "Posted Deferral Header";
         PostSalesDelete: Codeunit "PostSales-Delete";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
         TestField("No. Printed");
@@ -868,8 +870,10 @@ table 112 "Sales Invoice Header"
         SalesCommentLine.DeleteAll();
 
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
-        PostedDeferralHeader.DeleteForDoc(DeferralUtilities.GetSalesDeferralDocType, '', '',
-          SalesCommentLine."Document Type"::"Posted Invoice", "No.");
+
+        PostedDeferralHeader.DeleteForDoc(
+            "Deferral Document Type"::Sales.AsInteger(), '', '',
+            SalesCommentLine."Document Type"::"Posted Invoice".AsInteger(), "No.");
     end;
 
     var
@@ -903,7 +907,7 @@ table 112 "Sales Invoice Header"
         OnBeforeSendRecords(DummyReportSelections, Rec, DocumentTypeTxt, IsHandled);
         if not IsHandled then
             DocumentSendingProfile.SendCustomerRecords(
-              DummyReportSelections.Usage::"S.Invoice", Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
+              DummyReportSelections.Usage::"S.Invoice".AsInteger(), Rec, DocumentTypeTxt, "Bill-to Customer No.", "No.",
               FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
@@ -920,7 +924,7 @@ table 112 "Sales Invoice Header"
         OnBeforeSendProfile(DummyReportSelections, Rec, DocumentTypeTxt, IsHandled, DocumentSendingProfile);
         if not IsHandled then
             DocumentSendingProfile.Send(
-              DummyReportSelections.Usage::"S.Invoice", Rec, "No.", "Bill-to Customer No.",
+              DummyReportSelections.Usage::"S.Invoice".AsInteger(), Rec, "No.", "Bill-to Customer No.",
               DocumentTypeTxt, FieldNo("Bill-to Customer No."), FieldNo("No."));
     end;
 
@@ -934,7 +938,7 @@ table 112 "Sales Invoice Header"
         OnBeforePrintRecords(DummyReportSelections, Rec, ShowRequestPage, IsHandled);
         if not IsHandled then
             DocumentSendingProfile.TrySendToPrinter(
-              DummyReportSelections.Usage::"S.Invoice", Rec, FieldNo("Bill-to Customer No."), ShowRequestPage);
+              DummyReportSelections.Usage::"S.Invoice".AsInteger(), Rec, FieldNo("Bill-to Customer No."), ShowRequestPage);
     end;
 
     procedure PrintToDocumentAttachment(var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -953,7 +957,8 @@ table 112 "Sales Invoice Header"
         ReportSelections: Record "Report Selections";
     begin
         SalesInvoiceHeader.SetRecFilter();
-        ReportSelections.SaveAsDocumentAttachment(ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."No.", SalesInvoiceHeader."Bill-to Customer No.", ShowNotificationAction);
+        ReportSelections.SaveAsDocumentAttachment(
+            ReportSelections.Usage::"S.Invoice".AsInteger(), SalesInvoiceHeader, SalesInvoiceHeader."No.", SalesInvoiceHeader."Bill-to Customer No.", ShowNotificationAction);
     end;
 
     procedure EmailRecords(ShowDialog: Boolean)
@@ -970,7 +975,7 @@ table 112 "Sales Invoice Header"
         OnBeforeEmailRecords(DummyReportSelections, Rec, DocumentTypeTxt, ShowDialog, IsHandled);
         if not IsHandled then
             DocumentSendingProfile.TrySendToEMail(
-              DummyReportSelections.Usage::"S.Invoice", Rec, FieldNo("No."), DocumentTypeTxt,
+              DummyReportSelections.Usage::"S.Invoice".AsInteger(), Rec, FieldNo("No."), DocumentTypeTxt,
               FieldNo("Bill-to Customer No."), ShowDialog);
     end;
 
@@ -1134,6 +1139,15 @@ table 112 "Sales Invoice Header"
         ActivityLog: Record "Activity Log";
     begin
         ActivityLog.ShowEntries(RecordId);
+    end;
+
+    procedure StartTrackingSite()
+    var
+        ShippingAgent: Record "Shipping Agent";
+    begin
+        TestField("Shipping Agent Code");
+        ShippingAgent.Get("Shipping Agent Code");
+        HyperLink(ShippingAgent.GetTrackingInternetAddr("Package Tracking No."));
     end;
 
     procedure GetSelectedPaymentsText(): Text

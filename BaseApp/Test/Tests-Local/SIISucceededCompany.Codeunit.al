@@ -385,7 +385,7 @@ codeunit 147556 "SII Succeeded Company"
         IsInitialized := true;
     end;
 
-    local procedure CreatePurchDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Option)
+    local procedure CreatePurchDoc(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -400,7 +400,7 @@ codeunit 147556 "SII Succeeded Company"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePostPurchDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option)
+    local procedure CreatePostPurchDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -415,7 +415,7 @@ codeunit 147556 "SII Succeeded Company"
           LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -429,7 +429,7 @@ codeunit 147556 "SII Succeeded Company"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option)
+    local procedure CreatePostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -437,7 +437,7 @@ codeunit 147556 "SII Succeeded Company"
         PostSalesDoc(CustLedgerEntry, SalesHeader);
     end;
 
-    local procedure CreatePostServDoc(DocType: Option): Code[20]
+    local procedure CreatePostServDoc(DocType: Enum "Service Document Type"): Code[20]
     var
         ServiceHeader: Record "Service Header";
         ServiceItem: Record "Service Item";
@@ -467,10 +467,9 @@ codeunit 147556 "SII Succeeded Company"
           LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccType: Option; DocType: Option; AccNo: Code[20]; Amount: Decimal)
+    local procedure PostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; DocType: Enum "Gen. Journal Document Type"; AccNo: Code[20]; Amount: Decimal)
     begin
-        LibraryJournals.CreateGenJournalLineWithBatch(
-          GenJournalLine, DocType, AccType, AccNo, Amount);
+        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, DocType, AccType, AccNo, Amount);
         GenJournalLine.Validate("Succeeded Company Name", LibraryUtility.GenerateGUID);
         GenJournalLine.Validate("Succeeded VAT Registration No.", LibraryUtility.GenerateGUID);
         GenJournalLine.Modify(true);

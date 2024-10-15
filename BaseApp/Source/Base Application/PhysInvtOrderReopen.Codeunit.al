@@ -1,4 +1,4 @@
-﻿codeunit 5882 "Phys. Invt. Order-Reopen"
+codeunit 5882 "Phys. Invt. Order-Reopen"
 {
     TableNo = "Phys. Invt. Order Header";
 

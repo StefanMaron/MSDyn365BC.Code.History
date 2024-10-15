@@ -150,7 +150,7 @@ page 7000077 "Docs. in Closed PO Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Navigate)

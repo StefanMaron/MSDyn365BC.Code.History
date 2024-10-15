@@ -140,12 +140,10 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             Caption = 'Initial Entry Global Dim. 2';
             DataClassification = SystemMetadata;
         }
-        field(23; "Gen. Posting Type"; Option)
+        field(23; "Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Gen. Posting Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
         }
         field(24; "Gen. Bus. Posting Group"; Code[20])
         {

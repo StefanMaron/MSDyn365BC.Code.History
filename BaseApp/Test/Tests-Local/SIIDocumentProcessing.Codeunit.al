@@ -269,11 +269,11 @@ codeunit 147522 "SII Document Processing"
 
         // [WHEN] Create new SII request for Customer Ledger Entry
         SIIDocUploadState.CreateNewRequest(
-          CustLedgerEntry."Entry No.", SIIDocUploadState."Document Source"::"Customer Ledger", CustLedgerEntry."Document Type",
+          CustLedgerEntry."Entry No.", SIIDocUploadState."Document Source"::"Customer Ledger".AsInteger(), CustLedgerEntry."Document Type".AsInteger(),
           CustLedgerEntry."Document No.", CustLedgerEntry."External Document No.", CustLedgerEntry."Posting Date");
 
         FilterSIIHistory(
-          SIIHistory, CustLedgerEntry."Document Type",
+          SIIHistory, "SII Doc. Upload State Document Type"::Invoice,
           CustLedgerEntry."Document No.", SIIDocUploadState."Document Source"::"Customer Ledger");
 
         // [THEN] SII History Entry with type "Regular" is created
@@ -303,11 +303,11 @@ codeunit 147522 "SII Document Processing"
 
         // [WHEN] Create new SII request for Vendor Ledger Entry
         SIIDocUploadState.CreateNewRequest(
-          VendorLedgerEntry."Entry No.", SIIDocUploadState."Document Source"::"Vendor Ledger", VendorLedgerEntry."Document Type",
+          VendorLedgerEntry."Entry No.", SIIDocUploadState."Document Source"::"Vendor Ledger".AsInteger(), VendorLedgerEntry."Document Type".AsInteger(),
           VendorLedgerEntry."Document No.", VendorLedgerEntry."External Document No.", VendorLedgerEntry."Posting Date");
 
         FilterSIIHistory(
-          SIIHistory, VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.",
+          SIIHistory, "SII Doc. Upload State Document Type"::Invoice, VendorLedgerEntry."Document No.",
           SIIDocUploadState."Document Source"::"Vendor Ledger");
 
         // [THEN] SII History Entry with type "Regular" is created
@@ -1308,7 +1308,7 @@ codeunit 147522 "SII Document Processing"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure NotPossibleToProcessDocumentWithoutSchemeReference()
     var
         SIISetup: Record "SII Setup";
@@ -1349,7 +1349,7 @@ codeunit 147522 "SII Document Processing"
         Assert.ExpectedError(
           StrSubstNo(FieldMustHaveValueInSIISetupErr, SIISetup.FieldCaption("SuministroLR Schema")));
     end;
-    
+
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -1464,7 +1464,7 @@ codeunit 147522 "SII Document Processing"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithGLAccount(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; GLAccountNo: Code[20])
+    local procedure CreateSalesDocumentWithGLAccount(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; GLAccountNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1549,7 +1549,7 @@ codeunit 147522 "SII Document Processing"
         CountryRegion.Modify(true);
     end;
 
-    local procedure FilterSIIHistory(var SIIHistory: Record "SII History"; DocType: Option; DocNo: Code[20]; DocSource: Option)
+    local procedure FilterSIIHistory(var SIIHistory: Record "SII History"; DocType: Enum "SII Doc. Upload State Document Type"; DocNo: Code[20]; DocSource: Enum "SII Doc. Upload State Document Source")
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
@@ -1589,7 +1589,7 @@ codeunit 147522 "SII Document Processing"
         VendorLedgerEntry.Insert();
     end;
 
-    local procedure MockSIIDocUploadStateWithIncorrectStatus(DocSource: Option; DocType: Option; DocNo: Code[20])
+    local procedure MockSIIDocUploadStateWithIncorrectStatus(DocSource: enum "SII Doc. Upload State Document Source"; DocType: Enum "SII Doc. Upload State Document Type"; DocNo: Code[20])
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
@@ -1665,7 +1665,7 @@ codeunit 147522 "SII Document Processing"
         LibraryXPathXMLReader.AddAdditionalNamespace('sii', SiiUrlTok);
     end;
 
-    local procedure VerifySIIHistoryByStateIdIsSupported(var SIIHistory: Record "SII History"; DocType: Option; DocNo: Code[20]; DocSource: Option)
+    local procedure VerifySIIHistoryByStateIdIsSupported(var SIIHistory: Record "SII History"; DocType: Enum "SII Doc. Upload State Document Type"; DocNo: Code[20]; DocSource: Enum "SII Doc. Upload State Document Source")
     begin
         FilterSIIHistory(SIIHistory, DocType, DocNo, DocSource);
         SIIHistory.FindFirst;

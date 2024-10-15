@@ -114,7 +114,7 @@ codeunit 144012 "ERM Transaction No."
         JournalPostWithTransactionNo(GenJournalTemplate.Type::Purchases);
     end;
 
-    local procedure JournalPostWithTransactionNo(Type: Option)
+    local procedure JournalPostWithTransactionNo(Type: Enum "Gen. Journal Template Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -176,7 +176,7 @@ codeunit 144012 "ERM Transaction No."
         JournalPostWithoutTransactionNo(GenJournalTemplate.Type::Purchases);
     end;
 
-    local procedure JournalPostWithoutTransactionNo(Type: Option)
+    local procedure JournalPostWithoutTransactionNo(Type: Enum "Gen. Journal Template Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         GLRegister: Record "G/L Register";
@@ -519,7 +519,7 @@ codeunit 144012 "ERM Transaction No."
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -540,7 +540,7 @@ codeunit 144012 "ERM Transaction No."
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateJournalLinesWithTransactionNo(var GenJournalLine: Record "Gen. Journal Line"; Type: Option; TransactionNo: Integer)
+    local procedure CreateJournalLinesWithTransactionNo(var GenJournalLine: Record "Gen. Journal Line"; Type: Enum "Gen. Journal Template Type"; TransactionNo: Integer)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -616,7 +616,7 @@ codeunit 144012 "ERM Transaction No."
         exit(GLEntry."Transaction No.");
     end;
 
-    local procedure PostJournalsWithTransactionNo(var GenJournalLine: Record "Gen. Journal Line"; Type: Option; TransactionNo: Integer)
+    local procedure PostJournalsWithTransactionNo(var GenJournalLine: Record "Gen. Journal Line"; Type: Enum "Gen. Journal Template Type"; TransactionNo: Integer)
     begin
         // Setup: Create General Journal Batch, create multiline Transaction on Gen. Journal Line with Transaction No.
         CreateJournalLinesWithTransactionNo(GenJournalLine, Type, TransactionNo);

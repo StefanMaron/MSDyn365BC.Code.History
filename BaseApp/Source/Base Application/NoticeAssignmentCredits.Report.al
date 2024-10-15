@@ -211,7 +211,7 @@ report 7000050 "Notice Assignment Credits"
 
                         trigger OnValidate()
                         begin
-                            BankAccNoOnAfterValidate;
+                            BankAccNoOnAfterValidate();
                         end;
                     }
                     field(BankAccName; BankAccName)

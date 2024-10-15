@@ -1,4 +1,4 @@
-﻿codeunit 5704 "TransferOrder-Post Shipment"
+codeunit 5704 "TransferOrder-Post Shipment"
 {
     Permissions = TableData "Item Entry Relation" = i;
     TableNo = "Transfer Header";
@@ -191,7 +191,6 @@
         InvtAdjmt: Codeunit "Inventory Adjustment";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         SourceCode: Code[10];
-        HideValidationDialog: Boolean;
         WhseShip: Boolean;
         WhsePosting: Boolean;
         InvtPickPutaway: Boolean;
@@ -201,6 +200,10 @@
         Text008: Label 'This order must be a complete shipment.';
         Text009: Label 'Item %1 is not in inventory.';
         SuppressCommit: Boolean;
+
+    protected var
+        TransferDirection: Enum "Transfer Direction";
+        HideValidationDialog: Boolean;
 
     local procedure PostItem(var TransferLine: Record "Transfer Line"; TransShptHeader2: Record "Transfer Shipment Header"; TransShptLine2: Record "Transfer Shipment Line"; WhseShip: Boolean; WhseShptHeader2: Record "Warehouse Shipment Header")
     var
@@ -272,7 +275,7 @@
               TransferLine, ItemJnlLine, WhseShptHeader2, ItemJnlLine."Quantity (Base)")
         else
             ReserveTransLine.TransferTransferToItemJnlLine(
-              TransferLine, ItemJnlLine, ItemJnlLine."Quantity (Base)", 0);
+              TransferLine, ItemJnlLine, ItemJnlLine."Quantity (Base)", TransferDirection::Outbound);
     end;
 
     local procedure CopyCommentLines(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
@@ -353,7 +356,7 @@
             TransHeader.DeleteOneTransferOrder(TransHeader, TransLine)
         else begin
             WhseTransferRelease.Release(TransHeader);
-            ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, 0);
+            ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, TransferDirection::Outbound);
         end;
     end;
 
@@ -480,7 +483,7 @@
         if TempHandlingSpecification.Find('-') then begin
             repeat
                 ReserveTransLine.TransferTransferToTransfer(
-                  FromTransLine, ToTransLine, -TempHandlingSpecification."Quantity (Base)", 1, TempHandlingSpecification);
+                  FromTransLine, ToTransLine, -TempHandlingSpecification."Quantity (Base)", TransferDirection::Inbound, TempHandlingSpecification);
                 TransferQty += TempHandlingSpecification."Quantity (Base)";
             until TempHandlingSpecification.Next = 0;
             TempHandlingSpecification.DeleteAll();
@@ -488,7 +491,7 @@
 
         if TransferQty > 0 then
             ReserveTransLine.TransferTransferToTransfer(
-              FromTransLine, ToTransLine, TransferQty, 1, DummySpecification);
+              FromTransLine, ToTransLine, TransferQty, TransferDirection::Inbound, DummySpecification);
     end;
 
     local procedure CheckWarehouse(TransLine: Record "Transfer Line")

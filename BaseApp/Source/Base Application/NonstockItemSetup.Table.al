@@ -8,11 +8,9 @@ table 5719 "Nonstock Item Setup"
         {
             Caption = 'Primary Key';
         }
-        field(2; "No. Format"; Option)
+        field(2; "No. Format"; Enum "Nonstock Item No. Format")
         {
             Caption = 'No. Format';
-            OptionCaption = 'Vendor Item No.,Mfr. + Vendor Item No.,Vendor Item No. + Mfr.,Entry No.';
-            OptionMembers = "Vendor Item No.","Mfr. + Vendor Item No.","Vendor Item No. + Mfr.","Entry No.";
         }
         field(3; "No. Format Separator"; Code[1])
         {

@@ -2,6 +2,9 @@ codeunit 10766 "Sales Cr.Memo Header - Edit"
 {
     Permissions = TableData "Sales Cr.Memo Header" = rm;
     TableNo = "Sales Cr.Memo Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced with codeunit 1408 Sales Credit Memo Hdr. - Edit';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     var
@@ -28,8 +31,8 @@ codeunit 10766 "Sales Cr.Memo Header - Edit"
             exit;
 
         if not SIIDocUploadState.GetSIIDocUploadStateByDocument(
-             SIIDocUploadState."Document Source"::"Customer Ledger",
-             SIIDocUploadState."Document Type"::"Credit Memo",
+             SIIDocUploadState."Document Source"::"Customer Ledger".AsInteger(),
+             SIIDocUploadState."Document Type"::"Credit Memo".AsInteger(),
              SalesCrMemoHeader."Posting Date",
              SalesCrMemoHeader."No.")
         then

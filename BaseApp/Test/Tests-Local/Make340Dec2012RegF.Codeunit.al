@@ -83,9 +83,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         LibraryERM.FindGLAccount(GLAcc);
 
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Cust."No.", GLAcc."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", Amount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
 
         // Exercise
         asserterror Library340.RunMake340DeclarationReport(Date2DMY(ReferenceDate, 3) + 1, GLAcc."No.",
@@ -127,9 +127,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         LibraryERM.FindGLAccount(GLAcc);
 
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Cust."No.", GLAcc."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", Amount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
 
         // Exercise
         ExportedFileName := Library340.RunMake340DeclarationReport(Date2DMY(ReferenceDate, 3) + 1, GLAcc."No.",
@@ -248,9 +248,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Setup
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Customer."No.", GLAccount."No.", Amount,
-          GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // Exercise
         asserterror Library340.RunMake340DeclarationReport(Date2DMY(ReferenceDate, 3), GLAccount."No.",
@@ -437,17 +437,17 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         LibraryERM.FindGLAccount(GLAcc);
 
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Cust."No.", GLAcc."No.", AmountMoreThanMin,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", FirstPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", AmountMoreThanMin - FirstPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
 
         // Pre-Exercise
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Cust."No.", GLAcc."No.", AmountLessThanMin,
-            GenJournalLine."Account Type"::Customer, 0, CalcDate('<2Y>', ReferenceDate));
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<2Y>', ReferenceDate));
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", AmountLessThanMin,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<2Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<2Y>', ReferenceDate));
 
         // Exercise
         asserterror Library340.RunMake340DeclarationReport(
@@ -571,12 +571,12 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Setup: Create and post a payment.
         GetGenJnlBatch(GenJournalBatch);
         PaymentDocNo := CreateGenJournal(GenJournalBatch, GenJournalLine, Customer."No.", GLAccount."No.",
-            GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, 0, -1 * Amount, ReferenceDate);
+            GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", -1 * Amount, ReferenceDate);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Setup: Create and post an invoice with payment applied.
         CreateGenJournal(GenJournalBatch, GenJournalLine, Customer."No.", GLAccount."No.",
-          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, 0, Amount, CalcDate('<1M>', ReferenceDate));
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", Amount, CalcDate('<1M>', ReferenceDate));
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Payment);
         GenJournalLine.Validate("Applies-to Doc. No.", PaymentDocNo);
         GenJournalLine.Modify(true);
@@ -622,11 +622,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Setup: Create and apply two payments to an invoice.
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount1."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Customer."No.", GLAccount1."No.", FirstPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
         ApplyAndPostPayment(InvoiceDocNo, Customer."No.", GLAccount2."No.", Amount - FirstPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
 
         // Exercise
         ExportedFileName := Library340.RunMake340DeclarationReport(Date2DMY(ReferenceDate, 3) + 1,
@@ -702,12 +702,14 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Setup
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // Setup: Create and post a payment with blank Document Type.
         GetGenJnlBatch(GenJournalBatch);
-        CreateGenJournal(GenJournalBatch, GenJournalLine, Customer."No.", GLAccount."No.", 0, GenJournalLine."Account Type"::Customer,
-          0, -1 * Amount, ReferenceDate);  // To create a payment line with <blank> Document Type.
+        CreateGenJournal(
+            GenJournalBatch, GenJournalLine, Customer."No.", GLAccount."No.", "Gen. Journal Document Type"::" ",
+            GenJournalLine."Account Type"::Customer,
+            "General Posting Type"::" ", -1 * Amount, ReferenceDate);  // To create a payment line with <blank> Document Type.
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
         GenJournalLine.Validate("Applies-to Doc. No.", InvoiceDocNo);
         GenJournalLine.Modify(true);
@@ -754,12 +756,12 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Setup
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.", MaximumAmount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // Setup: Create payment from journal in two lines.
         GetGenJnlBatch(GenJournalBatch);
         CreateGenJournal(GenJournalBatch, GenJournalLine1, Customer."No.", '', GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, 0, -1 * MaximumAmount, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", -1 * MaximumAmount, CalcDate('<1Y>', ReferenceDate));
         GenJournalLine1.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
         GenJournalLine1.Validate("Applies-to Doc. No.", InvoiceDocNo);
         GenJournalLine1.Modify(true);
@@ -861,9 +863,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         VendorNo := CreateVendor;
         LibraryERM.FindGLAccount(GLAccount);
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(VendorNo, GLAccount."No.", -1 * Amount,
-            GenJournalLine."Account Type"::Vendor, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Vendor, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, VendorNo, GLAccount."No.", -1 * Amount,
-          GenJournalLine."Account Type"::Vendor, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Vendor, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
 
         // Exercise
         asserterror Library340.RunMake340DeclarationReport(FiscalYear + 1, GLAccount."No.", Date2DMY(ReferenceDate, 2), ReferenceAmount);
@@ -914,9 +916,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Setup
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Customer."No.", GLAccount."No.", Amount,
-          GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // Exercise
         asserterror Library340.RunMake340DeclarationReport(FiscalYear + 1, GLAccount."No.",
@@ -985,9 +987,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Setup
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Customer."No.", GLAccount."No.", Amount,
-          GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // Exercise
         ExportedFileName := Library340.RunMake340DeclarationReport(FiscalYear, GLAccount."No.",
@@ -1030,14 +1032,14 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Setup
         InvoiceDocNo1 := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         InvoiceDocNo2 := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.", FirstPaymentAmount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         ApplyAndPostPayment(InvoiceDocNo1, Customer."No.", GLAccount."No.", Amount,
-          GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo2, Customer."No.", GLAccount."No.", FirstPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // Exercise
         ExportedFileName := Library340.RunMake340DeclarationReport(FiscalYear, GLAccount."No.",
@@ -1081,14 +1083,14 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Setup
         InvoiceDocNo1 := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         InvoiceDocNo2 := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.", FirstPaymentAmount,
-            GenJournalLine."Account Type"::Customer, 0, CalcDate('<1M>', ReferenceDate));
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1M>', ReferenceDate));
 
         ApplyAndPostPayment(InvoiceDocNo1, Customer."No.", GLAccount."No.", Amount, GenJournalLine."Account Type"::Customer,
-          0, CalcDate('<1Y>', ReferenceDate));
+          "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
         ApplyAndPostPayment(InvoiceDocNo2, Customer."No.", GLAccount."No.", FirstPaymentAmount, GenJournalLine."Account Type"::Customer,
-          0, CalcDate('<2Y>', ReferenceDate));
+          "General Posting Type"::" ", CalcDate('<2Y>', ReferenceDate));
 
         UnapplyCustomerLedgerEntry(CustLedgerEntry, Customer."No.", CalcDate('<1Y>', ReferenceDate));
         ApplyCustomerEntries(Customer."No.");
@@ -1215,13 +1217,13 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         FiscalYear := Date2DMY(PaymentPostingDate, 3);
         LibraryERM.CreateGLAccount(GLAccount2);
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount1."No.",
-            MaximumAmount, GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            MaximumAmount, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // Pre - Excercise.
         ApplyAndPostPayment(InvoiceDocNo, Customer."No.", GLAccount1."No.", MinimumAmount,
-          GenJournalLine."Account Type"::Customer, 0, PaymentPostingDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", PaymentPostingDate);
         ApplyAndPostPayment(InvoiceDocNo, Customer."No.", GLAccount2."No.", MaximumAmount - MinimumAmount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<2M>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<2M>', ReferenceDate));
 
         // Exercise: Run report 'Make 340 Declaration' For first Payment.
         ExportedFileName := Library340.RunMake340DeclarationReport(FiscalYear, GLAccount1."No.",
@@ -1506,15 +1508,15 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         PreSetup(Customer, GLAccount, SecondPaymentAmount, MaximumAmount, MinimumAmount, ReferenceDate);
         FiscalYear1 := Date2DMY(ReferenceDate, 3);
         InvoiceDocNo1 := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.",
-            MaximumAmount, GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            MaximumAmount, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         InvoiceDocNo2 := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.",
-            MaximumAmount, GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+            MaximumAmount, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
 
         // Pre - Excercise.
         ApplyAndPostPayment(InvoiceDocNo1, Customer."No.", GLAccount."No.", MinimumAmount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
         ApplyAndPostPayment(InvoiceDocNo2, Customer."No.", GLAccount."No.", MinimumAmount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
 
         // Exercise: Run report 'Make 340 Declaration'.
         ExportedFileName := Library340.RunMake340DeclarationReport(FiscalYear1 + 1, GLAccount."No.",
@@ -1792,9 +1794,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Setup
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Customer."No.",
-            GLAccount."No.", Amount, GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GLAccount."No.", Amount, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Customer."No.", GLAccount."No.", Amount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
 
         UnapplyCustomerLedgerEntry(CustLedgerEntry, Customer."No.", CalcDate('<1Y>', ReferenceDate));
         ReversalEntry.SetHideDialog(true);
@@ -2170,11 +2172,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         LibraryERM.FindGLAccount(GLAcc);
 
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Cust."No.", GLAcc."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", FirstPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", Amount - FirstPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
 
         // Exercise
         ExportedFileName := Library340.RunMake340DeclarationReport(Date2DMY(ReferenceDate, 3), GLAcc."No.",
@@ -2222,13 +2224,13 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         LibraryERM.FindGLAccount(GLAcc);
 
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Cust."No.", GLAcc."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", FirstPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", SecondPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", Amount - SecondPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<2Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<2Y>', ReferenceDate));
 
         // Exercise
         ExportedFileName := Library340.RunMake340DeclarationReport(Date2DMY(ReferenceDate, 3), GLAcc."No.",
@@ -2326,11 +2328,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         LibraryERM.FindGLAccount(GLAcc);
 
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Cust."No.", GLAcc."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", FirstPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", Amount - FirstPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<2Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<2Y>', ReferenceDate));
 
         // Exercise
         ExportedFileName := Library340.RunMake340DeclarationReport(FiscalYear, GLAcc."No.", Date2DMY(ReferenceDate, 2), ReferenceAmount);
@@ -2490,12 +2492,12 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         Amount := LibraryRandom.RandDec(100000, 2);
         InvoiceNo := CreateAndPostInvoiceUsingJournal(Customer."No.", VATPostingSetup."Sales VAT Unreal. Account",
-            Amount, GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            Amount, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         ApplyAndPostPayment(InvoiceNo, Customer."No.", VATPostingSetup."Sales VAT Unreal. Account", Amount / 3,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1M>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1M>', ReferenceDate));
         ApplyAndPostPayment(InvoiceNo, Customer."No.", VATPostingSetup."Sales VAT Unreal. Account", Amount / 3,
-          GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // Exercise
         FileName := Library340.RunMake340DeclarationReport(Date2DMY(ReferenceDate, 3), VATPostingSetup."Sales VAT Unreal. Account",
@@ -2695,9 +2697,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Setup.
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Customer."No.", GLAccount."No.", Amount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
         UnapplyCustomerLedgerEntry(CustLedgerEntry, Customer."No.", CalcDate('<1Y>', ReferenceDate));
         ApplyCustomerEntries(Customer."No.");
 
@@ -2742,8 +2744,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         LibraryERM.FindGLAccount(GLAccount);
 
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.", Amount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
-        ApplyAndPostPayment('', Customer."No.", GLAccount."No.", Amount, GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
+        ApplyAndPostPayment(
+            '', Customer."No.", GLAccount."No.", Amount, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // Exercise
         asserterror Library340.RunMake340DeclarationReport(FiscalYear, GLAccount."No.", Date2DMY(ReferenceDate, 2), ReferenceAmount);
@@ -3078,7 +3081,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         SalesLine.Modify(true);
     end;
 
-    local procedure ApplyAndPostPayment(InvoiceDocNo: Code[20]; AccountNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal; AccountType: Option; GenPostingType: Option; PostingDate: Date)
+    local procedure ApplyAndPostPayment(InvoiceDocNo: Code[20]; AccountNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type"; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -3120,7 +3123,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         exit(LibraryTextFileValidation.CountNoOfLinesWithValue(FileName, CustomerName, 36, StrLen(CustomerName)))
     end;
 
-    local procedure CreateAndPostInvoiceUsingJournal(AccountNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal; AccountType: Option; GenPostingType: Option; PostingDate: Date) InvoiceDocNo: Code[20]
+    local procedure CreateAndPostInvoiceUsingJournal(AccountNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type"; PostingDate: Date) InvoiceDocNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -3190,7 +3193,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ExpectedAmount := PadStr('', 15 - StrLen(ExpectedAmount), '0') + ExpectedAmount;
     end;
 
-    local procedure CreateGenJournal(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Option; AccountType: Option; GenPostingType: Option; Amount: Decimal; PostingDate: Date): Code[20]
+    local procedure CreateGenJournal(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type"; Amount: Decimal; PostingDate: Date): Code[20]
     begin
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name",
           GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
@@ -3206,14 +3209,14 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         exit(GenJournalLine."Document No.")
     end;
 
-    local procedure CreatePurchHeader(var PurchHeader: Record "Purchase Header"; DocumentType: Option; VendNo: Code[20]; PostingDate: Date)
+    local procedure CreatePurchHeader(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendNo: Code[20]; PostingDate: Date)
     begin
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, VendNo);
         PurchHeader.Validate("Posting Date", PostingDate);
         PurchHeader.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustNo: Code[20]; PostingDate: Date; OperationCode: Code[1]; UnitPrice: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustNo: Code[20]; PostingDate: Date; OperationCode: Code[1]; UnitPrice: Decimal)
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -3223,14 +3226,14 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustNo: Code[20]; PostingDate: Date)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustNo: Code[20]; PostingDate: Date)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustNo);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustNo: Code[20]; PostingDate: Date; OperationCode: Code[1]; UnitPrice: Decimal)
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustNo: Code[20]; PostingDate: Date; OperationCode: Code[1]; UnitPrice: Decimal)
     var
         Item: Record Item;
         ServiceLine: Record "Service Line";
@@ -3240,14 +3243,14 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustNo: Code[20]; PostingDate: Date)
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustNo: Code[20]; PostingDate: Date)
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustNo);
         ServiceHeader.Validate("Posting Date", PostingDate);
         ServiceHeader.Modify(true);
     end;
 
-    local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Option; ItemNo: Code[20])
+    local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; ItemNo: Code[20])
     begin
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, ItemNo);
         ServiceLine.Validate(Quantity, 1);
@@ -3503,9 +3506,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Setup
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.",
-            Amount, GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            Amount, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Customer."No.", GLAccount."No.", Amount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
 
         // Exercise
         asserterror Library340.RunMake340DeclarationReport(Date2DMY(ReferenceDate, 3) + 1,
@@ -3568,7 +3571,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Post and apply payment with amount > threshold to the above invoice.
         GetGenJnlBatch(GenJournalBatch);
         CreateGenJournal(GenJournalBatch, GenJournalLine, CustomerNo, GLAccountNo, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, 0, -1 * Amount, PaymentPostingDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", -1 * Amount, PaymentPostingDate);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         ApplyCustomerEntries(CustomerNo);
     end;
@@ -3578,8 +3581,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(CustNo, GLAccNo, InvoiceAmount,
-            GenJournalLine."Account Type"::Customer, 0, InvoicePostingDate);
-        ApplyAndPostPayment(InvoiceDocNo, CustNo, GLAccNo, ApplyAmount, GenJournalLine."Account Type"::Customer, 0, ApplyPostingDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", InvoicePostingDate);
+        ApplyAndPostPayment(
+            InvoiceDocNo, CustNo, GLAccNo, ApplyAmount, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ApplyPostingDate);
     end;
 
     local procedure PostSalesInvAndApplyPaymentsInPreviousYears(var ReferenceDate: Date; var CustNo: Code[20]; var GLAccNo: Code[20]; var MinPaymentAmount: Decimal)
@@ -3606,7 +3610,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         InvoiceDocNo := PostSalesInvoiceAndApplyPayment(Cust."No.", GLAcc."No.", AmountMoreThanMin,
             ReferenceDate, FirstPaymentAmount, ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", AmountMoreThanMin - FirstPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, CalcDate('<1Y>', ReferenceDate));
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1Y>', ReferenceDate));
 
         // Post-Setup
         CustNo := Cust."No.";
@@ -3619,8 +3623,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         InvoiceDocNo: Code[20];
     begin
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(CustomerNo, GLAccountNo, MaximumAmount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
-        ApplyAndPostPayment(InvoiceDocNo, CustomerNo, GLAccountNo, Amount, GenJournalLine."Account Type"::Customer, 0, PaymentPostingDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
+        ApplyAndPostPayment(
+            InvoiceDocNo, CustomerNo, GLAccountNo, Amount, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", PaymentPostingDate);
     end;
 
     local procedure PostTwoSalesInvoicesAndAppliedPayments(CustomerNo: Code[20]; GLAccountNo: Text[20]; Amount: Decimal; MaximumAmount: Decimal; ReferenceDate: Date; PaymentPostingDate: Date)
@@ -3630,13 +3635,13 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         InvoiceDocNo2: Code[20];
     begin
         InvoiceDocNo1 := CreateAndPostInvoiceUsingJournal(CustomerNo, GLAccountNo, MaximumAmount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         InvoiceDocNo2 := CreateAndPostInvoiceUsingJournal(CustomerNo, GLAccountNo, MaximumAmount,
-            GenJournalLine."Account Type"::Customer, 0, CalcDate('<1M>', ReferenceDate));
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", CalcDate('<1M>', ReferenceDate));
         ApplyAndPostPayment(InvoiceDocNo1, CustomerNo, GLAccountNo, Amount, GenJournalLine."Account Type"::Customer,
-          0, PaymentPostingDate);
+          "General Posting Type"::" ", PaymentPostingDate);
         ApplyAndPostPayment(InvoiceDocNo2, CustomerNo, GLAccountNo, Amount, GenJournalLine."Account Type"::Customer,
-          0, PaymentPostingDate);
+          "General Posting Type"::" ", PaymentPostingDate);
     end;
 
     local procedure PostMultipleSalesInvoicesAndApplyPayment(CustomerNo: Code[20]; GLAccountNo: Text[20]; MaximumAmount: Decimal; ReferenceDate: Date; FirstPaymentPostingDate: Date; PostingDate: Date)
@@ -3645,9 +3650,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         InvoiceDocNo: Code[20];
     begin
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(CustomerNo, GLAccountNo, MaximumAmount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, CustomerNo, GLAccountNo, MaximumAmount,
-          GenJournalLine."Account Type"::Customer, 0, FirstPaymentPostingDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", FirstPaymentPostingDate);
         CreateAndPostSalesInvoice(CustomerNo, PostingDate, MaximumAmount);
     end;
 
@@ -3657,11 +3662,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         InvoiceDocNo: Code[20];
     begin
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(CustomerNo, GLAccountNo, MaximumAmount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, CustomerNo, GLAccountNo, MinimumAmount, GenJournalLine."Account Type"::Customer,
-          0, ReferenceDate);
+          "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, CustomerNo, GLAccountNo, SecondPaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, PaymentPostingDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", PaymentPostingDate);
     end;
 
     local procedure PreSetup(var Customer: Record Customer; var GLAccount: Record "G/L Account"; var ReferenceAmount: Decimal; var HigherAmount: Decimal; var LowerAmount: Decimal; var ReferenceDate: Date)
@@ -3697,9 +3702,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         LibraryERM.FindGLAccount(GLAccount);
 
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(Customer."No.", GLAccount."No.", InvoiceAmount,
-            GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+            GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
         ApplyAndPostPayment(InvoiceDocNo, Customer."No.", GLAccount."No.", PaymentAmount,
-          GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // Exercise
         ExportedFileName := Library340.RunMake340DeclarationReport(FiscalYear, GLAccount."No.",
@@ -3764,7 +3769,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
           ReferenceDate, GetValidCharacter, LibraryRandom.RandDec(1000, 2));
         InvoiceDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", ReferenceAmount,
-          GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+          GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // Exercise
         ExportedFileName := Library340.RunMake340DeclarationReport(Date2DMY(ReferenceDate, 3), GLAcc."No.",
@@ -4006,7 +4011,8 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         LibraryERM.FindGLAccount(GLAcc);
 
         InvoiceDocNo := CreateAndPostSalesInvoice(Cust."No.", ReferenceDate, Amount);
-        ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", Amount, GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+        ApplyAndPostPayment(
+            InvoiceDocNo, Cust."No.", GLAcc."No.", Amount, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // Exercise
         ExportedFileName := Library340.RunMake340DeclarationReport(Date2DMY(ReferenceDate, 3), GLAcc."No.",

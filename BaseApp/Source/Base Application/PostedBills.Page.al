@@ -190,7 +190,7 @@ page 7000067 "Posted Bills"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 separator(Action1100001)
@@ -355,7 +355,7 @@ page 7000067 "Posted Bills"
             action(Navigate)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Ellipsis = true;
                 Image = Navigate;
                 Promoted = true;

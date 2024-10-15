@@ -537,7 +537,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         DimensionSetEntry.Insert();
     end;
 
-    local procedure CreateReportSelections(Usage: Option; ReportID: Integer)
+    local procedure CreateReportSelections(Usage: Enum "Report Selection Usage"; ReportID: Integer)
     var
         ReportSelections: Record "Report Selections";
     begin

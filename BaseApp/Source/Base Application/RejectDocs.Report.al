@@ -599,7 +599,7 @@ report 7000097 "Reject Docs."
         end;
     end;
 
-    local procedure InsertGenJournalLine(AccType: Integer; AccNo: Code[20]; Amount2: Decimal; DimSetID: Integer)
+    local procedure InsertGenJournalLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Amount2: Decimal; DimSetID: Integer)
     begin
         GenJnlLineNextNo := GenJnlLineNextNo + 10000;
 

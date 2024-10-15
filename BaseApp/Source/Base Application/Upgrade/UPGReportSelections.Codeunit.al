@@ -27,11 +27,11 @@ codeunit 104107 "Upg Report Selections"
         if ReportSelections.FindSet then
             repeat
                 TempReportSelections := ReportSelections;
-                case ReportSelections.Usage of
+                case ReportSelections.Usage.AsInteger() of
                     58:
-                        TempReportSelections.Usage := 100;
+                        TempReportSelections.Usage := "Report Selection Usage".FromInteger(100);
                     59:
-                        TempReportSelections.Usage := 101;
+                        TempReportSelections.Usage := "Report Selection Usage".FromInteger(101);
                 end;
                 TempReportSelections.Insert();
             until ReportSelections.Next = 0;

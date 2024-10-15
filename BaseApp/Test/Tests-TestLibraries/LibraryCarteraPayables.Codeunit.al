@@ -277,7 +277,7 @@ codeunit 143010 "Library - Cartera Payables"
         GLEntry.FindLast;
     end;
 
-    procedure FindOpenCarteraDocVendorLedgerEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; DocumentType: Option)
+    procedure FindOpenCarteraDocVendorLedgerEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; DocumentType: Enum "Gen. Journal Document Type")
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
@@ -295,7 +295,7 @@ codeunit 143010 "Library - Cartera Payables"
         exit(CompanyInformation."Country/Region Code");
     end;
 
-    procedure GetPostedPurchaseInvoiceAmount(VendorNo: Code[20]; DocumentNo: Code[20]; DocumentType: Option): Decimal
+    procedure GetPostedPurchaseInvoiceAmount(VendorNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"): Decimal
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin

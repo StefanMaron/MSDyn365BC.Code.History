@@ -32,7 +32,7 @@ report 295 "Combine Shipments"
                         if IsHandled then
                             CurrReport.Skip();
 
-                        if Type = 0 then begin
+                        if Type = Type::" " then begin
                             if (not CopyTextLines) or ("Attached to Line No." <> 0) then
                                 CurrReport.Skip();
                         end;
@@ -40,7 +40,7 @@ report 295 "Combine Shipments"
                         if "Authorized for Credit Card" then
                             CurrReport.Skip();
 
-                        if ("Qty. Shipped Not Invoiced" <> 0) or (Type = 0) then begin
+                        if ("Qty. Shipped Not Invoiced" <> 0) or (Type = Type::" ") then begin
                             if ("Bill-to Customer No." <> Cust."No.") and
                                ("Sell-to Customer No." <> '')
                             then

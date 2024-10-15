@@ -155,7 +155,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         InvoiceID := CreatePurchaseInvoiceWithLines(PurchaseHeader);
         LibraryInventory.CreateItem(Item);
 
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         Commit();
 
         // [WHEN] we POST the JSON to the web service
@@ -199,7 +199,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         InvoiceID := CreatePurchaseInvoiceWithLines(PurchaseHeader);
         LibraryInventory.CreateItem(Item);
 
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         LineNo := 500;
         InvoiceLineJSON := LibraryGraphMgt.AddPropertytoJSON(InvoiceLineJSON, 'sequence', LineNo);
         Commit();
@@ -424,9 +424,9 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         VendorNo := Vendor."No.";
         ItemNo := LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        InvoiceID := PurchaseHeader.Id;
+        InvoiceID := PurchaseHeader.SystemId;
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, ItemQuantity);
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, ItemQuantity);
         Commit();
 
         // [WHEN] we POST the JSON to the web service and when we create an invoice through the client UI
@@ -492,13 +492,13 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         MinAmount := PurchaseHeader.Amount + Item."Unit Price" / 2;
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToVendor(Vendor, DiscountPct, MinAmount, PurchaseHeader."Currency Code");
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            PurchaseHeader.Id,
+            PurchaseHeader.SystemId,
             PAGE::"Purchase Invoice Entity",
             InvoiceServiceNameTxt,
             InvoiceServiceLinesNameTxt);
@@ -534,7 +534,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         MinAmount := PurchaseHeader.Amount + Item."Unit Price" / 2;
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToVendor(Vendor, DiscountPct, MinAmount, PurchaseHeader."Currency Code");
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
         FindFirstPurchaseLine(PurchaseHeader, PurchaseLine);
         PurchaseQuantity := PurchaseLine.Quantity * 2;
 
@@ -545,10 +545,10 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            PurchaseHeader.Id,
+            PurchaseHeader.SystemId,
             PAGE::"Purchase Invoice Entity",
             InvoiceServiceNameTxt,
-            GetLineSubURL(PurchaseHeader.Id, PurchaseLine."Line No."));
+            GetLineSubURL(PurchaseHeader.SystemId, PurchaseLine."Line No."));
         LibraryGraphMgt.PatchToWebService(TargetURL, InvoiceLineJSON, ResponseText);
 
         // [THEN] Invoice discount is applied
@@ -590,10 +590,10 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            PurchaseHeader.Id,
+            PurchaseHeader.SystemId,
             PAGE::"Purchase Invoice Entity",
             InvoiceServiceNameTxt,
-            GetLineSubURL(PurchaseHeader.Id, PurchaseLine."Line No."));
+            GetLineSubURL(PurchaseHeader.SystemId, PurchaseLine."Line No."));
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] Lower Invoice discount is applied
@@ -616,14 +616,14 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         // [GIVEN] An unposted invoice for vendor with invoice discount amount
         Initialize();
         SetupAmountDiscountTest(PurchaseHeader, DiscountAmount);
-        InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
+        InvoiceLineJSON := CreateInvoiceLineJSON(Item.SystemId, LibraryRandom.RandIntInRange(1, 100));
 
         Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            PurchaseHeader.Id,
+            PurchaseHeader.SystemId,
             PAGE::"Purchase Invoice Entity",
             InvoiceServiceNameTxt,
             InvoiceServiceLinesNameTxt);
@@ -657,7 +657,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            PurchaseHeader.Id,
+            PurchaseHeader.SystemId,
             PAGE::"Purchase Invoice Entity",
             InvoiceServiceNameTxt,
             InvoiceServiceLinesNameTxt);
@@ -699,7 +699,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
           .CreateTargetURLWithSubpage(
-            PurchaseHeader.Id,
+            PurchaseHeader.SystemId,
             PAGE::"Purchase Invoice Entity",
             InvoiceServiceNameTxt,
             InvoiceServiceLinesNameTxt);
@@ -770,7 +770,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 2);
         Commit();
-        exit(PurchaseHeader.Id);
+        exit(PurchaseHeader.SystemId);
     end;
 
     local procedure CreatePostedPurchaseInvoiceWithLines(var PurchInvHeader: Record "Purch. Inv. Header"): Text
@@ -785,7 +785,7 @@ codeunit 135538 "Purchase Invoice Line E2E Test"
         LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 2);
-        PostedPurchaseInvoiceID := PurchaseHeader.Id;
+        PostedPurchaseInvoiceID := PurchaseHeader.SystemId;
         NewNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
         Commit();
 

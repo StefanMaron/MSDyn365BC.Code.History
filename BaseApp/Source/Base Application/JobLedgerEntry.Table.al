@@ -23,11 +23,9 @@ table 169 "Job Ledger Entry"
         {
             Caption = 'Document No.';
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Job Journal Line Type")
         {
             Caption = 'Type';
-            OptionCaption = 'Resource,Item,G/L Account';
-            OptionMembers = Resource,Item,"G/L Account";
         }
         field(7; "No."; Code[20])
         {
@@ -150,11 +148,9 @@ table 169 "Job Ledger Entry"
             AutoFormatType = 1;
             Caption = 'Amt. Posted to G/L';
         }
-        field(64; "Entry Type"; Option)
+        field(64; "Entry Type"; Enum "Job Journal Line Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = 'Usage,Sale';
-            OptionMembers = Usage,Sale;
         }
         field(75; "Journal Batch Name"; Code[10])
         {
@@ -241,7 +237,7 @@ table 169 "Job Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1000; "Job Task No."; Code[20])
@@ -310,11 +306,9 @@ table 169 "Job Ledger Entry"
         {
             Caption = 'Description 2';
         }
-        field(1017; "Ledger Entry Type"; Option)
+        field(1017; "Ledger Entry Type"; Enum "Job Ledger Entry Type")
         {
             Caption = 'Ledger Entry Type';
-            OptionCaption = ' ,Resource,Item,G/L Account';
-            OptionMembers = " ",Resource,Item,"G/L Account";
         }
         field(1018; "Ledger Entry No."; Integer)
         {

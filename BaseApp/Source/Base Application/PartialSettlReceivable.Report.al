@@ -505,7 +505,7 @@ report 7000084 "Partial Settl.- Receivable"
         end;
     end;
 
-    local procedure InsertGenJournalLine(AccType: Integer; AccNo: Code[20]; Amount2: Decimal)
+    local procedure InsertGenJournalLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Amount2: Decimal)
     begin
         GenJnlLineNextNo := GenJnlLineNextNo + 10000;
 

@@ -1,4 +1,4 @@
-﻿codeunit 1314 "Purch. Doc. From Sales Doc."
+codeunit 1314 "Purch. Doc. From Sales Doc."
 {
 
     trigger OnRun()
@@ -8,7 +8,7 @@
     var
         CreatePurchInvOptionQst: Label 'All Lines,Selected Lines';
         CreatePurchInvInstructionTxt: Label 'A purchase invoice will be created. Select which sales invoice lines to use.';
-        SelectVentorTxt: Label 'Select a vendor to buy from.';
+        SelectVentorTxt: Label 'Select a vendor';
         TypeNotSupportedErr: Label 'Type %1 is not supported.', Comment = 'Line or Document type';
         NoPurchaseOrdersCreatedErr: Label 'No purchase orders are created.';
 

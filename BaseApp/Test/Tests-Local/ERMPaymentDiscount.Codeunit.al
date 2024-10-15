@@ -748,7 +748,7 @@ codeunit 144076 "ERM Payment Discount"
         IsInitialize := true;
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -762,14 +762,14 @@ codeunit 144076 "ERM Payment Discount"
         CreatePurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItem(Item));
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; PaymentDiscountPct: Decimal)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PaymentDiscountPct: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Payment Discount %", PaymentDiscountPct);
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20])
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Random for Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
@@ -806,7 +806,7 @@ codeunit 144076 "ERM Payment Discount"
           PurchaseLine2."Document No.", PurchaseLine2."Line No.", ItemCharge."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; PaymentDiscountPct: Decimal)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PaymentDiscountPct: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -827,7 +827,7 @@ codeunit 144076 "ERM Payment Discount"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20])
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
         ServiceHeader.Validate("Payment Discount %", LibraryRandom.RandDec(10, 2));
@@ -835,7 +835,7 @@ codeunit 144076 "ERM Payment Discount"
         CreateServiceLine(ServiceLine, ServiceHeader);
     end;
 
-    local procedure CreateServiceDocumentAndCalculatePmtDiscount(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateServiceDocumentAndCalculatePmtDiscount(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20])
     var
         ServiceLine: Record "Service Line";
         ServiceLine2: Record "Service Line";

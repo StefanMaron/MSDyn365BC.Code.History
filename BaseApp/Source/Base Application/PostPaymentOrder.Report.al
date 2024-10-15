@@ -413,7 +413,7 @@ report 7000080 "Post Payment Order"
         PmtOrd.Delete();
     end;
 
-    local procedure InsertGenJournalLine(AccType: Integer; AccNo: Code[20]; Amount2: Decimal; Dep: Code[20]; Proj: Code[20]; DimSetID: Integer; EntryNo: Integer; CurrFactor: Decimal)
+    local procedure InsertGenJournalLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Amount2: Decimal; Dep: Code[20]; Proj: Code[20]; DimSetID: Integer; EntryNo: Integer; CurrFactor: Decimal)
     var
         VendLedgEntry2: Record "Vendor Ledger Entry";
     begin

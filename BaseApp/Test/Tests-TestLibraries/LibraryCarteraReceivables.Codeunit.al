@@ -262,7 +262,7 @@ codeunit 143020 "Library - Cartera Receivables"
         exit(BankAccountPostingGroup.Code);
     end;
 
-    procedure FindCarteraDocCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; DocumentType: Option)
+    procedure FindCarteraDocCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
@@ -279,14 +279,14 @@ codeunit 143020 "Library - Cartera Receivables"
         CarteraDoc.FindSet;
     end;
 
-    procedure FindCarteraGLEntries(var GLEntry: Record "G/L Entry"; BillGroupNo: Code[20]; DocumentType: Option)
+    procedure FindCarteraGLEntries(var GLEntry: Record "G/L Entry"; BillGroupNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         GLEntry.SetRange("Document No.", BillGroupNo);
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.FindFirst;
     end;
 
-    procedure FindDetailedCustomerLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; EntryType: Option; DocumentType: Option)
+    procedure FindDetailedCustomerLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; EntryType: Option; DocumentType: Enum "Gen. Journal Document Type")
     begin
         DetailedCustLedgEntry.Reset();
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
@@ -303,7 +303,7 @@ codeunit 143020 "Library - Cartera Receivables"
         GLEntry.FindLast;
     end;
 
-    procedure FindOpenCarteraDocCustomerLedgerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; DocumentType: Option)
+    procedure FindOpenCarteraDocCustomerLedgerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
@@ -344,7 +344,7 @@ codeunit 143020 "Library - Cartera Receivables"
         CustomerPmtAddress.Insert(true);
     end;
 
-    procedure GetPostedSalesInvoiceAmount(CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentType: Option): Decimal
+    procedure GetPostedSalesInvoiceAmount(CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"): Decimal
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin

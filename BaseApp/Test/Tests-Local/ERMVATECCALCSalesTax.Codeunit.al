@@ -268,7 +268,7 @@ codeunit 144126 "ERM VATECCALC Sales Tax"
         exit(VATBusinessPostingGroup.Code);
     end;
 
-    local procedure VerifyGLEntry(DocumentNo: Code[20]; GenPostingType: Option; Amount: Decimal)
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type"; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin

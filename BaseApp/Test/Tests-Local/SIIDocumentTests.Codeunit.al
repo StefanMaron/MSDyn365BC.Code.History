@@ -2104,7 +2104,7 @@ codeunit 147520 SIIDocumentTests
         ServiceMgtSetup.Modify(true);
     end;
 
-    local procedure FindCustLedgerEntryByDocTypeAndCustNo(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Integer; CustNo: Code[20])
+    local procedure FindCustLedgerEntryByDocTypeAndCustNo(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; CustNo: Code[20])
     begin
         CustLedgerEntry.SetRange("Document Type", DocType);
         CustLedgerEntry.SetRange("Customer No.", CustNo);
@@ -2143,7 +2143,7 @@ codeunit 147520 SIIDocumentTests
         exit(Customer."No.");
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocType: Integer; CustNo: Code[20])
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type"; CustNo: Code[20])
     var
         ServiceLine: Record "Service Line";
     begin
@@ -2201,7 +2201,7 @@ codeunit 147520 SIIDocumentTests
         exit(LibrarySales.PostSalesDocument(SalesHeaderInvoice, false, false));
     end;
 
-    local procedure CreateAndPostSalesDocWithDate(DocType: Option; CustNo: Code[20]; PostingDate: Date; InvNo: Code[20]): Code[20]
+    local procedure CreateAndPostSalesDocWithDate(DocType: Enum "Sales Document Type"; CustNo: Code[20]; PostingDate: Date; InvNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -2231,7 +2231,7 @@ codeunit 147520 SIIDocumentTests
           LibrarySII.CreatePurchDocumentWithDiffPayToVendor(IsInvoice, Vendor."No.", Vendor."No.", CreditMemoType, AddCorrectedInvoiceNo));
     end;
 
-    local procedure CreateAndPostPurchDocWithDate(DocType: Option; VendNo: Code[20]; PostingDate: Date; InvNo: Code[20]): Code[20]
+    local procedure CreateAndPostPurchDocWithDate(DocType: Enum "Purchase Document Type"; VendNo: Code[20]; PostingDate: Date; InvNo: Code[20]): Code[20]
     var
         PurchHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2362,7 +2362,7 @@ codeunit 147520 SIIDocumentTests
         SalesGetShipment.CreateInvLines(SalesShipmentLine);
     end;
 
-    local procedure PostPurchDocWithMultiplesLinesDiffVAT(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrectionType: Option)
+    local procedure PostPurchDocWithMultiplesLinesDiffVAT(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrectionType: Option)
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         PurchHeader: Record "Purchase Header";
@@ -2448,7 +2448,7 @@ codeunit 147520 SIIDocumentTests
     begin
     end;
 
-    local procedure CreatePurchDocWithNormalAndReverseChargeVAT(var PurchaseHeader: Record "Purchase Header"; var VATRate: Decimal; var VATRateReverseCharge: Decimal; var Amount: Decimal; var AmountReverse: Decimal; DocType: Option)
+    local procedure CreatePurchDocWithNormalAndReverseChargeVAT(var PurchaseHeader: Record "Purchase Header"; var VATRate: Decimal; var VATRateReverseCharge: Decimal; var Amount: Decimal; var AmountReverse: Decimal; DocType: Enum "Purchase Document Type")
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";

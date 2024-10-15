@@ -1,4 +1,4 @@
-report 215 "Archived Sales Quote"
+﻿report 215 "Archived Sales Quote"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ArchivedSalesQuote.rdlc';
@@ -270,7 +270,7 @@ report 215 "Archived Sales Quote"
                         column(Desc_SalesLineArchTmp; SalesLineArchTmp.Description)
                         {
                         }
-                        column(Body3Visibility_RoundLoop; SalesLineArchTmp.Type = 0)
+                        column(Body3Visibility_RoundLoop; SalesLineArchTmp.Type = SalesLineArchTmp.Type::" ")
                         {
                         }
                         column(No_SalesLineArchive; "Sales Line Archive"."No.")
@@ -314,7 +314,7 @@ report 215 "Archived Sales Quote"
                         column(SalesLineNoText; Format("Sales Line Archive"."Line No."))
                         {
                         }
-                        column(Body4Visibility_RoundLoop; SalesLineArchTmp.Type > 0)
+                        column(Body4Visibility_RoundLoop; SalesLineArchTmp.Type <> SalesLineArchTmp.Type::" ")
                         {
                         }
                         column(SalesLineType; Format("Sales Line Archive".Type))

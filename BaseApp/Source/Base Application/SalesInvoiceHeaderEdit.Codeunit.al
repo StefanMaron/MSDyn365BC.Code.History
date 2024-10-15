@@ -1,4 +1,4 @@
-﻿codeunit 10765 "Sales Invoice Header - Edit"
+codeunit 10765 "Sales Invoice Header - Edit"
 {
     Permissions = TableData "Sales Invoice Header" = rm;
     TableNo = "Sales Invoice Header";
@@ -31,8 +31,8 @@
             exit;
 
         if not SIIDocUploadState.GetSIIDocUploadStateByDocument(
-             SIIDocUploadState."Document Source"::"Customer Ledger",
-             SIIDocUploadState."Document Type"::Invoice,
+             SIIDocUploadState."Document Source"::"Customer Ledger".AsInteger(),
+             SIIDocUploadState."Document Type"::Invoice.AsInteger(),
              SalesInvoiceHeader."Posting Date",
              SalesInvoiceHeader."No.")
         then

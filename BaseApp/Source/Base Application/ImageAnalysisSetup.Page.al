@@ -93,7 +93,8 @@ page 2020 "Image Analysis Setup"
 
     trigger OnOpenPage()
     var
-        AzureAIUsage: Record "Azure AI Usage";
+        AzureAIUsage: Codeunit "Azure AI Usage";
+        AzureAIService: Enum "Azure AI Service";
     begin
         GetSingleInstance;
         if GetApiKey <> '' then
@@ -103,10 +104,11 @@ page 2020 "Image Analysis Setup"
         else
             AzureAIUsage.SetImageAnalysisIsSetup(false);
 
-        AzureAIUsage.GetSingleInstance(AzureAIUsage.Service::"Computer Vision");
-        LimitType := AzureAIUsage."Limit Period";
-        LimitValue := AzureAIUsage."Original Resource Limit";
-        NumberOfCalls := AzureAIUsage."Total Resource Usage";
+        AzureAIService := AzureAIService::"Computer Vision";
+
+        LimitType := AzureAIUsage.GetLimitPeriod(AzureAIService);
+        LimitValue := AzureAIUsage.GetResourceLimit(AzureAIService);
+        NumberOfCalls := AzureAIUsage.GetTotalProcessingTime(AzureAIService);
     end;
 
     var

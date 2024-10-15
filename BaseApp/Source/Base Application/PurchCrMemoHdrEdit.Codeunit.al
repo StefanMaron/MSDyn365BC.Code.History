@@ -28,8 +28,8 @@ codeunit 10767 "Purch. Cr. Memo Hdr. - Edit"
             exit;
 
         if not SIIDocUploadState.GetSIIDocUploadStateByDocument(
-             SIIDocUploadState."Document Source"::"Vendor Ledger",
-             SIIDocUploadState."Document Type"::"Credit Memo",
+             SIIDocUploadState."Document Source"::"Vendor Ledger".AsInteger(),
+             SIIDocUploadState."Document Type"::"Credit Memo".AsInteger(),
              PurchCrMemoHdr."Posting Date",
              PurchCrMemoHdr."No.")
         then

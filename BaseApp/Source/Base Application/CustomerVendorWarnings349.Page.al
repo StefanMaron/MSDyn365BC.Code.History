@@ -157,7 +157,7 @@ page 10736 "Customer/Vendor Warnings 349"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
@@ -290,7 +290,7 @@ page 10736 "Customer/Vendor Warnings 349"
             "Previous Declared Amount" := -"Previous Declared Amount";
     end;
 
-    local procedure CalcAmountsFromVATEntries(var NormalAmount: Decimal; var AmountOpTri: Decimal; var AmountEUService: Decimal; EntryType: Option; CustVendNo: Code[20]; FromDate: Date; ToDate: Date; StartDateFormula: DateFormula; EndDateFormula: DateFormula)
+    local procedure CalcAmountsFromVATEntries(var NormalAmount: Decimal; var AmountOpTri: Decimal; var AmountEUService: Decimal; EntryType: Enum "General Posting Type"; CustVendNo: Code[20]; FromDate: Date; ToDate: Date; StartDateFormula: DateFormula; EndDateFormula: DateFormula)
     var
         VATEntry: Record "VAT Entry";
     begin

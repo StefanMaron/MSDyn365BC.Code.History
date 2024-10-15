@@ -471,7 +471,7 @@ codeunit 144108 "ERM Service Invoice ES"
         Customer.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option; Type: Option; CustomerNo: Code[20]; No: Code[20])
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; Type: Enum "Service Line Type"; CustomerNo: Code[20]; No: Code[20])
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -479,7 +479,7 @@ codeunit 144108 "ERM Service Invoice ES"
         CreateServiceLine(ServiceLine, DocumentType, ServiceHeader."No.", Type, No);
     end;
 
-    local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20]; Type: Option; No: Code[20])
+    local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; Type: Enum "Service Line Type"; No: Code[20])
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -656,7 +656,7 @@ codeunit 144108 "ERM Service Invoice ES"
         ServiceCreditMemo.FILTER.SetFilter("Customer No.", CustomerNo);
     end;
 
-    local procedure PostServiceDocument(DocumentType: Option; No: Code[20])
+    local procedure PostServiceDocument(DocumentType: Enum "Service Document Type"; No: Code[20])
     var
         ServiceHeader: Record "Service Header";
     begin

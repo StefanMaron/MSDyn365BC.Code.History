@@ -676,7 +676,7 @@ codeunit 147557 "SII Invoice Amount Treshold"
         IsInitialized := true;
     end;
 
-    local procedure PostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; InvoiceType: Option; CorrectonType: Option; Amount: Decimal)
+    local procedure PostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; InvoiceType: Option; CorrectonType: Option; Amount: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -694,7 +694,7 @@ codeunit 147557 "SII Invoice Amount Treshold"
           LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostPurchDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; InvoiceType: Option; CorrectonType: Option; Amount: Decimal)
+    local procedure PostPurchDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; InvoiceType: Option; CorrectonType: Option; Amount: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -712,7 +712,7 @@ codeunit 147557 "SII Invoice Amount Treshold"
           LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure PostServDoc(DocType: Option; InvoiceType: Option; CorrectonType: Option; Amount: Decimal): Code[20]
+    local procedure PostServDoc(DocType: Enum "Service Document Type"; InvoiceType: Option; CorrectonType: Option; Amount: Decimal): Code[20]
     var
         ServiceHeader: Record "Service Header";
         ServiceItem: Record "Service Item";

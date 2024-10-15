@@ -43,7 +43,7 @@ codeunit 147561 "SII Third Party Info"
 
         // [GIVEN] Sales Invoice has "Sell-To Customer" = Local customer with "VAT Registration No." = "X" and "Bill-To Customer" = Foreign customer with "VAT Registration No." = "X"
         LibraryVariableStorage.Enqueue(ChangeFieldMsg);
-        PostSalesDocWithDiffBillToCust(CustLedgerEntry, SalesHeader."Document Type"::Invoice, 0);
+        PostSalesDocWithDiffBillToCust(CustLedgerEntry, "Sales Document Type"::Invoice, 0);
 
         // [WHEN] Create xml for posted document
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -377,7 +377,7 @@ codeunit 147561 "SII Third Party Info"
         // [GIVEN] Purchase Removal Credit Memo has "Buy-From Vendor" = Local Vendor with "VAT Registration No." = "X" and "Pay-To Vendor" = Foreign Vendor with "VAT Registration No." = "X"
         LibraryVariableStorage.Enqueue(ChangeFieldMsg);
         PostPurchaseDocWithDiffBillToCust(
-          VendorLedgerEntry, PurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Correction Type"::Removal);
+          VendorLedgerEntry, "Purchase Document Type"::"Credit Memo", PurchaseHeader."Correction Type"::Removal);
 
         // [WHEN] Create xml for posted document
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -443,7 +443,7 @@ codeunit 147561 "SII Third Party Info"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure PostSalesDocWithDiffBillToCust(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option)
+    local procedure PostSalesDocWithDiffBillToCust(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option)
     var
         ForeignCustomer: Record Customer;
         LocalCustomer: Record Customer;
@@ -466,7 +466,7 @@ codeunit 147561 "SII Third Party Info"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostPurchaseDocWithDiffBillToCust(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrType: Option)
+    local procedure PostPurchaseDocWithDiffBillToCust(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option)
     var
         ForeignVendor: Record Vendor;
         LocalVendor: Record Vendor;

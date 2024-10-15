@@ -220,7 +220,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
 
         // [GIVEN] Enabled foundation setup   
         LibraryApplicationArea.EnableFoundationSetup();
-        
+
         // [WHEN] Page "Payables Cartera Docs" is opened
         PayablesCarteraDocs.OpenEdit();
 
@@ -268,7 +268,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         LibraryERM.PostVendLedgerApplication(ApplyingVendorLedgerEntry);
     end;
 
-    local procedure CreateAndPostCarteraJournalLines(AccountType: Option; AppliesToDocNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostCarteraJournalLines(AccountType: Enum "Gen. Journal Account Type"; AppliesToDocNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -288,7 +288,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AppliesToDocNo: Code[20]; AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AppliesToDocNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -300,13 +300,13 @@ codeunit 144013 "ERM Cartera Journal Posting"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateAndPostMultipleCarteraJournalLines(AccountType: Option; DocumentNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostMultipleCarteraJournalLines(AccountType: Enum "Gen. Journal Account Type"; DocumentNo: Code[20]; AccountNo: Code[20]; Amount: Decimal)
     begin
         CreateAndPostCarteraJournalLines(AccountType, DocumentNo, AccountNo, Amount);
         CreateAndPostCarteraJournalLines(AccountType, DocumentNo, AccountNo, Amount / LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreateAndPostCarteraJournalBillTransform(AccountType: Option; AppliesToDocNo: Code[20]; AccountNo: Code[20]; Amount1: Decimal; Amount2: Decimal)
+    local procedure CreateAndPostCarteraJournalBillTransform(AccountType: Enum "Gen. Journal Account Type"; AppliesToDocNo: Code[20]; AccountNo: Code[20]; Amount1: Decimal; Amount2: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -384,7 +384,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; AppliesToDocType: Option; AccountNo: Code[20]; AppliesToDocNo: Code[20]; PaymentMethodCode: Code[10]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; PaymentMethodCode: Code[10]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,

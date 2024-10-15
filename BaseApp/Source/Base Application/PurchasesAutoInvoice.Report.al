@@ -153,13 +153,13 @@ report 10712 "Purchases - AutoInvoice"
                         }
                         column(Amount__Inv__Discount_Amount___Pmt__Disc__Rcd__Amount_; Amount + "Inv. Discount Amount" + "Pmt. Discount Amount")
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Purch__Inv__Line_Description; Description)
                         {
                         }
-                        column(ShowPurchInvLine1; Type = 0)
+                        column(ShowPurchInvLine1; Type = Type::" ")
                         {
                         }
                         column(Purch__Inv__Line_Description_Control58; Description)
@@ -173,7 +173,7 @@ report 10712 "Purchases - AutoInvoice"
                         }
                         column(Purch__Inv__Line__Direct_Unit_Cost_; "Direct Unit Cost")
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(Purch__Inv__Line__Line_Discount___; "Line Discount %")
@@ -181,7 +181,7 @@ report 10712 "Purchases - AutoInvoice"
                         }
                         column(Amount__Inv__Discount_Amount___Pmt__Disc__Rcd__Amount__Control63; Amount + "Inv. Discount Amount" + "Pmt. Discount Amount")
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(ShowPurchInvLine2; Type = Type::"G/L Account")
@@ -201,7 +201,7 @@ report 10712 "Purchases - AutoInvoice"
                         }
                         column(Purch__Inv__Line__Direct_Unit_Cost__Control68; "Direct Unit Cost")
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(Purch__Inv__Line__Line_Discount____Control69; "Line Discount %")
@@ -209,7 +209,7 @@ report 10712 "Purchases - AutoInvoice"
                         }
                         column(Amount__Inv__Discount_Amount___Pmt__Disc__Rcd__Amount__Control70; Amount + "Inv. Discount Amount" + "Pmt. Discount Amount")
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(ShowPurchInvLine3; (Type = Type::Item) or (Type = Type::"Fixed Asset"))
@@ -217,12 +217,12 @@ report 10712 "Purchases - AutoInvoice"
                         }
                         column(Amount__Inv__Discount_Amount___Pmt__Disc__Rcd__Amount__Control79; Amount + "Inv. Discount Amount" + "Pmt. Discount Amount")
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Inv__Discount_Amount_; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(ShowPurchInvLineFooter1; "Inv. Discount Amount" <> 0)
@@ -236,17 +236,17 @@ report 10712 "Purchases - AutoInvoice"
                         }
                         column(Purch__Inv__Line_Amount; Amount)
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalVATAmount___TotalAmount; TotalVATAmount - TotalAmount)
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalVATAmount_TotalAmount_Amount; TotalVATAmount - TotalAmount + Amount)
                         {
-                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Inv. Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)

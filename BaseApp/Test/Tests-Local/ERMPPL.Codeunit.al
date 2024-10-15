@@ -506,7 +506,7 @@ codeunit 144080 "ERM PPL"
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreateAndPostGenJournalLine(AccountType: Option; AccountNo: Code[20]; Amount: Decimal; PostingDate: Date)
+    local procedure CreateAndPostGenJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -583,7 +583,7 @@ codeunit 144080 "ERM PPL"
         Installment.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal; PostingDate: Date)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -663,7 +663,7 @@ codeunit 144080 "ERM PPL"
         exit(CustLedgerEntry.Amount);
     end;
 
-    local procedure FindCustomerLedgerEntryPostingDate(CustomerNo: Code[20]; DocumentType: Option): Date
+    local procedure FindCustomerLedgerEntryPostingDate(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"): Date
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -725,7 +725,7 @@ codeunit 144080 "ERM PPL"
         exit(VendorLedgerEntry.Amount);
     end;
 
-    local procedure FindVendorLedgerEntryPostingDate(VendorNo: Code[20]; DocumentType: Option): Date
+    local procedure FindVendorLedgerEntryPostingDate(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"): Date
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -748,7 +748,7 @@ codeunit 144080 "ERM PPL"
         exit(BankAccount."No.");
     end;
 
-    local procedure OpenAndApplyGeneralJournal(DocumentType: Option; DocumentNo: Code[20])
+    local procedure OpenAndApplyGeneralJournal(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         GeneralJournal: TestPage "General Journal";
     begin

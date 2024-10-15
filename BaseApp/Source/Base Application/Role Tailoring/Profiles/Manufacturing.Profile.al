@@ -2,7 +2,7 @@ profile "MANUFACTURING"
 {
     Enabled = true;
     Caption = 'Manufacturing';
-    ProfileDescription = 'Full functionality for anyone in the Manufacturing department, such as manufacturing managers.';
+    ProfileDescription = 'Navigation menu only.';
     Promoted = true;
     RoleCenter = 8903;
 }

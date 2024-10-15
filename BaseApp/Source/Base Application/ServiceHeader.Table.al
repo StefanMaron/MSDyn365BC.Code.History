@@ -503,7 +503,7 @@
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor;
                     if "Currency Factor" <> xRec."Currency Factor" then
-                        ConfirmUpdateCurrencyFactor;
+                        ConfirmCurrencyFactorUpdate();
                 end;
             end;
         }
@@ -670,7 +670,7 @@
                         if "Currency Code" <> '' then begin
                             UpdateCurrencyFactor;
                             if "Currency Factor" <> xRec."Currency Factor" then
-                                ConfirmUpdateCurrencyFactor;
+                                ConfirmCurrencyFactorUpdate();
                         end;
             end;
         }
@@ -826,7 +826,7 @@
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
+            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
                                                               "Table Subtype" = FIELD("Document Type"),
                                                               "No." = FIELD("No."),
                                                               Type = CONST(General)));
@@ -855,7 +855,7 @@
                 ApplyCustEntries: Page "Apply Customer Entries";
             begin
                 TestField("Bal. Account No.", '');
-                CustLedgEntry.SetApplyToFilters("Bill-to Customer No.", "Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Bill No.", 0);
+                CustLedgEntry.SetApplyToFilters("Bill-to Customer No.", "Applies-to Doc. Type".AsInteger(), "Applies-to Doc. No.", "Applies-to Bill No.", 0);
 
                 ApplyCustEntries.SetService(Rec, CustLedgEntry, ServHeader.FieldNo("Applies-to Doc. No."));
                 ApplyCustEntries.SetTableView(CustLedgEntry);
@@ -1713,16 +1713,16 @@
                 WhseValidateSourceHeader: Codeunit "Whse. Validate Source Header";
             begin
                 TestField("Release Status", "Release Status"::Open);
-                if InventoryPickConflict("Document Type", "No.", "Shipping Advice") then
+                if WhsePickConflict("Document Type", "No.", "Shipping Advice") then
                     Error(Text064, FieldCaption("Shipping Advice"), Format("Shipping Advice"), TableCaption);
-                if WhseShpmntConflict("Document Type", "No.", "Shipping Advice") then
+                if WhseShipmentConflict("Document Type", "No.", "Shipping Advice") then
                     Error(Text065, FieldCaption("Shipping Advice"), Format("Shipping Advice"), TableCaption);
                 WhseValidateSourceHeader.ServiceHeaderVerifyChange(Rec, xRec);
             end;
         }
         field(5752; "Completely Shipped"; Boolean)
         {
-            CalcFormula = Min ("Service Line"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Min("Service Line"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
                                                                          "Document No." = FIELD("No."),
                                                                          Type = FILTER(<> " "),
                                                                          "Location Code" = FIELD("Location Filter")));
@@ -1812,7 +1812,7 @@
         }
         field(5911; "Allocated Hours"; Decimal)
         {
-            CalcFormula = Sum ("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = FIELD("Document Type"),
                                                                                   "Document No." = FIELD("No."),
                                                                                   "Allocation Date" = FIELD("Date Filter"),
                                                                                   "Resource No." = FIELD("Resource Filter"),
@@ -1851,7 +1851,7 @@
         }
         field(5921; "No. of Unallocated Items"; Integer)
         {
-            CalcFormula = Count ("Service Item Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Count("Service Item Line" WHERE("Document Type" = FIELD("Document Type"),
                                                            "Document No." = FIELD("No."),
                                                            "No. of Active/Finished Allocs" = CONST(0)));
             Caption = 'No. of Unallocated Items';
@@ -2086,14 +2086,14 @@
         }
         field(5933; "Contract Serv. Hours Exist"; Boolean)
         {
-            CalcFormula = Exist ("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
+            CalcFormula = Exist("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
             Caption = 'Contract Serv. Hours Exist';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5934; "Reallocation Needed"; Boolean)
         {
-            CalcFormula = Exist ("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
+            CalcFormula = Exist("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Document Type" = FIELD("Document Type"),
                                                                   "Document No." = FIELD("No."),
@@ -2132,7 +2132,7 @@
         }
         field(5939; "No. of Allocations"; Integer)
         {
-            CalcFormula = Count ("Service Order Allocation" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Count("Service Order Allocation" WHERE("Document Type" = FIELD("Document Type"),
                                                                   "Document No." = FIELD("No."),
                                                                   "Resource No." = FIELD("Resource Filter"),
                                                                   "Resource Group No." = FIELD("Resource Group Filter"),
@@ -2547,9 +2547,9 @@
         ServLine.Reset();
         ServLine.LockTable();
 
-        ReservMgt.DeleteDocumentReservation(DATABASE::"Service Line", "Document Type", "No.", HideValidationDialog);
+        ReservMgt.DeleteDocumentReservation(DATABASE::"Service Line", "Document Type".AsInteger(), "No.", HideValidationDialog);
 
-        WhseRequest.DeleteRequest(DATABASE::"Service Line", "Document Type", "No.");
+        WhseRequest.DeleteRequest(DATABASE::"Service Line", "Document Type".AsInteger(), "No.");
 
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "No.");
@@ -2593,7 +2593,7 @@
             repeat
                 if ServItemLine."Loaner No." <> '' then begin
                     Loaner.Get(ServItemLine."Loaner No.");
-                    LoanerEntry.SetRange("Document Type", "Document Type" + 1);
+                    LoanerEntry.SetRange("Document Type", LoanerEntry.GetDocTypeFromServDocType("Document Type"));
                     LoanerEntry.SetRange("Document No.", "No.");
                     LoanerEntry.SetRange("Loaner No.", ServItemLine."Loaner No.");
                     LoanerEntry.SetRange(Lent, true);
@@ -2854,8 +2854,10 @@
 
         if NewParentDimSetID = OldParentDimSetID then
             exit;
-        if not (HideValidationDialog or ConfirmManagement.GetResponseOrDefault(Text061, true)) then
-            exit;
+
+        if not HideValidationDialog and GuiAllowed then
+            if not ConfirmManagement.GetResponseOrDefault(Text061, true) then
+                exit;
 
         ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
@@ -2995,7 +2997,7 @@
                         until ServDocReg.Next() = 0;
                 end;
                 StoreServiceCommentLineToTemp(TempServiceCommentLine);
-                ServiceCommentLine.DeleteComments(ServiceCommentLine."Table Name"::"Service Header", "Document Type", "No.");
+                ServiceCommentLine.DeleteComments(ServiceCommentLine."Table Name"::"Service Header".AsInteger(), "Document Type".AsInteger(), "No.");
                 IsHandled := false;
                 OnRecreateServLinesOnBeforeServLineDeleteAll(Rec, ServLine, CurrFieldNo, IsHandled);
                 if not IsHandled then
@@ -3047,7 +3049,7 @@
             until TempServiceCommentLine.Next() = 0;
     end;
 
-    local procedure ConfirmUpdateCurrencyFactor()
+    local procedure ConfirmCurrencyFactorUpdate()
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
@@ -3786,7 +3788,7 @@
     begin
         ReservEntry.Reset();
         ReservEntry.SetSourceFilter(
-          DATABASE::"Service Line", OldServLine."Document Type", OldServLine."Document No.", OldServLine."Line No.", false);
+          DATABASE::"Service Line", OldServLine."Document Type".AsInteger(), OldServLine."Document No.", OldServLine."Line No.", false);
         if ReservEntry.FindSet then
             repeat
                 TempReservEntry := ReservEntry;
@@ -3799,7 +3801,7 @@
     begin
         TempReservEntry.Reset();
         TempReservEntry.SetSourceFilter(
-          DATABASE::"Service Line", OldServLine."Document Type", OldServLine."Document No.", OldServLine."Line No.", false);
+          DATABASE::"Service Line", OldServLine."Document Type".AsInteger(), OldServLine."Document No.", OldServLine."Line No.", false);
         if TempReservEntry.FindSet then
             repeat
                 ReservEntry := TempReservEntry;
@@ -3984,6 +3986,11 @@
     end;
 
     procedure InventoryPickConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
+    begin
+        exit(WhsePickConflict("Service Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
+    end;
+
+    procedure WhsePickConflict(DocType: Enum "Service Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ServiceLine: Record "Service Line";
@@ -4010,6 +4017,11 @@
     end;
 
     procedure WhseShpmntConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
+    begin
+        exit(WhseShipmentConflict("Service Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
+    end;
+
+    procedure WhseShipmentConflict(DocType: Enum "Service Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
@@ -4382,6 +4394,11 @@
         Modify;
     end;
 
+    procedure GetHideValidationDialog(): Boolean
+    begin
+        exit(HideValidationDialog);
+    end;
+
     procedure GetFullDocTypeTxt() FullDocTypeTxt: Text
     var
         IsHandled: Boolean;
@@ -4391,7 +4408,7 @@
         if IsHandled then
             exit;
 
-        FullDocTypeTxt := SelectStr("Document Type" + 1, FullServiceTypesTxt);
+        FullDocTypeTxt := SelectStr("Document Type".AsInteger() + 1, FullServiceTypesTxt);
     end;
 
     local procedure ConfirmRecalculatePrice() Result: Boolean

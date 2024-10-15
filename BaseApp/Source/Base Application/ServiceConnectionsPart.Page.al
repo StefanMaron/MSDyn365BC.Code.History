@@ -80,9 +80,13 @@ page 1278 "Service Connections Part"
     begin
         if not SetupActive then
             exit;
-        RecordRef.Get("Record ID");
-        RecordRefVariant := RecordRef;
-        PAGE.RunModal("Page ID", RecordRefVariant);
+
+        if RecordRef.Get("Record ID") then begin
+            RecordRefVariant := RecordRef;
+            Page.RunModal("Page ID", RecordRefVariant);
+        end else
+            Page.RunModal("Page ID");
+
         Delete;
         OnRegisterServiceConnection(Rec);
         if Get(xRec."No.") then;

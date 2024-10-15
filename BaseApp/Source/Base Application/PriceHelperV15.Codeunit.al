@@ -132,7 +132,7 @@ codeunit 7019 "Price Helper - V15"
             ResourcePrice.DeleteAll();
     end;
 
-    local procedure DeleteSalesPrices(SalesType: Option; SalesCode: Code[20])
+    local procedure DeleteSalesPrices(SalesType: Enum "Sales Price Type"; SalesCode: Code[20])
     var
         SalesPrice: Record "Sales Price";
     begin
@@ -163,7 +163,7 @@ codeunit 7019 "Price Helper - V15"
             SalesLineDisc.DeleteAll();
     end;
 
-    local procedure DeleteSalesDiscountsForType(Type: Option; Code: Code[20]; VariantCode: Code[10])
+    local procedure DeleteSalesDiscountsForType(Type: Enum "Sales Line Discount Type"; Code: Code[20]; VariantCode: Code[10])
     var
         SalesLineDisc: Record "Sales Line Discount";
     begin

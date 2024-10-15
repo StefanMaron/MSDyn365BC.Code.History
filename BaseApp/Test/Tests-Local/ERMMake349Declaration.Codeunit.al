@@ -4174,7 +4174,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         exit((Date2DMY(Date, 2) - 1) div 3 + 1);
     end;
 
-    local procedure PrepareEUAndForeignCustomerAndPostSalesDocs(var CustNo: array[2] of Code[20]; var VATPostingSetup: Record "VAT Posting Setup"; DocType: Integer; CountryRegionCode: array[2] of Code[10]; PostingDate: Date)
+    local procedure PrepareEUAndForeignCustomerAndPostSalesDocs(var CustNo: array[2] of Code[20]; var VATPostingSetup: Record "VAT Posting Setup"; DocType: Enum "Sales Document Type"; CountryRegionCode: array[2] of Code[10]; PostingDate: Date)
     var
         Index: Integer;
     begin
@@ -4186,7 +4186,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         end;
     end;
 
-    local procedure PrepareEUAndForeignVendorAndPostPurchDocs(var VendorNo: array[2] of Code[20]; VATPostingSetup: Record "VAT Posting Setup"; DocType: Integer; CountryRegionCode: array[2] of Code[10]; PostingDate: Date)
+    local procedure PrepareEUAndForeignVendorAndPostPurchDocs(var VendorNo: array[2] of Code[20]; VATPostingSetup: Record "VAT Posting Setup"; DocType: Enum "Purchase Document Type"; CountryRegionCode: array[2] of Code[10]; PostingDate: Date)
     var
         Index: Integer;
     begin
@@ -4240,7 +4240,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         PurchInvLine.Insert();
     end;
 
-    local procedure GetItemFromServiceDoc(DocType: Integer; DocNo: Code[20]): Code[20]
+    local procedure GetItemFromServiceDoc(DocType: Enum "Service Document Type"; DocNo: Code[20]): Code[20]
     var
         ServiceLine: Record "Service Line";
     begin
@@ -4251,7 +4251,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         exit(ServiceLine."No.");
     end;
 
-    local procedure GetItemFromPurchDoc(DocType: Integer; DocNo: Code[20]): Code[20]
+    local procedure GetItemFromPurchDoc(DocType: Enum "Purchase Document Type"; DocNo: Code[20]): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -4262,7 +4262,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         exit(PurchaseLine."No.");
     end;
 
-    local procedure GetItemFromSalesDoc(DocType: Integer; DocNo: Code[20]): Code[20]
+    local procedure GetItemFromSalesDoc(DocType: Enum "Sales Document Type"; DocNo: Code[20]): Code[20]
     var
         SalesLine: Record "Sales Line";
     begin
@@ -4282,7 +4282,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         exit(CalcDate('<1Y>', GLRegister."Posting Date"));
     end;
 
-    local procedure CreateVATPostingSetupWithCalculationType(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Integer; EUService: Boolean)
+    local procedure CreateVATPostingSetupWithCalculationType(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; EUService: Boolean)
     begin
         CreateVATPostingSetup(VATPostingSetup, EUService);
         VATPostingSetup.Validate("VAT Calculation Type", VATCalculationType);
@@ -4509,7 +4509,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         TotalAmount := SalesHeader.Amount;
     end;
 
-    local procedure CreateAndPostPurchaseDocument(DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; PostingDate: Date): Decimal
+    local procedure CreateAndPostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; PostingDate: Date): Decimal
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -4635,7 +4635,7 @@ codeunit 144117 "ERM Make 349 Declaration"
             CreateItem(VATPostingSetup."VAT Prod. Posting Group"), PostingDate);
     end;
 
-    local procedure CreateAndPostSalesDocument(DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; PostingDate: Date; EUThirdPartyTrade: Boolean): Decimal
+    local procedure CreateAndPostSalesDocument(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; PostingDate: Date; EUThirdPartyTrade: Boolean): Decimal
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -4648,7 +4648,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         exit(SalesLine.Amount);
     end;
 
-    local procedure CreateAndPostSalesDocumentFixedAmount(DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; PostingDate: Date; FixedAmount: Decimal): Decimal
+    local procedure CreateAndPostSalesDocumentFixedAmount(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; PostingDate: Date; FixedAmount: Decimal): Decimal
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -4909,7 +4909,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; PostingDate: Date)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PostingDate: Date)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Posting Date", PostingDate);
@@ -4917,7 +4917,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; PostingDate: Date; EUThirdPartyTrade: Boolean)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PostingDate: Date; EUThirdPartyTrade: Boolean)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);

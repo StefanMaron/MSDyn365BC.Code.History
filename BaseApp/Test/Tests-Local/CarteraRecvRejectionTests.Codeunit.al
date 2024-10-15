@@ -903,7 +903,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         exit(RejectionFeeAmount);
     end;
 
-    local procedure PostPaymentToRejectedBill(CustomerAccountNo: Code[20]; DocumentType: Option; var BalancingAccountNo: Code[20])
+    local procedure PostPaymentToRejectedBill(CustomerAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; var BalancingAccountNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
@@ -930,7 +930,7 @@ codeunit 147543 "Cartera Recv. Rejection Tests"
         CashReceiptJournal.Post.Invoke;
     end;
 
-    local procedure VerifyPostedPaymentToRejectedBill(RemainingAmount: Decimal; AccountNo: Code[20]; DocumentType: Option; BalancingAccountNo: Code[20])
+    local procedure VerifyPostedPaymentToRejectedBill(RemainingAmount: Decimal; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; BalancingAccountNo: Code[20])
     var
         GLRegister: Record "G/L Register";
         GLEntry: Record "G/L Entry";

@@ -7,11 +7,9 @@ table 5906 "Service Comment Line"
 
     fields
     {
-        field(1; Type; Option)
+        field(1; Type; Enum "Service Comment Line Type")
         {
             Caption = 'Type';
-            OptionCaption = 'General,Fault,Resolution,Accessory,Internal,Service Item Loaner';
-            OptionMembers = General,Fault,Resolution,Accessory,Internal,"Service Item Loaner";
         }
         field(2; "No."; Code[20])
         {
@@ -47,11 +45,9 @@ table 5906 "Service Comment Line"
             OptionCaption = '0,1,2,3';
             OptionMembers = "0","1","2","3";
         }
-        field(9; "Table Name"; Option)
+        field(9; "Table Name"; Enum "Service Comment Table Name")
         {
             Caption = 'Table Name';
-            OptionCaption = 'Service Contract,Service Header,Service Item,Loaner,Service Shipment Header,Service Invoice Header,Service Cr.Memo Header';
-            OptionMembers = "Service Contract","Service Header","Service Item",Loaner,"Service Shipment Header","Service Invoice Header","Service Cr.Memo Header";
         }
     }
 
@@ -69,7 +65,9 @@ table 5906 "Service Comment Line"
 
     trigger OnInsert()
     begin
-        if Type in [1, 2, 3, 4] then
+        if Type in ["Service Comment Line Type"::Fault, "Service Comment Line Type"::Resolution,
+                    "Service Comment Line Type"::Accessory, "Service Comment Line Type"::Internal]
+        then
             TestField("Table Line No.");
     end;
 

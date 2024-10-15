@@ -244,7 +244,7 @@ report 5911 "Service - Invoice"
                         }
                         column(LineAmt_ServInvLine; "Line Amount")
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_ServInvLine; Description)
@@ -279,7 +279,7 @@ report 5911 "Service - Invoice"
                         }
                         column(UnitPrice_ServInvLine; "Unit Price")
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDiscount_ServInvLine; "Line Discount %")
@@ -296,22 +296,22 @@ report 5911 "Service - Invoice"
                         }
                         column(InvDiscountAmt_ServInvLine; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Amt_ServInvLine; Amount)
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtIncludingVATAmt_ServInvLine; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtInclVAT_ServInvLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
@@ -459,8 +459,8 @@ report 5911 "Service - Invoice"
                                 TotalAmountInclVAT += "Amount Including VAT";
                                 TotalInvDiscAmount += "Inv. Discount Amount";
                                 TotalGivenAmount += "Pmt. Discount Amount";
-                                TypeNO := VATAmountLine."VAT Calculation Type";
-                                TypeInt := Type;
+                                TypeNO := VATAmountLine."VAT Calculation Type".AsInteger();
+                                TypeInt := Type.AsInteger();
                             end;
                         end;
 
@@ -489,7 +489,7 @@ report 5911 "Service - Invoice"
                         DataItemTableView = SORTING(Number);
                         column(VATAmtLineVATECBase; VATAmountLine."VAT Base")
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtInclVATAmount; VATAmountLine."VAT Amount")
@@ -1101,7 +1101,7 @@ report 5911 "Service - Invoice"
         until DimSetEntry.Next = 0;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure GetCarteraInvoice(): Boolean
     var
         CustLedgEntry: Record "Cust. Ledger Entry";

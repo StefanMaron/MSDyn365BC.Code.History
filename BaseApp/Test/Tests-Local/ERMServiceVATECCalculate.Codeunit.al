@@ -103,7 +103,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
           ServiceHeader."Document Type"::"Credit Memo", '', LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2), 0);  // Currency Code as blank. Take random Quantity and Unit Price. Additional Currency Amount as 0.
     end;
 
-    local procedure PostServiceDocumentAndVerifyGLVATEntry(DocumentType: Option; CurrencyCode: Code[10]; Quantity: Decimal; UnitPrice: Decimal; AdditionalCurrencyAmount: Decimal)
+    local procedure PostServiceDocumentAndVerifyGLVATEntry(DocumentType: Enum "Service Document Type"; CurrencyCode: Code[10]; Quantity: Decimal; UnitPrice: Decimal; AdditionalCurrencyAmount: Decimal)
     var
         ServiceLine: Record "Service Line";
         DocumentNo: Code[20];
@@ -152,7 +152,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         PostServiceDocumentNormalVATWithoutCurrency(ServiceLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure PostServiceDocumentNormalVATWithoutCurrency(DocumentType: Option)
+    local procedure PostServiceDocumentNormalVATWithoutCurrency(DocumentType: Enum "Service Document Type")
     var
         ServiceLine: Record "Service Line";
         DocumentNo: Code[20];
@@ -199,7 +199,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         PostServiceDocumentWithLineDiscount(ServiceLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure PostServiceDocumentWithLineDiscount(DocumentType: Option)
+    local procedure PostServiceDocumentWithLineDiscount(DocumentType: Enum "Service Document Type")
     var
         ServiceLine: Record "Service Line";
         DocumentNo: Code[20];
@@ -343,7 +343,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         VATAmountLine.TestField("VAT %", ServiceLine."VAT %");
     end;
 
-    local procedure PostServiceDocumentNormalVATWithCurrency(DocumentType: Option)
+    local procedure PostServiceDocumentNormalVATWithCurrency(DocumentType: Enum "Service Document Type")
     var
         ServiceLine: Record "Service Line";
         OldAdditionalReportingCurrency: Code[10];
@@ -371,7 +371,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         UpdateAdditionalReportingCurrOnGeneralLedgerSetup(OldAdditionalReportingCurrency);
     end;
 
-    local procedure CreateAndPostServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option)
+    local procedure CreateAndPostServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type")
     begin
         CreateServiceDocumentAndUpdateGLAccount(
           ServiceLine, '', DocumentType, ServiceLine."VAT Calculation Type"::"Normal VAT",
@@ -425,7 +425,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; CurrencyCode: Code[10]; DocumentType: Option; VATCalculationType: Option; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; CurrencyCode: Code[10]; DocumentType: Enum "Service Document Type"; VATCalculationType: Enum "Tax Calculation Type"; Quantity: Decimal; UnitPrice: Decimal)
     var
         GeneralPostingSetup: Record "General Posting Setup";
         ServiceHeader: Record "Service Header";
@@ -441,7 +441,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
           Quantity, UnitPrice);
     end;
 
-    local procedure CreateServiceDocumentAndUpdateGLAccount(var ServiceLine: Record "Service Line"; CurrencyCode: Code[10]; DocumentType: Option; VATCalculationType: Option; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateServiceDocumentAndUpdateGLAccount(var ServiceLine: Record "Service Line"; CurrencyCode: Code[10]; DocumentType: Enum "Service Document Type"; VATCalculationType: Enum "Tax Calculation Type"; Quantity: Decimal; UnitPrice: Decimal)
     var
         Customer: Record Customer;
         CustomerPostingGroup: Record "Customer Posting Group";
@@ -453,7 +453,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
           CustomerPostingGroup."Invoice Rounding Account", ServiceLine."Gen. Prod. Posting Group", ServiceLine."VAT Prod. Posting Group");
     end;
 
-    local procedure CreateServiceDocumentWithLineDiscount(var ServiceLine: Record "Service Line"; DocumentType: Option)
+    local procedure CreateServiceDocumentWithLineDiscount(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type")
     begin
         CreateServiceDocument(
           ServiceLine, '', DocumentType, ServiceLine."VAT Calculation Type"::"Normal VAT",
@@ -462,7 +462,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option; CurrencyCode: Code[10]; GenBusPostingGroup: Code[20]; VATBusPostingGroup: Code[20])
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CurrencyCode: Code[10]; GenBusPostingGroup: Code[20]; VATBusPostingGroup: Code[20])
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CreateCustomer(GenBusPostingGroup, VATBusPostingGroup));
         ServiceHeader.Validate("Currency Code", CurrencyCode);
@@ -490,7 +490,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         ServiceLine.Modify();
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -505,7 +505,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure FindServiceLineAmount(DocumentType: Option; Amount: Decimal): Decimal
+    local procedure FindServiceLineAmount(DocumentType: Enum "Service Document Type"; Amount: Decimal): Decimal
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -514,7 +514,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         exit(Amount);
     end;
 
-    local procedure FindPostedDocumentNo(DocumentType: Option; CustomerNo: Code[20]): Code[20]
+    local procedure FindPostedDocumentNo(DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]): Code[20]
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -551,7 +551,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         exit(CustomerPostingGroup."Receivables Account");
     end;
 
-    local procedure PostServiceDocument(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure PostServiceDocument(DocumentNo: Code[20]; DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
     begin

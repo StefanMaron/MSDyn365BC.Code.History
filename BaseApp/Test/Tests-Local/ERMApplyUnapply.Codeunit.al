@@ -1313,7 +1313,7 @@ codeunit 147310 "ERM Apply Unapply"
         exit(Item."No.");
     end;
 
-    local procedure ApplyCustEntryToGenJnlLine(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure ApplyCustEntryToGenJnlLine(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1322,7 +1322,7 @@ codeunit 147310 "ERM Apply Unapply"
         SetApplyCustomerEntry(CustLedgerEntry, CustLedgerEntry."Amount (LCY)");
     end;
 
-    local procedure ApplyVendEntryToGenJnlLine(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure ApplyVendEntryToGenJnlLine(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -1331,7 +1331,7 @@ codeunit 147310 "ERM Apply Unapply"
         SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Amount (LCY)");
     end;
 
-    local procedure ApplySalesDocuments(DocType: Option; DocumentNo: Code[20]; ApplDocType: Option; AmountToApply: Decimal)
+    local procedure ApplySalesDocuments(DocType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ApplDocType: Enum "Gen. Journal Document Type"; AmountToApply: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -1354,7 +1354,7 @@ codeunit 147310 "ERM Apply Unapply"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
     end;
 
-    local procedure ApplyPurchDocuments(DocType: Option; DocumentNo: Code[20]; ApplDocType: Option; AmountToApply: Decimal)
+    local procedure ApplyPurchDocuments(DocType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ApplDocType: Enum "Gen. Journal Document Type"; AmountToApply: Decimal)
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
         VendLedgerEntry2: Record "Vendor Ledger Entry";
@@ -1463,7 +1463,7 @@ codeunit 147310 "ERM Apply Unapply"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1475,14 +1475,14 @@ codeunit 147310 "ERM Apply Unapply"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateAndPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure CreateAndPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Code[20]
     begin
         CreateGenJnlLine(GenJournalLine, DocType, AccountType, AccountNo, -Amount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateAndPostGenJnlLineWithSpecificDocNo(var GenJournalLine: Record "Gen. Journal Line"; DocNo: Code[20]; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostGenJnlLineWithSpecificDocNo(var GenJournalLine: Record "Gen. Journal Line"; DocNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
           AccountType, AccountNo, -Amount);
@@ -1491,7 +1491,7 @@ codeunit 147310 "ERM Apply Unapply"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostApplyGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; InvoiceNo: Code[20]; BillNo: Code[20]; AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure CreatePostApplyGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; InvoiceNo: Code[20]; BillNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Code[20]
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
           AccountType, AccountNo, -Amount);
@@ -1503,7 +1503,7 @@ codeunit 147310 "ERM Apply Unapply"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreatePaymentGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure CreatePaymentGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Code[20]
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
           AccountType, AccountNo, -Amount);
@@ -1530,13 +1530,13 @@ codeunit 147310 "ERM Apply Unapply"
         LibraryERM.UnapplyVendorLedgerEntry(VendLedgerEntry);
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Option; CustomerNo: Code[20]; var Amount: Decimal): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; var Amount: Decimal): Code[20]
     begin
         CreateSalesDocument(SalesHeader, DocType, CustomerNo, Amount);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateAndPostSalesDocumentWOutBill(DocType: Option; CustomerNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure CreateAndPostSalesDocumentWOutBill(DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; Amount: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1550,7 +1550,7 @@ codeunit 147310 "ERM Apply Unapply"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreatePostApplySalesDocument(var SalesHeader: Record "Sales Header"; DocType: Option; CustomerNo: Code[20]; var Amount: Decimal; ApplType: Option; ApplDocNo: Code[20]): Code[20]
+    local procedure CreatePostApplySalesDocument(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; var Amount: Decimal; ApplType: Option; ApplDocNo: Code[20]): Code[20]
     begin
         CreateSalesDocument(SalesHeader, DocType, CustomerNo, Amount);
         with SalesHeader do begin
@@ -1578,7 +1578,7 @@ codeunit 147310 "ERM Apply Unapply"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Option; CustomerNo: Code[20]; var Amount: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; var Amount: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1592,13 +1592,13 @@ codeunit 147310 "ERM Apply Unapply"
         Amount := SalesHeader."Amount Including VAT";
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Option; VendorNo: Code[20]; var Amount: Decimal): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; VendorNo: Code[20]; var Amount: Decimal): Code[20]
     begin
         CreatePurchaseDocument(PurchaseHeader, DocType, VendorNo, Amount);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateAndPostPurchaseDocumentWOutBill(DocType: Option; VendorNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure CreateAndPostPurchaseDocumentWOutBill(DocType: Enum "Purchase Document Type"; VendorNo: Code[20]; Amount: Decimal): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1613,7 +1613,7 @@ codeunit 147310 "ERM Apply Unapply"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreatePostApplyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Option; VendorNo: Code[20]; var Amount: Decimal; ApplType: Option; ApplDocNo: Code[20]): Code[20]
+    local procedure CreatePostApplyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; VendorNo: Code[20]; var Amount: Decimal; ApplType: Option; ApplDocNo: Code[20]): Code[20]
     begin
         CreatePurchaseDocument(PurchaseHeader, DocType, VendorNo, Amount);
         with PurchaseHeader do begin
@@ -1641,7 +1641,7 @@ codeunit 147310 "ERM Apply Unapply"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Option; VendorNo: Code[20]; var Amount: Decimal)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; VendorNo: Code[20]; var Amount: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1698,7 +1698,7 @@ codeunit 147310 "ERM Apply Unapply"
         end;
     end;
 
-    local procedure CreateCarteraJournalLines(var GenJournalLine: Record "Gen. Journal Line"; InvoiceNo: Code[20]; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateCarteraJournalLines(var GenJournalLine: Record "Gen. Journal Line"; InvoiceNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";

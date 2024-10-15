@@ -1496,7 +1496,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         NoSeriesLine.Modify();
     end;
 
-    local procedure Create340DeclarationLine(var Rec340DeclarationLine: Record "340 Declaration Line"; DocumentType: Option)
+    local procedure Create340DeclarationLine(var Rec340DeclarationLine: Record "340 Declaration Line"; DocumentType: Enum "Gen. Journal Document Type")
     var
         VATEntry: Record "VAT Entry";
         RecRef: RecordRef;
@@ -1561,7 +1561,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchaseDocOnDate(DocType: Option; VendorNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date): Code[20]
+    local procedure CreateAndPostPurchaseDocOnDate(DocType: Enum "Purchase Document Type"; VendorNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1623,7 +1623,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         exit(GenJournalLine.Amount);
     end;
 
-    local procedure CreatePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Option; PostingDate: Date; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal)
+    local procedure CreatePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
     begin
         CreateGenJnlLine(GenJournalLine, DocType, PostingDate, AccountType, AccountNo, BalAccountType, BalAccountNo, Amount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1639,21 +1639,21 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePurchLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Qty: Decimal; UnitCost: Decimal)
+    local procedure CreatePurchLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Qty: Decimal; UnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Qty);
         PurchaseLine.Validate("Direct Unit Cost", UnitCost);
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchLineWithUnitCost(PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Qty: Decimal; UnitCost: Decimal)
+    local procedure CreatePurchLineWithUnitCost(PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Qty: Decimal; UnitCost: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
         CreatePurchLine(PurchaseLine, PurchaseHeader, Type, No, Qty, UnitCost);
     end;
 
-    local procedure CreateSalesLineWithUnitPrice(SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Qty: Decimal; UnitCost: Decimal)
+    local procedure CreateSalesLineWithUnitPrice(SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; Qty: Decimal; UnitCost: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1662,7 +1662,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Option; PostingDate: Date; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";
@@ -1676,7 +1676,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePostApplyGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Option; PostingDate: Date; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Amount: Decimal; DocNo: Code[20])
+    local procedure CreatePostApplyGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Amount: Decimal; DocNo: Code[20])
     begin
         CreateGenJnlLine(GenJournalLine, DocType, PostingDate, AccountType, AccountNo, BalAccountType, BalAccountNo, Amount);
         GenJournalLine."Document No." := DocNo;
@@ -1746,7 +1746,7 @@ codeunit 144048 "ERM Make 340 Declaration"
           CustLedgerEntry."Bill No.");
     end;
 
-    local procedure CreatePostBill(AccountType: Option; AccountNo: Code[20]; Amount: Decimal; DocNo: Code[20]; BillNo: Code[20])
+    local procedure CreatePostBill(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; DocNo: Code[20]; BillNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1852,7 +1852,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesDocWithVATPostingSetup(DocType: Option; CustomerNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date): Code[20]
+    local procedure CreateAndPostSalesDocWithVATPostingSetup(DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -2017,20 +2017,20 @@ codeunit 144048 "ERM Make 340 Declaration"
         exit(SalesLine.Amount);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; PostingDate: Date)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PostingDate: Date)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesDocType: Option; CustomerNo: Code[20]; PostingDate: Date) Amount: Decimal
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesDocType: Enum "Sales Document Type"; CustomerNo: Code[20]; PostingDate: Date) Amount: Decimal
     begin
         CreateSalesHeader(SalesHeader, SalesDocType, CustomerNo, PostingDate);
         Amount := CreateSalesLine(SalesHeader, SalesLine);
     end;
 
-    local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PurchDocType: Option; VendorNo: Code[20]; PostingDate: Date)
+    local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; PurchDocType: Enum "Purchase Document Type"; VendorNo: Code[20]; PostingDate: Date)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchDocType, VendorNo);
         SetPurchHeaderPostingDate(PurchaseHeader, PostingDate);
@@ -2186,7 +2186,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         exit(Item."No.");
     end;
 
-    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with VendorLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
@@ -2197,7 +2197,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         end;
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with CustLedgerEntry do begin
             SetRange("Customer No.", CustomerNo);
@@ -2208,7 +2208,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         end;
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; SourceNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Bill-to/Pay-to No.", SourceNo);
         VATEntry.SetRange("Document Type", DocumentType);
@@ -2235,7 +2235,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         exit(CountryRegion."EU Country/Region Code" + VATRegNo);
     end;
 
-    local procedure GetUnrealizedDeductibleAmount(SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]): Decimal
+    local procedure GetUnrealizedDeductibleAmount(SourceNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]): Decimal
     var
         VATEntry: Record "VAT Entry";
     begin

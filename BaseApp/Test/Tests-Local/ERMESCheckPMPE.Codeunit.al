@@ -342,7 +342,7 @@ codeunit 144049 "ERM ES Check PMPE"
           GenJournalLine."Bal. Gen. Posting Type"::Sale, -LibraryRandom.RandDecInRange(10, 50, 2));  // Random - Amount.
     end;
 
-    local procedure CreateAndPostGeneralJornalWithUnrealizedVAT(DocumentType: Option; AppliesToDocType: Option; AccountType: Option; BalGenPostingType: Option; Amount: Decimal)
+    local procedure CreateAndPostGeneralJornalWithUnrealizedVAT(DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; BalGenPostingType: Enum "General Posting Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -447,7 +447,7 @@ codeunit 144049 "ERM ES Check PMPE"
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreateAccountNumber(AccountType: Option; VATBusPostingGroup: Code[20]): Code[20]
+    local procedure CreateAccountNumber(AccountType: Enum "Gen. Journal Account Type"; VATBusPostingGroup: Code[20]): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -456,7 +456,7 @@ codeunit 144049 "ERM ES Check PMPE"
         exit(CreateVendor(VATBusPostingGroup));
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; BalAccountNo: Code[20]; BalGenPostingType: Option)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; BalAccountNo: Code[20]; BalGenPostingType: Enum "General Posting Type")
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Document Type",
@@ -466,7 +466,7 @@ codeunit 144049 "ERM ES Check PMPE"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure UpdateAndPostGenJournalLineWithAppliesToDoc(var GenJournalLine: Record "Gen. Journal Line"; AppliesToDocType: Option; AppliesToDocNo: Code[20]; PostingDate: Date)
+    local procedure UpdateAndPostGenJournalLineWithAppliesToDoc(var GenJournalLine: Record "Gen. Journal Line"; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; PostingDate: Date)
     begin
         GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);
         GenJournalLine.Validate("Posting Date", PostingDate);
@@ -508,7 +508,7 @@ codeunit 144049 "ERM ES Check PMPE"
         exit(Item."No.");
     end;
 
-    local procedure CreateGeneralJornalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJornalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -551,7 +551,7 @@ codeunit 144049 "ERM ES Check PMPE"
         exit(PaymentTerms.Code);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ItemNo: Code[20]; VendorNo: Code[20]; PostingDate: Date)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; VendorNo: Code[20]; PostingDate: Date)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -565,7 +565,7 @@ codeunit 144049 "ERM ES Check PMPE"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; CustomerNo: Code[20]; PostingDate: Date)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; CustomerNo: Code[20]; PostingDate: Date)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -648,7 +648,7 @@ codeunit 144049 "ERM ES Check PMPE"
         exit(Vendor."No.");
     end;
 
-    local procedure FindCustomerLedgerEntryAmount(DocumentType: Option; DocumentNo: Code[20]): Decimal
+    local procedure FindCustomerLedgerEntryAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]): Decimal
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -657,7 +657,7 @@ codeunit 144049 "ERM ES Check PMPE"
         exit(CustLedgerEntry.Amount);
     end;
 
-    local procedure FindLedgerEntryAmount(AccountType: Option; DocumentType: Option; DocumentNo: Code[20]): Decimal
+    local procedure FindLedgerEntryAmount(AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -666,7 +666,7 @@ codeunit 144049 "ERM ES Check PMPE"
         exit(-FindVendorLedgerEntryAmount(DocumentType, DocumentNo));
     end;
 
-    local procedure FindVendorLedgerEntryAmount(DocumentType: Option; DocumentNo: Code[20]): Decimal
+    local procedure FindVendorLedgerEntryAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]): Decimal
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -713,7 +713,7 @@ codeunit 144049 "ERM ES Check PMPE"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure UpdateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; BalAccountNo: Code[20]; BalGenPostingType: Option)
+    local procedure UpdateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; BalAccountNo: Code[20]; BalGenPostingType: Enum "General Posting Type")
     begin
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
@@ -722,7 +722,7 @@ codeunit 144049 "ERM ES Check PMPE"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure VerifyVATEntryVATAmountAndBase(DocumentType: Option; BillToPayToNo: Code[20]; VATAmount: Decimal; Amount: Decimal)
+    local procedure VerifyVATEntryVATAmountAndBase(DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20]; VATAmount: Decimal; Amount: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin

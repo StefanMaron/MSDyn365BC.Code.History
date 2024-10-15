@@ -368,7 +368,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         LibraryVariableStorage.Enqueue(DocumentNo2);
     end;
 
-    local procedure CreateAndPostMultipleSalesDocument(DocumentType: Option) DocumentNo: Code[20]
+    local procedure CreateAndPostMultipleSalesDocument(DocumentType: Enum "Sales Document Type") DocumentNo: Code[20]
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -387,7 +387,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         LibraryVariableStorage.Enqueue(DocumentNo2);
     end;
 
-    local procedure CreateAndUpdatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentType: Option)
+    local procedure CreateAndUpdatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
@@ -413,7 +413,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateAndUpdateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20])
+    local procedure CreateAndUpdateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20])
     begin
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, Type, No, LibraryRandom.RandInt(10));  // Random Quantity.
@@ -466,7 +466,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; Type: Option; No: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -474,7 +474,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Random Quantity.
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20])
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -482,7 +482,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         CreateAndUpdateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo);
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option; Type: Option; CustomerNo: Code[20]; No: Code[20])
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; Type: Enum "Service Line Type"; CustomerNo: Code[20]; No: Code[20])
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -490,7 +490,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         CreateServiceLine(ServiceLine, DocumentType, ServiceHeader."No.", Type, No);
     end;
 
-    local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20]; Type: Option; No: Code[20])
+    local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; Type: Enum "Service Line Type"; No: Code[20])
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -501,7 +501,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         ServiceLine.Modify(true);
     end;
 
-    local procedure PostServiceDocument(DocumentType: Option; No: Code[20])
+    local procedure PostServiceDocument(DocumentType: Enum "Service Document Type"; No: Code[20])
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -569,7 +569,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
             IntegerCode := InsStr(IntegerCode, Format(LibraryRandom.RandInt(9)), Counter);
     end;
 
-    local procedure PostPurchaseDocument(DocumentType: Option; DocumentNo: Code[20]): Code[20]
+    local procedure PostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -577,7 +577,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure PostSalesDocument(DocumentType: Option; DocumentNo: Code[20]): Code[20]
+    local procedure PostSalesDocument(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin

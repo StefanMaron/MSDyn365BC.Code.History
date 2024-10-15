@@ -602,6 +602,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                         ResCost."Work Type Code" := "Work Type Code";
                         OnFindJobPlanningLinePriceOnBeforeResourceFindCost(JobPlanningLine, ResCost);
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
+                        JobPlanningLine.AfterResourceFindCost(ResCost);
                         OnAfterJobPlanningLineFindResCost(JobPlanningLine, CalledByFieldNo, ResCost);
                         ConvertPriceLCYToFCY("Currency Code", ResCost."Unit Cost");
                         "Direct Unit Cost (LCY)" := Round(ResCost."Direct Unit Cost" * "Qty. per Unit of Measure",
@@ -661,6 +662,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                         ResCost."Work Type Code" := "Work Type Code";
                         OnFindJobJnlLinePriceOnBeforeResourceFindCost(JobJnlLine, ResCost);
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
+                        JobJnlLine.AfterResourceFindCost(ResCost);
                         OnAfterJobJnlLineFindResCost(JobJnlLine, CalledByFieldNo, ResCost);
                         ConvertPriceLCYToFCY("Currency Code", ResCost."Unit Cost");
                         "Direct Unit Cost (LCY)" :=
@@ -814,6 +816,42 @@ codeunit 7010 "Purch. Price Calc. Mgt."
         Vend.Get(VendorNo);
     end;
 
+    procedure FindResUnitCost(var ResJournalLine: Record "Res. Journal Line")
+    begin
+        GLSetup.Get();
+        ResCost.Init();
+        ResCost.Code := ResJournalLine."Resource No.";
+        ResCost."Work Type Code" := ResJournalLine."Work Type Code";
+        ResJournalLine.AfterInitResourceCost(ResCost);
+        CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
+        ResJournalLine.AfterFindResUnitCost(ResCost);
+        ResJournalLine."Direct Unit Cost" :=
+            Round(ResCost."Direct Unit Cost" * ResJournalLine."Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
+        ResJournalLine."Unit Cost" :=
+            Round(ResCost."Unit Cost" * ResJournalLine."Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
+        ResJournalLine.Validate("Unit Cost");
+    end;
+
+    procedure FindResUnitCost(var SalesLine: Record "Sales Line")
+    begin
+        ResCost.Init();
+        SalesLine.FindResUnitCostOnAfterInitResCost(ResCost);
+        ResCost.Code := SalesLine."No.";
+        ResCost."Work Type Code" := SalesLine."Work Type Code";
+        CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
+        SalesLine.AfterFindResUnitCost(ResCost);
+        SalesLine.Validate("Unit Cost (LCY)", ResCost."Unit Cost" * SalesLine."Qty. per Unit of Measure");
+    end;
+
+    procedure FindResUnitCost(var ServiceLine: Record "Service Line")
+    begin
+        ResCost.Init();
+        ResCost.Code := ServiceLine."No.";
+        ResCost."Work Type Code" := ServiceLine."Work Type Code";
+        CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
+        ServiceLine.AfterResourseFindCost(ResCost);
+        ServiceLine.Validate("Unit Cost (LCY)", ResCost."Unit Cost" * ServiceLine."Qty. per Unit of Measure");
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcBestDirectUnitCostFound(var PurchPrice: Record "Purchase Price"; var BestPurchPriceFound: Boolean)

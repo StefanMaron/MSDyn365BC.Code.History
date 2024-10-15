@@ -308,7 +308,7 @@ codeunit 147527 "SII Intracommunitary"
         exit(CountryRegion.Code);
     end;
 
-    local procedure PostSalesDocWithIntracommunityCustomer(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option)
+    local procedure PostSalesDocWithIntracommunityCustomer(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -322,7 +322,7 @@ codeunit 147527 "SII Intracommunitary"
           CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
-    local procedure PostPurchDocWithIntracommunityVendor(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option)
+    local procedure PostPurchDocWithIntracommunityVendor(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
@@ -336,7 +336,7 @@ codeunit 147527 "SII Intracommunitary"
           VendorLedgerEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false));
     end;
 
-    local procedure PostServDocWithIntracommunityCustomer(DocType: Option): Code[20]
+    local procedure PostServDocWithIntracommunityCustomer(DocType: Enum "Service Document Type"): Code[20]
     var
         Customer: Record Customer;
         ServiceHeader: Record "Service Header";

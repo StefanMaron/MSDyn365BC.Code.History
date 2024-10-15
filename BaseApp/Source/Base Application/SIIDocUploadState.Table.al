@@ -240,13 +240,13 @@ table 10752 "SII Doc. Upload State"
     {
     }
 
-    [Scope('OnPrem')]
     procedure CreateNewRequest(EntryNo: Integer; DocumentSource: Option "Customer Ledger","Vendor Ledger","Detailed Customer Ledger","Detailed Vendor Ledger"; DocumentType: Option ,Payment,Invoice,"Credit Memo"; DocumentNo: Code[35]; ExternalDocumentNo: Code[35]; PostingDate: Date)
     begin
-        CreateNewRequestInternal(EntryNo, 0, DocumentSource, DocumentType, DocumentNo, ExternalDocumentNo, PostingDate);
+        CreateNewRequestInternal(
+            EntryNo, 0, "SII Doc. Upload State Document Source".FromInteger(DocumentSource),
+            "SII Doc. Upload State Document Type".FromInteger(DocumentType), DocumentNo, ExternalDocumentNo, PostingDate);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateNewCollectionsInCashRequest(CustomerNo: Code[20]; PostingDate: Date; TotalAmount: Decimal): Boolean
     var
         Customer: Record Customer;
@@ -287,14 +287,12 @@ table 10752 "SII Doc. Upload State"
         exit(true);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateNewVendPmtRequest(PmtEntryNo: Integer; InvEntryNo: Integer; DocumentNo: Code[35]; PostingDate: Date)
     begin
         CreateNewRequestInternal(
           PmtEntryNo, InvEntryNo, "Document Source"::"Detailed Vendor Ledger", "Document Type"::Payment, DocumentNo, '', PostingDate);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateNewCustPmtRequest(PmtEntryNo: Integer; InvEntryNo: Integer; DocumentNo: Code[30]; PostingDate: Date)
     begin
         CreateNewRequestInternal(
@@ -349,7 +347,6 @@ table 10752 "SII Doc. Upload State"
         SIIHistory.CreateNewRequest(SIIDocUploadState.Id, SIIHistory."Upload Type"::Regular, 4, false, false);
     end;
 
-    [Scope('OnPrem')]
     procedure CreateCommunicationErrorRetries()
     var
         SIIHistory: Record "SII History";
@@ -387,7 +384,6 @@ table 10752 "SII Doc. Upload State"
         SIIDocUploadState.Status := Status::Pending;
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateDocInfoOnSIIDocUploadState(DocFieldNo: Integer)
     begin
         if not (Status in [Status::Pending, Status::Incorrect, Status::"Accepted With Errors"]) then
@@ -395,7 +391,6 @@ table 10752 "SII Doc. Upload State"
         UpdateFieldOnSIIDOcUploadState(DocFieldNo);
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateFieldOnSIIDOcUploadState(FieldNo: Integer)
     var
         RecRef: RecordRef;
@@ -408,7 +403,6 @@ table 10752 "SII Doc. Upload State"
         RecRef.SetTable(Rec);
     end;
 
-    [Scope('OnPrem')]
     procedure GetSIIDocUploadStateByCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry")
     begin
         Reset;
@@ -422,10 +416,9 @@ table 10752 "SII Doc. Upload State"
                 exit;
         end;
         SetRange("Entry No", CustLedgEntry."Entry No.");
-        FindFirst;
+        FindFirst();
     end;
 
-    [Scope('OnPrem')]
     procedure GetSIIDocUploadStateByVendLedgEntry(VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         Reset;
@@ -439,20 +432,18 @@ table 10752 "SII Doc. Upload State"
                 exit;
         end;
         SetRange("Entry No", VendorLedgerEntry."Entry No.");
-        FindFirst;
+        FindFirst();
     end;
 
-    [Scope('OnPrem')]
     procedure GetSIIDocUploadStateByDocument(DocSource: Option; DocType: Option; PostingDate: Date; DocNo: Code[20]): Boolean
     begin
         SetRange("Document Source", DocSource);
         SetRange("Document Type", DocType);
         SetRange("Posting Date", PostingDate);
         SetRange("Document No.", DocNo);
-        exit(FindLast);
+        exit(FindLast());
     end;
 
-    [Scope('OnPrem')]
     procedure ValidateDocInfo(var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; EntryNo: Integer; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; DocumentNo: Code[35])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -550,7 +541,6 @@ table 10752 "SII Doc. Upload State"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure IsCreditMemoRemoval(): Boolean
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -575,7 +565,6 @@ table 10752 "SII Doc. Upload State"
         exit(false);
     end;
 
-    [Scope('OnPrem')]
     procedure GetCorrectionInfo(var CorrectedDocNo: Code[35]; var CorrectionDate: Date; PostingDate: Date)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -647,7 +636,6 @@ table 10752 "SII Doc. Upload State"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure UpdateSalesSIIDocUploadStateInfo(CustNo: Code[20]; InvType: Option; CrMemoType: Option; SpecialSchemeCode: Option; SucceededCompanyName: Text[250]; SucceededVATRegNo: Text[20]; NewIDType: Option)
     begin
         Validate("CV No.", CustNo);
@@ -661,7 +649,6 @@ table 10752 "SII Doc. Upload State"
         Validate(IDType, NewIDType);
     end;
 
-    [Scope('OnPrem')]
     procedure UpdatePurchSIIDocUploadState(VendNo: Code[20]; InvType: Option; CrMemoType: Option; SpecialSchemeCode: Option; SucceededCompanyName: Text[250]; SucceededVATRegNo: Text[20]; NewIDType: Option)
     begin
         Validate("CV No.", VendNo);

@@ -13,26 +13,20 @@ table 1512 "Notification Setup"
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = "User Setup";
         }
-        field(2; "Notification Type"; Option)
+        field(2; "Notification Type"; Enum "Notification Entry Type")
         {
             Caption = 'Notification Type';
-            OptionCaption = 'New Record,Approval,Overdue';
-            OptionMembers = "New Record",Approval,Overdue;
         }
-        field(3; "Notification Method"; Option)
+        field(3; "Notification Method"; Enum "Notification Method Type")
         {
             Caption = 'Notification Method';
-            OptionCaption = 'Email,Note';
-            OptionMembers = Email,Note;
         }
-        field(5; Schedule; Option)
+        field(5; Schedule; Enum "Notification Schedule Type")
         {
-            CalcFormula = Lookup ("Notification Schedule".Recurrence WHERE("User ID" = FIELD("User ID"),
+            CalcFormula = Lookup("Notification Schedule".Recurrence WHERE("User ID" = FIELD("User ID"),
                                                                            "Notification Type" = FIELD("Notification Type")));
             Caption = 'Schedule';
             FieldClass = FlowField;
-            OptionCaption = 'Instantly,Daily,Weekly,Monthly';
-            OptionMembers = Instantly,Daily,Weekly,Monthly;
         }
         field(6; "Display Target"; Option)
         {
@@ -65,7 +59,13 @@ table 1512 "Notification Setup"
             NotificationSchedule.Delete(true);
     end;
 
+    [Obsolete('Replaced by GetNotificationTypeSetup().', '17.0')]
     procedure GetNotificationSetup(NotificationType: Option "New Record",Approval,Overdue)
+    begin
+        GetNotificationTypeSetup("Notification Entry Type".FromInteger(NotificationType));
+    end;
+
+    procedure GetNotificationTypeSetup(NotificationType: Enum "Notification Entry Type")
     var
         NotificationManagement: Codeunit "Notification Management";
     begin
@@ -73,15 +73,21 @@ table 1512 "Notification Setup"
             exit;
         if Get('', NotificationType) then
             exit;
-        NotificationManagement.CreateDefaultNotificationSetup(NotificationType);
+        NotificationManagement.CreateDefaultNotificationTypeSetup(NotificationType);
         Get('', NotificationType)
     end;
 
+    [Obsolete('Replaced by GetNotificationTypeSetupForUser().', '17.0')]
     procedure GetNotificationSetupForUser(NotificationType: Option "New Record",Approval,Overdue; RecipientUserID: Code[50])
+    begin
+        GetNotificationTypeSetupForUser("Notification Entry Type".FromInteger(NotificationType), RecipientUserID);
+    end;
+
+    procedure GetNotificationTypeSetupForUser(NotificationType: Enum "Notification Entry Type"; RecipientUserID: Code[50])
     begin
         if Get(RecipientUserID, NotificationType) then
             exit;
-        GetNotificationSetup(NotificationType);
+        GetNotificationTypeSetup(NotificationType);
     end;
 }
 

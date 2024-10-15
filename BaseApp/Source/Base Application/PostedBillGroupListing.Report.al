@@ -125,12 +125,12 @@ report 7000001 "Posted Bill Group Listing"
                         DataItemTableView = SORTING("Bill Gr./Pmt. Order No.", Status, "Category Code", Redrawn, "Due Date") WHERE("Collection Agent" = CONST(Bank), Type = CONST(Receivable));
                         column(AmtForCollection; AmtForCollection)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtForCollection_Control32; AmtForCollection)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Customer_City; Customer.City)
@@ -174,7 +174,7 @@ report 7000001 "Posted Bill Group Listing"
                         }
                         column(AmtForCollection_Control31; AmtForCollection)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Customer_County_Control35; Customer.County)
@@ -209,12 +209,12 @@ report 7000001 "Posted Bill Group Listing"
                         }
                         column(AmtForCollection_Control36; AmtForCollection)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtForCollection_Control39; AmtForCollection)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(PostedDoc_Type; Type)

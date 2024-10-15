@@ -133,9 +133,9 @@ codeunit 147312 "SEPA DD Integration Test - ES"
 
         // Setup
         CreatePostSalesInvoiceAndCreateBillGroup(
-          BillGroup, CarteraDoc, BankAccount, DocumentNo, BillGroup."Partner Type"::Company, 1, false);
+          BillGroup, CarteraDoc, BankAccount, DocumentNo, "Partner Type"::Company, 1, false);
 
-        DirectDebitCollection.CreateNew(BillGroup."No.", BankAccount."No.", DirectDebitCollection."Partner Type"::Company);
+        DirectDebitCollection.CreateRecord(BillGroup."No.", BankAccount."No.", DirectDebitCollection."Partner Type"::Company);
         DirectDebitCollection."Source Table ID" := DATABASE::"Bill Group";
         DirectDebitCollection.Modify();
 
@@ -184,9 +184,9 @@ codeunit 147312 "SEPA DD Integration Test - ES"
 
         // Setup
         CreatePostSalesInvoiceAndCreateBillGroup(
-          BillGroup, CarteraDoc, BankAccount, DocumentNo, BillGroup."Partner Type"::Company, 1, false);
+          BillGroup, CarteraDoc, BankAccount, DocumentNo, "Partner Type"::Company, 1, false);
 
-        DirectDebitCollection.CreateNew(BillGroup."No.", BankAccount."No.", DirectDebitCollection."Partner Type"::Company);
+        DirectDebitCollection.CreateRecord(BillGroup."No.", BankAccount."No.", DirectDebitCollection."Partner Type"::Company);
         DirectDebitCollection."Source Table ID" := DATABASE::"Bill Group";
         DirectDebitCollection."Direct Debit Format" := DirectDebitCollection."Direct Debit Format"::N58;
         DirectDebitCollection.Modify();
@@ -232,7 +232,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
 
         // Setup
         CreatePostSalesInvoiceAndCreateBillGroup(
-          BillGroup, CarteraDoc, BankAccount, DocumentNo, BillGroup."Partner Type"::Person, 1, false);
+          BillGroup, CarteraDoc, BankAccount, DocumentNo, "Partner Type"::Person, 1, false);
 
         BillGroup.SelectDirectDebitFormatSilently(DirectDebitCollection."Direct Debit Format"::Standard);
 
@@ -276,9 +276,9 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         // Setup
         BillCount := LibraryRandom.RandIntInRange(3, 10);
         CreatePostSalesInvoiceAndCreateBillGroup(
-          BillGroup, CarteraDoc, BankAccount, DocumentNo, BillGroup."Partner Type"::Company, BillCount, false);
+          BillGroup, CarteraDoc, BankAccount, DocumentNo, "Partner Type"::Company, BillCount, false);
 
-        DirectDebitCollection.CreateNew(BillGroup."No.", BankAccount."No.", DirectDebitCollection."Partner Type"::Company);
+        DirectDebitCollection.CreateRecord(BillGroup."No.", BankAccount."No.", DirectDebitCollection."Partner Type"::Company);
         DirectDebitCollection."Source Table ID" := DATABASE::"Bill Group";
         DirectDebitCollection.Modify();
 
@@ -307,7 +307,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
 
         // Setup
         CreatePostSalesInvoiceAndCreateBillGroup(
-          BillGroup, CarteraDoc, BankAccount, DocumentNo, BillGroup."Partner Type"::Person, 1, false);
+          BillGroup, CarteraDoc, BankAccount, DocumentNo, "Partner Type"::Person, 1, false);
 
         BillGroup.SelectDirectDebitFormatSilently(DirectDebitCollection."Direct Debit Format"::Standard);
         asserterror BillGroup.ExportToFile;
@@ -336,7 +336,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
 
         // [GIVEN] Cartera Bill Group for Customer Bank Account with Direct Debit Mandate
         CreatePostSalesInvoiceAndCreateBillGroup(
-          BillGroup, CarteraDoc, BankAccount, DocumentNo, BillGroup."Partner Type"::Person, 1, false);
+          BillGroup, CarteraDoc, BankAccount, DocumentNo, "Partner Type"::Person, 1, false);
 
         // [GIVEN] Bill Group is posted and closed
         PostAndCloseBillGroup(BillGroup, DocumentNo);
@@ -378,7 +378,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
 
         // [GIVEN] Cartera Bill Group for Customer Bank Account with Direct Debit Mandate
         CreatePostSalesInvoiceAndCreateBillGroup(
-          BillGroup, CarteraDoc, BankAccount, DocumentNo, BillGroup."Partner Type"::Person, 1, false);
+          BillGroup, CarteraDoc, BankAccount, DocumentNo, "Partner Type"::Person, 1, false);
 
         // [GIVEN] Bill Group is posted and closed
         PostAndCloseBillGroup(BillGroup, DocumentNo);
@@ -410,9 +410,9 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         // Setup
         BillCount := LibraryRandom.RandIntInRange(3, 10);
         CreatePostSalesInvoiceAndCreateBillGroup(
-          BillGroup, CarteraDoc, BankAccount, DocumentNo, BillGroup."Partner Type"::Company, BillCount, NoDecimals);
+          BillGroup, CarteraDoc, BankAccount, DocumentNo, "Partner Type"::Company, BillCount, NoDecimals);
 
-        DirectDebitCollection.CreateNew(BillGroup."No.", BankAccount."No.", DirectDebitCollection."Partner Type"::Company);
+        DirectDebitCollection.CreateRecord(BillGroup."No.", BankAccount."No.", DirectDebitCollection."Partner Type"::Company);
         DirectDebitCollection."Source Table ID" := DATABASE::"Bill Group";
         DirectDebitCollection.Modify();
 
@@ -429,7 +429,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
             VerifyExportedSums(ServerFileName, BillCount + 1);
     end;
 
-    local procedure CreatePostSalesInvoiceAndCreateBillGroup(var BillGroup: Record "Bill Group"; var CarteraDoc: Record "Cartera Doc."; var BankAccount: Record "Bank Account"; var DocumentNo: Code[20]; BillGroupPartnerType: Option; ExpectedNumberOfPayments: Integer; RoundToInt: Boolean)
+    local procedure CreatePostSalesInvoiceAndCreateBillGroup(var BillGroup: Record "Bill Group"; var CarteraDoc: Record "Cartera Doc."; var BankAccount: Record "Bank Account"; var DocumentNo: Code[20]; BillGroupPartnerType: Enum "Partner Type"; ExpectedNumberOfPayments: Integer; RoundToInt: Boolean)
     begin
         if ExpectedNumberOfPayments > 1 then
             DocumentNo := PostCustomerSalesInvoiceMultiplePayments(BillGroupPartnerType, ExpectedNumberOfPayments, RoundToInt)
@@ -625,7 +625,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         RedrawReceivableBills.RunModal;
     end;
 
-    local procedure PostCustomerSalesInvoice(CustomerPartnerType: Option; RoundToInt: Boolean): Code[20]
+    local procedure PostCustomerSalesInvoice(CustomerPartnerType: Enum "Partner Type"; RoundToInt: Boolean): Code[20]
     var
         Customer: Record Customer;
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
@@ -634,7 +634,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         exit(CreatePostSalesInvoice(Customer."No.", SEPADirectDebitMandate.ID, RoundToInt));
     end;
 
-    local procedure PostCustomerSalesInvoiceMultiplePayments(CustomerPartnerType: Option; ExpectedNumberOfDebits: Integer; RoundToInt: Boolean): Code[20]
+    local procedure PostCustomerSalesInvoiceMultiplePayments(CustomerPartnerType: Enum "Partner Type"; ExpectedNumberOfDebits: Integer; RoundToInt: Boolean): Code[20]
     var
         Customer: Record Customer;
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
@@ -657,7 +657,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         RunSettlePostedCarteraDocs(PostedCarteraDoc);
     end;
 
-    local procedure PrepareCustomer(CustomerPartnerType: Option; NumberOfPayments: Integer; var Customer: Record Customer; var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate")
+    local procedure PrepareCustomer(CustomerPartnerType: Enum "Partner Type"; NumberOfPayments: Integer; var Customer: Record Customer; var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate")
     var
         PaymentMethod: Record "Payment Method";
         CustomerBankAccount: Record "Customer Bank Account";

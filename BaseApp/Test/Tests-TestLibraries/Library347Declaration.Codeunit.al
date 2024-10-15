@@ -53,7 +53,7 @@ codeunit 143304 "Library - 347 Declaration"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateAndPostGeneralJournalLine(DocumentType: Option; AccountType: Option; AccountNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal)
+    procedure CreateAndPostGeneralJournalLine(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal)
     var
         GLAccount: Record "G/L Account";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -350,7 +350,7 @@ codeunit 143304 "Library - 347 Declaration"
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; CountryCode: Text[2]): Code[20]
+    procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; CountryCode: Text[2]): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
         VATRegistrationNo: Text[20];
@@ -365,7 +365,7 @@ codeunit 143304 "Library - 347 Declaration"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; CountryCode: Text[2])
+    procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CountryCode: Text[2])
     var
         SalesLine: Record "Sales Line";
         VATRegistrationNo: Text[20];
@@ -379,7 +379,7 @@ codeunit 143304 "Library - 347 Declaration"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; CountryCode: Text[2])
+    procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CountryCode: Text[2])
     var
         ServiceLine: Record "Service Line";
         VATRegistrationNo: Text[20];

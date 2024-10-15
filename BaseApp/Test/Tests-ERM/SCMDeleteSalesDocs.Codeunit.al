@@ -158,7 +158,7 @@ codeunit 137208 "SCM Delete Sales Docs"
     end;
 
 
-    local procedure DeletePostedDoc(DocumentType: Option)
+    local procedure DeletePostedDoc(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         FileManagement: Codeunit "File Management";
@@ -178,7 +178,7 @@ codeunit 137208 "SCM Delete Sales Docs"
         LibraryVariableStorage.AssertEmpty();
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         Customer: Record Customer;
@@ -252,7 +252,8 @@ codeunit 137208 "SCM Delete Sales Docs"
         Assert.AreEqual(1, NoPrinted, 'No. printed was not incremented for ' + SalesHeader."No.");
     end;
 
-    local procedure VerifyLinesAreDeleted(SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure VerifyLinesAreDeleted(SalesHeader: Record "Sales Header";
+                                                           DocumentType: Enum "Sales Document Type")
     var
         SalesShipmentLine: Record "Sales Shipment Line";
         SalesInvoiceLine: Record "Sales Invoice Line";

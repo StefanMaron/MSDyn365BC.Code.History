@@ -8,6 +8,9 @@ page 2876 "Native - Tax Rates"
     PageType = List;
     SourceTable = "Tax Rate Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     layout
     {

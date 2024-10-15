@@ -787,17 +787,17 @@ codeunit 147515 "No Taxable Documents"
         DeleteCVLedgerEntries;
         LibraryLowerPermissions.SetO365Full;
 
-        LibrarySales.CreateSalesHeader(SalesHeader,SalesHeader."Document Type"::Invoice,LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine,SalesHeader,SalesLine.Type::"G/L Account",LibraryERM.CreateGLAccountWithSalesSetup,1);
-        SalesLine.Validate("Unit Price",LibraryRandom.RandDecInRange(100,200,2));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
         SalesLine.Modify(true);
-        LibrarySales.PostSalesDocument(SalesHeader,true,true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         DeleteNoTaxableEntries;
         ResetNoTaxableTypeVATEntries(SalesHeader."VAT Bus. Posting Group");
         CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
 
-        VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group",SalesLine."VAT Prod. Posting Group");
+        VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
         VerifyNoTaxableEntriesNotCreated(VATPostingSetup);
     end;
 
@@ -818,25 +818,25 @@ codeunit 147515 "No Taxable Documents"
         DeleteCVLedgerEntries;
         LibraryLowerPermissions.SetO365Full;
 
-        CreateSalesDocumentWithNormalNoTaxableVAT(SalesHeader,VATPostingSetup,SalesHeader."Document Type"::Invoice);
-        SalesLineNoTax.SetRange("Document Type",SalesHeader."Document Type");
-        SalesLineNoTax.SetRange("Document No.",SalesHeader."No.");
+        CreateSalesDocumentWithNormalNoTaxableVAT(SalesHeader, VATPostingSetup, SalesHeader."Document Type"::Invoice);
+        SalesLineNoTax.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLineNoTax.SetRange("Document No.", SalesHeader."No.");
         SalesLineNoTax.FindFirst;
-        LibrarySales.CreateSalesLine(SalesLine,SalesHeader,SalesLine.Type::"G/L Account",LibraryERM.CreateGLAccountWithSalesSetup,1);
-        SalesLine.Validate("Unit Price",LibraryRandom.RandDecInRange(100,200,2));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
         SalesLine.Modify(true);
 
         LibraryERM.FindCustomerLedgerEntry(
-          CustLedgerEntry,CustLedgerEntry."Document Type"::Invoice,LibrarySales.PostSalesDocument(SalesHeader,true,true));
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         DeleteNoTaxableEntries;
         ResetNoTaxableTypeVATEntries(SalesHeader."VAT Bus. Posting Group");
         CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
 
-        VerifySalesNoTaxableEntries(CustLedgerEntry,-SalesLineNoTax.Amount,-SalesLineNoTax."Amount Including VAT");
+        VerifySalesNoTaxableEntries(CustLedgerEntry, -SalesLineNoTax.Amount, -SalesLineNoTax."Amount Including VAT");
         VerifyNoTaxableTypeVATEntries(VATPostingSetup);
 
-        VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group",SalesLine."VAT Prod. Posting Group");
+        VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
         VerifyNoTaxableEntriesNotCreated(VATPostingSetup);
     end;
 
@@ -854,18 +854,18 @@ codeunit 147515 "No Taxable Documents"
         DeleteCVLedgerEntries;
         LibraryLowerPermissions.SetO365Full;
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader,PurchaseHeader."Document Type"::Invoice,LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine,PurchaseHeader,PurchaseLine.Type::"G/L Account",LibraryERM.CreateGLAccountWithPurchSetup,1);
-        PurchaseLine.Validate("Direct Unit Cost",LibraryRandom.RandDecInRange(100,200,2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
         PurchaseLine.Modify(true);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader,true,true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         DeleteNoTaxableEntries;
         ResetNoTaxableTypeVATEntries(PurchaseHeader."VAT Bus. Posting Group");
         CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
 
-        VATPostingSetup.Get(PurchaseHeader."VAT Bus. Posting Group",PurchaseLine."VAT Prod. Posting Group");
+        VATPostingSetup.Get(PurchaseHeader."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         VerifyNoTaxableEntriesNotCreated(VATPostingSetup);
     end;
 
@@ -886,26 +886,26 @@ codeunit 147515 "No Taxable Documents"
         DeleteCVLedgerEntries;
         LibraryLowerPermissions.SetO365Full;
 
-        CreatePurchaseDocumentWithNormalNoTaxableVAT(PurchaseHeader,VATPostingSetup,PurchaseHeader."Document Type"::Invoice);
-        PurchaseLineNoTax.SetRange("Document Type",PurchaseHeader."Document Type");
-        PurchaseLineNoTax.SetRange("Document No.",PurchaseHeader."No.");
+        CreatePurchaseDocumentWithNormalNoTaxableVAT(PurchaseHeader, VATPostingSetup, PurchaseHeader."Document Type"::Invoice);
+        PurchaseLineNoTax.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLineNoTax.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLineNoTax.FindFirst;
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine,PurchaseHeader,PurchaseLine.Type::"G/L Account",LibraryERM.CreateGLAccountWithPurchSetup,1);
-        PurchaseLine.Validate("Direct Unit Cost",LibraryRandom.RandDecInRange(100,200,2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
         PurchaseLine.Modify(true);
 
         LibraryERM.FindVendorLedgerEntry(
-          VendorLedgerEntry,VendorLedgerEntry."Document Type"::Invoice,LibraryPurchase.PostPurchaseDocument(PurchaseHeader,true,true));
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
 
         DeleteNoTaxableEntries;
         ResetNoTaxableTypeVATEntries(PurchaseHeader."VAT Bus. Posting Group");
         CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
 
-        VerifyPurchNoTaxableEntries(VendorLedgerEntry,PurchaseLineNoTax.Amount,PurchaseLineNoTax."Amount Including VAT");
+        VerifyPurchNoTaxableEntries(VendorLedgerEntry, PurchaseLineNoTax.Amount, PurchaseLineNoTax."Amount Including VAT");
         VerifyNoTaxableTypeVATEntries(VATPostingSetup);
 
-        VATPostingSetup.Get(PurchaseHeader."VAT Bus. Posting Group",PurchaseLine."VAT Prod. Posting Group");
+        VATPostingSetup.Get(PurchaseHeader."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
         VerifyNoTaxableEntriesNotCreated(VATPostingSetup);
     end;
 
@@ -923,15 +923,15 @@ codeunit 147515 "No Taxable Documents"
         DeleteCVLedgerEntries;
         LibraryLowerPermissions.SetO365Full;
         CreatePostGenJnlLine(
-          GenJournalLine,GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer,LibrarySales.CreateCustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account",LibraryERM.CreateGLAccountWithSalesSetup,1);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
 
         DeleteNoTaxableEntries;
         CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
 
         GLAccount.Get(GenJournalLine."Bal. Account No.");
-        VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group",GLAccount."VAT Prod. Posting Group");
+        VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
         VerifyNoTaxableEntriesNotCreated(VATPostingSetup);
     end;
 
@@ -949,15 +949,15 @@ codeunit 147515 "No Taxable Documents"
         DeleteCVLedgerEntries;
         LibraryLowerPermissions.SetO365Full;
         CreatePostGenJnlLine(
-          GenJournalLine,GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor,LibraryPurchase.CreateVendorNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account",LibraryERM.CreateGLAccountWithPurchSetup,-1);
+          GenJournalLine, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, -1);
 
         DeleteNoTaxableEntries;
         CODEUNIT.Run(CODEUNIT::"No Taxable - Generate Entries");
 
         GLAccount.Get(GenJournalLine."Bal. Account No.");
-        VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group",GLAccount."VAT Prod. Posting Group");
+        VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group");
         VerifyNoTaxableEntriesNotCreated(VATPostingSetup);
     end;
 
@@ -966,7 +966,7 @@ codeunit 147515 "No Taxable Documents"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Rename(LibraryUtility.GenerateRandomCode20(Customer.FieldNo("No."),DATABASE::Customer));
+        Customer.Rename(LibraryUtility.GenerateRandomCode20(Customer.FieldNo("No."), DATABASE::Customer));
         exit(Customer."No.");
     end;
 
@@ -975,7 +975,7 @@ codeunit 147515 "No Taxable Documents"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Rename(LibraryUtility.GenerateRandomCode20(Vendor.FieldNo("No."),DATABASE::Vendor));
+        Vendor.Rename(LibraryUtility.GenerateRandomCode20(Vendor.FieldNo("No."), DATABASE::Vendor));
         exit(Vendor."No.");
     end;
 
@@ -999,7 +999,7 @@ codeunit 147515 "No Taxable Documents"
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
     end;
 
-    local procedure CreatePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; Sign: Integer)
+    local procedure CreatePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; Sign: Integer)
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, DocumentType, AccountType, AccountNo, Sign * LibraryRandom.RandDecInRange(100, 200, 2));
@@ -1009,7 +1009,7 @@ codeunit 147515 "No Taxable Documents"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePurchaseDocumentWithNoTaxableVAT(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseDocumentWithNoTaxableVAT(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1022,15 +1022,15 @@ codeunit 147515 "No Taxable Documents"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocumentWithNormalNoTaxableVAT(var PurchaseHeader: Record "Purchase Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option)
+    local procedure CreatePurchaseDocumentWithNormalNoTaxableVAT(var PurchaseHeader: Record "Purchase Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader,DocumentType,CreateVendorWithNo);
-        CreatePurchaseLineWithNormalNoTaxableVAT(PurchaseHeader,PurchaseLine,VATPostingSetup);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendorWithNo);
+        CreatePurchaseLineWithNormalNoTaxableVAT(PurchaseHeader, PurchaseLine, VATPostingSetup);
     end;
 
-    local procedure CreatePurchaseLineWithNormalNoTaxableVAT(PurchaseHeader: Record "Purchase Header";var PurchaseLine: Record "Purchase Line";var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure CreatePurchaseLineWithNormalNoTaxableVAT(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var VATPostingSetup: Record "VAT Posting Setup")
     begin
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
@@ -1043,15 +1043,15 @@ codeunit 147515 "No Taxable Documents"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithNormalNoTaxableVAT(var SalesHeader: Record "Sales Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option)
+    local procedure CreateSalesDocumentWithNormalNoTaxableVAT(var SalesHeader: Record "Sales Header"; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader,DocumentType,CreateCustomerWithNo);
-        CreateSalesLineWithNormalNoTaxableVAT(SalesHeader,SalesLine,VATPostingSetup);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomerWithNo);
+        CreateSalesLineWithNormalNoTaxableVAT(SalesHeader, SalesLine, VATPostingSetup);
     end;
 
-    local procedure CreateSalesLineWithNormalNoTaxableVAT(SalesHeader: Record "Sales Header";var SalesLine: Record "Sales Line";var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure CreateSalesLineWithNormalNoTaxableVAT(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATPostingSetup: Record "VAT Posting Setup")
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
         VATPostingSetup.Get(
@@ -1093,7 +1093,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         NoTaxableEntry.FilterNoTaxableEntry(
           NoTaxableEntry.Type::Sale, CustLedgerEntry."Customer No.",
-          CustLedgerEntry."Document Type", CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", false);
+          CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", false);
         NoTaxableEntry.FindFirst;
         NoTaxableEntry.TestField(Amount, ExpectedAmount);
         NoTaxableEntry.TestField("Amount (LCY)", ExpectedAmountLCY);
@@ -1105,7 +1105,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         NoTaxableEntry.FilterNoTaxableEntry(
           NoTaxableEntry.Type::Purchase, VendorLedgerEntry."Vendor No.",
-          VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.", VendorLedgerEntry."Posting Date", false);
+          VendorLedgerEntry."Document Type".AsInteger(), VendorLedgerEntry."Document No.", VendorLedgerEntry."Posting Date", false);
         NoTaxableEntry.FindFirst;
         NoTaxableEntry.TestField(Amount, ExpectedAmount);
         NoTaxableEntry.TestField("Amount (LCY)", ExpectedAmountLCY);
@@ -1117,7 +1117,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         NoTaxableEntry.FilterNoTaxableEntry(
           NoTaxableEntry.Type::Sale, CustLedgerEntry."Customer No.",
-          CustLedgerEntry."Document Type", CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", true);
+          CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", true);
 
         Assert.RecordCount(NoTaxableEntry, 2);
         NoTaxableEntry.FindFirst;
@@ -1135,7 +1135,7 @@ codeunit 147515 "No Taxable Documents"
     begin
         NoTaxableEntry.FilterNoTaxableEntry(
           NoTaxableEntry.Type::Purchase, VendorLedgerEntry."Vendor No.",
-          VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.", VendorLedgerEntry."Posting Date", true);
+          VendorLedgerEntry."Document Type".AsInteger(), VendorLedgerEntry."Document No.", VendorLedgerEntry."Posting Date", true);
         VerifyReversedAmounts(NoTaxableEntry, ExpectedAmount, ExpectedAmountLCY);
     end;
 
@@ -1164,8 +1164,8 @@ codeunit 147515 "No Taxable Documents"
     var
         NoTaxableEntry: Record "No Taxable Entry";
     begin
-        NoTaxableEntry.SetRange("VAT Bus. Posting Group",VATPostingSetup."VAT Bus. Posting Group");
-        NoTaxableEntry.SetRange("VAT Prod. Posting Group",VATPostingSetup."VAT Prod. Posting Group");
+        NoTaxableEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        NoTaxableEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         Assert.RecordIsEmpty(NoTaxableEntry);
     end;
 

@@ -181,7 +181,7 @@ page 7000060 "Closed Payment Orders"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Enabled = true;
                 Image = Navigate;
                 Promoted = true;

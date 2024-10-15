@@ -739,7 +739,7 @@ codeunit 147559 "SII Complex Rules"
         IsInitialized := true;
     end;
 
-    local procedure PostSalesDocWithZeroBaseAndSpecialSchemeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option; SpecialSchemeCode: Option)
+    local procedure PostSalesDocWithZeroBaseAndSpecialSchemeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; SpecialSchemeCode: Option)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -756,7 +756,7 @@ codeunit 147559 "SII Complex Rules"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostPurchDocWithSpecialSchemeCode(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrType: Option; SpecialSchemeCode: Option)
+    local procedure PostPurchDocWithSpecialSchemeCode(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option; SpecialSchemeCode: Option)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -773,7 +773,7 @@ codeunit 147559 "SII Complex Rules"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure PostSalesDocWithSpecialSchemeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option; SpecialSchemeCode: Option)
+    local procedure PostSalesDocWithSpecialSchemeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; SpecialSchemeCode: Option)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -781,7 +781,7 @@ codeunit 147559 "SII Complex Rules"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesDocWithSpecialSchemeCode(var SalesHeader: Record "Sales Header"; DocType: Option; CorrType: Option; SpecialSchemeCode: Option)
+    local procedure CreateSalesDocWithSpecialSchemeCode(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CorrType: Option; SpecialSchemeCode: Option)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -795,7 +795,7 @@ codeunit 147559 "SII Complex Rules"
         SalesLine.Modify(true);
     end;
 
-    local procedure PostSalesDocWithZeroVATPercent(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option)
+    local procedure PostSalesDocWithZeroVATPercent(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option)
     var
         SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -819,7 +819,7 @@ codeunit 147559 "SII Complex Rules"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostPurchaseDocWithZeroVATPercent(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrType: Option)
+    local procedure PostPurchaseDocWithZeroVATPercent(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option)
     var
         PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -844,7 +844,7 @@ codeunit 147559 "SII Complex Rules"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure GetTotalVATBase(Type: Option; DocType: Option; DocNo: Code[20]; PostingDate: Date): Decimal
+    local procedure GetTotalVATBase(Type: Enum "General Posting Type"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; PostingDate: Date): Decimal
     var
         VATEntry: Record "VAT Entry";
     begin

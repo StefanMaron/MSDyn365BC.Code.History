@@ -6,6 +6,7 @@ report 3 "G/L Register"
     Caption = 'G/L Register';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

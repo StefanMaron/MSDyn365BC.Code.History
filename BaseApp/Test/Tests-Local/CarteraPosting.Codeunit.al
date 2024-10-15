@@ -239,7 +239,7 @@ codeunit 147305 "Cartera Posting"
         UnrealVATEntryWhenPostEntryWithAppl(GenJnlLine."Account Type"::Vendor, GenJnlLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure UnrealVATEntryWhenPostEntryWithAppl(AccType: Option; DocType: Option)
+    local procedure UnrealVATEntryWhenPostEntryWithAppl(AccType: Enum "Gen. Journal Account Type"; DocType: Enum "Gen. Journal Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GenJnlLine: Record "Gen. Journal Line";
@@ -1645,7 +1645,7 @@ codeunit 147305 "Cartera Posting"
         PartialSettlPayable.Run;
     end;
 
-    local procedure CreateAcc(AccType: Option; VATBusPostGroupCode: Code[20]): Code[20]
+    local procedure CreateAcc(AccType: Enum "Gen. Journal Account Type"; VATBusPostGroupCode: Code[20]): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -1812,7 +1812,7 @@ codeunit 147305 "Cartera Posting"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocType: Option; VendNo: Code[20])
+    local procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; VendNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         Item: Record Item;
@@ -1824,7 +1824,7 @@ codeunit 147305 "Cartera Posting"
         PurchaseLine.Modify();
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocType: Option; CustNo: Code[20])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustNo: Code[20])
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
@@ -1845,7 +1845,7 @@ codeunit 147305 "Cartera Posting"
         exit(DocumentNo);
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1870,7 +1870,7 @@ codeunit 147305 "Cartera Posting"
         exit(DocumentNo);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         ReleasePurchDocument: Codeunit "Release Purchase Document";
@@ -2035,7 +2035,7 @@ codeunit 147305 "Cartera Posting"
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
     end;
 
-    local procedure FindGenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch"; TemplateType: Option)
+    local procedure FindGenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch"; TemplateType: Enum "Gen. Journal Template Type")
     var
         GenJnlTemplate: Record "Gen. Journal Template";
     begin
@@ -2045,7 +2045,7 @@ codeunit 147305 "Cartera Posting"
         LibraryERM.ClearGenJournalLines(GenJnlBatch);
     end;
 
-    local procedure CreatePostPairedGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; AccType: Option; VATPostingSetup: Record "VAT Posting Setup")
+    local procedure CreatePostPairedGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; VATPostingSetup: Record "VAT Posting Setup")
     var
         AccNo: Code[20];
     begin
@@ -2078,7 +2078,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure CreateBalancedGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; AccType: Option; AccNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup")
+    local procedure CreateBalancedGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup")
     var
         DocNo: Code[20];
     begin
@@ -2098,7 +2098,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure CreateApplyPostBillToInvoice(AccType: Option; AccNo: Code[20]; BillAmount: Decimal; InvoiceNo: Code[20]): Code[20]
+    local procedure CreateApplyPostBillToInvoice(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; BillAmount: Decimal; InvoiceNo: Code[20]): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -2107,7 +2107,7 @@ codeunit 147305 "Cartera Posting"
             AccType, AccNo, BillAmount, GenJnlLine."Applies-to Doc. Type"::Invoice, InvoiceNo, ''));
     end;
 
-    local procedure CreateApplyPostSeveralBillsToInvoice(var BillNo: array[2] of Code[20]; var BillAmount: array[2] of Decimal; AccType: Option; AccNo: Code[20]; InvoiceNo: Code[20]; InvAmount: Decimal)
+    local procedure CreateApplyPostSeveralBillsToInvoice(var BillNo: array[2] of Code[20]; var BillAmount: array[2] of Decimal; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; InvoiceNo: Code[20]; InvAmount: Decimal)
     begin
         BillAmount[1] := GetAmountPart(InvAmount);
         BillNo[1] :=
@@ -2117,7 +2117,7 @@ codeunit 147305 "Cartera Posting"
           CreateApplyPostBillToInvoice(AccType, AccNo, BillAmount[2], InvoiceNo);
     end;
 
-    local procedure CreateApplyPostBillToBill(AccType: Option; AccNo: Code[20]; BillAmount: Decimal; InvoiceNo: Code[20]; BillNo: Code[20]): Code[20]
+    local procedure CreateApplyPostBillToBill(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; BillAmount: Decimal; InvoiceNo: Code[20]; BillNo: Code[20]): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -2126,7 +2126,7 @@ codeunit 147305 "Cartera Posting"
             AccType, AccNo, BillAmount, GenJnlLine."Applies-to Doc. Type"::Bill, InvoiceNo, BillNo));
     end;
 
-    local procedure CreateApplyPostBillToBillToInvoice(var BillNo: array[2] of Code[20]; var BillAmount: Decimal; AccType: Option; AccNo: Code[20]; InvoiceNo: Code[20]; InvAmount: Decimal)
+    local procedure CreateApplyPostBillToBillToInvoice(var BillNo: array[2] of Code[20]; var BillAmount: Decimal; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; InvoiceNo: Code[20]; InvAmount: Decimal)
     begin
         BillAmount := GetAmountPart(InvAmount);
         BillNo[1] :=
@@ -2136,7 +2136,7 @@ codeunit 147305 "Cartera Posting"
           CreateApplyPostBillToBill(AccType, AccNo, BillAmount, InvoiceNo, BillNo[1]);
     end;
 
-    local procedure CreateApplyPostBill(AccType: Option; AccNo: Code[20]; BillAmount: Decimal; ApplyToDocType: Option; InvoiceNo: Code[20]; ApplyToBillNo: Code[20]): Code[20]
+    local procedure CreateApplyPostBill(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; BillAmount: Decimal; ApplyToDocType: Enum "Gen. Journal Document Type"; InvoiceNo: Code[20]; ApplyToBillNo: Code[20]): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -2151,12 +2151,12 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure CreateApplyPostPaymentToBill(AccType: Option; AccNo: Code[20]; InvoiceNo: Code[20]; BillNo: Code[20]; PayAmount: Decimal): Code[20]
+    local procedure CreateApplyPostPaymentToBill(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; InvoiceNo: Code[20]; BillNo: Code[20]; PayAmount: Decimal): Code[20]
     begin
         exit(PostPaymentApplyingToBill(AccType, AccNo, InvoiceNo, BillNo, PayAmount, true));
     end;
 
-    local procedure CreatePostPaymentToSeveralBills(AccType: Option; AccNo: Code[20]; InvoiceNo: Code[20]; BillNo: array[2] of Code[20]; PayAmount: Decimal; ApplyFromJournal: Boolean): Code[20]
+    local procedure CreatePostPaymentToSeveralBills(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; InvoiceNo: Code[20]; BillNo: array[2] of Code[20]; PayAmount: Decimal; ApplyFromJournal: Boolean): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
         i: Integer;
@@ -2173,7 +2173,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure CreateApplyPostSeveralPaysToBill(var PayNo: array[2] of Code[20]; var PayAmount: array[2] of Decimal; AccType: Option; AccNo: Code[20]; InvoiceNo: Code[20]; InvAmount: Decimal; BillNo: Code[20]; ApplyFromGenJnlLine: Boolean)
+    local procedure CreateApplyPostSeveralPaysToBill(var PayNo: array[2] of Code[20]; var PayAmount: array[2] of Decimal; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; InvoiceNo: Code[20]; InvAmount: Decimal; BillNo: Code[20]; ApplyFromGenJnlLine: Boolean)
     begin
         PayAmount[1] := -GetAmountPart(InvAmount);
         PayNo[1] :=
@@ -2183,7 +2183,7 @@ codeunit 147305 "Cartera Posting"
           PostPaymentApplyingToBill(AccType, AccNo, InvoiceNo, BillNo, PayAmount[2], ApplyFromGenJnlLine);
     end;
 
-    local procedure PostPaymentApplyingToBill(AccType: Option; AccNo: Code[20]; InvoiceNo: Code[20]; BillNo: Code[20]; PayAmount: Decimal; ApplyFromJournal: Boolean): Code[20]
+    local procedure PostPaymentApplyingToBill(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; InvoiceNo: Code[20]; BillNo: Code[20]; PayAmount: Decimal; ApplyFromJournal: Boolean): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -2207,7 +2207,7 @@ codeunit 147305 "Cartera Posting"
         exit(CustLedgerEntryNo);
     end;
 
-    local procedure CreatePostGenJnlLine(DocType: Option; AccType: Option; AccNo: Code[20]; EntryAmount: Decimal; ApplyFromGenJnlLine: Boolean; ApplDocType: Option; ApplDocNo: Code[20]; ApplToBillNo: Code[20]): Code[20]
+    local procedure CreatePostGenJnlLine(DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; EntryAmount: Decimal; ApplyFromGenJnlLine: Boolean; ApplDocType: Enum "Gen. Journal Document Type"; ApplDocNo: Code[20]; ApplToBillNo: Code[20]): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -2221,20 +2221,20 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure CreatePostSimpleGenJnlLine(JournalTemplateName: Code[20]; JournalBatchName: Code[20]; DocType: Option; AccType: Option; AccNo: Code[20]; EntryAmount: Decimal): Code[20]
+    local procedure CreatePostSimpleGenJnlLine(JournalTemplateName: Code[20]; JournalBatchName: Code[20]; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; EntryAmount: Decimal): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
         with GenJnlLine do begin
             InitGenJnlLineWithGivenBatch(GenJnlLine, JournalTemplateName, JournalBatchName);
             CreateGenJnlLine(
-              GenJnlLine, DocType, AccType, AccNo, EntryAmount, false, 0, '', '');
+              GenJnlLine, DocType, AccType, AccNo, EntryAmount, false, "Gen. Journal Document Type"::" ", '', '');
             LibraryERM.PostGeneralJnlLine(GenJnlLine);
             exit("Document No.");
         end;
     end;
 
-    local procedure CreatePostSeveralGenJnlLines(JournalTemplateName: Code[20]; JournalBatchName: Code[20]; AccType: Option; AccNo: Code[20]): Code[20]
+    local procedure CreatePostSeveralGenJnlLines(JournalTemplateName: Code[20]; JournalBatchName: Code[20]; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]): Code[20]
     var
         GenJnlLine: Record "Gen. Journal Line";
         LineAmount: Decimal;
@@ -2251,7 +2251,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure CreateGenJnlLineWithSpecialDocNo(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; DocNo: Code[20]; AccType: Option; AccNo: Code[20]; EntryAmount: Decimal; ApplyFromGenJnlLine: Boolean; ApplDocType: Option; ApplDocNo: Code[20]; ApplToBillNo: Code[20])
+    local procedure CreateGenJnlLineWithSpecialDocNo(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; EntryAmount: Decimal; ApplyFromGenJnlLine: Boolean; ApplDocType: Enum "Gen. Journal Document Type"; ApplDocNo: Code[20]; ApplToBillNo: Code[20])
     begin
         with GenJnlLine do begin
             CreateGenJnlLine(GenJnlLine, DocType, AccType, AccNo, EntryAmount, ApplyFromGenJnlLine, ApplDocType, ApplDocNo, ApplToBillNo);
@@ -2260,7 +2260,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; AccType: Option; AccNo: Code[20]; EntryAmount: Decimal; ApplyFromGenJnlLine: Boolean; ApplDocType: Option; ApplDocNo: Code[20]; ApplToBillNo: Code[20])
+    local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; EntryAmount: Decimal; ApplyFromGenJnlLine: Boolean; ApplDocType: Enum "Gen. Journal Document Type"; ApplDocNo: Code[20]; ApplToBillNo: Code[20])
     begin
         with GenJnlLine do begin
             LibraryERM.CreateGeneralJnlLine(
@@ -2282,7 +2282,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure CreateGenJnlLineNoBalanceAcc(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; AccType: Option; AccNo: Code[20]; EntryAmount: Decimal)
+    local procedure CreateGenJnlLineNoBalanceAcc(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; EntryAmount: Decimal)
     begin
         with GenJnlLine do begin
             LibraryERM.CreateGeneralJnlLine(
@@ -2297,7 +2297,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure CreatePostDocsForCustVend(AccType: Option; AccNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure CreatePostDocsForCustVend(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2389,7 +2389,7 @@ codeunit 147305 "Cartera Posting"
             end;
     end;
 
-    local procedure ApplyPaymentToBill(AccType: Option; PayNo: Code[20]; InvoiceNo: Code[20]; BillNo: Code[20]; AppliedFromGenJnlLine: Boolean)
+    local procedure ApplyPaymentToBill(AccType: Enum "Gen. Journal Account Type"; PayNo: Code[20]; InvoiceNo: Code[20]; BillNo: Code[20]; AppliedFromGenJnlLine: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -2539,7 +2539,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure GetEntryAmount(AccType: Option; DocType: Option) Amt: Decimal
+    local procedure GetEntryAmount(AccType: Enum "Gen. Journal Account Type"; DocType: Enum "Gen. Journal Document Type") Amt: Decimal
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -2550,7 +2550,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure GetGenPostType(AccType: Option): Integer
+    local procedure GetGenPostType(AccType: Enum "Gen. Journal Account Type"): Enum "General Posting Type"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -2563,9 +2563,9 @@ codeunit 147305 "Cartera Posting"
             end;
     end;
 
-    local procedure CreatePostAppliedDoc(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; AccType: Option; AccNo: Code[20])
+    local procedure CreatePostAppliedDoc(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
     var
-        ApplDocType: Option;
+        ApplDocType: Enum "Gen. Journal Document Type";
         ApplDocNo: Code[20];
         EntryAmount: Decimal;
     begin
@@ -2587,7 +2587,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure GetAppliedDocType(DocType: Option): Integer
+    local procedure GetAppliedDocType(DocType: Enum "Gen. Journal Document Type"): Enum "General Posting Type"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -2941,7 +2941,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; DocumentType: Option; VATPostingSetup: Record "VAT Posting Setup")
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; VATPostingSetup: Record "VAT Posting Setup")
     begin
         with GLEntry do begin
             SetRange("Document No.", DocumentNo);
@@ -2952,7 +2952,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; DocumentType: Option; AccNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup")
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AccNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup")
     begin
         with VATEntry do begin
             SetRange("Bill-to/Pay-to No.", AccNo);
@@ -2964,7 +2964,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure FindDocumentVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindDocumentVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with VATEntry do begin
             SetRange("Document No.", DocumentNo);
@@ -3171,7 +3171,7 @@ codeunit 147305 "Cartera Posting"
         CarteraJournal.Post.Invoke; // post in order to close the page
     end;
 
-    local procedure VerifyCustomerLedgerEntry(Customer: Record Customer; DocumentType: Option; DocumentNo: Code[20]; DocumentStatus: Option; Amount: Decimal; RemainingAmount: Decimal)
+    local procedure VerifyCustomerLedgerEntry(Customer: Record Customer; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentStatus: Option; Amount: Decimal; RemainingAmount: Decimal)
     var
         CustomerLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -3230,13 +3230,13 @@ codeunit 147305 "Cartera Posting"
           VATPostingSetup, CustNo, PayNo, LineAmtInclVAT, PayAmount);
     end;
 
-    local procedure VerifyGLAndVATEntry(AccNo: Code[20]; DocType: Option; DocNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; VATAmount: Decimal)
+    local procedure VerifyGLAndVATEntry(AccNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; VATAmount: Decimal)
     begin
         VerifyGLEntry(DocType, DocNo, VATPostingSetup, VATAmount, false);
         VerifyVATEntry(AccNo, DocType, DocNo, VATPostingSetup, '', VATAmount, false);
     end;
 
-    local procedure VerifyMultipleGLAndVATEntry(AccNo: Code[20]; DocType: Option; DocNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; VATAmount: array[2] of Decimal)
+    local procedure VerifyMultipleGLAndVATEntry(AccNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; VATAmount: array[2] of Decimal)
     var
         GetNextEntry: Boolean;
         i: Integer;
@@ -3248,7 +3248,7 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure VerifyGLEntry(DocType: Option; DocNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; VATAmount: Decimal; GetNextEntry: Boolean)
+    local procedure VerifyGLEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; VATAmount: Decimal; GetNextEntry: Boolean)
     var
         GenLedgSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
@@ -3262,7 +3262,7 @@ codeunit 147305 "Cartera Posting"
             VATAmount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
 
-    local procedure VerifyVATEntry(AccNo: Code[20]; DocType: Option; DocNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; Amount: Decimal; GetNextEntry: Boolean)
+    local procedure VerifyVATEntry(AccNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; VATPostingSetup: Record "VAT Posting Setup"; CurrencyCode: Code[10]; Amount: Decimal; GetNextEntry: Boolean)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -3331,7 +3331,7 @@ codeunit 147305 "Cartera Posting"
         until DefDim.Next = 0;
     end;
 
-    local procedure VerifyAppliedVATEntries(DocumentType: Option; DocumentNo: Code[20]; AppliedDocumentType: Option; AppliedDocumentNo: Code[20])
+    local procedure VerifyAppliedVATEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AppliedDocumentType: Enum "Gen. Journal Document Type"; AppliedDocumentNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
         VATEntryApplied: Record "VAT Entry";

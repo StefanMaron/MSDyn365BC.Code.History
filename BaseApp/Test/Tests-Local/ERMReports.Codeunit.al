@@ -494,7 +494,7 @@ codeunit 144097 "ERM Reports"
         exit(Customer."No.");
     end;
 
-    local procedure CreateSalesDocumentWithPaymentMethod(var SalesHeader: Record "Sales Header"; DocType: Integer; PaymentMethodCode: Code[10]; CustNo: Code[20])
+    local procedure CreateSalesDocumentWithPaymentMethod(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; PaymentMethodCode: Code[10]; CustNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -742,7 +742,7 @@ codeunit 144097 "ERM Reports"
         end;
     end;
 
-    local procedure MockGLEntryWithDifferentDate(DocumentNo: Code[20]; GenPostingType: Option; PostingDate: Date; DocumentDate: Date): Decimal
+    local procedure MockGLEntryWithDifferentDate(DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type"; PostingDate: Date; DocumentDate: Date): Decimal
     var
         GLEntry: Record "G/L Entry";
         GLAccount: Record "G/L Account";

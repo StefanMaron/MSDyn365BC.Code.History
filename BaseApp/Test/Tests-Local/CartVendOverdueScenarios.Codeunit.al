@@ -507,7 +507,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
     end;
 
-    local procedure FindInvVendorLedgerEntries(var InvVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date)
+    local procedure FindInvVendorLedgerEntries(var InvVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PostingDate: Date)
     begin
         InvVendorLedgerEntry.SetRange("Posting Date", PostingDate);
         InvVendorLedgerEntry.SetRange("Document Type", DocumentType);
@@ -524,7 +524,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
         PaymentMethod.FindFirst;
     end;
 
-    local procedure SelectVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; PostingDate: Date; DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill)
+    local procedure SelectVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type")
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Posting Date", PostingDate);

@@ -1,4 +1,4 @@
-﻿table 381 "VAT Registration No. Format"
+table 381 "VAT Registration No. Format"
 {
     Caption = 'VAT Registration No. Format';
 
@@ -62,7 +62,6 @@
         Finish: Boolean;
         TextString: Text;
         IsHandled: Boolean;
-        ErrorText: Text[120];
         ValidationCheck: Boolean;
     begin
         if (VATRegNo = '') or (not GuiAllowed) then
@@ -96,12 +95,8 @@
             Error(StrSubstNo('%1%2', StrSubstNo(Text000, "Country/Region Code"), StrSubstNo(Text001, TextString)));
         end;
 
-        if ValidationCheck then begin
-            ErrorText := '';
-            if not ValidateVATRegNo(VATRegNo, ErrorText) then
-                if not Confirm(Text1100000 + '\' + ErrorText + '\\' + Text1100001, false) then
-                    Error(Text1100002);
-        end;
+        if ValidationCheck then
+            CheckConfirmVATRegNo(VATRegNo);
 
         case TableID of
             DATABASE::Customer:

@@ -106,7 +106,7 @@ codeunit 144003 "Account Schedule - ES"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure GetDocType(Amount: Decimal): Integer
+    local procedure GetDocType(Amount: Decimal): Enum "Gen. Journal Document Type"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin

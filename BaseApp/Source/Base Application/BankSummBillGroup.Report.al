@@ -80,12 +80,12 @@ report 7000004 "Bank - Summ. Bill Group"
             }
             column(PostedBillAmt; PostedBillAmt)
             {
-                AutoFormatExpression = GetCurrencyCode;
+                AutoFormatExpression = GetCurrencyCode();
                 AutoFormatType = 1;
             }
             column(ClosedBillAmt; ClosedBillAmt)
             {
-                AutoFormatExpression = GetCurrencyCode;
+                AutoFormatExpression = GetCurrencyCode();
                 AutoFormatType = 1;
             }
             column(BankAcc__Currency_Code_; "Currency Code")
@@ -93,12 +93,12 @@ report 7000004 "Bank - Summ. Bill Group"
             }
             column(PostedBillAmt_Control5; PostedBillAmt)
             {
-                AutoFormatExpression = GetCurrencyCode;
+                AutoFormatExpression = GetCurrencyCode();
                 AutoFormatType = 1;
             }
             column(ClosedBillAmt_Control6; ClosedBillAmt)
             {
-                AutoFormatExpression = GetCurrencyCode;
+                AutoFormatExpression = GetCurrencyCode();
                 AutoFormatType = 1;
             }
             column(Bank___Summ__Bill_GroupCaption; Bank___Summ__Bill_GroupCaptionLbl)

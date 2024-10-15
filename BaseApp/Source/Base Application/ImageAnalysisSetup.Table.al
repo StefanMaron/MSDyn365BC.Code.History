@@ -76,23 +76,26 @@ table 2020 "Image Analysis Setup"
     [Scope('OnPrem')]
     procedure Increment()
     var
-        AzureAIUsage: Record "Azure AI Usage";
+        AzureAIUsage: Codeunit "Azure AI Usage";
+        AzureAIService: Enum "Azure AI Service";
     begin
         GetSingleInstance;
         if (GetApiKey <> '') and ("Api Uri" <> '') then
             exit; // unlimited access for user's own service
 
-        AzureAIUsage.IncrementTotalProcessingTime(AzureAIUsage.Service::"Computer Vision", 1);
+        AzureAIUsage.IncrementTotalProcessingTime(AzureAIService::"Computer Vision", 1);
     end;
 
     procedure IsUsageLimitReached(var UsageLimitError: Text; MaxCallsPerPeriod: Integer; PeriodType: Option Year,Month,Day,Hour): Boolean
     var
-        AzureAIUsage: Record "Azure AI Usage";
+        AzureAIUsage: Codeunit "Azure AI Usage";
+        AzureAIService: Enum "Azure AI Service";
+
     begin
         if (GetApiKey <> '') and ("Api Uri" <> '') then
             exit(false); // unlimited access for user's own service
 
-        if AzureAIUsage.IsAzureMLLimitReached(AzureAIUsage.Service::"Computer Vision", MaxCallsPerPeriod) then begin
+        if AzureAIUsage.IsLimitReached(AzureAIService::"Computer Vision", MaxCallsPerPeriod) then begin
             UsageLimitError := StrSubstNo(TooManyCallsErr, Format(MaxCallsPerPeriod), LowerCase(Format(PeriodType)));
             exit(true);
         end;

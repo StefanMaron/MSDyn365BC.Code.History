@@ -140,7 +140,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         SalesDocumentNoVAT(SalesHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure SalesDocumentNoVAT(DocumentType: Option)
+    local procedure SalesDocumentNoVAT(DocumentType: Enum "Sales Document Type")
     var
         GeneralPostingSetup: Record "General Posting Setup";
         SalesHeader: Record "Sales Header";
@@ -181,7 +181,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PurchaseDocumentNoVAT(PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure PurchaseDocumentNoVAT(DocumentType: Option)
+    local procedure PurchaseDocumentNoVAT(DocumentType: Enum "Purchase Document Type")
     var
         GeneralPostingSetup: Record "General Posting Setup";
         PurchaseHeader: Record "Purchase Header";
@@ -490,7 +490,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         SalesPricesExclVAT(SalesHeader."Document Type"::"Credit Memo")
     end;
 
-    local procedure SalesPricesExclVAT(DocumentType: Option)
+    local procedure SalesPricesExclVAT(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -535,7 +535,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PurchasePricesExclVAT(PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure PurchasePricesExclVAT(DocumentType: Option)
+    local procedure PurchasePricesExclVAT(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -634,7 +634,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         SalesDocumentInvoiceRounding(SalesHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure SalesDocumentInvoiceRounding(DocumentType: Option)
+    local procedure SalesDocumentInvoiceRounding(DocumentType: Enum "Sales Document Type")
     var
         Currency: Record Currency;
         SalesHeader: Record "Sales Header";
@@ -693,7 +693,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         SalesDocumentNoInvoiceRounding(SalesHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure SalesDocumentNoInvoiceRounding(DocumentType: Option)
+    local procedure SalesDocumentNoInvoiceRounding(DocumentType: Enum "Sales Document Type")
     var
         Currency: Record Currency;
         SalesHeader: Record "Sales Header";
@@ -752,7 +752,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PurchDocumentInvoiceRounding(PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure PurchDocumentInvoiceRounding(DocumentType: Option)
+    local procedure PurchDocumentInvoiceRounding(DocumentType: Enum "Purchase Document Type")
     var
         Currency: Record Currency;
         PurchaseHeader: Record "Purchase Header";
@@ -809,7 +809,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PurchDocumentNoInvoiceRounding(PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure PurchDocumentNoInvoiceRounding(DocumentType: Option)
+    local procedure PurchDocumentNoInvoiceRounding(DocumentType: Enum "Purchase Document Type")
     var
         Currency: Record Currency;
         PurchaseHeader: Record "Purchase Header";
@@ -1041,7 +1041,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Prices Incl VAT Doc");
     end;
 
-    local procedure PurchasePricesIncludingVAT(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; var Amount: Decimal) PostedDocumentNo: Code[20]
+    local procedure PurchasePricesIncludingVAT(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; var Amount: Decimal) PostedDocumentNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1052,7 +1052,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CalculateVATAmount(DocumentNo: Code[20]; DocumentType: Option; VATFactor: Decimal) VATAmount: Decimal
+    local procedure CalculateVATAmount(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; VATFactor: Decimal) VATAmount: Decimal
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1064,7 +1064,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         until SalesLine.Next = 0;
     end;
 
-    local procedure CalculateSalesVATBaseAmount(var LineAmount: Decimal; DocumentNo: Code[20]; DocumentType: Option; VATFactor: Decimal): Decimal
+    local procedure CalculateSalesVATBaseAmount(var LineAmount: Decimal; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; VATFactor: Decimal): Decimal
     var
         SalesLine: Record "Sales Line";
         VATAmount: Decimal;
@@ -1079,7 +1079,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         exit(LineAmount - VATAmount);
     end;
 
-    local procedure CalculatePurchaseVATBaseAmount(var Amount: Decimal; DocumentNo: Code[20]; DocumentType: Option; VATFactor: Decimal): Decimal
+    local procedure CalculatePurchaseVATBaseAmount(var Amount: Decimal; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; VATFactor: Decimal): Decimal
     var
         PurchaseLine: Record "Purchase Line";
         VATAmount: Decimal;
@@ -1139,7 +1139,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         exit(CustomerNo);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; PricesIncludingVAT: Boolean) Amount: Decimal
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PricesIncludingVAT: Boolean) Amount: Decimal
     var
         Item: Record Item;
         PurchCalcDiscount: Codeunit "Purch.-Calc.Discount";
@@ -1153,7 +1153,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PurchCalcDiscount.CalculateInvoiceDiscount(PurchaseHeader, PurchaseLine);
     end;
 
-    local procedure CreatePurchaseDocumentEqualQty(var PurchaseHeader: Record "Purchase Header"; var GenProdPostingGroup: Code[20]; DocumentType: Option)
+    local procedure CreatePurchaseDocumentEqualQty(var PurchaseHeader: Record "Purchase Header"; var GenProdPostingGroup: Code[20]; DocumentType: Enum "Purchase Document Type")
     var
         Item: Record Item;
         PurchaseLine: Record "Purchase Line";
@@ -1170,7 +1170,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GenProdPostingGroup := Item."Gen. Prod. Posting Group";
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
@@ -1219,7 +1219,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var Amount: Decimal; DocumentType: Option; CustomerNo: Code[20]; PricesIncludingVAT: Boolean)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var Amount: Decimal; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PricesIncludingVAT: Boolean)
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -1236,7 +1236,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         end;
     end;
 
-    local procedure CreateSalesDocumentEqualQty(var SalesHeader: Record "Sales Header"; var GenProdPostingGroup: Code[20]; DocumentType: Option)
+    local procedure CreateSalesDocumentEqualQty(var SalesHeader: Record "Sales Header"; var GenProdPostingGroup: Code[20]; DocumentType: Enum "Sales Document Type")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -1249,7 +1249,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GenProdPostingGroup := Item."Gen. Prod. Posting Group";
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Prices Including VAT", PricesIncludingVAT);
@@ -1257,7 +1257,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSingleLinePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Currency: Record Currency; DirectUnitCost: Decimal; DocumentType: Option) VATAmount: Decimal
+    local procedure CreateSingleLinePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Currency: Record Currency; DirectUnitCost: Decimal; DocumentType: Enum "Purchase Document Type") VATAmount: Decimal
     var
         Item: Record Item;
     begin
@@ -1274,7 +1274,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         OnAfterCreateSingleLinePurchaseDoc(PurchaseHeader, PurchaseLine);
     end;
 
-    local procedure CreateSingleLineSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Currency: Record Currency; UnitPrice: Decimal; DocumentType: Option) VATAmount: Decimal
+    local procedure CreateSingleLineSalesDoc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Currency: Record Currency; UnitPrice: Decimal; DocumentType: Enum "Sales Document Type") VATAmount: Decimal
     var
         Item: Record Item;
     begin
@@ -1329,7 +1329,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
     end;
 
-    local procedure GetSalesGenPostGLAccNoByDocType(DocumentType: Option; GeneralPostingSetup: Record "General Posting Setup"): Code[20]
+    local procedure GetSalesGenPostGLAccNoByDocType(DocumentType: Enum "Sales Document Type"; GeneralPostingSetup: Record "General Posting Setup"): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1342,7 +1342,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
             end;
     end;
 
-    local procedure GetPurchGenPostGLAccNoByDocType(DocumentType: Option; GeneralPostingSetup: Record "General Posting Setup"): Code[20]
+    local procedure GetPurchGenPostGLAccNoByDocType(DocumentType: Enum "Purchase Document Type"; GeneralPostingSetup: Record "General Posting Setup"): Code[20]
     var
         PurchHeader: Record "Purchase Header";
     begin
@@ -1380,7 +1380,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure PurchDocumentPricesExclVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option)
+    local procedure PurchDocumentPricesExclVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var VATAmount: Decimal; var VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Purchase Document Type")
     var
         VendorNo: Code[20];
     begin
@@ -1393,7 +1393,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         VATAmount := Round(PurchaseVATAmountCalculation(PurchaseHeader."No.", DocumentType, VATPostingSetup."VAT %" / 100));
     end;
 
-    local procedure PurchaseVATAmountCalculation(DocumentNo: Code[20]; DocumentType: Option; VATPercent: Decimal) VATAmount: Decimal
+    local procedure PurchaseVATAmountCalculation(DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; VATPercent: Decimal) VATAmount: Decimal
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1405,7 +1405,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         until PurchaseLine.Next = 0;
     end;
 
-    local procedure SalesDocumentPricesExclVAT(var SalesHeader: Record "Sales Header"; var VATPostingSetup: Record "VAT Posting Setup"; var VATAmount: Decimal; var Amount: Decimal; DocumentType: Option)
+    local procedure SalesDocumentPricesExclVAT(var SalesHeader: Record "Sales Header"; var VATPostingSetup: Record "VAT Posting Setup"; var VATAmount: Decimal; var Amount: Decimal; DocumentType: Enum "Sales Document Type")
     begin
         // Find VAT Postng Setup and Create Customer and Create Invoice Discount for Customer.Create Sales Document
         // and Calculate VAT Amount.
@@ -1414,7 +1414,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         VATAmount := Round(SalesVATAmountCalculation(SalesHeader."No.", DocumentType, VATPostingSetup."VAT %" / 100));
     end;
 
-    local procedure SalesVATAmountCalculation(DocumentNo: Code[20]; DocumentType: Option; VATPercent: Decimal) VATAmount: Decimal
+    local procedure SalesVATAmountCalculation(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; VATPercent: Decimal) VATAmount: Decimal
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1527,13 +1527,13 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
             AmountErr, SalesCrMemoLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, SalesCrMemoLine.TableCaption));
     end;
 
-    local procedure VerifyGLAndVATEntry(PostedDocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Option; VATAmount: Decimal)
+    local procedure VerifyGLAndVATEntry(PostedDocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; VATAmount: Decimal)
     begin
         VerifyGLEntry(PostedDocumentNo, GLAccountNo, DocumentType, VATAmount);
         VerifyVATEntry(PostedDocumentNo, DocumentType, VATAmount);
     end;
 
-    local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Option; GLEntryAmount: Decimal)
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; GLEntryAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
@@ -1563,7 +1563,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
           StrSubstNo(AmountErr, VATAmountLine.FieldCaption("VAT Amount"), Amount, VATAmountLine.TableCaption));
     end;
 
-    local procedure VerifyVATEntry(DocumentNo: Code[20]; DocumentType: Option; VATEntryAmount: Decimal)
+    local procedure VerifyVATEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; VATEntryAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATEntry: Record "VAT Entry";

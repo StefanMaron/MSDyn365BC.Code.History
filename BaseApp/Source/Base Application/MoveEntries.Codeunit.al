@@ -13,7 +13,8 @@ codeunit 361 MoveEntries
                   TableData "Avg. Cost Adjmt. Entry Point" = rd,
                   TableData "Inventory Adjmt. Entry (Order)" = rm,
                   TableData "Service Ledger Entry" = rm,
-                  TableData "Warranty Ledger Entry" = rm;
+                  TableData "Warranty Ledger Entry" = rm,
+                  TableData "Service Contract Header" = rm;
 
     trigger OnRun()
     begin
@@ -648,7 +649,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.ModifyAll("No.", NewCostCode);
 
         WarrantyLedgEntry.LockTable();
-        WarrantyLedgEntry.SetRange(Type, WarrantyLedgEntry.Type::"Service Cost");
+        WarrantyLedgEntry.SetRange(Type, WarrantyLedgEntry.Type::"Cost");
         WarrantyLedgEntry.SetRange("No.", ServiceCost.Code);
         WarrantyLedgEntry.ModifyAll("No.", NewCostCode);
 

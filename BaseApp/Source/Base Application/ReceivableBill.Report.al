@@ -20,7 +20,7 @@ report 7000003 "Receivable Bill"
             }
             column(PrintAmt; PrintAmt)
             {
-                AutoFormatExpression = GetCurrencyCode;
+                AutoFormatExpression = GetCurrencyCode();
                 AutoFormatType = 1;
             }
             column(CurrencyCode; CurrencyCode)
@@ -34,7 +34,7 @@ report 7000003 "Receivable Bill"
             }
             column(NumberText1; NumberText[1])
             {
-                AutoFormatExpression = GetCurrencyCode;
+                AutoFormatExpression = GetCurrencyCode();
                 AutoFormatType = 1;
             }
             column(PostingDate_CustLedgEntry; Format("Posting Date"))
@@ -78,7 +78,7 @@ report 7000003 "Receivable Bill"
             }
             column(NumberText2; NumberText[2])
             {
-                AutoFormatExpression = GetCurrencyCode;
+                AutoFormatExpression = GetCurrencyCode();
                 AutoFormatType = 1;
             }
             column(EntryNo_CustLedgEntry; "Entry No.")

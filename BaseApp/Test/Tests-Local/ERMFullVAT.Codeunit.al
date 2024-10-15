@@ -85,7 +85,7 @@ codeunit 144051 "ERM Full VAT"
         SalesDocumentWithInvalidGLAccountNoError(SalesLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure SalesDocumentWithInvalidGLAccountNoError(DocumentType: Option)
+    local procedure SalesDocumentWithInvalidGLAccountNoError(DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -451,7 +451,7 @@ codeunit 144051 "ERM Full VAT"
           PurchaseLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
     end;
 
-    local procedure CreatePurchLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; No: Code[20])
+    local procedure CreatePurchLine(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDec(10, 2));
@@ -459,7 +459,7 @@ codeunit 144051 "ERM Full VAT"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; Type: Option; CurrencyCode: Code[10]; VATBusPostingGroup: Code[20]; No: Code[20])
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; CurrencyCode: Code[10]; VATBusPostingGroup: Code[20]; No: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -469,7 +469,7 @@ codeunit 144051 "ERM Full VAT"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -484,7 +484,7 @@ codeunit 144051 "ERM Full VAT"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure CreateVATPostingSetupFromVATBusPostGroup(VATBusinessPostingGroupCode: Code[20]; var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    local procedure CreateVATPostingSetupFromVATBusPostGroup(VATBusinessPostingGroupCode: Code[20]; var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
@@ -597,7 +597,7 @@ codeunit 144051 "ERM Full VAT"
         end;
     end;
 
-    local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; GenPostingType: Option; Amount: Decimal)
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin

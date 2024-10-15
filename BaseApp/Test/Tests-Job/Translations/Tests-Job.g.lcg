@@ -1256,22 +1256,40 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType DescriptionEmptyErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2478735241 - NamedType 3100503201" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2478735241 - NamedType 3276535216" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Description in Requisition Line should be same as in Item Cross Reference]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType DescriptionItemRefErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType ReqLineCrossRefDescriptionErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2478735241 - NamedType 1458769805" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2478735241 - NamedType 3970321001" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Description in Requisition Line should be same as in Item Reference]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType ReqLineItemRefDescriptionErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2478735241 - NamedType 3892700456" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Description should be %1 which from Item Cross Reference card.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType DescriptionErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType CrossRefDescriptionErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2478735241 - NamedType 3247966097" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Description should be %1 which from Item Reference card.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType ItemRefDescriptionErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2478735241 - NamedType 1101951655" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

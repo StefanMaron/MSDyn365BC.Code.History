@@ -1,4 +1,4 @@
-﻿codeunit 7307 "Whse.-Activity-Register"
+codeunit 7307 "Whse.-Activity-Register"
 {
     Permissions = TableData "Registered Whse. Activity Hdr." = i,
                   TableData "Registered Whse. Activity Line" = i,
@@ -1300,6 +1300,7 @@
         ItemLedgEntry: Record "Item Ledger Entry";
         TempWhseActivLine2: Record "Warehouse Activity Line" temporary;
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseActivLineItemTrackingSetup: Record "Item Tracking Setup";
         CreatePick: Codeunit "Create Pick";
         WhseAvailMgt: Codeunit "Warehouse Availability Mgt.";
         BinTypeFilter: Text;
@@ -1337,9 +1338,11 @@
                 QtyOnOutboundBinsBase :=
                     WhseAvailMgt.CalcQtyOnOutboundBins("Location Code", "Item No.", "Variant Code", WhseItemTrackingSetup, true);
 
-                if "Activity Type" <> "Activity Type"::"Invt. Movement" then // Invt. Movement from Dedicated Bin is allowed
+                if "Activity Type" <> "Activity Type"::"Invt. Movement" then begin// Invt. Movement from Dedicated Bin is allowed
+                    WhseActivLineItemTrackingSetup.CopyTrackingFromWhseActivityLine(WhseActivLine);
                     QtyOnDedicatedBinsBase :=
-                        WhseAvailMgt.CalcQtyOnDedicatedBins("Location Code", "Item No.", "Variant Code", "Lot No.", "Serial No.");
+                        WhseAvailMgt.CalcQtyOnDedicatedBins("Location Code", "Item No.", "Variant Code", WhseActivLineItemTrackingSetup);
+                end;
 
                 SubTotalBase :=
                   QtyInWhseBase -
@@ -1364,7 +1367,7 @@
 
                     LineReservedQtyBase :=
                       WhseAvailMgt.CalcLineReservedQtyOnInvt(
-                        "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, '', '', TempWhseActivLine2);
+                        "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, TempWhseActivLine2);
 
                     if Abs(SubTotalBase) < QtyReservedOnPickShipBase + LineReservedQtyBase then
                         QtyReservedOnPickShipBase := Abs(SubTotalBase) - LineReservedQtyBase;
@@ -1390,8 +1393,8 @@
                 QtyPickedNotShipped := CalcQtyPickedNotShipped(WhseActivLine, WhseItemTrackingSetup);
 
                 LineReservedQtyBase :=
-                  WhseAvailMgt.CalcLineReservedQtyOnInvt(
-                    "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", false, '', '', TempWhseActivLine2);
+                    WhseAvailMgt.CalcLineReservedQtyOnInvt(
+                        "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", false, TempWhseActivLine2);
 
                 TotalAvailQtyBase :=
                   QtyInWhseBase -
@@ -1655,7 +1658,7 @@
                 SalesLine.Get(
                   SalesLine."Document Type"::Order, TempWhseActivLineToReserve."Source No.", TempWhseActivLineToReserve."Source Line No.");
                 ReservationEntry.SetSourceFilter(
-                  DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", true);
+                  DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
                 ReservationEntry.SetFilter("Item Tracking", '<>%1', ReservationEntry."Item Tracking"::None);
                 ReservationEntry.SetRange(Binding, ReservationEntry.Binding::"Order-to-Order");
 

@@ -191,7 +191,7 @@ report 328 "Vendor Document Nos."
         SourceCode: Record "Source Code";
         VendLedgerEntryFilter: Text;
         LastDocNo: Code[20];
-        LastDocType: Integer;
+        LastDocType: Enum "Gen. Journal Document Type";
         LastPostingDate: Date;
         LastNoSeriesCode: Code[20];
         FirstRecord: Boolean;

@@ -1680,7 +1680,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VATPostingSetup.Modify(true);
         Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         Vendor.Modify(true);
-        GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 1);
+        GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Purchase);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         PurchaseHeader.Validate("Posting Date", PostingDate);
         LibraryPurchase.CreatePurchaseLine(
@@ -1720,7 +1720,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0), 1);
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "), 1);
         PurchaseLine.Validate("Direct Unit Cost", 1000);
         PurchaseLine.Modify(true);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);

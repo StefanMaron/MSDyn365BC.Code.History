@@ -1232,7 +1232,7 @@ codeunit 147523 "SII Documents With EU Service"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure CreateSalesDocWithEC(var SalesHeader: Record "Sales Header"; DocType: Option; CorrType: Option): Decimal
+    local procedure CreateSalesDocWithEC(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CorrType: Option): Decimal
     var
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1250,7 +1250,7 @@ codeunit 147523 "SII Documents With EU Service"
         exit(SalesLine."Amount Including VAT" - SalesLine.Amount - Round(SalesLine.Amount * SalesLine."EC %" / 100));
     end;
 
-    local procedure CreateSalesDocWithNormalAndEC(var SalesHeader: Record "Sales Header"; DocType: Option; CorrType: Option)
+    local procedure CreateSalesDocWithNormalAndEC(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CorrType: Option)
     var
         NormalVATSalesLine: Record "Sales Line";
         ECSalesLine: Record "Sales Line";
@@ -1277,7 +1277,7 @@ codeunit 147523 "SII Documents With EU Service"
         LibrarySII.UpdateUnitPriceSalesLine(ECSalesLine, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure CreateSalesDocWithNormalAndEUService(var SalesHeader: Record "Sales Header"; DocType: Option; CustomerCountryCode: Code[10]; CustomerVATRegNo: Code[20]; VATRateFactor: Integer)
+    local procedure CreateSalesDocWithNormalAndEUService(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerCountryCode: Code[10]; CustomerVATRegNo: Code[20]; VATRateFactor: Integer)
     var
         NormalVATSalesLine: Record "Sales Line";
         EUSalesLine: Record "Sales Line";
@@ -1303,7 +1303,7 @@ codeunit 147523 "SII Documents With EU Service"
         LibrarySII.UpdateUnitPriceSalesLine(EUSalesLine, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure CreateSalesDocWithRoundedAmount(var SalesHeader: Record "Sales Header"; DocType: Option; ECPct: Decimal; UnitPriceArray: array[3] of Decimal)
+    local procedure CreateSalesDocWithRoundedAmount(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; ECPct: Decimal; UnitPriceArray: array[3] of Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -1337,7 +1337,7 @@ codeunit 147523 "SII Documents With EU Service"
         SalesLine.Modify(true);
     end;
 
-    local procedure PostSalesDocWithWithMultipleLinesDiffGroupsSameVATPct(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option)
+    local procedure PostSalesDocWithWithMultipleLinesDiffGroupsSameVATPct(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         SalesHeader: Record "Sales Header";
@@ -1365,7 +1365,7 @@ codeunit 147523 "SII Documents With EU Service"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostPurchDocWithWithMultipleLinesDiffGroupsSameVATPct(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrType: Option)
+    local procedure PostPurchDocWithWithMultipleLinesDiffGroupsSameVATPct(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
@@ -1393,7 +1393,7 @@ codeunit 147523 "SII Documents With EU Service"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure PostServDocWithWithMultipleLinesDiffGroupsSameVATPct(DocType: Option): Code[20]
+    local procedure PostServDocWithWithMultipleLinesDiffGroupsSameVATPct(DocType: Enum "Service Document Type"): Code[20]
     var
         ServiceHeader: Record "Service Header";
         Customer: Record Customer;
@@ -1460,7 +1460,7 @@ codeunit 147523 "SII Documents With EU Service"
         exit(-(VAT - PurchaseLine.Amount * VATPostingSetup."EC %" / 100));
     end;
 
-    local procedure CreatePurchDocWithEC(var PurchaseHeader: Record "Purchase Header"; DocType: Option; CorrType: Option): Decimal
+    local procedure CreatePurchDocWithEC(var PurchaseHeader: Record "Purchase Header"; DocType: enum "Purchase Document Type"; CorrType: Option): Decimal
     var
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -1478,7 +1478,7 @@ codeunit 147523 "SII Documents With EU Service"
         exit(PurchaseLine."Amount Including VAT" - PurchaseLine.Amount - Round(PurchaseLine.Amount * PurchaseLine."EC %" / 100));
     end;
 
-    local procedure CreatePurchDocWithNormalAndEC(var PurchaseHeader: Record "Purchase Header"; DocType: Option; CorrType: Option)
+    local procedure CreatePurchDocWithNormalAndEC(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; CorrType: Option)
     var
         NormalVATPurchLine: Record "Purchase Line";
         ECPurchLine: Record "Purchase Line";
@@ -1504,7 +1504,7 @@ codeunit 147523 "SII Documents With EU Service"
         LibrarySII.UpdateDirectUnitCostPurchaseLine(ECPurchLine, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure FindVATEntries(var VATEntry: Record "VAT Entry"; Type: Option; DocNo: Code[20])
+    local procedure FindVATEntries(var VATEntry: Record "VAT Entry"; Type: Enum "General Posting Type"; DocNo: Code[20])
     begin
         VATEntry.SetCurrentKey("VAT %", "EC %");
         VATEntry.SetRange(Type, Type);
@@ -1512,7 +1512,7 @@ codeunit 147523 "SII Documents With EU Service"
         VATEntry.FindSet;
     end;
 
-    local procedure PostServDocWithVAT(DocType: Option; EUService: Boolean): Code[20]
+    local procedure PostServDocWithVAT(DocType: Enum "Service Document Type"; EUService: Boolean): Code[20]
     var
         Customer: Record Customer;
         ServiceHeader: Record "Service Header";
@@ -1538,7 +1538,7 @@ codeunit 147523 "SII Documents With EU Service"
         exit(ServiceHeader."No.");
     end;
 
-    local procedure VerifyMultipleVATEntiesInXMLDetails(var XMLDoc: DotNet XmlDocument; Type: Option; DocNo: Code[20]; BaseNode: Text; NodeName: Text; Sign: Integer)
+    local procedure VerifyMultipleVATEntiesInXMLDetails(var XMLDoc: DotNet XmlDocument; Type: Enum "General Posting Type"; DocNo: Code[20]; BaseNode: Text; NodeName: Text; Sign: Integer)
     var
         VATEntry: Record "VAT Entry";
         ExpectedECAmount: Decimal;
@@ -1554,7 +1554,7 @@ codeunit 147523 "SII Documents With EU Service"
           XMLDoc, BaseNode, '/sii:CuotaRecargoEquivalencia', SIIXMLCreator.FormatNumber(ExpectedECAmount));
     end;
 
-    local procedure VerifyMultipleVATEntiesInOneXMLNode(var XMLDoc: DotNet XmlDocument; Type: Option; DocNo: Code[20]; BaseNode: Text; NodeName: Text; Sign: Integer)
+    local procedure VerifyMultipleVATEntiesInOneXMLNode(var XMLDoc: DotNet XmlDocument; Type: Enum "General Posting Type"; DocNo: Code[20]; BaseNode: Text; NodeName: Text; Sign: Integer)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -1590,7 +1590,7 @@ codeunit 147523 "SII Documents With EU Service"
           XMLDoc, XPathSalesBaseImponibleTok, '[2]/sii:CuotaRepercutida', SIIXMLCreator.FormatNumber(-VATEntry.Amount));
     end;
 
-    local procedure VerifyVATBaseOfMultipleVATEntiesInXMLDetails(var XMLDoc: DotNet XmlDocument; Type: Option; DocNo: Code[20]; BaseNode: Text; NodeName: Text; Sign: Integer)
+    local procedure VerifyVATBaseOfMultipleVATEntiesInXMLDetails(var XMLDoc: DotNet XmlDocument; Type: Enum "General Posting Type"; DocNo: Code[20]; BaseNode: Text; NodeName: Text; Sign: Integer)
     var
         VATEntry: Record "VAT Entry";
     begin

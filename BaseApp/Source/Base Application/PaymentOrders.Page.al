@@ -250,7 +250,7 @@ page 7000050 "Payment Orders"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Enabled = true;
                 Image = Navigate;
                 Promoted = true;

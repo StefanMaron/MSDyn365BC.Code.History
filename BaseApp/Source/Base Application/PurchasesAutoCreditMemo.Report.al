@@ -150,7 +150,7 @@ report 10713 "Purchases - AutoCredit Memo"
                         DataItemTableView = SORTING("Document No.", "Line No.");
                         column(Amount__Inv__Discount_Amount___Pmt__Disc__Rcd__Amount_; Amount + "Inv. Discount Amount" + "Pmt. Discount Amount")
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Purch__Cr__Memo_Line_Description; Description)
@@ -183,7 +183,7 @@ report 10713 "Purchases - AutoCredit Memo"
                         column(Purch__Cr__Memo_Line__Purch__Cr__Memo_Line__Type; "Purch. Cr. Memo Line".Type)
                         {
                         }
-                        column(PurchCrMLineBody3; Type = 0)
+                        column(PurchCrMLineBody3; Type = Type::" ")
                         {
                         }
                         column(DirectUnitCostCaption; GetDirectUnitCostCaption)
@@ -200,7 +200,7 @@ report 10713 "Purchases - AutoCredit Memo"
                         }
                         column(Purch__Cr__Memo_Line__Direct_Unit_Cost_; "Direct Unit Cost")
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(Purch__Cr__Memo_Line__Line_Discount___; "Line Discount %")
@@ -208,7 +208,7 @@ report 10713 "Purchases - AutoCredit Memo"
                         }
                         column(Amount__Inv__Discount_Amount___Pmt__Disc__Rcd__Amount__Control60; Amount + "Inv. Discount Amount" + "Pmt. Discount Amount")
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(PurchCrMLineBody4; Type = Type::"G/L Account")
@@ -231,7 +231,7 @@ report 10713 "Purchases - AutoCredit Memo"
                         }
                         column(Purch__Cr__Memo_Line__Direct_Unit_Cost__Control65; "Direct Unit Cost")
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(Purch__Cr__Memo_Line__Line_Discount____Control66; "Line Discount %")
@@ -239,17 +239,17 @@ report 10713 "Purchases - AutoCredit Memo"
                         }
                         column(Amount__Inv__Discount_Amount___Pmt__Disc__Rcd__Amount__Control67; Amount + "Inv. Discount Amount" + "Pmt. Discount Amount")
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Amount__Inv__Discount_Amount___Pmt__Disc__Rcd__Amount__Control76; Amount + "Inv. Discount Amount" + "Pmt. Discount Amount")
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Inv__Discount_Amount_; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Pmt__Disc__Rcd__Amount_; -"Pmt. Discount Amount")
@@ -257,17 +257,17 @@ report 10713 "Purchases - AutoCredit Memo"
                         }
                         column(Purch__Cr__Memo_Line_Amount; Amount)
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmountLine__EC_Amount____VATAmountLine__VAT_Amount_; TotalVATAmount - TotalAmount)
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Amount_Including_VAT____VATAmountLine__EC_Amount____VATAmountLine__VAT_Amount_; TotalVATAmount - TotalAmount + Amount)
                         {
-                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Purch. Cr. Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)

@@ -281,7 +281,7 @@ page 902 "Assembly Orders"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Assembly BOM")

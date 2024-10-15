@@ -944,7 +944,7 @@ codeunit 134500 "ERM Cash Manager"
         BankAccount.Modify(true);
     end;
 
-    local procedure CreateGenJnlLineWithBankPaymentType(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20]; AccountNo: Code[20]; BankPaymentType: Option)
+    local procedure CreateGenJnlLineWithBankPaymentType(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20]; AccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type")
     begin
         CreateGenJnlLine(GenJournalLine, BankAccountNo, GenJournalLine."Account Type"::Vendor, AccountNo,
           LibraryRandom.RandDec(500, 2));  // Using RANDOM for Amount.
@@ -952,7 +952,7 @@ codeunit 134500 "ERM Cash Manager"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20]; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1223,7 +1223,7 @@ codeunit 134500 "ERM Cash Manager"
         CustLedgerEntry.TestField("Debit Amount", GenJournalLine.Amount);
     end;
 
-    local procedure VerifyGLEntry(OrderNo: Code[20]; BalAccountNo: Code[20]; DocumentType: Option)
+    local procedure VerifyGLEntry(OrderNo: Code[20]; BalAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         GLEntry: Record "G/L Entry";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -1327,7 +1327,7 @@ codeunit 134500 "ERM Cash Manager"
         CheckRequestPage.SaveAsPdf(Format(CreateGuid));
     end;
 
-    local procedure CreateGenJnlLinesWithDifferentCurrencies(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20]; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; var BatchName: Code[10]; var TemplateName: Code[10]) Amount: Decimal
+    local procedure CreateGenJnlLinesWithDifferentCurrencies(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; var BatchName: Code[10]; var TemplateName: Code[10]) Amount: Decimal
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         DocNo: Code[20];

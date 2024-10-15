@@ -161,7 +161,7 @@ page 7324 "Whse. Item Journal"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }

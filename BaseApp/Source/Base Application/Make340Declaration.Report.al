@@ -842,7 +842,7 @@ report 10743 "Make 340 Declaration"
         exit(FormatNumber(NoOfRegs, 2));
     end;
 
-    local procedure FindPmtOrderBillGrBankAcc(Type: Option; DocumentNo: Code[40]): Code[20]
+    local procedure FindPmtOrderBillGrBankAcc(Type: Enum "General Posting Type"; DocumentNo: Code[40]): Code[20]
     var
         ClosedBillGroup: Record "Closed Bill Group";
         ClosedPmtOrder: Record "Closed Payment Order";
@@ -2344,7 +2344,7 @@ report 10743 "Make 340 Declaration"
             until SalesCrMemoLine.Next = 0;
     end;
 
-    local procedure InitNoTaxDeclarationInfo(Type: Option; PostingDate: Date; DocNo: Code[20]; NewBookTypeCode: Code[1]; Amount: Decimal)
+    local procedure InitNoTaxDeclarationInfo(Type: Enum "General Posting Type"; PostingDate: Date; DocNo: Code[20]; NewBookTypeCode: Code[1]; Amount: Decimal)
     begin
         Clear(VATBuffer2);
         VATBuffer2.Base := Amount;
@@ -2355,7 +2355,7 @@ report 10743 "Make 340 Declaration"
         OperationDateText := FormatDate(PostingDate);
     end;
 
-    local procedure GetDocumentTransactionNo(DocType: Option; DocNo: Code[20]; PostingDate: Date): Integer
+    local procedure GetDocumentTransactionNo(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; PostingDate: Date): Integer
     var
         GLEntry: Record "G/L Entry";
     begin

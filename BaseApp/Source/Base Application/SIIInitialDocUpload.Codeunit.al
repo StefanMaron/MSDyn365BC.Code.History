@@ -36,8 +36,8 @@ codeunit 10755 "SII Initial Doc. Upload"
                                                        CustLedgerEntry."Document Type"::Invoice]
                 then
                     SIIDocUploadState.CreateNewRequest(
-                      CustLedgerEntry."Entry No.", SIIDocUploadState."Document Source"::"Customer Ledger",
-                      CustLedgerEntry."Document Type", CustLedgerEntry."Document No.", CustLedgerEntry."External Document No.",
+                      CustLedgerEntry."Entry No.", SIIDocUploadState."Document Source"::"Customer Ledger".AsInteger(),
+                      CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.", CustLedgerEntry."External Document No.",
                       CustLedgerEntry."Posting Date");
             until CustLedgerEntry.Next = 0;
         end;
@@ -55,8 +55,8 @@ codeunit 10755 "SII Initial Doc. Upload"
                                                          VendorLedgerEntry."Document Type"::Invoice]
                 then
                     SIIDocUploadState.CreateNewRequest(
-                      VendorLedgerEntry."Entry No.", SIIDocUploadState."Document Source"::"Vendor Ledger",
-                      VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.", VendorLedgerEntry."External Document No.",
+                      VendorLedgerEntry."Entry No.", SIIDocUploadState."Document Source"::"Vendor Ledger".AsInteger(),
+                      VendorLedgerEntry."Document Type".AsInteger(), VendorLedgerEntry."Document No.", VendorLedgerEntry."External Document No.",
                       VendorLedgerEntry."Posting Date");
             until VendorLedgerEntry.Next = 0;
         end;

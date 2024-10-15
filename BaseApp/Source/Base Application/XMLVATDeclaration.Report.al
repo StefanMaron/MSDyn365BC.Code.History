@@ -82,14 +82,12 @@ report 10718 "XML VAT Declaration"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT entries included';
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies the type of VAT entries to include in the file. Options include Open, Closed or Open and Closed.';
                     }
                     field(EntryPeriod; PeriodSelected)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT entries included';
-                        OptionCaption = 'Before and Within Period,Within Period';
                         ToolTip = 'Specifies the period you want to include in the file. Options include Before and Within Period or Within Period.';
                     }
                     field(AddtnlCurrency; PrintAmtInAddCurr)
@@ -171,8 +169,8 @@ report 10718 "XML VAT Declaration"
         TotalBase: Decimal;
         TotalVATAmount: Decimal;
         VATPercentage: Decimal;
-        Selection: Option Opened,Closed,"Opened and Closed";
-        PeriodSelected: Option "Previous and within the period","Within the period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelected: Enum "VAT Statement Report Period Selection";
         FileName: Text[250];
         TextError: Text[80];
         ToFile: Text[1024];
@@ -218,12 +216,12 @@ report 10718 "XML VAT Declaration"
                     end;
                     VATEntry.SetRange(Type, VATStatementLine2."Gen. Posting Type");
                     if "VAT Statement Line".GetFilter("Date Filter") <> '' then
-                        if PeriodSelected = PeriodSelected::"Previous and within the period" then
+                        if PeriodSelected = PeriodSelected::"Before and Within Period" then
                             VATEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
                         else
                             "VAT Statement Line".CopyFilter("Date Filter", VATEntry."Posting Date");
                     case Selection of
-                        Selection::Opened:
+                        Selection::Open:
                             VATEntry.SetRange(Closed, false);
                         Selection::Closed:
                             VATEntry.SetRange(Closed, true);
@@ -309,12 +307,12 @@ report 10718 "XML VAT Declaration"
                     end;
                     VATEntry.SetRange(Type, VATStatementLine2."Gen. Posting Type");
                     if "VAT Statement Line".GetFilter("Date Filter") <> '' then
-                        if PeriodSelected = PeriodSelected::"Previous and within the period" then
+                        if PeriodSelected = PeriodSelected::"Before and Within Period" then
                             VATEntry.SetRange("Posting Date", 0D, "VAT Statement Line".GetRangeMax("Date Filter"))
                         else
                             "VAT Statement Line".CopyFilter("Date Filter", VATEntry."Posting Date");
                     case Selection of
-                        Selection::Opened:
+                        Selection::Open:
                             VATEntry.SetRange(Closed, false);
                         Selection::Closed:
                             VATEntry.SetRange(Closed, true);
@@ -383,7 +381,7 @@ report 10718 "XML VAT Declaration"
     end;
 
     [Scope('OnPrem')]
-    procedure InitializeSettings(var NewVATDeclName: Record "VAT Statement Name"; var NewVATDDeclLineName: Record "VAT Statement Line"; NewSelection: Option Opened,Closed,"Opened and Closed "; NewPeriodSelection: Option "Previous and within the period","Within the period "; NewPrintedInteger: Boolean)
+    procedure InitializeSettings(var NewVATDeclName: Record "VAT Statement Name"; var NewVATDDeclLineName: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintedInteger: Boolean)
     begin
         "VAT Statement Name".Copy(NewVATDeclName);
         "VAT Statement Line".Copy(NewVATDDeclLineName);

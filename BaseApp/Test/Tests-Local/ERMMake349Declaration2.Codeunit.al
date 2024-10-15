@@ -228,7 +228,7 @@ codeunit 144118 "ERM Make 349 Declaration 2"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreateDocumentWithAmountSales(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; PostingDate: Date; LineAmount: array[2] of Decimal; EUService: Boolean)
+    local procedure CreateDocumentWithAmountSales(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PostingDate: Date; LineAmount: array[2] of Decimal; EUService: Boolean)
     var
         SalesLine: Record "Sales Line";
         Index: Integer;
@@ -246,7 +246,7 @@ codeunit 144118 "ERM Make 349 Declaration 2"
         end;
     end;
 
-    local procedure CreateDocumentWithAmountPurchase(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; PostingDate: Date; LineAmount: array[2] of Decimal; EUService: Boolean)
+    local procedure CreateDocumentWithAmountPurchase(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PostingDate: Date; LineAmount: array[2] of Decimal; EUService: Boolean)
     var
         PurchaseLine: Record "Purchase Line";
         Index: Integer;

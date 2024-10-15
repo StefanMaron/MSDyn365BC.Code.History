@@ -457,7 +457,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
     end;
 
-    local procedure FindInvCustomerLedgerEntries(var InvCustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date)
+    local procedure FindInvCustomerLedgerEntries(var InvCustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PostingDate: Date)
     begin
         InvCustLedgerEntry.SetRange("Posting Date", PostingDate);
         InvCustLedgerEntry.SetRange("Document Type", DocumentType);
@@ -474,7 +474,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         PaymentMethod.FindFirst;
     end;
 
-    local procedure SelectCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; PostingDate: Date; DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill)
+    local procedure SelectCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Posting Date", PostingDate);

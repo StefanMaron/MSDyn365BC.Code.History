@@ -851,7 +851,7 @@ codeunit 10750 "SII XML Creator"
     begin
         if SIIManagement.NoTaxableEntriesExistPurchase(
              NoTaxableEntry,
-             SIIManagement.GetVendFromLedgEntryByGLSetup(VendLedgEntry), VendLedgEntry."Document Type",
+             SIIManagement.GetVendFromLedgEntryByGLSetup(VendLedgEntry), VendLedgEntry."Document Type".AsInteger(),
              VendLedgEntry."Document No.", VendLedgEntry."Posting Date")
         then begin
             NoTaxableEntry.CalcSums("Amount (LCY)");
@@ -1200,7 +1200,7 @@ codeunit 10750 "SII XML Creator"
         if DomesticCustomer then
             GetSourceForServiceOrGoods(
               TempVATEntryPerPercent, ExemptionCausePresent, ExemptionBaseAmounts,
-              NonExemptTransactionType, ExemptExists, CustLedgerEntry, false, DomesticCustomer);
+              NonExemptTransactionType, ExemptExists, CustLedgerEntry, EUService, DomesticCustomer);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'TipoDesglose', '', 'sii', SiiTxt, TipoDesgloseXMLNode);
         for EUService := true downto false do begin
             if not DomesticCustomer then
@@ -1998,7 +1998,7 @@ codeunit 10750 "SII XML Creator"
         exit(Amount);
     end;
 
-    local procedure UseReverseChargeNotIntracommunity(VATCalcType: Option; VendNo: Code[20]; PostingDate: Date): Boolean
+    local procedure UseReverseChargeNotIntracommunity(VATCalcType: Enum "Tax Calculation Type"; VendNo: Code[20]; PostingDate: Date): Boolean
     var
         VATEntry: Record "VAT Entry";
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
@@ -2022,7 +2022,7 @@ codeunit 10750 "SII XML Creator"
             i += 1;
             HasEntries[i] :=
               SIIManagement.GetNoTaxableSalesAmount(
-                Amount[i], CustNo, CustLedgerEntry."Document Type", CustLedgerEntry."Document No.",
+                Amount[i], CustNo, CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.",
                 CustLedgerEntry."Posting Date", IsService, true, IsLocalRule);
         end;
         ExportNonTaxableVATEntries(
@@ -2045,10 +2045,10 @@ codeunit 10750 "SII XML Creator"
             i += 1;
             HasEntries[i] :=
               SIIManagement.GetNoTaxableSalesAmount(
-                OldAmount, CustNo, CustLedgerEntry."Document Type", CustLedgerEntry."Document No.",
+                OldAmount, CustNo, CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.",
                 CustLedgerEntry."Posting Date", IsService, true, IsLocalRule) or
               SIIManagement.GetNoTaxableSalesAmount(
-                Amount, CustNo, OldCustLedgerEntry."Document Type", OldCustLedgerEntry."Document No.",
+                Amount, CustNo, OldCustLedgerEntry."Document Type".AsInteger(), OldCustLedgerEntry."Document No.",
                 OldCustLedgerEntry."Posting Date", IsService, true, IsLocalRule);
             ReplacementAmount[i] := Abs(OldAmount + Amount);
         end;
@@ -2103,7 +2103,7 @@ codeunit 10750 "SII XML Creator"
         EntryNo := VATEntry."Entry No." + 3000000;
         if SIIManagement.NoTaxableEntriesExistSales(
              NoTaxableEntry,
-             SIIManagement.GetCustFromLedgEntryByGLSetup(CustLedgerEntry), CustLedgerEntry."Document Type", CustLedgerEntry."Document No.",
+             SIIManagement.GetCustFromLedgEntryByGLSetup(CustLedgerEntry), CustLedgerEntry."Document Type".AsInteger(), CustLedgerEntry."Document No.",
              CustLedgerEntry."Posting Date", IsService, false, false)
         then begin
             if NoTaxableEntry.FindSet then

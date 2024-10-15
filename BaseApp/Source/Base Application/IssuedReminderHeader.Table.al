@@ -149,7 +149,7 @@ table 297 "Issued Reminder Header"
         }
         field(30; Comment; Boolean)
         {
-            CalcFormula = Exist ("Reminder Comment Line" WHERE(Type = CONST("Issued Reminder"),
+            CalcFormula = Exist("Reminder Comment Line" WHERE(Type = CONST("Issued Reminder"),
                                                                "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -159,7 +159,7 @@ table 297 "Issued Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Issued Reminder Line"."Remaining Amount" WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Issued Reminder Line"."Remaining Amount" WHERE("Reminder No." = FIELD("No."),
                                                                                "Line Type" = CONST("Reminder Line"),
                                                                                "Detailed Interest Rates Entry" = CONST(false)));
             Caption = 'Remaining Amount';
@@ -170,7 +170,7 @@ table 297 "Issued Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Issued Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Issued Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
                                                                    Type = CONST("Customer Ledger Entry"),
                                                                    "Line Type" = CONST("Reminder Line"),
                                                                    "Detailed Interest Rates Entry" = CONST(false)));
@@ -182,7 +182,7 @@ table 297 "Issued Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Issued Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Issued Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
                                                                    Type = CONST("G/L Account")));
             Caption = 'Additional Fee';
             Editable = false;
@@ -192,7 +192,7 @@ table 297 "Issued Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Issued Reminder Line"."VAT Amount" WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Issued Reminder Line"."VAT Amount" WHERE("Reminder No." = FIELD("No."),
                                                                          "Detailed Interest Rates Entry" = CONST(false)));
             Caption = 'VAT Amount';
             Editable = false;
@@ -247,7 +247,7 @@ table 297 "Issued Reminder Header"
         field(44; "Add. Fee per Line"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
-            CalcFormula = Sum ("Issued Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
+            CalcFormula = Sum("Issued Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
                                                                    Type = CONST("Line Fee")));
             Caption = 'Add. Fee per Line';
             FieldClass = FlowField;
@@ -284,7 +284,7 @@ table 297 "Issued Reminder Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }
@@ -348,12 +348,12 @@ table 297 "Issued Reminder Header"
                     IssuedReminderHeaderToSend.Copy(IssuedReminderHeader);
                     IssuedReminderHeaderToSend.SetRecFilter;
                     DocumentSendingProfile.TrySendToEMail(
-                      DummyReportSelections.Usage::Reminder, IssuedReminderHeaderToSend, IssuedReminderHeaderToSend.FieldNo("No."),
+                      DummyReportSelections.Usage::Reminder.AsInteger(), IssuedReminderHeaderToSend, IssuedReminderHeaderToSend.FieldNo("No."),
                       ReportDistributionMgt.GetFullDocumentTypeText(Rec), IssuedReminderHeaderToSend.FieldNo("Customer No."), not HideDialog)
                 until IssuedReminderHeader.Next = 0;
         end else
             DocumentSendingProfile.TrySendToPrinter(
-              DummyReportSelections.Usage::Reminder, Rec,
+              DummyReportSelections.Usage::Reminder.AsInteger(), Rec,
               IssuedReminderHeaderToSend.FieldNo("Customer No."), ShowRequestForm);
 
         OnAfterPrintRecords(Rec, ShowRequestForm, SendAsEmail, HideDialog);

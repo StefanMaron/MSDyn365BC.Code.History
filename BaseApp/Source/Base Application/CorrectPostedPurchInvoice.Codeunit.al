@@ -106,7 +106,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
         exit(true);
     end;
 
-    local procedure CreateCopyDocument(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; SkipCopyFromDescription: Boolean)
+    local procedure CreateCopyDocument(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; SkipCopyFromDescription: Boolean)
     var
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin

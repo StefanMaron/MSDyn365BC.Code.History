@@ -215,7 +215,7 @@ codeunit 144047 "ERM Equivalent Charge"
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreateAndPostPaymentJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostPaymentJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -234,7 +234,7 @@ codeunit 144047 "ERM Equivalent Charge"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; BuyFromVendorNo: Code[20]; CorrectedInvoiceNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal; ItemNo: Code[20]): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20]; CorrectedInvoiceNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal; ItemNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin

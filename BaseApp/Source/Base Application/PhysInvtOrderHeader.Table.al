@@ -74,7 +74,7 @@ table 5875 "Phys. Invt. Order Header"
         }
         field(30; Comment; Boolean)
         {
-            CalcFormula = Exist ("Phys. Invt. Comment Line" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Exist("Phys. Invt. Comment Line" WHERE("Document Type" = CONST(Order),
                                                                   "Order No." = FIELD("No."),
                                                                   "Recording No." = CONST(0)));
             Caption = 'Comment';
@@ -131,8 +131,8 @@ table 5875 "Phys. Invt. Order Header"
                 with PhysInvtOrderHeader do begin
                     PhysInvtOrderHeader := Rec;
                     InvtSetup.Get();
-                    TestNoSeries;
-                    if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode, "Posting No. Series") then
+                    TestNoSeries();
+                    if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode(), "Posting No. Series") then
                         Validate("Posting No. Series");
                     Rec := PhysInvtOrderHeader;
                 end;
@@ -142,8 +142,8 @@ table 5875 "Phys. Invt. Order Header"
             begin
                 if "Posting No. Series" <> '' then begin
                     InvtSetup.Get();
-                    TestNoSeries;
-                    NoSeriesMgt.TestSeries(GetPostingNoSeriesCode, "Posting No. Series");
+                    TestNoSeries();
+                    NoSeriesMgt.TestSeries(GetPostingNoSeriesCode(), "Posting No. Series");
                 end;
                 TestField("Posting No.", '');
             end;
@@ -166,7 +166,7 @@ table 5875 "Phys. Invt. Order Header"
         }
         field(71; "No. Finished Recordings"; Integer)
         {
-            CalcFormula = Count ("Phys. Invt. Record Header" WHERE("Order No." = FIELD("No."),
+            CalcFormula = Count("Phys. Invt. Record Header" WHERE("Order No." = FIELD("No."),
                                                                    Status = CONST(Finished)));
             Caption = 'No. Finished Recordings';
             Editable = false;
@@ -257,16 +257,12 @@ table 5875 "Phys. Invt. Order Header"
         PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
     begin
         InvtSetup.Get();
-
-        if "No." = '' then begin
-            TestNoSeries;
-            NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Order Date", "No.", "No. Series");
-        end;
+        InitInsert();
 
         if PstdPhysInvtOrderHdr.Get("No.") then
             Error(AlreadyExistsErr, "No.");
 
-        InitRecord;
+        InitRecord();
     end;
 
     trigger OnModify()
@@ -293,17 +289,41 @@ table 5875 "Phys. Invt. Order Header"
         MoreThanOneLineErr: Label 'There are more than one order lines in Order %1 for Item No. %2, Variant Code %3, Location Code %4, Bin Code %5.', Comment = '%1 Order No. %2 Item No. %3 Variant Code %4 Location Code %5 Bin Code';
         NoLineErr: Label 'There are no order line in Order %1 for Item No. %2, Variant Code %3, Location Code %4, Bin Code %5.', Comment = '%1 Order No. %2 Item No. %3 Variant Code %4 Location Code %5 Bin Code';
 
-    procedure InitRecord()
+    local procedure InitInsert()
+    var
+        IsHandled: Boolean;
     begin
-        if ("No. Series" <> '') and
-           (InvtSetup."Phys. Invt. Order Nos." = InvtSetup."Posted Phys. Invt. Order Nos.")
-        then
-            "Posting No. Series" := "No. Series"
-        else
-            NoSeriesMgt.SetDefaultSeries("Posting No. Series", InvtSetup."Posted Phys. Invt. Order Nos.");
+        IsHandled := false;
+        OnInitInsertOnBeforeInitSeries(xRec, IsHandled);
+        if not IsHandled then
+            if "No." = '' then begin
+                TestNoSeries();
+                NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Order Date", "No.", "No. Series");
+            end;
 
-        if "Posting Date" = 0D then
-            Validate("Posting Date", WorkDate);
+        OnInitInsertOnBeforeInitRecord(xRec);
+        InitRecord();
+    end;
+
+    procedure InitRecord()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitRecord(Rec, xRec, IsHandled);
+        if not IsHandled then begin
+            if ("No. Series" <> '') and
+               (InvtSetup."Phys. Invt. Order Nos." = InvtSetup."Posted Phys. Invt. Order Nos.")
+            then
+                "Posting No. Series" := "No. Series"
+            else
+                NoSeriesMgt.SetDefaultSeries("Posting No. Series", InvtSetup."Posted Phys. Invt. Order Nos.");
+
+            if "Posting Date" = 0D then
+                Validate("Posting Date", WorkDate);
+        end;
+
+        OnAfterInitRecord(Rec);
     end;
 
     procedure AssistEdit(OldPhysInvtOrderHeader: Record "Phys. Invt. Order Header"): Boolean
@@ -311,10 +331,10 @@ table 5875 "Phys. Invt. Order Header"
         with PhysInvtOrderHeader do begin
             PhysInvtOrderHeader := Rec;
             InvtSetup.Get();
-            TestNoSeries;
+            TestNoSeries();
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldPhysInvtOrderHeader."No. Series", "No. Series") then begin
                 InvtSetup.Get();
-                TestNoSeries;
+                TestNoSeries();
                 NoSeriesMgt.SetSeries("No.");
                 Rec := PhysInvtOrderHeader;
                 exit(true);
@@ -323,14 +343,33 @@ table 5875 "Phys. Invt. Order Header"
     end;
 
     local procedure TestNoSeries()
+    var
+        IsHandled: Boolean;
     begin
-        InvtSetup.TestField("Phys. Invt. Order Nos.");
-        InvtSetup.TestField("Posted Phys. Invt. Order Nos.");
+        IsHandled := false;
+        OnBeforeTestNoSeries(Rec, IsHandled);
+        if not IsHandled then begin
+            InvtSetup.TestField("Phys. Invt. Order Nos.");
+            InvtSetup.TestField("Posted Phys. Invt. Order Nos.");
+        end;
+
+        OnAfterTestNoSeries(Rec);
     end;
 
-    local procedure GetNoSeriesCode(): Code[10]
+    local procedure GetNoSeriesCode(): Code[20]
+    var
+        NoSeriesCode: Code[20];
+        IsHandled: Boolean;
     begin
-        exit(InvtSetup."Phys. Invt. Order Nos.");
+        InvtSetup.Get();
+        IsHandled := false;
+        OnBeforeGetNoSeriesCode(Rec, InvtSetup, NoSeriesCode, IsHandled);
+        if IsHandled then
+            exit;
+
+        NoSeriesCode := InvtSetup."Phys. Invt. Order Nos.";
+        OnAfterGetNoSeriesCode(Rec, NoSeriesCode);
+        exit(NoSeriesCode);
     end;
 
     local procedure GetPostingNoSeriesCode(): Code[10]
@@ -439,6 +478,36 @@ table 5875 "Phys. Invt. Order Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetNoSeriesCode(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var NoSeriesCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitRecord(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTestNoSeries(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNoSeriesCode(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; InventorySetup: Record "Inventory Setup"; var NoSeriesCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitRecord(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; xPhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestNoSeries(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var xPhysInvtOrderHeader: Record "Phys. Invt. Order Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -450,6 +519,16 @@ table 5875 "Phys. Invt. Order Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSamePhysInvtOrderLineOnAfterSetFilters(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInitInsertOnBeforeInitSeries(var xPhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInitInsertOnBeforeInitRecord(var xPhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
     end;
 }

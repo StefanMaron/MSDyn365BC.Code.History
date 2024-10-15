@@ -215,7 +215,7 @@ codeunit 10701 "Elect. Pmts Management"
     end;
 
     [Scope('OnPrem')]
-    procedure InsertIntoCheckLedger(BankAccNo: Code[20]; DeliveryDate: Date; DocType: Option; DocNo: Code[20]; DescriptionText: Text[100]; BalAccNo: Code[20]; Amt: Decimal; RecordIdToPrint: RecordID)
+    procedure InsertIntoCheckLedger(BankAccNo: Code[20]; DeliveryDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; DescriptionText: Text[100]; BalAccNo: Code[20]; Amt: Decimal; RecordIdToPrint: RecordID)
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
         CheckManagement: Codeunit CheckManagement;

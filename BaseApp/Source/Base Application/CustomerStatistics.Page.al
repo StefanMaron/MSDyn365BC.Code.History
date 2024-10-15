@@ -1146,7 +1146,10 @@ page 151 "Customer Statistics"
 
     var
         Text000: Label 'Overdue Amounts (LCY) as of %1';
+        Text001: Label 'Placeholder';
         DateFilterCalc: Codeunit "DateFilter-Calc";
+
+    protected var
         CustDateFilter: array[4] of Text[30];
         CustDateName: array[4] of Text[30];
         CurrentDate: Date;
@@ -1166,9 +1169,8 @@ page 151 "Customer Statistics"
         CustPaymentsLCY: array[4] of Decimal;
         CustRefundsLCY: array[4] of Decimal;
         CustOtherAmountsLCY: array[4] of Decimal;
-        i: Integer;
         InvAmountsLCY: array[4] of Decimal;
-        Text001: Label 'Placeholder';
+        i: Integer;
         DocumentSituationFilter: array[3] of Option " ","Posted BG/PO","Closed BG/PO","BG/PO",Cartera,"Closed Documents";
         NoOpen: array[5] of Integer;
         NoHonored: array[5] of Integer;
@@ -1189,11 +1191,6 @@ page 151 "Customer Statistics"
         SetRange("Date Filter", 0D, CurrentDate);
 
         OnAfterSetDateFilter(Rec);
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetDateFilter(var Customer: Record Customer)
-    begin
     end;
 
     [Scope('OnPrem')]
@@ -1413,6 +1410,11 @@ page 151 "Customer Statistics"
             SetRange("Document Status");
             SetRange("Document Situation");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDateFilter(var Customer: Record Customer)
+    begin
     end;
 }
 

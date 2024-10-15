@@ -3,8 +3,11 @@ report 4 "Detail Trial Balance"
     DefaultLayout = RDLC;
     RDLCLayout = './DetailTrialBalance.rdlc';
     AdditionalSearchTerms = 'payment due,order status';
+    ApplicationArea = Basic, Suite;
     Caption = 'Detail Trial Balance';
     PreviewMode = PrintLayout;
+    UsageCategory = ReportsAndAnalysis;
+    DataAccessIntent = ReadOnly;
 
     dataset
     {

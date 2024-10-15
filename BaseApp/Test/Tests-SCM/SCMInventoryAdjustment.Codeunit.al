@@ -34,7 +34,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ProductionOrder: Record "Production Order";
         ProductionBOMLine: Record "Production BOM Line";
         PurchaseHeader: Record "Purchase Header";
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
         Initialize;
@@ -63,7 +63,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         PurchaseLine: Record "Purchase Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
         TotalCostAmount: Decimal;
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
         Initialize;
@@ -101,7 +101,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ProductionBOMLine: Record "Production BOM Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
         TotalCostAmount: Decimal;
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
         Initialize;
@@ -142,7 +142,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         PurchaseHeader: Record "Purchase Header";
         ItemConsumptionQuantity: Integer;
         ItemConsumptionQuantity2: Integer;
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
         Initialize;
@@ -175,7 +175,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ItemConsumptionQuantity2: Integer;
         StandardCost: Decimal;
         ChildItemNo: Code[20];
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
         Initialize;
@@ -223,7 +223,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ItemConsumptionQuantity: Integer;
         ItemConsumptionQuantity2: Integer;
         StandardCost: Decimal;
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
         Initialize;
@@ -268,7 +268,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         PurchaseHeader: Record "Purchase Header";
         ItemConsumptionQuantity: Integer;
         ItemConsumptionQuantity2: Integer;
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
         Initialize;
@@ -303,7 +303,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ItemConsumptionQuantity2: Integer;
         ChildItemNo: Code[20];
         ChildItemNo2: Code[20];
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
         Initialize;
@@ -351,7 +351,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         OutputCostAmount: Decimal;
         ItemConsumptionQuantity: Integer;
         ItemConsumptionQuantity2: Integer;
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
         LastDirectCost: Decimal;
         LastDirectCost2: Decimal;
     begin
@@ -405,7 +405,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         PurchaseHeader: Record "Purchase Header";
         ItemLedgerEntry: Record "Item Ledger Entry";
         ItemConsumptionQuantity: Integer;
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
         Initialize;
@@ -437,7 +437,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ConsumptionCostAmount: Decimal;
         OutputCostAmount: Decimal;
         ItemConsumptionQuantity: Integer;
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
         Initialize;
@@ -482,7 +482,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ConsumptionCostAmount: Decimal;
         OutputCostAmount: Decimal;
         ItemConsumptionQuantity: Integer;
-        CostingMethod: array[2] of Option;
+        CostingMethod: array[2] of Enum "Costing Method";
     begin
         // Setup.
         Initialize;
@@ -518,7 +518,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         VerifyProductionILECostAmount(ProductionOrder."No.", ItemLedgerEntry."Entry Type"::Output, OutputCostAmount);
     end;
 
-    local procedure ReleasedProductionOrderSetup(var TempItem: Record Item temporary; var PurchaseHeader: Record "Purchase Header"; var ProductionOrder: Record "Production Order"; CostingMethod: array[2] of Option; NoOfComponents: Integer; PartialInvoice: Boolean)
+    local procedure ReleasedProductionOrderSetup(var TempItem: Record Item temporary; var PurchaseHeader: Record "Purchase Header"; var ProductionOrder: Record "Production Order"; CostingMethod: array[2] of Enum "Costing Method"; NoOfComponents: Integer; PartialInvoice: Boolean)
     var
         Item: Record Item;
         ProductionBOMHeader: Record "Production BOM Header";
@@ -586,7 +586,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Adjustment");
     end;
 
-    local procedure CreateItemsAndCopyToTemp(var TempItem: Record Item temporary; CostingMethod: array[2] of Option; NoOfItems: Integer)
+    local procedure CreateItemsAndCopyToTemp(var TempItem: Record Item temporary; CostingMethod: array[2] of Enum "Costing Method"; NoOfItems: Integer)
     var
         Item: Record Item;
         Counter: Integer;
@@ -631,7 +631,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ProductionBOMHeader.Modify(true);
     end;
 
-    local procedure CreateItem(var Item: Record Item; ItemCostingMethod: Option; ProductionBOMNo: Code[20])
+    local procedure CreateItem(var Item: Record Item; ItemCostingMethod: Enum "Costing Method"; ProductionBOMNo: Code[20])
     begin
         // Random values not important.
         LibraryManufacturing.CreateItemManufacturing(
@@ -661,7 +661,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
     end;
 
-    local procedure SelectPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure SelectPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
@@ -677,7 +677,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ProductionBOMLine.FindSet;
     end;
 
-    local procedure SelectBOMLineQuantityPer(var TempItem: Record Item temporary; ItemCostingMethod: Option): Integer
+    local procedure SelectBOMLineQuantityPer(var TempItem: Record Item temporary; ItemCostingMethod: Enum "Costing Method"): Integer
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
@@ -736,7 +736,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         exit(ProductionOrderQuantity * ProductionBOMLine."Quantity per");
     end;
 
-    local procedure SelectItemLedgerEntries(var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentNo: Code[20]; EntryType: Option)
+    local procedure SelectItemLedgerEntries(var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentNo: Code[20]; EntryType: Enum "Item Ledger Document Type")
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
@@ -780,7 +780,7 @@ codeunit 137037 "SCM Inventory Adjustment"
         ItemLedgerEntry.TestField(Quantity, -Quantity2);
     end;
 
-    local procedure VerifyProductionILECostAmount(DocumentNo: Code[20]; EntryType: Option; ExpectedTotalCostAmount: Decimal)
+    local procedure VerifyProductionILECostAmount(DocumentNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; ExpectedTotalCostAmount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         ItemLedgerEntry: Record "Item Ledger Entry";

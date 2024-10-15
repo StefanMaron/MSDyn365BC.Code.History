@@ -415,7 +415,7 @@ report 7000087 "Batch Settl. Posted POs"
         NoRealVATBuffer: Record "BG/PO Post. Buffer" temporary;
         ExistsNoRealVAT: Boolean;
 
-    local procedure InsertGenJournalLine(AccType: Integer; AccNo: Code[20]; Amount2: Decimal)
+    local procedure InsertGenJournalLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Amount2: Decimal)
     begin
         GenJnlLineNextNo := GenJnlLineNextNo + 10000;
 

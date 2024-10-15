@@ -456,7 +456,7 @@ page 7000005 "Docs. in Posted BG Subform"
     [Scope('OnPrem')]
     procedure ShowDimension()
     begin
-        ShowDimensions;
+        ShowDimensions();
     end;
 }
 

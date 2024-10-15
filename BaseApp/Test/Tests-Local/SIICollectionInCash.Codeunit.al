@@ -335,7 +335,7 @@ codeunit 147554 "SII Collection In Cash"
         Commit();
     end;
 
-    local procedure CreateAndPostPaymentJnlLineWithGLAcc(AccountType: Option; AccountNo: Code[20]; PostingDate: Date; PmtAmount: Decimal; BalGLAccNo: Code[20]; ApplToDocNo: Code[20])
+    local procedure CreateAndPostPaymentJnlLineWithGLAcc(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date; PmtAmount: Decimal; BalGLAccNo: Code[20]; ApplToDocNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";

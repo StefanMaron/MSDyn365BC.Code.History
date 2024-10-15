@@ -2506,7 +2506,7 @@ codeunit 147524 "SII Documents No Taxable"
         IsInitialized := true;
     end;
 
-    local procedure CreateVATPostingSetupWithNoTaxableType(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Integer; NoTaxableType: Integer; VATRate: Decimal)
+    local procedure CreateVATPostingSetupWithNoTaxableType(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; NoTaxableType: Integer; VATRate: Decimal)
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, VATRate);
         VATPostingSetup.Validate("No Taxable Type", NoTaxableType);
@@ -2561,7 +2561,7 @@ codeunit 147524 "SII Documents No Taxable"
         PurchaseHeader.CalcFields(Amount);
     end;
 
-    local procedure CreateSalesDocumentWithCurrency(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure CreateSalesDocumentWithCurrency(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         SalesLine: Record "Sales Line";
@@ -2584,7 +2584,7 @@ codeunit 147524 "SII Documents No Taxable"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocumentWithCurrency(var ServiceHeader: Record "Service Header"; DocType: Option)
+    local procedure CreateServiceDocumentWithCurrency(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type")
     var
         Customer: Record Customer;
         ServiceLine: Record "Service Line";
@@ -2666,7 +2666,7 @@ codeunit 147524 "SII Documents No Taxable"
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
-    local procedure PostSalesDocWithMixedOfEUNonServiceExemptAndNoTaxEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; var VATPostingSetup: Record "VAT Posting Setup"; DocType: Option; CorrectionType: Option)
+    local procedure PostSalesDocWithMixedOfEUNonServiceExemptAndNoTaxEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; var VATPostingSetup: Record "VAT Posting Setup"; DocType: Enum "Sales Document Type"; CorrectionType: Option)
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -2704,7 +2704,7 @@ codeunit 147524 "SII Documents No Taxable"
           CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
-    local procedure PostSalesDocWithEUServiceNormalAndNoTaxableVAT(var CustLedgerEntry: Record "Cust. Ledger Entry"; var VATPostingSetup: Record "VAT Posting Setup"; DocType: Option; CorrectionType: Option)
+    local procedure PostSalesDocWithEUServiceNormalAndNoTaxableVAT(var CustLedgerEntry: Record "Cust. Ledger Entry"; var VATPostingSetup: Record "VAT Posting Setup"; DocType: Enum "Sales Document Type"; CorrectionType: Option)
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -2735,7 +2735,7 @@ codeunit 147524 "SII Documents No Taxable"
           CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
-    local procedure PostSalesDocWithGLAccIgnoredIn347Report(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option)
+    local procedure PostSalesDocWithGLAccIgnoredIn347Report(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type")
     var
         GLAccount: Record "G/L Account";
         Customer: Record Customer;
@@ -2757,7 +2757,7 @@ codeunit 147524 "SII Documents No Taxable"
           CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
-    local procedure PostPurchDocWithGLAccIgnoredIn347Report(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option)
+    local procedure PostPurchDocWithGLAccIgnoredIn347Report(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type")
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         GLAccount: Record "G/L Account";
@@ -2782,7 +2782,7 @@ codeunit 147524 "SII Documents No Taxable"
           VendorLedgerEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false));
     end;
 
-    local procedure PostServDocWithGLAccIgnoredIn347Report(DocType: Option): Code[20]
+    local procedure PostServDocWithGLAccIgnoredIn347Report(DocType: Enum "Service Document Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
         Customer: Record Customer;
@@ -2808,7 +2808,7 @@ codeunit 147524 "SII Documents No Taxable"
         exit(ServiceHeader."No.");
     end;
 
-    local procedure PostSalesDocWithNoTaxableVATAndHundredPctDisc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option)
+    local procedure PostSalesDocWithNoTaxableVATAndHundredPctDisc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -2829,7 +2829,7 @@ codeunit 147524 "SII Documents No Taxable"
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
-    local procedure PostServDocWithNoTaxableVATAndHundredPctDisc(DocType: Option): Code[20]
+    local procedure PostServDocWithNoTaxableVATAndHundredPctDisc(DocType: Enum "Service Document Type"): Code[20]
     var
         Customer: Record Customer;
         ServiceHeader: Record "Service Header";
@@ -2857,7 +2857,7 @@ codeunit 147524 "SII Documents No Taxable"
         exit(ServiceHeader."No.");
     end;
 
-    local procedure PostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; VATBusPostGroupCode: Code[20]; DocType: Option; AccType: Option; AccNo: Code[20]; GenPostingType: Option; EUService: Boolean; Amount: Decimal)
+    local procedure PostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; VATBusPostGroupCode: Code[20]; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; GenPostingType: Enum "General Posting Type"; EUService: Boolean; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";
@@ -2900,14 +2900,14 @@ codeunit 147524 "SII Documents No Taxable"
         exit(NonTaxableAmount);
     end;
 
-    local procedure FindLastSalesLine(var SalesLine: Record "Sales Line"; DocType: Option; DocNo: Code[20])
+    local procedure FindLastSalesLine(var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; DocNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocType);
         SalesLine.SetRange("Document No.", DocNo);
         SalesLine.FindLast;
     end;
 
-    local procedure GetVATEntryTotalAmount(DocType: Option; DocNo: Code[20]): Decimal
+    local procedure GetVATEntryTotalAmount(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Decimal
     var
         VATEntry: Record "VAT Entry";
     begin

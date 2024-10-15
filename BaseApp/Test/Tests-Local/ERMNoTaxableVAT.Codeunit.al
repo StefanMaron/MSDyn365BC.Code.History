@@ -240,7 +240,7 @@ codeunit 144075 "ERM No Taxable VAT"
         exit(ItemCharge."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option; Quantity: Decimal)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Purchase Document Type"; Quantity: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
@@ -255,14 +255,14 @@ codeunit 144075 "ERM No Taxable VAT"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"), Quantity);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", Quantity);  // Validating Direct Unit Cost as Quantity because value is not important.
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type"; Quantity: Decimal)
     var
         Customer: Record Customer;
         SalesLine: Record "Sales Line";
@@ -274,7 +274,7 @@ codeunit 144075 "ERM No Taxable VAT"
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"), Quantity);
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("Unit Price", Quantity);  // Validating Unit Price as Quantity because value is not important.
@@ -289,7 +289,7 @@ codeunit 144075 "ERM No Taxable VAT"
         VATPostingSetup.FindFirst;
     end;
 
-    local procedure PostSalesDocumentWithNoTaxableVAT(DocumentType: Option)
+    local procedure PostSalesDocumentWithNoTaxableVAT(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -307,7 +307,7 @@ codeunit 144075 "ERM No Taxable VAT"
         VerifyNoVATEntryExist(DocumentNo);
     end;
 
-    local procedure SalesInvoiceBookReportWithNoTaxableVAT(DocumentType: Option; Quantity: Decimal; GLAccNo: Code[20]; Sign: Integer)
+    local procedure SalesInvoiceBookReportWithNoTaxableVAT(DocumentType: Enum "Sales Document Type"; Quantity: Decimal; GLAccNo: Code[20]; Sign: Integer)
     var
         SalesLineChargeItem: Record "Sales Line";
         SalesLineGLAccount: Record "Sales Line";
@@ -333,7 +333,7 @@ codeunit 144075 "ERM No Taxable VAT"
           SalesLineGLAccount."Sell-to Customer No.", Sign * SalesLineGLAccount.Amount);
     end;
 
-    local procedure PostPurchaseDocumentWithNoTaxableVAT(DocumentType: Option)
+    local procedure PostPurchaseDocumentWithNoTaxableVAT(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -351,7 +351,7 @@ codeunit 144075 "ERM No Taxable VAT"
         VerifyNoVATEntryExist(DocumentNo);
     end;
 
-    local procedure PurchaseInvoiceBookReportWithNoTaxableVAT(DocumentType: Option; Quantity: Decimal; GLAccNo: Code[20]; Sign: Integer)
+    local procedure PurchaseInvoiceBookReportWithNoTaxableVAT(DocumentType: Enum "Purchase Document Type"; Quantity: Decimal; GLAccNo: Code[20]; Sign: Integer)
     var
         PurchaseLineChargeItem: Record "Purchase Line";
         PurchaseLineGLAccount: Record "Purchase Line";
@@ -377,7 +377,7 @@ codeunit 144075 "ERM No Taxable VAT"
           PurchaseLineGLAccount."Buy-from Vendor No.", Sign * PurchaseLineGLAccount.Amount);
     end;
 
-    local procedure PostSalesDocForNoTaxableScenario(var DocumentNo: Code[20]; var SalesLineChargeItem: Record "Sales Line"; var SalesLineGLAccount: Record "Sales Line"; DocumentType: Option; Quantity: Decimal; GLAccNo: Code[20])
+    local procedure PostSalesDocForNoTaxableScenario(var DocumentNo: Code[20]; var SalesLineChargeItem: Record "Sales Line"; var SalesLineGLAccount: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Quantity: Decimal; GLAccNo: Code[20])
     var
         VATPostingSetup: Record "VAT Posting Setup";
         SalesHeader: Record "Sales Header";
@@ -387,13 +387,13 @@ codeunit 144075 "ERM No Taxable VAT"
         CreateSalesLine(
           SalesLineChargeItem, SalesHeader, SalesLineChargeItem.Type::"Charge (Item)",
           CreateItemCharge(VATPostingSetup."VAT Prod. Posting Group"), Quantity);
-        SalesLineChargeItem.ShowItemChargeAssgnt;
+        SalesLineChargeItem.ShowItemChargeAssgnt();
         CreateSalesLine(
           SalesLineGLAccount, SalesHeader, SalesLineGLAccount.Type::"G/L Account", GLAccNo, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
     end;
 
-    local procedure PostPurchDocForNoTaxableScenario(var DocumentNo: Code[20]; var PurchLineChargeItem: Record "Purchase Line"; var PurchLineGLAccount: Record "Purchase Line"; DocumentType: Option; Quantity: Decimal; GLAccNo: Code[20])
+    local procedure PostPurchDocForNoTaxableScenario(var DocumentNo: Code[20]; var PurchLineChargeItem: Record "Purchase Line"; var PurchLineGLAccount: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Quantity: Decimal; GLAccNo: Code[20])
     var
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
@@ -403,7 +403,7 @@ codeunit 144075 "ERM No Taxable VAT"
         CreatePurchaseLine(
           PurchLineChargeItem, PurchaseHeader, PurchLineChargeItem.Type::"Charge (Item)",
           CreateItemCharge(VATPostingSetup."VAT Prod. Posting Group"), Quantity);
-        PurchLineChargeItem.ShowItemChargeAssgnt;
+        PurchLineChargeItem.ShowItemChargeAssgnt();
         CreatePurchaseLine(
           PurchLineGLAccount, PurchaseHeader, PurchLineGLAccount.Type::"G/L Account", GLAccNo, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Ship and Invoice.

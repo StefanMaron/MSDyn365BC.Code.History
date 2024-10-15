@@ -463,7 +463,7 @@ page 863 "CF Entries Dim. Matrix"
 
                         trigger OnAction()
                         begin
-                            ShowDimensions;
+                            ShowDimensions();
                         end;
                     }
                 }

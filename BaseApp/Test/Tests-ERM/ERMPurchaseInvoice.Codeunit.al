@@ -29,7 +29,7 @@ codeunit 134328 "ERM Purchase Invoice"
         LibraryJob: Codeunit "Library - Job";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
+        LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
         VATAmountErr: Label 'VAT Amount must be %1 in VAT Amount Line.', Comment = '%1 = Amount';
         FieldErr: Label 'Number of Lines for Purchase Line and Purchase Receipt Line must be Equal.';
@@ -1555,7 +1555,7 @@ codeunit 134328 "ERM Purchase Invoice"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run Copy Document from Posted Purchase Invoice to Purchase Document with Include Header = TRUE
-        CopyDocument(PurchHeader, DocType::"Posted Invoice", PostedDocNo);
+        CopyDocument(PurchHeader, "Purchase Document Type From"::"Posted Invoice", PostedDocNo);
         PurchHeader.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
@@ -1565,7 +1565,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchRcptHeader.SetRange("Buy-from Vendor No.", VendorNo);
         PurchRcptHeader.FindFirst;
         LibraryVariableStorage.Enqueue(false);
-        CopyDocument(PurchHeader, DocType::"Posted Receipt", PurchRcptHeader."No.");
+        CopyDocument(PurchHeader, "Purchase Document Type From"::"Posted Receipt", PurchRcptHeader."No.");
         PurchHeader.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
@@ -1605,7 +1605,7 @@ codeunit 134328 "ERM Purchase Invoice"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run Copy Document from Posted Purchase Cr. Memo to Purchase Document with Include Header = TRUE
-        CopyDocument(PurchHeader, DocType::"Posted Credit Memo", PostedDocNo);
+        CopyDocument(PurchHeader, "Purchase Document Type From"::"Posted Credit Memo", PostedDocNo);
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         PurchHeader.Find;
@@ -1615,7 +1615,7 @@ codeunit 134328 "ERM Purchase Invoice"
         ReturnShptHeader.SetRange("Buy-from Vendor No.", VendorNo);
         ReturnShptHeader.FindFirst;
         LibraryVariableStorage.Enqueue(false);
-        CopyDocument(PurchHeader, DocType::"Posted Return Shipment", ReturnShptHeader."No.");
+        CopyDocument(PurchHeader, "Purchase Document Type From"::"Posted Return Shipment", ReturnShptHeader."No.");
         PurchHeader.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
@@ -1653,7 +1653,7 @@ codeunit 134328 "ERM Purchase Invoice"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run Copy Document from Purchase Quote to Purchase Document with Include Header = TRUE
-        CopyDocument(PurchHeaderDst, DocType::Quote, PurchHeaderSrc."No.");
+        CopyDocument(PurchHeaderDst, "Purchase Document Type From"::Quote, PurchHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         PurchHeaderDst.Find;
@@ -1690,7 +1690,7 @@ codeunit 134328 "ERM Purchase Invoice"
         VendorNoDst := LibraryPurchase.CreateVendorNo;
         CreatePurchaseHeaderWithPostingNo(PurchHeader1, VendorNoDst, LibraryRandom.RandInt(5), PostedDocNo);
         // [WHEN] Run Copy Document from Posted Purchase Invoice to Purchase Document with Include Header = TRUE
-        CopyDocument(PurchHeader1, DocType::"Posted Invoice", PostedDocNo);
+        CopyDocument(PurchHeader1, "Purchase Document Type From"::"Posted Invoice", PostedDocNo);
         PurchHeader1.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
@@ -1700,7 +1700,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchRcptHeader.SetRange("Buy-from Vendor No.", VendorNoSrc);
         PurchRcptHeader.FindFirst;
         CreatePurchaseHeaderWithPostingNo(PurchHeader2, VendorNoDst, LibraryRandom.RandInt(5), PostedDocNo);
-        CopyDocument(PurchHeader2, DocType::"Posted Receipt", PurchRcptHeader."No.");
+        CopyDocument(PurchHeader2, "Purchase Document Type From"::"Posted Receipt", PurchRcptHeader."No.");
         PurchHeader2.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
@@ -1737,7 +1737,7 @@ codeunit 134328 "ERM Purchase Invoice"
           PurchHeader1, LibraryPurchase.CreateVendorNo, LibraryRandom.RandInt(5), PostedDocNo);
 
         // [WHEN] Run Copy Document from Posted Purchase Cr. Memo to Purchase Document with Include Header = TRUE
-        CopyDocument(PurchHeader1, DocType::"Posted Credit Memo", PostedDocNo);
+        CopyDocument(PurchHeader1, "Purchase Document Type From"::"Posted Credit Memo", PostedDocNo);
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
         PurchHeader1.Find;
@@ -1749,7 +1749,7 @@ codeunit 134328 "ERM Purchase Invoice"
 
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", VendorNo);
         ReturnShipmentHeader.FindFirst;
-        CopyDocument(PurchHeader2, DocType::"Posted Return Shipment", ReturnShipmentHeader."No.");
+        CopyDocument(PurchHeader2, "Purchase Document Type From"::"Posted Return Shipment", ReturnShipmentHeader."No.");
         PurchHeader2.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
@@ -1784,7 +1784,7 @@ codeunit 134328 "ERM Purchase Invoice"
           LibraryUtility.GenerateRandomCode(PurchHeaderDst.FieldNo("Posting No."), DATABASE::"Purchase Header"));
 
         // [WHEN] Run Copy Document from Purchase Quote to Purchase Document with Include Header = TRUE
-        CopyDocument(PurchHeaderDst, DocType::Quote, PurchHeaderSrc."No.");
+        CopyDocument(PurchHeaderDst, "Purchase Document Type From"::Quote, PurchHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
         PurchHeaderDst.Find;
@@ -1825,7 +1825,7 @@ codeunit 134328 "ERM Purchase Invoice"
           PurchHeaderDst, PurchHeaderDst."Document Type"::Invoice, PurchHeaderSrc."Buy-from Vendor No.");
 
         // [WHEN] Run "Copy Purchase Document" report Invoice to Invoice with Include Header = FALSE and Recalculate Lines = FALSE
-        asserterror LibraryPurchase.CopyPurchaseDocument(PurchHeaderDst, DocType::Invoice, PurchHeaderSrc."No.", false, false);
+        asserterror LibraryPurchase.CopyPurchaseDocument(PurchHeaderDst, "Purchase Document Type From"::Invoice, PurchHeaderSrc."No.", false, false);
 
         // [THEN] Error thrown due to different VAT Business Groups in copied line and header
         Assert.ExpectedErrorCode(TestFieldTok);
@@ -2721,6 +2721,7 @@ codeunit 134328 "ERM Purchase Invoice"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purchase Invoice");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -2732,7 +2733,7 @@ codeunit 134328 "ERM Purchase Invoice"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Invoice");
     end;
 
-    local procedure CopyDocument(PurchHeader: Record "Purchase Header"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure CopyDocument(PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type From"; DocumentNo: Code[20])
     begin
         LibraryPurchase.CopyPurchaseDocument(PurchHeader, DocumentType, DocumentNo, true, false);
     end;
@@ -2815,7 +2816,7 @@ codeunit 134328 "ERM Purchase Invoice"
         exit(Item."No.");
     end;
 
-    local procedure CreateAndPostPurchaseInvoice(var PurchaseLine: Record "Purchase Line"; Type: Option; CurrencyCode: Code[10]; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    local procedure CreateAndPostPurchaseInvoice(var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; CurrencyCode: Code[10]; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         No: Code[20];
@@ -2838,7 +2839,7 @@ codeunit 134328 "ERM Purchase Invoice"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateAndPostSimplePurchaseDocument(DocType: Option; var VendorNo: Code[20]): Code[20]
+    local procedure CreateAndPostSimplePurchaseDocument(DocType: Enum "Purchase Document Type"; var VendorNo: Code[20]): Code[20]
     var
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
@@ -2887,7 +2888,7 @@ codeunit 134328 "ERM Purchase Invoice"
         FADepreciationBook.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentType: Option)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -2942,7 +2943,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchLineWithReturnAmt(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]): Decimal
+    local procedure CreatePurchLineWithReturnAmt(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]): Decimal
     begin
         // Take random values for Quantity and Unit Cost Amount greater than 100 needed to avoid rounding issue.
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, 10 + LibraryRandom.RandDec(10, 2));
@@ -2972,7 +2973,7 @@ codeunit 134328 "ERM Purchase Invoice"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreatePurchDocWithPricesInclVAT(var PurchHeader: Record "Purchase Header"; DocType: Option; VendNo: Code[20]; PricesInclVAT: Boolean)
+    local procedure CreatePurchDocWithPricesInclVAT(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; VendNo: Code[20]; PricesInclVAT: Boolean)
     begin
         with PurchHeader do begin
             LibraryPurchase.CreatePurchHeader(
@@ -3022,7 +3023,7 @@ codeunit 134328 "ERM Purchase Invoice"
         Vendor2.Modify(true);
     end;
 
-    local procedure CreatePurchaseInvoiceCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option): Decimal
+    local procedure CreatePurchaseInvoiceCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"): Decimal
     var
         VendorInvoiceDisc: Record "Vendor Invoice Disc.";
     begin
@@ -3091,7 +3092,7 @@ codeunit 134328 "ERM Purchase Invoice"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyFromVendorNo: Code[20]; PayToVendorNo: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20]; PayToVendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -3102,7 +3103,7 @@ codeunit 134328 "ERM Purchase Invoice"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, 0);  // Using 0 for Invoice Discount.
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; DocumentType: Option)
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -3141,7 +3142,7 @@ codeunit 134328 "ERM Purchase Invoice"
         VATPostingSetup.Insert();
     end;
 
-    local procedure DeletePurchaseLine(DocumentNo: Code[20]; Type: Option; ItemNo: Code[20])
+    local procedure DeletePurchaseLine(DocumentNo: Code[20]; Type: Enum "Purchase Line Type"; ItemNo: Code[20])
     var
         PurchLine: Record "Purchase Line";
     begin
@@ -3149,14 +3150,13 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchLine.Delete(true);
     end;
 
-    local procedure DueDateOnPurchaseDocumentAfterCopyDocument(PurchaseHeaderDocumentType: Option)
+    local procedure DueDateOnPurchaseDocumentAfterCopyDocument(PurchaseHeaderDocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseHeader2: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PaymentTerms: Record "Payment Terms";
         PurchaseInvoiceNo: Code[20];
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // Setup: Create and Post Purchase Order and Create Purchase Document.
         Initialize;
@@ -3167,7 +3167,7 @@ codeunit 134328 "ERM Purchase Invoice"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader2, PurchaseHeaderDocumentType, PurchaseHeader."Buy-from Vendor No.");
 
         // Exercise: Run Copy Purchase Document Report with Include Header,Recalculate Lines as True.
-        PurchaseCopyDocument(PurchaseHeader2, PurchaseInvoiceNo, DocumentType::"Posted Invoice", true);
+        PurchaseCopyDocument(PurchaseHeader2, PurchaseInvoiceNo, "Purchase Document Type From"::"Posted Invoice", true);
 
         // Verify: Verify Due Date on Purchase Header.
         VerifyDueDateOnPurchaseDocumentHeader(PurchaseHeader2, PaymentTerms."Due Date Calculation");
@@ -3189,7 +3189,7 @@ codeunit 134328 "ERM Purchase Invoice"
         GLEntry.FindFirst;
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
@@ -3197,7 +3197,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure FindPurchaseLineByType(var PurchLine: Record "Purchase Line"; DocumentNo: Code[20]; Type: Option; ItemNo: Code[20])
+    local procedure FindPurchaseLineByType(var PurchLine: Record "Purchase Line"; DocumentNo: Code[20]; Type: Enum "Purchase Line Type"; ItemNo: Code[20])
     begin
         PurchLine.SetRange("Document No.", DocumentNo);
         PurchLine.SetRange(Type, Type);
@@ -3205,7 +3205,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PurchLine.FindFirst;
     end;
 
-    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
         VendorLedgerEntry.CalcFields(Amount);
@@ -3293,12 +3293,12 @@ codeunit 134328 "ERM Purchase Invoice"
         OpenPurchaseInvoiceAndGetReceiptLine(PurchaseHeader."No.");
     end;
 
-    local procedure PurchaseCopyDocument(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20]; DocumentType: Option; ReCalculateLines: Boolean)
+    local procedure PurchaseCopyDocument(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type From"; ReCalculateLines: Boolean)
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
     begin
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-        CopyPurchaseDocument.InitializeRequest(DocumentType, DocumentNo, true, ReCalculateLines);
+        CopyPurchaseDocument.SetParameters(DocumentType, DocumentNo, true, ReCalculateLines);
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.Run;
     end;

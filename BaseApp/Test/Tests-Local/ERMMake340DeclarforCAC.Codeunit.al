@@ -24,7 +24,6 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        PayForDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill;
         NoRecordsInDeclErr: Label 'No records were found to be included in the declaration';
         WrongOperationCodeErr: Label 'Operation Code must not be %1 in 340 Declaration Line Key=''%2';
         WrongTotalNoOfRecsErr: Label 'Wrong total no. of records';
@@ -65,7 +64,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         InvoiceDocNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", ReferenceDate, Amount);
         // [GIVEN] and fully paid by Payment in cash (to a G/L Account)
         ApplyAndPostPayment(
-          InvoiceDocNo, Customer."No.", GLAccount."No.", Amount, GenJournalLine."Account Type"::Customer, 0, ReferenceDate);
+          InvoiceDocNo, Customer."No.", GLAccount."No.", Amount, GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReportWithGLAcc(ReferenceDate, GLAccount."No.");
@@ -108,7 +107,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [GIVEN] CAC Service Invoice 'SERV.INV' is posted and fully paid by Payment 'PMT'
         CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
         ServiceInvNo := Library340347Declaration.CreateAndPostServiceInvoice(VATPostingSetup, CustomerNo, WorkDate, Amount);
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, PayForDocType::Invoice, ServiceInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, "Gen. Journal Document Type"::Invoice, ServiceInvNo, WorkDate, Amount);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(WorkDate);
@@ -146,7 +145,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         PurchaseInvNo :=
           Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, VendorNo, WorkDate, Amount, ExtPurchaseInvNo);
         // [GIVEN] and fully paid by Payment 'PMT'
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, PayForDocType::Invoice, PurchaseInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, "Gen. Journal Document Type"::Invoice, PurchaseInvNo, WorkDate, Amount);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(WorkDate);
@@ -180,7 +179,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [GIVEN] CAC Service Invoice is posted and fully paid by Payment
         CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
         ServiceInvNo := Library340347Declaration.CreateAndPostServiceInvoice(VATPostingSetup, CustomerNo, WorkDate, Amount);
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, PayForDocType::Invoice, ServiceInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, "Gen. Journal Document Type"::Invoice, ServiceInvNo, WorkDate, Amount);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(WorkDate);
@@ -228,7 +227,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [GIVEN] Invoice is partially paid in next month
         Amount := Amount - LibraryRandom.RandIntInRange(1, 10);
         WorkDate(CalcDate('<+1M>', WorkDate));
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, PayForDocType::Invoice, PurchaseInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, "Gen. Journal Document Type"::Invoice, PurchaseInvNo, WorkDate, Amount);
 
         // [GIVEN] Bank Account's account info is blank
         SavedBankCCCNo := DeleteBankAccountsInfo(FindBancAccountUsed(false, VendorNo));
@@ -277,7 +276,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         ExpectedPmtMethod := SalesInvHeader."Payment Method Code";
         // [GIVEN] CAC Invoice is paid in the next period
         WorkDate(CalcDate('<+1M>', WorkDate));
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, PayForDocType::Invoice, SalesInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, "Gen. Journal Document Type"::Invoice, SalesInvNo, WorkDate, Amount);
 
         // [GIVEN] Bank Account's account info is blank
         SavedBankCCCNo := DeleteBankAccountsInfo(FindBancAccountUsed(true, CustomerNo));
@@ -325,7 +324,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [GIVEN] CAC Invoice is partially paid in the next period
         Amount := Amount - LibraryRandom.RandIntInRange(1, 10);
         WorkDate(CalcDate('<+1M>', WorkDate));
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, PayForDocType::Invoice, PurchaseInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, "Gen. Journal Document Type"::Invoice, PurchaseInvNo, WorkDate, Amount);
         // [GIVEN] 'CCC No.' and 'Bank Account No.' are empty on the Bank Account
         BankAccount.Get(FindBancAccountUsed(false, VendorNo));
         BankAccount."Bank Account No." := '';
@@ -375,7 +374,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [GIVEN] CAC Invoice is partially paid in the next period
         Amount := Amount - LibraryRandom.RandIntInRange(1, 10);
         WorkDate(CalcDate('<+1M>', WorkDate));
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, PayForDocType::Invoice, PurchaseInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, "Gen. Journal Document Type"::Invoice, PurchaseInvNo, WorkDate, Amount);
 
         // [GIVEN] 'CCC No.' and 'IBAN' are empty on the Bank Account
         BankAccount.Get(FindBancAccountUsed(false, VendorNo));
@@ -453,7 +452,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [GIVEN] CAC Invoice is partially paid in the next period
         Amount := Amount - LibraryRandom.RandIntInRange(1, 10);
         WorkDate(CalcDate('<+1M>', WorkDate));
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, PayForDocType::Invoice, PurchaseInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, "Gen. Journal Document Type"::Invoice, PurchaseInvNo, WorkDate, Amount);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(WorkDate);
@@ -490,7 +489,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
 
         // [GIVEN] CAC Invoice is fully paid in the next period
         WorkDate(CalcDate('<+1M>', WorkDate));
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, PayForDocType::Invoice, PurchaseInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, "Gen. Journal Document Type"::Invoice, PurchaseInvNo, WorkDate, Amount);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(WorkDate);
@@ -585,7 +584,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         CrMemoNo := Library340347Declaration.CreateAndPostPurchaseCrMemo(VATPostingSetup, VendorNo, WorkDate, Amount, ExternalCrMemoNo, '');
         // [GIVEN] Credit Memo is paid by Refund in the next month
         WorkDate(CalcDate('<+1M>', WorkDate));
-        RefundNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, PayForDocType::"Credit Memo", CrMemoNo, WorkDate, -Amount);
+        RefundNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, "Gen. Journal Document Type"::"Credit Memo", CrMemoNo, WorkDate, -Amount);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(WorkDate);
@@ -618,7 +617,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         CrMemoNo := Library340347Declaration.CreateAndPostPurchaseCrMemo(VATPostingSetup, VendorNo, WorkDate, Amount, ExternalCrMemoNo, '');
         // [GIVEN] Credit Memo is paid by Refund in the next month
         WorkDate(CalcDate('<+1M>', WorkDate));
-        Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, PayForDocType::"Credit Memo", CrMemoNo, WorkDate, -Amount);
+        Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, "Gen. Journal Document Type"::"Credit Memo", CrMemoNo, WorkDate, -Amount);
         // [GIVEN] Refund is unapplied in the same month
         VendLedgEntry.FindLast;
         LibraryERM.UnapplyVendorLedgerEntry(VendLedgEntry);
@@ -689,7 +688,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [GIVEN] Invoice is partially paid by Payment in the next period
         Amount := Round(Amount * 0.3);
         WorkDate(CalcDate('<+1M>', WorkDate));
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, PayForDocType::Invoice, SalesInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, "Gen. Journal Document Type"::Invoice, SalesInvNo, WorkDate, Amount);
         Commit();
 
         // [WHEN] Export by report 'Make 340 Declaration'
@@ -724,7 +723,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
 
         // [GIVEN] Invoice is fully paid by Payment in the next period
         WorkDate(CalcDate('<+1M>', WorkDate));
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, PayForDocType::Invoice, SalesInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, "Gen. Journal Document Type"::Invoice, SalesInvNo, WorkDate, Amount);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(WorkDate);
@@ -760,7 +759,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [GIVEN] Invoice is fully paid by Payment
         PaymentNo :=
           Library340347Declaration.CreateAndPostPaymentForSI(
-            CustomerNo, PayForDocType::Invoice, SalesInvNo, WorkDate, Amount[1] + Amount[2]);
+            CustomerNo, "Gen. Journal Document Type"::Invoice, SalesInvNo, WorkDate, Amount[1] + Amount[2]);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(WorkDate);
@@ -797,7 +796,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         SalesInvNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, CustomerNo, WorkDate, Amount);
         // [GIVEN] Invoice is fully paid in next month
         WorkDate(CalcDate('<+1M>', WorkDate));
-        Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, PayForDocType::Invoice, SalesInvNo, WorkDate, Amount);
+        Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, "Gen. Journal Document Type"::Invoice, SalesInvNo, WorkDate, Amount);
         // [GIVEN] Payment is unapplied in the same period
         CustLedgerEntry.FindLast;
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
@@ -962,7 +961,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [GIVEN] Credit Memo is paid by Refund
         WorkDate(CalcDate('<+1M>', WorkDate));
         RefundNo :=
-          Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, PayForDocType::"Credit Memo", CrMemoNo, WorkDate, -Amount);
+          Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, "Gen. Journal Document Type"::"Credit Memo", CrMemoNo, WorkDate, -Amount);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(WorkDate);
@@ -1006,7 +1005,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
 
         // [GIVEN] Posted Payment (Doc No.='PMT') on 28.01 with Amount=-700 and applied to Invoice.
         PostingDate := CalcDate('<+7D>', PostingDate);
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, PayForDocType::Invoice, SalesInvNo, PostingDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, "Gen. Journal Document Type"::Invoice, SalesInvNo, PostingDate, Amount);
 
         // [WHEN] Export by report 'Make 340 Declaration' for Month 01
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(PostingDate);
@@ -1057,7 +1056,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
 
         // [GIVEN] Invoice is fully paid by Payment. 'Posting Date' = 25.02.14
         PaymentNo :=
-          Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, PayForDocType::Invoice, SalesInvNo, PayPostingDate, Amount);
+          Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, "Gen. Journal Document Type"::Invoice, SalesInvNo, PayPostingDate, Amount);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(PayPostingDate);
@@ -1444,7 +1443,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
         SalesInvNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, CustomerNo, WorkDate, Amount);
         // [GIVEN] and paid by Payment
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, PayForDocType::Invoice, SalesInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForSI(CustomerNo, "Gen. Journal Document Type"::Invoice, SalesInvNo, WorkDate, Amount);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(WorkDate);
@@ -1478,7 +1477,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         VendorNo := CreateVendor(VATPostingSetup."VAT Bus. Posting Group");
         PurchInvNo := Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, VendorNo, WorkDate, Amount, ExtPurchaseInvNo);
         // [GIVEN] and paid by Payment
-        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, PayForDocType::Invoice, PurchInvNo, WorkDate, Amount);
+        PaymentNo := Library340347Declaration.CreateAndPostPaymentForPI(VendorNo, "Gen. Journal Document Type"::Invoice, PurchInvNo, WorkDate, Amount);
 
         // [WHEN] Export by report 'Make 340 Declaration'
         ExportFileName := Library340347Declaration.RunMake340DeclarationReport(WorkDate);
@@ -2360,7 +2359,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         CarteraDoc.ModifyAll("Bill Gr./Pmt. Order No.", PmtOrderBillGrDocNo);
     end;
 
-    local procedure CreatePurchHeader(var PurchHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; PostingDate: Date)
+    local procedure CreatePurchHeader(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PostingDate: Date)
     begin
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, VendorNo);
         PurchHeader.Validate("Prices Including VAT", true);
@@ -2456,7 +2455,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         VendLedgEntry.CalcFields("Remaining Amount");
         exit(
           Library340347Declaration.CreateAndPostPaymentForPI(
-            VendLedgEntry."Vendor No.", PayForDocType::Invoice, InvoiceNo,
+            VendLedgEntry."Vendor No.", "Gen. Journal Document Type"::Invoice, InvoiceNo,
             VendLedgEntry."Posting Date" + 1, -VendLedgEntry."Remaining Amount"));
     end;
 
@@ -2469,7 +2468,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         CustLedgerEntry.CalcFields("Remaining Amount");
         exit(
           Library340347Declaration.CreateAndPostPaymentForSI(
-            CustLedgerEntry."Customer No.", PayForDocType::Invoice, InvoiceNo,
+            CustLedgerEntry."Customer No.", "Gen. Journal Document Type"::Invoice, InvoiceNo,
             CustLedgerEntry."Posting Date" + 1, CustLedgerEntry."Remaining Amount"));
     end;
 
@@ -2530,7 +2529,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         TempTest340DeclarationLineBuf.Modify();
     end;
 
-    local procedure ApplyAndPostPayment(InvoiceDocNo: Code[20]; AccountNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal; AccountType: Option; GenPostingType: Option; PostingDate: Date)
+    local procedure ApplyAndPostPayment(InvoiceDocNo: Code[20]; AccountNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type"; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2572,7 +2571,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
             Test340DeclarationLineBuf."Entry No." += 1;
             Test340DeclarationLineBuf."CV No." := "Customer No.";
             Test340DeclarationLineBuf."Posting Date" := "Posting Date";
-            Test340DeclarationLineBuf."Document Type" := "Document Type";
+            Test340DeclarationLineBuf."Document Type" := "Document Type".AsInteger();
             Test340DeclarationLineBuf."Document No." := "Document No.";
             Test340DeclarationLineBuf."VAT Document No." := VATDocumentNo;
             Test340DeclarationLineBuf."Operation Code" := OperationCode;
@@ -2597,7 +2596,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
             Test340DeclarationLineBuf."Entry No." += 1;
             Test340DeclarationLineBuf."CV No." := "Vendor No.";
             Test340DeclarationLineBuf."Posting Date" := "Posting Date";
-            Test340DeclarationLineBuf."Document Type" := "Document Type";
+            Test340DeclarationLineBuf."Document Type" := "Document Type".AsInteger();
             Test340DeclarationLineBuf."Document No." := "Document No.";
             Test340DeclarationLineBuf."VAT Document No." := VATDocumentNo;
             Test340DeclarationLineBuf."Operation Code" := OperationCode;
@@ -2637,7 +2636,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         VendLedgEntry.FindFirst;
     end;
 
-    local procedure UpdateDirectUnitCostOnPurchLine(DocumentNo: Code[20]; DocumentType: Option; DirectUnitCost: Decimal)
+    local procedure UpdateDirectUnitCostOnPurchLine(DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; DirectUnitCost: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin

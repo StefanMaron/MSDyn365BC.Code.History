@@ -86,7 +86,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         VATEntryGLEntryAmountsOnPostedSalesDocument(SalesHeader."Document Type"::Invoice);
     end;
 
-    local procedure VATEntryGLEntryAmountsOnPostedSalesDocument(DocumentType: Option)
+    local procedure VATEntryGLEntryAmountsOnPostedSalesDocument(DocumentType: Enum "Sales Document Type")
     var
         GeneralPostingSetup: Record "General Posting Setup";
         SalesHeader: Record "Sales Header";
@@ -864,7 +864,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         GeneralPostingSetup.Modify(true);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -908,7 +908,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateSalesCreditMemo(var SalesLine: Record "Sales Line"; VATCalculationType: Option; CurrencyCode: Code[10]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateSalesCreditMemo(var SalesLine: Record "Sales Line"; VATCalculationType: Enum "Tax Calculation Type"; CurrencyCode: Code[10]; Quantity: Decimal; UnitPrice: Decimal)
     var
         GeneralPostingSetup: Record "General Posting Setup";
         SalesHeader: Record "Sales Header";
@@ -930,7 +930,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     var
         GLAccount: Record "G/L Account";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
@@ -948,7 +948,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure CreateAndPostSalesDocumentWithMultipleLine(var SalesLine: Record "Sales Line"; DocumentType: Option): Code[20]
+    local procedure CreateAndPostSalesDocumentWithMultipleLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -985,7 +985,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         exit(SalesLine."Amount Including VAT");
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; CurrencyCode: Code[10])
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1004,7 +1004,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithPriceInclVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; LineType: Option; LineNo: Code[20]; PricesInclVAT: Boolean; PrepmtPct: Decimal)
+    local procedure CreateSalesDocumentWithPriceInclVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; LineType: Enum "Sales Line Type"; LineNo: Code[20]; PricesInclVAT: Boolean; PrepmtPct: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Prepayment %", PrepmtPct);
@@ -1039,7 +1039,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         end;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         with SalesLine do begin
             SetRange("Document Type", DocumentType);
@@ -1107,7 +1107,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         PostedSalesInvoice.Close;
     end;
 
-    local procedure RunOrderConfirmationReport(DocumentType: Option; DocumentNo: Code[20])
+    local procedure RunOrderConfirmationReport(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1216,7 +1216,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
     end;
 
-    local procedure VerifyVATAndGLEntry(DocumentType: Option Quote,"Order",Invoice,"Credit Memo"; DocumentNo: Code[20]; GLAccount: Code[20]; Base: Decimal; AdditionalCurrencyAmount: Decimal; VATPct: Decimal)
+    local procedure VerifyVATAndGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccount: Code[20]; Base: Decimal; AdditionalCurrencyAmount: Decimal; VATPct: Decimal)
     begin
         if DocumentType = DocumentType::"Credit Memo" then
             Base := -Base;

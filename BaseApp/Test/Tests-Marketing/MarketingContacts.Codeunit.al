@@ -23,6 +23,7 @@ codeunit 136201 "Marketing Contacts"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         RelationErrorServiceTier: Label '%1 must have a value in %2: Primary Key=. It cannot be zero or empty.';
         ValidationError: Label '%1: %2 must exist.';
@@ -2642,17 +2643,40 @@ codeunit 136201 "Marketing Contacts"
     [Test]
     [HandlerFunctions('ContactListModalPageHandler,ConfirmHandlerTrue,CustomerTempModalFormHandler,EmailVerifyModalPageHandler')]
     [Scope('OnPrem')]
+    procedure SalesQuoteEmailDialogForContactSMTPSetup() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        SalesQuoteEmailDialogForContactInternal();
+    end;
+
+    // [Test]
+    [HandlerFunctions('ContactListModalPageHandler,ConfirmHandlerTrue,CustomerTempModalFormHandler,EmailEditorHandler,CloseEmailEditorHandler')]
+    [Scope('OnPrem')]
     procedure SalesQuoteEmailDialogForContact()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        SalesQuoteEmailDialogForContactInternal();
+    end;
+
+    procedure SalesQuoteEmailDialogForContactInternal()
     var
         Contact: Record Contact;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
         GenProductPostingGroup: Record "Gen. Product Posting Group";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        EmailFeature: Codeunit "Email Feature";
         SalesQuote: TestPage "Sales Quote";
     begin
         // [SCENARIO 199641] Email Dialog shows Contact Email when Sales Quote created for Contact
         Initialize;
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount();
         UpdateCompanyInformationPaymentInfo(true);
 
         // [GIVEN] Customer Template "CT", Contact "C" with type Company and Email "Email"
@@ -4061,7 +4085,7 @@ codeunit 136201 "Marketing Contacts"
     procedure CreateContsFromCustomersDoNotCreatePersonContactForCustWithBlankContact()
     var
         Customer: Record Customer;
-        ContactType: Option Company,Person;
+        ContactType: Enum "Contact Type";
     begin
         // [FEATURE] [Create Contacts from Customers]
         // [SCENARIO 287705] Report "Create Contacts from Customers" doesn't create Person Contact in case Customer has <blank> Contact field
@@ -4090,7 +4114,7 @@ codeunit 136201 "Marketing Contacts"
     procedure CreateContsFromVendorsDoNotCreatePersonContactForVendWithBlankContact()
     var
         Vendor: Record Vendor;
-        ContactType: Option Company,Person;
+        ContactType: Enum "Contact Type";
     begin
         // [FEATURE] [Create Contacts from Vendors]
         // [SCENARIO 287705] Report "Create Contacts from Vendors" doesn't create Person Contact in case Vendor has <blank> Contact field
@@ -4367,6 +4391,93 @@ codeunit 136201 "Marketing Contacts"
         TableRelationsMetadata.TestField("Condition Type", TableRelationsMetadata."Condition Type"::CONST);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateContactMobilePhoneNoFromCustomer()
+    var
+        Customer: Record Customer;
+        PersonContact: Record Contact;
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [FEATURE] [Customer] [UI]
+        // [SCENARIO 365063] Contact."Mobile Phone No." field updated when "Mobile Phone No." is changed on related customer
+        Initialize();
+
+        // [GIVEN] Customer "C" with Contact "CONT"
+        CreateCustomerWithSetupBusinessRelation(Customer);
+        LibraryMarketing.CreatePersonContactWithCompanyNo(PersonContact);
+        Customer.Validate("Primary Contact No.", PersonContact."No.");
+        Customer.Modify();
+
+        // [WHEN] Customer "C" mobile phone number is being changed to "111" in the customer card page
+        CustomerCard.OpenEdit();
+        CustomerCard.Filter.SetFilter("No.", Customer."No.");
+        CustomerCard.MobilePhoneNo.SetValue(CopyStr(LibraryUtility.GenerateRandomNumericText(20), 1, MaxStrLen(Customer."Mobile Phone No.")));
+        CustomerCard.OK().Invoke();
+
+        // [THEN] Contact "CONT" has same phone number "111"
+        PersonContact.Find();
+        Customer.Find();
+        PersonContact.TestField("Mobile Phone No.", Customer."Mobile Phone No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateContactMobilePhoneNoFromVendor()
+    var
+        Vendor: Record Vendor;
+        PersonContact: Record Contact;
+        VendorCard: TestPage "Vendor Card";
+    begin
+        // [FEATURE] [Vendor] [UI]
+        // [SCENARIO 365063] Contact."Mobile Phone No." field updated when "Mobile Phone No." is changed on related vendor
+        Initialize();
+
+        // [GIVEN] Vendor "V" with Contact "CONT"
+        CreateVendorWithSetupBusinessRelation(Vendor);
+        LibraryMarketing.CreatePersonContactWithCompanyNo(PersonContact);
+        Vendor.Validate("Primary Contact No.", PersonContact."No.");
+        Vendor.Modify();
+
+        // [WHEN] Vendor "V" mobile phone number is being changed to "111" in the vendor card page
+        VendorCard.OpenEdit();
+        VendorCard.Filter.SetFilter("No.", Vendor."No.");
+        VendorCard.MobilePhoneNo.SetValue(CopyStr(LibraryUtility.GenerateRandomNumericText(20), 1, MaxStrLen(Vendor."Mobile Phone No.")));
+        VendorCard.OK().Invoke();
+
+        // [THEN] Contact "CONT" has same phone number "111"
+        PersonContact.Find();
+        Vendor.Find();
+        PersonContact.TestField("Mobile Phone No.", Vendor."Mobile Phone No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateContactMobilePhoneNoFromBankAccount()
+    var
+        BankAccount: Record "Bank Account";
+        Contact: Record Contact;
+        BankAccountCard: TestPage "Bank Account Card";
+    begin
+        // [FEATURE] [Bank Account] [UI]
+        // [SCENARIO 365063] Contact."Mobile Phone No." field updated when "Mobile Phone No." is changed on related bank account
+        Initialize();
+
+        // [GIVEN] BankAccount "B" with Contact "CONT"
+        CreateBankAccountWithSetupBusinessRelation(BankAccount, Contact);
+
+        // [WHEN] Bank account "B" mobile phone number is being changed to "111" in the bank account card page
+        BankAccountCard.OpenEdit();
+        BankAccountCard.Filter.SetFilter("No.", BankAccount."No.");
+        BankAccountCard.MobilePhoneNo.SetValue(CopyStr(LibraryUtility.GenerateRandomNumericText(20), 1, MaxStrLen(BankAccount."Mobile Phone No.")));
+        BankAccountCard.OK().Invoke();
+
+        // [THEN] Contact "CONT" has same phone number "111"
+        Contact.Find();
+        BankAccount.Find();
+        Contact.TestField("Mobile Phone No.", BankAccount."Mobile Phone No.");
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -4381,6 +4492,7 @@ codeunit 136201 "Marketing Contacts"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Contacts");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
@@ -4639,6 +4751,19 @@ codeunit 136201 "Marketing Contacts"
         ChangeBusinessRelationCodeForVendors(BusinessRelation.Code);
     end;
 
+    local procedure CreateBankAccountWithSetupBusinessRelation(var BankAccount: Record "Bank Account"; var Contact: Record Contact)
+    var
+        BusinessRelation: Record "Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        ChangeBusinessRelationCodeForBankAccount(BusinessRelation.Code);
+        LibraryERM.CreateBankAccount(BankAccount);
+        FindContactBusinessRelation(
+            ContactBusinessRelation, BusinessRelation.Code, "Contact Business Relation Link To Table"::"Bank Account", BankAccount."No.");
+        Contact.Get(ContactBusinessRelation."Contact No.");
+    end;
+
     local procedure CreateSegmentLine(var SegmentLine: Record "Segment Line"; AttachmentNo: Integer)
     begin
         with SegmentLine do begin
@@ -4755,7 +4880,7 @@ codeunit 136201 "Marketing Contacts"
         CustomerTemplate.DeleteAll();
     end;
 
-    local procedure FindContactBusinessRelation(var ContactBusinessRelation: Record "Contact Business Relation"; BusinessRelationCode: Code[20]; LinkToTable: Option; No: Code[20])
+    local procedure FindContactBusinessRelation(var ContactBusinessRelation: Record "Contact Business Relation"; BusinessRelationCode: Code[20]; LinkToTable: Enum "Contact Business Relation Link To Table"; No: Code[20])
     begin
         ContactBusinessRelation.SetRange("Business Relation Code", BusinessRelationCode);
         ContactBusinessRelation.SetRange("Link to Table", LinkToTable);
@@ -4773,7 +4898,7 @@ codeunit 136201 "Marketing Contacts"
         exit(ContactBusinessRelation."No.");
     end;
 
-    local procedure GetBusinessRelationCodeFromSetup(LinkToTable: Option): Code[10]
+    local procedure GetBusinessRelationCodeFromSetup(LinkToTable: Enum "Contact Business Relation Link To Table"): Code[10]
     var
         MarketingSetup: Record "Marketing Setup";
         ContactBusinessRelation: Record "Contact Business Relation";
@@ -4953,7 +5078,7 @@ codeunit 136201 "Marketing Contacts"
         Contact.TestField("Language Code", ContactLanguageCode);
     end;
 
-    local procedure VerifyContact(ContactNo: Code[20]; ContactType: Option; ContactName: Text[100]; ContactPhoneNo: Text[30])
+    local procedure VerifyContact(ContactNo: Code[20]; ContactType: Enum "Contact Type"; ContactName: Text[100]; ContactPhoneNo: Text[30])
     var
         Contact: Record Contact;
     begin
@@ -4998,7 +5123,7 @@ codeunit 136201 "Marketing Contacts"
         Assert.ExpectedError(StrSubstNo(RelationErrorServiceTier, FieldCaptionOfMarketingField, TableCaptionOfTable));
     end;
 
-    local procedure VerifyContactBusinessRelationForLinkTableAndContact(ContactNo: Code[20]; LinkNo: Code[20]; LinkToTable: Option)
+    local procedure VerifyContactBusinessRelationForLinkTableAndContact(ContactNo: Code[20]; LinkNo: Code[20]; LinkToTable: Enum "Contact Business Relation Link To Table")
     var
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
@@ -5008,7 +5133,7 @@ codeunit 136201 "Marketing Contacts"
         Assert.RecordIsNotEmpty(ContactBusinessRelation);
     end;
 
-    local procedure VerifyNoContactBusinessRelationForLinkTableAndContact(ContactNo: Code[20]; LinkNo: Code[20]; LinkToTable: Option)
+    local procedure VerifyNoContactBusinessRelationForLinkTableAndContact(ContactNo: Code[20]; LinkNo: Code[20]; LinkToTable: Enum "Contact Business Relation Link To Table")
     var
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
@@ -5018,7 +5143,7 @@ codeunit 136201 "Marketing Contacts"
         Assert.RecordIsEmpty(ContactBusinessRelation);
     end;
 
-    local procedure VerifyContactBusinessRelationHasNoBlankValue(LinkToTable: Option)
+    local procedure VerifyContactBusinessRelationHasNoBlankValue(LinkToTable: Enum "Contact Business Relation Link To Table")
     var
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
@@ -5027,7 +5152,7 @@ codeunit 136201 "Marketing Contacts"
         Assert.RecordIsEmpty(ContactBusinessRelation);
     end;
 
-    local procedure VerifyContactNotExistWithCompanyNo(CompanyNo: Code[20]; ContactType: Integer)
+    local procedure VerifyContactNotExistWithCompanyNo(CompanyNo: Code[20]; ContactType: Enum "Contact Type")
     var
         Contact: Record Contact;
     begin
@@ -5245,6 +5370,20 @@ codeunit 136201 "Marketing Contacts"
     procedure EmailVerifyModalPageHandler(var EmailDialog: TestPage "Email Dialog")
     begin
         EmailDialog.SendTo.AssertEquals(LibraryVariableStorage.DequeueText);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure EmailEditorHandler(var EmailEditor: TestPage "Email Editor")
+    begin
+        EmailEditor.ToField.AssertEquals(LibraryVariableStorage.DequeueText);
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CloseEmailEditorHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;
     end;
 
     [ModalPageHandler]

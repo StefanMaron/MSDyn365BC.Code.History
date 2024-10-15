@@ -9,7 +9,6 @@ codeunit 10751 "SII Job Management"
         JobQueueManagement: Codeunit "Job Queue Management";
         JobQueueEntryStartedTxt: Label 'The job queue entry for detection of missing SII entries has started.';
 
-    [Scope('OnPrem')]
     procedure RenewJobQueueEntry(JobType: Option HandlePending,HandleCommError,InitialUpload)
     var
         TempJobQueueEntry: Record "Job Queue Entry" temporary;

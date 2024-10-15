@@ -577,7 +577,7 @@ page 303 "Vendor Entry Statistics"
         VendLedgEntry2.SetRange(Open, true);
         if VendLedgEntry2.Find('+') then
             repeat
-                j := VendLedgEntry2."Document Type";
+                j := VendLedgEntry2."Document Type".AsInteger();
                 if j > 0 then begin
                     VendLedgEntry2.CalcFields("Remaining Amt. (LCY)");
                     TotalRemainAmountLCY[j] := TotalRemainAmountLCY[j] + VendLedgEntry2."Remaining Amt. (LCY)";
@@ -595,7 +595,7 @@ page 303 "Vendor Entry Statistics"
             VendLedgEntry2.SetFilter("Posting Date", VendDateFilter[i]);
             if VendLedgEntry2.Find('+') then
                 repeat
-                    j := VendLedgEntry2."Document Type";
+                    j := VendLedgEntry2."Document Type".AsInteger();
                     if j > 0 then
                         NoOfDoc[i] [j] := NoOfDoc[i] [j] + 1;
 

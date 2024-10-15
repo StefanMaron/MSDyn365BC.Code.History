@@ -1218,7 +1218,7 @@ report 10707 "Make 347 Declaration"
         until VATEntry.Next = 0;
     end;
 
-    local procedure FilterVATEntry(var VATEntry: Record "VAT Entry"; PostingDate: Date; DocumentType: Integer; DocumentNo: Code[20]; IsCustomer: Boolean)
+    local procedure FilterVATEntry(var VATEntry: Record "VAT Entry"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; IsCustomer: Boolean)
     begin
         VATEntry.Reset();
         VATEntry.SetCurrentKey(Type, "Posting Date", "Document No.", "Country/Region Code");
@@ -1324,19 +1324,21 @@ report 10707 "Make 347 Declaration"
         exit(false);
     end;
 
-    local procedure CheckSalesNoTaxableEntriesExist(CustomerNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date): Boolean
+    local procedure CheckSalesNoTaxableEntriesExist(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PostingDate: Date): Boolean
     var
         NoTaxableEntry: Record "No Taxable Entry";
     begin
-        NoTaxableEntry.FilterNoTaxableEntry(NoTaxableEntry.Type::Sale, CustomerNo, DocumentType, DocumentNo, PostingDate, false);
+        NoTaxableEntry.FilterNoTaxableEntry(
+            "General Posting Type"::Sale.AsInteger(), CustomerNo, DocumentType.AsInteger(), DocumentNo, PostingDate, false);
         exit(not NoTaxableEntry.IsEmpty);
     end;
 
-    local procedure CheckPurchNoTaxableEntriesExist(VendorNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date): Boolean
+    local procedure CheckPurchNoTaxableEntriesExist(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; PostingDate: Date): Boolean
     var
         NoTaxableEntry: Record "No Taxable Entry";
     begin
-        NoTaxableEntry.FilterNoTaxableEntry(NoTaxableEntry.Type::Purchase, VendorNo, DocumentType, DocumentNo, PostingDate, false);
+        NoTaxableEntry.FilterNoTaxableEntry(
+            "General Posting Type"::Purchase.AsInteger(), VendorNo, DocumentType.AsInteger(), DocumentNo, PostingDate, false);
         exit(not NoTaxableEntry.IsEmpty);
     end;
 

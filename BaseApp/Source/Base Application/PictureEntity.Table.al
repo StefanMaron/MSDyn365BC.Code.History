@@ -33,6 +33,12 @@ table 5468 "Picture Entity"
             Caption = 'Content';
             DataClassification = SystemMetadata;
         }
+        field(21; "Parent Type"; Enum "Picture Entity Parent Type")
+        {
+            Caption = 'Parent Type';
+            DataClassification = SystemMetadata;
+            Editable = false;
+        }
     }
 
     keys
@@ -51,6 +57,8 @@ table 5468 "Picture Entity"
         IdNotProvidedErr: Label 'You must specify a resource ID to get the picture.', Locked = true;
         RequestedRecordDoesNotExistErr: Label 'No resource with the specified ID exists.', Locked = true;
         RequestedRecordIsNotSupportedErr: Label 'Images are not supported for requested entity - %1.', Locked = true;
+        EntityNotSupportedErr: Label 'Given parent type is not supported.';
+        MultipleParentsFoundErr: Label 'Multiple parents have been found for the specified criteria.';
 
     [Scope('OnPrem')]
     procedure LoadData(IdFilter: Text)
@@ -62,6 +70,17 @@ table 5468 "Picture Entity"
         Id := IntegrationRecord."Integration ID";
 
         MediaID := GetMediaID(IntegrationRecord);
+        SetValuesFromMediaID(MediaID);
+    end;
+
+    [Scope('OnPrem')]
+    procedure LoadDataWithParentType(IdFilter: Text; ParentType: Enum "Picture Entity Parent Type")
+    var
+        MediaID: Guid;
+    begin
+        Id := IdFilter;
+        "Parent Type" := ParentType;
+        MediaID := GetMediaIDWithParentType(Id, ParentType);
         SetValuesFromMediaID(MediaID);
     end;
 
@@ -112,11 +131,55 @@ table 5468 "Picture Entity"
             else begin
                     OnSavePictureElseCase(IntegrationRecord, IsHandled);
                     if not IsHandled then
-                        ThrowEntityNotSupportedError(IntegrationRecord);
+                        ThrowEntityNotSupportedError(IntegrationRecord."Table ID");
                 end;
         end;
 
         LoadData(StrSubstNo('=%1', Id));
+    end;
+
+    [Scope('OnPrem')]
+    procedure SavePictureWithParentType()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Employee: Record Employee;
+        ImageInStream: InStream;
+    begin
+        Content.CreateInStream(ImageInStream);
+
+        case "Parent Type" of
+            "Parent Type"::Item:
+                if Item.GetBySystemId(Id) then begin
+                    Clear(Item.Picture);
+                    Item.Picture.ImportStream(ImageInStream, GetDefaultMediaDescription(Item));
+                    Item.Modify(true);
+                end;
+            "Parent Type"::Customer:
+                if Customer.GetBySystemId(Id) then begin
+                    Clear(Customer.Image);
+                    Customer.Image.ImportStream(ImageInStream, GetDefaultMediaDescription(Customer));
+                    Customer.Modify(true);
+                end;
+            "Parent Type"::Vendor:
+                if Vendor.GetBySystemId(Id) then begin
+                    Clear(Vendor.Image);
+                    Vendor.Image.ImportStream(ImageInStream, GetDefaultMediaDescription(Vendor));
+                    Vendor.Modify(true);
+                end;
+            "Parent Type"::Employee:
+                if Employee.GetBySystemId(Id) then begin
+                    Clear(Employee.Image);
+                    Employee.Image.ImportStream(
+                      ImageInStream, GetDefaultMediaDescription(Employee));
+                    Employee.Modify(true);
+                end;
+            else
+                Error(EntityNotSupportedErr);
+        end;
+
+        LoadDataWithParentType(Format(Id), "Parent Type");
     end;
 
     procedure DeletePicture()
@@ -159,12 +222,82 @@ table 5468 "Picture Entity"
                     IsHandled := false;
                     OnDeletePictureElseCase(IntegrationRecord, IsHandled);
                     if not IsHandled then
-                        ThrowEntityNotSupportedError(IntegrationRecord);
+                        ThrowEntityNotSupportedError(IntegrationRecord."Table ID");
                 end;
         end;
 
         Clear(Rec);
         Id := IntegrationRecord."Integration ID";
+    end;
+
+    procedure DeletePictureWithParentType()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Employee: Record Employee;
+        TempId: Guid;
+        TempParentType: Enum "Picture Entity Parent Type";
+    begin
+        case "Parent Type" of
+            "Parent Type"::Item:
+                if Item.GetBySystemId(Id) then begin
+                    Clear(Item.Picture);
+                    Item.Modify(true);
+                end;
+            "Parent Type"::Customer:
+                if Customer.GetBySystemId(Id) then begin
+                    Clear(Customer.Image);
+                    Customer.Modify(true);
+                end;
+            "Parent Type"::Vendor:
+                if Vendor.GetBySystemId(Id) then begin
+                    Clear(Vendor.Image);
+                    Vendor.Modify(true);
+                end;
+            "Parent Type"::Employee:
+                if Employee.GetBySystemId(Id) then begin
+                    Clear(Employee.Image);
+                    Employee.Modify(true);
+                end;
+            else
+                Error(EntityNotSupportedErr);
+        end;
+
+        TempId := Id;
+        TempParentType := "Parent Type";
+        Clear(Rec);
+        Id := TempId;
+        "Parent Type" := TempParentType;
+    end;
+
+    local procedure GetMediaIDWithParentType(ParentId: Guid; ParentType: Enum "Picture Entity Parent Type"): Guid
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Employee: Record Employee;
+        MediaID: Guid;
+    begin
+        case ParentType of
+            "Parent Type"::Item:
+                if Item.GetBySystemId(ParentId) then
+                    if Item.Picture.Count > 0 then
+                        MediaID := Item.Picture.Item(1);
+            "Parent Type"::Customer:
+                if Customer.GetBySystemId(ParentId) then
+                    MediaID := Customer.Image.MediaId;
+            "Parent Type"::Vendor:
+                if Vendor.GetBySystemId(ParentId) then
+                    MediaID := Vendor.Image.MediaId;
+            "Parent Type"::Employee:
+                if Employee.GetBySystemId(ParentId) then
+                    MediaID := Employee.Image.MediaId;
+            else
+                Error(EntityNotSupportedErr);
+        end;
+
+        exit(MediaID);
     end;
 
     local procedure GetMediaID(var IntegrationRecord: Record "Integration Record"): Guid
@@ -202,11 +335,52 @@ table 5468 "Picture Entity"
                     IsHandled := false;
                     OnGetMediaIDElseCase(IntegrationRecord, MediaID, IsHandled);
                     if not IsHandled then
-                        ThrowEntityNotSupportedError(IntegrationRecord);
+                        ThrowEntityNotSupportedError(IntegrationRecord."Table ID");
                 end;
         end;
 
         exit(MediaID);
+    end;
+
+    local procedure GetRecordRefFromFilter(IDFilter: Text; var ParentRecordRef: RecordRef): Boolean
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Employee: Record Employee;
+        RecordFound: Boolean;
+    begin
+        Item.SetFilter(SystemId, IDFilter);
+        if Item.FindFirst() then begin
+            ParentRecordRef.GetTable(Item);
+            RecordFound := true;
+        end;
+
+        Customer.SetFilter(SystemId, IDFilter);
+        if Customer.FindFirst() then
+            if not RecordFound then begin
+                ParentRecordRef.GetTable(Customer);
+                RecordFound := true;
+            end else
+                Error(MultipleParentsFoundErr);
+
+        Vendor.SetFilter(SystemId, IDFilter);
+        if Vendor.FindFirst() then
+            if not RecordFound then begin
+                ParentRecordRef.GetTable(Vendor);
+                RecordFound := true;
+            end else
+                Error(MultipleParentsFoundErr);
+
+        Employee.SetFilter(SystemId, IDFilter);
+        if Employee.FindFirst() then
+            if not RecordFound then begin
+                ParentRecordRef.GetTable(Employee);
+                RecordFound := true;
+            end else
+                Error(MultipleParentsFoundErr);
+
+        exit(RecordFound);
     end;
 
     local procedure SetValuesFromMediaID(MediaID: Guid)
@@ -230,21 +404,32 @@ table 5468 "Picture Entity"
     end;
 
     local procedure FindIntegrationRecordFromFilter(var IntegrationRecord: Record "Integration Record"; IDFilter: Text)
+    var
+        IntegrationManagement: Codeunit "Integration Management";
+        ParentRecordRef: RecordRef;
     begin
         if IDFilter = '' then
             Error(IdNotProvidedErr);
 
-        IntegrationRecord.SetFilter("Integration ID", IDFilter);
-        if not IntegrationRecord.FindFirst then
-            Error(RequestedRecordDoesNotExistErr);
+        if IntegrationManagement.GetIntegrationIsEnabledOnTheSystem() then begin
+            IntegrationRecord.SetFilter("Integration ID", IDFilter);
+            if not IntegrationRecord.FindFirst then
+                Error(RequestedRecordDoesNotExistErr);
+        end else begin
+            if not GetRecordRefFromFilter(IDFilter, ParentRecordRef) then
+                Error(RequestedRecordDoesNotExistErr);
+            IntegrationRecord."Table ID" := ParentRecordRef.Number;
+            IntegrationRecord."Record ID" := ParentRecordRef.RecordId;
+            IntegrationRecord."Integration ID" := ParentRecordRef.Field(ParentRecordRef.SystemIdNo).Value;
+        end;
     end;
 
-    local procedure ThrowEntityNotSupportedError(var IntegrationRecord: Record "Integration Record")
+    local procedure ThrowEntityNotSupportedError(TableID: Integer)
     var
         AllObjWithCaption: Record AllObjWithCaption;
     begin
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
-        AllObjWithCaption.SetRange("Object ID", IntegrationRecord."Table ID");
+        AllObjWithCaption.SetRange("Object ID", TableID);
         if AllObjWithCaption.FindFirst then;
         Error(StrSubstNo(RequestedRecordIsNotSupportedErr, AllObjWithCaption."Object Caption"));
     end;

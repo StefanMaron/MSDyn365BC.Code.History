@@ -271,9 +271,9 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             WMSMgmt.CheckAdjmtBin(Location, ItemJnlLine.Quantity, true);
             WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 0, TempWhseJnlLine, false);
             TempWhseJnlLine."Source Type" := DATABASE::"Service Line";
-            TempWhseJnlLine."Source Subtype" := "Document Type";
+            TempWhseJnlLine."Source Subtype" := "Document Type".AsInteger();
             TempWhseJnlLine."Source Code" := SrcCode;
-            TempWhseJnlLine."Source Document" := WhseMgt.GetSourceDocument(TempWhseJnlLine."Source Type", TempWhseJnlLine."Source Subtype");
+            TempWhseJnlLine."Source Document" := WhseMgt.GetWhseJnlSourceDocument(TempWhseJnlLine."Source Type", TempWhseJnlLine."Source Subtype");
             TempWhseJnlLine."Source No." := "Document No.";
             TempWhseJnlLine."Source Line No." := "Line No.";
             case "Document Type" of
@@ -313,7 +313,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
               InvoicePostBuffer."Global Dimension 1 Code", InvoicePostBuffer."Global Dimension 2 Code",
               InvoicePostBuffer."Dimension Set ID", ServiceHeader."Reason Code");
 
-            CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, '');
+            CopyDocumentFields("Gen. Journal Document Type".FromInteger(DocType), DocNo, ExtDocNo, SrcCode, '');
 
             CopyFromServiceHeader(ServiceHeader);
             CopyFromInvoicePostBuffer(InvoicePostBuffer);
@@ -335,7 +335,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
               ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
               ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
 
-            CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, '');
+            CopyDocumentFields("Gen. Journal Document Type".FromInteger(DocType), DocNo, ExtDocNo, SrcCode, '');
 
             "Account Type" := "Account Type"::Customer;
             "Account No." := ServiceHeader."Bill-to Customer No.";
@@ -382,7 +382,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             CopyFromServiceHeader(ServiceHeader);
             SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
 
-            SetApplyToDocNo(ServiceHeader, GenJnlLine, DocType, DocNo);
+            SetApplyToDocNo(ServiceHeader, GenJnlLine, "Gen. Journal Document Type".FromInteger(DocType), DocNo);
 
             Amount := TotalServiceLine."Amount Including VAT" + CustLedgEntry."Remaining Pmt. Disc. Possible";
             "Source Currency Amount" := Amount;
@@ -400,7 +400,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         end;
     end;
 
-    local procedure SetApplyToDocNo(ServiceHeader: Record "Service Header"; var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; DocNo: Code[20])
+    local procedure SetApplyToDocNo(ServiceHeader: Record "Service Header"; var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
         with GenJnlLine do begin
             if ServiceHeader."Bal. Account Type" = ServiceHeader."Bal. Account Type"::"Bank Account" then
@@ -463,7 +463,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         TimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, GenJnlLineDocNo, false);
     end;
 
-    local procedure PostResJnlLine(ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35]; SrcCode: Code[10]; PostingNoSeries: Code[20]; EntryType: Option; Qty: Decimal; UnitPrice: Decimal; TotalPrice: Decimal)
+    local procedure PostResJnlLine(ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35]; SrcCode: Code[10]; PostingNoSeries: Code[20]; EntryType: Enum "Res. Journal Line Entry Type"; Qty: Decimal; UnitPrice: Decimal; TotalPrice: Decimal)
     var
         ResJnlLine: Record "Res. Journal Line";
     begin

@@ -185,7 +185,7 @@ page 7000013 "Payable Closed Cartera Docs"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }
@@ -195,7 +195,7 @@ page 7000013 "Payable Closed Cartera Docs"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

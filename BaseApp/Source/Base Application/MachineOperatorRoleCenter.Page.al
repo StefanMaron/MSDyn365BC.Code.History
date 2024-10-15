@@ -14,6 +14,10 @@ page 9013 "Machine Operator Role Center"
                 {
                     ApplicationArea = Manufacturing;
                 }
+                part("User Tasks Activities"; "User Tasks Activities")
+                {
+                    ApplicationArea = Suite;
+                }
             }
             group(Control1900724708)
             {

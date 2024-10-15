@@ -1,4 +1,4 @@
-table 274 "Bank Acc. Reconciliation Line"
+﻿table 274 "Bank Acc. Reconciliation Line"
 {
     Caption = 'Bank Acc. Reconciliation Line';
     Permissions = TableData "Data Exch. Field" = rimd;
@@ -33,7 +33,7 @@ table 274 "Bank Acc. Reconciliation Line"
         }
         field(7; "Statement Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Statement Amount';
 
@@ -44,7 +44,7 @@ table 274 "Bank Acc. Reconciliation Line"
         }
         field(8; Difference; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Difference';
@@ -56,7 +56,7 @@ table 274 "Bank Acc. Reconciliation Line"
         }
         field(9; "Applied Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Applied Amount';
@@ -170,7 +170,7 @@ table 274 "Bank Acc. Reconciliation Line"
             begin
                 TestField("Applied Amount", 0);
                 CreateDim(
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
                   DATABASE::"Salesperson/Purchaser", GetSalepersonPurchaserCode);
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
@@ -225,7 +225,7 @@ table 274 "Bank Acc. Reconciliation Line"
         }
         field(50; "Match Confidence"; Option)
         {
-            CalcFormula = Max ("Applied Payment Entry"."Match Confidence" WHERE("Statement Type" = FIELD("Statement Type"),
+            CalcFormula = Max("Applied Payment Entry"."Match Confidence" WHERE("Statement Type" = FIELD("Statement Type"),
                                                                                 "Bank Account No." = FIELD("Bank Account No."),
                                                                                 "Statement No." = FIELD("Statement No."),
                                                                                 "Statement Line No." = FIELD("Statement Line No.")));
@@ -238,7 +238,7 @@ table 274 "Bank Acc. Reconciliation Line"
         }
         field(51; "Match Quality"; Integer)
         {
-            CalcFormula = Max ("Applied Payment Entry".Quality WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Max("Applied Payment Entry".Quality WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                      "Statement No." = FIELD("Statement No."),
                                                                      "Statement Line No." = FIELD("Statement Line No."),
                                                                      "Statement Type" = FIELD("Statement Type")));
@@ -267,7 +267,7 @@ table 274 "Bank Acc. Reconciliation Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -327,6 +327,11 @@ table 274 "Bank Acc. Reconciliation Line"
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'Delete application?';
         Text002: Label 'Update canceled.';
+        NotAppliedTxt: Label 'Not applied';
+        MatchedAutomaticallyTxt: Label 'Matched Automatically';
+        MatchedFromTextMappingRulesTxt: Label 'Matched - Text-To-Account Mapping';
+        AppliedManuallyStatusTxt: Label 'Applied Manually';
+        ReviewedStatusTxt: Label 'Application Reviewed';
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         CheckLedgEntry: Record "Check Ledger Entry";
         BankAccRecon: Record "Bank Acc. Reconciliation";
@@ -341,6 +346,8 @@ table 274 "Bank Acc. Reconciliation Line"
         ExcessiveAmountErr: Label 'The remaining amount to apply is %1.', Comment = '%1 is the amount that is not applied (there is filed on the page named Remaining Amount To Apply)';
         ImportPostedTransactionsQst: Label 'The bank statement contains payments that are already applied, but the related bank account ledger entries are not closed.\\Do you want to include these payments in the import?';
         ICPartnerAccountTypeQst: Label 'The resulting entry will be of type IC Transaction, but no Intercompany Outbox transaction will be created. \\Do you want to use the IC Partner account type anyway?';
+        AppliedEntriesFilterLbl: Label '|%1', Locked = true;
+        PaymentReconciliationJournalUXImprovementsLbl: Label 'PaymentReconciliationJournalUXImprovements', Locked = true;
 
     procedure DisplayApplication()
     var
@@ -382,6 +389,16 @@ table 274 "Bank Acc. Reconciliation Line"
                     PaymentApplication.RunModal;
                 end;
         end;
+    end;
+
+    procedure GetPaymentFile(var DataExchField: Record "Data Exch. Field"): Boolean
+    begin
+        if not DataExchField.ReadPermission() then
+            exit(false);
+
+        DataExchField.SetRange("Data Exch. No.", "Data Exch. Entry No.");
+        DataExchField.SetRange("Line No.", "Data Exch. Line No.");
+        exit(DataExchField.FindFirst());
     end;
 
     procedure GetCurrencyCode(): Code[10]
@@ -623,8 +640,8 @@ table 274 "Bank Acc. Reconciliation Line"
     begin
         if "Account Type" = "Account Type"::"Bank Account" then
             if BankAccountLedgerEntry.Get(AppliedToEntryNo) then
-                exit(BankAccountLedgerEntry."Bal. Account Type");
-        exit("Account Type");
+                exit(BankAccountLedgerEntry."Bal. Account Type".AsInteger());
+        exit("Account Type".AsInteger());
     end;
 
     procedure GetAppliedToAccountType(): Integer
@@ -633,8 +650,8 @@ table 274 "Bank Acc. Reconciliation Line"
     begin
         if "Account Type" = "Account Type"::"Bank Account" then
             if BankAccountLedgerEntry.Get(GetFirstAppliedToEntryNo) then
-                exit(BankAccountLedgerEntry."Bal. Account Type");
-        exit("Account Type");
+                exit(BankAccountLedgerEntry."Bal. Account Type".AsInteger());
+        exit("Account Type".AsInteger());
     end;
 
     procedure GetAppliedEntryAccountNo(AppliedToEntryNo: Integer): Code[20]
@@ -676,16 +693,16 @@ table 274 "Bank Acc. Reconciliation Line"
         Name: Text;
     begin
         case AccountType of
-            "Account Type"::Customer:
+            "Account Type"::Customer.AsInteger():
                 if Customer.Get(AccountNo) then
                     Name := Customer.Name;
-            "Account Type"::Vendor:
+            "Account Type"::Vendor.AsInteger():
                 if Vendor.Get(AccountNo) then
                     Name := Vendor.Name;
-            "Account Type"::"G/L Account":
+            "Account Type"::"G/L Account".AsInteger():
                 if GLAccount.Get(AccountNo) then
                     Name := GLAccount.Name;
-            "Account Type"::"Bank Account":
+            "Account Type"::"Bank Account".AsInteger():
                 if BankAccount.Get(AccountNo) then
                     Name := BankAccount.Name;
         end;
@@ -696,7 +713,7 @@ table 274 "Bank Acc. Reconciliation Line"
     local procedure SetAppliedPaymentEntryFromRec(var AppliedPaymentEntry: Record "Applied Payment Entry")
     begin
         AppliedPaymentEntry.TransferFromBankAccReconLine(Rec);
-        AppliedPaymentEntry."Account Type" := GetAppliedToAccountType;
+        AppliedPaymentEntry."Account Type" := "Gen. Journal Account Type".FromInteger(GetAppliedToAccountType());
         AppliedPaymentEntry."Account No." := GetAppliedToAccountNo;
     end;
 
@@ -720,7 +737,7 @@ table 274 "Bank Acc. Reconciliation Line"
         OpenAccountPage(AccountType, AccountNo);
     end;
 
-    local procedure OpenAccountPage(AccountType: Option; AccountNo: Code[20])
+    procedure OpenAccountPage(AccountType: Option; AccountNo: Code[20])
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -728,22 +745,22 @@ table 274 "Bank Acc. Reconciliation Line"
         BankAccount: Record "Bank Account";
     begin
         case AccountType of
-            "Account Type"::Customer:
+            "Account Type"::Customer.AsInteger():
                 begin
                     Customer.Get(AccountNo);
                     PAGE.Run(PAGE::"Customer Card", Customer);
                 end;
-            "Account Type"::Vendor:
+            "Account Type"::Vendor.AsInteger():
                 begin
                     Vendor.Get(AccountNo);
                     PAGE.Run(PAGE::"Vendor Card", Vendor);
                 end;
-            "Account Type"::"G/L Account":
+            "Account Type"::"G/L Account".AsInteger():
                 begin
                     GLAccount.Get(AccountNo);
                     PAGE.Run(PAGE::"G/L Account Card", GLAccount);
                 end;
-            "Account Type"::"Bank Account":
+            "Account Type"::"Bank Account".AsInteger():
                 begin
                     BankAccount.Get(AccountNo);
                     PAGE.Run(PAGE::"Bank Account Card", BankAccount);
@@ -894,14 +911,21 @@ table 274 "Bank Acc. Reconciliation Line"
     var
         ApplyType: Option "Document No.","Entry No.";
     begin
-        exit(GetAppliedNo(ApplyType::"Document No."));
+        exit(GetAppliedNo(ApplyType::"Document No.", ', '));
     end;
 
     procedure GetAppliedToEntryNo(): Text
     var
         ApplyType: Option "Document No.","Entry No.";
     begin
-        exit(GetAppliedNo(ApplyType::"Entry No."));
+        exit(GetAppliedNo(ApplyType::"Entry No.", ', '));
+    end;
+
+    procedure GetAppliedToEntryFilter(): Text
+    var
+        ApplyType: Option "Document No.","Entry No.";
+    begin
+        exit(GetAppliedNo(ApplyType::"Entry No.", '|'));
     end;
 
     local procedure GetFirstAppliedToEntryNo(): Integer
@@ -916,7 +940,7 @@ table 274 "Bank Acc. Reconciliation Line"
         exit(AppliedToEntryNo);
     end;
 
-    local procedure GetAppliedNo(ApplyType: Option "Document No.","Entry No."): Text
+    local procedure GetAppliedNo(ApplyType: Option "Document No.","Entry No."; SeparatorText: Text): Text
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
         AppliedNumbers: Text;
@@ -934,18 +958,66 @@ table 274 "Bank Acc. Reconciliation Line"
                         if AppliedNumbers = '' then
                             AppliedNumbers := AppliedPaymentEntry."Document No."
                         else
-                            AppliedNumbers := AppliedNumbers + ', ' + AppliedPaymentEntry."Document No.";
+                            AppliedNumbers := AppliedNumbers + SeparatorText + AppliedPaymentEntry."Document No.";
                 end else begin
                     if AppliedPaymentEntry."Applies-to Entry No." <> 0 then
                         if AppliedNumbers = '' then
                             AppliedNumbers := Format(AppliedPaymentEntry."Applies-to Entry No.")
                         else
-                            AppliedNumbers := AppliedNumbers + ', ' + Format(AppliedPaymentEntry."Applies-to Entry No.");
+                            AppliedNumbers := AppliedNumbers + SeparatorText + Format(AppliedPaymentEntry."Applies-to Entry No.");
                 end;
             until AppliedPaymentEntry.Next = 0;
         end;
 
         exit(AppliedNumbers);
+    end;
+
+    procedure ShowAppliedToEntries()
+    var
+        AppliedPaymentEntry: Record "Applied Payment Entry";
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        AppliedBankAccLedgEntry: Record "Bank Account Ledger Entry";
+        GLEntry: Record "G/L Entry";
+        AppliedEntriesNumbersFilter: Text;
+    begin
+        AppliedPaymentEntry.SetRange("Statement Type", "Statement Type");
+        AppliedPaymentEntry.SetRange("Bank Account No.", "Bank Account No.");
+        AppliedPaymentEntry.SetRange("Statement No.", "Statement No.");
+        AppliedPaymentEntry.SetRange("Statement Line No.", "Statement Line No.");
+
+        if not AppliedPaymentEntry.FindSet() then
+            exit;
+
+        AppliedEntriesNumbersFilter := Format(AppliedPaymentEntry."Applies-to Entry No.");
+
+        if (AppliedPaymentEntry.Next() <> 0) then
+            repeat
+                AppliedEntriesNumbersFilter += StrSubstNo(AppliedEntriesFilterLbl, AppliedPaymentEntry."Applies-to Entry No.");
+            until AppliedPaymentEntry.Next() = 0;
+
+        case "Account Type" of
+            "Account Type"::"G/L Account":
+                begin
+                    GLEntry.SetFilter("Entry No.", AppliedEntriesNumbersFilter);
+                    PAGE.Run(0, GLEntry);
+                end;
+            "Account Type"::Customer:
+                begin
+                    CustLedgEntry.SetFilter("Entry No.", AppliedEntriesNumbersFilter);
+                    PAGE.Run(0, CustLedgEntry);
+                end;
+            "Account Type"::Vendor:
+                begin
+                    VendLedgEntry.SetFilter("Entry No.", AppliedEntriesNumbersFilter);
+                    PAGE.Run(0, VendLedgEntry);
+                end;
+            "Account Type"::"Bank Account":
+                begin
+                    AppliedBankAccLedgEntry.SetFilter("Entry No.", AppliedEntriesNumbersFilter);
+                    PAGE.Run(0, AppliedBankAccLedgEntry);
+                end;
+        end;
     end;
 
     procedure TransferRemainingAmountToAccount()
@@ -958,6 +1030,29 @@ table 274 "Bank Acc. Reconciliation Line"
         AppliedPaymentEntry.Validate("Applied Amount", Difference);
         AppliedPaymentEntry.Validate("Match Confidence", AppliedPaymentEntry."Match Confidence"::Manual);
         AppliedPaymentEntry.Insert(true);
+    end;
+
+    procedure GetStatusText(): Text
+    begin
+        if ("Applied Entries" = 0) and ("Match Confidence" = "Match Confidence"::None) then
+            exit(NotAppliedTxt);
+
+        case "Match Confidence" of
+            "Match Confidence"::Manual:
+                exit(AppliedManuallyStatusTxt);
+            "Match Confidence"::Accepted:
+                exit(ReviewedStatusTxt);
+            "Match Confidence"::"High - Text-to-Account Mapping":
+                exit(MatchedFromTextMappingRulesTxt);
+            "Match Confidence"::None:
+                if ("Applied Entries" > 0) then
+                    exit(MatchedAutomaticallyTxt);
+            "Match Confidence"::Low, "Match Confidence"::Medium, "Match Confidence"::High:
+                exit(MatchedAutomaticallyTxt);
+        end;
+
+        Session.LogMessage('0000BN5', StrSubstNo('Unexpected - could not find the status text - Match Confidence %1, Match Quality %2, Applied Entries %3', "Match Confidence", "Match Quality", "Applied Entries"), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', '');
+        exit('');
     end;
 
     procedure GetAmountRangeForTolerance(var MinAmount: Decimal; var MaxAmount: Decimal)
@@ -1128,6 +1223,17 @@ table 274 "Bank Acc. Reconciliation Line"
         end;
     end;
 
+    [Obsolete('This function will be removed once the feature switch is removed. The old ux and the ability to switch will be removed.', '17.0')]
+    internal procedure GetNewExperienceActive(): Boolean
+    var
+        FeatureKey: Record "Feature Key";
+    begin
+        if not FeatureKey.Get(PaymentReconciliationJournalUXImprovementsLbl) then
+            exit(true);
+
+        exit(FeatureKey.Enabled = FeatureKey.Enabled::"All Users");
+    end;
+
     procedure GetAppliesToID(): Code[50]
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -1166,4 +1272,3 @@ table 274 "Bank Acc. Reconciliation Line"
     begin
     end;
 }
-

@@ -46,7 +46,7 @@ codeunit 86 "Sales-Quote to Order"
             SalesOrderHeader.Modify();
         end;
 
-        SalesCommentLine.CopyComments("Document Type", SalesOrderHeader."Document Type", "No.", SalesOrderHeader."No.");
+        SalesCommentLine.CopyComments("Document Type".AsInteger(), SalesOrderHeader."Document Type".AsInteger(), "No.", SalesOrderHeader."No.");
         RecordLinkManagement.CopyLinks(Rec, SalesOrderHeader);
 
         AssignItemCharges("Document Type", "No.", SalesOrderHeader."Document Type", SalesOrderHeader."No.");
@@ -142,19 +142,19 @@ codeunit 86 "Sales-Quote to Order"
         end;
     end;
 
-    local procedure AssignItemCharges(FromDocType: Option; FromDocNo: Code[20]; ToDocType: Option; ToDocNo: Code[20])
+    local procedure AssignItemCharges(FromDocType: Enum "Sales Document Type"; FromDocNo: Code[20]; ToDocType: Enum "Sales Document Type"; ToDocNo: Code[20])
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAssignItemCharges(FromDocType, FromDocNo, ToDocType, ToDocNo, IsHandled);
+        OnBeforeAssignItemCharges(FromDocType.AsInteger(), FromDocNo, ToDocType.AsInteger(), ToDocNo, IsHandled);
         if IsHandled then
             exit;
         ItemChargeAssgntSales.Reset();
         ItemChargeAssgntSales.SetRange("Document Type", FromDocType);
         ItemChargeAssgntSales.SetRange("Document No.", FromDocNo);
-        while ItemChargeAssgntSales.FindFirst do begin
+        while ItemChargeAssgntSales.FindFirst() do begin
             ItemChargeAssgntSales.Delete();
             ItemChargeAssgntSales."Document Type" := SalesOrderHeader."Document Type";
             ItemChargeAssgntSales."Document No." := SalesOrderHeader."No.";
@@ -292,7 +292,7 @@ codeunit 86 "Sales-Quote to Order"
                       SalesQuoteLine, SalesOrderLine, SalesQuoteLine."Outstanding Qty. (Base)");
                     SalesLineReserve.VerifyQuantity(SalesOrderLine, SalesQuoteLine);
                     if SalesOrderLine.Reserve = SalesOrderLine.Reserve::Always then
-                        SalesOrderLine.AutoReserve;
+                        SalesOrderLine.AutoReserve();
                 end;
             until SalesQuoteLine.Next = 0;
     end;

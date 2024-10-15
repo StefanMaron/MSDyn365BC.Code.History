@@ -42,11 +42,11 @@ codeunit 10752 "SII Doc. Upload Management"
         WebServiceUrl: Text;
         StatusDescription: Text[250];
     begin
-        SendTraceTag('0000CNO', VATSIITok, VERBOSITY::Normal, StrSubstNo(BatchSoapRequestMsg, RequestType), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000CNO', StrSubstNo(BatchSoapRequestMsg, RequestType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
 
         CertificateEnabled := GetIsolatedCertificate(Cert);
         if not CertificateEnabled then begin
-            SendTraceTag('0000CNP', VATSIITok, VERBOSITY::Error, NoCertificateErr, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000CNP', NoCertificateErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
             ProcessBatchResponseCommunicationError(TempSIIHistoryBuffer, NoCertificateErr);
             exit(false);
         end;
@@ -76,7 +76,7 @@ codeunit 10752 "SII Doc. Upload Management"
         ByteArray := Encoding.UTF8.GetBytes(RequestText);
         HttpWebRequest.ContentLength := ByteArray.Length;
         if not TryCreateRequestStream(HttpWebRequest, RequestStream) then begin
-            SendTraceTag('0000CNQ', VATSIITok, VERBOSITY::Error, NoConnectionErr, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000CNQ', NoConnectionErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
             ProcessBatchResponseCommunicationError(TempSIIHistoryBuffer, NoConnectionErr);
             exit(false);
         end;
@@ -84,7 +84,7 @@ codeunit 10752 "SII Doc. Upload Management"
         RequestStream.Write(ByteArray, 0, ByteArray.Length);
 
         if not TryGetWebResponse(HttpWebRequest, HttpWebResponse) then begin
-            SendTraceTag('0000CNR', VATSIITok, VERBOSITY::Error, NoResponseErr, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000CNR', NoResponseErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
             ProcessBatchResponseCommunicationError(TempSIIHistoryBuffer, NoResponseErr);
             exit(false);
         end;
@@ -94,13 +94,13 @@ codeunit 10752 "SII Doc. Upload Management"
         ResponseText := ReadHttpResponseAsText(HttpWebResponse);
         SIISession.StoreResponseXml(ResponseText);
         if not StatusCode.Equals(StatusCode.Accepted) and not StatusCode.Equals(StatusCode.OK) then begin
-            SendTraceTag('0000CNS', VATSIITok, VERBOSITY::Error, StrSubstNo(CommunicationErr, StatusDescription), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000CNS', StrSubstNo(CommunicationErr, StatusDescription), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
             ProcessBatchResponseCommunicationError(
               TempSIIHistoryBuffer, StrSubstNo(CommunicationErr, StatusDescription));
             exit(false);
         end;
 
-        SendTraceTag('0000CNT', VATSIITok, VERBOSITY::Normal, StrSubstNo(BatchSoapRequestSuccMsg, RequestType), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000CNT', StrSubstNo(BatchSoapRequestSuccMsg, RequestType), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
         exit(true);
     end;
 
@@ -330,7 +330,7 @@ codeunit 10752 "SII Doc. Upload Management"
     begin
         OnBeforeTryGenerateXml(SIIDocUploadState, SIIHistory);
 
-        SendTraceTag('0000CNU', VATSIITok, VERBOSITY::Normal, StrSubstNo(GeneratingXmlMsg, SIIDocUploadState."Document Source"), DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000CNU', StrSubstNo(GeneratingXmlMsg, SIIDocUploadState."Document Source"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
 
         SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No.");
         SIIXMLCreator.SetIsRetryAccepted(SIIDocUploadState."Retry Accepted");
@@ -346,7 +346,7 @@ codeunit 10752 "SII Doc. Upload Management"
                     end else begin
                         CustLedgerEntry.SetRange("Entry No.", SIIDocUploadState."Entry No");
                         if not CustLedgerEntry.FindFirst then begin
-                            SendTraceTag('0000CNV', VATSIITok, VERBOSITY::Error, StrSubstNo(GeneratingXmlErrMsg, NoCustLedgerEntryErr), DATACLASSIFICATION::SystemMetadata);
+                            Session.LogMessage('0000CNV', StrSubstNo(GeneratingXmlErrMsg, NoCustLedgerEntryErr), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
                             Error(NoCustLedgerEntryErr);
                         end;
                         RequestType := RequestType::InvoiceIssuedRegistration;
@@ -364,7 +364,7 @@ codeunit 10752 "SII Doc. Upload Management"
                           SIIXMLCreator.GenerateXml(
                             VendorLedgerEntry, XMLDoc, SIIHistory."Upload Type", SIIDocUploadState."Is Credit Memo Removal");
                     end else begin
-                        SendTraceTag('0000CNV', VATSIITok, VERBOSITY::Error, StrSubstNo(GeneratingXmlErrMsg, NoVendLedgerEntryErr), DATACLASSIFICATION::SystemMetadata);
+                        Session.LogMessage('0000CNV', StrSubstNo(GeneratingXmlErrMsg, NoVendLedgerEntryErr), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
                         Error(NoVendLedgerEntryErr);
                     end;
                 end;
@@ -377,7 +377,7 @@ codeunit 10752 "SII Doc. Upload Management"
                           SIIXMLCreator.GenerateXml(
                             DetailedCustLedgEntry, XMLDoc, SIIHistory."Upload Type", SIIDocUploadState."Is Credit Memo Removal");
                     end else begin
-                        SendTraceTag('0000CNV', VATSIITok, VERBOSITY::Error, StrSubstNo(GeneratingXmlErrMsg, NoDetailedCustLedgerEntryErr), DATACLASSIFICATION::SystemMetadata);
+                        Session.LogMessage('0000CNV', StrSubstNo(GeneratingXmlErrMsg, NoDetailedCustLedgerEntryErr), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
                         Error(NoDetailedCustLedgerEntryErr);
                     end;
                 end;
@@ -390,7 +390,7 @@ codeunit 10752 "SII Doc. Upload Management"
                           SIIXMLCreator.GenerateXml(
                             DetailedVendorLedgEntry, XMLDoc, SIIHistory."Upload Type", SIIDocUploadState."Is Credit Memo Removal");
                     end else begin
-                        SendTraceTag('0000CNV', VATSIITok, VERBOSITY::Error, StrSubstNo(GeneratingXmlErrMsg, NoDetailedVendLedgerEntryErr), DATACLASSIFICATION::SystemMetadata);
+                        Session.LogMessage('0000CNV', StrSubstNo(GeneratingXmlErrMsg, NoDetailedVendLedgerEntryErr), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
                         Error(NoDetailedVendLedgerEntryErr);
                     end;
                 end;
@@ -398,9 +398,9 @@ codeunit 10752 "SII Doc. Upload Management"
 
         if not IsSupported then begin
             Message := SIIXMLCreator.GetLastErrorMsg;
-            SendTraceTag('0000CNZ', VATSIITok, VERBOSITY::Error, StrSubstNo(GeneratingXmlErrMsg, SIIXMLCreator.GetLastErrorMsg()), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000CNZ', StrSubstNo(GeneratingXmlErrMsg, SIIXMLCreator.GetLastErrorMsg()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
         end else
-            SendTraceTag('0000CO0', VATSIITok, VERBOSITY::Normal, StrSubstNo(GeneratingXmlSuccMsg, SIIDocUploadState."Document Source"), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000CO0', StrSubstNo(GeneratingXmlSuccMsg, SIIDocUploadState."Document Source"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VATSIITok);
 
     end;
 

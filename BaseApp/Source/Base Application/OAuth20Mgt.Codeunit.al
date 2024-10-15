@@ -335,7 +335,7 @@ codeunit 1140 "OAuth 2.0 Mgt."
             end else begin
                 Result := false;
                 HttpError := LimitExceededTxt;
-                SendTraceTag('00009YL', ActivityLogContextTxt, Verbosity::Normal, LimitExceededTxt, DataClassification::SystemMetadata);
+                Session.LogMessage('00009YL', LimitExceededTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ActivityLogContextTxt);
             end;
             RequestJObject.Get('Method', JToken);
             LogActivity(

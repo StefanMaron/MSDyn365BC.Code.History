@@ -113,7 +113,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
           StrSubstNo(ReverseErr, GenJournalLine."Posting Date", GenJournalLine."Account No.", GenJournalLine."Depreciation Book Code"));
     end;
 
-    local procedure CreateFixedAssetWithJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Option; FAPostingType2: Option) DocumentNo: Code[20]
+    local procedure CreateFixedAssetWithJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; FAPostingType2: Enum "Gen. Journal Line FA Posting Type") DocumentNo: Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         DepreciationBookCode: Code[10];
@@ -546,7 +546,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         FALedgerEntry.TestField("Transaction No.");
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; FAPostingType: Option; AccountNo: Code[20]; DepreciationBookCode: Code[10]; GenJournalBatch: Record "Gen. Journal Batch")
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; AccountNo: Code[20]; DepreciationBookCode: Code[10]; GenJournalBatch: Record "Gen. Journal Batch")
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
@@ -556,7 +556,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; FAPostingType: Option; AccountNo: Code[20]; DepreciationBookCode: Code[10]; GenJournalBatch: Record "Gen. Journal Batch")
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; AccountNo: Code[20]; DepreciationBookCode: Code[10]; GenJournalBatch: Record "Gen. Journal Batch")
     begin
         CreateGenJournalLine(
           GenJournalLine, Amount, FAPostingType, AccountNo, DepreciationBookCode, GenJournalBatch);
@@ -597,7 +597,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreatePostFAGLJournal(FAPostingType: Option; FANo: Code[20]; DepreciationBookCode: Code[10]; BalGLAccountNo: Code[20]; LineAmount: Decimal)
+    local procedure CreatePostFAGLJournal(FAPostingType: Enum "Gen. Journal Line FA Posting Type"; FANo: Code[20]; DepreciationBookCode: Code[10]; BalGLAccountNo: Code[20]; LineAmount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -693,7 +693,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FixedAssetNo: Code[20]; FAPostingType: Option)
+    local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FixedAssetNo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     begin
         Clear(FALedgerEntry);
         FALedgerEntry.SetRange("FA No.", FixedAssetNo);

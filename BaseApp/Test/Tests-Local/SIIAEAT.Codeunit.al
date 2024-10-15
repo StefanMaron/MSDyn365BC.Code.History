@@ -435,7 +435,7 @@ codeunit 147550 "SII AEAT"
         IsInitialized := true;
     end;
 
-    local procedure PostSalesDocWithCustAEAT(var CustLedgerEntry: Record "Cust. Ledger Entry"; CountryCode: Code[10]; DocType: Option; CorrType: Option; NoInAEAT: Boolean)
+    local procedure PostSalesDocWithCustAEAT(var CustLedgerEntry: Record "Cust. Ledger Entry"; CountryCode: Code[10]; DocType: Enum "Sales Document Type"; CorrType: Option; NoInAEAT: Boolean)
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";

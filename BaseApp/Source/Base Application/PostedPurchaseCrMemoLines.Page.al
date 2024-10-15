@@ -232,7 +232,7 @@ page 530 "Posted Purchase Cr. Memo Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")

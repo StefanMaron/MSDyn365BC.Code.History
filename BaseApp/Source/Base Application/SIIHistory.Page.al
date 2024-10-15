@@ -361,7 +361,7 @@ page 10752 "SII History"
             action("&Navigate")
             {
                 ApplicationArea = All;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Enabled = RecordsFound;
                 Image = Navigate;
                 Promoted = true;

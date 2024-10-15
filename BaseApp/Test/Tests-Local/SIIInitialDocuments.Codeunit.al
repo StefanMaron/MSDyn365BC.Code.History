@@ -395,7 +395,7 @@ codeunit 147526 "SII Initial Documents"
         IsInitialized := true;
     end;
 
-    local procedure PostSalesDocWithBlankOperationDescriptionAndInitialPostingDate(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrectionType: Option)
+    local procedure PostSalesDocWithBlankOperationDescriptionAndInitialPostingDate(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrectionType: Option)
     var
         SalesHeader: Record "Sales Header";
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
@@ -412,7 +412,7 @@ codeunit 147526 "SII Initial Documents"
           CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
-    local procedure PostPurchDocWithBlankOperationDescriptionAndInitialPostingDate(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrectionType: Option)
+    local procedure PostPurchDocWithBlankOperationDescriptionAndInitialPostingDate(var VendLedgEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrectionType: Option)
     var
         PurchHeader: Record "Purchase Header";
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
@@ -429,7 +429,7 @@ codeunit 147526 "SII Initial Documents"
           VendLedgEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchHeader, false, false));
     end;
 
-    local procedure PostPurchDocWithReverseChargeVAT(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option)
+    local procedure PostPurchDocWithReverseChargeVAT(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";

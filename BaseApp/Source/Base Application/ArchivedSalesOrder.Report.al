@@ -1,4 +1,4 @@
-report 216 "Archived Sales Order"
+﻿report 216 "Archived Sales Order"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ArchivedSalesOrder.rdlc';
@@ -285,7 +285,7 @@ report 216 "Archived Sales Order"
                         column(Desc_SalesLineArch; "Sales Line Archive".Description)
                         {
                         }
-                        column(Body3Visibility_RoundLoop; TempSalesLineArchive.Type = 0)
+                        column(Body3Visibility_RoundLoop; TempSalesLineArchive.Type = "Sales Line Type"::" ")
                         {
                         }
                         column(No_SalesLineArchive; "Sales Line Archive"."No.")
@@ -326,7 +326,7 @@ report 216 "Archived Sales Order"
                         column(SalesLineNo; Format("Sales Line Archive"."Line No."))
                         {
                         }
-                        column(Body4Visibility_RoundLoop; TempSalesLineArchive.Type > 0)
+                        column(Body4Visibility_RoundLoop; TempSalesLineArchive.Type <> "Sales Line Type"::" ")
                         {
                         }
                         column(SalesLineArchInvDiscAmt; TempSalesLineArchive."Inv. Discount Amount")

@@ -804,7 +804,7 @@ codeunit 147552 "SII Update Doc. Info"
         Initialize;
 
         // [GIVEN] Posted sales invoice with default values for Invoice Type, Special Scheme Code, IDType
-        PostSalesDocument(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, LibrarySales.CreateCustomerNo, 0);
+        PostSalesDocument(CustLedgerEntry, "Sales Document Type"::Invoice, LibrarySales.CreateCustomerNo, 0);
         SalesInvoiceHeader.Get(CustLedgerEntry."Document No.");
 
         // [GIVEN] Default values gets changed in posted document
@@ -1025,17 +1025,17 @@ codeunit 147552 "SII Update Doc. Info"
         exit(Vendor."No.");
     end;
 
-    local procedure PostSalesDocWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option)
+    local procedure PostSalesDocWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option)
     begin
         PostSalesDocument(CustLedgerEntry, DocType, LibrarySales.CreateCustomerNo, CorrType);
     end;
 
-    local procedure PostSalesInvIntracommunitary(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrectionType: Option)
+    local procedure PostSalesInvIntracommunitary(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrectionType: Option)
     begin
         PostSalesDocument(CustLedgerEntry, DocType, CreateIntracommunityCustomer, CorrectionType);
     end;
 
-    local procedure PostSalesDocument(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CustNo: Code[20]; CorrType: Option)
+    local procedure PostSalesDocument(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CustNo: Code[20]; CorrType: Option)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1050,12 +1050,12 @@ codeunit 147552 "SII Update Doc. Info"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostPurchDocWithInvOrCrMemoType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrType: Option)
+    local procedure PostPurchDocWithInvOrCrMemoType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option)
     begin
         PostPurchaseDocument(VendorLedgerEntry, DocType, LibraryPurchase.CreateVendorNo, CorrType);
     end;
 
-    local procedure PostPurchInvIntracommunitary(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrectionType: Option)
+    local procedure PostPurchInvIntracommunitary(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrectionType: Option)
     var
         Vendor: Record Vendor;
     begin
@@ -1065,7 +1065,7 @@ codeunit 147552 "SII Update Doc. Info"
         PostPurchaseDocument(VendorLedgerEntry, DocType, Vendor."No.", CorrectionType);
     end;
 
-    local procedure PostPurchaseDocument(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; VendNo: Code[20]; CorrType: Option)
+    local procedure PostPurchaseDocument(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; VendNo: Code[20]; CorrType: Option)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1081,17 +1081,17 @@ codeunit 147552 "SII Update Doc. Info"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure PostServiceDocWithDocInfo(DocType: Option): Code[20]
+    local procedure PostServiceDocWithDocInfo(DocType: Enum "Service Document Type"): Code[20]
     begin
         exit(PostServiceDocument(DocType, LibrarySales.CreateCustomerNo, 0));
     end;
 
-    local procedure PostServiceDocIntracommunitary(DocType: Option; CorrectionType: Option): Code[20]
+    local procedure PostServiceDocIntracommunitary(DocType: Enum "Service Document Type"; CorrectionType: Option): Code[20]
     begin
         exit(PostServiceDocument(DocType, CreateIntracommunityCustomer, CorrectionType));
     end;
 
-    local procedure PostServiceDocument(DocType: Option; CustNo: Code[20]; CorrectionType: Option): Code[20]
+    local procedure PostServiceDocument(DocType: Enum "Service Document Type"; CustNo: Code[20]; CorrectionType: Option): Code[20]
     var
         ServiceHeader: Record "Service Header";
         ServiceItem: Record "Service Item";

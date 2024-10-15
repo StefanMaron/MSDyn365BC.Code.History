@@ -28,7 +28,6 @@ page 5096 "Task List"
                 field(Type; Type)
                 {
                     ApplicationArea = RelationshipMgmt;
-                    OptionCaption = ' ,Meeting,Phone Call';
                     ToolTip = 'Specifies the type of the task.';
                 }
                 field(Description; Description)

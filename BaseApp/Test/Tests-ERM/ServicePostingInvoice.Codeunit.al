@@ -2834,7 +2834,7 @@ codeunit 136108 "Service Posting - Invoice"
         Commit();  // Commit is required to run the batch job.
     end;
 
-    local procedure CreateMultipleServiceLineAndInvoiceDiscount(var ServiceHeader: Record "Service Header"; var CustInvoiceDisc: Record "Cust. Invoice Disc."; DocumentType: Option)
+    local procedure CreateMultipleServiceLineAndInvoiceDiscount(var ServiceHeader: Record "Service Header"; var CustInvoiceDisc: Record "Cust. Invoice Disc."; DocumentType: Enum "Service Document Type")
     var
         Customer: Record Customer;
     begin

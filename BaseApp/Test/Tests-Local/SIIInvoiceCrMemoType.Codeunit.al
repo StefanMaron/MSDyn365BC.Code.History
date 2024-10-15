@@ -680,7 +680,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         IsInitialized := true;
     end;
 
-    local procedure PostSalesDocWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option; InvoiceType: Option; CrMemoType: Integer)
+    local procedure PostSalesDocWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; InvoiceType: Option; CrMemoType: Integer)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -697,7 +697,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostPurchDocWithInvOrCrMemoType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; CorrType: Option; InvoiceType: Option; CrMemoType: Integer)
+    local procedure PostPurchDocWithInvOrCrMemoType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option; InvoiceType: Option; CrMemoType: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";

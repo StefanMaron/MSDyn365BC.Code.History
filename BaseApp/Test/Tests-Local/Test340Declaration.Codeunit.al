@@ -888,7 +888,7 @@ codeunit 147315 "Test 340 Declaration"
     procedure VATCashRegimeInvoiceWithAmountsIn340File()
     var
         VATEntry: Record "VAT Entry";
-        DocumentType: Option;
+        DocumentType: Enum "Gen. Journal Document Type";
         Filename: Text;
         Amounts: array[3] of Decimal;
     begin
@@ -2042,7 +2042,7 @@ codeunit 147315 "Test 340 Declaration"
         Library340347Declaration.CreatePurchaseLine(VATPostingSetup, PurchaseHeader, Amount);
     end;
 
-    local procedure CreateUnrealizedVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; UseVATCashRegime: Boolean)
+    local procedure CreateUnrealizedVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; UseVATCashRegime: Boolean)
     begin
         MockVATEntry(VATEntry, WorkDate, DocumentType, UseVATCashRegime);
         with VATEntry do begin
@@ -2054,7 +2054,7 @@ codeunit 147315 "Test 340 Declaration"
         end
     end;
 
-    local procedure CreateRealizedVATEntry(var VATEntry: Record "VAT Entry"; var UnrealizedVATEntry: Record "VAT Entry"; PostingDate: Date; DocumentType: Option)
+    local procedure CreateRealizedVATEntry(var VATEntry: Record "VAT Entry"; var UnrealizedVATEntry: Record "VAT Entry"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type")
     begin
         MockVATEntry(VATEntry, PostingDate, DocumentType, UnrealizedVATEntry."VAT Cash Regime");
         VATEntry."VAT %" := UnrealizedVATEntry."VAT %";
@@ -2069,7 +2069,7 @@ codeunit 147315 "Test 340 Declaration"
         UnrealizedVATEntry.Modify();
     end;
 
-    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option)
+    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type")
     begin
         MockVATEntry(VATEntry, WorkDate, DocumentType, false);
         with VATEntry do begin
@@ -2079,7 +2079,7 @@ codeunit 147315 "Test 340 Declaration"
         end
     end;
 
-    local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; PostingDate: Date; DocumentType: Option; UseVATCashRegime: Boolean)
+    local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; UseVATCashRegime: Boolean)
     begin
         with VATEntry do begin
             Init;
@@ -2133,7 +2133,7 @@ codeunit 147315 "Test 340 Declaration"
         exit(Library340347Declaration.RunMake340DeclarationReport(PostingDate));
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         VATEntry.SetCurrentKey("Document Type", "Posting Date", "Document No.");
         VATEntry.SetRange("Document Type", DocumentType);
@@ -2151,7 +2151,7 @@ codeunit 147315 "Test 340 Declaration"
         Line := LibraryTextFileValidation.ReadLine(Filename, LineNo);
         with Test340DeclarationLineBuf do begin
             Init;
-            Type := VATEntry.Type::Sale;
+            Type := VATEntry.Type::Sale.AsInteger();
             Evaluate(DocumentNo,
               LibraryTextFileValidation.ReadValue(Line, GetFieldPos(FieldNo("Document No.")), GetFieldLen(FieldNo("Document No."))));
             Evaluate(VATPercentage,
@@ -2172,7 +2172,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         with Test340DeclarationLineBuf do begin
             Init;
-            Type := VATEntry.Type;
+            Type := VATEntry.Type.AsInteger();
             Line := LibraryTextFileValidation.FindLineWithValue(Filename,
                 GetFieldPos(FieldNo("Document No.")), StrLen(VATEntry."Document No."), VATEntry."Document No.");
             OperationCode := LibraryTextFileValidation.ReadValue(Line, GetFieldPos(FieldNo("Operation Code")), 1);

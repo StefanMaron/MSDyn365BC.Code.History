@@ -1459,7 +1459,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         VATPostingSetup.Modify(true);
         Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         Customer.Modify(true);
-        GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 1);
+        GLAccNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Purchase);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
@@ -1583,7 +1583,7 @@ codeunit 147530 "Cartera Recv. Basic Scenarios"
         GLEntry.TestField(Amount, GLAmount);
     end;
 
-    local procedure VerifyGLEntryCount(DocType: Option; DocNo: Code[20]; GLAccNo: Code[20]; ExpectedCount: Integer)
+    local procedure VerifyGLEntryCount(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20]; ExpectedCount: Integer)
     var
         GLEntry: Record "G/L Entry";
     begin

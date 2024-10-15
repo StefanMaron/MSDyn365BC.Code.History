@@ -1,4 +1,4 @@
-﻿page 10765 "Posted Sales Invoice - Update"
+page 10765 "Posted Sales Invoice - Update"
 {
     Caption = 'Posted Sales Invoice - Update';
     DeleteAllowed = false;

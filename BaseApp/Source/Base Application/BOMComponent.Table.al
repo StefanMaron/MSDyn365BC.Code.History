@@ -52,7 +52,7 @@ table 90 "BOM Component"
         }
         field(5; "Assembly BOM"; Boolean)
         {
-            CalcFormula = Exist ("BOM Component" WHERE("Parent Item No." = FIELD("No.")));
+            CalcFormula = Exist("BOM Component" WHERE("Parent Item No." = FIELD("No.")));
             Caption = 'Assembly BOM';
             Editable = false;
             FieldClass = FlowField;
@@ -96,7 +96,7 @@ table 90 "BOM Component"
         }
         field(14; "BOM Description"; Text[100])
         {
-            CalcFormula = Lookup (Item.Description WHERE("No." = FIELD("Parent Item No.")));
+            CalcFormula = Lookup(Item.Description WHERE("No." = FIELD("Parent Item No.")));
             Caption = 'BOM Description';
             Editable = false;
             FieldClass = FlowField;
@@ -247,7 +247,6 @@ table 90 "BOM Component"
         Res: Record Resource;
         ItemVariant: Record "Item Variant";
         BOMComp: Record "BOM Component";
-        CalcLowLevelCode: Codeunit "Calculate Low-Level Code";
         AssemblyBOM: Page "Assembly BOM";
 
     procedure ValidateAgainstRecursion(ItemNo: Code[20])
@@ -276,6 +275,7 @@ table 90 "BOM Component"
 
     local procedure CopyFromItem()
     var
+        CalcLowLevelCode: Codeunit "Calculate Low-Level Code";
         IsHandled: Boolean;
     begin
         Item.Get("No.");

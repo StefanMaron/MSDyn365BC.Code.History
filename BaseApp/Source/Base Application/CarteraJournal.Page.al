@@ -361,7 +361,7 @@ page 7000036 "Cartera Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }
@@ -533,7 +533,7 @@ page 7000036 "Cartera Journal"
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"Cartera Journal", 12, false, Rec, JnlSelected);
+        GenJnlManagement.TemplateSelection(PAGE::"Cartera Journal", "Gen. Journal Template Type"::Cartera, false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);

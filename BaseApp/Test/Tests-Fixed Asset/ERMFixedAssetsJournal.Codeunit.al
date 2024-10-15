@@ -1246,7 +1246,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         // 1.Setup: Create Fixed Asset, FA Journal Line, Post FA Acquisition, and Update Amount in FA Journal Line.
         Initialize;
         CreateAndAcquireFixedAssetAndNewJournalLineWithUpdatedAmount(
-          FAJournalLine."Document Type"::Invoice, FAJournalLine."FA Posting Type"::Depreciation, FAJournalLine);
+          FAJournalLine."FA Posting Type"::Depreciation, FAJournalLine."Document Type"::Invoice, FAJournalLine);
         CopyFAJournalLine(TempFAJournalLine, FAJournalLine);
 
         // 2.Exercise: Post FA Journal Line.
@@ -1354,7 +1354,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         VerifyValuesInFALedgerEntry(TempFAJournalLine);
     end;
 
-    local procedure CreateAndAcquireFixedAssetAndNewJournalLineWithUpdatedAmount(FAPostingType: Option; DocumentType: Option; var FAJournalLine: Record "FA Journal Line")
+    local procedure CreateAndAcquireFixedAssetAndNewJournalLineWithUpdatedAmount(FAPostingType: Enum "FA Journal Line FA Posting Type"; DocumentType: Enum "FA Journal Line Document Type"; var FAJournalLine: Record "FA Journal Line")
     var
         DepreciationBook: Record "Depreciation Book";
         FixedAsset: Record "Fixed Asset";
@@ -2626,7 +2626,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
     end;
 
-    local procedure CreateFAJnlLine(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch"; FANo: Code[20]; DepreciationBookCode: Code[10]; DocumentType: Option; FAPostingType: Option)
+    local procedure CreateFAJnlLine(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch"; FANo: Code[20]; DepreciationBookCode: Code[10]; DocumentType: Enum "FA Journal Line Document Type"; FAPostingType: Enum "FA Journal Line FA Posting Type")
     begin
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
         FAJournalLine.Validate("Document Type", DocumentType);
@@ -2640,7 +2640,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalLine.Modify(true);
     end;
 
-    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; DocumentType: Option; FAPostingType: Option)
+    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; DocumentType: Enum "FA Journal Line Document Type"; FAPostingType: Enum "FA Journal Line FA Posting Type")
     var
         FAJournalBatch: Record "FA Journal Batch";
     begin
@@ -2748,7 +2748,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         exit(Counter);
     end;
 
-    local procedure CreateFAGLJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Option)
+    local procedure CreateFAGLJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -2877,7 +2877,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         DepreciationTableLine.Modify(true);
     end;
 
-    local procedure CreateAndUpdateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Option)
+    local procedure CreateAndUpdateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     begin
         CreateFAGLJournal(GenJournalLine, FixedAssetNo, DepreciationBookCode, FAPostingType);
         UpdatePostingSetupGeneralLine(GenJournalLine);
@@ -3013,7 +3013,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalTemplate.DeleteAll();
     end;
 
-    local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; FAPostingType: Option)
+    local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     begin
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.SetRange("FA Posting Type", FAPostingType);
@@ -3470,7 +3470,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         PurchInvLine.TestField("Line Amount", LineAmount);
     end;
 
-    local procedure VerifyAmountInFATransaction(FANo: Code[20]; FAPostingType: Option)
+    local procedure VerifyAmountInFATransaction(FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     var
         FALedgerEntry: Record "FA Ledger Entry";
         GLEntry: Record "G/L Entry";
@@ -3480,7 +3480,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         GLEntry.TestField(Amount, FALedgerEntry.Amount);
     end;
 
-    local procedure VerifyAmountInFAEntry(FANo: Code[20]; FAPostingType: Option; Amount: Decimal)
+    local procedure VerifyAmountInFAEntry(FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"; Amount: Decimal)
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin

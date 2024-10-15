@@ -2715,7 +2715,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PaymentTermsCode: Code[10]; DocumentType: Option; PaymentDayCode: Code[20]; NonPaymentPeriodCode: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PaymentTermsCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; PaymentDayCode: Code[20]; NonPaymentPeriodCode: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";

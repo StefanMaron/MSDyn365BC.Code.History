@@ -208,7 +208,7 @@ table 4 Currency
         }
         field(24; "Cust. Ledg. Entries in Filter"; Boolean)
         {
-            CalcFormula = Exist ("Cust. Ledger Entry" WHERE("Customer No." = FIELD("Customer Filter"),
+            CalcFormula = Exist("Cust. Ledger Entry" WHERE("Customer No." = FIELD("Customer Filter"),
                                                             "Currency Code" = FIELD(Code)));
             Caption = 'Cust. Ledg. Entries in Filter';
             Editable = false;
@@ -218,7 +218,7 @@ table 4 Currency
         {
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("Customer Filter"),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("Customer Filter"),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                          "Posting Date" = FIELD("Date Filter"),
@@ -232,7 +232,7 @@ table 4 Currency
             AccessByPermission = TableData "Sales Shipment Header" = R;
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Line"."Outstanding Amount" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Sales Line"."Outstanding Amount" WHERE("Document Type" = CONST(Order),
                                                                        "Bill-to Customer No." = FIELD("Customer Filter"),
                                                                        "Currency Code" = FIELD(Code),
                                                                        "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -246,7 +246,7 @@ table 4 Currency
             AccessByPermission = TableData "Sales Shipment Header" = R;
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Line"."Shipped Not Invoiced" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Sales Line"."Shipped Not Invoiced" WHERE("Document Type" = CONST(Order),
                                                                          "Bill-to Customer No." = FIELD("Customer Filter"),
                                                                          "Currency Code" = FIELD(Code),
                                                                          "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -259,7 +259,7 @@ table 4 Currency
         {
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("Customer Filter"),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry".Amount WHERE("Customer No." = FIELD("Customer Filter"),
                                                                          "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                          "Initial Entry Due Date" = FIELD("Date Filter"),
@@ -272,7 +272,7 @@ table 4 Currency
         }
         field(29; "Vendor Ledg. Entries in Filter"; Boolean)
         {
-            CalcFormula = Exist ("Vendor Ledger Entry" WHERE("Vendor No." = FIELD("Vendor Filter"),
+            CalcFormula = Exist("Vendor Ledger Entry" WHERE("Vendor No." = FIELD("Vendor Filter"),
                                                              "Currency Code" = FIELD(Code)));
             Caption = 'Vendor Ledg. Entries in Filter';
             Editable = false;
@@ -282,7 +282,7 @@ table 4 Currency
         {
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor No." = FIELD("Vendor Filter"),
+            CalcFormula = - Sum("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor No." = FIELD("Vendor Filter"),
                                                                            "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                            "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                            "Posting Date" = FIELD("Date Filter"),
@@ -296,7 +296,7 @@ table 4 Currency
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purchase Line"."Outstanding Amount" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Purchase Line"."Outstanding Amount" WHERE("Document Type" = CONST(Order),
                                                                           "Pay-to Vendor No." = FIELD("Vendor Filter"),
                                                                           "Currency Code" = FIELD(Code),
                                                                           "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -310,7 +310,7 @@ table 4 Currency
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purchase Line"."Amt. Rcd. Not Invoiced" WHERE("Document Type" = CONST(Order),
+            CalcFormula = Sum("Purchase Line"."Amt. Rcd. Not Invoiced" WHERE("Document Type" = CONST(Order),
                                                                               "Pay-to Vendor No." = FIELD("Vendor Filter"),
                                                                               "Currency Code" = FIELD(Code),
                                                                               "Shortcut Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -323,7 +323,7 @@ table 4 Currency
         {
             AutoFormatExpression = Code;
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor No." = FIELD("Vendor Filter"),
+            CalcFormula = - Sum("Detailed Vendor Ledg. Entry".Amount WHERE("Vendor No." = FIELD("Vendor Filter"),
                                                                            "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                            "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                            "Initial Entry Due Date" = FIELD("Date Filter"),
@@ -337,7 +337,7 @@ table 4 Currency
         field(34; "Customer Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer Filter"),
+            CalcFormula = Sum("Detailed Cust. Ledg. Entry"."Amount (LCY)" WHERE("Customer No." = FIELD("Customer Filter"),
                                                                                  "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                  "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                                  "Posting Date" = FIELD("Date Filter"),
@@ -349,7 +349,7 @@ table 4 Currency
         field(35; "Vendor Balance (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor Filter"),
+            CalcFormula = - Sum("Detailed Vendor Ledg. Entry"."Amount (LCY)" WHERE("Vendor No." = FIELD("Vendor Filter"),
                                                                                    "Initial Entry Global Dim. 1" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Initial Entry Global Dim. 2" = FIELD("Global Dimension 2 Filter"),
                                                                                    "Posting Date" = FIELD("Date Filter"),
@@ -489,6 +489,9 @@ table 4 Currency
         {
             Clustered = true;
         }
+        key(Key2; SystemModifiedAt)
+        {
+        }
     }
 
     fieldgroups
@@ -520,7 +523,7 @@ table 4 Currency
     trigger OnInsert()
     begin
         TestField(Code);
-         
+
         "Last Modified Date Time" := CurrentDateTime;
     end;
 

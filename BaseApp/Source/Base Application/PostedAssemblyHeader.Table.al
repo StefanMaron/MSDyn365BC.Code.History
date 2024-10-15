@@ -48,7 +48,7 @@ table 910 "Posted Assembly Header"
         }
         field(19; Comment; Boolean)
         {
-            CalcFormula = Exist ("Assembly Comment Line" WHERE("Document Type" = CONST("Posted Assembly"),
+            CalcFormula = Exist("Assembly Comment Line" WHERE("Document Type" = CONST("Posted Assembly"),
                                                                "Document No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -109,7 +109,7 @@ table 910 "Posted Assembly Header"
         }
         field(54; "Assemble to Order"; Boolean)
         {
-            CalcFormula = Exist ("Posted Assemble-to-Order Link" WHERE("Assembly Document Type" = CONST(Assembly),
+            CalcFormula = Exist("Posted Assemble-to-Order Link" WHERE("Assembly Document Type" = CONST(Assembly),
                                                                        "Assembly Document No." = FIELD("No.")));
             Caption = 'Assemble to Order';
             Editable = false;
@@ -174,7 +174,7 @@ table 910 "Posted Assembly Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(9010; "User ID"; Code[50])
@@ -248,7 +248,7 @@ table 910 "Posted Assembly Header"
     begin
         with PostedAssemblyHeader do begin
             Copy(Rec);
-            ReportSelections.PrintWithGUIYesNo(
+            ReportSelections.PrintWithDialogForCust(
               ReportSelections.Usage::"P.Asm.Order", PostedAssemblyHeader, ShowRequestForm, 0);
         end;
     end;

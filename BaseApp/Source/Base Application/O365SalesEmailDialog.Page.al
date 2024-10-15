@@ -58,7 +58,7 @@ page 2150 "O365 Sales Email Dialog"
                     MailManagement: Codeunit "Mail Management";
                 begin
                     O365SetupEmail.SetupEmail(true);
-                    FromAddress := MailManagement.GetSenderEmailAddress;
+                    FromAddress := MailManagement.GetSenderEmailAddress(Enum::"Email Scenario"::Default);
                 end;
             }
             field(Subject; SubjectText)
@@ -236,7 +236,7 @@ page 2150 "O365 Sales Email Dialog"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ReportSelections: Record "Report Selections";
-        ReportUsage: Option;
+        ReportUsage: Enum "Report Selection Usage";
         CustomerNo: Code[20];
     begin
         if GetSalesInvoiceHeader(DocumentHeaderRecordVariant, SalesInvoiceHeader) then begin
@@ -256,7 +256,7 @@ page 2150 "O365 Sales Email Dialog"
             end else
                 exit;
 
-        if ReportSelections.GetEmailBodyCustomText(TempEmailItem."Body File Path", ReportUsage, DocumentHeaderRecordVariant,
+        if ReportSelections.GetEmailBodyTextForCust(TempEmailItem."Body File Path", ReportUsage, DocumentHeaderRecordVariant,
              CustomerNo, SendTo, TempEmailItem.GetBodyText)
         then
             TempEmailItem.Modify();

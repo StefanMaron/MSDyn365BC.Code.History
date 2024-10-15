@@ -119,7 +119,7 @@ report 7000002 "Closed Bill Group Listing"
                         DataItemTableView = SORTING(Type, "Collection Agent", "Bill Gr./Pmt. Order No.") WHERE("Collection Agent" = CONST(Bank), Type = CONST(Receivable));
                         column(AmtForCollection; AmtForCollection)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(CustomerCity; Customer.City)

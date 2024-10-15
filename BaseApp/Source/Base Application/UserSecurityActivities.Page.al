@@ -133,6 +133,22 @@ page 9062 "User Security Activities"
                     Visible = ShowD365SIntegrationCues;
                 }
             }
+            cuegroup("Monitored Fields Changes")
+            {
+                Caption = 'Monitor Fields Changes';
+                Visible = false;
+
+                field(MonitorEntriesNotifications; MonitorEntriesNotifications)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Entries Notifications';
+                    ToolTip = 'Specifies new monitored changes to selected fields';
+                    trigger OnDrillDown()
+                    begin
+                        Page.Run(Page::"Monitored Field Log Entries");
+                    end;
+                }
+            }
             usercontrol(SATAsyncLoader; SatisfactionSurveyAsync)
             {
                 ApplicationArea = Basic, Suite;
@@ -167,12 +183,13 @@ page 9062 "User Security Activities"
     var
         UserSecurityStatus: Record "User Security Status";
         DataSensitivity: Record "Data Sensitivity";
-        CRMConnectionSetup: Record "CRM Connection Setup";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
         EnvironmentInfo: Codeunit "Environment Information";
         RoleCenterNotificationMgt: Codeunit "Role Center Notification Mgt.";
         ConfPersonalizationMgt: Codeunit "Conf./Personalization Mgt.";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        MonitorSensitiveField: codeunit "Monitor Sensitive Field";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         SoftwareAsAService := EnvironmentInfo.IsSaaS;
         if SoftwareAsAService then
@@ -192,12 +209,15 @@ page 9062 "User Security Activities"
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent;
         ShowIntelligentCloud := not SoftwareAsAService;
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
-        ShowD365SIntegrationCues := CRMConnectionSetup.IsEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
+        ShowD365SIntegrationCues := CRMIntegrationManagement.IsIntegrationEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
 
         if PageNotifier.IsAvailable then begin
             PageNotifier := PageNotifier.Create;
             PageNotifier.NotifyPageReady;
         end;
+
+        MonitorEntriesNotifications := MonitorSensitiveField.GetNotificationCount();
+        MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
     end;
 
     trigger OnAfterGetRecord()
@@ -228,6 +248,7 @@ page 9062 "User Security Activities"
         IsAddInReady: Boolean;
         IsPageReady: Boolean;
         UsersWithoutSubscriptions: Integer;
+        MonitorEntriesNotifications: Integer;
 
     local procedure GetNumberOfPlans(): Integer
     var

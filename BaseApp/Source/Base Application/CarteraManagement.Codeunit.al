@@ -630,7 +630,7 @@ codeunit 7000000 CarteraManagement
                 if VATEntry3.FindLast then
                     VATEntryNo := VATEntry3."Entry No." + 1;
 
-                if (VATEntry2.Type <> 0) and
+                if (VATEntry2.Type <> VATEntry2.Type::" ") and
                    (VATEntry2.Amount = 0) and
                    (VATEntry2.Base = 0)
                 then begin
@@ -823,7 +823,7 @@ codeunit 7000000 CarteraManagement
                 if VATEntry3.FindLast then
                     VATEntryNo := VATEntry3."Entry No." + 1;
 
-                if (VATEntry2.Type <> 0) and
+                if (VATEntry2.Type <> VATEntry2.Type::" ") and
                    (VATEntry2.Amount = 0) and
                    (VATEntry2.Base = 0)
                 then begin
@@ -1001,18 +1001,14 @@ codeunit 7000000 CarteraManagement
         exit(true);
     end;
 
-    local procedure GetDocType(Type: Option Invoice,,Bill): Integer
-    var
-        DocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
+    local procedure GetDocType(Type: Option Invoice,,Bill): Enum "Gen. Journal Document Type"
     begin
         case Type of
             Type::Invoice, Type::Bill:
-                DocType := DocType::Payment;
+                exit("Gen. Journal Document Type"::Payment);
             else
-                DocType := DocType::" ";
+                exit("Gen. Journal Document Type"::" ");
         end;
-
-        exit(DocType);
     end;
 
     local procedure RemovePayableError(CarteraDoc: Record "Cartera Doc.")

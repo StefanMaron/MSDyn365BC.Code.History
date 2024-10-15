@@ -293,7 +293,6 @@ page 6033 "Service Invoice Statistics"
         AmountInclVAT: Decimal;
         InvDiscAmount: Decimal;
         VATAmount: Decimal;
-        CostLCY: Decimal;
         ProfitLCY: Decimal;
         ProfitPct: Decimal;
         AdjProfitLCY: Decimal;
@@ -304,10 +303,13 @@ page 6033 "Service Invoice Statistics"
         TotalGrossWeight: Decimal;
         TotalVolume: Decimal;
         TotalParcels: Decimal;
-        AmountLCY: Decimal;
         CreditLimitLCYExpendedPct: Decimal;
         VATPercentage: Decimal;
         VATAmountText: Text[30];
         PmtDiscAmount: Decimal;
+
+    protected var
+        AmountLCY: Decimal;
+        CostLCY: Decimal;
 }
 

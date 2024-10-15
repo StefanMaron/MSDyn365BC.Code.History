@@ -318,7 +318,7 @@ page 99000850 "Recurring Consumption Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }

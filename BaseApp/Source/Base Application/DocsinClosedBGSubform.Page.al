@@ -150,7 +150,7 @@ page 7000008 "Docs. in Closed BG Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Navigate)

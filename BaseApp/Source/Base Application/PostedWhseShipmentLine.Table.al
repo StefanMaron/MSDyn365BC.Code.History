@@ -37,12 +37,10 @@ table 7323 "Posted Whse. Shipment Line"
             Caption = 'Source Line No.';
             Editable = false;
         }
-        field(9; "Source Document"; Option)
+        field(9; "Source Document"; Enum "Warehouse Activity Source Document")
         {
             Caption = 'Source Document';
             Editable = false;
-            OptionCaption = ',Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,,Outbound Transfer,,,,,,,,Service Order';
-            OptionMembers = ,"Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order",,"Outbound Transfer",,,,,,,,"Service Order";
         }
         field(10; "Location Code"; Code[10])
         {
@@ -118,12 +116,10 @@ table 7323 "Posted Whse. Shipment Line"
         {
             Caption = 'Due Date';
         }
-        field(39; "Destination Type"; Option)
+        field(39; "Destination Type"; Enum "Warehouse Destination Type")
         {
             Caption = 'Destination Type';
             Editable = false;
-            OptionCaption = ' ,Customer,Vendor,Location';
-            OptionMembers = " ",Customer,Vendor,Location;
         }
         field(40; "Destination No."; Code[20])
         {
@@ -146,11 +142,9 @@ table 7323 "Posted Whse. Shipment Line"
         {
             Caption = 'Shipment Date';
         }
-        field(60; "Posted Source Document"; Option)
+        field(60; "Posted Source Document"; Enum "Warehouse Shipment Posted Source Document")
         {
             Caption = 'Posted Source Document';
-            OptionCaption = ' ,Posted Receipt,,Posted Return Receipt,,Posted Shipment,,Posted Return Shipment,,,Posted Transfer Shipment';
-            OptionMembers = " ","Posted Receipt",,"Posted Return Receipt",,"Posted Shipment",,"Posted Return Shipment",,,"Posted Transfer Shipment";
         }
         field(61; "Posted Source No."; Code[20])
         {

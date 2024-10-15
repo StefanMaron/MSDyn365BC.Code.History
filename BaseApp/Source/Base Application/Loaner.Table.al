@@ -96,15 +96,13 @@ table 5913 Loaner
         {
             Caption = 'Serial No.';
         }
-        field(15; "Document Type"; Option)
+        field(15; "Document Type"; Enum "Service Loaner Document Type")
         {
             CalcFormula = Lookup ("Loaner Entry"."Document Type" WHERE("Loaner No." = FIELD("No."),
                                                                        Lent = CONST(true)));
             Caption = 'Document Type';
             Editable = false;
             FieldClass = FlowField;
-            OptionCaption = ' ,Quote,Order';
-            OptionMembers = " ",Quote,"Order";
         }
     }
 

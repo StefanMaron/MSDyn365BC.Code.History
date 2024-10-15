@@ -989,7 +989,7 @@ codeunit 136100 "Service Contract"
         end;
     end;
 
-    local procedure FindServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option; ContractNo: Code[20])
+    local procedure FindServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; ContractNo: Code[20])
     begin
         with ServiceHeader do begin
             SetRange("Document Type", DocumentType);
@@ -1070,7 +1070,7 @@ codeunit 136100 "Service Contract"
         ServiceContractHeader.Modify(true);
     end;
 
-    local procedure UpdateServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header"; StartingDate: Date; InvoicePeriod: Option; NewPrepaid: Boolean; ContractLinesOnInvoice: Boolean)
+    local procedure UpdateServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header"; StartingDate: Date; InvoicePeriod: Enum "Service Contract Header Invoice Period"; NewPrepaid: Boolean; ContractLinesOnInvoice: Boolean)
     begin
         with ServiceContractHeader do begin
             Validate(Prepaid, NewPrepaid);

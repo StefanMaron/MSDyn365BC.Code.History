@@ -654,7 +654,10 @@ page 152 "Vendor Statistics"
 
     var
         Text000: Label 'Overdue Amounts (LCY) as of %1';
+        Text001: Label 'Placeholder';
         DateFilterCalc: Codeunit "DateFilter-Calc";
+
+    protected var
         VendDateFilter: array[4] of Text[30];
         VendDateName: array[4] of Text[30];
         CurrentDate: Date;
@@ -669,10 +672,7 @@ page 152 "Vendor Statistics"
         VendPaymentsLCY: array[4] of Decimal;
         VendRefundsLCY: array[4] of Decimal;
         VendOtherAmountsLCY: array[4] of Decimal;
-        i: Integer;
         InvAmountsLCY: array[4] of Decimal;
-        Text001: Label 'Placeholder';
-        j: Integer;
         NoOpen: array[3] of Integer;
         NoHonored: array[3] of Integer;
         OpenAmtLCY: array[3] of Decimal;
@@ -680,17 +680,14 @@ page 152 "Vendor Statistics"
         HonoredAmtLCY: array[3] of Decimal;
         HonoredRemainingAmtLCY: array[3] of Decimal;
         DocumentSituationFilter: array[3] of Option " ","Posted BG/PO","Closed BG/PO","BG/PO",Cartera,"Closed Documents";
+        i: Integer;
+        j: Integer;
 
     local procedure SetDateFilter()
     begin
         SetRange("Date Filter", 0D, CurrentDate);
 
         OnAfterSetDateFilter(Rec);
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSetDateFilter(var Vendor: Record Vendor)
-    begin
     end;
 
     [Scope('OnPrem')]
@@ -777,6 +774,11 @@ page 152 "Vendor Statistics"
             SetRange("Document Status");
             SetRange("Document Situation");
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDateFilter(var Vendor: Record Vendor)
+    begin
     end;
 }
 

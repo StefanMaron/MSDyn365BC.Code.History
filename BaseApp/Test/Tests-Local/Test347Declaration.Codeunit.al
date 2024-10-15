@@ -956,7 +956,7 @@ codeunit 147316 "Test 347 Declaration"
         Library340347Declaration.CreateAndPostPurchaseInvoice(VATPostingSetup, Vendor."No.", WorkDate, Amount, ExtDocumentNo);
     end;
 
-    local procedure CreateAndPostPaymentJnlLine(AccountType: Option; AccountNo: Code[20]; PostingDate: Date; PmtAmount: Decimal; ApplToDocNo: Code[20])
+    local procedure CreateAndPostPaymentJnlLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date; PmtAmount: Decimal; ApplToDocNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin

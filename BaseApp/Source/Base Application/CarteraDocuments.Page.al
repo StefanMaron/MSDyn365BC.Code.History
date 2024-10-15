@@ -209,7 +209,7 @@ page 7000003 "Cartera Documents"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 separator(Action58)
@@ -259,7 +259,7 @@ page 7000003 "Cartera Documents"
                     begin
                         if Doc.Type = Doc.Type::Receivable then
                             if Cust.Get("Account No.") then
-                                Cust.CheckBlockedCustOnJnls(Cust, "Document Type", false);
+                                Cust.CheckBlockedCustOnJnls(Cust, "Gen. Journal Document Type".FromInteger("Document Type"), false);
                         Reject;
                     end;
                 }
@@ -286,7 +286,7 @@ page 7000003 "Cartera Documents"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;

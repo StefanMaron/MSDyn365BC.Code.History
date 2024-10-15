@@ -404,7 +404,7 @@ codeunit 144055 "ERM ES Intrastat"
         IntrastatJournalForSalesWithInvoiceDiscount(SalesHeader."Document Type"::"Return Order");
     end;
 
-    local procedure IntrastatJournalForSalesWithInvoiceDiscount(DocumentType: Option)
+    local procedure IntrastatJournalForSalesWithInvoiceDiscount(DocumentType: Enum "Sales Document Type")
     var
         Item: Record Item;
         Item2: Record Item;
@@ -798,7 +798,7 @@ codeunit 144055 "ERM ES Intrastat"
         CreateSalesLine(SalesLine, SalesLine."Document Type"::Invoice, SalesHeader."No.", SalesLine.Type::Item, No, UnitPrice);
     end;
 
-    local procedure CreateMultiplePurchaseLineWithLineDiscount(var PurchaseLine: Record "Purchase Line"; var PurchaseLine2: Record "Purchase Line"; DocumentType: Option) DocumentNo: Code[20]
+    local procedure CreateMultiplePurchaseLineWithLineDiscount(var PurchaseLine: Record "Purchase Line"; var PurchaseLine2: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type") DocumentNo: Code[20]
     var
         Item: Record Item;
         Item2: Record Item;
@@ -813,14 +813,14 @@ codeunit 144055 "ERM ES Intrastat"
         CreatePurchaseLine(PurchaseLine2, DocumentType, DocumentNo, PurchaseLine.Type::Item, Item2."No.");
     end;
 
-    local procedure CreatePurchItemChargeAssignmentPostPurchDoc(var ItemChargeNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PurchaseHeaderNo: Code[20]) Amount: Decimal
+    local procedure CreatePurchItemChargeAssignmentPostPurchDoc(var ItemChargeNo: Code[20]; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; PurchaseHeaderNo: Code[20]) Amount: Decimal
     begin
         Amount := CreatePurchaseItemChargeAssignment(PurchaseHeaderNo, DocumentType);
         ItemChargeNo := FindPurchaseLine(DocumentType, DocumentNo);
         CalculateInvoiceDiscAndPostPurchaseDocument(DocumentType, DocumentNo);
     end;
 
-    local procedure CreatePurchaseHeaderWithPaymentDiscount(DocumentType: Option; BuyFromVendorNo: Code[20]): Code[20]
+    local procedure CreatePurchaseHeaderWithPaymentDiscount(DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -831,7 +831,7 @@ codeunit 144055 "ERM ES Intrastat"
         exit(PurchaseHeader."No.");
     end;
 
-    local procedure CreateSalesHeaderWithPaymentDiscount(DocumentType: Option; SellToCustomerNo: Code[20]): Code[20]
+    local procedure CreateSalesHeaderWithPaymentDiscount(DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -849,7 +849,7 @@ codeunit 144055 "ERM ES Intrastat"
         CreatePurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Invoice, PurchaseHeader."No.", PurchaseLine.Type::Item, No);
     end;
 
-    local procedure CreateAndPostSalesDoc(DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostSalesDoc(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -859,7 +859,7 @@ codeunit 144055 "ERM ES Intrastat"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchDoc(DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostPurchDoc(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -869,7 +869,7 @@ codeunit 144055 "ERM ES Intrastat"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20]; Type: Option; No: Code[20]; UnitPrice: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; UnitPrice: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -879,7 +879,7 @@ codeunit 144055 "ERM ES Intrastat"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20]; Type: Option; No: Code[20])
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -910,7 +910,7 @@ codeunit 144055 "ERM ES Intrastat"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateSalesItemChargeAssignment(No: Code[20]; DocumentType: Option): Decimal
+    local procedure CreateSalesItemChargeAssignment(No: Code[20]; DocumentType: Enum "Sales Document Type"): Decimal
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -919,18 +919,18 @@ codeunit 144055 "ERM ES Intrastat"
         CreateSalesLine(
           SalesLine, DocumentType, SalesHeader."No.", SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo,
           LibraryRandom.RandInt(100));  // Random Unit Price.
-        SalesLine.ShowItemChargeAssgnt;  // Opens ItemChargeAssignmentSalesPageHandler.
+        SalesLine.ShowItemChargeAssgnt();  // Opens ItemChargeAssignmentSalesPageHandler.
         exit(SalesLine.Amount);
     end;
 
-    local procedure CreatePurchaseItemChargeAssignment(No: Code[20]; DocumentType: Option): Decimal
+    local procedure CreatePurchaseItemChargeAssignment(No: Code[20]; DocumentType: Enum "Purchase Document Type"): Decimal
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseHeader.Get(DocumentType, No);
         CreatePurchaseLine(PurchaseLine, DocumentType, No, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo);
-        PurchaseLine.ShowItemChargeAssgnt;  // Opens ItemChargeAssignmentPurchPageHandler.
+        PurchaseLine.ShowItemChargeAssgnt();  // Opens ItemChargeAssignmentPurchPageHandler.
         exit(PurchaseLine.Amount);
     end;
 
@@ -1026,7 +1026,7 @@ codeunit 144055 "ERM ES Intrastat"
         CreatePurchaseLineDiscount(ItemNo2, VendorNo, Currency.Code);
     end;
 
-    local procedure CalculateInvoiceDiscAndPostPurchaseDocument(DocumentType: Option; DocumentNo: Code[20])
+    local procedure CalculateInvoiceDiscAndPostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1035,7 +1035,7 @@ codeunit 144055 "ERM ES Intrastat"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CalculateInvoiceDiscAndPostSalesDocument(DocumentType: Option; DocumentNo: Code[20])
+    local procedure CalculateInvoiceDiscAndPostSalesDocument(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1050,7 +1050,7 @@ codeunit 144055 "ERM ES Intrastat"
         IntrastatJnlLine.SetRange("Item No.", ItemNo);
     end;
 
-    local procedure FindPurchaseLine(DocumentType: Option; DocumentNo: Code[20]): Code[20]
+    local procedure FindPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]): Code[20]
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1061,7 +1061,7 @@ codeunit 144055 "ERM ES Intrastat"
         exit(PurchaseLine."No.");
     end;
 
-    local procedure FindSalesLine(DocumentType: Option; DocumentNo: Code[20]): Code[20]
+    local procedure FindSalesLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]): Code[20]
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1267,7 +1267,7 @@ codeunit 144055 "ERM ES Intrastat"
           CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, ValueMustEqualMsg);
     end;
 
-    local procedure VerifyValueEntryForSales(DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; ItemNo: Code[20]; ItemChargeNo: Code[20]; SalesAmountActual: Decimal)
+    local procedure VerifyValueEntryForSales(DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; ItemChargeNo: Code[20]; SalesAmountActual: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -1287,7 +1287,7 @@ codeunit 144055 "ERM ES Intrastat"
         VerifyValueEntryForPurchase(ItemNo, '', 0, Amount3);  // 0 - Cost Amount (Non-Invtbl.) and Blank Item Charge.
     end;
 
-    local procedure VerifyMultipleValueEntryForSales(DocumentType: Option; ItemNo: Code[20]; ItemChargeNo: Code[20]; Amount: Decimal; Amount2: Decimal)
+    local procedure VerifyMultipleValueEntryForSales(DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; ItemChargeNo: Code[20]; Amount: Decimal; Amount2: Decimal)
     begin
         // Verify Sales Amount (Actual) for Value Entry.
         VerifyValueEntryForSales(DocumentType, ItemNo, ItemChargeNo, Amount);

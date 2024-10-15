@@ -13,10 +13,9 @@ report 498 "Batch Post Purch. Credit Memos"
 
             trigger OnPreDataItem()
             var
-                BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                 PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
             begin
-                PurchaseBatchPostMgt.AddParameter(BatchPostParameterTypes.Print, PrintDoc);
+                PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
                 PurchaseBatchPostMgt.RunBatch("Purchase Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, false);
 
                 CurrReport.Break();

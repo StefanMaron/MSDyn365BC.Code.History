@@ -24,7 +24,7 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         Rec := PurchInvHeader;
         UpdateSIIDocUploadState(Rec);
     end;
-    
+
     local procedure UpdateSIIDocUploadState(PurchInvHeader: Record "Purch. Inv. Header")
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
@@ -34,8 +34,8 @@ codeunit 1405 "Purch. Inv. Header - Edit"
             exit;
 
         if not SIIDocUploadState.GetSIIDocUploadStateByDocument(
-             SIIDocUploadState."Document Source"::"Vendor Ledger",
-             SIIDocUploadState."Document Type"::Invoice,
+             SIIDocUploadState."Document Source"::"Vendor Ledger".AsInteger(),
+             SIIDocUploadState."Document Type"::Invoice.AsInteger(),
              PurchInvHeader."Posting Date",
              PurchInvHeader."No.")
         then

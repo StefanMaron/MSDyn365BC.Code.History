@@ -1,4 +1,4 @@
-﻿table 10740 "No Taxable Entry"
+table 10740 "No Taxable Entry"
 {
     Caption = 'No Taxable Entry';
     DrillDownPageID = "No Taxable Entries";
@@ -29,17 +29,13 @@
         {
             Caption = 'Document No.';
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,,,,,,,,,,,,Bill';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill;
         }
-        field(7; Type; Option)
+        field(7; Type; Enum "General Posting Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Purchase,Sale';
-            OptionMembers = " ",Purchase,Sale;
         }
         field(8; Base; Decimal)
         {

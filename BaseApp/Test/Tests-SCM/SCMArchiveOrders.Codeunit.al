@@ -1006,7 +1006,7 @@ codeunit 137207 "SCM Archive Orders"
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', 1);
@@ -1055,7 +1055,7 @@ codeunit 137207 "SCM Archive Orders"
         end;
     end;
 
-    local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Option)
+    local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1064,7 +1064,7 @@ codeunit 137207 "SCM Archive Orders"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
-    local procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1155,19 +1155,19 @@ codeunit 137207 "SCM Archive Orders"
         ObjectOptions.DeleteAll();
     end;
 
-    local procedure FindPurchaseArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; var PurchaseLineArchive: Record "Purchase Line Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    local procedure FindPurchaseArchive(var PurchaseHeaderArchive: Record "Purchase Header Archive"; var PurchaseLineArchive: Record "Purchase Line Archive"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
     begin
         LibraryPurchase.FilterPurchaseHeaderArchive(PurchaseHeaderArchive, DocumentType, DocumentNo, DocNoOccurance, Version);
         LibraryPurchase.FilterPurchaseLineArchive(PurchaseLineArchive, DocumentType, DocumentNo, DocNoOccurance, Version);
     end;
 
-    local procedure FindSalesArchive(var SalesHeaderArchive: Record "Sales Header Archive"; var SalesLineArchive: Record "Sales Line Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    local procedure FindSalesArchive(var SalesHeaderArchive: Record "Sales Header Archive"; var SalesLineArchive: Record "Sales Line Archive"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
     begin
         LibrarySales.FilterSalesHeaderArchive(SalesHeaderArchive, DocumentType, DocumentNo, DocNoOccurance, Version);
         LibrarySales.FilterSalesLineArchive(SalesLineArchive, DocumentType, DocumentNo, DocNoOccurance, Version);
     end;
 
-    local procedure VerifyPurchaseDocumentIsArchived(DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    local procedure VerifyPurchaseDocumentIsArchived(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
     var
         PurchaseHeaderArchive: Record "Purchase Header Archive";
         PurchaseLineArchive: Record "Purchase Line Archive";
@@ -1177,7 +1177,7 @@ codeunit 137207 "SCM Archive Orders"
         Assert.RecordIsNotEmpty(PurchaseLineArchive);
     end;
 
-    local procedure VerifyPurchaseDocumentIsNotArchived(DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    local procedure VerifyPurchaseDocumentIsNotArchived(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
     var
         PurchaseHeaderArchive: Record "Purchase Header Archive";
         PurchaseLineArchive: Record "Purchase Line Archive";
@@ -1187,7 +1187,7 @@ codeunit 137207 "SCM Archive Orders"
         Assert.RecordIsEmpty(PurchaseLineArchive);
     end;
 
-    local procedure VerifySalesDocumentIsArchived(DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    local procedure VerifySalesDocumentIsArchived(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
     var
         SalesHeaderArchive: Record "Sales Header Archive";
         SalesLineArchive: Record "Sales Line Archive";
@@ -1197,7 +1197,7 @@ codeunit 137207 "SCM Archive Orders"
         Assert.RecordIsNotEmpty(SalesLineArchive);
     end;
 
-    local procedure VerifySalesDocumentIsNotArchived(DocumentType: Option; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
+    local procedure VerifySalesDocumentIsNotArchived(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; DocNoOccurance: Integer; Version: Integer)
     var
         SalesHeaderArchive: Record "Sales Header Archive";
         SalesLineArchive: Record "Sales Line Archive";

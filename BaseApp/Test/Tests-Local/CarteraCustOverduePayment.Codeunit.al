@@ -210,7 +210,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         exit(true);
     end;
 
-    local procedure CreateGenJournalLineForCustomer(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; Amount: Decimal; LineType: Option)
+    local procedure CreateGenJournalLineForCustomer(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; Amount: Decimal; LineType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -400,7 +400,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGenJnlLineForCustomerWithPostingDate(var GenJnlLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; Amount: Decimal; LineType: Option; PostingDate: Date)
+    local procedure CreateGenJnlLineForCustomerWithPostingDate(var GenJnlLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; Amount: Decimal; LineType: Enum "Gen. Journal Document Type"; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -416,7 +416,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; DocNo: Code[20])
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, DocNo);
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)", "Remaining Amount");

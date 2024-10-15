@@ -252,7 +252,6 @@ page 9700 "Email Dialog"
     end;
 
     var
-        EmailItem: Record "Email Item";
         OrigEmailItem: Record "Email Item";
         ClientTypeManagement: Codeunit "Client Type Management";
         LocalEdit: Boolean;
@@ -268,6 +267,9 @@ page 9700 "Email Dialog"
         CcText: Text[250];
         ShownFromEmail: Text;
         PreviousBodyText: Text;
+
+    protected var
+        EmailItem: Record "Email Item";
 
     procedure SetValues(ParmEmailItem: Record "Email Item"; ParmOutlookSupported: Boolean; ParmSmtpSupported: Boolean)
     begin

@@ -13,30 +13,6 @@ codeunit 139167 "Integration Record Mgmt. Test"
         IntegrationRecordManagement: Codeunit "Integration Record Management";
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure CanFindRecordIdByIntegrationTableUid()
-    var
-        Customer: Record Customer;
-        IntegrationRecord: Record "Integration Record";
-        CustomerRecordId: RecordID;
-        IntegrationTableUid: Guid;
-    begin
-        Initialize;
-
-        // Setup customer, integration record and crm integration record
-        IntegrationTableUid := CreateGuid;
-        LibraryCRMIntegration.CreateCustomerAndEnsureIntegrationRecord(Customer, IntegrationRecord);
-        LibraryCRMIntegration.CreateCRMIntegrationRecord(IntegrationTableUid, IntegrationRecord);
-
-        // Execute
-        Assert.IsTrue(IntegrationRecordManagement.FindRecordIdByIntegrationTableUid(TABLECONNECTIONTYPE::CRM,
-            IntegrationTableUid, DATABASE::Customer, CustomerRecordId),
-          'Expected to find RecordID from Integration Table UID');
-
-        // Validate recordid matches
-        Assert.IsTrue(Customer.RecordId = CustomerRecordId, 'Expected the Record ID to match the customer record');
-    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -60,33 +36,6 @@ codeunit 139167 "Integration Record Mgmt. Test"
 
         // Validate recordid does not match
         Assert.IsFalse(Customer.RecordId = CustomerRecordId, 'Expected the Record ID to match the customer record');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CanFindIntegrationTableUidByRecordId()
-    var
-        Customer: Record Customer;
-        IntegrationRecord: Record "Integration Record";
-        CustomerIntegrationTableUidVariant: Variant;
-        IntegrationTableUid: Guid;
-        CustomerIntegrationTableUid: Guid;
-    begin
-        Initialize;
-
-        // Setup customer, integration record and crm integration record
-        IntegrationTableUid := CreateGuid;
-        LibraryCRMIntegration.CreateCustomerAndEnsureIntegrationRecord(Customer, IntegrationRecord);
-        LibraryCRMIntegration.CreateCRMIntegrationRecord(IntegrationTableUid, IntegrationRecord);
-
-        // Execute
-        IntegrationRecordManagement.FindIntegrationTableUIdByRecordId(TABLECONNECTIONTYPE::CRM,
-          Customer.RecordId, CustomerIntegrationTableUidVariant);
-        CustomerIntegrationTableUid := CustomerIntegrationTableUidVariant;
-
-        // Validate recordid matches
-        Assert.IsTrue(IntegrationTableUid = CustomerIntegrationTableUid,
-          'Expected the integration table uid to match the inserted integration table uid');
     end;
 
     [Test]

@@ -120,12 +120,12 @@ report 7000012 "Closed Payment Order Listing"
                         DataItemTableView = SORTING(Type, "Collection Agent", "Bill Gr./Pmt. Order No.") WHERE("Collection Agent" = CONST(Bank), Type = CONST(Payable));
                         column(AmtForCollection; AmtForCollection)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtForCollection_Control32; AmtForCollection)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Vendor_City; Vendor.City)
@@ -166,7 +166,7 @@ report 7000012 "Closed Payment Order Listing"
                         }
                         column(AmtForCollection_Control31; AmtForCollection)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Vendor_County_Control35; Vendor.County)
@@ -198,12 +198,12 @@ report 7000012 "Closed Payment Order Listing"
                         }
                         column(AmtForCollection_Control36; AmtForCollection)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtForCollection_Control39; AmtForCollection)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(ClosedDoc_Type; Type)

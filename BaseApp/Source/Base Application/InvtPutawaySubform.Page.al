@@ -26,7 +26,6 @@ page 7376 "Invt. Put-away Subform"
                 field("Source Document"; "Source Document")
                 {
                     ApplicationArea = Warehouse;
-                    OptionCaption = ' ,,,,Sales Return Order,Purchase Order,,,,Inbound Transfer';
                     ToolTip = 'Specifies the type of document that the line relates to.';
                     Visible = false;
                 }
@@ -66,7 +65,7 @@ page 7376 "Invt. Put-away Subform"
 
                     trigger OnValidate()
                     begin
-                        LotNoOnAfterValidate;
+                        LotNoOnAfterValidate();
                     end;
                 }
                 field("Expiration Date"; "Expiration Date")
@@ -413,17 +412,17 @@ page 7376 "Invt. Put-away Subform"
         ExpirationDateEditable := not ExpDateBlocked;
     end;
 
-    local procedure LotNoOnAfterValidate()
+    protected procedure LotNoOnAfterValidate()
     begin
         UpdateExpDateEditable;
     end;
 
-    local procedure BinCodeOnAfterValidate()
+    protected procedure BinCodeOnAfterValidate()
     begin
         CurrPage.Update;
     end;
 
-    local procedure QtytoHandleOnAfterValidate()
+    protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.Update(true);
     end;

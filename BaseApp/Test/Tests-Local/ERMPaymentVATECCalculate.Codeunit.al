@@ -291,7 +291,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
         SalesOrder.Close;
     end;
 
-    local procedure CreateAndPostInvoiceFromGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; BalAccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure CreateAndPostInvoiceFromGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -341,7 +341,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
         exit(CustInvoiceDisc.Code);
     end;
 
-    local procedure CreateGLAccount(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; GenPostingType: Option): Code[20]
+    local procedure CreateGLAccount(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; GenPostingType: Enum "General Posting Type"): Code[20]
     var
         GeneralPostingSetup: Record "General Posting Setup";
         GLAccount: Record "G/L Account";
@@ -421,7 +421,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; UnrealizedVATType: Option)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; UnrealizedVATType: Option)
     var
         GLAccount: Record "G/L Account";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";

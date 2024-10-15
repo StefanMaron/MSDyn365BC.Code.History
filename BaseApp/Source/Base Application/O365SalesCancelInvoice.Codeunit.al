@@ -53,8 +53,7 @@ codeunit 2103 "O365 Sales Cancel Invoice"
             CancelingProgressWindow.Close;
 
             if InvoiceWasCanceled then begin
-                SendTraceTag('0000242', SentInvoiceCategoryLbl, VERBOSITY::Normal,
-                  InvoiceCancelledTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('0000242', InvoiceCancelledTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SentInvoiceCategoryLbl);
 
                 VerifyEmailAddress(SalesInvoiceHeader);
                 if GraphMail.IsEnabled and GraphMail.HasConfiguration then
@@ -95,8 +94,8 @@ codeunit 2103 "O365 Sales Cancel Invoice"
         RecordVariant := SalesInvoiceHeader;
         CustomerAddress := GetEmailAddress(SalesInvoiceHeader);
         EmailBodyTxt := GetEmailBody(SalesInvoiceHeader);
-        ReportSelections.GetEmailBodyCustomText(
-          ServerEmailBodyFilePath, 2, RecordVariant, SalesInvoiceHeader."Bill-to Customer No.",
+        ReportSelections.GetEmailBodyTextForCust(
+          ServerEmailBodyFilePath, "Report Selection Usage"::"S.Invoice", RecordVariant, SalesInvoiceHeader."Bill-to Customer No.",
           CustomerAddress, EmailBodyTxt);
         DocumentMailing.EmailFileWithSubjectAndReportUsage(
           '', '', ServerEmailBodyFilePath, EmailSubjectTxt, SalesInvoiceHeader."No.", CustomerAddress,

@@ -84,7 +84,7 @@ codeunit 143006 "Library - SII"
         DocumentNo := MockSalesInvoice('');
         with SIIDocUploadState do begin
             CreateNewRequest(
-              MockCLE(DocumentNo), "Document Source"::"Customer Ledger", "Document Type"::Invoice, DocumentNo, '', WorkDate);
+              MockCLE(DocumentNo), "Document Source"::"Customer Ledger".AsInteger(), "Document Type"::Invoice.AsInteger(), DocumentNo, '', WorkDate);
             SetRange("Document No.", DocumentNo);
             FindFirst;
             Status := NewStatus;
@@ -269,7 +269,7 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; var VATProductPostingGroup: Record "VAT Product Posting Group"; VATBusinessPostingGroup: Record "VAT Business Posting Group"; VATCalculationType: Option; VATRate: Decimal; EUService: Boolean)
+    procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; var VATProductPostingGroup: Record "VAT Product Posting Group"; VATBusinessPostingGroup: Record "VAT Business Posting Group"; VATCalculationType: Enum "Tax Calculation Type"; VATRate: Decimal; EUService: Boolean)
     var
         LibraryERM: Codeunit "Library - ERM";
     begin
@@ -325,7 +325,7 @@ codeunit 143006 "Library - SII"
         exit(Item."No.");
     end;
 
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure CreateItemWithSpecificVATSetupEUService(VATBusPostGroupCode: Code[20]; VATPct: Decimal; EUService: Boolean): Code[20]
     var
         Item: Record Item;
@@ -416,7 +416,7 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePurchLineWithSetup(var VATRate: Decimal; var Amount: Decimal; PurchaseHeader: Record "Purchase Header"; VATBusinessPostingGroup: Record "VAT Business Posting Group"; VATCalculationType: Option)
+    procedure CreatePurchLineWithSetup(var VATRate: Decimal; var Amount: Decimal; PurchaseHeader: Record "Purchase Header"; VATBusinessPostingGroup: Record "VAT Business Posting Group"; VATCalculationType: Enum "Tax Calculation Type")
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -450,7 +450,7 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocType: Option; CustNo: Code[20]; CurrencyCode: Code[10])
+    procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type"; CustNo: Code[20]; CurrencyCode: Code[10])
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CustNo);
         ServiceHeader.Validate("Posting Date", WorkDate);
@@ -462,18 +462,18 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateSalesDocWithVATClauseOnDate(var SalesHeader: Record "Sales Header"; DocType: Option; PostingDate: Date; CorrectionType: Option)
+    procedure CreateSalesDocWithVATClauseOnDate(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; PostingDate: Date; CorrectionType: Option)
     begin
         CreateSalesWithVATClause(SalesHeader, DocType, PostingDate, CorrectionType);
     end;
 
     [Scope('OnPrem')]
-    procedure CreateSalesDocWithVATClause(var SalesHeader: Record "Sales Header"; DocType: Option; CorrectionType: Option)
+    procedure CreateSalesDocWithVATClause(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CorrectionType: Option)
     begin
         CreateSalesWithVATClause(SalesHeader, DocType, WorkDate, CorrectionType);
     end;
 
-    local procedure CreateSalesWithVATClause(var SalesHeader: Record "Sales Header"; DocType: Option; PostingDate: Date; CorrectionType: Option)
+    local procedure CreateSalesWithVATClause(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; PostingDate: Date; CorrectionType: Option)
     var
         Customer: Record Customer;
         ItemNo: Code[20];
@@ -575,7 +575,7 @@ codeunit 143006 "Library - SII"
           VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20), true);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 0), 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::" "), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, false));
@@ -651,7 +651,7 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePurchDocWithReverseChargeVAT(var PurchaseHeader: Record "Purchase Header"; var VATRate: Decimal; var Amount: Decimal; DocType: Option; CountryRegion: Code[10])
+    procedure CreatePurchDocWithReverseChargeVAT(var PurchaseHeader: Record "Purchase Header"; var VATRate: Decimal; var Amount: Decimal; DocType: Enum "Purchase Document Type"; CountryRegion: Code[10])
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
@@ -662,7 +662,7 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePurchHeaderWithSetup(var PurchaseHeader: Record "Purchase Header"; var VATBusinessPostingGroup: Record "VAT Business Posting Group"; DocType: Option; CountryRegion: Code[10])
+    procedure CreatePurchHeaderWithSetup(var PurchaseHeader: Record "Purchase Header"; var VATBusinessPostingGroup: Record "VAT Business Posting Group"; DocType: Enum "Purchase Document Type"; CountryRegion: Code[10])
     var
         Vendor: Record Vendor;
         Library340347Declaration: Codeunit "Library - 340 347 Declaration";
@@ -680,30 +680,30 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
-    procedure PostSalesDocWithNoTaxableVATOnDate(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; PostingDate: Date; EUService: Boolean; NonTaxableType: Option)
+    procedure PostSalesDocWithNoTaxableVATOnDate(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; PostingDate: Date; EUService: Boolean; NonTaxableType: Option)
     begin
         PostSalesWithNoTaxableVAT(CustLedgerEntry, DocType, PostingDate, EUService, NonTaxableType);
     end;
 
     [Scope('OnPrem')]
-    procedure PostSalesDocWithNoTaxableVAT(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; EUService: Boolean; NonTaxableType: Option)
+    procedure PostSalesDocWithNoTaxableVAT(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; EUService: Boolean; NonTaxableType: Option)
     begin
         PostSalesWithNoTaxableVAT(CustLedgerEntry, DocType, WorkDate, EUService, NonTaxableType);
     end;
 
     [Scope('OnPrem')]
-    procedure PostSalesDocWithVATClauseOnDate(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; PostingDate: Date; CorrectionType: Option)
+    procedure PostSalesDocWithVATClauseOnDate(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; PostingDate: Date; CorrectionType: Option)
     begin
         PostSalesWithVATClause(CustLedgerEntry, DocType, PostingDate, CorrectionType);
     end;
 
     [Scope('OnPrem')]
-    procedure PostSalesDocWithVATClause(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrectionType: Option)
+    procedure PostSalesDocWithVATClause(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrectionType: Option)
     begin
         PostSalesWithVATClause(CustLedgerEntry, DocType, WorkDate, CorrectionType);
     end;
 
-    local procedure PostSalesWithVATClause(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; PostingDate: Date; CorrectionType: Option)
+    local procedure PostSalesWithVATClause(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; PostingDate: Date; CorrectionType: Option)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -713,7 +713,7 @@ codeunit 143006 "Library - SII"
           CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
-    local procedure PostSalesWithNoTaxableVAT(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; PostingDate: Date; EUService: Boolean; NonTaxableType: Option)
+    local procedure PostSalesWithNoTaxableVAT(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; PostingDate: Date; EUService: Boolean; NonTaxableType: Option)
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -763,7 +763,7 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
-    procedure PostServiceDocWithNonTaxableVAT(DocType: Option; NonTaxableType: Option): Code[20]
+    procedure PostServiceDocWithNonTaxableVAT(DocType: Enum "Service Document Type"; NonTaxableType: Option): Code[20]
     var
         Customer: Record Customer;
         ServiceHeader: Record "Service Header";
@@ -788,7 +788,7 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
-    procedure PostServDocWithCurrency(DocType: Option; CurrencyCode: Code[10]): Code[20]
+    procedure PostServDocWithCurrency(DocType: Enum "Service Document Type"; CurrencyCode: Code[10]): Code[20]
     var
         Customer: Record Customer;
         ServiceHeader: Record "Service Header";
@@ -826,7 +826,7 @@ codeunit 143006 "Library - SII"
         exit(ApplicationPath + '\..\..\..\');
     end;
 
-    local procedure GetSignOfVATEntry(DocType: Option): Integer
+    local procedure GetSignOfVATEntry(DocType: Enum "Gen. Journal Document Type"): Integer
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -878,7 +878,7 @@ codeunit 143006 "Library - SII"
     end;
 
     [Scope('OnPrem')]
-    procedure FindSIIDocUploadState(var SIIDocUploadState: Record "SII Doc. Upload State"; DocumentSource: Option; DocumentType: Option; DocumentNo: Code[20])
+    procedure FindSIIDocUploadState(var SIIDocUploadState: Record "SII Doc. Upload State"; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; DocumentNo: Code[20])
     begin
         SIIDocUploadState.SetRange("Document Source", DocumentSource);
         SIIDocUploadState.SetRange("Document Type", DocumentType);

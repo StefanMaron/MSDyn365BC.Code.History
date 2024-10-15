@@ -520,7 +520,7 @@ report 7000099 "Post Bill Group"
         BillGr.Delete();
     end;
 
-    local procedure InsertGenJournalLine(AccType: Integer; AccNo: Code[20]; Amount2: Decimal; Text: Text[250]; CustLedgEntry: Record "Cust. Ledger Entry"; CurrFactor: Decimal)
+    local procedure InsertGenJournalLine(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; Amount2: Decimal; Text: Text[250]; CustLedgEntry: Record "Cust. Ledger Entry"; CurrFactor: Decimal)
     begin
         GenJnlLineNextNo := GenJnlLineNextNo + 10000;
 

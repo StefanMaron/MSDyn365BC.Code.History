@@ -199,7 +199,7 @@ table 7000002 "Cartera Doc."
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

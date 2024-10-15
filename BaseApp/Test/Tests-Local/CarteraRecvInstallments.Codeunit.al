@@ -597,7 +597,7 @@ codeunit 147531 "Cartera Recv. Installments"
         ReceivablesCarteraDocs."Remaining Amount".AssertEquals(AppliedToCustLedgerEntry."Remaining Amount");
     end;
 
-    local procedure ClearSalesLineDiscount(DocumentType: Option; DocumentNo: Code[20])
+    local procedure ClearSalesLineDiscount(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin

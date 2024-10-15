@@ -596,7 +596,7 @@ codeunit 147560 "Same Ext. Doc. No. In FY"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePurchDocInNextFY(var PurchaseHeader: Record "Purchase Header"; DocType: Option; VendNo: Code[20]; ExtDocNo: Text; PrepmtPct: Decimal)
+    local procedure CreatePurchDocInNextFY(var PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; VendNo: Code[20]; ExtDocNo: Text; PrepmtPct: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin

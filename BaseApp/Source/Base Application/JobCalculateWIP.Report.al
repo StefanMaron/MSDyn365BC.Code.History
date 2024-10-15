@@ -93,9 +93,7 @@ report 1086 "Job Calculate WIP"
 
                 WIPQst := StrSubstNo(RunWIPFunctionsQst, 'Job Post WIP to G/L');
                 if DIALOG.Confirm(WIPQst) then
-                    REPORT.Run(REPORT::"Job Post WIP to G/L", false, false, Job)
-                else
-                    REPORT.RunModal(REPORT::"Job Post WIP to G/L", true, false, Job);
+                    REPORT.Run(REPORT::"Job Post WIP to G/L", true, false, Job);
             end;
         end else
             Message(Text001);

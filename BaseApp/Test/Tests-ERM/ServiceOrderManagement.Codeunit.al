@@ -270,7 +270,7 @@ codeunit 136135 "Service Order Management"
           CopyComponentsFrom::"Old Service Item w/o Serial No.", Replacement::Permanent, ServiceItem.Status::Installed);
     end;
 
-    local procedure ReplacementWithServiceItem(CopyComponentsFrom2: Option; Replacement2: Option; Status: Option)
+    local procedure ReplacementWithServiceItem(CopyComponentsFrom2: Option; Replacement2: Option; Status: Enum "Service Item Status")
     var
         Item: Record Item;
         ServiceItem: Record "Service Item";
@@ -661,7 +661,7 @@ codeunit 136135 "Service Order Management"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
         // Exercise.
-        ServiceLine.ShowTracking;
+        ServiceLine.ShowTracking();
 
         // Verify: Verification done in 'MessageHandler' and 'OrderTrackingPageHandler' page handler.
     end;
@@ -686,7 +686,7 @@ codeunit 136135 "Service Order Management"
         GlobalItemNo := ServiceLine."No.";
         Commit();
         // Exercise.
-        ServiceLine.ShowReservation;
+        ServiceLine.ShowReservation();
 
         // Verify: Verification done in 'ReservationPageHandler' page handler.
     end;
@@ -999,7 +999,7 @@ codeunit 136135 "Service Order Management"
         exit(Item."No.");
     end;
 
-    local procedure CreateItem(CostingMethod: Option; OrderTrackingPolicy: Option): Code[20]
+    local procedure CreateItem(CostingMethod: Enum "Costing Method"; OrderTrackingPolicy: Enum "Order Tracking Policy"): Code[20]
     var
         Item: Record Item;
     begin
@@ -1011,7 +1011,7 @@ codeunit 136135 "Service Order Management"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; BuyFromVendorNo: Code[20]; No: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20]; No: Code[20]; Quantity: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1021,7 +1021,7 @@ codeunit 136135 "Service Order Management"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyFromVendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, BuyFromVendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -1234,7 +1234,7 @@ codeunit 136135 "Service Order Management"
         Clear(ServiceLine2);
     end;
 
-    local procedure InsertServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20]; ServiceItemNo: Code[20])
+    local procedure InsertServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; ServiceItemNo: Code[20])
     begin
         with ServiceLine do begin
             Init;
@@ -1350,7 +1350,7 @@ codeunit 136135 "Service Order Management"
         Navigate."No. of Records".AssertEquals(1);
     end;
 
-    local procedure VerifyServiceItemComponent(ParentServiceItemNo: Code[20]; No: Code[20]; Type: Option)
+    local procedure VerifyServiceItemComponent(ParentServiceItemNo: Code[20]; No: Code[20]; Type: Enum "Service Item Component Type")
     var
         ServiceItemComponent: Record "Service Item Component";
     begin

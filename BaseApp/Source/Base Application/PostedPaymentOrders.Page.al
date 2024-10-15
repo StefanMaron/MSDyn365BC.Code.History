@@ -188,7 +188,7 @@ page 7000054 "Posted Payment Orders"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Enabled = true;
                 Image = Navigate;
                 Promoted = true;

@@ -464,7 +464,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         PurchaseDocumentBeforeRelease(PurchaseHeader."Document Type"::"Return Order");
     end;
 
-    local procedure PurchaseDocumentBeforeRelease(DocumentType: Option)
+    local procedure PurchaseDocumentBeforeRelease(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -522,7 +522,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         PurchaseDocumentAfterRelease(PurchaseHeader."Document Type"::"Return Order");
     end;
 
-    local procedure PurchaseDocumentAfterRelease(DocumentType: Option)
+    local procedure PurchaseDocumentAfterRelease(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -927,7 +927,6 @@ codeunit 144072 "ERM Miscellaneous ES"
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
         VendorNo: Code[20];
         PostedDocNo: Code[20];
-        PurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         // [SCENARIO] Check Pmt. Discount amount on Purchase Credit Memo after CopyDocument function
         Initialize;
@@ -947,7 +946,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibraryPurchase.CreatePurchHeader(NewPurchaseHeader, NewPurchaseHeader."Document Type"::"Credit Memo", VendorNo);
 
         // [WHEN] Run Copy Document on new Credit Memo and use posted Invoice
-        CopyDocumentMgt.CopyPurchDoc(PurchDocType::"Posted Invoice", PostedDocNo, NewPurchaseHeader);
+        CopyDocumentMgt.CopyPurchDoc("Purchase Document Type From"::"Posted Invoice", PostedDocNo, NewPurchaseHeader);
 
         // [THEN] Pmt. Discount amount are equal on new and copied-from documents
         Assert.AreEqual(
@@ -966,7 +965,6 @@ codeunit 144072 "ERM Miscellaneous ES"
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
         CustomerNo: Code[20];
         PostedDocNo: Code[20];
-        SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // [SCENARIO] Check Pmt. Discount amount on Sales Credit Memo after CopyDocument function
         Initialize;
@@ -983,7 +981,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibrarySales.CreateSalesHeader(NewSalesHeader, NewSalesHeader."Document Type"::"Credit Memo", CustomerNo);
 
         // [WHEN] Run Copy Document on new Credit Memo and use posted Invoice
-        CopyDocumentMgt.CopySalesDoc(SalesDocType::"Posted Invoice", PostedDocNo, NewSalesHeader);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Invoice", PostedDocNo, NewSalesHeader);
 
         // [THEN] Pmt. Discount amount are equal on new and copied-from documents
         Assert.AreEqual(
@@ -1780,7 +1778,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         end;
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(AccountType: Option; AccountNo: Code[20]; Amount: Decimal; ShortcutDimensionOneCode: Code[20]; PostingDate: Date): Code[20]
+    local procedure CreateAndPostGeneralJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; ShortcutDimensionOneCode: Code[20]; PostingDate: Date): Code[20]
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1811,7 +1809,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);  // True for Ship and Invoice.
     end;
 
-    local procedure CreateAndPostServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option; CustomerNo: Code[20]; No: Code[20]; VATRegistrationNoFormat: Text[20]; CorrectedInvoiceNo: Code[20]): Code[20]
+    local procedure CreateAndPostServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; No: Code[20]; VATRegistrationNoFormat: Text[20]; CorrectedInvoiceNo: Code[20]): Code[20]
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -1913,7 +1911,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         exit(PaymentTerms.Code);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; PaymentDiscountPct: Decimal)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PaymentDiscountPct: Decimal)
     var
         CompanyInformation: Record "Company Information";
         Item: Record Item;
@@ -1960,7 +1958,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateAndAssignPurchaseLineWithItemCharge(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; DocType: Option; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20])
+    local procedure CreateAndAssignPurchaseLineWithItemCharge(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20])
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
@@ -1994,7 +1992,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20])
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20])
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Using Random value for quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(50, 100, 2));
@@ -2060,7 +2058,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         exit(CustomerBankAccount.Code);
     end;
 
-    local procedure CreateGenJnlLineWithAppln(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; AppliesToDocNo: Code[20])
+    local procedure CreateGenJnlLineWithAppln(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20])
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo, 0);
@@ -2331,13 +2329,15 @@ codeunit 144072 "ERM Miscellaneous ES"
 
         Clear(SuggestVendorPayments);
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
-        SuggestVendorPayments.InitializeRequest(WorkDate, false, 0, false, WorkDate, 'TEST_000', false, 0, '', 0);
+        SuggestVendorPayments.InitializeRequest(
+            WorkDate, false, 0, false, WorkDate, 'TEST_000', false, "Gen. Journal Account Type"::"G/L Account", '',
+            "Bank Payment Type"::" ");
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.UseRequestPage(false);
         SuggestVendorPayments.RunModal;
     end;
 
-    local procedure RunReportWithVATEntry(ReportID: Integer; DocNo: Code[20]; DocType: Option)
+    local procedure RunReportWithVATEntry(ReportID: Integer; DocNo: Code[20]; DocType: Enum "Gen. Journal Document Type")
     var
         DummyVATEntry: Record "VAT Entry";
     begin
@@ -2398,7 +2398,7 @@ codeunit 144072 "ERM Miscellaneous ES"
           PaymentDiscountAmount, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
     end;
 
-    local procedure VerifyPurchaseLine(DocumentType: Option; DocumentNo: Code[20]; LineAmount: Decimal; OutstandingAmountLCY: Decimal)
+    local procedure VerifyPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LineAmount: Decimal; OutstandingAmountLCY: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin

@@ -335,7 +335,7 @@ codeunit 10757 "SII Recreate Missing Entries"
     [Scope('OnPrem')]
     procedure SendTraceTagOn(TraceMessage: Text)
     begin
-        SendTraceTag('000023W', RecreateMissingEntryJobTxt, VERBOSITY::Normal, TraceMessage, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('000023W', TraceMessage, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', RecreateMissingEntryJobTxt);
     end;
 
     procedure GetSourceEntries(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; var TempCustLedgEntry: Record "Cust. Ledger Entry" temporary; var TempDetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry" temporary; var TempDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry" temporary; AllEntries: Boolean; FromDate: Date)

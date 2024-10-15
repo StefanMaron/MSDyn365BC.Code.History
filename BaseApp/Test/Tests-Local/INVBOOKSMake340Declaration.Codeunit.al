@@ -891,7 +891,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CountryRegion: Code[10]; PurchaseDocumentType: Option; PostingDate: Date)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; CountryRegion: Code[10]; PurchaseDocumentType: Enum "Purchase Document Type"; PostingDate: Date)
     begin
         // Create Purchase Invoice to generate transaction data.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseDocumentType, CreateVendor(CountryRegion));
@@ -901,7 +901,7 @@ codeunit 147302 "INVBOOKS - Make340 Declaration"
           CreateItem, LibraryRandom.RandInt(10))
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesDocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; PostingDate: Date)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesDocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; PostingDate: Date)
     begin
         // Create Sales Invoice to generate transaction data.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesDocumentType, CustomerNo);

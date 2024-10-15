@@ -887,7 +887,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         end;
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -921,7 +921,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostPurchaseDocumentWithMultipleLines(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Type: Option; No: Code[20]; VATProdPostingGroup: Code[20]; VATBusPostingGroup: Code[20]): Decimal
+    local procedure CreateAndPostPurchaseDocumentWithMultipleLines(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; No: Code[20]; VATProdPostingGroup: Code[20]; VATBusPostingGroup: Code[20]): Decimal
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine2: Record "Purchase Line";
@@ -1018,7 +1018,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         exit(PurchaseLine."Amount Including VAT");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Type: Option; No: Code[20]; VATBusPostingGroup: Code[20]; CurrencyCode: Code[10])
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; No: Code[20]; VATBusPostingGroup: Code[20]; CurrencyCode: Code[10])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1030,7 +1030,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         UpdatePurchaseLine(PurchaseLine);
     end;
 
-    local procedure CreatePurchaseDocumentWithPriceInclVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; LineType: Option; LineNo: Code[20]; PricesInclVAT: Boolean; PrepmtPct: Decimal)
+    local procedure CreatePurchaseDocumentWithPriceInclVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; LineType: Enum "Purchase Line Type"; LineNo: Code[20]; PricesInclVAT: Boolean; PrepmtPct: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, DocumentType, VendorNo);
@@ -1041,7 +1041,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
           PurchaseLine, PurchaseHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20]; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1121,7 +1121,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         PurchCrMemoHdr.FindFirst;
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         with PurchaseLine do begin
             SetRange("Document Type", DocumentType);
@@ -1177,7 +1177,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATCalculationType);
         VATPostingSetup.Validate("EC %", LibraryRandom.RandInt(10));
@@ -1282,7 +1282,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         VerifyVATAmountLine(VATAmountLine, VATPct, ECPct, Amount);
     end;
 
-    local procedure VerifyVATEntryAmountAndAdditionalCurrencyAmount(DocumentType: Option; BillToPayToNo: Code[20]; VATAmount: Decimal; AdditionalCurrencyAmount: Decimal)
+    local procedure VerifyVATEntryAmountAndAdditionalCurrencyAmount(DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20]; VATAmount: Decimal; AdditionalCurrencyAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin

@@ -256,7 +256,7 @@ report 5912 "Service - Credit Memo"
                         }
                         column(LineAmt_ServCrMemoLine; "Line Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_ServCrMemoLine; Description)
@@ -276,7 +276,7 @@ report 5912 "Service - Credit Memo"
                         }
                         column(UnitPrice_ServCrMemoLine; "Unit Price")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDisc_ServCrMemoLine; "Line Discount %")
@@ -290,12 +290,12 @@ report 5912 "Service - Credit Memo"
                         }
                         column(InvDiscountAmount; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Amount_ServCrMemoLine; -"Pmt. Discount Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalExclVATText; TotalExclVATText)
@@ -306,12 +306,12 @@ report 5912 "Service - Credit Memo"
                         }
                         column(AmtInclVAT_ServCrMemoLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtIncludingVATAmt; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtText_VATAmtLine; VATAmountLine.VATAmountText)
@@ -319,7 +319,7 @@ report 5912 "Service - Credit Memo"
                         }
                         column(Amt_ServCrMemoLine; Amount)
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(LineAmntInvDiscAmtAmtInclVAT; -("Line Amount" - "Inv. Discount Amount" - "Pmt. Discount Amount" - "Amount Including VAT"))
@@ -421,14 +421,14 @@ report 5912 "Service - Credit Memo"
                                 if "Service Cr.Memo Header"."Prices Including VAT" then
                                     VATAmountLine."Prices Including VAT" := true;
                                 VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                                VATAmountLine.InsertLine;
+                                VATAmountLine.InsertLine();
 
                                 TotalAmount += Amount;
                                 TotalAmountInclVAT += "Amount Including VAT";
                                 TotalInvDiscAmount += "Inv. Discount Amount";
                                 TotalLineAmount += "Line Amount";
-                                TypeInt := Type;
-                                TypeNo := VATAmountLine."VAT Calculation Type";
+                                TypeInt := Type.AsInteger();
+                                TypeNo := VATAmountLine."VAT Calculation Type".AsInteger();
                                 TotalPmtDiscAmount += "Pmt. Discount Amount";
                             end;
                         end;

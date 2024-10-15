@@ -1,4 +1,4 @@
-﻿report 10710 "Make 349 Declaration"
+report 10710 "Make 349 Declaration"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Make 349 Declaration Disk';
@@ -1742,7 +1742,7 @@
         end;
     end;
 
-    local procedure CalcVendDeclarationPeriodInfo(DocType: Option; DocNo: Code[20]; VendNo: Code[20])
+    local procedure CalcVendDeclarationPeriodInfo(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; VendNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
         AppliedVendLedgEntry: Record "Vendor Ledger Entry";
@@ -1761,7 +1761,7 @@
             RectFiscalYear := Format(Date2DMY(VendLedgEntry."Posting Date", 3));
     end;
 
-    local procedure CalcCustDeclarationPeriodInfo(DocType: Option; DocNo: Code[20]; CustNo: Code[20])
+    local procedure CalcCustDeclarationPeriodInfo(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; CustNo: Code[20])
     begin
         CustEntries.SetRange("Document Type", DocType);
         CustEntries.SetRange("Document No.", DocNo);
@@ -1857,7 +1857,7 @@
           Format(CountryRegion.GetVATRegistrationNoLimitedBySetup(VATRegistrationNo), MaxStrLen(CombinedVATRegNo));
     end;
 
-    local procedure InsertVendWarning349(No: Code[20]; Name: Text[100]; PostingDate: Date; DocType: Option; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer)
+    local procedure InsertVendWarning349(No: Code[20]; Name: Text[100]; PostingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer)
     begin
         CalcVendDeclarationPeriodInfo(DocType, DocNo, No);
 
@@ -1881,7 +1881,7 @@
         CustVendWarning349.Insert();
     end;
 
-    local procedure InsertCustWarning349(No: Code[20]; Name: Text[100]; PostingDate: Date; DocType: Option; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; DeliveryOperationCode: Option)
+    local procedure InsertCustWarning349(No: Code[20]; Name: Text[100]; PostingDate: Date; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; EU3PartyTrade: Boolean; EUService: Boolean; PositiveBase: Boolean; VATEntryNo: Integer; DeliveryOperationCode: Option)
     begin
         CalcCustDeclarationPeriodInfo(DocType, DocNo, No);
 
@@ -1912,7 +1912,7 @@
         NoTaxableEntry: Record "No Taxable Entry";
     begin
         NoTaxableEntry.FilterNoTaxableEntriesForSource(
-          NoTaxableEntry.Type::Sale, Customer2."No.", NoTaxableEntry."Document Type"::"Credit Memo",
+          "General Posting Type"::Sale.AsInteger(), Customer2."No.", "Gen. Journal Document Type"::"Credit Memo".AsInteger(),
           FromDate, ToDate, FilterString);
         if NoTaxableEntry.IsEmpty then
             exit;
@@ -1931,7 +1931,7 @@
         NoTaxableEntry: Record "No Taxable Entry";
     begin
         NoTaxableEntry.FilterNoTaxableEntriesForSource(
-          NoTaxableEntry.Type::Purchase, Vendor2."No.", NoTaxableEntry."Document Type"::"Credit Memo",
+          "General Posting Type"::Purchase.AsInteger(), Vendor2."No.", "Gen. Journal Document Type"::"Credit Memo".AsInteger(),
           FromDate, ToDate, FilterString);
         if NoTaxableEntry.IsEmpty then
             exit;

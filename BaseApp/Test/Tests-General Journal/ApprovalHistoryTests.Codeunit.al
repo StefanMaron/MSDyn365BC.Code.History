@@ -204,7 +204,7 @@ codeunit 134323 "Approval History Tests"
         VerifyApprovalCommentsAreDeleted(GenJournalBatch.RecordId);
     end;
 
-    local procedure ExecuteApprovalWorkflowForJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure ExecuteApprovalWorkflowForJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         Workflow: Record Workflow;
         ApprovalEntry: Record "Approval Entry";
@@ -261,7 +261,7 @@ codeunit 134323 "Approval History Tests"
         ApproveApprovalRequest(ApprovalEntry);
     end;
 
-    local procedure CreateJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; JournalTemplateName: Code[10]; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure CreateJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; JournalTemplateName: Code[10]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, JournalTemplateName);
         GenJournalBatch.Validate("Bal. Account Type", BalAccountType);
@@ -269,7 +269,7 @@ codeunit 134323 "Approval History Tests"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalBatchWithJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGeneralJournalBatchWithJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         BankAccount: Record "Bank Account";
     begin

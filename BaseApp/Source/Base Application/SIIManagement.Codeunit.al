@@ -322,7 +322,7 @@ codeunit 10756 "SII Management"
         exit(DummyCountryRegion.EUCountryFound(CountryRegionCode));
     end;
 
-    local procedure FindVatEntryFromDetailedLedger(DetailedLedgerEntryRecRef: RecordRef; var VATEntry: Record "VAT Entry"; DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,,,,,,,,,,,,Bill): Boolean
+    local procedure FindVatEntryFromDetailedLedger(DetailedLedgerEntryRecRef: RecordRef; var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"): Boolean
     var
         DummyDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         TransNoFieldRef: FieldRef;
@@ -391,7 +391,7 @@ codeunit 10756 "SII Management"
         PaymentVATEntry: Record "VAT Entry";
         SalesDocVATEntry: Record "VAT Entry";
         DocTypeFieldRef: FieldRef;
-        DocumentType: Option;
+        DocumentType: Enum "Gen. Journal Document Type";
     begin
         DocTypeFieldRef := PaymentDetailedLedgerEntryRecRef.Field(DummyDetailedCustLedgEntry.FieldNo("Document Type"));
         DocumentType := DocTypeFieldRef.Value;
@@ -412,7 +412,7 @@ codeunit 10756 "SII Management"
         PaymentVATEntry: Record "VAT Entry";
         SalesDocVATEntry: Record "VAT Entry";
         DocTypeFieldRef: FieldRef;
-        DocumentType: Option;
+        DocumentType: Enum "Gen. Journal Document Type";
     begin
         DocTypeFieldRef := PaymentLedgerEntryRecRef.Field(DummyCustLedgerEntry.FieldNo("Document Type"));
         DocumentType := DocTypeFieldRef.Value;
@@ -575,7 +575,7 @@ codeunit 10756 "SII Management"
     [Scope('OnPrem')]
     procedure NoTaxableEntriesExistPurchase(var NoTaxableEntry: Record "No Taxable Entry"; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date): Boolean
     begin
-        NoTaxableEntry.FilterNoTaxableEntry(NoTaxableEntry.Type::Purchase, SourceNo, DocumentType, DocumentNo, PostingDate, false);
+        NoTaxableEntry.FilterNoTaxableEntry(NoTaxableEntry.Type::Purchase.AsInteger(), SourceNo, DocumentType, DocumentNo, PostingDate, false);
         NoTaxableEntry.SetRange("Not In 347", false);
         exit(not NoTaxableEntry.IsEmpty);
     end;
@@ -583,7 +583,7 @@ codeunit 10756 "SII Management"
     [Scope('OnPrem')]
     procedure NoTaxableEntriesExistSales(var NoTaxableEntry: Record "No Taxable Entry"; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IsService: Boolean; UseNoTaxableType: Boolean; IsLocalRule: Boolean): Boolean
     begin
-        NoTaxableEntry.FilterNoTaxableEntry(NoTaxableEntry.Type::Sale, SourceNo, DocumentType, DocumentNo, PostingDate, false);
+        NoTaxableEntry.FilterNoTaxableEntry(NoTaxableEntry.Type::Sale.AsInteger(), SourceNo, DocumentType, DocumentNo, PostingDate, false);
         NoTaxableEntry.SetRange("EU Service", IsService);
         NoTaxableEntry.SetRange("Not In 347", false);
         if UseNoTaxableType then

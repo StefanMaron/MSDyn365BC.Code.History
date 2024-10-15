@@ -680,7 +680,7 @@ codeunit 134826 "UT Contact Table"
         Assert.ExpectedErrorCode('Dialog');
     end;
 
-    local procedure GetContactNoFromContBusRelations(LinkOption: Option; CodeNo: Code[20]): Code[20]
+    local procedure GetContactNoFromContBusRelations(LinkOption: Enum "Contact Business Relation Link To Table"; CodeNo: Code[20]): Code[20]
     var
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
@@ -690,7 +690,7 @@ codeunit 134826 "UT Contact Table"
         exit(ContactBusinessRelation."Contact No.");
     end;
 
-    local procedure MockContact(var Contact: Record Contact; ContactType: Option)
+    local procedure MockContact(var Contact: Record Contact; ContactType: Enum "Contact Type")
     var
         ContactMailingGroup: Record "Contact Mailing Group";
         RlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line";

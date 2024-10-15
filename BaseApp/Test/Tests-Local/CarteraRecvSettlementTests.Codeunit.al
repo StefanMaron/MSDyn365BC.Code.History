@@ -1188,7 +1188,7 @@ codeunit 147536 "Cartera Recv. Settlement Tests"
           InitialAmount, SettledAmount, DetailedCustLedgEntry."Document Type"::Invoice);
     end;
 
-    local procedure ValidateLedgerEntries(CustomerNo: Code[20]; DocumentNo: Code[20]; BillGroupNo: Code[20]; InitialAmount: Decimal; SettledAmount: Decimal; CustLedgEntryDocumentType: Option)
+    local procedure ValidateLedgerEntries(CustomerNo: Code[20]; DocumentNo: Code[20]; BillGroupNo: Code[20]; InitialAmount: Decimal; SettledAmount: Decimal; CustLedgEntryDocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GLSetup: Record "General Ledger Setup";

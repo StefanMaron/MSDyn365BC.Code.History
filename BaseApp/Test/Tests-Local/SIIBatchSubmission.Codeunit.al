@@ -21,7 +21,6 @@ codeunit 147553 "SII Batch Submission"
         IsInitialized: Boolean;
         RetryAcceptedQst: Label 'Accepted entries have been selected. Do you want to resend them?';
         UploadTypeGlb: Option Regular,Intracommunity,RetryAccepted;
-        DocumentTypeGlb: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         DocumentSourceGlb: Option "Customer Ledger","Vendor Ledger","Detailed Customer Ledger","Detailed Vendor Ledger";
         SIIDocumentTypeGlb: Option ,Payment,Invoice,"Credit Memo";
 
@@ -146,8 +145,8 @@ codeunit 147553 "SII Batch Submission"
             DocumentNo := LibrarySII.MockSalesInvoice(ExternalDocumentNo);
 
             CreateNewRequest(
-              LibrarySII.MockCLE(DocumentNo), "Document Source"::"Customer Ledger",
-              "Document Type"::Invoice, DocumentNo, ExternalDocumentNo, WorkDate);
+              LibrarySII.MockCLE(DocumentNo), "Document Source"::"Customer Ledger".AsInteger(),
+              "Document Type"::Invoice.AsInteger(), DocumentNo, ExternalDocumentNo, WorkDate);
 
             SetRange("Document No.", DocumentNo);
             FindFirst;
@@ -323,7 +322,7 @@ codeunit 147553 "SII Batch Submission"
         // [SCENARIO 232557] Two sales invoice documents are combined in one XML
         Initialize;
 
-        CreatePostSalesDoc(CustLedgerEntry, DocumentTypeGlb::Invoice, false);
+        CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::Invoice, false);
 
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
@@ -345,7 +344,7 @@ codeunit 147553 "SII Batch Submission"
         // [SCENARIO 232557] Two sales credit memo documents are combined in one XML
         Initialize;
 
-        CreatePostSalesDoc(CustLedgerEntry, DocumentTypeGlb::"Credit Memo", false);
+        CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::"Credit Memo", false);
 
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
@@ -367,7 +366,7 @@ codeunit 147553 "SII Batch Submission"
         // [SCENARIO 232557] Two sales credit memo removal documents are combined in one XML
         Initialize;
 
-        CreatePostSalesDoc(CustLedgerEntry, DocumentTypeGlb::"Credit Memo", true);
+        CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::"Credit Memo", true);
 
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadTypeGlb::Regular, true), '');
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadTypeGlb::Regular, true), '');
@@ -389,7 +388,7 @@ codeunit 147553 "SII Batch Submission"
         // [SCENARIO 232557] Two purchase invoice documents are combined in one XML
         Initialize;
 
-        CreatePostPurchaseDoc(VendorLedgerEntry, DocumentTypeGlb::Invoice, false);
+        CreatePostPurchaseDoc(VendorLedgerEntry, "Purchase Document Type"::Invoice, false);
 
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
@@ -411,7 +410,7 @@ codeunit 147553 "SII Batch Submission"
         // [SCENARIO 232557] Two purchase credit memo documents are combined in one XML
         Initialize;
 
-        CreatePostPurchaseDoc(VendorLedgerEntry, DocumentTypeGlb::"Credit Memo", false);
+        CreatePostPurchaseDoc(VendorLedgerEntry, "Purchase Document Type"::"Credit Memo", false);
 
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
@@ -433,7 +432,7 @@ codeunit 147553 "SII Batch Submission"
         // [SCENARIO 232557] Two purchase credit memo removal documents are combined in one XML
         Initialize;
 
-        CreatePostPurchaseDoc(VendorLedgerEntry, DocumentTypeGlb::"Credit Memo", true);
+        CreatePostPurchaseDoc(VendorLedgerEntry, "Purchase Document Type"::"Credit Memo", true);
 
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadTypeGlb::Regular, true), '');
         Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadTypeGlb::Regular, true), '');
@@ -455,7 +454,7 @@ codeunit 147553 "SII Batch Submission"
         // [SCENARIO 232557] Two sales invoice documents are splitted when SIIXMLCreator.Reset() is invoked
         Initialize;
 
-        CreatePostSalesDoc(CustLedgerEntry, DocumentTypeGlb::Invoice, false);
+        CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::Invoice, false);
 
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadTypeGlb::Regular, false), '');
         LibrarySII.VerifyXMLSalesDocHeaderCnt(XMLDoc, 1);
@@ -492,12 +491,12 @@ codeunit 147553 "SII Batch Submission"
 
         // [GIVEN] Several posted documents per each type (Sales\Purchase, Invoice\CreditMemo\CreditMemoRemoval)
         for i := 1 to 2 do begin
-            SalesInvoiceDocNo[i] := CreatePostSalesDoc(CustLedgerEntry, DocumentTypeGlb::Invoice, false);
-            SalesCrMemoDocNo[i] := CreatePostSalesDoc(CustLedgerEntry, DocumentTypeGlb::"Credit Memo", false);
-            SalesCrMemoRemovalDocNo[i] := CreatePostSalesDoc(CustLedgerEntry, DocumentTypeGlb::"Credit Memo", true);
-            PurchaseInvoiceDocNo[i] := CreatePostPurchaseDoc(VendorLedgerEntry, DocumentTypeGlb::Invoice, false);
-            PurchaseCrMemoDocNo[i] := CreatePostPurchaseDoc(VendorLedgerEntry, DocumentTypeGlb::"Credit Memo", false);
-            PurchaseCrMemoRemovalDocNo[i] := CreatePostPurchaseDoc(VendorLedgerEntry, DocumentTypeGlb::"Credit Memo", true);
+            SalesInvoiceDocNo[i] := CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::Invoice, false);
+            SalesCrMemoDocNo[i] := CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::"Credit Memo", false);
+            SalesCrMemoRemovalDocNo[i] := CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::"Credit Memo", true);
+            PurchaseInvoiceDocNo[i] := CreatePostPurchaseDoc(VendorLedgerEntry, "Purchase Document Type"::Invoice, false);
+            PurchaseCrMemoDocNo[i] := CreatePostPurchaseDoc(VendorLedgerEntry, "Purchase Document Type"::"Credit Memo", false);
+            PurchaseCrMemoRemovalDocNo[i] := CreatePostPurchaseDoc(VendorLedgerEntry, "Purchase Document Type"::"Credit Memo", true);
         end;
 
         // [WHEN] Upload pending documents (SIISetup."Enable Batch Submissions" := TRUE)
@@ -534,8 +533,8 @@ codeunit 147553 "SII Batch Submission"
         LibrarySII.InitSetup(true, false);
 
         // [GIVEN] Several posted documents sales invoices
-        SalesInvoiceDocNo[1] := CreatePostSalesDoc(CustLedgerEntry, DocumentTypeGlb::Invoice, false);
-        SalesInvoiceDocNo[2] := CreatePostSalesDoc(CustLedgerEntry, DocumentTypeGlb::Invoice, false);
+        SalesInvoiceDocNo[1] := CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::Invoice, false);
+        SalesInvoiceDocNo[2] := CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::Invoice, false);
 
         // [WHEN] Upload pending documents (SIISetup."Enable Batch Submissions" := FALSE)
         SIIDocUploadManagement.UploadPendingDocuments;
@@ -558,7 +557,7 @@ codeunit 147553 "SII Batch Submission"
         LibrarySII.BindSubscriptionJobQueue;
     end;
 
-    local procedure CreatePostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; IsCrMemoRemoval: Boolean): Code[20]
+    local procedure CreatePostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Sales Document Type"; IsCrMemoRemoval: Boolean): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -574,7 +573,7 @@ codeunit 147553 "SII Batch Submission"
         exit(CustLedgerEntry."Document No.");
     end;
 
-    local procedure CreatePostPurchaseDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; IsCrMemoRemoval: Boolean): Code[20]
+    local procedure CreatePostPurchaseDoc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Purchase Document Type"; IsCrMemoRemoval: Boolean): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
