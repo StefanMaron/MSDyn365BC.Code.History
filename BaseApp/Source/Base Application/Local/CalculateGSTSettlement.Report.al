@@ -3,7 +3,7 @@ report 11603 "Calculate GST Settlement"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/CalculateGSTSettlement.rdlc';
     Caption = 'Calculate GST Settlement';
-    Permissions = TableData "Invoice Post. Buffer" = rimd,
+    Permissions = TableData "G/L Account Net Change" = rimd,
                   TableData "VAT Entry" = m,
                   TableData "BAS Calculation Sheet" = rm;
 
@@ -207,20 +207,20 @@ report 11603 "Calculate GST Settlement"
                         TotalClearingVATAmount := TotalClearingVATAmount + ClearingVATAmount;
 
                         if Post then
-                            if not InvPostBuffer.Get(0, 0, ClearingAccNo) then begin
-                                InvPostBuffer.Init();
-                                InvPostBuffer."G/L Account" := ClearingAccNo;
+                            if not TempGLAccountNetChange.Get(ClearingAccNo) then begin
+                                TempGLAccountNetChange.Init();
+                                TempGLAccountNetChange."No." := ClearingAccNo;
                                 if Type = Type::"G/L Entry" then
-                                    InvPostBuffer.Amount := ClearingAmount
+                                    TempGLAccountNetChange."Net Change in Jnl." := ClearingAmount
                                 else
-                                    InvPostBuffer.Amount := ClearingVATAmount;
-                                InvPostBuffer.Insert();
+                                    TempGLAccountNetChange."Net Change in Jnl." := ClearingVATAmount;
+                                TempGLAccountNetChange.Insert();
                             end else begin
                                 if Type = Type::"G/L Entry" then
-                                    InvPostBuffer.Amount := InvPostBuffer.Amount + ClearingAmount
+                                    TempGLAccountNetChange."Net Change in Jnl." += ClearingAmount
                                 else
-                                    InvPostBuffer.Amount := InvPostBuffer.Amount + ClearingVATAmount;
-                                InvPostBuffer.Modify();
+                                    TempGLAccountNetChange."Net Change in Jnl." += ClearingVATAmount;
+                                TempGLAccountNetChange.Modify();
                             end;
                     end;
 
@@ -230,7 +230,7 @@ report 11603 "Calculate GST Settlement"
                         SetRange("Field Label No.", CurrFieldID);
                         TotalClearingAmount := 0;
                         TotalClearingVATAmount := 0;
-                        InvPostBuffer.DeleteAll();
+                        TempGLAccountNetChange.DeleteAll();
                     end;
                 }
                 dataitem(PostSettlementLoop; "Integer")
@@ -239,19 +239,19 @@ report 11603 "Calculate GST Settlement"
                     column(InterCompany; InterCompany)
                     {
                     }
-                    column(GenJnlLine_2__Amount; -GenJnlLine[2].Amount)
+                    column(GenJnlLine_2__Amount; -TempGenJnlLine[2].Amount)
                     {
                     }
-                    column(GenJnlLine_2__Description; GenJnlLine[2].Description)
+                    column(GenJnlLine_2__Description; TempGenJnlLine[2].Description)
                     {
                     }
-                    column(GenJnlLine_2___Account_No__; GenJnlLine[2]."Account No.")
+                    column(GenJnlLine_2___Account_No__; TempGenJnlLine[2]."Account No.")
                     {
                     }
-                    column(GenJnlLine_2___Account_Type_; GenJnlLine[2]."Account Type")
+                    column(GenJnlLine_2___Account_Type_; TempGenJnlLine[2]."Account Type")
                     {
                     }
-                    column(FORMAT_GenJnlLine_2___Posting_Date__; Format(GenJnlLine[2]."Posting Date"))
+                    column(FORMAT_GenJnlLine_2___Posting_Date__; Format(TempGenJnlLine[2]."Posting Date"))
                     {
                     }
                     column(TotalAmt; -TotalAmt)
@@ -269,19 +269,19 @@ report 11603 "Calculate GST Settlement"
                     column(FORMAT_GenJnlLine1__Posting_Date__; Format(GenJnlLine1."Posting Date"))
                     {
                     }
-                    column(GenJnlLine_3__Amount; -GenJnlLine[3].Amount)
+                    column(GenJnlLine_3__Amount; -TempGenJnlLine[3].Amount)
                     {
                     }
-                    column(GenJnlLine_3__Description; GenJnlLine[3].Description)
+                    column(GenJnlLine_3__Description; TempGenJnlLine[3].Description)
                     {
                     }
-                    column(GenJnlLine_3___Account_No__; GenJnlLine[3]."Account No.")
+                    column(GenJnlLine_3___Account_No__; TempGenJnlLine[3]."Account No.")
                     {
                     }
-                    column(GenJnlLine_3___Account_Type_; GenJnlLine[3]."Account Type")
+                    column(GenJnlLine_3___Account_Type_; TempGenJnlLine[3]."Account Type")
                     {
                     }
-                    column(FORMAT_GenJnlLine_3___Posting_Date__; Format(GenJnlLine[3]."Posting Date"))
+                    column(FORMAT_GenJnlLine_3___Posting_Date__; Format(TempGenJnlLine[3]."Posting Date"))
                     {
                     }
                     column(ShowRoundSection; ShowRoundSection)
@@ -326,42 +326,42 @@ report 11603 "Calculate GST Settlement"
                         if not Post then
                             CurrReport.Break();
 
-                        if InvPostBuffer.Find('-') then begin
+                        if TempGLAccountNetChange.Find('-') then begin
                             // Post clearing accounts
                             repeat
-                                if InvPostBuffer.Amount <> 0 then begin
+                                if TempGLAccountNetChange."Net Change in Jnl." <> 0 then begin
                                     if InterCompany then begin
                                         InitGenJnlLine(GenJnlLine1, false);
                                         SetBASDataForGenJnlLine(GenJnlLine1);
                                         GenJnlLine1."Account Type" := GenJnlLine1."Account Type"::"G/L Account";
-                                        GenJnlLine1.Validate("Account No.", InvPostBuffer."G/L Account");
-                                        InitializeGenJournalLineForInterCompany(GenJnlLine1, InvPostBuffer."G/L Account");
+                                        GenJnlLine1.Validate("Account No.", TempGLAccountNetChange."No.");
+                                        InitializeGenJournalLineForInterCompany(GenJnlLine1, TempGLAccountNetChange."No.");
                                         GenJnlLine1.Description := DescTxt;
-                                        GenJnlLine1.Validate(Amount, -InvPostBuffer.Amount);
+                                        GenJnlLine1.Validate(Amount, -TempGLAccountNetChange."Net Change in Jnl.");
                                         if GenJnlLine1."VAT Calculation Type" <>
                                            GenJnlLine1."VAT Calculation Type"::"Full VAT"
                                         then
                                             GenJnlLine1."Gen. Posting Type" := GenJnlLine1."Gen. Posting Type"::Settlement;
                                         GenJnlLine1."Source Code" := SourceCodeSetup."VAT Settlement";
-                                        TotalAmt := TotalAmt + InvPostBuffer.Amount;
+                                        TotalAmt := TotalAmt + TempGLAccountNetChange."Net Change in Jnl.";
                                         GenJnlLine1.Insert(true);
                                     end else begin
-                                        InitGenJnlLine(GenJnlLine[1], false);
-                                        SetBASDataForGenJnlLine(GenJnlLine[1]);
-                                        GenJnlLine[1]."Account Type" := GenJnlLine[1]."Account Type"::"G/L Account";
-                                        GenJnlLine[1].Validate("Account No.", InvPostBuffer."G/L Account");
-                                        GenJnlLine[1].Description := DescTxt;
-                                        GenJnlLine[1].Validate(Amount, -InvPostBuffer.Amount);
-                                        if GenJnlLine[1]."VAT Calculation Type" <>
-                                           GenJnlLine[1]."VAT Calculation Type"::"Full VAT"
+                                        InitGenJnlLine(TempGenJnlLine[1], false);
+                                        SetBASDataForGenJnlLine(TempGenJnlLine[1]);
+                                        TempGenJnlLine[1]."Account Type" := "Gen. Journal Account Type"::"G/L Account";
+                                        TempGenJnlLine[1].Validate("Account No.", TempGLAccountNetChange."No.");
+                                        TempGenJnlLine[1].Description := DescTxt;
+                                        TempGenJnlLine[1].Validate(Amount, -TempGLAccountNetChange."Net Change in Jnl.");
+                                        if TempGenJnlLine[1]."VAT Calculation Type" <>
+                                           TempGenJnlLine[1]."VAT Calculation Type"::"Full VAT"
                                         then
-                                            GenJnlLine[1]."Gen. Posting Type" := GenJnlLine[1]."Gen. Posting Type"::Settlement;
-                                        GenJnlLine[1]."Source Code" := SourceCodeSetup."VAT Settlement";
-                                        TotalAmt := TotalAmt + InvPostBuffer.Amount;
-                                        GenJnlPostLine.Run(GenJnlLine[1]);
+                                            TempGenJnlLine[1]."Gen. Posting Type" := TempGenJnlLine[1]."Gen. Posting Type"::Settlement;
+                                        TempGenJnlLine[1]."Source Code" := SourceCodeSetup."VAT Settlement";
+                                        TotalAmt := TotalAmt + TempGLAccountNetChange."Net Change in Jnl.";
+                                        GenJnlPostLine.Run(TempGenJnlLine[1]);
                                     end;
                                 end;
-                            until InvPostBuffer.Next() = 0;
+                            until TempGLAccountNetChange.Next() = 0;
 
                             // Post settlement account
                             if ((RoundAccNo = '') and (TotalAmt <> 0)) or
@@ -388,24 +388,24 @@ report 11603 "Calculate GST Settlement"
                                     // GenJnlLine1.GetDefaultDim(JournalLineDimension[2]);
                                     GenJnlLine1.Insert(true);
                                 end else begin
-                                    InitGenJnlLine(GenJnlLine[2], false);
-                                    SetBASDataForGenJnlLine(GenJnlLine[2]);
+                                    InitGenJnlLine(TempGenJnlLine[2], false);
+                                    SetBASDataForGenJnlLine(TempGenJnlLine[2]);
                                     case AccType of
                                         AccType::"G/L Account":
-                                            GenJnlLine[2]."Account Type" := GenJnlLine[2]."Account Type"::"G/L Account";
+                                            TempGenJnlLine[2]."Account Type" := TempGenJnlLine[2]."Account Type"::"G/L Account";
                                         AccType::Vendor:
-                                            GenJnlLine[2]."Account Type" := GenJnlLine[2]."Account Type"::Vendor;
+                                            TempGenJnlLine[2]."Account Type" := TempGenJnlLine[2]."Account Type"::Vendor;
                                     end;
-                                    GenJnlLine[2].Validate("Account No.", AccNo);
-                                    GenJnlLine[2].Description := DescTxt;
-                                    SetSettlementAmount(GenJnlLine[2]);
-                                    if GenJnlLine[2]."VAT Calculation Type" <>
-                                       GenJnlLine[2]."VAT Calculation Type"::"Full VAT"
+                                    TempGenJnlLine[2].Validate("Account No.", AccNo);
+                                    TempGenJnlLine[2].Description := DescTxt;
+                                    SetSettlementAmount(TempGenJnlLine[2]);
+                                    if TempGenJnlLine[2]."VAT Calculation Type" <>
+                                       TempGenJnlLine[2]."VAT Calculation Type"::"Full VAT"
                                     then
-                                        GenJnlLine[2]."Gen. Posting Type" := GenJnlLine[2]."Gen. Posting Type"::Settlement;
-                                    GenJnlLine[2]."Source Code" := SourceCodeSetup."VAT Settlement";
+                                        TempGenJnlLine[2]."Gen. Posting Type" := TempGenJnlLine[2]."Gen. Posting Type"::Settlement;
+                                    TempGenJnlLine[2]."Source Code" := SourceCodeSetup."VAT Settlement";
                                     // GenJnlLine[2].GetDefaultDim(JournalLineDimension[2]);
-                                    GenJnlPostLine.Run(GenJnlLine[2]);
+                                    GenJnlPostLine.Run(TempGenJnlLine[2]);
                                     VATEntry2.Reset();
                                     VATEntry2.SetRange("Posting Date", PostDate);
                                     VATEntry2.SetRange("Document No.", DocNo);
@@ -438,19 +438,19 @@ report 11603 "Calculate GST Settlement"
                                     // GenJnlLine1.GetDefaultDim(JournalLineDimension[2]);
                                     GenJnlLine1.Insert(true);
                                 end else begin
-                                    InitGenJnlLine(GenJnlLine[3], false);
-                                    SetBASDataForGenJnlLine(GenJnlLine[3]);
-                                    GenJnlLine[3]."Account Type" := GenJnlLine[3]."Account Type"::"G/L Account";
-                                    GenJnlLine[3].Validate("Account No.", RoundAccNo);
-                                    GenJnlLine[3].Description := 'GST Settlement (Rounding)';
-                                    GenJnlLine[3].Validate(Amount, TotalAmt - CurrAmt);
-                                    if GenJnlLine[3]."VAT Calculation Type" <>
-                                       GenJnlLine[3]."VAT Calculation Type"::"Full VAT"
+                                    InitGenJnlLine(TempGenJnlLine[3], false);
+                                    SetBASDataForGenJnlLine(TempGenJnlLine[3]);
+                                    TempGenJnlLine[3]."Account Type" := "Gen. Journal Account Type"::"G/L Account";
+                                    TempGenJnlLine[3].Validate("Account No.", RoundAccNo);
+                                    TempGenJnlLine[3].Description := 'GST Settlement (Rounding)';
+                                    TempGenJnlLine[3].Validate(Amount, TotalAmt - CurrAmt);
+                                    if TempGenJnlLine[3]."VAT Calculation Type" <>
+                                       TempGenJnlLine[3]."VAT Calculation Type"::"Full VAT"
                                     then
-                                        GenJnlLine[3]."Gen. Posting Type" := GenJnlLine[3]."Gen. Posting Type"::Settlement;
-                                    GenJnlLine[3]."Source Code" := SourceCodeSetup."VAT Settlement";
+                                        TempGenJnlLine[3]."Gen. Posting Type" := TempGenJnlLine[3]."Gen. Posting Type"::Settlement;
+                                    TempGenJnlLine[3]."Source Code" := SourceCodeSetup."VAT Settlement";
                                     // GenJnlLine[3].GetDefaultDim(JournalLineDimension[3]);
-                                    GenJnlPostLine.Run(GenJnlLine[3]);
+                                    GenJnlPostLine.Run(TempGenJnlLine[3]);
                                     ShowRoundSection := true;
                                 end;
                             end else
@@ -691,8 +691,8 @@ report 11603 "Calculate GST Settlement"
         GLEntry: Record "G/L Entry";
         VATEntry: Record "VAT Entry";
         Vendor: Record Vendor;
-        GenJnlLine: array[3] of Record "Gen. Journal Line" temporary;
-        InvPostBuffer: Record "Invoice Post. Buffer" temporary;
+        TempGenJnlLine: array[3] of Record "Gen. Journal Line" temporary;
+        TempGLAccountNetChange: Record "G/L Account Net Change" temporary;
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine1: Record "Gen. Journal Line";

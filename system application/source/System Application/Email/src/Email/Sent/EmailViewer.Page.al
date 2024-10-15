@@ -201,7 +201,7 @@ page 12 "Email Viewer"
         HasSourceRecord := EmailImpl.HasSourceRecord(Rec."Message Id");
         IsHTMLFormatted := EmailMessageImpl.IsBodyHTMLFormatted();
         HasAttachments := EmailMessageImpl.Attachments_First();
-        CurrPage.Attachments.Page.UpdateValues(EmailMessageImpl.GetId(), false);
+        CurrPage.Attachments.Page.UpdateValues(EmailMessageImpl, false);
     end;
 
     trigger OnOpenPage()

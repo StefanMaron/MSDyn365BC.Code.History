@@ -1092,6 +1092,15 @@ table 7001 "Price List Line"
         exit(SalesReceivablesSetup."Use Customized Lookup");
     end;
 
+    procedure RenameNo(LineType: Enum "Price Asset Type"; OldNo: Code[20]; NewNo: Code[20])
+    begin
+        Reset();
+        SetRange("Asset Type", LineType);
+        SetRange("Product No.", OldNo);
+        if not Rec.IsEmpty() then
+            ModifyAll("Product No.", NewNo, true);
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyFromPriceAsset(PriceAsset: Record "Price Asset"; var riceListLine: Record "Price List Line")
     begin

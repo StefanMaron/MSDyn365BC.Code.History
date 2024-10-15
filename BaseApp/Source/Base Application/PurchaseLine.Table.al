@@ -144,7 +144,11 @@
                 TestStatusOpen();
                 TestField("Qty. Rcd. Not Invoiced", 0);
                 TestField("Quantity Received", 0);
-                TestField("Receipt No.", '');
+
+                IsHandled := false;
+                OnValidateNoOnBeforeCheckReceiptNo(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    TestField("Receipt No.", '');
 
                 TestField("Prepmt. Amt. Inv.", 0);
 
@@ -446,7 +450,13 @@
             var
                 IsHandled: Boolean;
                 DoInitOutstanding: Boolean;
+                ShouldCheckWithReturnQtyShipped: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantity(Rec, xRec, CurrFieldNo, IsHandled);
+                If IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 IsHandled := false;
                 OnValidateQuantityOnBeforeDropShptCheck(Rec, xRec, CurrFieldNo, IsHandled);
@@ -460,7 +470,10 @@
 
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 OnValidateQuantityOnAfterCalcBaseQty(Rec, xRec);
-                if IsCreditDocType() then begin
+
+                ShouldCheckWithReturnQtyShipped := IsCreditDocType();
+                OnValidateQuantityOnAfterShouldCheckWithReturnQtyShipped(Rec, ShouldCheckWithReturnQtyShipped);
+                if ShouldCheckWithReturnQtyShipped then begin
                     if (Quantity * "Return Qty. Shipped" < 0) or
                        ((Abs(Quantity) < Abs("Return Qty. Shipped")) and ("Return Shipment No." = ''))
                     then
@@ -470,14 +483,18 @@
                     then
                         FieldError("Quantity (Base)", StrSubstNo(Text004, FieldCaption("Return Qty. Shipped (Base)")));
                 end else begin
-                    if (Quantity * "Quantity Received" < 0) or
-                       ((Abs(Quantity) < Abs("Quantity Received")) and ("Receipt No." = ''))
-                    then
-                        FieldError(Quantity, StrSubstNo(Text004, FieldCaption("Quantity Received")));
-                    if ("Quantity (Base)" * "Qty. Received (Base)" < 0) or
-                       ((Abs("Quantity (Base)") < Abs("Qty. Received (Base)")) and ("Receipt No." = ''))
-                    then
-                        FieldError("Quantity (Base)", StrSubstNo(Text004, FieldCaption("Qty. Received (Base)")));
+                    IsHandled := false;
+                    OnValidateQuantityOnBeforeCheckWithQuantityReceived(Rec, IsHandled);
+                    if not IsHandled then begin
+                        if (Quantity * "Quantity Received" < 0) or
+                        ((Abs(Quantity) < Abs("Quantity Received")) and ("Receipt No." = ''))
+                        then
+                            FieldError(Quantity, StrSubstNo(Text004, FieldCaption("Quantity Received")));
+                        if ("Quantity (Base)" * "Qty. Received (Base)" < 0) or
+                        ((Abs("Quantity (Base)") < Abs("Qty. Received (Base)")) and ("Receipt No." = ''))
+                        then
+                            FieldError("Quantity (Base)", StrSubstNo(Text004, FieldCaption("Qty. Received (Base)")));
+                    end;
                 end;
 
                 if (Type = Type::"Charge (Item)") and (CurrFieldNo <> 0) then begin
@@ -506,6 +523,7 @@
                         if not IsHandled then
                             InitQtyToReceive();
                     end;
+                    OnValidateQuantityOnAfterInitQty(Rec, CurrFieldNo);
                 end;
                 if (Quantity * xRec.Quantity < 0) or (Quantity = 0) then
                     InitItemAppl();
@@ -530,6 +548,7 @@
                     CheckApplToItemLedgEntry();
                 end;
 
+                OnValidateQuantityOnBeforeResetAmounts(Rec, xRec);
                 if (xRec.Quantity <> Quantity) and (Quantity = 0) and
                    ((Amount <> 0) or ("Amount Including VAT" <> 0) or ("VAT Base Amount" <> 0))
                 then begin
@@ -549,7 +568,10 @@
                     UpdateJobPrices();
                 end;
 
-                CheckWMS();
+                IsHandled := false;
+                OnValidateQuantityOnBeforeCheckWMS(Rec, IsHandled);
+                if not IsHandled then
+                    CheckWMS();
             end;
         }
         field(16; "Outstanding Quantity"; Decimal)
@@ -645,6 +667,8 @@
                         then
                             Error(Text009, "Outstanding Qty. (Base)");
                     end;
+
+                OnValidateQtyToReceiveOnAfterCheckQty(Rec, CurrFieldNo);
 
                 if (CurrFieldNo <> 0) and (Type = Type::Item) and ("Qty. to Receive" < 0) then
                     CheckApplToItemLedgEntry();
@@ -761,6 +785,7 @@
                     UpdateLineDiscPct();
                 "Inv. Discount Amount" := 0;
                 "Inv. Disc. Amount to Invoice" := 0;
+                OnLineDiscountAmountOnValidateOnBeforeUpdateAmounts(Rec);
                 UpdateAmounts();
                 UpdateUnitCost();
                 NotifyOnMissingSetup(FieldNo("Line Discount Amount"));
@@ -786,6 +811,7 @@
                             "Amount Including VAT" :=
                               Round(Amount + "VAT Base Amount" * "VAT %" / 100, Currency."Amount Rounding Precision");
                             UpdateACYAmounts(PurchHeader);
+                            OnValidateAmountOnAfterCalculateNormalVAT(Rec, PurchHeader, Currency);
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         if Amount <> 0 then
@@ -843,6 +869,7 @@
                                 Currency."Amount Rounding Precision");
                             "VAT Base Amount" :=
                               Round(Amount * (1 - PurchHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+                            OnValidateAmountIncludingVATOnAfterCalculateNormalVAT(Rec, PurchHeader, Currency);
                         end;
                     "VAT Calculation Type"::"Full VAT":
                         begin
@@ -973,6 +1000,11 @@
                 Job: Record Job;
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Drop Shipment", false);
                 TestField("Special Order", false);
                 TestField("Receipt No.", '');
@@ -1355,7 +1387,10 @@
                 OnValidateVATProdPostingGroupOnAfterTestStatusOpen(Rec, IsHandled);
                 if not IsHandled then begin
                     CheckPrepmtAmtInvEmpty();
-                    VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
+                    IsHandled := false;
+                    OnValidateVATProdPostingGroupOnBeforeGetVATPostingSetup(Rec, VATPostingSetup, IsHandled);
+                    if not IsHandled then
+                        VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                     OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup);
                     "VAT Difference" := 0;
                     GetPurchHeader();
@@ -1942,7 +1977,7 @@
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateJobTaskNo(xRec, IsHandled);
+                OnBeforeValidateJobTaskNo(xRec, IsHandled, CurrFieldNo);
                 if IsHandled then
                     exit;
 
@@ -1978,7 +2013,14 @@
             Caption = 'Job Line Type';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobLineType(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Receipt No.", '');
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
@@ -1994,7 +2036,14 @@
             Caption = 'Job Unit Price';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobUnitPrice(Rec, TempJobJnlLine, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Receipt No.", '');
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
@@ -2022,7 +2071,13 @@
             Caption = 'Job Line Amount';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                OnBeforeValidateJobLineAmount(Rec, TempJobJnlLine, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Receipt No.", '');
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
@@ -2043,7 +2098,14 @@
             Caption = 'Job Line Discount Amount';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobLineDiscountAmount(Rec, TempJobJnlLine, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Receipt No.", '');
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
@@ -2065,7 +2127,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobLineDiscountPercent(Rec, TempJobJnlLine, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Receipt No.", '');
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
@@ -2085,7 +2154,14 @@
             Editable = false;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobUnitPriceLCY(Rec, TempJobJnlLine, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Receipt No.", '');
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
@@ -2113,7 +2189,14 @@
             Editable = false;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobLineAmountLCY(Rec, TempJobJnlLine, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Receipt No.", '');
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
@@ -2134,7 +2217,14 @@
             Editable = false;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateJobLineDiscAmountLCY(Rec, TempJobJnlLine, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Receipt No.", '');
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
@@ -2531,6 +2621,7 @@
                 else
                     "Qty. per Unit of Measure" := 0;
 
+                OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(Rec, xRec, Item);
                 Validate(Quantity);
                 UpdateDirectUnitCostByField(FieldNo("Unit of Measure Code"));
             end;
@@ -3089,6 +3180,8 @@
 
                 if not TrackingBlocked then
                     CheckDateConflict.PurchLineCheck(Rec, CurrFieldNo <> 0);
+
+                OnAfterValidateOrderDate(Rec, xRec, CurrFieldNo);
             end;
         }
         field(5800; "Allow Item Charge Assignment"; Boolean)
@@ -3635,6 +3728,7 @@
         PurchCommentLine: Record "Purch. Comment Line";
         SalesOrderLine: Record "Sales Line";
         IsHandled: Boolean;
+        ShouldModifySalesOrderLine: Boolean;
     begin
         IsHandled := false;
         OnDeleteOnBeforeTestStatusOpen(Rec, IsHandled);
@@ -3664,7 +3758,9 @@
         if ("Document Type" = "Document Type"::Order) and (Quantity <> "Quantity Invoiced") then
             TestField("Prepmt. Amt. Inv.", "Prepmt Amt Deducted");
 
-        if "Sales Order Line No." <> 0 then begin
+        ShouldModifySalesOrderLine := "Sales Order Line No." <> 0;
+        OnDeleteOnAfterCalcShouldModifySalesOrderLine(Rec, ShouldModifySalesOrderLine);
+        if ShouldModifySalesOrderLine then begin
             LockTable();
             SalesOrderLine.LockTable();
             SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, "Sales Order No.", "Sales Order Line No.");
@@ -3701,6 +3797,7 @@
             PurchLine2.SetFilter("Line No.", '<>%1', "Line No.");
             OnDeleteOnBeforePurchLineDeleteAll(PurchLine2);
             PurchLine2.DeleteAll(true);
+            OnDeleteOnAfterPurchLineDeleteAll(Rec, PurchLine2);
         end;
 
         PurchCommentLine.SetRange("Document Type", "Document Type");
@@ -4327,7 +4424,7 @@
         "Allow Invoice Disc." := false;
         "Allow Item Charge Assignment" := false;
         InitDeferralCode();
-        OnAfterAssignGLAccountValues(Rec, GLAcc, PurchHeader);
+        OnAfterAssignGLAccountValues(Rec, GLAcc, PurchHeader, xRec);
     end;
 
     local procedure CopyFromItem()
@@ -4723,7 +4820,8 @@
                         end;
                         GetLineWithCalculatedPrice(PriceCalculation);
                     end;
-                    Validate("Direct Unit Cost");
+                    if (xRec."Direct Unit Cost" <> Rec."Direct Unit Cost") or not (CalledByFieldNo in [FieldNo("Job Task No."), FieldNo("Job No.")]) then
+                        Validate("Direct Unit Cost");
                 end;
         end;
 
@@ -4844,6 +4942,7 @@
             DiscountAmountPerQty :=
               Round(("Line Discount Amount" + "Inv. Discount Amount") / Quantity,
                 GLSetup."Unit-Amount Rounding Precision");
+        OnUpdateUnitCostOnAfterCalcDiscountAmountPerQty(Rec, DiscountAmountPerQty);
 
         if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
             "Unit Cost" := 0
@@ -4875,6 +4974,7 @@
                     "Unit Cost (LCY)" := SKU."Unit Cost" * "Qty. per Unit of Measure"
                 else
                     "Unit Cost (LCY)" := Item."Unit Cost" * "Qty. per Unit of Measure";
+                OnUpdateUnitCostOnAfterCalcStandardUnitCostLCY(Rec);
             end;
         end;
 
@@ -5019,6 +5119,7 @@
                     Modify();
                 PurchLine2.SetFilter(Amount, '<>0');
                 if PurchLine2.Find('<>') then begin
+                    OnUpdateVATAmountsOnBeforeValidateLineDiscountPercent(Rec, PurchLine2);
                     PurchLine2.ValidateLineDiscountPercent(false);
                     PurchLine2.Modify();
                 end;
@@ -5776,7 +5877,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAssignFieldsForQtyPerUOM(Rec, Item, FieldNo, IsHandled);
+        OnBeforeAssignFieldsForQtyPerUOM(Rec, Item, FieldNo, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -6432,6 +6533,7 @@
                                 "Amount Including VAT (ACY)" := Round(NewAmountIncludingVATACY, AddCurrency."Amount Rounding Precision");
                                 "VAT Base (ACY)" := NewVATBaseAmountACY;
                                 "Amount (ACY)" := NewAmountACY;
+                                OnUpdateVATOnLinesOnAfterUpdateBaseAmounts(PurchHeader, PurchLine, TempVATAmountLineRemainder, VATAmountLine, Currency);
                             end;
                             OnUpdateVATOnLinesOnBeforeInitOutstanding(Rec, QtyType);
                             InitOutstanding();
@@ -7269,7 +7371,13 @@
     var
         LineAmount: Decimal;
         LineDiscAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetLineAmountToHandle(Rec, Currency, QtyToHandle, LineAmount, LineDiscAmount, IsHandled);
+        if IsHandled then
+            exit(LineAmount - LineDiscAmount);
+
         if "Line Discount %" = 100 then
             exit(0);
 
@@ -8683,16 +8791,21 @@
     end;
 
     procedure UpdatePrepmtAmounts()
+    var
+        IsHandled: Boolean;
     begin
         if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
             "Prepayment VAT Difference" := 0;
             if not PrePaymentLineAmountEntered then
                 if not CalculateFullGST("Prepmt. Line Amount") then begin
-                    "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
-                    if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
-                        "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
+                    IsHandled := false;
+                    OnBeforeCalcPrepaymentLineAmount(Rec, Currency, IsHandled);
+                    if not IsHandled then begin
+                        "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
+                        if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
+                            "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
+                    end;
                 end;
-
             PrePaymentLineAmountEntered := false;
         end;
 
@@ -9170,6 +9283,11 @@
 #endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcPrepaymentLineAmount(var PurchaseLine: Record "Purchase Line"; Currency: Record Currency; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var PurchaseLine: Record "Purchase Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
@@ -9195,7 +9313,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignGLAccountValues(var PurchLine: Record "Purchase Line"; GLAccount: Record "G/L Account"; PurchHeader: Record "Purchase Header")
+    local procedure OnAfterAssignGLAccountValues(var PurchLine: Record "Purchase Line"; GLAccount: Record "G/L Account"; PurchHeader: Record "Purchase Header"; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -9305,7 +9423,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAssignFieldsForQtyPerUOM(var PurchaseLine: Record "Purchase Line"; Item: Record Item; FieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeAssignFieldsForQtyPerUOM(var PurchaseLine: Record "Purchase Line"; Item: Record Item; FieldNo: Integer; var IsHandled: Boolean; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -10337,7 +10455,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateUnitOfMeasureCodeOnAfterCalcShouldUpdateItemReference(PurchaseLine: Record "Purchase Line"; var ShouldUpdateItemReference: Boolean)
+    local procedure OnValidateUnitOfMeasureCodeOnAfterCalcShouldUpdateItemReference(var PurchaseLine: Record "Purchase Line"; var ShouldUpdateItemReference: Boolean)
     begin
     end;
 
@@ -10406,7 +10524,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInternalLeadTimeDays(PurchaseLine: Record "Purchase Line"; PurchDate: Date; TotalDays: DateFormula);
+    local procedure OnAfterInternalLeadTimeDays(PurchaseLine: Record "Purchase Line"; PurchDate: Date; var TotalDays: DateFormula);
     begin
     end;
 
@@ -10421,7 +10539,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeValidateJobTaskNo(xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnBeforeValidateJobTaskNo(xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -10665,6 +10783,156 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitOutstanding(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantity(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateOrderDate(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAmountOnAfterCalculateNormalVAT(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAmountIncludingVATOnAfterCalculateNormalVAT(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeCheckWithQuantityReceived(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnAfterShouldCheckWithReturnQtyShipped(var PurchaseLine: Record "Purchase Line"; var ShouldCalcWithReturnQtyShipped: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeCheckWMS(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnAfterInitQty(var PurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATAmountsOnBeforeValidateLineDiscountPercent(PurchaseLine: Record "Purchase Line"; var PurchLine2: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitOfMeasureCodeOnBeforeValidateQuantity(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnAfterCalcShouldModifySalesOrderLine(var PurchaseLine: Record "Purchase Line"; var ShouldModifySalesOrderLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetLineAmountToHandle(PurchaseLine: Record "Purchase Line"; var Currency: Record Currency; QtyToHandle: Decimal; var LineAmount: Decimal; var LineDiscAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnitCostOnAfterCalcDiscountAmountPerQty(var PurchaseLine: Record "Purchase Line"; var DiscountAmountPerQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnAfterPurchLineDeleteAll(var PurchaseLine: Record "Purchase Line"; var PurchLine2: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnitCostOnAfterCalcStandardUnitCostLCY(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToReceiveOnAfterCheckQty(var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVATProdPostingGroupOnBeforeGetVATPostingSetup(var PurchaseLine: Record "Purchase Line"; var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnBeforeResetAmounts(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobLineDiscAmountLCY(var PurchaseLine: Record "Purchase Line"; var TempJobJnlLine: Record "Job Journal Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobLineType(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobUnitPrice(var PurchaseLine: Record "Purchase Line"; var TempJobJnlLine: Record "Job Journal Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobNo(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobLineDiscountPercent(var PurchaseLine: Record "Purchase Line"; var TempJobJnlLine: Record "Job Journal Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobLineDiscountAmount(var PurchaseLine: Record "Purchase Line"; var TempJobJnlLine: Record "Job Journal Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobUnitPriceLCY(var PurchaseLine: Record "Purchase Line"; var TempJobJnlLine: Record "Job Journal Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobLineAmount(var PurchaseLine: Record "Purchase Line"; var TempJobJnlLine: Record "Job Journal Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateJobLineAmountLCY(var PurchaseLine: Record "Purchase Line"; var TempJobJnlLine: Record "Job Journal Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLineDiscountAmountOnValidateOnBeforeUpdateAmounts(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnAfterUpdateBaseAmounts(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnBeforeCheckReceiptNo(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

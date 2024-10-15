@@ -889,11 +889,13 @@ table 113 "Sales Invoice Line"
             ShippedQtyNotReturned := Quantity;
     end;
 
-    local procedure CalcQty(QtyBase: Decimal): Decimal
+    local procedure CalcQty(QtyBase: Decimal) Result: Decimal
     begin
         if "Qty. per Unit of Measure" = 0 then
-            exit(QtyBase);
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
+            Result := QtyBase
+        else
+            Result := Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+        OnAfterCalcQty(Rec, QtyBase, Result);
     end;
 
     procedure GetItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean)
@@ -977,7 +979,14 @@ table 113 "Sales Invoice Line"
     end;
 
     procedure ShowDeferrals()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDeferrals(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         DeferralUtilities.OpenLineScheduleView(
             "Deferral Code", "Deferral Document Type"::Sales.AsInteger(), '', '',
             GetDocumentType(), "Document No.", "Line No.");
@@ -1027,6 +1036,11 @@ table 113 "Sales Invoice Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQty(var SalesInvoiceLine: Record "Sales Invoice Line"; QtyBase: Decimal; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromSalesLine(var SalesInvLine: Record "Sales Invoice Line"; SalesInvHeader: Record "Sales Invoice Header"; SalesLine: Record "Sales Line")
     begin
     end;
@@ -1043,6 +1057,11 @@ table 113 "Sales Invoice Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetItemLedgEntriesOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; ValueEntry: Record "Value Entry"; SetQuantity: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDeferrals(SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
     begin
     end;
 }

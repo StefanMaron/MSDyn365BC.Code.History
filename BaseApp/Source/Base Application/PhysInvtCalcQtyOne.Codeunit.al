@@ -14,6 +14,7 @@ codeunit 5888 "Phys. Invt.-Calc. Qty. One"
         if not PhysInvtOrderLine.EmptyLine() then begin
             PhysInvtOrderLine.TestField("Item No.");
             PhysInvtOrderLine.CalcQtyAndTrackLinesExpected();
+            OnOnRunOnBeforePhysInvtOrderLineModify(PhysInvtOrderLine);
             PhysInvtOrderLine.Modify();
         end;
 
@@ -23,5 +24,10 @@ codeunit 5888 "Phys. Invt.-Calc. Qty. One"
     var
         ConfirmCalculationQst: Label 'Do you want to calculate %1 for this line?', Comment = '%1 = field caption';
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOnRunOnBeforePhysInvtOrderLineModify(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
 }
 

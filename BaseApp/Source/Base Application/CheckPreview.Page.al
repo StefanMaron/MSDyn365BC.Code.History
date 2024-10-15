@@ -337,7 +337,7 @@
                     else begin
                         Vend.Get(GenJnlLine."Account No.");
                         RemitAddress.Get(GenJnlLine."Remit-to Code", GenJnlLine."Account No.");
-                        FormatAddr.VendorRemitToAddress(CheckToAddr, RemitAddress);
+                        FormatAddr.VendorRemitToAddress(RemitAddress, CheckToAddr);
                     end;
                 end;
 #pragma warning restore AA0005

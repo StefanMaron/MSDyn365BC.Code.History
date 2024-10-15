@@ -362,6 +362,13 @@ codeunit 1294 "OCR Service Mgt."
         exit(DelChr(XMLDate, '=', '-'))
     end;
 
+    internal procedure GetFeatureTelemetryName(): Text
+    var
+        OCRServiceTelemetryNameTxt: Label 'Document Exchange', Locked = true;
+    begin
+        exit(OCRServiceTelemetryNameTxt);
+    end;
+
     local procedure GetOcrServiceSetup(VerifyEnable: Boolean)
     begin
         GetOcrServiceSetupExtended(OCRServiceSetup, VerifyEnable);
@@ -601,9 +608,9 @@ codeunit 1294 "OCR Service Mgt."
                         CorrectionNeeded := OriginalValueAsDecimal <> CorrectionValueAsDecimal;
                     end;
                 else begin
-                        CorrectionValue := Format(IncomingDocumentFieldRef.Value, 0, 9);
-                        CorrectionNeeded := CorrectionXMLNode.InnerText <> CorrectionValue;
-                    end;
+                    CorrectionValue := Format(IncomingDocumentFieldRef.Value, 0, 9);
+                    CorrectionNeeded := CorrectionXMLNode.InnerText <> CorrectionValue;
+                end;
             end;
 
             if CorrectionNeeded then begin
@@ -922,6 +929,7 @@ codeunit 1294 "OCR Service Mgt."
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         XMLDOMManagement: Codeunit "XML DOM Management";
         SendIncomingDocumentToOCR: Codeunit "Send Incoming Document to OCR";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ImageInStr: InStream;
         ResponseStr: InStream;
         XMLRootNode: DotNet XmlNode;
@@ -939,6 +947,8 @@ codeunit 1294 "OCR Service Mgt."
             LogActivityFailedNoError(OCRServiceSetup.RecordId, StrSubstNo(DocumentNotDownloadedTxt, DocId, ''), '');
             exit(0);
         end;
+        FeatureTelemetry.LogUptake('0000IMN', TelemetryCategoryTok, Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IMO', TelemetryCategoryTok, 'Document imported');
 
         TrackId := XMLDOMManagement.FindNodeText(XMLRootNode, 'TrackId');
 

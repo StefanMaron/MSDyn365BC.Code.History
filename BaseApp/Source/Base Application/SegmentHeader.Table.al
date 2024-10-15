@@ -289,7 +289,13 @@ table 5076 "Segment Header"
             var
                 SegInteractLanguage: Record "Segment Interaction Language";
                 UpdateLines: Boolean;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateSubjectDefault(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if SegLinesExist(FieldCaption("Subject (Default)")) then
                     UpdateLines := Confirm(StrSubstNo(Text011, FieldCaption("Subject (Default)")), true);
 
@@ -703,6 +709,7 @@ table 5076 "Segment Header"
                               SavedSegCriteriaLineAction."Allow Company with Persons",
                               SavedSegCriteriaLineAction."Ignore Exclusion");
                             AddContacts.UseRequestPage(false);
+                            OnReuseContactsOnBeforeAddContactsRun(AddContacts, SavedSegCriteriaLineAction);
                             AddContacts.RunModal();
                         end;
                     SavedSegCriteriaLineAction.Action::"Remove Contacts (Reduce)":
@@ -719,6 +726,7 @@ table 5076 "Segment Header"
                             ReduceContacts.SetTableView(ValueEntry);
                             ReduceContacts.SetOptions(SavedSegCriteriaLineAction."Entire Companies");
                             ReduceContacts.UseRequestPage(false);
+                            OnReuseContactsOnBeforeReduceContactsRun(ReduceContacts, SavedSegCriteriaLineAction);
                             ReduceContacts.RunModal();
                         end;
                     SavedSegCriteriaLineAction.Action::"Remove Contacts (Refine)":
@@ -735,6 +743,7 @@ table 5076 "Segment Header"
                             RefineContacts.SetTableView(ValueEntry);
                             ReduceContacts.SetOptions(SavedSegCriteriaLineAction."Entire Companies");
                             RefineContacts.UseRequestPage(false);
+                            OnReuseContactsOnBeforeRefineContactsRun(RefineContacts, SavedSegCriteriaLineAction);
                             RefineContacts.RunModal();
                         end;
                     else
@@ -750,7 +759,13 @@ table 5076 "Segment Header"
         SavedSegCriteriaLine: Record "Saved Segment Criteria Line";
         SaveSegCriteria: Page "Save Segment Criteria";
         FormAction: Action;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSaveCriteria(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcFields("No. of Criteria Actions");
         TestField("No. of Criteria Actions");
         SaveSegCriteria.RunModal();
@@ -878,7 +893,7 @@ table 5076 "Segment Header"
         InteractionTemplate: Record "Interaction Template";
         IsHandled: Boolean;
     begin
-        OnBeforeUpdateSegHeader(Rec, InteractTmplCode, InteractTmplChange, IsHandled);
+        OnBeforeUpdateSegHeader(Rec, InteractTmplCode, InteractTmplChange, IsHandled, CurrFieldNo);
 
         if InteractTmplChange then begin
             Modify();
@@ -949,7 +964,7 @@ table 5076 "Segment Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateSegHeader(var SegmentHeader: Record "Segment Header"; InteractTmplCode: Code[10]; InteractTmplChange: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateSegHeader(var SegmentHeader: Record "Segment Header"; InteractTmplCode: Code[10]; InteractTmplChange: Boolean; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -965,6 +980,31 @@ table 5076 "Segment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertSegmentLine(var SegmentLine: Record "Segment Line"; InteractionLogEntry: Record "Interaction Log Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveCriteria(var SegmentHeader: Record "Segment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReuseContactsOnBeforeAddContactsRun(var AddContacts: Report "Add Contacts"; var SavedSegCriteriaLineAction: Record "Saved Segment Criteria Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReuseContactsOnBeforeReduceContactsRun(var ReduceContacts: Report "Remove Contacts - Reduce"; var SavedSegCriteriaLineAction: Record "Saved Segment Criteria Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReuseContactsOnBeforeRefineContactsRun(var RefineContacts: Report "Remove Contacts - Refine"; var SavedSegCriteriaLineAction: Record "Saved Segment Criteria Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSubjectDefault(var SegmentHeader: Record "Segment Header"; xSegmentHeader: Record "Segment Header"; var IsHandled: Boolean)
     begin
     end;
 }

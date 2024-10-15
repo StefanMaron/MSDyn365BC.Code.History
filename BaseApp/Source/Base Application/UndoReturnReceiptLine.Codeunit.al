@@ -57,6 +57,7 @@ codeunit 5816 "Undo Return Receipt Line"
         ItemShptEntryNo: Integer;
         DocLineNo: Integer;
         PostedWhseRcptLineFound: Boolean;
+        IsHandled: Boolean;
     begin
         with ReturnRcptLine do begin
             Clear(ItemJnlPostLine);
@@ -96,21 +97,25 @@ codeunit 5816 "Undo Return Receipt Line"
                     DocLineNo := GetCorrectionLineNo(ReturnRcptLine);
 
                 InsertNewReceiptLine(ReturnRcptLine, ItemShptEntryNo, DocLineNo);
-                OnAfterInsertNewReceiptLine(ReturnRcptLine, PostedWhseRcptLine, PostedWhseRcptLineFound, DocLineNo);
 
-                SalesLine.Get(SalesLine."Document Type"::"Return Order", "Return Order No.",
-                  "Return Order Line No.");
-                if "Item Rcpt. Entry No." > 0 then
-                    if SalesLine."Appl.-from Item Entry" <> 0 then begin
-                        SalesLine."Appl.-from Item Entry" := ItemShptEntryNo;
-                        SalesLine.Modify();
-                    end;
+                IsHandled := false;
+                OnAfterInsertNewReceiptLine(ReturnRcptLine, PostedWhseRcptLine, PostedWhseRcptLineFound, DocLineNo, IsHandled);
+                if not IsHandled then begin
+                    SalesLine.Get(SalesLine."Document Type"::"Return Order", "Return Order No.",
+                    "Return Order Line No.");
+                    if "Item Rcpt. Entry No." > 0 then
+                        if SalesLine."Appl.-from Item Entry" <> 0 then begin
+                            SalesLine."Appl.-from Item Entry" := ItemShptEntryNo;
+                            SalesLine.Modify();
+                        end;
 
-                if PostedWhseRcptLineFound then
-                    WhseUndoQty.UndoPostedWhseRcptLine(PostedWhseRcptLine);
+                    if PostedWhseRcptLineFound then
+                        WhseUndoQty.UndoPostedWhseRcptLine(PostedWhseRcptLine);
 
-                UpdateOrderLine(ReturnRcptLine);
-                UpdateItemTrkgApplFromEntry(SalesLine);
+                    UpdateOrderLine(ReturnRcptLine);
+                    UpdateItemTrkgApplFromEntry(SalesLine);
+                end;
+
                 if PostedWhseRcptLineFound then
                     WhseUndoQty.UpdateRcptSourceDocLines(PostedWhseRcptLine);
 
@@ -121,7 +126,7 @@ codeunit 5816 "Undo Return Receipt Line"
 
                 OnBeforeReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine);
                 Modify();
-                OnAfterReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine, DocLineNo);
+                OnAfterReturnRcptLineModify(ReturnRcptLine, TempWhseJnlLine, DocLineNo, HideDialog);
             until Next() = 0;
 
             MakeInventoryAdjustment();
@@ -142,16 +147,23 @@ codeunit 5816 "Undo Return Receipt Line"
         if IsHandled then
             exit;
 
-        with ReturnRcptLine do begin
-            if Correction then
-                Error(AlreadyReversedErr);
-            if "Return Qty. Rcd. Not Invd." <> Quantity then
+        if ReturnRcptLine.Correction then
+            Error(AlreadyReversedErr);
+
+        IsHandled := false;
+        OnCheckReturnRcptLineOnBeforeCheckReturnQtyRcdNotInvd(ReturnRcptLine, IsHandled);
+        if not IsHandled then
+            if ReturnRcptLine."Return Qty. Rcd. Not Invd." <> ReturnRcptLine.Quantity then
                 Error(Text004);
-            if Type = Type::Item then begin
-                UndoPostingMgt.TestReturnRcptLine(ReturnRcptLine);
+
+        if ReturnRcptLine.Type = "Sales Line Type"::Item then begin
+            UndoPostingMgt.TestReturnRcptLine(ReturnRcptLine);
+            IsHandled := false;
+            OnCheckReturnRcptLineOnBeforeCollectItemLedgEntries(ReturnRcptLine, TempItemLedgEntry, IsHandled);
+            if not IsHandled then begin
                 UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Return Receipt Line",
-                "Document No.", "Line No.", "Quantity (Base)", "Item Rcpt. Entry No.");
-                UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, "Line No.");
+                ReturnRcptLine."Document No.", ReturnRcptLine."Line No.", ReturnRcptLine."Quantity (Base)", ReturnRcptLine."Item Rcpt. Entry No.");
+                UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, ReturnRcptLine."Line No.");
             end;
         end;
     end;
@@ -224,7 +236,12 @@ codeunit 5816 "Undo Return Receipt Line"
             ItemJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
             ItemJnlLine."Document Date" := ReturnRcptHeader."Document Date";
 
-            OnAfterCopyItemJnlLineFromReturnRcpt(ItemJnlLine, ReturnRcptHeader, ReturnRcptLine, WhseUndoQty);
+            IsHandled := false;
+            OnAfterCopyItemJnlLineFromReturnRcpt(
+                ItemJnlLine, ReturnRcptHeader, ReturnRcptLine, WhseUndoQty, ItemLedgEntryNo, TempWhseJnlLine, NextLineNo, ReturnRcptHeader,
+                TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, IsHandled);
+            if IsHandled then
+                exit(ItemLedgEntryNo);
 
             WhseUndoQty.InsertTempWhseJnlLine(
                 ItemJnlLine,
@@ -235,6 +252,7 @@ codeunit 5816 "Undo Return Receipt Line"
                 ItemJnlPostLine.Run(ItemJnlLine);
                 exit(ItemJnlLine."Item Shpt. Entry No.");
             end;
+
             UndoPostingMgt.CollectItemLedgEntries(
                 TempApplyToEntryList, DATABASE::"Return Receipt Line", "Document No.", "Line No.", "Quantity (Base)", "Item Rcpt. Entry No.");
 
@@ -334,12 +352,12 @@ codeunit 5816 "Undo Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlLineFromReturnRcpt(var ItemJournalLine: Record "Item Journal Line"; ReturnReceiptHeader: Record "Return Receipt Header"; ReturnReceiptLine: Record "Return Receipt Line"; var WhseUndoQty: Codeunit "Whse. Undo Quantity")
+    local procedure OnAfterCopyItemJnlLineFromReturnRcpt(var ItemJournalLine: Record "Item Journal Line"; ReturnReceiptHeader: Record "Return Receipt Header"; ReturnReceiptLine: Record "Return Receipt Line"; var WhseUndoQty: Codeunit "Whse. Undo Quantity"; var ItemLedgEntryNo: Integer; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; var NextLineNo: Integer; ReturnRcptHeader: Record "Return Receipt Header"; var TempGlobalItemLedgEntry: Record "Item Ledger Entry" temporary; var TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertNewReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; PostedWhseRcptLineFound: Boolean; DocLineNo: Integer)
+    local procedure OnAfterInsertNewReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; PostedWhseRcptLineFound: Boolean; DocLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -349,7 +367,7 @@ codeunit 5816 "Undo Return Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterReturnRcptLineModify(var ReturnRcptLine: Record "Return Receipt Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; DocLineNo: Integer)
+    local procedure OnAfterReturnRcptLineModify(var ReturnRcptLine: Record "Return Receipt Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; DocLineNo: Integer; HideDialog: Boolean)
     begin
     end;
 
@@ -395,6 +413,16 @@ codeunit 5816 "Undo Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateOrderLineOnBeforeUpdateSalesLine(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckReturnRcptLineOnBeforeCheckReturnQtyRcdNotInvd(var ReturnReceiptLine: Record "Return Receipt Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckReturnRcptLineOnBeforeCollectItemLedgEntries(var ReturnRcptLine: Record "Return Receipt Line"; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 }

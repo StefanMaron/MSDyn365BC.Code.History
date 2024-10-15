@@ -393,9 +393,14 @@ report 511 "Complete IC Inbox Action"
         }
 
         trigger OnInit()
+        var
+            FeatureTelemetry: Codeunit "Feature Telemetry";
+            ICMapping: Codeunit "IC Mapping";
         begin
             PostingDateEditable := true;
             DocPostingDateEditable := true;
+            FeatureTelemetry.LogUptake('0000IL5', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+            FeatureTelemetry.LogUsage('0000IL6', ICMapping.GetFeatureTelemetryName(), 'Complete IC Inbox Action Report');
         end;
 
         trigger OnOpenPage()

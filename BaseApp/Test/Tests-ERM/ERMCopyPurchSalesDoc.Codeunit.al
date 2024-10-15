@@ -3429,7 +3429,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [WHEN] Invoke from order "PO2" Get Document Lines with Include Header action and use order "PO1" as source document
         RunCopyPurchaseDoc(
             SourcePurchaseHeader."No.", TargetPurchaseHeader,
-            MapperPurchaseHeaders(SourcePurchaseHeader."Document Type"), true, false);
+            MapperPurchaseHeaders(SourcePurchaseHeader."Document Type"), false, false);
 
         // [THEN] Order "PO2" header "Transaction Specification" = "TS2"
         TargetPurchaseHeader.Find();

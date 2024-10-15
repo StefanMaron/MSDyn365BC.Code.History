@@ -20,8 +20,9 @@
         EmailSubjectCapTxt: Label '%1 - %2 %3', Comment = '%1 = Customer Name. %2 = Document Type %3 = Invoice No.';
         ReportAsPdfFileNameMsg: Label '%1 %2.pdf', Comment = '%1 = Document Type %2 = Invoice No. or Job Number';
         EmailSubjectPluralCapTxt: Label '%1 - %2', Comment = '%1 = Customer Name. %2 = Document Type in plural form';
-        ReportAsPdfFileNamePluralMsg: Label 'Sales %1.pdf', Comment = '%1 = Document Type in plural form';
-        PdfFileNamePluralMsg: Label '%1.pdf', Comment = '%1 = Document Type in plural form';
+        PdfFileNamePluralPurchaseTxt: Label '%1 (Purchase).pdf', Comment = '%1 = Document Type in plural form';
+        PdfFileNamePluralSalesTxt: Label '%1 (Sales).pdf', Comment = '%1 = Document Type in plural form';
+        PdfFileNamePluralTxt: Label '%1.pdf', Comment = '%1 = Document Type in plural form';
 #if not CLEAN21 
         TestInvoiceEmailSubjectTxt: Label 'Test invoice from %1', Comment = '%1 = name of the company';
 #endif
@@ -425,19 +426,77 @@
     end;
 
     procedure GetAttachmentFileName(var AttachmentFileName: Text[250]; PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer)
-    var
-        ReportSelections: Record "Report Selections";
     begin
         OnBeforeGetAttachmentFileName(AttachmentFileName, PostedDocNo, EmailDocumentName, ReportUsage);
 
         if AttachmentFileName = '' then
             if PostedDocNo = '' then begin
-                if ReportUsage = ReportSelections.Usage::"P.Order".AsInteger() then
-                    AttachmentFileName := StrSubstNo(PdfFileNamePluralMsg, EmailDocumentName)
+                if IsPurchaseReportUsage(ReportUsage) then
+                    AttachmentFileName := StrSubstNo(PdfFileNamePluralPurchaseTxt, EmailDocumentName)
                 else
-                    AttachmentFileName := StrSubstNo(ReportAsPdfFileNamePluralMsg, EmailDocumentName);
+                    if IsSalesReportUsage(ReportUsage) then
+                        AttachmentFileName := StrSubstNo(PdfFileNamePluralSalesTxt, EmailDocumentName)
+                    else
+                        AttachmentFileName := StrSubstNo(PdfFileNamePluralTxt, EmailDocumentName);
             end else
-                AttachmentFileName := StrSubstNo(ReportAsPdfFileNameMsg, EmailDocumentName, PostedDocNo)
+                AttachmentFileName := StrSubstNo(ReportAsPdfFileNameMsg, EmailDocumentName, PostedDocNo);
+    end;
+
+    local procedure IsPurchaseReportUsage(ReportUsage: Integer): Boolean
+    var
+        ReportSelectionUsage: Enum "Report Selection Usage";
+    begin
+        case ReportUsage of
+            ReportSelectionUsage::"P.Quote".AsInteger(),
+            ReportSelectionUsage::"P.Blanket".AsInteger(),
+            ReportSelectionUsage::"P.Order".AsInteger(),
+            ReportSelectionUsage::"P.Invoice".AsInteger(),
+            ReportSelectionUsage::"P.Return".AsInteger(),
+            ReportSelectionUsage::"P.Cr.Memo".AsInteger(),
+            ReportSelectionUsage::"P.Receipt".AsInteger(),
+            ReportSelectionUsage::"P.Ret.Shpt.".AsInteger(),
+            ReportSelectionUsage::"P.Test".AsInteger(),
+            ReportSelectionUsage::"P.Test Prepmt.".AsInteger(),
+            ReportSelectionUsage::"P.Arch.Quote".AsInteger(),
+            ReportSelectionUsage::"P.Arch.Order".AsInteger(),
+            ReportSelectionUsage::"P.Arch.Return".AsInteger(),
+            ReportSelectionUsage::"P.Arch.Blanket".AsInteger(),
+            ReportSelectionUsage::"V.Remittance".AsInteger(),
+            ReportSelectionUsage::"P.V.Remit.".AsInteger():
+                exit(true);
+        end;
+
+        exit(false);
+    end;
+
+    local procedure IsSalesReportUsage(ReportUsage: Integer): Boolean
+    var
+        ReportSelectionUsage: Enum "Report Selection Usage";
+    begin
+        case ReportUsage of
+            ReportSelectionUsage::"S.Quote".AsInteger(),
+            ReportSelectionUsage::"S.Blanket".AsInteger(),
+            ReportSelectionUsage::"S.Order".AsInteger(),
+            ReportSelectionUsage::"S.Work Order".AsInteger(),
+            ReportSelectionUsage::"S.Order Pick Instruction".AsInteger(),
+            ReportSelectionUsage::"S.Invoice".AsInteger(),
+            ReportSelectionUsage::"S.Invoice Draft".AsInteger(),
+            ReportSelectionUsage::"S.Return".AsInteger(),
+            ReportSelectionUsage::"S.Cr.Memo".AsInteger(),
+            ReportSelectionUsage::"S.Shipment".AsInteger(),
+            ReportSelectionUsage::"S.Ret.Rcpt.".AsInteger(),
+            ReportSelectionUsage::"S.Test".AsInteger(),
+            ReportSelectionUsage::"S.Test Prepmt.".AsInteger(),
+            ReportSelectionUsage::"S.Arch.Quote".AsInteger(),
+            ReportSelectionUsage::"S.Arch.Order".AsInteger(),
+            ReportSelectionUsage::"S.Arch.Return".AsInteger(),
+            ReportSelectionUsage::"C.Statement".AsInteger(),
+            ReportSelectionUsage::"Pro Forma S. Invoice".AsInteger(),
+            ReportSelectionUsage::"S.Arch.Blanket".AsInteger():
+                exit(true);
+        end;
+
+        exit(false);
     end;
 
     procedure GetEmailBody(PostedDocNo: Code[20]; ReportUsage: Integer; CustomerNo: Code[20]): Text
