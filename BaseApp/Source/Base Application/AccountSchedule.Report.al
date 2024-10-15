@@ -7,6 +7,7 @@ report 25 "Account Schedule"
     Caption = 'Account Schedule';
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
+    AllowScheduling = false;
 
     dataset
     {
@@ -377,6 +378,7 @@ report 25 "Account Schedule"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Starting Date';
+                            ClosingDates = true;
                             Enabled = StartDateEnabled;
                             ShowMandatory = true;
                             ToolTip = 'Specifies the date from which the report or batch job processes information.';
@@ -390,6 +392,7 @@ report 25 "Account Schedule"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Ending Date';
+                            ClosingDates = true;
                             ShowMandatory = true;
                             ToolTip = 'Specifies the date to which the report or batch job processes information.';
 

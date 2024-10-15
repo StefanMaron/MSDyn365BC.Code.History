@@ -42,8 +42,12 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         LinkedNotUsedAmt: Decimal;
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateVendLedgerEntry(TempVendLedgEntry, ApplyingVendLedgEntry, AppliesToID);
+        IsHandled := false;
+        OnBeforeUpdateVendLedgerEntry(TempVendLedgEntry, ApplyingVendLedgEntry, AppliesToID, VendEntryApplID, IsHandled);
+        if IsHandled then
+            exit;
 
         VendorLedgerEntry.Copy(TempVendLedgEntry);
         VendorLedgerEntry.TestField(Open, true);
@@ -82,7 +86,7 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateVendLedgerEntry(var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])
+    local procedure OnBeforeUpdateVendLedgerEntry(var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendEntryApplID: Code[50]; var IsHandled: Boolean)
     begin
     end;
 

@@ -84,9 +84,12 @@ table 84 "Acc. Schedule Name"
     }
 
     trigger OnDelete()
+#if not CLEAN19
     var
         AccScheduleResultHeader: Record "Acc. Schedule Result Header";
+#endif
     begin
+#if not CLEAN19
         // NAVCZ
         if IsResultsExist(Name) then
             if Confirm(Text26570, false, GetRecordDescription(Name)) then begin
@@ -94,13 +97,14 @@ table 84 "Acc. Schedule Name"
                 AccScheduleResultHeader.DeleteAll(true);
             end;
         // NAVCZ
-
+#endif
         AccSchedLine.SetRange("Schedule Name", Name);
         AccSchedLine.DeleteAll();
     end;
 
     var
         AccSchedLine: Record "Acc. Schedule Line";
+#if not CLEAN19
         Text26570: Label '%1 has results. Do you want to delete it anyway?';
         ClearDimensionTotalingConfirmTxt: Label 'Changing Analysis View will clear differing dimension totaling columns of Account Schedule Lines. \Do you want to continue?';
 
@@ -156,6 +160,7 @@ table 84 "Acc. Schedule Name"
         Evaluate(DimensionCode, Format(FieldRef.Value));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure IsResultsExist(AccSchedName: Code[10]): Boolean
     var
@@ -166,6 +171,7 @@ table 84 "Acc. Schedule Name"
         exit(not AccScheduleResultHeader.IsEmpty);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure GetRecordDescription(AccSchedName: Code[10]): Text[100]
     var
@@ -175,7 +181,7 @@ table 84 "Acc. Schedule Name"
         AccScheduleName.Get(AccSchedName);
         exit(StrSubstNo('%1 %2=''%3''', AccScheduleName.TableCaption, FieldCaption(Name), AccSchedName));
     end;
-
+#endif
     procedure Print()
     var
         AccountSchedule: Report "Account Schedule";

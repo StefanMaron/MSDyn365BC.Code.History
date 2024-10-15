@@ -101,12 +101,14 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Whse. Net Change Template");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Export Acc. Schedule");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Filter Line");
+#if not CLEAN19
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result Column");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result Value");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result History");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Extension");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::Commodity);
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Commodity Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Document Footer");

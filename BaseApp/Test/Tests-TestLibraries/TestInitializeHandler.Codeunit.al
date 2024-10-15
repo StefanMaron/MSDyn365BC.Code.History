@@ -1,5 +1,7 @@
 codeunit 143060 "Test Initialize Handler"
 {
+    Permissions = tabledata "Assembly Setup" = m;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Test Initialize", 'OnBeforeTestSuiteInitialize', '', false, false)]
     local procedure UpdateRecordsOnBeforeTestSuiteInitialize(CallerCodeunitID: Integer)
     begin

@@ -1,5 +1,9 @@
+#if not CLEAN19
 codeunit 31080 AccSchedExtensionManagement
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -286,4 +290,4 @@ codeunit 31080 AccSchedExtensionManagement
         end;
     end;
 }
-
+#endif

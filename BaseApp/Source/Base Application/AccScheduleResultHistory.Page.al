@@ -1,9 +1,13 @@
+#if not CLEAN19
 page 31090 "Acc. Schedule Result History"
 {
-    Caption = 'Acc. Schedule Result History';
+    Caption = 'Acc. Schedule Result History (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Acc. Schedule Result History";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -52,4 +56,4 @@ page 31090 "Acc. Schedule Result History"
     {
     }
 }
-
+#endif

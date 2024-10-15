@@ -326,8 +326,6 @@ table 11710 "Issued Payment Order Header"
         if GenJnlLn.IsEmpty() then begin
             IssuedPmtOrdLn.FindSet();
             repeat
-                IssuedPmtOrdLn.TestField(Type);
-
                 LineNo += 10000;
                 GenJnlLn.Init();
                 GenJnlLn."Journal Template Name" := GenJnlBatch."Journal Template Name";
@@ -357,10 +355,18 @@ table 11710 "Issued Payment Order Header"
                 GenJnlLn.Validate("Bal. Account Type", GenJnlBatch."Bal. Account Type");
                 GenJnlLn.Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
                 GenJnlLn.Validate("Payment Method Code", IssuedPmtOrdLn."Payment Method Code");
+#if not CLEAN18
+                if IssuedPmtOrdLn.Type = IssuedPmtOrdLn.Type::" " then begin
+                    GenJnlLn."Bank Account No." := IssuedPmtOrdLn."Account No.";
+                    GenJnlLn.IBAN := IssuedPmtOrdLn.IBAN;
+                    GenJnlLn."SWIFT Code" := IssuedPmtOrdLn."SWIFT Code";
+                end;
+
                 GenJnlLn."Variable Symbol" := IssuedPmtOrdLn."Variable Symbol";
                 GenJnlLn."Constant Symbol" := IssuedPmtOrdLn."Constant Symbol";
                 GenJnlLn."Specific Symbol" := IssuedPmtOrdLn."Specific Symbol";
                 GenJnlLn.Modify();
+#endif
             until IssuedPmtOrdLn.Next() = 0;
         end;
     end;

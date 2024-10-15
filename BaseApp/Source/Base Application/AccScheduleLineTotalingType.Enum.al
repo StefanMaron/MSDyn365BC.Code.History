@@ -35,12 +35,20 @@ enum 85 "Acc. Schedule Line Totaling Type"
     {
         Caption = 'Cash Flow Total Accounts';
     }
+#if not CLEAN19
     value(14; Custom)
     {
-        Caption = 'Custom';
+        Caption = 'Custom (Obsolete)';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'This value is discontinued and should no longer be used.';
+        ObsoleteTag = '19.0';
     }
     value(15; Constant)
     {
-        Caption = 'Constant';
+        Caption = 'Constant (Obsolete)';
+        ObsoleteState = Pending;
+        ObsoleteReason = 'This value is discontinued and should no longer be used.';
+        ObsoleteTag = '19.0';
     }
+#endif
 }

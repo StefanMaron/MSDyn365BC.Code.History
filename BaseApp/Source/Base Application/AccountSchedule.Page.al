@@ -75,16 +75,22 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the totaling type for the account schedule line. The type determines which accounts within the totaling interval you specify in the Totaling field will be totaled. ';
                 }
+#if not CLEAN19
                 field("Source Table"; "Source Table")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the selected source table (VAT entry, Value entry, Customer or vendor entry).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 field(Totaling; Totaling)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an account interval or a list of account numbers. The entries of the account will be totaled to give a total balance. How entries are totaled depends on the value in the Account Type field.';
-
+#if not CLEAN19
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         GLAccList: Page "G/L Account List";
@@ -120,6 +126,7 @@ page 104 "Account Schedule"
                         exit(false);
                         // NAVCZ
                     end;
+#endif
                 }
                 field("Row Type"; "Row Type")
                 {
@@ -396,15 +403,21 @@ page 104 "Account Schedule"
             group("O&ther")
             {
                 Caption = 'O&ther';
+#if not CLEAN19
                 action("Set up Custom Functions")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Set up Custom Functions';
+                    Caption = 'Set up Custom Functions (Obsolete)';
                     Ellipsis = true;
                     Image = NewSum;
                     RunObject = Page "Acc. Schedule Extensions";
                     ToolTip = 'Specifies acc. schedule extensions page';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 action("File Mapping")
                 {
                     ApplicationArea = Basic, Suite;
@@ -427,16 +440,25 @@ page 104 "Account Schedule"
                     end;
                 }
             }
+#if not CLEAN19
             group("&Results")
             {
-                Caption = '&Results';
+                Caption = '&Results (Obsolete)';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
                 action("Save &Results")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Save &Results';
+                    Caption = 'Save &Results (Obsolete)';
                     Ellipsis = true;
                     Image = Save;
                     ToolTip = 'Opens window for saving results of acc. schedule';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -446,13 +468,18 @@ page 104 "Account Schedule"
                 action(Results)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Results';
+                    Caption = 'Results (Obsolete)';
                     Image = ViewDetails;
                     RunObject = Page "Acc. Schedule Res. Header List";
                     RunPageLink = "Acc. Schedule Name" = FIELD("Schedule Name");
                     ToolTip = 'Opens acc. schedule res. header list';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
             }
+#endif
         }
         area(reporting)
         {

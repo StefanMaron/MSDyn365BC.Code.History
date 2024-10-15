@@ -1,13 +1,22 @@
 table 31087 "Acc. Schedule Result Value"
 {
     Caption = 'Acc. Schedule Result Value';
+#if CLEAN19
+    ObsoleteState = Removed;
+#else
+    ObsoleteState = Pending;
+#endif
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
         field(1; "Result Code"; Code[20])
         {
             Caption = 'Result Code';
+#if not CLEAN19
             TableRelation = "Acc. Schedule Result Header";
+#endif
         }
         field(2; "Row No."; Integer)
         {
@@ -20,11 +29,12 @@ table 31087 "Acc. Schedule Result Value"
         field(4; Value; Decimal)
         {
             Caption = 'Value';
-
+#if not CLEAN19
             trigger OnValidate()
             begin
                 AddChangeHistoryEntry;
             end;
+#endif
         }
     }
 
@@ -44,7 +54,7 @@ table 31087 "Acc. Schedule Result Value"
     begin
         Validate(Value, 0);
     end;
-
+#if not CLEAN19
     [Scope('OnPrem')]
     procedure AddChangeHistoryEntry()
     var
@@ -66,5 +76,6 @@ table 31087 "Acc. Schedule Result Value"
         AccScheduleResultHistory."Old Value" := xRec.Value;
         AccScheduleResultHistory.Insert(true);
     end;
+#endif
 }
 

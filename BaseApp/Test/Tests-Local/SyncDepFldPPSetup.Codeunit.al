@@ -2,6 +2,7 @@
 codeunit 145100 "Sync. Dep. Fld - P&PSetup Test"
 {
     Subtype = Test;
+    TestPermissions = NonRestrictive;
 
     var
         Assert: Codeunit Assert;

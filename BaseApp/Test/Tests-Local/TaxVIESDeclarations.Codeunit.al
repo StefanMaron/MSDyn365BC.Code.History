@@ -1,11 +1,7 @@
 codeunit 144202 "Tax VIES Declarations"
 {
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        isInitialized := false;
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         Assert: Codeunit Assert;

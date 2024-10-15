@@ -1,9 +1,13 @@
+#if not CLEAN19
 page 31089 "Acc. Schedule Results Overview"
 {
-    Caption = 'Acc. Schedule Results Overview';
+    Caption = 'Acc. Schedule Results Overview (Obsolete)';
     InsertAllowed = false;
     PageType = Card;
     SourceTable = "Acc. Schedule Result Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -299,4 +303,4 @@ page 31089 "Acc. Schedule Results Overview"
         CurrPage.SubForm.PAGE.SetShowOnlyChangeValue(ShowOnlyChangedValues);
     end;
 }
-
+#endif

@@ -1,4 +1,5 @@
-﻿codeunit 408 DimensionManagement
+#if not CLEAN19
+codeunit 408 DimensionManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
                   TableData "Gen. Journal Batch" = imd;
@@ -2356,6 +2357,7 @@
         DimSetEntry.DeleteAll();
     end;
 
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '19.0')]
     local procedure AutoCreateDimension(TableID: Integer; No: Code[20])
     var
         GLSetup: Record "General Ledger Setup";
@@ -2444,6 +2446,7 @@
             until Dimension.Next() = 0;
     end;
 
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure UpdateAllAutDim(var DefaultDimension: Record "Default Dimension")
     var
@@ -3044,3 +3047,4 @@
     end;
 }
 
+#endif

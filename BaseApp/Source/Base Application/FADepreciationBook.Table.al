@@ -1171,7 +1171,7 @@ table 5612 "FA Depreciation Book"
             if "Depreciation Method" in
                ["Depreciation Method"::"Straight-Line", "Depreciation Method"::"DB1/SL", "Depreciation Method"::"DB2/SL"]
             then
-                exit("No. of Depreciation Years" > 0);
+                exit(("No. of Depreciation Years" > 0) or ("Depreciation Ending Date" <> 0D));
             exit(true);
         end;
 

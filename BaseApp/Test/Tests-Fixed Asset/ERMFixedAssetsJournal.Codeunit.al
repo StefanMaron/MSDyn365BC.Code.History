@@ -2700,6 +2700,36 @@ codeunit 134450 "ERM Fixed Assets Journal"
         SetDefaultDepreciationBook(DefaultDepreciationBookCode);
     end;
 
+    [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,ConfirmHandler,FixedAssetGLJournalPageHandler')]
+    [Scope('OnPrem')]
+    procedure FAAcquisitionWizardHandleCurrency()
+    var
+        FixedAsset: Record "Fixed Asset";
+        Vendor: Record Vendor;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        // [SCENARIO 389714] User can set Currency Code in Fixed Asset Acquision Wizard for Vendor and F/A Gen. Journal Line contains Currency Code
+        Initialize;
+
+        // [GIVEN] Vendor
+        // [GIVEN] Currency "C" with exchange rate
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
+
+        // [GIVEN] Fixed Asset "FA"
+        DeleteFAJournalTemplateWithPageID(PAGE::"Fixed Asset Journal");
+        CreateFAJnlTemplateForFAAccWizard;
+        CreateFASetupWithAcquisitionAllocations(FixedAsset);
+        LibraryVariableStorage.Enqueue(CurrencyExchangeRate."Currency Code");
+
+        // [WHEN] Run Fixed Asset Acquire wizard for Vendor
+        RunFAAcquire(FixedAsset."No.", AcquisitionOptions::Vendor, Vendor."No.", CurrencyExchangeRate."Currency Code", true);
+
+        // [THEN] There is F/A Gen. Journal Line with "Currency Code" = "C"
+        // Verification is in FixedAssetGLJournalPageHandler
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3319,30 +3349,37 @@ codeunit 134450 "ERM Fixed Assets Journal"
     end;
 
     local procedure RunFAAcquire(FANo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20])
+    begin
+        RunFAAcquire(FANo, BalAccountType, BalAccountNo, '', false);
+    end;
+
+    local procedure RunFAAcquire(FANo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; CurrencyCode: Code[20]; OpenFAGLJournal: Boolean)
     var
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
         FixedAssetAcquisitionWizard: TestPage "Fixed Asset Acquisition Wizard";
     begin
         TempGenJournalLine.SetRange("Account No.", FANo);
-        FixedAssetAcquisitionWizard.Trap;
-        PAGE.Run(PAGE::"Fixed Asset Acquisition Wizard", TempGenJournalLine);
+        FixedAssetAcquisitionWizard.Trap();
+        Page.Run(Page::"Fixed Asset Acquisition Wizard", TempGenJournalLine);
 
-        FixedAssetAcquisitionWizard.NextPage.Invoke;
-        FixedAssetAcquisitionWizard.AcquisitionCost.SetValue(LibraryRandom.RandDec(1000, 2));
-        FixedAssetAcquisitionWizard.AcquisitionDate.SetValue(WorkDate);
-        FixedAssetAcquisitionWizard.NextPage.Invoke;
+        FixedAssetAcquisitionWizard.NextPage.Invoke();
         FixedAssetAcquisitionWizard.TypeOfAcquisitions.SetValue(BalAccountType);
         FixedAssetAcquisitionWizard.BalancingAccountNo.SetValue(BalAccountNo);
-        if FixedAssetAcquisitionWizard.ExternalDocNo.Visible then
-            FixedAssetAcquisitionWizard.ExternalDocNo.SetValue(LibraryUtility.GenerateGUID);
-        FixedAssetAcquisitionWizard.NextPage.Invoke;
-        FixedAssetAcquisitionWizard.PreviousPage.Invoke;
-        FixedAssetAcquisitionWizard.NextPage.Invoke;
-        FixedAssetAcquisitionWizard.OpenFAGLJournal.SetValue(false);
+        if FixedAssetAcquisitionWizard.ExternalDocNo.Visible() then
+            FixedAssetAcquisitionWizard.ExternalDocNo.SetValue(LibraryUtility.GenerateGUID());
+        if FixedAssetAcquisitionWizard.AcquisitionCurrencyCode.Visible() and (CurrencyCode <> '') then
+            FixedAssetAcquisitionWizard.AcquisitionCurrencyCode.SetValue(CurrencyCode);
+        FixedAssetAcquisitionWizard.NextPage.Invoke();
+        FixedAssetAcquisitionWizard.AcquisitionCost.SetValue(LibraryRandom.RandDec(1000, 2));
+        FixedAssetAcquisitionWizard.AcquisitionDate.SetValue(WorkDate());
+        FixedAssetAcquisitionWizard.NextPage.Invoke();
+        FixedAssetAcquisitionWizard.PreviousPage.Invoke();
+        FixedAssetAcquisitionWizard.NextPage.Invoke();
+        FixedAssetAcquisitionWizard.OpenFAGLJournal.SetValue(OpenFAGLJournal);
 
         Commit();
 
-        FixedAssetAcquisitionWizard.Finish.Invoke;
+        FixedAssetAcquisitionWizard.Finish.Invoke();
     end;
 
     local procedure SetAllowCorrectionOfDisposal(DepreciationBookCode: Code[10])
@@ -3790,6 +3827,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalTemplate.TestField(Description, FAJnlTemplateDescription);
         Assert.IsTrue(JnlSelected, StrSubstNo(TemplateSelectionError, FAJournalTemplate.TableCaption));
     end;
+
     local procedure VerifyFirstFAJournalTemplateCreation(RecurringJnl: Boolean; FAJnlTemplateName: Text[250]; FAJnlTemplateDescription: Text[250])
     var
         FAJournalLine: Record "FA Journal Line";
@@ -3904,6 +3942,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FADepreciationBook.FindFirst;
         FAPostingGroup.Get(FADepreciationBook."FA Posting Group");
     end;
+
     local procedure AcquireFixedAssetUsingAcquisitionWizardAutoPost(BalAccountType: Option; BalAccountNo: Code[20])
     var
         FixedAsset: Record "Fixed Asset";
@@ -4089,6 +4128,13 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Reply := false;
     end;
 
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure AcquireFANotificationHandler(var AcquireFANotification: Notification): Boolean
+    begin
+        exit(true);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -4113,6 +4159,21 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // Verify: FA Journal Page open with the same value of created batch when open through batches.
         Assert.AreEqual(FixedAssetJournal.CurrentJnlBatchName.Value, FAJnlBatchName, StrSubstNo(ExpectedBatchError, FAJnlBatchName));
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure FixedAssetGLJournalPageHandler(var FixedAssetGLJournal: TestPage "Fixed Asset G/L Journal")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CurrencyCode: Text;
+    begin
+        CurrencyCode := LibraryVariableStorage.DequeueText();
+
+        GenJournalLine.SetRange("Account Type", FixedAssetGLJournal."Account Type".AsInteger());
+        GenJournalLine.SetRange("Account No.", FixedAssetGLJournal."Account No.".Value);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Currency Code", CurrencyCode);
     end;
 }
 

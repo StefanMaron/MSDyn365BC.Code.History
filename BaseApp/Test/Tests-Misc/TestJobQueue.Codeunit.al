@@ -42,6 +42,7 @@ codeunit 139026 "Test Job Queue"
         TimeoutErr: Label 'Timeout exceeded. %1.', Comment = '%1 is the reason why the timeout was exceeded, or any additional data needed to debug a timeout issue.';
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         OneRecordWillBeSentQst: Label 'Only the first of the selected documents can be scheduled in the job queue.\\Do you want to continue?';
@@ -426,6 +427,29 @@ codeunit 139026 "Test Job Queue"
         JobQueueLogEntry.FindLast();
         Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'Log Entry should have status Error');
         Assert.AreEqual(JobQueueEntry.Status::Error, JobQueueEntry.Status, 'JQ Entry should have status Error');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoOfMinutesValidationResetsRecurringProperly()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        // [SCENARIO 400333] When user validates "No. of Minutes between Runs" after setting "Next Run Date Formula" the Recurring Job is False
+        Initialize();
+
+        // [GIVEN] A Job Queue Entry
+        CreateJobQueueEntry(JobQueueEntry, JobQueueEntry."Object Type to Run"::Codeunit, CODEUNIT::"Job Queue Exception Sample", JobQueueEntry.Status::"On Hold");
+
+        // [GIVEN] Next Run Date Formula was set
+        Evaluate(JobQueueEntry."Next Run Date Formula", '1D');
+        JobQueueEntry.Validate("Next Run Date Formula");
+
+        // [WHEN] Set "No. of Minutes between Runs" to 60
+        JobQueueEntry.Validate("No. of Minutes between Runs", LibraryRandom.RandIntInRange(50, 200));
+
+        // [THEN] "Recurring Job" is false
+        JobQueueEntry.TestField("Recurring Job", false);
     end;
 
     local procedure Initialize()

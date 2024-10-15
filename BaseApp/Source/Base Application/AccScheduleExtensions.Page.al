@@ -1,11 +1,15 @@
+#if not CLEAN19
 page 31088 "Acc. Schedule Extensions"
 {
-    Caption = 'Acc. Schedule Extensions';
+    Caption = 'Acc. Schedule Extensions (Obsolete)';
     DelayedInsert = true;
     PageType = Worksheet;
     PopulateAllFields = true;
     SaveValues = true;
     SourceTable = "Acc. Schedule Extension";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -264,4 +268,4 @@ page 31088 "Acc. Schedule Extensions"
         HiddenParameters := true;
     end;
 }
-
+#endif

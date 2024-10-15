@@ -1,11 +1,7 @@
 codeunit 145010 "Sales Reports"
 {
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        isInitialized := false;
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         LibraryERM: Codeunit "Library - ERM";

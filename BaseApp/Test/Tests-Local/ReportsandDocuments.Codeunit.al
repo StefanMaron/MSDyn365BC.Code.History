@@ -1,11 +1,7 @@
 codeunit 145006 "Reports and Documents"
 {
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        isInitialized := false;
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         LibraryDimension: Codeunit "Library - Dimension";

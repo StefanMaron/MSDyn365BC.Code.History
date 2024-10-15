@@ -100,7 +100,7 @@ table 5718 "Nonstock Item"
         }
         field(7; "Published Cost"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 2;
             Caption = 'Published Cost';
 
             trigger OnValidate()
@@ -113,7 +113,7 @@ table 5718 "Nonstock Item"
         }
         field(8; "Negotiated Cost"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 2;
             Caption = 'Negotiated Cost';
 
             trigger OnValidate()
@@ -126,7 +126,7 @@ table 5718 "Nonstock Item"
         }
         field(9; "Unit Price"; Decimal)
         {
-            AutoFormatType = 1;
+            AutoFormatType = 2;
             Caption = 'Unit Price';
 
             trigger OnValidate()

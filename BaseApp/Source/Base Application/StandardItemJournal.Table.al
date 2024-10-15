@@ -123,7 +123,7 @@ table 752 "Standard Item Journal"
         ItemJnlLine."Dimension Set ID" := StdItemJnlLine."Dimension Set ID";
         ItemJnlLine.Insert(true);
 
-        OnAfterCopyItemJnlFromStdJnl(ItemJnlLine);
+        OnAfterCopyItemJnlFromStdJnl(ItemJnlLine, Rec);
 
         LastItemJnlLine := ItemJnlLine;
     end;
@@ -165,7 +165,7 @@ table 752 "Standard Item Journal"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyItemJnlFromStdJnl(var ItemJournalLine: Record "Item Journal Line")
+    local procedure OnAfterCopyItemJnlFromStdJnl(var ItemJournalLine: Record "Item Journal Line"; var StandardItemJournal: Record "Standard Item Journal")
     begin
     end;
 }

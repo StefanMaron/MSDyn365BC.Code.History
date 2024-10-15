@@ -126,8 +126,10 @@ table 480 "Dimension Set Entry"
         DimSetEntry.SetFilter("Dimension Code", '<>%1', '');
         DimSetEntry.SetFilter("Dimension Value Code", '<>%1', '');
 
-        if not DimSetEntry.FindSet then
+        if not DimSetEntry.FindSet then begin
+            DimSetEntry.Copy(DimSetEntry2);
             exit(0);
+        end;
 
         Found := true;
         DimSetTreeNode."Dimension Set ID" := 0;

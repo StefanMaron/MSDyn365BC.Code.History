@@ -1,8 +1,12 @@
+#if not CLEAN19
 report 31082 "Account Schedule Result"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './AccountScheduleResult.rdlc';
-    Caption = 'Account Schedule Result';
+    Caption = 'Account Schedule Result (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -261,4 +265,4 @@ report 31082 "Account Schedule Result"
         Account_ScheduleCaptionLbl: Label 'Account Schedule';
         Result_DescriptionCaptionLbl: Label 'Result Description';
 }
-
+#endif

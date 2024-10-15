@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 541 "Account Type Default Dim."
 {
     Caption = 'Account Type Default Dim.';
@@ -57,30 +58,45 @@ page 541 "Account Type Default Dim."
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies if a value will be created automatic';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Dimension Description Field ID"; "Dimension Description Field ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the id of dimension description field';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Dimension Description Update"; "Dimension Description Update")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the rule for dimension description update';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Dimension Description Format"; "Dimension Description Format")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a description format for the dimension';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
                 }
                 field("Automatic Cr. Value Posting"; "Automatic Cr. Value Posting")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies rule for automatic create';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
                 }
             }
         }
@@ -122,6 +138,10 @@ page 541 "Account Type Default Dim."
                     Caption = 'Update aut. def. dimensions';
                     Image = MapDimensions;
                     ToolTip = 'Update default dimensions.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -144,3 +164,5 @@ page 541 "Account Type Default Dim."
     end;
 }
 
+
+#endif

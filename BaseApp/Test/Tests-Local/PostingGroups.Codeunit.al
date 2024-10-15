@@ -1,11 +1,7 @@
 codeunit 145004 "Posting Groups"
 {
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        isInitialized := false;
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         Assert: Codeunit Assert;

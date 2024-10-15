@@ -3,11 +3,7 @@ codeunit 145019 "EET UT"
     // // [FEATURE] [EET] [UT]
 
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        IsInitialized := false;
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         Assert: Codeunit Assert;

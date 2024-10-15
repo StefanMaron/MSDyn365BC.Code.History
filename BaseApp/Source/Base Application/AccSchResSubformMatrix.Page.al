@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 31094 "Acc. Sch. Res. Subform Matrix"
 {
-    Caption = 'Lines';
+    Caption = 'Lines (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;
     SourceTable = "Acc. Schedule Result Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -252,4 +256,4 @@ page 31094 "Acc. Sch. Res. Subform Matrix"
             Error(MatrixErr);
     end;
 }
-
+#endif

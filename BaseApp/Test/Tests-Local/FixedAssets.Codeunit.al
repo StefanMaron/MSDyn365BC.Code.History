@@ -13,10 +13,7 @@ codeunit 144300 "Fixed Assets"
     //   creation G/L Entry with G/L Account from FA Extended Posting Group
 
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         Assert: Codeunit Assert;

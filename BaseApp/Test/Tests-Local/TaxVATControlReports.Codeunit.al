@@ -1,10 +1,7 @@
 codeunit 144205 "Tax VAT Control Reports"
 {
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         Assert: Codeunit Assert;

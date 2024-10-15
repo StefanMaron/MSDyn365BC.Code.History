@@ -249,6 +249,10 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Location Code';
             TableRelation = Location;
         }
+        field(32; Counterparty; Boolean)
+        {
+            Caption = 'Counterparty';
+        }
         field(31060; "Additional Costs"; Boolean)
         {
             Caption = 'Additional Costs';
@@ -456,9 +460,8 @@ table 263 "Intrastat Jnl. Line"
     trigger OnDelete()
     var
         ErrorMessage: Record "Error Message";
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
     begin
-        IntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+        AssertBatchIsNotReported(Rec);
         ErrorMessage.SetContext(IntrastatJnlBatch);
         ErrorMessage.ClearLogRec(Rec);
     end;
@@ -471,14 +474,12 @@ table 263 "Intrastat Jnl. Line"
 
     trigger OnModify()
     begin
-        IntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        CheckBatchIsNotReported(IntrastatJnlBatch);
+        AssertBatchIsNotReported(Rec);
     end;
 
     trigger OnRename()
     begin
-        IntrastatJnlBatch.Get(xRec."Journal Template Name", xRec."Journal Batch Name");
-        CheckBatchIsNotReported(IntrastatJnlBatch);
+        AssertBatchIsNotReported(xRec);
     end;
 
     var
@@ -577,6 +578,12 @@ table 263 "Intrastat Jnl. Line"
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
+    end;
+
+    local procedure AssertBatchIsNotReported(IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+        IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
+        CheckBatchIsNotReported(IntrastatJnlBatch);
     end;
 
     local procedure CheckBatchIsNotReported(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")

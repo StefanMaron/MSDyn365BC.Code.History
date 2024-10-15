@@ -56,17 +56,17 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostAccSetup: Record "Cost Accounting Setup";
         CostAccSetupPage: TestPage "Cost Accounting Setup";
     begin
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetCostAccountingSetup;
         CostAccSetup.Get();
 
-        CostAccSetupPage.OpenEdit;
+        CostAccSetupPage.OpenEdit();
         CostAccSetupPage."Cost Center Dimension".AssertEquals(CostAccSetup."Cost Center Dimension");
         Assert.IsFalse(
           CostAccSetupPage."Cost Center Dimension".Editable, StrSubstNo(NotEditable, CostAccSetup.FieldCaption("Cost Center Dimension")));
 
-        CostAccSetupPage.Close;
+        CostAccSetupPage.Close();
     end;
 
     [Test]
@@ -76,17 +76,17 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostAccSetup: Record "Cost Accounting Setup";
         CostAccSetupPage: TestPage "Cost Accounting Setup";
     begin
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.SetCostAccountingSetup;
         CostAccSetup.Get();
 
-        CostAccSetupPage.OpenEdit;
+        CostAccSetupPage.OpenEdit();
         CostAccSetupPage."Cost Object Dimension".AssertEquals(CostAccSetup."Cost Object Dimension");
         Assert.IsFalse(
           CostAccSetupPage."Cost Object Dimension".Editable, StrSubstNo(NotEditable, CostAccSetup.FieldCaption("Cost Object Dimension")));
 
-        CostAccSetupPage.Close;
+        CostAccSetupPage.Close();
     end;
 
     [Test]
@@ -95,15 +95,15 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostAllocationSourcesPage: TestPage "Cost Allocation Sources";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         CostAllocationSourcesPage.OpenView;
 
         Assert.IsTrue(CostAllocationSourcesPage.Allocations.Enabled, Enabled);
         Assert.IsTrue(CostAllocationSourcesPage.Allocations.Visible, Visible);
 
-        CostAllocationSourcesPage.Close;
+        CostAllocationSourcesPage.Close();
     end;
 
     [Test]
@@ -113,16 +113,16 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostAllocationSourcesPage: TestPage "Cost Allocation Sources";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         CostAllocationSourcesPage.OpenView;
 
         Assert.IsTrue(CostAllocationSourcesPage."&Calculate Allocation Keys".Enabled, Enabled);
         Assert.IsTrue(CostAllocationSourcesPage."&Calculate Allocation Keys".Visible, Visible);
 
         CostAllocationSourcesPage."&Calculate Allocation Keys".Invoke;
-        CostAllocationSourcesPage.Close;
+        CostAllocationSourcesPage.Close();
     end;
 
     [Test]
@@ -131,15 +131,15 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostBudgetNamesPage: TestPage "Cost Budget Names";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetNamesPage.OpenView;
 
         Assert.IsTrue(CostBudgetNamesPage."Transfer Budget to Actual".Enabled, Enabled);
         Assert.IsTrue(CostBudgetNamesPage."Transfer Budget to Actual".Visible, Visible);
 
-        CostBudgetNamesPage.Close;
+        CostBudgetNamesPage.Close();
     end;
 
     [Test]
@@ -148,15 +148,15 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostRegisterPage: TestPage "Cost Registers";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         CostRegisterPage.OpenView;
 
         Assert.IsTrue(CostRegisterPage."&Delete Old Cost Entries".Enabled, Enabled);
         Assert.IsTrue(CostRegisterPage."&Delete Old Cost Entries".Visible, Visible);
 
-        CostRegisterPage.Close;
+        CostRegisterPage.Close();
     end;
 
     [Test]
@@ -166,16 +166,16 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetByCostCenterPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetByCostCenterPage.OpenEdit();
         ExpectedDate := GetCurrentDate(CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"));
         SetFieldsOnCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '');
 
         VerifyFiltersOnCostBudgetByCostCenterMatrixPage(CostBudgetByCostCenterPage, Format(ExpectedDate));
 
-        CostBudgetByCostCenterPage.Close;
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -185,17 +185,17 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetByCostCenterPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetByCostCenterPage.OpenEdit();
         ExpectedDate := GetCurrentDate(CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"));
         SetFieldsOnCostBudgetByCostCenterPage(
           CostBudgetByCostCenterPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '');
 
         VerifyFiltersOnCostBudgetByCostCenterMatrixPage(CostBudgetByCostCenterPage, StrSubstNo('''''..%1', ExpectedDate));
 
-        CostBudgetByCostCenterPage.Close;
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -204,11 +204,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Setup:
-        CostBudgetByCostCenterPage.OpenEdit;
+        CostBudgetByCostCenterPage.OpenEdit();
         SetFieldsOnCostBudgetByCostCenterPage(
           CostBudgetByCostCenterPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '');
 
@@ -233,16 +233,16 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         PrevAmount: Decimal;
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         // Setup:
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Setup page:
-        CostBudgetByCostCenterPage.OpenEdit;
+        CostBudgetByCostCenterPage.OpenEdit();
 
         CostType.SetRange(Totaling, '');
         CostType.FindFirst;
@@ -272,7 +272,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CostBudgetByCostCenterPage.MatrixForm."No.".Value, ExpectedDate, Amount - PrevAmount);
 
         // Tear-down
-        CostBudgetByCostCenterPage.Close;
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -282,14 +282,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate :=
           OpenCostBudgetByCostObjectPage(CostBudgetByCostObjectPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '');
         VerifyFiltersOnCostBudgetByCostObjectMatrixPage(CostBudgetByCostObjectPage, Format(ExpectedDate));
 
-        CostBudgetByCostObjectPage.Close;
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -299,9 +299,9 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate :=
           OpenCostBudgetByCostObjectPage(CostBudgetByCostObjectPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '');
         VerifyFiltersOnCostBudgetByCostObjectMatrixPage(CostBudgetByCostObjectPage, StrSubstNo('''''..%1', ExpectedDate));
@@ -315,11 +315,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Setup:
-        CostBudgetByCostObjectPage.OpenEdit;
+        CostBudgetByCostObjectPage.OpenEdit();
         SetFieldsOnCostBudgetByCostObjectPage(
           CostBudgetByCostObjectPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '');
 
@@ -344,16 +344,16 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         PrevAmount: Decimal;
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         // Setup:
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Setup page:
-        CostBudgetByCostObjectPage.OpenEdit;
+        CostBudgetByCostObjectPage.OpenEdit();
 
         CostType.SetRange(Totaling, '');
         CostType.FindFirst;
@@ -383,7 +383,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CostBudgetByCostObjectPage.MatrixForm."No.".Value, ExpectedDate, Amount - PrevAmount);
 
         // Tear-down
-        CostBudgetByCostObjectPage.Close;
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -393,16 +393,16 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetPerPeriodPage: TestPage "Cost Budget per Period";
         ExpectedDateFilter: Text;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetPerPeriodPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
 
         ExpectedDateFilter := Format(CalcDate('<11D>', WorkDate));  // 12 matrix columns
         VerifyFiltersOnCostBudgetPerPeriodMatrixPage(CostBudgetPerPeriodPage, ExpectedDateFilter);
 
-        CostBudgetPerPeriodPage.Close;
+        CostBudgetPerPeriodPage.Close();
     end;
 
     [Test]
@@ -411,10 +411,10 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostBudgetPerPeriodPage: TestPage "Cost Budget per Period";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetPerPeriodPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(
           CostBudgetPerPeriodPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '', '', '');
 
@@ -429,11 +429,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostBudgetPerPeriodPage: TestPage "Cost Budget per Period";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Setup:
-        CostBudgetPerPeriodPage.OpenEdit;
+        CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(
           CostBudgetPerPeriodPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '', '', '');
 
@@ -451,11 +451,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostBudgetPerPeriodPage: TestPage "Cost Budget per Period";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Setup:
-        CostBudgetPerPeriodPage.OpenEdit;
+        CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
 
         // Exercise & Verify:
@@ -478,17 +478,17 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Amount: Decimal;
         PrevAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         // Setup:
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
         LibraryCostAccounting.CreateCostCenter(CostCenter);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Setup page:
-        CostBudgetPerPeriodPage.OpenEdit;
+        CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(
           CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name, CostCenter.Code, '');
 
@@ -508,7 +508,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CalcDate(StrSubstNo('<%1 D>', ColumnNo - 1), WorkDate), Amount - PrevAmount);
 
         // Tear-down
-        CostBudgetPerPeriodPage.Close;
+        CostBudgetPerPeriodPage.Close();
     end;
 
     [Test]
@@ -519,15 +519,15 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         // we need at least 24 cost objects
         CheckCreateCostObjects;
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetByCostObjectPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetByCostObjectPage.OpenEdit();
         CostObject.SetCurrentKey("Sorting Order");
         CostObject.SetRange("Line Type", CostObject."Line Type"::"Cost Object");
         CostObject.FindSet();
@@ -535,7 +535,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
             VerifyCostBudgetByCostObjectCaption(CostBudgetByCostObjectPage, i, CostObject.Code);
             CostObject.Next
         end;
-        CostBudgetByCostObjectPage.Close;
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -545,12 +545,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
     begin
         // No error when the previous set doesn't exist
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetByCostObjectPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetByCostObjectPage.OpenEdit();
         CostBudgetByCostObjectPage.PreviousSet.Invoke;
-        CostBudgetByCostObjectPage.Close;
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -559,18 +559,18 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CheckCreateCostObjects;
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetByCostObjectPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetByCostObjectPage.OpenEdit();
         CostBudgetByCostObjectPage.NextColumn.Invoke;
         asserterror CostBudgetByCostObjectPage.PreviousSet.Invoke;
         Assert.ExpectedError(PreviousSetNotFoundError);
-        CostBudgetByCostObjectPage.Close;
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -581,14 +581,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CheckCreateCostObjects;
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetByCostObjectPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetByCostObjectPage.OpenEdit();
         // get the next set
         CostBudgetByCostObjectPage.NextSet.Invoke;
         // verify that the current set is the next one (check just 1 column)
@@ -612,14 +612,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CheckCreateCostObjects;
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetByCostObjectPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetByCostObjectPage.OpenEdit();
         // get the next set
         CostBudgetByCostObjectPage.NextSet.Invoke;
         // verify that the current set is the next one (check just 1 column)
@@ -643,14 +643,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CheckCreateCostObjects;
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetByCostObjectPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetByCostObjectPage.OpenEdit();
         // get the next set
         CostBudgetByCostObjectPage.NextSet.Invoke;
         // verify that the current set is the next one (check just 1 column)
@@ -674,14 +674,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         NoOfSets: Integer;
         NoInLastSet: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CheckCreateCostObjects;
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetByCostObjectPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetByCostObjectPage.OpenEdit();
         // get the last set
         CostObject.SetCurrentKey("Sorting Order");
         CostObject.SetRange("Line Type", CostObject."Line Type"::"Cost Object");
@@ -714,14 +714,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CheckCreateCostObjects;
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetByCostObjectPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetByCostObjectPage.OpenEdit();
         // get the next set
         CostBudgetByCostObjectPage.NextColumn.Invoke;
         // verify that the current set is the next one (check just 1 column)
@@ -741,14 +741,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetByCostObjectPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetByCostObjectPage.OpenEdit();
         SetFieldsOnCostBudgetByCostObjectPage(CostBudgetByCostObjectPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '');
 
         Assert.AreEqual(Format(WorkDate), CostBudgetByCostObjectPage.FILTER.GetFilter("Date Filter"), DateFilterError);
-        CostBudgetByCostObjectPage.Close;
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -758,14 +758,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate := OpenCostBudgetByCostObjectPage(
             CostBudgetByCostObjectPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '');
         Assert.AreEqual(StrSubstNo('''''..%1', ExpectedDate), CostBudgetByCostObjectPage.FILTER.GetFilter("Date Filter"), DateFilterError);
 
-        CostBudgetByCostObjectPage.Close;
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -775,16 +775,16 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate := OpenCostBudgetByCostObjectPage(
             CostBudgetByCostObjectPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Month), '');
         Assert.AreEqual(
           StrSubstNo('''''..%1', CalcDate('<CM>', ExpectedDate)), CostBudgetByCostObjectPage.FILTER.GetFilter("Date Filter"),
           DateFilterError);
 
-        CostBudgetByCostObjectPage.Close;
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -794,9 +794,9 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate := OpenCostBudgetByCostObjectPage(
             CostBudgetByCostObjectPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Month), '');
 
@@ -804,7 +804,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           StrSubstNo('''''..%1', CalcDate('<CM>', ExpectedDate)), CostBudgetByCostObjectPage.FILTER.GetFilter("Date Filter"),
           DateFilterError);
 
-        CostBudgetByCostObjectPage.Close;
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -816,21 +816,21 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostObjectPage: TestPage "Cost Budget by Cost Object";
         BudgetFilter: Text;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetByCostObjectPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetByCostObjectPage.OpenEdit();
         BudgetFilter := CopyStr(LibraryUtility.GenerateRandomCode(CostBudgetName.FieldNo(Name), DATABASE::"Cost Budget Name"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Cost Budget Name", CostBudgetName.FieldNo(Name)));
         CostBudgetByCostObjectPage.BudgetFilter.SetValue(BudgetFilter);
 
         Assert.AreNotEqual(BudgetFilter, CostType."Budget Filter", StrSubstNo(ExpectedValueDifferent, CostType.FieldName("Budget Filter")));
 
-        CostBudgetByCostObjectPage.Close;
+        CostBudgetByCostObjectPage.Close();
         CostType.Delete();
     end;
 
@@ -842,12 +842,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         // we need at least 24 cost objects
         CheckCreateCostCenters;
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetByCostCenterPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetByCostCenterPage.OpenEdit();
         CostCenter.SetCurrentKey("Sorting Order");
         CostCenter.SetRange("Line Type", CostCenter."Line Type"::"Cost Center");
         CostCenter.FindSet();
@@ -855,7 +855,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
             VerifyCostBudgetByCostCenterCaption(CostBudgetByCostCenterPage, i, CostCenter.Code);
             CostCenter.Next
         end;
-        CostBudgetByCostCenterPage.Close;
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -865,12 +865,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
     begin
         // No error when the previous set doesn't exist
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetByCostCenterPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetByCostCenterPage.OpenEdit();
         CostBudgetByCostCenterPage.PreviousSet.Invoke;
-        CostBudgetByCostCenterPage.Close;
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -879,15 +879,15 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
     begin
-        Initialize;
+        Initialize();
         CheckCreateCostCenters;
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetByCostCenterPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetByCostCenterPage.OpenEdit();
         CostBudgetByCostCenterPage.NextColumn.Invoke;
         asserterror CostBudgetByCostCenterPage.PreviousSet.Invoke;
         Assert.ExpectedError(PreviousSetNotFoundError);
-        CostBudgetByCostCenterPage.Close;
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -898,14 +898,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CheckCreateCostCenters;
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetByCostCenterPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetByCostCenterPage.OpenEdit();
         // get the next set
         CostBudgetByCostCenterPage.NextSet.Invoke;
         // verify that the current set is the next one (check just 1 column)
@@ -929,14 +929,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CheckCreateCostCenters;
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetByCostCenterPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetByCostCenterPage.OpenEdit();
         // get the next set
         CostBudgetByCostCenterPage.NextSet.Invoke;
         // verify that the current set is the next one (check just 1 column)
@@ -960,14 +960,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CheckCreateCostCenters;
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetByCostCenterPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetByCostCenterPage.OpenEdit();
         // get the next set
         CostBudgetByCostCenterPage.NextSet.Invoke;
         // verify that the current set is the next one (check just 1 column)
@@ -991,11 +991,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         NoOfSets: Integer;
         NoInLastSet: Integer;
     begin
-        Initialize;
+        Initialize();
         CheckCreateCostCenters;
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetByCostCenterPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetByCostCenterPage.OpenEdit();
         // get the last set
         CostCenter.SetCurrentKey("Sorting Order");
         CostCenter.SetRange("Line Type", CostCenter."Line Type"::"Cost Center");
@@ -1028,14 +1028,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
         i: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CheckCreateCostCenters;
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetByCostCenterPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetByCostCenterPage.OpenEdit();
         // get the next set
         CostBudgetByCostCenterPage.NextColumn.Invoke;
         // verify that the current set is the next one (check just 1 column)
@@ -1055,14 +1055,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     var
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetByCostCenterPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetByCostCenterPage.OpenEdit();
         SetFieldsOnCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '');
 
         Assert.AreEqual(Format(WorkDate), CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"), DateFilterError);
-        CostBudgetByCostCenterPage.Close;
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -1072,14 +1072,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate :=
           OpenCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Day), '');
         Assert.AreEqual(StrSubstNo('''''..%1', ExpectedDate), CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"), DateFilterError);
 
-        CostBudgetByCostCenterPage.Close;
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -1089,16 +1089,16 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate :=
           OpenCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format(AmountType::"Net Change"), Format(PeriodType::Month), '');
         Assert.AreEqual(
           StrSubstNo('%1..%2', CalcDate('<CM-30D>', ExpectedDate), CalcDate('<CM>', ExpectedDate)),
           CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"), DateFilterError);
 
-        CostBudgetByCostCenterPage.Close;
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -1108,16 +1108,16 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         ExpectedDate :=
           OpenCostBudgetByCostCenterPage(CostBudgetByCostCenterPage, Format(AmountType::"Balance at Date"), Format(PeriodType::Month), '');
         Assert.AreEqual(
           StrSubstNo('''''..%1', CalcDate('<CM>', ExpectedDate)), CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"),
           DateFilterError);
 
-        CostBudgetByCostCenterPage.Close;
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -1129,21 +1129,21 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetByCostCenterPage: TestPage "Cost Budget by Cost Center";
         BudgetFilter: Text;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostBudgetByCostCenterPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostBudgetByCostCenterPage.OpenEdit();
         BudgetFilter := CopyStr(LibraryUtility.GenerateRandomCode(CostBudgetName.FieldNo(Name), DATABASE::"Cost Budget Name"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Cost Budget Name", CostBudgetName.FieldNo(Name)));
         CostBudgetByCostCenterPage.BudgetFilter.SetValue(BudgetFilter);
 
         Assert.AreNotEqual(BudgetFilter, CostType."Budget Filter", StrSubstNo(ExpectedValueDifferent, CostType.FieldName("Budget Filter")));
 
-        CostBudgetByCostCenterPage.Close;
+        CostBudgetByCostCenterPage.Close();
         CostType.Delete();
     end;
 
@@ -1157,12 +1157,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // [FEATURE] [Date Filter]
         // [SCENARIO 210915] "Date Filter" is equal Work Date on "Cost Type Balance/Budget" page when "Amount Type" = "Net Change" and "Period Type" = Day
 
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // [GIVEN] Work Date = 01.01.2017
         // [GIVEN] "Cost Type Balance/Budget" page is opened
-        CostTypeBalanceBudgetPage.OpenEdit;
+        CostTypeBalanceBudgetPage.OpenEdit();
         ExpectedDate := GetCurrentDate(CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"));
 
         // [WHEN] Set "Amount Type" = "Net Change" and "Period Type" = Day on "Cost Type Balance/Budget" page
@@ -1172,7 +1172,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // [THEN] "Date Filter" is 01.01.2017 on "Cost Type Balance/Budget" page
         CostTypeBalanceBudgetPage.DateFilter.AssertEquals(ExpectedDate);
 
-        CostTypeBalanceBudgetPage.Close;
+        CostTypeBalanceBudgetPage.Close();
     end;
 
     [Test]
@@ -1185,12 +1185,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // [FEATURE] [Date Filter]
         // [SCENARIO 210915] "Date Filter" is filter "up to date" on "Cost Type Balance/Budget" page when "Amount Type" = "Balance at Date" and "Period Type" = Day
 
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // [GIVEN] Work Date = 01.01.2017
         // [GIVEN] "Cost Type Balance/Budget" page is opened
-        CostTypeBalanceBudgetPage.OpenEdit;
+        CostTypeBalanceBudgetPage.OpenEdit();
         ExpectedDate := GetCurrentDate(CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"));
 
         // [WHEN] Set "Amount Type" = "Balance at Date" and "Period Type" = Day on "Cost Type Balance/Budget" page
@@ -1200,7 +1200,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // [THEN] "Date Filter" is "..01.01.2017" on "Cost Type Balance/Budget" page
         CostTypeBalanceBudgetPage.DateFilter.AssertEquals(StrSubstNo('''''..%1', ExpectedDate));
 
-        CostTypeBalanceBudgetPage.Close;
+        CostTypeBalanceBudgetPage.Close();
     end;
 
     [Test]
@@ -1213,12 +1213,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // [FEATURE] [Date Filter]
         // [SCENARIO 210915] "Date Filter" is filter from beginning of month to the end of month according to Work Date on "Cost Type Balance/Budget" page when "Amount Type" = "Net Change" and "Period Type" = Month
 
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // [GIVEN] Work Date = 01.01.2017
         // [GIVEN] "Cost Type Balance/Budget" page is opened
-        CostTypeBalanceBudgetPage.OpenEdit;
+        CostTypeBalanceBudgetPage.OpenEdit();
         ExpectedDate := GetCurrentDate(CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"));
 
         // [WHEN] Set "Amount Type" = "Net Change" and "Period Type" = Month on "Cost Type Balance/Budget" page
@@ -1229,7 +1229,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalanceBudgetPage.DateFilter.AssertEquals(
           StrSubstNo('%1..%2', CalcDate('<-CM>', ExpectedDate), CalcDate('<CM>', ExpectedDate)));
 
-        CostTypeBalanceBudgetPage.Close;
+        CostTypeBalanceBudgetPage.Close();
     end;
 
     [Test]
@@ -1242,12 +1242,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // [FEATURE] [Date Filter]
         // [SCENARIO 210915] "Date Filter" is filter "up to the end of month" according to Work Date on "Cost Type Balance/Budget" page when "Amount Type" = "Balance at Date" and "Period Type" = Month
 
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // [GIVEN] Work Date = 01.01.2017
         // [GIVEN] "Cost Type Balance/Budget" page is opened
-        CostTypeBalanceBudgetPage.OpenEdit;
+        CostTypeBalanceBudgetPage.OpenEdit();
         ExpectedDate := GetCurrentDate(CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"));
 
         // [WHEN] Set "Amount Type" = "Balance at Date" and "Period Type" = Month on "Cost Type Balance/Budget" page
@@ -1257,7 +1257,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // [THEN] "Date Filter" is "..31.01.2017" on "Cost Type Balance/Budget" page
         CostTypeBalanceBudgetPage.DateFilter.AssertEquals(StrSubstNo('''''..%1', CalcDate('<CM>', ExpectedDate)));
 
-        CostTypeBalanceBudgetPage.Close;
+        CostTypeBalanceBudgetPage.Close();
     end;
 
     [Test]
@@ -1270,9 +1270,9 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // [FEATURE] [Date Filter]
         // [SCENARIO 210915] "Date Filter" is changed to next period on "Cost Type Balance/Budget" page when press "Next Period"
 
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // [GIVEN] Work Date = 01.01.2017
         // [GIVEN] "Cost Type Balance/Budget" page is opened
         // [GIVEN] "Amount Type" = "Net Change" and "Period Type" = Month on "Cost Type Balance/Budget" page
@@ -1287,7 +1287,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalanceBudgetPage.DateFilter.AssertEquals(
           StrSubstNo('%1..%2', CalcDate('<-CM>', ExpectedDate), CalcDate('<CM>', ExpectedDate)));
 
-        CostTypeBalanceBudgetPage.Close;
+        CostTypeBalanceBudgetPage.Close();
     end;
 
     [Test]
@@ -1300,9 +1300,9 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // [FEATURE] [Date Filter]
         // [SCENARIO 210915] "Date Filter" is changed to previous period on "Cost Type Balance/Budget" page when press "Previous Period"
 
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // [GIVEN] Work Date = 01.01.2017
         // [GIVEN] "Cost Type Balance/Budget" page is opened
         // [GIVEN] "Amount Type" = "Net Change" and "Period Type" = Month on "Cost Type Balance/Budget" page
@@ -1317,7 +1317,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalanceBudgetPage.DateFilter.AssertEquals(
           StrSubstNo('%1..%2', CalcDate('<-CM>', ExpectedDate), CalcDate('<CM>', ExpectedDate)));
 
-        CostTypeBalanceBudgetPage.Close;
+        CostTypeBalanceBudgetPage.Close();
     end;
 
     [Test]
@@ -1332,16 +1332,16 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         BudgetAmount: Decimal;
         PostingDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
         LibraryCostAccounting.CreateCostCenter(CostCenter);
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Exercise:
-        CostTypeBalanceBudgetPage.OpenEdit;
+        CostTypeBalanceBudgetPage.OpenEdit();
         SetFieldsOnCostTypeBalanceBudgetPage(
           CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name, '', '');
         Evaluate(PostingDate, CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"));
@@ -1367,7 +1367,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalanceBudgetPage: TestPage "Cost Type Balance/Budget";
         PostingDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup:
         // Create Net Change and Create Budget
@@ -1375,9 +1375,9 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Exercise:
-        CostTypeBalanceBudgetPage.OpenEdit;
+        CostTypeBalanceBudgetPage.OpenEdit();
         SetFieldsOnCostTypeBalanceBudgetPage(
           CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name, '', '');
         Evaluate(PostingDate, CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"));
@@ -1400,13 +1400,13 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostCenter: Record "Cost Center";
         CostTypeBalanceBudgetPage: TestPage "Cost Type Balance/Budget";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Setup:
         CostCenter.FindFirst;
         CostCenterFilter := SelectionFilterManagement.AddQuotes(CostCenter.Code);
-        CostTypeBalanceBudgetPage.OpenEdit;
+        CostTypeBalanceBudgetPage.OpenEdit();
 
         // Exercise:
         CostTypeBalanceBudgetPage.CostCenterFilter.Lookup;
@@ -1423,13 +1423,13 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostObject: Record "Cost Object";
         CostTypeBalanceBudgetPage: TestPage "Cost Type Balance/Budget";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Setup:
         CostObject.FindFirst;
         CostObjectFilter := SelectionFilterManagement.AddQuotes(CostObject.Code);
-        CostTypeBalanceBudgetPage.OpenEdit;
+        CostTypeBalanceBudgetPage.OpenEdit();
 
         // Exercise:
         CostTypeBalanceBudgetPage.CostObjectFilter.Lookup;
@@ -1445,9 +1445,9 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalanceBudgetPage: TestPage "Cost Type Balance/Budget";
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Setup:
         ExpectedDate :=
           OpenCostTypeBalanceBudgetPage(CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
@@ -1459,7 +1459,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Assert.AreEqual(Format(CalcDate('<1D>', ExpectedDate)), CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"), DateFilterError);
 
         // Clean-up:
-        CostTypeBalanceBudgetPage.Close;
+        CostTypeBalanceBudgetPage.Close();
     end;
 
     [Test]
@@ -1469,9 +1469,9 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalanceBudgetPage: TestPage "Cost Type Balance/Budget";
         ExpectedDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Setup:
         ExpectedDate :=
           OpenCostTypeBalanceBudgetPage(CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
@@ -1484,7 +1484,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           Format(CalcDate('<-1D>', ExpectedDate)), CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"), DateFilterError);
 
         // Clean-up:
-        CostTypeBalanceBudgetPage.Close;
+        CostTypeBalanceBudgetPage.Close();
     end;
 
     [Test]
@@ -1499,18 +1499,18 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         NetChange: Decimal;
         PostingDate: Date;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         // Setup:
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
         LibraryCostAccounting.CreateCostCenter(CostCenter);
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Setup Cost Type Balance/Budget page:
-        CostTypeBalanceBudgetPage.OpenEdit;
+        CostTypeBalanceBudgetPage.OpenEdit();
         SetFieldsOnCostTypeBalanceBudgetPage(
           CostTypeBalanceBudgetPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name, CostCenter.Code, '');
         Evaluate(PostingDate, CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"));
@@ -1538,21 +1538,21 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalanceBudgetPage: TestPage "Cost Type Balance/Budget";
         BudgetFilter: Text;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostTypeBalanceBudgetPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostTypeBalanceBudgetPage.OpenEdit();
         BudgetFilter := CopyStr(LibraryUtility.GenerateRandomCode(CostBudgetName.FieldNo(Name), DATABASE::"Cost Budget Name"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Cost Budget Name", CostBudgetName.FieldNo(Name)));
         CostTypeBalanceBudgetPage.BudgetFilter.SetValue(BudgetFilter);
 
         Assert.AreNotEqual(BudgetFilter, CostType."Budget Filter", StrSubstNo(ExpectedValueDifferent, CostType.FieldName("Budget Filter")));
 
-        CostTypeBalanceBudgetPage.Close;
+        CostTypeBalanceBudgetPage.Close();
         CostType.Delete();
     end;
 
@@ -1565,14 +1565,14 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalanceBudgetPage: TestPage "Cost Type Balance/Budget";
         CostCenterCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostTypeBalanceBudgetPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostTypeBalanceBudgetPage.OpenEdit();
         CostCenterCode := CopyStr(LibraryUtility.GenerateRandomCode(CostCenter.FieldNo(Code), DATABASE::"Cost Center"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Cost Center", CostCenter.FieldNo(Code)));
 
@@ -1581,7 +1581,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Assert.AreNotEqual(
           CostCenterCode, CostType."Cost Center Filter", StrSubstNo(ExpectedValueDifferent, CostType.FieldName("Cost Center Filter")));
 
-        CostTypeBalanceBudgetPage.Close;
+        CostTypeBalanceBudgetPage.Close();
         CostType.Delete();
     end;
 
@@ -1594,13 +1594,13 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalanceBudgetPage: TestPage "Cost Type Balance/Budget";
         CostObjectCode: Code[20];
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         CostTypeBalanceBudgetPage.OpenView;
         CostObjectCode := CopyStr(LibraryUtility.GenerateRandomCode(CostObject.FieldNo(Code), DATABASE::"Cost Object"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Cost Object", CostObject.FieldNo(Code)));
@@ -1609,7 +1609,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Assert.AreNotEqual(
           CostObjectCode, CostType."Cost Object Filter", StrSubstNo(ExpectedValueDifferent, CostType.FieldName("Cost Object Filter")));
 
-        CostTypeBalanceBudgetPage.Close;
+        CostTypeBalanceBudgetPage.Close();
         CostType.Delete();
     end;
 
@@ -1617,8 +1617,8 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     [Scope('OnPrem')]
     procedure TestCostTypeBalanceAmountTypeBalanceAtDate()
     begin
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         ValidateCostTypeBalanceAmountType(AmountType::"Balance at Date");
     end;
 
@@ -1626,8 +1626,8 @@ codeunit 134821 "ERM Cost Accounting - Pages"
     [Scope('OnPrem')]
     procedure TestCostTypeBalanceAmountTypeNetChange()
     begin
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         ValidateCostTypeBalanceAmountType(AmountType::"Net Change");
     end;
 
@@ -1638,15 +1638,15 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostType: Record "Cost Type";
         CostTypeBalance: TestPage "Cost Type Balance";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Setup
         CostType.SetFilter("Cost Center Code", '<>%1', '');
         CostType.FindFirst;
 
         // Exercise
-        CostTypeBalance.OpenEdit;
+        CostTypeBalance.OpenEdit();
         UpdateCostTypeBalanceFilters(
           CostTypeBalance, CostType."Cost Center Code", '', PeriodType::Day, AmountType::"Balance at Date", RoundingFactor::None);
 
@@ -1654,7 +1654,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostType.TestField("Cost Center Code", Format(CostTypeBalance.MatrixForm.FILTER.GetFilter("Cost Center Filter")));
 
         // Cleanup
-        CostTypeBalance.Close;
+        CostTypeBalance.Close();
     end;
 
     [Test]
@@ -1666,9 +1666,8 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostType: Record "Cost Type";
         CostTypeBalance: TestPage "Cost Type Balance";
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
         // Setup
         // NAVCZ
         LibraryCostAccounting.CreateCostObject(CostObject);
@@ -1677,8 +1676,10 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostType.Modify();
         // NAVCZ
 
+        LibraryLowerPermissions.SetCostAccountingView();
+
         // Exercise
-        CostTypeBalance.OpenEdit;
+        CostTypeBalance.OpenEdit();
         UpdateCostTypeBalanceFilters(
           CostTypeBalance, '', CostType."Cost Object Code", PeriodType::Day, AmountType::"Balance at Date", RoundingFactor::None);
 
@@ -1686,7 +1687,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostType.TestField("Cost Object Code", Format(CostTypeBalance.MatrixForm.FILTER.GetFilter("Cost Object Filter")));
 
         // Cleanup
-        CostTypeBalance.Close;
+        CostTypeBalance.Close();
     end;
 
     [Test]
@@ -1697,9 +1698,9 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalance: TestPage "Cost Type Balance";
         SelectedRoundingFactor: Option;
     begin
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Setup
         LibraryCostAccounting.GetAllCostTypes(CostType);
 
@@ -1709,7 +1710,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         SelectedRoundingFactor := LibraryRandom.RandInt(4) - 1; // None, 1, 1000, or 1000000
 
         // Exercise
-        CostTypeBalance.OpenEdit;
+        CostTypeBalance.OpenEdit();
         CostTypeBalance.FILTER.SetFilter("Date Filter", Format(WorkDate));
         UpdateCostTypeBalanceFilters(CostTypeBalance, '', '', PeriodType::Day, AmountType::"Balance at Date", SelectedRoundingFactor);
 
@@ -1721,7 +1722,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CostTypeBalanceWithRoundingFactor(CostType."Balance at Date", SelectedRoundingFactor));
 
         // Cleanup
-        CostTypeBalance.Close;
+        CostTypeBalance.Close();
     end;
 
     [Test]
@@ -1739,22 +1740,22 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the OnValidate of Cost Center Filter field on Cost Budget Per Period Page works correctly.
 
         // Setup: Create new Cost Type, Cost Center and Cost Budget Name.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
         LibraryCostAccounting.CreateCostCenter(CostCenter);
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Exercise: Creating Cost Budget Entry and setting the filters on Cost Budget Per Period page.
         LibraryCostAccounting.CreateCostBudgetEntry(CostBudgetEntry, CostBudgetName.Name);
         UpdateCostBudgetEntry(CostBudgetEntry, CostType."No.", CostCenter.Code, '');
         ExpectedAmount := CostBudgetEntry.Amount;
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetPerPeriodPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(
           CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name, CostCenter.Code, '');
         CostBudgetAmount := GetColumnAmountOnCostBudgetPerPeriodChange(CostBudgetPerPeriodPage, CostType."No.");
@@ -1766,7 +1767,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
             CostBudgetEntry.TableCaption, CostBudgetEntry."Entry No."));
 
         // Tear Down.
-        CostBudgetPerPeriodPage.Close;
+        CostBudgetPerPeriodPage.Close();
     end;
 
     [Test]
@@ -1784,22 +1785,22 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the OnValidate of Cost Object Filter field on Cost Budget Per Period Page works correctly.
 
         // Setup: Create new Cost Type, Cost Object and Cost Budget Name.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
         LibraryCostAccounting.CreateCostObject(CostObject);
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Exercise: Creating Cost Budget Entry and setting the filters on Cost Budget Per Period page.
         LibraryCostAccounting.CreateCostBudgetEntry(CostBudgetEntry, CostBudgetName.Name);
         UpdateCostBudgetEntry(CostBudgetEntry, CostType."No.", '', CostObject.Code);
         ExpectedAmount := CostBudgetEntry.Amount;
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetPerPeriodPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(
           CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName.Name, '', CostObject.Code);
         CostBudgetAmount := GetColumnAmountOnCostBudgetPerPeriodChange(CostBudgetPerPeriodPage, CostType."No.");
@@ -1811,7 +1812,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
             CostBudgetEntry.TableCaption, CostBudgetEntry."Entry No."));
 
         // Tear Down.
-        CostBudgetPerPeriodPage.Close;
+        CostBudgetPerPeriodPage.Close();
     end;
 
     [Test]
@@ -1826,10 +1827,10 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the OnValidate of Action Next Set is properly working or not.
 
         // Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetPerPeriodPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetPerPeriodPage.OpenEdit();
 
         // Exercise: Get the Date caption of the Matrix Form before invoking the Next Set and after invoking the Next Set.
         SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
@@ -1841,7 +1842,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CalcDate('<12D>', DateBeforeInvokingAction), DateAfterInvokingAction, StrSubstNo(ColumnDateError, ActionItem::"Next Set"));
 
         // Tear Down.
-        CostBudgetPerPeriodPage.Close;
+        CostBudgetPerPeriodPage.Close();
     end;
 
     [Test]
@@ -1856,10 +1857,10 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the OnValidate of Action Previous Set is properly working or not.
 
         // Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetPerPeriodPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetPerPeriodPage.OpenEdit();
 
         // Exercise: Get the Date caption of the Matrix Form before invoking the Previous Set and after invoking the Previous Set.
         SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
@@ -1871,7 +1872,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CalcDate('<-12D>', DateBeforeInvokingAction), DateAfterInvokingAction, StrSubstNo(ColumnDateError, ActionItem::"Previous Set"));
 
         // Tear Down.
-        CostBudgetPerPeriodPage.Close;
+        CostBudgetPerPeriodPage.Close();
     end;
 
     [Test]
@@ -1886,10 +1887,10 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the OnValidate of Action Previous Column is properly working or not.
 
         // Setup:
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetPerPeriodPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetPerPeriodPage.OpenEdit();
 
         // Exercise: Get the Date caption of the Matrix Form before invoking the Previous Column and after invoking the Previous Column.
         SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
@@ -1901,7 +1902,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CalcDate('<-1D>', DateBeforeInvokingAction), DateAfterInvokingAction, StrSubstNo(ColumnDateError, ActionItem::"Previous Column"));
 
         // Tear Down.
-        CostBudgetPerPeriodPage.Close;
+        CostBudgetPerPeriodPage.Close();
     end;
 
     [Test]
@@ -1916,10 +1917,10 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the OnValidate of Action Next Column is properly working or not.
 
         // Setup:
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostBudgetPerPeriodPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostBudgetPerPeriodPage.OpenEdit();
 
         // Exercise: Get the Date caption of the Matrix Form before invoking the Next Column and after invoking the Next Column.
         SetFieldsOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), '', '', '');
@@ -1931,7 +1932,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CalcDate('<1D>', DateBeforeInvokingAction), DateAfterInvokingAction, StrSubstNo(ColumnDateError, ActionItem::"Next Column"));
 
         // Tear Down.
-        CostBudgetPerPeriodPage.Close;
+        CostBudgetPerPeriodPage.Close();
     end;
 
     [Test]
@@ -1943,18 +1944,18 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the Error is coming when we insert the wrong value in CostJnlBatchName field.
 
         // Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Open Cost Journal Page and Set wrong value in CostJnlBatchName field.
-        CostJournalPage.OpenEdit;
+        CostJournalPage.OpenEdit();
         asserterror CostJournalPage.CostJnlBatchName.SetValue(LibraryRandom.RandInt(10));  // To Set any random value so that it will give error.
 
         // Verify: Verify that the expected error is coming or not.
         Assert.VerifyFailure(TestValidation, FailedToGetTheExpectedValidationError);
 
         // Tear Down.
-        CostJournalPage.Close;
+        CostJournalPage.Close();
     end;
 
     [Test]
@@ -1971,17 +1972,17 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the OnValidate of CostJnlBatchName field on Cost Journal Page works correctly.
 
         // Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         // Exercise: Create Cost Journal Batch and Cost Journal Line and set the vaule of Name to CostJnlBatchName.
         LibraryCostAccounting.FindCostJournalTemplate(CostJournalTemplate);
         LibraryCostAccounting.CreateCostJournalBatch(CostJournalBatch, CostJournalTemplate.Name);
         LibraryCostAccounting.CreateCostJournalLine(CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name);
 
-        LibraryLowerPermissions.SetCostAccountingView;
-        CostJournalPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingView();
+        CostJournalPage.OpenEdit();
         CostJournalPage.CostJnlBatchName.SetValue(CostJournalBatch.Name);
 
         // Verify: Verify that OnValidate of CostJnlBatchName field on Cost Journal Page works correctly."
@@ -1990,7 +1991,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Assert.AreEqual(1, i, StrSubstNo(CostJnlLineError, CostJournalLine.TableCaption));
 
         // Tear Down.
-        CostJournalPage.Close;
+        CostJournalPage.Close();
     end;
 
     [Test]
@@ -2005,24 +2006,24 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the OnLookup of CostJnlBatchName field on Cost Journal Page works correctly.
 
         // Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         // Exercise: Creating Cost Journal Batch and Looup up the CostJnlBatchName of Cost Journal Line page and setting the newly created batch name.
         LibraryCostAccounting.FindCostJournalTemplate(CostJournalTemplate);
         LibraryCostAccounting.CreateCostJournalBatch(CostJournalBatch, CostJournalTemplate.Name);
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         CostJournalBatchName := CostJournalBatch.Name;
-        CostJournalPage.OpenEdit;
+        CostJournalPage.OpenEdit();
         CostJournalPage.CostJnlBatchName.Lookup;
 
         // Verify: Verify that OnLookup of CostJnlBatchName field on Cost Journal Page works correctly.
         CostJournalPage.CostJnlBatchName.AssertEquals(CostJournalBatchName);
 
         // Tear Down.
-        CostJournalPage.Close;
+        CostJournalPage.Close();
     end;
 
     [Test]
@@ -2037,24 +2038,24 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the code on OnNewRecord is suceesfully working or not.
 
         // Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         // Exercise: Open cost journal page and set the values on the page.
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
         LibraryCostAccounting.FindCostJournalTemplate(CostJournalTemplate);
         LibraryCostAccounting.CreateCostJournalBatch(CostJournalBatch, CostJournalTemplate.Name);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostJournalPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostJournalPage.OpenEdit();
         SetValuesOnCostJournalPage(CostJournalPage, CostJournalBatch.Name, CostType."No.", '');
 
         // Verify: Verify the values in the Cost Journal page.
         VerifyCostJournalLineWithoutBalCostType(CostJournalPage);
 
         // Tear Down.
-        CostJournalPage.Close;
+        CostJournalPage.Close();
     end;
 
     [Test]
@@ -2069,24 +2070,24 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the code on OnNewRecord is suceesfully working or not.
 
         // Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         // Exercise: Open cost journal page and set the values on the page.
         LibraryCostAccounting.FindCostJournalTemplate(CostJournalTemplate);
         LibraryCostAccounting.CreateCostJournalBatch(CostJournalBatch, CostJournalTemplate.Name);
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
-        CostJournalPage.OpenEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
+        CostJournalPage.OpenEdit();
         SetValuesOnCostJournalPage(CostJournalPage, CostJournalBatch.Name, CostType."No.", CostType."No.");
 
         // Verify: Verify the values in the Cost Journal page.
         VerifyCostJournalLineWithBalCostType(CostJournalPage);
 
         // Tear Down.
-        CostJournalPage.Close;
+        CostJournalPage.Close();
     end;
 
     [Test]
@@ -2106,12 +2107,12 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test Amount in columns as per the Cost Center filter field on Cost Type Balance Page.
 
         // Setup: Create a new Cost Type and Cost Center.
-        Initialize;
+        Initialize();
 
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
         LibraryCostAccounting.CreateCostCenter(CostCenter);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Exercise: Posting the Cost Journal Line and setting filters on Cost Type Balance Page.
         ColoumnNo := LibraryRandom.RandInt(11);
         CostJournaLinePostingDate := CalcDate(StrSubstNo('<%1D>', ColoumnNo), WorkDate);
@@ -2127,7 +2128,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           StrSubstNo(CostJournalAmountError, CostJournalLine.TableCaption, CostEntry.TableCaption));
 
         // Tear Down.
-        CostTypeBalancePage.Close;
+        CostTypeBalancePage.Close();
     end;
 
     [Test]
@@ -2147,11 +2148,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test Amount in columns as per the Cost Object filter field on Cost Type Balance Page.
 
         // Setup: Create a new Cost Type and Cost Object.
-        Initialize;
+        Initialize();
         LibraryCostAccounting.CreateCostObject(CostObject);
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Exercise: Posting the Cost Journal Line and setting filters on Cost Type Balance Page.
         ColoumnNo := LibraryRandom.RandInt(11);
         CostJournaLinePostingDate := CalcDate(StrSubstNo('<%1D>', ColoumnNo), WorkDate);
@@ -2167,7 +2168,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           StrSubstNo(CostJournalAmountError, CostJournalLine.TableCaption, CostEntry.TableCaption));
 
         // Tear Down.
-        CostTypeBalancePage.Close;
+        CostTypeBalancePage.Close();
     end;
 
     [Test]
@@ -2181,11 +2182,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test caption in columns with respect to the View by Week Filter on Cost Type Balance Page.
 
         // Setup
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Setting values on CostType Balance Page.
-        CostTypeBalancePage.OpenEdit;
+        CostTypeBalancePage.OpenEdit();
         SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Week), Format(AmountType::"Balance at Date"), '', '');
 
         // Verify: To Verify value of each column with respect to the ViewBy week filter.
@@ -2196,7 +2197,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         end;
 
         // Tear Down
-        CostTypeBalancePage.Close;
+        CostTypeBalancePage.Close();
     end;
 
     [Test]
@@ -2210,11 +2211,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test caption in columns with respect to the View by  Month Filter on Cost Type Balance Page.
 
         // Setup
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Setting values on CostType Balance Page.
-        CostTypeBalancePage.OpenEdit;
+        CostTypeBalancePage.OpenEdit();
         SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Month), Format(AmountType::"Balance at Date"), '', '');
 
         // Verify: To Verify value of each column with respect to the ViewBy Month filter.
@@ -2225,7 +2226,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         end;
 
         // Tear Down
-        CostTypeBalancePage.Close;
+        CostTypeBalancePage.Close();
     end;
 
     [Test]
@@ -2239,11 +2240,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test caption in columns with respect to the View by Year Filter on Cost Type Balance Page.
 
         // Setup
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Setting values on CostType Balance Page.
-        CostTypeBalancePage.OpenEdit;
+        CostTypeBalancePage.OpenEdit();
         SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Year), Format(AmountType::"Balance at Date"), '', '');
 
         // Verify: To Verify value of each column with respect to the ViewBy Year filter.
@@ -2254,7 +2255,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         end;
 
         // Tear Down
-        CostTypeBalancePage.Close;
+        CostTypeBalancePage.Close();
     end;
 
     [Test]
@@ -2269,11 +2270,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test caption value of column on invoking Next Column Action on Cost Type Balance Page.
 
         // Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Evaluating Caption of Matrix form before and after invoking Next Column action.
-        CostTypeBalancePage.OpenEdit;
+        CostTypeBalancePage.OpenEdit();
         SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Day), Format(AmountType::"Balance at Date"), '', '');
         GetColumnDatesOnCostTypeBalancePage(
           CostTypeBalancePage, DateBeforeInvokingAction, DateAfterInvokingAction, ActionItem::"Next Column");
@@ -2283,7 +2284,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CalcDate('<1D>', DateBeforeInvokingAction), DateAfterInvokingAction, StrSubstNo(ColumnDateError, ActionItem::"Next Column"));
 
         // Tear Down.
-        CostTypeBalancePage.Close;
+        CostTypeBalancePage.Close();
     end;
 
     [Test]
@@ -2298,11 +2299,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test caption value of column on invoking of Next Set Action on Cost Type Balance Page.
 
         // Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Evaluating Caption of Matrix form before and after invoking Next Set action.
-        CostTypeBalancePage.OpenEdit;
+        CostTypeBalancePage.OpenEdit();
         SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Day), Format(AmountType::"Balance at Date"), '', '');
         GetColumnDatesOnCostTypeBalancePage(CostTypeBalancePage, DateBeforeInvokingAction, DateAfterInvokingAction, ActionItem::"Next Set");
 
@@ -2311,7 +2312,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CalcDate('<12D>', DateBeforeInvokingAction), DateAfterInvokingAction, StrSubstNo(ColumnDateError, ActionItem::"Next Set"));
 
         // Tear Down.
-        CostTypeBalancePage.Close;
+        CostTypeBalancePage.Close();
     end;
 
     [Test]
@@ -2326,11 +2327,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test caption value of column on invoking of Previous Set Action on Cost Type Balance Page.
 
         // Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Evaluating Caption of Matrix form before and after invoking Previous Set action.
-        CostTypeBalancePage.OpenEdit;
+        CostTypeBalancePage.OpenEdit();
         SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Day), Format(AmountType::"Balance at Date"), '', '');
         GetColumnDatesOnCostTypeBalancePage(
           CostTypeBalancePage, DateBeforeInvokingAction, DateAfterInvokingAction, ActionItem::"Previous Set");
@@ -2340,7 +2341,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CalcDate('<-12D>', DateBeforeInvokingAction), DateAfterInvokingAction, StrSubstNo(ColumnDateError, ActionItem::"Previous Set"));
 
         // Tear Down.
-        CostTypeBalancePage.Close;
+        CostTypeBalancePage.Close();
     end;
 
     [Test]
@@ -2355,11 +2356,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test caption value of column on invoking of Previous Column Action on Cost Type Balance Page.
 
         // Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Evaluating Caption of Matrix form before and after invoking Previous Column action.
-        CostTypeBalancePage.OpenEdit;
+        CostTypeBalancePage.OpenEdit();
         SetFieldsOnCostTypeBalancePage(CostTypeBalancePage, Format(PeriodType::Day), Format(AmountType::"Balance at Date"), '', '');
         GetColumnDatesOnCostTypeBalancePage(
           CostTypeBalancePage, DateBeforeInvokingAction, DateAfterInvokingAction, ActionItem::"Previous Column");
@@ -2369,7 +2370,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
           CalcDate('<-1D>', DateBeforeInvokingAction), DateAfterInvokingAction, StrSubstNo(ColumnDateError, ActionItem::"Previous Column"));
 
         // Tear Down.
-        CostTypeBalancePage.Close;
+        CostTypeBalancePage.Close();
     end;
 
     [Test]
@@ -2383,16 +2384,16 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test Corresponding G/L Account Action on Cost Type Balance Page for the Cost Type with Single G/L Account.
 
         // Setup: Initialize and create a Cost Type with single G/L Account.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingSetup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingSetup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateCostType(CostType);
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Filter the created Cost Type on Chart of Cost Type and invoke Corresponding G/L Account Action for that Cost Type.
-        ChartOfCostTypePage.OpenEdit;
+        ChartOfCostTypePage.OpenEdit();
         ChartOfCostTypePage.FILTER.SetFilter("No.", CostType."No.");
         ChartOfCostTypePage.CorrespondingGLAccounts.Invoke;
 
@@ -2400,7 +2401,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         ChartOfCostTypePage."G/L Account Range".AssertEquals(GLAccountNo);
 
         // Tear Down.
-        ChartOfCostTypePage.Close;
+        ChartOfCostTypePage.Close();
     end;
 
     [Test]
@@ -2414,15 +2415,15 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test Corresponding G/L Account Action on Cost Type Balance Page for Cost Type with no G/L Account.
 
         // Setup: Initialize and Create a Cost Type with no G/L Account.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Filter the created Cost Type on Chart of Cost Type and invoke Corresponding G/L Account Action for that Cost Type.
-        ChartOfCostTypePage.OpenEdit;
+        ChartOfCostTypePage.OpenEdit();
         ChartOfCostTypePage.FILTER.SetFilter("No.", CostType."No.");
         ChartOfCostTypePage.CorrespondingGLAccounts.Invoke;
 
@@ -2430,7 +2431,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         ChartOfCostTypePage."G/L Account Range".AssertEquals(GLAccountNo);
 
         // Tear Down.
-        ChartOfCostTypePage.Close;
+        ChartOfCostTypePage.Close();
     end;
 
     [Test]
@@ -2446,11 +2447,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test Get Cost Types from Chart Of Account Action On Chart of Cost Type.
 
         // Setup: Set Alignment and Create a G/L account.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingSetup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CostAccountingSetup.Get();
         OldAlignmentValue := CostAccountingSetup."Align G/L Account";
         LibraryCostAccounting.SetAlignment(
@@ -2459,18 +2460,18 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
         LibraryLowerPermissions.AddO365BusFull;
         // Exercise: Invoking Get Cost Types form Chart of Accounts Action and set filters on Chart of Cost Type Page.
-        ChartOfCostTypePage.OpenEdit;
+        ChartOfCostTypePage.OpenEdit();
         ChartOfCostTypePage.GetCostTypesFromChartOfAccounts.Invoke;
         ChartOfCostTypePage.FILTER.SetFilter("No.", GLAccount."No.");
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         LibraryLowerPermissions.AddCostAccountingSetup;
         // Verify: To check that created G/L Account is extracted to Chart of Cost Tyep Page on invoking Chart of Account Action.
         ChartOfCostTypePage."No.".AssertEquals(GLAccount."No.");
 
         // Tear Down: Reset the value of Align G/L Account on Cost Accounting Setup.
         LibraryCostAccounting.SetAlignment(CostAccountingSetup.FieldNo("Align G/L Account"), OldAlignmentValue);
-        ChartOfCostTypePage.Close;
+        ChartOfCostTypePage.Close();
     end;
 
     [Test]
@@ -2486,15 +2487,15 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the Code on OnNewRecord with cost center is working successfully or not.
 
         // Setup: Creating new Cost budget name, cost type and cost center.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
         LibraryCostAccounting.CreateCostCenter(CostCenter);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Exercise: Open Cost Budget Per period page and setting the filters on the page.
         CostTypeNo := CostType."No.";
         CostCenterFilter := CostCenter.Code;
@@ -2505,7 +2506,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetPerPeriodPage.MatrixForm.Column1.DrillDown;
 
         // Tear Down.
-        CostBudgetPerPeriodPage.Close;
+        CostBudgetPerPeriodPage.Close();
     end;
 
     [Test]
@@ -2521,15 +2522,15 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Check that the Code on OnInsertRecord with cost object is working successfully or not.
 
         // Setup: Creating new Cost budget name, cost type and cost object.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
         LibraryCostAccounting.CreateCostObject(CostObject);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Exercise: Open Cost Budget Per period page and setting the filters on the page and setting the value of Amount on cost budget entry page in handler MFHandlerCostBudgetEntries.
         CostTypeNo := CostType."No.";
         CostObjectFilter := CostObject.Code;
@@ -2542,7 +2543,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostBudgetPerPeriodPage.MatrixForm.Column1.DrillDown;
 
         // Tear Down.
-        CostBudgetPerPeriodPage.Close;
+        CostBudgetPerPeriodPage.Close();
     end;
 
     [Test]
@@ -2560,17 +2561,17 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test that Action item 'Register Cost Types In Chart Of Accounts'on Chart Of Cost Type page is working successfullty or not.
 
         // Setup: To set Align G/L Account to No alignment and Create G/L Account and Cost Type.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingSetup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.SetAlignment(
           CostAccountingSetup.FieldNo("Align G/L Account"), CostAccountingSetup."Align G/L Account"::"No Alignment");
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // Exercise: Update Cost type and invoke register Cost Type in Chart Of Accounts Action On Chart Of Cost Type Page.
         UpdateCostType(CostType, Type::"Cost Type", GLAccount."No.");
 
@@ -2584,7 +2585,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         ChartOfAccountsPage."Cost Type No.".AssertEquals(CostType."No.");
 
         // Tear Down.
-        ChartOfCostTypePage.Close;
+        ChartOfCostTypePage.Close();
     end;
 
     [Test]
@@ -2602,18 +2603,18 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test whether the Cost Allocation Card is opening for that particular Cost Allocation.
 
         // Setup: Create a Cost Allocation Source and Cost Allocation Target.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingSetup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateAllocSource(CostAllocationSource, TypeOfId::"Auto Generated");
         LibraryCostAccounting.CreateAllocTarget(
           CostAllocationTarget, CostAllocationSource, LibraryRandom.RandDec(1000, 2), Base::Static, AllocationType::"All Costs");
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Filter created Cost Allocation on Cost Allocation Page and Invoke the Cost Allocation Target Card Action.
-        CostAllocationPage.OpenEdit;
+        CostAllocationPage.OpenEdit();
         CostAllocationPage.FILTER.SetFilter(ID, CostAllocationSource.ID);
         CostAllocationTargetCardPage.Trap;
         CostAllocationPage.AllocTarget.AllocationTargetCard.Invoke;
@@ -2622,7 +2623,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostAllocationPage.AllocTarget."Target Cost Type".AssertEquals(CostAllocationTargetCardPage."Target Cost Type");
 
         // Tear Down.
-        CostAllocationPage.Close;
+        CostAllocationPage.Close();
     end;
 
     [Test]
@@ -2641,11 +2642,11 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test that Corresponding Cost Types for an Allocation Source are Displayed.
 
         // Setup: Create multiple cost type and link it with newly created cost allocation source.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingSetup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingSetup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         TotalNumberOfCostTypes := 1 + LibraryRandom.RandInt(4);
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
         CostTypeNo := CostType."No.";
@@ -2655,7 +2656,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         LibraryCostAccounting.CreateAllocSource(CostAllocationSource, TypeOfID::"Auto Generated");
         UpdateCostAllocationSource(CostAllocationSource, StrSubstNo(CostTypeFilterDefinition, CostTypeNo, CostType."No."));
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: To open Cost Allocation Source page set filter and then invoke Page Chart of Cost Types.
         CostAllocationSourcePage.OpenView;
         CostAllocationSourcePage.FILTER.SetFilter(ID, CostAllocationSource.ID);
@@ -2678,17 +2679,17 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test that Changing the View Reflects in Displaying the Correct Data.
 
         // Setup.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         // Exercise: Create two cost budget name and one cost budget entry.
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName);
         LibraryCostAccounting.CreateCostBudgetEntry(CostBudgetEntry, CostBudgetName.Name);
         LibraryCostAccounting.CreateCostBudgetName(CostBudgetName2);
-        CostBudgetPerPeriodPage.OpenEdit;
+        CostBudgetPerPeriodPage.OpenEdit();
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         // Verify that Changing the View Reflects in Displaying the Correct Data.
         VerifyCostBudgetPerPeriodMatrixPage(
           CostBudgetPerPeriodPage, CostBudgetName.Name, CostBudgetEntry, Format(CostBudgetEntry.Amount, 0, '<Precision,2><Standard Format,1>'));
@@ -2708,17 +2709,17 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test that Page Cost Bdgt. per Center Matrix is shown correctly.
 
         // Setup: Save copy and delete all the cost centers.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CopyCostCenters(CostCenter, TempCostCenter);
         CostCenter.DeleteAll();
 
         // Create 12 new cost centers and open the page cost budget by cost center page.
         for i := 1 to 12 do
             LibraryCostAccounting.CreateCostCenter(CostCenter2[i]);
-        CostBudgetbyCostCenterPage.OpenEdit;
+        CostBudgetbyCostCenterPage.OpenEdit();
 
         // Verify that column captions are correcly shown in the page according to newly created cost centers.
         for i := 1 to 12 do
@@ -2743,17 +2744,17 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         // Test that Page Cost Bdgt. per Object Matrix is shown correctly.
 
         // Setup: Save copy and delete all the cost objects.
-        Initialize;
+        Initialize();
 
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         CopyCostObjects(CostObject, TempCostObject);
         CostObject.DeleteAll();
 
         // Create 12 new cost objects and open the page cost budget by cost object page.
         for i := 1 to 12 do
             LibraryCostAccounting.CreateCostObject(CostObject2[i]);
-        CostBudgetbyCostObjectPage.OpenEdit;
+        CostBudgetbyCostObjectPage.OpenEdit();
 
         // Verify that column captions are correcly shown in the page according to newly created cost objects.
         for i := 1 to 12 do
@@ -2774,9 +2775,9 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         GlobalDimensionCodeValue: array[2] of Code[20];
         BusinessUnitFilterValue: Code[10];
     begin
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddO365BusFull;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddO365BusFull();
+        LibraryLowerPermissions.AddCostAccountingEdit();
 
         // Verify flowfilters are transfered when opening "G/L Balance" from "Chart Of Accounts" page
         GlobalDimensionCodeValue[1] := GetGlobalDimensionCodeValue(1);
@@ -2790,13 +2791,13 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         GLBalance.Trap;
         ChartOfAccounts."G/L &Balance".Invoke;
 
-        LibraryLowerPermissions.SetCostAccountingView;
+        LibraryLowerPermissions.SetCostAccountingView();
         Assert.AreEqual(GlobalDimensionCodeValue[1], GLBalance.FILTER.GetFilter("Global Dimension 1 Filter"), WrongFlowFilterValueErr);
         Assert.AreEqual(GlobalDimensionCodeValue[2], GLBalance.FILTER.GetFilter("Global Dimension 2 Filter"), WrongFlowFilterValueErr);
         Assert.AreEqual(BusinessUnitFilterValue, GLBalance.FILTER.GetFilter("Business Unit Filter"), WrongFlowFilterValueErr);
 
-        GLBalance.Close;
-        ChartOfAccounts.Close;
+        GLBalance.Close();
+        ChartOfAccounts.Close();
     end;
 
     [Test]
@@ -2809,9 +2810,9 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         BusinessUnitFilterValue: Code[10];
         BudgetFilterValue: Code[10];
     begin
-        LibraryLowerPermissions.SetO365Setup;
-        LibraryLowerPermissions.AddO365BusFull;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.SetO365Setup();
+        LibraryLowerPermissions.AddO365BusFull();
+        LibraryLowerPermissions.AddCostAccountingEdit();
 
         // Verify flowfilters are transfered when opening "G/L Balance/Budget" from "Chart Of Accounts" page
         GlobalDimensionCodeValue[1] := GetGlobalDimensionCodeValue(1);
@@ -2834,8 +2835,8 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Assert.AreEqual(BusinessUnitFilterValue, GLBalanceBudget.FILTER.GetFilter("Business Unit Filter"), WrongFlowFilterValueErr);
         Assert.AreEqual(BudgetFilterValue, GLBalanceBudget.FILTER.GetFilter("Budget Filter"), WrongFlowFilterValueErr);
 
-        GLBalanceBudget.Close;
-        ChartOfAccounts.Close;
+        GLBalanceBudget.Close();
+        ChartOfAccounts.Close();
     end;
 
     local procedure Initialize()
@@ -3246,7 +3247,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
     local procedure SetFiltersOnCostBudgetPerPeriodPage(var CostBudgetPerPeriodPage: TestPage "Cost Budget per Period"; CostBudgetName: Code[10])
     begin
-        CostBudgetPerPeriodPage.OpenEdit;
+        CostBudgetPerPeriodPage.OpenEdit();
         SetFieldsOnCostBudgetPerPeriodPage(
           CostBudgetPerPeriodPage, Format(AmountType::"Net Change"), Format(PeriodType::Day), CostBudgetName, CostCenterFilter,
           CostObjectFilter);
@@ -3356,7 +3357,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalance: TestPage "Cost Type Balance";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCostType(CostType);
@@ -3364,7 +3365,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         Amount := PostAmountForCostType(CostType."No.", BalCostType."No.");
 
         // Exercise
-        CostTypeBalance.OpenEdit;
+        CostTypeBalance.OpenEdit();
         CostTypeBalance.FILTER.SetFilter("Date Filter", Format(WorkDate));
         UpdateCostTypeBalanceFilters(CostTypeBalance, '', '', PeriodType::Day, AmountType, RoundingFactor::None);
 
@@ -3373,7 +3374,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
         CostTypeBalance.MatrixForm.Column1.AssertEquals(Amount);
 
         // Cleanup
-        CostTypeBalance.Close;
+        CostTypeBalance.Close();
     end;
 
     local procedure VerifyFiltersOnCostBudgetPerPeriodMatrixPage(CostBudgetPerPeriodPage: TestPage "Cost Budget per Period"; ExpectedDateFilter: Text)
@@ -3763,21 +3764,21 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
     local procedure OpenCostBudgetByCostCenterPage(var CostBudgetByCostCenter: TestPage "Cost Budget by Cost Center"; AmountTypeOption: Text[30]; PeriodTypeOption: Text[30]; CostBudgetName: Text[10]) ExpectedDate: Date
     begin
-        CostBudgetByCostCenter.OpenEdit;
+        CostBudgetByCostCenter.OpenEdit();
         ExpectedDate := GetCurrentDate(CostBudgetByCostCenter.FILTER.GetFilter("Date Filter"));
         SetFieldsOnCostBudgetByCostCenterPage(CostBudgetByCostCenter, AmountTypeOption, PeriodTypeOption, CostBudgetName);
     end;
 
     local procedure OpenCostBudgetByCostObjectPage(var CostBudgetbyCostObject: TestPage "Cost Budget by Cost Object"; AmountTypeOption: Text[30]; PeriodTypeOption: Text[30]; CostBudgetName: Text[10]) ExpectedDate: Date
     begin
-        CostBudgetbyCostObject.OpenEdit;
+        CostBudgetbyCostObject.OpenEdit();
         ExpectedDate := GetCurrentDate(CostBudgetbyCostObject.FILTER.GetFilter("Date Filter"));
         SetFieldsOnCostBudgetByCostObjectPage(CostBudgetbyCostObject, AmountTypeOption, PeriodTypeOption, CostBudgetName);
     end;
 
     local procedure OpenCostTypeBalanceBudgetPage(var CostTypeBalanceBudgetPage: TestPage "Cost Type Balance/Budget"; AmountTypeOption: Text[30]; PeriodTypeOption: Text[30]; CostBudgetName: Text[10]; CostCenterCode: Text[20]; CostObjectCode: Text[20]) ExpectedDate: Date
     begin
-        CostTypeBalanceBudgetPage.OpenEdit;
+        CostTypeBalanceBudgetPage.OpenEdit();
         ExpectedDate := GetCurrentDate(CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"));
         SetFieldsOnCostTypeBalanceBudgetPage(
           CostTypeBalanceBudgetPage, AmountTypeOption, PeriodTypeOption, CostBudgetName, CostCenterCode, CostObjectCode);
@@ -3785,7 +3786,7 @@ codeunit 134821 "ERM Cost Accounting - Pages"
 
     local procedure OpenCostTypeBalancePage(var CostTypeBalancePage: TestPage "Cost Type Balance"; PeriodTypeOption: Text[30]; AmountTypeOption: Text[30]; CostCenterCode: Code[20]; CostObjectCode: Code[20]; CostTypeNo: Code[20]; ColoumnNo: Integer) CostTypeBalanceAmount: Text[30]
     begin
-        CostTypeBalancePage.OpenEdit;
+        CostTypeBalancePage.OpenEdit();
         SetFieldsOnCostTypeBalancePage(
           CostTypeBalancePage, PeriodTypeOption, AmountTypeOption, CostCenterCode, CostObjectCode);
         CostTypeBalanceAmount := GetColumnAmountOnCostTypeBalancePage(CostTypeBalancePage, CostTypeNo, ColoumnNo);

@@ -45,8 +45,10 @@ table 85 "Acc. Schedule Line"
             end;
 
             trigger OnValidate()
+#if not CLEAN19
             var
                 Value: Decimal;
+#endif
             begin
                 case "Totaling Type" of
                     "Totaling Type"::"Posting Accounts", "Totaling Type"::"Total Accounts":
@@ -69,17 +71,22 @@ table 85 "Acc. Schedule Line"
                             CFAccount.SetFilter("No.", Totaling);
                             CFAccount.CalcFields(Amount);
                         end;
+#if not CLEAN19
                     // NAVCZ
                     "Totaling Type"::Constant:
                         if Totaling <> '' then
                             Evaluate(Value, Totaling);
+
                 // NAVCZ
+#endif
                 end;
+#if not CLEAN19
                 // NAVCZ
                 Clear(AccSchedManagement);
                 if "Totaling Type" <> "Totaling Type"::Custom then
                     AccSchedManagement.ValidateFormula(Rec);
                 // NAVCZ
+#endif
             end;
         }
         field(6; "Totaling Type"; Enum "Acc. Schedule Line Totaling Type")
@@ -88,10 +95,12 @@ table 85 "Acc. Schedule Line"
 
             trigger OnValidate()
             begin
+#if not CLEAN19
                 // NAVCZ
                 if (xRec."Totaling Type" = "Totaling Type"::Formula) and ("Totaling Type" <> "Totaling Type"::Formula) then
                     Totaling := '';
                 // NAVCZ
+#endif
                 Validate(Totaling);
             end;
         }
@@ -305,6 +314,13 @@ table 85 "Acc. Schedule Line"
             Caption = 'Source Table';
             OptionCaption = ' ,VAT Entry,Value Entry,Customer Entry,Vendor Entry';
             OptionMembers = " ","VAT Entry","Value Entry","Customer Entry","Vendor Entry";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 

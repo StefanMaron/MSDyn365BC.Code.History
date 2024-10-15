@@ -1,7 +1,11 @@
+#if not CLEAN19
 page 31087 "Save Acc. Schedule Result"
 {
-    Caption = 'Save Acc. Schedule Result';
+    Caption = 'Save Acc. Schedule Result (Obsolete)';
     PageType = Card;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -123,4 +127,4 @@ page 31087 "Save Acc. Schedule Result"
         NewUseAmtsInAddCurr := UseAmtsInAddCurr;
     end;
 }
-
+#endif

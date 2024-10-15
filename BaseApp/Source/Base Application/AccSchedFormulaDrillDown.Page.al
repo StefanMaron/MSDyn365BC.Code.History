@@ -1,9 +1,13 @@
+#if not CLEAN19
 page 31093 "Acc. Sched. Formula Drill-Down"
 {
-    Caption = 'Acc. Sched. Formula Drill-Down';
+    Caption = 'Acc. Sched. Formula Drill-Down (Obsolete)';
     PageType = Worksheet;
     SourceTable = "Acc. Sched. Expression Buffer";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -342,4 +346,4 @@ page 31093 "Acc. Sched. Formula Drill-Down"
         Insert;
     end;
 }
-
+#endif

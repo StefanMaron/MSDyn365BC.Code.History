@@ -24,6 +24,7 @@ codeunit 134327 "ERM Purchase Order"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryRandom: Codeunit "Library - Random";
         LibraryJob: Codeunit "Library - Job";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -5723,6 +5724,39 @@ codeunit 134327 "ERM Purchase Order"
         Assert.AreEqual(PurchaseLine."Direct Unit Cost", ResourceCost."Direct Unit Cost", 'Wrong resource cost');
     end;
 
+#if not CLEAN19
+    [Test]
+    [HandlerFunctions('ImplementStandardCostChangesHandler,MessageHandler')]
+    procedure T280_ImplementResourceStandardCostChanges()
+    var
+        ResourceCost: Record "Resource Cost";
+        Resource: Record Resource;
+        NewStdCost: Decimal;
+    begin
+        Initialize();
+        LibraryPriceCalculation.DisableExtendedPriceCalculation();
+        // [GIVEN] Resource 'R', where "Direct Unit Cost" is 100
+        LibraryResource.CreateResource(Resource, '');
+
+        // [GIVEN] ResourceCost, where for 'R'
+        ResourceCost.Validate(Type, ResourceCost.Type::Resource);
+        ResourceCost.Validate(Code, Resource."No.");
+        ResourceCost.Validate("Cost Type", ResourceCost."Cost Type"::Fixed);
+        ResourceCost.Validate("Direct Unit Cost", Resource."Direct Unit Cost" + 1);
+        ResourceCost.Validate("Unit Cost", Resource."Direct Unit Cost");
+        ResourceCost.Insert();
+
+        // [WHEN] Implement Standard Cost Change, where "New Standard Cost" is 111
+        NewStdCost := Resource."Direct Unit Cost" + LibraryRandom.RandDec(100, 2);
+        ImplementStandardCostChanges(Resource, Resource."Direct Unit Cost", NewStdCost);
+
+        // [THEN] ResourceCost is updated: "Direct Unit Cost" is 100, "Unit Cost" is 111 
+        ResourceCost.Find();
+        ResourceCost.TestField("Direct Unit Cost", Resource."Direct Unit Cost");
+        ResourceCost.TestField("Unit Cost", NewStdCost);
+    end;
+#endif
+
     [Test]
     [HandlerFunctions('ExplodeBOMHandler')]
     [Scope('OnPrem')]
@@ -5774,6 +5808,58 @@ codeunit 134327 "ERM Purchase Order"
 
         PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
         // [SCENARIO 360476] No duplicate Comment Lines inserted
+        Commit();
+
+        VerifyCountPurchCommentLine(PurchaseHeader."Document Type", PurchaseHeader."No.", 10000);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure RecreatePurchCommentLineForPurchaseOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        // [FEATURE] [Purch Comment Line] [UT]
+        // [SCENARIO 399071] The Purch. Comment Lines must be copied after Purchase Lines have been recreated if Purchase Line No. < 10000
+        Initialize();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        CreateSimplePurchLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, 5000);
+        PurchaseLine.Validate("No.", LibraryInventory.CreateItemNo());
+        PurchaseLine.Validate(Quantity, 1);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.CreatePurchCommentLine(PurchCommentLine, "Purchase Document Type"::Order, PurchaseHeader."No.", PurchaseLine."Line No.");
+        LibraryPurchase.CreatePurchCommentLine(PurchCommentLine, "Purchase Document Type"::Order, PurchaseHeader."No.", 0);
+
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+        Commit();
+
+        VerifyCountPurchCommentLine(PurchaseHeader."Document Type", PurchaseHeader."No.", 10000);
+        VerifyCountPurchCommentLine(PurchaseHeader."Document Type", PurchaseHeader."No.", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure RecreatePurchCommentLineForPurchaseLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        // [FEATURE] [Purch Comment Line] [UT]
+        // [SCENARIO 399071] The Purch. Comment Lines must be copied after Purchase Lines have been recreated if Purchase Line No. < 10000
+        Initialize();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Purchase Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        CreateSimplePurchLine(PurchaseLine, PurchaseHeader, "Purchase Line Type"::Item, 5000);
+        PurchaseLine.Validate("No.", LibraryInventory.CreateItemNo());
+        PurchaseLine.Validate(Quantity, 1);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.CreatePurchCommentLine(PurchCommentLine, "Purchase Document Type"::Order, PurchaseHeader."No.", PurchaseLine."Line No.");
+
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
         Commit();
 
         PurchCommentLine.SetRange("Document Type", PurchaseHeader."Document Type");
@@ -5937,148 +6023,6 @@ codeunit 134327 "ERM Purchase Order"
         PurchasesPayablesSetup.Close();
 
         LibraryApplicationArea.DisableApplicationAreaSetup();
-    end;
-
-    [Test]
-    [HandlerFunctions('QtyToAssgnItemChargeModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure ItemChargeWithHundredPctDiscount()
-    var
-        PurchaseHeaderOrder: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchInvLine: Record "Purch. Inv. Line";
-        DocNo: Code[20];
-        Qty: Decimal;
-    begin
-        // [FEATURE] [Purchase Order] [Item Charge]
-        // [SCENARIO 371811] Stan can post purchase order that has the item charge with hundred percent line discount
-
-        Initialize();
-
-        // [GIVEN] Create Purch. Order with item and item charge lines. Item Charge Line has quantity = 1, line discount % = 100, amount = 0
-        CreatePurchaseHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order);
-        CreatePurchaseLineWithDirectUnitCost(
-          PurchaseLine, PurchaseHeaderOrder, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(5), LibraryRandom.RandDec(100, 2));
-        Qty := PurchaseLine.Quantity;
-        CreatePurchaseLineWithDirectUnitCost(
-          PurchaseLine, PurchaseHeaderOrder, PurchaseLine.Type::"Charge (Item)",
-          LibraryInventory.CreateItemChargeNo, Qty, PurchaseLine."Unit Cost" / 3);
-        PurchaseLine.Validate("Line Discount %", 100);
-        PurchaseLine.Modify(true);
-
-        // [GIVEN] Open Item Charge Assignment page and set Qty to Assign = Qty. of item line
-        OpenItemChargeAssgnt(PurchaseLine, true, Qty);
-
-        // [GIVEN] Post purchase order
-        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
-
-        // [THEN] Posted Purchase Invoice Line has quantity and amount of purchase order
-        PurchInvLine.SetRange("Document No.", DocNo);
-        PurchInvLine.SetRange(Type, PurchInvLine.Type::"Charge (Item)");
-        PurchInvLine.FindFirst();
-        PurchInvLine.TestField(Quantity, PurchaseLine.Quantity);
-        PurchInvLine.TestField(Amount, PurchaseLine.Amount);
-    end;
-
-    [Test]
-    [HandlerFunctions('QtyToAssgnItemChargeModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure ItemChargeCoveredByInvoiceDiscount()
-    var
-        PurchaseHeaderOrder: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchInvLine: Record "Purch. Inv. Line";
-        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
-        DocNo: Code[20];
-        InvDiscountAmount: Decimal;
-        Qty: Decimal;
-    begin
-        // [FEATURE] [Purchase Order] [Item Charge]
-        // [SCENARIO 385298] Stan can post purchase order that has the item charge covered by invoice discount.
-        Initialize();
-
-        // [GIVEN] Create Purchase Order with item and item charge lines. Item Charge Line has "Allow Invoice Disc." set to true.
-        CreatePurchaseHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order);
-        CreatePurchaseLineWithDirectUnitCost(
-            PurchaseLine, PurchaseHeaderOrder, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(5), LibraryRandom.RandDec(100, 2));
-        InvDiscountAmount += PurchaseLine.Amount;
-        Qty := PurchaseLine.Quantity;
-        CreatePurchaseLineWithDirectUnitCost(
-            PurchaseLine, PurchaseHeaderOrder, PurchaseLine.Type::"Charge (Item)",
-            LibraryInventory.CreateItemChargeNo(), Qty, PurchaseLine."Unit Cost" / 3);
-        PurchaseLine.Validate("Allow Invoice Disc.", true);
-        PurchaseLine.Modify(true);
-
-        // [GIVEN] Open Item Charge Assignment page and set Qty to Assign = Qty. of item line.
-        OpenItemChargeAssgnt(PurchaseLine, true, Qty);
-
-        // [GIVEN] Invoice discount equal to total amount is applied to Purchase Order.
-        InvDiscountAmount += PurchaseLine.Amount;
-        PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvDiscountAmount, PurchaseHeaderOrder);
-        CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchaseLine);
-
-        // [GIVEN] Post purchase order.
-        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
-
-        // [THEN] Posted Purchase Invoice Line has quantity and amount of purchase order.
-        PurchInvLine.SetRange("Document No.", DocNo);
-        PurchInvLine.SetRange(Type, PurchInvLine.Type::"Charge (Item)");
-        PurchInvLine.FindFirst();
-        PurchInvLine.TestField(Quantity, PurchaseLine.Quantity);
-        PurchInvLine.TestField(Amount, PurchaseLine.Amount);
-    end;
-
-    [Test]
-    [HandlerFunctions('QtyToAssgnItemChargeModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure ItemChargePartiallyInvoicedCoveredByInvoiceDiscount()
-    var
-        PurchaseHeaderOrder: Record "Purchase Header";
-        PurchaseLine: Record "Purchase Line";
-        PurchInvLine: Record "Purch. Inv. Line";
-        PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
-        DocNo: Code[20];
-        InvDiscountAmount: Decimal;
-        Qty: Decimal;
-    begin
-        // [FEATURE] [Purchase Order] [Item Charge]
-        // [SCENARIO 390121] Stan can post purchase order that has the item charge covered by invoice discount and partially invoiced.
-        Initialize();
-
-        // [GIVEN] Create Purchase Order with item and item charge lines. Item Charge Line has "Allow Invoice Disc." set to true and Quantity = 5.
-        CreatePurchaseHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order);
-        CreatePurchaseLineWithDirectUnitCost(
-            PurchaseLine, PurchaseHeaderOrder, PurchaseLine.Type::Item, CreateItem(),
-            LibraryRandom.RandIntInRange(2, 5), LibraryRandom.RandDec(100, 2));
-        InvDiscountAmount += PurchaseLine.Amount;
-        Qty := PurchaseLine.Quantity;
-        CreatePurchaseLineWithDirectUnitCost(
-            PurchaseLine, PurchaseHeaderOrder, PurchaseLine.Type::"Charge (Item)",
-            LibraryInventory.CreateItemChargeNo(), Qty, PurchaseLine."Unit Cost" / 2);
-        PurchaseLine.Validate("Allow Invoice Disc.", true);
-        PurchaseLine.Modify(true);
-
-        // [GIVEN] Open Item Charge Assignment page and set Qty to Assign = Qty. of item line.
-        OpenItemChargeAssgnt(PurchaseLine, true, Qty);
-
-        // [GIVEN] "Qty. to Invoice" is set to 1.
-        PurchaseLine.Validate("Qty. to Invoice", 1);
-        PurchaseLine.Modify(true);
-
-        // [GIVEN] Invoice discount equal to total amount is applied to Purchase Order.
-        InvDiscountAmount += PurchaseLine.Amount;
-        PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvDiscountAmount, PurchaseHeaderOrder);
-        CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchaseLine);
-
-        // [GIVEN] Post purchase order.
-        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, true);
-
-        // [THEN] Posted Purchase Invoice Line has quantity = 1 and amount of purchase order.
-        PurchInvLine.SetRange("Document No.", DocNo);
-        PurchInvLine.SetRange(Type, PurchInvLine.Type::"Charge (Item)");
-        PurchInvLine.FindFirst();
-        PurchInvLine.TestField(Quantity, 1);
-        PurchInvLine.TestField(Amount, PurchaseLine.Amount);
     end;
 
     [Test]
@@ -6510,15 +6454,23 @@ codeunit 134327 "ERM Purchase Order"
     end;
 
     local procedure CreateSimplePurchLine(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type")
+    begin
+        CreateSimplePurchLine(PurchLine, PurchHeader, LineType, 0);
+    end;
+
+    local procedure CreateSimplePurchLine(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type"; LineNo: Integer)
     var
         RecRef: RecordRef;
     begin
         with PurchLine do begin
-            Init;
+            Init();
             Validate("Document Type", PurchHeader."Document Type");
             Validate("Document No.", PurchHeader."No.");
-            RecRef.GetTable(PurchLine);
-            Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No.")));
+            if LineNo = 0 then begin
+                RecRef.GetTable(PurchLine);
+                Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, PurchLine.FieldNo("Line No.")))
+            end else
+                Validate("Line No.", LineNo);
             Validate(Type, LineType);
             Insert(true);
         end;
@@ -8962,6 +8914,16 @@ codeunit 134327 "ERM Purchase Order"
         Assert.AreEqual(Resource."Direct Unit Cost", PurchaseLine."Direct Unit Cost", CopyFromResourceErr);
     end;
 
+    local procedure VerifyCountPurchCommentLine(DocumentType: Enum "Purchase Comment Document Type"; No: Code[20]; DocumentLineNo: Integer)
+    var
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        PurchCommentLine.SetRange("Document Type", DocumentType);
+        PurchCommentLine.SetRange("No.", No);
+        PurchCommentLine.SetRange("Document Line No.", DocumentLineNo);
+        Assert.RecordCount(PurchCommentLine, 1);
+    end;
+
     local procedure MockPostedPurchaseInvoice(var PurchInvHeader: Record "Purch. Inv. Header"; PurchInvLine: Record "Purch. Inv. Line")
     begin
         PurchInvHeader.Init();
@@ -9017,6 +8979,44 @@ codeunit 134327 "ERM Purchase Order"
         ReturnShipmentLine."No." := LibraryResource.CreateResourceNo();
         ReturnShipmentLine.Insert();
     end;
+
+#if not CLEAN19
+    local procedure CreateStandardCostWorksheet(var StandardCostWorksheetPage: TestPage "Standard Cost Worksheet"; ResourceNo: Code[20]; StandardCost: Decimal; NewStandardCost: Decimal)
+    var
+        StandardCostWorksheet: Record "Standard Cost Worksheet";
+    begin
+        StandardCostWorksheetPage.Type.SetValue(StandardCostWorksheet.Type::Resource);
+        StandardCostWorksheetPage."No.".SetValue(ResourceNo);
+        StandardCostWorksheetPage."Standard Cost".SetValue(StandardCost);
+        StandardCostWorksheetPage."New Standard Cost".SetValue(NewStandardCost);
+        StandardCostWorksheetPage.Next;
+    end;
+
+    local procedure ImplementStandardCostChanges(Resource: Record Resource; StandardCost: Decimal; NewStandardCost: Decimal)
+    var
+        StandardCostWorksheet: Record "Standard Cost Worksheet";
+        StandardCostWorksheetPage: TestPage "Standard Cost Worksheet";
+    begin
+        StandardCostWorksheet.DeleteAll();
+        StandardCostWorksheetPage.OpenEdit;
+        CreateStandardCostWorksheet(StandardCostWorksheetPage, Resource."No.", StandardCost, NewStandardCost);
+        Commit();  // Commit Required due to Run Modal.
+        StandardCostWorksheetPage."&Implement Standard Cost Changes".Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure ImplementStandardCostChangesHandler(var ImplementStandardCostChange: TestRequestPage "Implement Standard Cost Change")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Revaluation);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        ImplementStandardCostChange.ItemJournalTemplate.SetValue(ItemJournalTemplate.Name);
+        ImplementStandardCostChange.ItemJournalBatchName.SetValue(ItemJournalBatch.Name);
+        ImplementStandardCostChange.OK.Invoke;
+    end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -9281,6 +9281,11 @@ codeunit 134327 "ERM Purchase Order"
     procedure ExactMessageHandler(Message: Text)
     begin
         Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text)
+    begin
     end;
 
     [ModalPageHandler]

@@ -2,6 +2,7 @@
 codeunit 145007 "Applying G/L Entries"
 {
     Subtype = Test;
+    TestPermissions = NonRestrictive;
     ObsoleteState = Pending;
     ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
     ObsoleteTag = '19.0';

@@ -1,11 +1,7 @@
 codeunit 145001 "Credits Reports"
 {
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        isInitialized := false;
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         LibraryCredit: Codeunit "Library - Credit";

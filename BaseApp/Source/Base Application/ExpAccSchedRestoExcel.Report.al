@@ -1,7 +1,11 @@
+#if not CLEAN19
 report 31083 "Exp. Acc. Sched. Res. to Excel"
 {
-    Caption = 'Exp. Acc. Sched. Res. to Excel';
+    Caption = 'Exp. Acc. Sched. Res. to Excel (Obsolete)';
     ProcessingOnly = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -213,4 +217,4 @@ report 31083 "Exp. Acc. Sched. Res. to Excel"
         DoUpdateExistingWorksheet := UpdateExistingWorksheet;
     end;
 }
-
+#endif

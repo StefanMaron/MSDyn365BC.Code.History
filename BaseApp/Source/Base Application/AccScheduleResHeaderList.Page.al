@@ -1,9 +1,14 @@
+#if not CLEAN19
 page 31092 "Acc. Schedule Res. Header List"
 {
-    Caption = 'Acc. Schedule Res. Header List';
+    Caption = 'Acc. Schedule Res. Header List (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Acc. Schedule Result Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
+
 
     layout
     {
@@ -126,4 +131,4 @@ page 31092 "Acc. Schedule Res. Header List"
     var
         AccSchedResultHdr: Record "Acc. Schedule Result Header";
 }
-
+#endif

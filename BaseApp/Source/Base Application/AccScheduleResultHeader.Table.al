@@ -1,7 +1,14 @@
 table 31086 "Acc. Schedule Result Header"
 {
     Caption = 'Acc. Schedule Result Header';
+#if not CLEAN19
     LookupPageID = "Acc. Schedule Res. Header List";
+    ObsoleteState = Pending;
+#else
+    ObsoleteState = Removed;
+#endif
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
@@ -75,7 +82,7 @@ table 31086 "Acc. Schedule Result Header"
     fieldgroups
     {
     }
-
+#if not CLEAN19
     trigger OnDelete()
     begin
         AccScheduleResultValue.SetRange("Result Code", "Result Code");
@@ -100,5 +107,6 @@ table 31086 "Acc. Schedule Result Header"
         AccScheduleResultHistory: Record "Acc. Schedule Result History";
         AccScheduleResultLine: Record "Acc. Schedule Result Line";
         AccScheduleResultColumn: Record "Acc. Schedule Result Column";
+#endif
 }
 

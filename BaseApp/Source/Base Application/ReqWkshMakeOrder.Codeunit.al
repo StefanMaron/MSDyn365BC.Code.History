@@ -518,6 +518,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                 PurchOrderLine.Validate("Direct Unit Cost", "Direct Unit Cost");
             OnInitPurchOrderLineOnBeforeValidateLineDiscount(PurchOrderLine, PurchOrderHeader, RequisitionLine);
             PurchOrderLine.Validate("Line Discount %", "Line Discount %");
+            OnInitPurchOrderLineOnAfterValidateLineDiscount(PurchOrderLine, PurchOrderHeader, RequisitionLine);
             PurchOrderLine."Vendor Item No." := "Vendor Item No.";
             PurchOrderLine.Description := Description;
             PurchOrderLine."Description 2" := "Description 2";
@@ -1521,6 +1522,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitPurchOrderLineOnAfterPurchOrderLineAssignVariantCode(var PurchOrderLine: Record "Purchase Line"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitPurchOrderLineOnAfterValidateLineDiscount(var PurchOrderLine: Record "Purchase Line"; PurchOrderHeader: Record "Purchase Header"; RequisitionLine: Record "Requisition Line")
     begin
     end;
 

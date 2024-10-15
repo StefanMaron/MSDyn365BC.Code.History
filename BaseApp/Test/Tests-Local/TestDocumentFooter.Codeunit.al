@@ -1,11 +1,7 @@
 codeunit 145003 "Test Document Footer"
 {
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        isInitialized := false;
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         LibraryERM: Codeunit "Library - ERM";

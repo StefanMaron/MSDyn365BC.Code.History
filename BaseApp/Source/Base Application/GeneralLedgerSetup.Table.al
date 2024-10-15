@@ -922,11 +922,25 @@
         {
             Caption = 'Shared Account Schedule';
             TableRelation = "Acc. Schedule Name";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31081; "Acc. Schedule Results Nos."; Code[20])
         {
             Caption = 'Acc. Schedule Results Nos.';
             TableRelation = "No. Series";
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 

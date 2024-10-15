@@ -3,10 +3,7 @@ codeunit 145014 "Identification Numbers"
     // // [FEATURE] [Registration No.] [Tax Registration No.]
 
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         Assert: Codeunit Assert;

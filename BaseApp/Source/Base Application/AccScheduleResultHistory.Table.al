@@ -1,13 +1,22 @@
 table 31088 "Acc. Schedule Result History"
 {
     Caption = 'Acc. Schedule Result History';
+#if CLEAN19
+    ObsoleteState = Removed;
+#else
+    ObsoleteState = Pending;
+#endif
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     fields
     {
         field(1; "Result Code"; Code[20])
         {
             Caption = 'Result Code';
+#if NOT CLEAN19
             TableRelation = "Acc. Schedule Result Header";
+#endif
         }
         field(2; "Row No."; Integer)
         {

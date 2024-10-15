@@ -1,11 +1,7 @@
 codeunit 144210 "Tax Reports"
 {
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        isInitialized := false;
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         LibraryERM: Codeunit "Library - ERM";

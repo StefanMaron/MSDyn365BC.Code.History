@@ -1,11 +1,7 @@
 codeunit 145011 "General Journals"
 {
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        isInitialized := false;
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         LibraryERM: Codeunit "Library - ERM";

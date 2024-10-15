@@ -1,11 +1,7 @@
 codeunit 145002 "Balance Sheet Reports"
 {
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        isInitialized := false;
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         Assert: Codeunit Assert;

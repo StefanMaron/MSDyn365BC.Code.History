@@ -626,7 +626,7 @@ report 5753 "Get Source Documents"
         WhseShptHeader."External Document No." := "Warehouse Request"."External Document No.";
         WhseShptHeader."Shipment Method Code" := "Warehouse Request"."Shipment Method Code";
         WhseShptLine.LockTable();
-        OnBeforeWhseShptHeaderInsert(WhseShptHeader, "Warehouse Request", "Sales Line", "Transfer Line");
+        OnBeforeWhseShptHeaderInsert(WhseShptHeader, "Warehouse Request", "Sales Line", "Transfer Line", "Sales Header");
         WhseShptHeader.Insert(true);
         ActivitiesCreated := ActivitiesCreated + 1;
         WhseHeaderCreated := true;
@@ -965,7 +965,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWhseShptHeaderInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; SalesLine: Record "Sales Line"; TransferLine: Record "Transfer Line")
+    local procedure OnBeforeWhseShptHeaderInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; SalesLine: Record "Sales Line"; TransferLine: Record "Transfer Line"; SalesHeader: Record "Sales Header")
     begin
     end;
 

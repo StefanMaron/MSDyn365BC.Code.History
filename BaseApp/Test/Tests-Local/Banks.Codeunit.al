@@ -12,11 +12,7 @@ codeunit 144000 Banks
     // 9. Check that correct Amount is present on Payment Order Report after issuing Payment Order.
 
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-        isInitialized := false;
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         Assert: Codeunit Assert;

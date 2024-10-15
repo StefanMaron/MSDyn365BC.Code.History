@@ -1042,12 +1042,15 @@
                 CVLedgEntryBuf."Original Currency Factor" := "Currency Factor"
             end else
                 CVLedgEntryBuf."Original Currency Factor" := 1;
+#if not CLEAN19
             // NAVCZ
             if ("Currency Code" <> '') and ("Amount (LCY)" <> 0) then
                 CVLedgEntryBuf."Adjusted Currency Factor" := Amount / "Amount (LCY)"
             else
                 // NAVCZ
+#endif
                 CVLedgEntryBuf."Adjusted Currency Factor" := CVLedgEntryBuf."Original Currency Factor";
+            OnPostCustOnAfterAssignCurrencyFactors(CVLedgEntryBuf, GenJnlLine);
 
             // Check the document no.
             if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
@@ -1161,11 +1164,14 @@
             end else
                 CVLedgEntryBuf."Adjusted Currency Factor" := 1;
             CVLedgEntryBuf."Original Currency Factor" := CVLedgEntryBuf."Adjusted Currency Factor";
+            OnPostVendOnAfterAssignCurrencyFactors(CVLedgEntryBuf, GenJnlLine);
 
+#if not CLEAN19
             // NAVCZ
             if ("Currency Code" <> '') and ("Amount (LCY)" <> 0) then
                 CVLedgEntryBuf."Adjusted Currency Factor" := Amount / "Amount (LCY)";
             // NAVCZ
+#endif
 
             // Check the document no.
             if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
@@ -2733,7 +2739,11 @@
             AppliedAmount := AppliedAmount - (OldCVLedgEntryBuf2."Remaining Amount" - OldCVLedgEntryBuf2."Amount to Apply");
 
         if NewCVLedgEntryBuf."Currency Code" = OldCVLedgEntryBuf2."Currency Code" then begin
+#if not CLEAN19
             AppliedAmountLCY := Round(AppliedAmount / OldCVLedgEntryBuf."Adjusted Currency Factor"); // NAVCZ
+#else
+            AppliedAmountLCY := Round(AppliedAmount / OldCVLedgEntryBuf."Original Currency Factor");
+#endif
             OldAppliedAmount := AppliedAmount;
         end else begin
             // Management of posting in multiple currencies
@@ -2744,13 +2754,21 @@
                   CurrExchRate.ExchangeAmount(
                     AppliedAmount, NewCVLedgEntryBuf."Currency Code",
                     OldCVLedgEntryBuf2."Currency Code", NewCVLedgEntryBuf."Posting Date");
-
+#if not CLEAN19
             if NewCVLedgEntryBuf."Currency Code" <> '' then
                 // Post the realized gain or loss on the NewCVLedgEntryBuf
                 AppliedAmountLCY := Round(OldAppliedAmount / OldCVLedgEntryBuf."Adjusted Currency Factor") // NAVCZ
             else
                 // Post the realized gain or loss on the OldCVLedgEntryBuf
                 AppliedAmountLCY := Round(AppliedAmount / NewCVLedgEntryBuf."Adjusted Currency Factor"); // NAVCZ
+#else
+            if NewCVLedgEntryBuf."Currency Code" <> '' then
+                // Post the realized gain or loss on the NewCVLedgEntryBuf
+                AppliedAmountLCY := Round(OldAppliedAmount / OldCVLedgEntryBuf."Original Currency Factor")
+            else
+                // Post the realized gain or loss on the OldCVLedgEntryBuf
+                AppliedAmountLCY := Round(AppliedAmount / NewCVLedgEntryBuf."Original Currency Factor");
+#endif
         end;
 
         OnAfterFindAmtForAppln(
@@ -2770,11 +2788,12 @@
         if IsHandled then
             exit;
 
+#if not CLEAN19
         // NAVCZ
         if DisableCalcCurrencyUnrealizedGainLoss then
             exit;
         // NAVCZ
-
+#endif
         if (CVLedgEntryBuf."Currency Code" = '') or (RemainingAmountBeforeAppln = 0) then
             exit;
 
@@ -2815,7 +2834,11 @@
         if CVLedgEntryBuf."Currency Code" = '' then
             exit;
 
+#if not CLEAN19
         RealizedGainLossLCY := AppliedAmountLCY - Round(AppliedAmount / CVLedgEntryBuf."Adjusted Currency Factor"); // NAVCZ
+#else
+        RealizedGainLossLCY := AppliedAmountLCY - Round(AppliedAmount / CVLedgEntryBuf."Original Currency Factor");
+#endif
         OnAfterCalcCurrencyRealizedGainLoss(CVLedgEntryBuf, AppliedAmount, AppliedAmountLCY, RealizedGainLossLCY);
 
         if RealizedGainLossLCY <> 0 then
@@ -6991,11 +7014,14 @@
         exit(GenJournalLine.Description);
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Core Localization Pack for Czech.', '19.0')]
     local procedure DisableCalcCurrencyUnrealizedGainLoss(): Boolean
     begin
         // NAVCZ
         exit(true);
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure SetPostFromPurchDoc(NewPostFromPurchDoc: Boolean)
@@ -8496,6 +8522,16 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterStartPosting(GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostCustOnAfterAssignCurrencyFactors(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostVendOnAfterAssignCurrencyFactors(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

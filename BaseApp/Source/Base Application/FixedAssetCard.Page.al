@@ -879,6 +879,7 @@ page 5600 "Fixed Asset Card"
         end;
 
         if UpdateConfirmed and UpdateAllowed then begin
+            Validate("FA Posting Group", FASubclass."Default FA Posting Group");
             FADepreciationBook.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
             if Simple then
                 SaveSimpleDepreciationBook("No.")

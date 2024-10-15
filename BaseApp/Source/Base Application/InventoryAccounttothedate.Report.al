@@ -230,7 +230,7 @@ report 11760 "Inventory Account to the date"
 
     labels
     {
-        ReportCaption = 'Inventory Account to the date';
+        ReportCaption = 'Inventory Account to the date (Obsolete)';
         PageCaption = 'Page';
         PostingDateCaption = 'Posting Date';
         DocTypeCaption = 'Document Type';

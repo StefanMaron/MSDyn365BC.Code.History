@@ -188,11 +188,17 @@ page 118 "General Ledger Setup"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
                 }
+#if not CLEAN19
                 field("Acc. Schedule Results Nos."; "Acc. Schedule Results Nos.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to account schedule results.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 field("Bill-to/Sell-to VAT Calc."; "Bill-to/Sell-to VAT Calc.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -214,7 +220,7 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies when the G/L Entry table should be locked during sales, purchase, and service posting to improve performance in multiuser environments. Consider this setting if: You encounter deadlock situations because your solution relies on G/L Entry table locking. You have selected the Automatic Cost Posting check box in the Inventory Setup window.';
-		            ObsoleteTag = '18.0';
+                    ObsoleteTag = '18.0';
                 }
 #endif
                 field("Dont Check Dimension"; "Dont Check Dimension")
@@ -384,11 +390,17 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how the accounts set up for VAT posting in the VAT Posting Setup window will be adjusted for exchange rate fluctuations.';
                 }
+#if not CLEAN19
                 field("Shared Account Schedule"; "Shared Account Schedule")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to share the account schedule in general ledger setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
             }
             group(Application)
             {

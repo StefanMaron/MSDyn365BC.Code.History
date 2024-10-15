@@ -163,7 +163,14 @@ page 594 "Change Log Setup (Field) List"
     end;
 
     local procedure UpdateRec()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateRec(Rec, LogIns, LogMod, LogDel, IsHandled);
+        if IsHandled then
+            exit;
+
         GetRec;
         TransToRec;
         with ChangeLogSetupField do
@@ -195,6 +202,11 @@ page 594 "Change Log Setup (Field) List"
         ChangeLogSetupField."Log Insertion" := LogIns;
         ChangeLogSetupField."Log Modification" := LogMod;
         ChangeLogSetupField."Log Deletion" := LogDel;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateRec(Field: Record Field; LogIns: Boolean; LogMod: Boolean; LogDel: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

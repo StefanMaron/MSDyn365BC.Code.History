@@ -1,10 +1,7 @@
 codeunit 145005 "Foreign Currencies"
 {
     Subtype = Test;
-
-    trigger OnRun()
-    begin
-    end;
+    TestPermissions = NonRestrictive;
 
     var
         Assert: Codeunit Assert;

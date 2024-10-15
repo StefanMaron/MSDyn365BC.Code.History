@@ -951,9 +951,10 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
     begin
         // [FEATURE] [Reverse] [Depreciation]
         // [SCENARIO 202489] Calculate depreciation after reversal
-        Initialize;
-        LibraryLowerPermissions.SetJournalsPost;
-        LibraryLowerPermissions.AddO365FAEdit;
+        Initialize();
+        LibraryLowerPermissions.SetJournalsPost();
+        LibraryLowerPermissions.AddO365FAEdit();
+        LibraryLowerPermissions.AddO365FASetup();
 
         // [GIVEN] Fixed Asset with Acquisition Cost of 100
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
@@ -974,7 +975,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         // [WHEN] Reversed transaction of depreciation entry
         FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
         asserterror LibraryERM.ReverseTransaction(FALedgerEntry."Transaction No.");
 
         // [THEN] Error appears 'Reverse Register and Reverse Transaction cannot be used! Use function Cancel Entries instead.'

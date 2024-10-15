@@ -199,17 +199,17 @@ table 133 "Incoming Document Attachment"
         "Created Date-Time" := RoundDateTime(CurrentDateTime, 1000);
         "Created By User Name" := UserId;
 
-        SetFirstAttachmentAsDefault;
-        SetFirstAttachmentAsMain;
+        SetFirstAttachmentAsDefault();
+        SetFirstAttachmentAsMain();
 
-        CheckDefault;
-        CheckMainAttachment;
+        CheckDefault();
+        CheckMainAttachment();
     end;
 
     trigger OnModify()
     begin
-        CheckDefault;
-        CheckMainAttachment;
+        CheckDefault();
+        CheckMainAttachment();
     end;
 
     var
@@ -292,17 +292,17 @@ table 133 "Incoming Document Attachment"
         SetRange("Document Table No. Filter", TableID);
         SetRange("Document Type Filter", DocumentType);
         SetRange("Document No. Filter", DocumentNo);
-        NewAttachment;
-        SendNotifActionCompleted;
+        NewAttachment();
+        SendNotifActionCompleted();
     end;
 
     procedure NewAttachmentFromPostedDocument(DocumentNo: Code[20]; PostingDate: Date)
     begin
         SetRange("Document No.", DocumentNo);
         SetRange("Posting Date", PostingDate);
-        NewAttachment;
-        if GuiAllowed then
-            SendNotifActionCompleted;
+        NewAttachment();
+        if GuiAllowed() then
+            SendNotifActionCompleted();
     end;
 
     procedure Import(): Boolean

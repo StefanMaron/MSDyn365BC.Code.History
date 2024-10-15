@@ -674,16 +674,25 @@ page 490 "Acc. Schedule Overview"
                     AdjustColumnOffset(1);
                 end;
             }
+#if not CLEAN19
             group("&Results")
             {
-                Caption = '&Results';
+                Caption = '&Results (Obsolete)';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '19.0';
+                Visible = false;
                 action("Save &Results")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Save &Results';
+                    Caption = 'Save &Results (Obsolete)';
                     Ellipsis = true;
                     Image = Save;
                     ToolTip = 'Opens window for saving results of acc. Schedule';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
@@ -694,13 +703,18 @@ page 490 "Acc. Schedule Overview"
                 action(Results)
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Results';
+                    Caption = 'Results (Obsolete)';
                     Image = ViewDetails;
                     RunObject = Page "Acc. Schedule Res. Header List";
                     RunPageLink = "Acc. Schedule Name" = FIELD("Schedule Name");
                     ToolTip = 'Opens acc. schedule res. header list';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
             }
+#endif
             action(Recalculate)
             {
                 ApplicationArea = Basic, Suite;
@@ -853,7 +867,6 @@ page 490 "Acc. Schedule Overview"
         MatrixMgt: Codeunit "Matrix Management";
         DimensionManagement: Codeunit DimensionManagement;
         CurrentSchedName: Code[10];
-        CurrentColumnName: Code[10];
         NewCurrentSchedName: Code[10];
         NewCurrentColumnName: Code[10];
         ColumnValues: array[12] of Decimal;
@@ -907,6 +920,9 @@ page 490 "Acc. Schedule Overview"
         ColumnStyle11: Text;
         [InDataSet]
         ColumnStyle12: Text;
+
+    protected var
+        CurrentColumnName: Code[10];
 
     procedure SetAccSchedName(NewAccSchedName: Code[10])
     var

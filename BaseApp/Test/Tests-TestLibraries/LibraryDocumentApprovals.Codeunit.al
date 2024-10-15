@@ -1,6 +1,6 @@
 codeunit 131352 "Library - Document Approvals"
 {
-    Permissions = TableData "Approval Entry" = m;
+    Permissions = TableData "Approval Entry" = imd;
 
     trigger OnRun()
     begin

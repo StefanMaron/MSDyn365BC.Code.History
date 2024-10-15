@@ -104,11 +104,23 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 Validate("SEPA Payment Method", "SEPA Payment Method"::TRF);
                 Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::SLEV);
                 "SEPA Batch Booking" := false;
+#if not CLEAN18
                 // NAVCZ
+                if GenJnlLine."Account No." = '' then begin
+                    if TempGenJnlLine.IBAN <> '' then
+                        "Recipient Bank Acc. No." := TempGenJnlLine.IBAN
+                    else
+                        if TempGenJnlLine."Bank Account No." <> '' then
+                            "Recipient Bank Acc. No." := TempGenJnlLine."Bank Account No.";
+                    if TempGenJnlLine."SWIFT Code" <> '' then
+                        "Recipient Bank BIC" := TempGenJnlLine."SWIFT Code";
+                end;
+
                 "Variable Symbol" := TempGenJnlLine."Variable Symbol";
                 "Specific Symbol" := TempGenJnlLine."Specific Symbol";
                 "Constant Symbol" := TempGenJnlLine."Constant Symbol";
                 // NAVCZ
+#endif
                 SetCreditTransferIDs(MessageID);
 
                 if "Applies-to Ext. Doc. No." <> '' then
@@ -131,7 +143,8 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                     until TempInteger.Next() = 0
                 else
                     CreateNewCreditTransferEntry(
-                        PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine, "Entry No.", TempGenJnlLine.GetAppliesToDocEntryNo());
+                        PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine,
+                        CreditTransferEntry."Entry No." + 1, TempGenJnlLine.GetAppliesToDocEntryNo());
             until TempGenJnlLine.Next() = 0;
         end;
 

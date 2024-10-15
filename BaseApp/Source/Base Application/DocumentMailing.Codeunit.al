@@ -91,6 +91,27 @@
             EmailScenario));
     end;
 
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+    begin
+        TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs, SourceRelationTypes);
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+
+        exit(EmailFileInternal(
+            TempEmailItem,
+            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
+            CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
+            CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
+            '',
+            '',
+            HideDialog,
+            -1,
+            false,
+            '',
+            EmailScenario));
+    end;
+
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceReference: RecordRef): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
@@ -100,6 +121,27 @@
         until SourceReference.Next() = 0;
 
         TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+        exit(EmailFileInternal(
+            TempEmailItem,
+            HtmlBodyFilePath,
+            '',
+            ToEmailAddress,
+            PostedDocNo,
+            EmailDocName,
+            HideDialog,
+            ReportUsage,
+            true,
+            '',
+            Enum::"Email Scenario"::Default));
+    end;
+
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+    begin
+        TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs, SourceRelationTypes);
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+
         exit(EmailFileInternal(
             TempEmailItem,
             HtmlBodyFilePath,
@@ -265,6 +307,27 @@
         repeat
             TempEmailItem.AddSourceDocument(SourceReference.Number(), SourceReference.Field(SourceReference.SystemIdNo()).Value());
         until SourceReference.Next() = 0;
+
+        exit(EmailFileInternal(
+            TempEmailItem,
+            HtmlBodyFilePath,
+            EmailSubject,
+            ToEmailAddress,
+            PostedDocNo,
+            EmailDocName,
+            HideDialog,
+            ReportUsage,
+            false,
+            '',
+            Enum::"Email Scenario"::Default));
+    end;
+
+    procedure EmailFileWithSubjectAndReportUsage(AttachmentStream: InStream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; EmailSubject: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+    begin
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+        TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs, SourceRelationTypes);
 
         exit(EmailFileInternal(
             TempEmailItem,
@@ -514,7 +577,7 @@
         if IsHandled then
             exit(EmailSentSuccesfully);
 
-         if OfficeMgt.AttachAvailable() and (Attachments.Count() > 0) then begin
+        if OfficeMgt.AttachAvailable() and (Attachments.Count() > 0) then begin
             Attachments.Get(1, Attachment);
             Attachment.CreateInStream(AttachmentStream);
             OfficeMgt.AttachDocument(AttachmentStream, AttachmentNames.Get(1), TempEmailItem.GetBodyText(), TempEmailItem.Subject);

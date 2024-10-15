@@ -3,15 +3,19 @@ permissionset 1001 "LOCAL"
     Access = Public;
     Assignable = true;
     Caption = 'Country/region-specific func.';
-
-    Permissions = tabledata "Acc. Sched. Expression Buffer" = RIMD,
+    Permissions =
+#if not CLEAN19
+                  tabledata "Acc. Sched. Expression Buffer" = RIMD,
                   tabledata "Acc. Schedule Extension" = RIMD,
+#endif
                   tabledata "Acc. Schedule Filter Line" = RIMD,
+#if not CLEAN19
                   tabledata "Acc. Schedule Result Column" = RIMD,
                   tabledata "Acc. Schedule Result Header" = RIMD,
                   tabledata "Acc. Schedule Result History" = RIMD,
                   tabledata "Acc. Schedule Result Line" = RIMD,
                   tabledata "Acc. Schedule Result Value" = RIMD,
+#endif
                   tabledata "Adv. Letter Line Rel. Buffer" = RIMD,
                   tabledata "Advance Letter Line Relation" = RIMD,
                   tabledata "Advance Letter Matching Buffer" = RIMD,

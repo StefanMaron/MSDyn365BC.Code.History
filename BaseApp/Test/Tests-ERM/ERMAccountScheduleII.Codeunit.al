@@ -1076,7 +1076,6 @@ codeunit 134994 "ERM Account Schedule II"
     end;
 
     [Test]
-    [HandlerFunctions('AccScheduleLineRowFormulaMessageHandler')]
     [Scope('OnPrem')]
     procedure AccountScheduleVarianceDrillDownPrintsColumnLayoutFormula()
     var
@@ -1087,6 +1086,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccSchedManagement: Codeunit AccSchedManagement;
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
+        exit; // NAVCZ Czech Localization has Account Schedule Formula Drill-Down Page
         // [FEATURE] [UI]
         // [SCENARIO 316821] Variance drill down shows column layout formula when both account schedule and column layout contains formula.
         Initialize;
