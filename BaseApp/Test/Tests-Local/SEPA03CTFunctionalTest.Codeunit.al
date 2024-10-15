@@ -363,7 +363,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
 
     local procedure GetISO20022V03NameSpace(): Text
     begin
-        exit('urn:iso:std:iso:20022:tech:xsd:pain.001.001.03');
+        exit('urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
     end;
 
     local procedure InitializeTestDataAndExportSEPAFile(var PaymentHeader: Record "Payment Header"; var PaymentLine: Record "Payment Line")
@@ -458,7 +458,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         LibraryXMLRead.VerifyNodeValueInSubtree('PmtInf', 'BtchBookg', 'false');
 
         // Mandatory element
-        LibraryXMLRead.VerifyNodeValueInSubtree('PmtInf', 'ReqdExctnDt', PaymentLine."Posting Date");
+        LibraryXMLRead.VerifyNodeValueInSubtree('ReqdExctnDt', 'Dt', PaymentLine."Posting Date");
 
         LibraryXMLRead.VerifyNodeValueInSubtree('PmtInf', 'ChrgBr', 'SLEV'); // Hardcoded by FR SEPA standard
     end;
@@ -495,7 +495,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
     local procedure VerifyXmlFileDeclarationAndVersion()
     begin
         LibraryXMLRead.VerifyXMLDeclaration('1.0', 'UTF-8', 'no');
-        LibraryXMLRead.VerifyAttributeValue('Document', 'xmlns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03');
+        LibraryXMLRead.VerifyAttributeValue('Document', 'xmlns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
     end;
 
     [ConfirmHandler]

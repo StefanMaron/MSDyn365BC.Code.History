@@ -635,18 +635,18 @@ table 5135 "Job Archive"
         );
     end;
 
-    procedure ShipToAddressEqualsSellToAddress(): Boolean
+    procedure ShipToAddressEqualsSellToAddress() Result: Boolean
     begin
-        if ("Sell-to Address" = "Ship-to Address") and
+        Result :=
+          ("Sell-to Address" = "Ship-to Address") and
           ("Sell-to Address 2" = "Ship-to Address 2") and
           ("Sell-to City" = "Ship-to City") and
           ("Sell-to County" = "Ship-to County") and
           ("Sell-to Post Code" = "Ship-to Post Code") and
           ("Sell-to Country/Region Code" = "Ship-to Country/Region Code") and
-          ("Sell-to Contact" = "Ship-to Contact")
-        then
-            exit(true);
-        exit(false);
+          ("Sell-to Contact" = "Ship-to Contact");
+
+        OnAfterShipToAddressEqualsSellToAddress(Rec, Result);
     end;
 
     procedure BillToAddressEqualsSellToAddress(): Boolean
@@ -662,5 +662,10 @@ table 5135 "Job Archive"
         then
             exit(true);
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShipToAddressEqualsSellToAddress(var JobArchive: Record "Job Archive"; var Result: Boolean)
+    begin
     end;
 }

@@ -213,6 +213,7 @@ codeunit 1393 "Cancel Issued Reminder"
     begin
         CustLedgerEntry.Get(EntryNo);
         CustLedgerEntry."Last Issued Reminder Level" := GetLastReminderLevel(EntryNo);
+        OnDecreaseCustomerLedgerEntryLastIssuedReminderLevelOnBeforeModify(CustLedgerEntry);
         CustLedgerEntry.Modify();
     end;
 
@@ -464,6 +465,11 @@ codeunit 1393 "Cancel Issued Reminder"
 
     [IntegrationEvent(false, false)]
     local procedure OnCancelIssuedReminderOnBeforeProcessIssuedReminderLine(var IssuedReminderLine: Record "Issued Reminder Line"; var ReminderInterestAmount: Decimal; var ReminderInterestVATAmount: Decimal; DocumentNo: Code[20]; PostingDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDecreaseCustomerLedgerEntryLastIssuedReminderLevelOnBeforeModify(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

@@ -25,7 +25,7 @@ pageextension 7254 BankAccReconciliationListExt extends "Bank Acc. Reconciliatio
             action("Reconcile With Copilot")
             {
                 ApplicationArea = All;
-                Caption = 'Reconcile with Copilot';
+                Caption = 'Reconcile';
 #pragma warning disable AL0482
                 Image = SparkleFilled;
 #pragma warning restore AL0482

@@ -322,16 +322,28 @@ codeunit 951 "Time Sheet Approval Management"
             Error(Text003);
     end;
 
+    [Obsolete('Replaced with GetTimeSheetActionDialogText to remove 100 characters limitation.', '25.0')]
     procedure GetTimeSheetDialogText(ActionType: Option Submit,Reopen; LinesQty: Integer): Text[100]
+    begin
+        exit(CopyStr(GetTimeSheetActionDialogText(ActionType, LinesQty), 1, 100));
+    end;
+
+    procedure GetTimeSheetActionDialogText(ActionType: Option Submit,Reopen; LinesQty: Integer): Text
     var
         TimeSheetLine: Record "Time Sheet Line";
         IsHandled: Boolean;
         ReturnText: Text[100];
+        ReturnActionText: Text;
     begin
         IsHandled := false;
         OnBeforeGetTimeSheetDialogText(ActionType, LinesQty, ReturnText, IsHandled);
         if IsHandled then
             exit(ReturnText);
+
+        IsHandled := false;
+        OnBeforeGetTimeSheetActionDialogText(ActionType, LinesQty, ReturnActionText, IsHandled);
+        if IsHandled then
+            exit(ReturnActionText);
 
         case ActionType of
             ActionType::Submit:
@@ -341,16 +353,28 @@ codeunit 951 "Time Sheet Approval Management"
         end;
     end;
 
+    [Obsolete('Replaced with GetManagerTimeSheetActionDialogText to remove 100 characters limitation.', '25.0')]
     procedure GetManagerTimeSheetDialogText(ActionType: Option Approve,Reopen,Reject; LinesQty: Integer): Text[100]
+    begin
+        exit(CopyStr(GetManagerTimeSheetActionDialogText(ActionType, LinesQty), 1, 100));
+    end;
+
+    procedure GetManagerTimeSheetActionDialogText(ActionType: Option Approve,Reopen,Reject; LinesQty: Integer): Text
     var
         TimeSheetLine: Record "Time Sheet Line";
         IsHandled: Boolean;
         ReturnText: Text[100];
+        ReturnActionText: Text;
     begin
         IsHandled := false;
         OnBeforeGetManagerTimeSheetDialogText(ActionType, LinesQty, ReturnText, IsHandled);
         if IsHandled then
             exit(ReturnText);
+
+        IsHandled := false;
+        OnBeforeGetManagerTimeSheetActionDialogText(ActionType, LinesQty, ReturnActionText, IsHandled);
+        if IsHandled then
+            exit(ReturnActionText);
 
         case ActionType of
             ActionType::Approve,
@@ -361,16 +385,28 @@ codeunit 951 "Time Sheet Approval Management"
         end;
     end;
 
+    [Obsolete('Replaced with GetCommonTimeSheetActionDialogText to remove 100 characters limitation.', '25.0')]
     procedure GetCommonTimeSheetDialogText(ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject; LinesQty: Integer): Text[100]
+    begin
+        exit(CopyStr(GetCommonTimeSheetActionDialogText(ActionType, LinesQty), 1, 100));
+    end;
+
+    procedure GetCommonTimeSheetActionDialogText(ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject; LinesQty: Integer): Text
     var
         TimeSheetLine: Record "Time Sheet Line";
         IsHandled: Boolean;
         ReturnText: Text[100];
+        ReturnActionText: Text;
     begin
         IsHandled := false;
         OnBeforeGetTimeSheetDialogText(ActionType, LinesQty, ReturnText, IsHandled);
         if IsHandled then
             exit(ReturnText);
+
+        IsHandled := false;
+        OnBeforeGetCommonTimeSheetActionDialogText(ActionType, LinesQty, ReturnActionText, IsHandled);
+        if IsHandled then
+            exit(ReturnActionText);
 
         case ActionType of
             ActionType::Submit:
@@ -405,7 +441,13 @@ codeunit 951 "Time Sheet Approval Management"
         end;
     end;
 
+    [Obsolete('Replaced with GetTimeSheetActionDialogInstruction to remove 100 characters limitation.', '25.0')]
     procedure GetTimeSheetDialogInstruction(ActionType: Option Submit,Reopen): Text[100]
+    begin
+        exit(CopyStr(GetTimeSheetActionDialogInstruction(ActionType), 1, 100));
+    end;
+
+    procedure GetTimeSheetActionDialogInstruction(ActionType: Option Submit,Reopen): Text
     begin
         case ActionType of
             ActionType::Submit:
@@ -415,7 +457,13 @@ codeunit 951 "Time Sheet Approval Management"
         end;
     end;
 
+    [Obsolete('Replaced with GetManagerTimeSheetActionDialogInstruction to remove 100 characters limitation.', '25.0')]
     procedure GetManagerTimeSheetDialogInstruction(ActionType: Option Approve,Reopen,Reject): Text[100]
+    begin
+        exit(CopyStr(GetManagerTimeSheetActionDialogInstruction(ActionType), 1, 100));
+    end;
+
+    procedure GetManagerTimeSheetActionDialogInstruction(ActionType: Option Approve,Reopen,Reject): Text
     begin
         case ActionType of
             ActionType::Approve:
@@ -542,13 +590,30 @@ codeunit 951 "Time Sheet Approval Management"
     begin
     end;
 
+    [Obsolete('Replaced with OnBeforeGetTimeSheetActionDialogText and OnBeforeGetCommonTimeSheetActionDialogText to remove 100 characters limitation.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetTimeSheetDialogText(ActionType: Option; LinesQty: Decimal; var ReturnText: text[100]; var IsHandled: Boolean)
+    local procedure OnBeforeGetTimeSheetDialogText(ActionType: Option; LinesQty: Decimal; var ReturnText: Text[100]; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetManagerTimeSheetDialogText(ActionType: Option; LinesQty: Decimal; var ReturnText: text[100]; var IsHandled: Boolean)
+    local procedure OnBeforeGetTimeSheetActionDialogText(ActionType: Option; LinesQty: Decimal; var ReturnActionText: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCommonTimeSheetActionDialogText(ActionType: Option; LinesQty: Decimal; var ReturnActionText: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('Replaced with OnBeforeGetManagerTimeSheetActionDialogText to remove 100 characters limitation.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetManagerTimeSheetDialogText(ActionType: Option; LinesQty: Decimal; var ReturnText: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetManagerTimeSheetActionDialogText(ActionType: Option; LinesQty: Decimal; var ReturnActionText: Text; var IsHandled: Boolean)
     begin
     end;
 

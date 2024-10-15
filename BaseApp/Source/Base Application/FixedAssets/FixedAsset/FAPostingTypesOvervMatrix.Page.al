@@ -845,6 +845,8 @@ page 9277 "FA Posting Types Overv. Matrix"
                     FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Derogatory);
                     PAGE.Run(0, FALedgerEntry);
                 end;
+            else
+                OnMATRIX_OnDrillDownOnCaseElse(MATRIX_ColumnOrdinal, FALedgerEntry);
         end;
     end;
 
@@ -976,7 +978,7 @@ page 9277 "FA Posting Types Overv. Matrix"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterMATRIX_OnAfterGetRecord(var MATRIX_CellData: array[32] of Decimal; MATRIX_ColumnOrdinal: Integer; RoundingFactor: Enum "Analysis Rounding Factor"; MatrixRecords: array[32] of Record "FA Matrix Posting Type"; FADepreciationBook: Record "FA Depreciation Book")
+    local procedure OnAfterMATRIX_OnAfterGetRecord(var MATRIX_CellData: array[32] of Decimal; MATRIX_ColumnOrdinal: Integer; RoundingFactor: Enum "Analysis Rounding Factor"; MatrixRecords: array[32] of Record "FA Matrix Posting Type"; var FADepreciationBook: Record "FA Depreciation Book")
     begin
     end;
 
@@ -987,6 +989,11 @@ page 9277 "FA Posting Types Overv. Matrix"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMATRIX_OnDrillDown(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMATRIX_OnDrillDownOnCaseElse(MATRIX_ColumnOrdinal: Integer; var FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 }

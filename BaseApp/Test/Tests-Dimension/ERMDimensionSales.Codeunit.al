@@ -23,13 +23,13 @@ codeunit 134475 "ERM Dimension Sales"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
-        DimensionHeaderError: Label 'The dimensions used in %1 %2 are invalid', Locked = true;
-        DimensionLineError: Label 'The dimensions used in %1 %2, line no. %3 are invalid', Locked = true;
-        DimensionValueCodeError: Label '%1 must be %2.';
-        DimSetEntryFilterError: Label 'There is no Dimension Set Entry within the filter.';
-        UpdateAutomaticCostMessage: Label 'The field Automatic Cost Posting should not be set to Yes if field Use Legacy G/L Entry Locking in General Ledger Setup table is set to No because of possibility of deadlocks.';
-        UpdateAutomaticCostPeriodMessage: Label 'Some unadjusted value entries will not be covered with the new setting.';
-        NoSalesInvoiceDocWithDimSetIDErr: Label 'There is no Sales Invoice with Dimension Set ID = %1';
+        DimensionHeaderErr: Label 'The dimensions used in %1 %2 are invalid', Locked = true;
+        DimensionLineErr: Label 'The dimensions used in %1 %2, line no. %3 are invalid', Locked = true;
+        DimensionValueCodeErr: Label '%1 must be %2.', Comment = '%1 = dimension value field, %2 = dimension value code';
+        DimSetEntryFilterErr: Label 'There is no Dimension Set Entry within the filter.';
+        UpdateAutomaticCostMsg: Label 'The field Automatic Cost Posting should not be set to Yes if field Use Legacy G/L Entry Locking in General Ledger Setup table is set to No because of possibility of deadlocks.';
+        UpdateAutomaticCostPeriodMsg: Label 'Some unadjusted value entries will not be covered with the new setting.';
+        NoSalesInvoiceDocWithDimSetIDErr: Label 'There is no Sales Invoice with Dimension Set ID = %1', Comment = '%1 = dimension set ID';
         SalesInvoiceDocCntErr: Label 'Wrong number of created Sales Invoices.';
         UpdateFromHeaderLinesQst: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         UpdateLineDimQst: Label 'You have changed one or more dimensions on the';
@@ -85,7 +85,7 @@ codeunit 134475 "ERM Dimension Sales"
           DimensionValueCode,
           DimensionSetEntry."Dimension Value Code",
           StrSubstNo(
-            DimensionValueCodeError, DimensionSetEntry.FieldCaption("Dimension Value Code"), DimensionSetEntry."Dimension Value Code"));
+            DimensionValueCodeErr, DimensionSetEntry.FieldCaption("Dimension Value Code"), DimensionSetEntry."Dimension Value Code"));
     end;
 
     [Test]
@@ -113,7 +113,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [THEN] Verify error occurs "Invalid Dimension" on Posting Sales Invoice.
         Assert.ExpectedError(
-          StrSubstNo(DimensionHeaderError, SalesHeader."Document Type", SalesHeader."No."));
+          StrSubstNo(DimensionHeaderErr, SalesHeader."Document Type", SalesHeader."No."));
     end;
 
     [Test]
@@ -141,7 +141,7 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [THEN] Verify error occurs "Invalid Dimension" on Posting Sales Invoice.
         Assert.ExpectedError(
-          StrSubstNo(DimensionLineError, SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No."));
+          StrSubstNo(DimensionLineErr, SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No."));
     end;
 
     [Test]
@@ -640,14 +640,14 @@ codeunit 134475 "ERM Dimension Sales"
         CreateSalesOrder(
           SalesHeader, SalesLine, GeneralLedgerSetup."Shortcut Dimension 1 Code", '', DefaultDimension."Value Posting"::"Same Code",
           SalesHeader."Document Type"::"Return Order");
-        SalesHeader.Validate("Shortcut Dimension 1 Code", '');  // Balank value for Shortcut Dimension 1 Code.
+        SalesHeader.Validate("Shortcut Dimension 1 Code", '');  // Blank value for Shortcut Dimension 1 Code.
         SalesHeader.Modify(true);
 
         // [WHEN] Find Shortcut Dimension 1 Code in Dimension Set Entry.
         asserterror LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, SalesHeader."Dimension Set ID");
 
         // [THEN] Verify error of Dimension Set Entry.
-        Assert.ExpectedError(DimSetEntryFilterError);
+        Assert.ExpectedError(DimSetEntryFilterErr);
     end;
 
     [Test]
@@ -667,8 +667,8 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Update Inventory Setup, create Item, create Location with Inventory Setup.
         Initialize();
-        LibraryVariableStorage.Enqueue(UpdateAutomaticCostMessage);  // Enqueue for MessageHandler
-        LibraryVariableStorage.Enqueue(UpdateAutomaticCostPeriodMessage);  // Enqueue for MessageHandler
+        LibraryVariableStorage.Enqueue(UpdateAutomaticCostMsg);  // Enqueue for MessageHandler
+        LibraryVariableStorage.Enqueue(UpdateAutomaticCostPeriodMsg);  // Enqueue for MessageHandler
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, false, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -713,8 +713,8 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [GIVEN] Update Inventory Setup, create Item, create Location with Inventory Setup.
         Initialize();
-        LibraryVariableStorage.Enqueue(UpdateAutomaticCostMessage);  // Enqueue for MessageHandler
-        LibraryVariableStorage.Enqueue(UpdateAutomaticCostPeriodMessage);  // Enqueue for MessageHandler
+        LibraryVariableStorage.Enqueue(UpdateAutomaticCostMsg);  // Enqueue for MessageHandler
+        LibraryVariableStorage.Enqueue(UpdateAutomaticCostPeriodMsg);  // Enqueue for MessageHandler
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, false, InventorySetup."Automatic Cost Adjustment"::Always, InventorySetup."Average Cost Calc. Type",
           InventorySetup."Average Cost Period");
@@ -1256,7 +1256,54 @@ codeunit 134475 "ERM Dimension Sales"
 
         // [VERIFY] Verify Dimension are puled from Account Type to Sales Line
         Assert.AreEqual(SalesLine."Shortcut Dimension 1 Code", DimensionValue.Code,
-            StrSubstNo(DimensionValueCodeError, SalesLine.FieldCaption("Shortcut Dimension 1 Code"), DimensionValue.Code));
+            StrSubstNo(DimensionValueCodeErr, SalesLine.FieldCaption("Shortcut Dimension 1 Code"), DimensionValue.Code));
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeDimensionConfirmHandler,ChangeLocationMessageHandler')]
+    procedure VerifyDimensionsAreNotReInitializedIfLocationIsNotChanged()
+    var
+        Customer: Record Customer;
+        Location: array[2] of Record Location;
+        DimensionValue: array[2] of Record "Dimension Value";
+        ShiptoAddress: array[2] of Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        i: Integer;
+    begin
+        // [SCENARIO 504598] Verify dimensions are not re-initialized from location on validatation of ship-to code if location is not changed
+        Initialize();
+
+        // [GIVEN] Create customer with global dimension 1 value
+        CreateCustomerWithDefaultGlobalDimValue(Customer, DimensionValue[1]);
+
+        //[GIVEN] Create one more dimension value for global dimension 1 code
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], LibraryERM.GetGlobalDimensionCode(1));
+
+        // [GIVEN] Create two locations with two different global dimension 1 values
+        // [GIVEN] Create two shipping addresses with the locations for the customer
+        for i := 1 to 2 do begin
+            CreateLocationWithDefaultGlobalDimensionValue(Location[i], DimensionValue[i]);
+            CreateShipToAddressWithLocation(ShiptoAddress[i], Customer."No.", Location[i].Code);
+        end;
+
+        // [GIVEN] Create sales order, global dimnesion 1 value is coppied from the customer
+        CreateSalesOrder(SalesHeader, SalesLine, Customer."No.", '');
+
+        // [GIVEN] Change global dimension 1 value on sales header
+        ChangeDimensionOnDocument(SalesHeader, DimensionValue[2].Code); // ChangeDimensionConfirmHandler
+
+        // [GIVEN] Change ship-to code on sales header and location code is coppied from ship-to address
+        SalesHeader.Validate("Ship-to Code", ShiptoAddress[1].Code);
+
+        // [GIVEN] Change location code on sales header
+        SalesHeader.Validate("Location Code", Location[2].Code);
+
+        // [WHEN] Change ship-to code with the same location code on sales header
+        SalesHeader.Validate("Ship-to Code", ShiptoAddress[2].Code);
+
+        // [THEN] Verify dimensions are not re-initialized on sales header and sales lines
+        VerifyDimensionOnSalesOrder(SalesHeader, DimensionValue[2]."Dimension Code");
     end;
 
     local procedure Initialize()
@@ -1504,7 +1551,6 @@ codeunit 134475 "ERM Dimension Sales"
         Item: Record Item;
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
-        LibraryInventory: Codeunit "Library - Inventory";
     begin
         LibraryInventory.CreateItem(Item);
         // Use Random because value is not important.
@@ -1578,7 +1624,6 @@ codeunit 134475 "ERM Dimension Sales"
         GLAccount: Record "G/L Account";
         DefaultDimension: Record "Default Dimension";
         DimensionValue: Record "Dimension Value";
-        LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
@@ -1683,10 +1728,10 @@ codeunit 134475 "ERM Dimension Sales"
 
     local procedure CreateGlobal1DimensionValue(var DimensionValue: Record "Dimension Value"): Code[20]
     var
-        GLSetup: Record "General Ledger Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get();
-        LibraryDimension.CreateDimensionValue(DimensionValue, GLSetup."Global Dimension 1 Code");
+        GeneralLedgerSetup.Get();
+        LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         exit(DimensionValue.Code);
     end;
 
@@ -2023,9 +2068,9 @@ codeunit 134475 "ERM Dimension Sales"
     local procedure VerifyDimensionOnDimSet(DimSetID: Integer; DimensionValue: Record "Dimension Value")
     var
         TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
-        DimMgt: Codeunit DimensionManagement;
+        DimensionManagement: Codeunit DimensionManagement;
     begin
-        DimMgt.GetDimensionSet(TempDimensionSetEntry, DimSetID);
+        DimensionManagement.GetDimensionSet(TempDimensionSetEntry, DimSetID);
         TempDimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
         TempDimensionSetEntry.FindFirst();
         TempDimensionSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
@@ -2035,6 +2080,7 @@ codeunit 134475 "ERM Dimension Sales"
     var
         VATEntry: Record "VAT Entry";
         Index: Integer;
+        IncorrectAmountMsg: Label 'Incorrect Amount in "VAT Entry"[%1]', Locked = true;
     begin
         VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         VATEntry.SetRange("Document No.", DocumentNo);
@@ -2047,7 +2093,7 @@ codeunit 134475 "ERM Dimension Sales"
             Assert.AreEqual(
               ExpectedVATAmount[Index],
               VATEntry.Amount,
-              StrSubstNo('Incorrect Amount in "VAT Entry"[%1]', Index));
+              StrSubstNo(IncorrectAmountMsg, Index));
         until VATEntry.Next() = 0;
     end;
 
@@ -2061,7 +2107,7 @@ codeunit 134475 "ERM Dimension Sales"
         DimensionSetEntry.FindFirst();
         Assert.AreEqual(
           DimensionCode, DimensionSetEntry."Dimension Code",
-          StrSubstNo(DimensionValueCodeError, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
+          StrSubstNo(DimensionValueCodeErr, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
@@ -2109,6 +2155,14 @@ codeunit 134475 "ERM Dimension Sales"
           DefaultDimension, Customer."No.", DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
+    local procedure CreateLocationWithDefaultGlobalDimensionValue(var Location: Record Location; var DimensionValue: Record "Dimension Value")
+    var
+        DefaultDimension: Record "Default Dimension";
+    begin
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryDimension.CreateDefaultDimension(DefaultDimension, Database::Location, Location.Code, DimensionValue."Dimension Code", DimensionValue.Code);
+    end;
+
     local procedure CreateAccountTypeDefaultDimension(var DimensionValue: Record "Dimension Value"; CustomerNo: Code[20]; TableId: Integer)
     var
         DefaultDimension: Record "Default Dimension";
@@ -2118,6 +2172,38 @@ codeunit 134475 "ERM Dimension Sales"
           DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
         LibraryDimension.CreateAccTypeDefaultDimension(DefaultDimension, TableId, DimensionValue."Dimension Code",
             DimensionValue.Code, DefaultDimension."Value Posting"::" ");
+    end;
+
+    local procedure ChangeDimensionOnDocument(var SalesHeader: Record "Sales Header"; DimensionValueCode: Code[20])
+    begin
+        SalesHeader.ValidateShortcutDimCode(1, DimensionValueCode);
+        SalesHeader.Modify(true);
+    end;
+
+    local procedure VerifyDimensionOnSalesOrder(SalesHeader: Record "Sales Header"; DimensionCode: Code[20])
+    var
+        DimensionSetEntry: Record "Dimension Set Entry";
+        SalesLine: Record "Sales Line";
+    begin
+        // Verify the dimension on sales header
+        DimensionSetEntry.Get(SalesHeader."Dimension Set ID", DimensionCode);
+        Assert.AreEqual(
+          DimensionCode, DimensionSetEntry."Dimension Code",
+          StrSubstNo(DimensionValueCodeErr, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
+
+        // Verify the dimension on sales line
+        FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
+        DimensionSetEntry.Get(SalesLine."Dimension Set ID", DimensionCode);
+        Assert.AreEqual(
+          DimensionCode, DimensionSetEntry."Dimension Code",
+          StrSubstNo(DimensionValueCodeErr, DimensionSetEntry.FieldCaption("Dimension Code"), DimensionCode));
+    end;
+
+    local procedure CreateShipToAddressWithLocation(var ShiptoAddress: Record "Ship-to Address"; CustomerNo: Code[20]; LocationCode: Code[10])
+    begin
+        LibrarySales.CreateShipToAddress(ShiptoAddress, CustomerNo);
+        ShiptoAddress.Validate("Location Code", LocationCode);
+        ShiptoAddress.Modify();
     end;
 
     [ConfirmHandler]
@@ -2146,11 +2232,25 @@ codeunit 134475 "ERM Dimension Sales"
         end;
     end;
 
+    [ConfirmHandler]
+    procedure ChangeDimensionConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    var
+        ChangeDimensionsQst: Label 'You may have changed a dimension', Locked = true;
+    begin
+        Reply := Question.Contains(ChangeDimensionsQst);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
         // Just for Handle the Message.
+    end;
+
+    [MessageHandler]
+    procedure ChangeLocationMessageHandler(Message: Text[1024])
+    begin
+        // Just for handle the message.
     end;
 
     [ModalPageHandler]

@@ -28,7 +28,7 @@ codeunit 136321 "Job Archiving"
         CompletedJobStatusErr: Label 'Status must not be Completed in order to restore the Project: No. = %1', Comment = '%1 = Project No.';
         EndingDateChangedMsg: Label '%1 is set to %2.', Comment = '%1 = The name of the Ending Date field; %2 = This project''s Ending Date value';
         JobLedgerEntryExistErr: Label 'Project Ledger Entries exist for Project No. %1.\It is not possible to restore the Project.', Comment = '%1 = Project No.';
-        SalesInvoiceExistErr: Label 'Outstanding Sales Invoice exist for Project No. %1.\It is not possible to restore the Project.', Comment = '%1 = Project No.';
+        SalesInvoiceExistErr: Label 'Outstanding Sales Invoice exists for Project No. %1.\It is not possible to restore the Project.', Comment = '%1 = Project No.';
         LinesTransferedToInvoiceMsg: Label 'The lines were successfully transferred to an invoice.';
         Initialized: Boolean;
 

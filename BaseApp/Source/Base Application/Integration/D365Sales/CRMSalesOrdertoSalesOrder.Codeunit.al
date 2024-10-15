@@ -258,7 +258,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     local procedure ReferencedSalesInvoiceHeaderExists(CRMSalesorder: Record "CRM Salesorder"; var SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
     begin
         if not IsNullGuid(CRMSalesorder.SalesOrderId) then begin
-            SalesInvoiceHeader.SetRange("Your Reference", CopyStr(CRMSalesorder.OrderNumber, 1, StrLen(SalesInvoiceHeader."Your Reference")));
+            SalesInvoiceHeader.SetRange("Your Reference", CopyStr(CRMSalesorder.OrderNumber, 1, MaxStrLen(SalesInvoiceHeader."Your Reference")));
             exit(SalesInvoiceHeader.FindFirst())
         end;
 

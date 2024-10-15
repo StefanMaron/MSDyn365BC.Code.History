@@ -743,7 +743,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
     local procedure VerifyXmlFileDeclarationAndVersion()
     begin
         LibraryXMLRead.VerifyXMLDeclaration('1.0', 'UTF-8', 'no');
-        LibraryXMLRead.VerifyAttributeValue('Document', 'xmlns', 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02');
+        LibraryXMLRead.VerifyAttributeValue('Document', 'xmlns', 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.08');
     end;
 
     local procedure VerifyGroupHeader(PaymentLine: Record "Payment Line")

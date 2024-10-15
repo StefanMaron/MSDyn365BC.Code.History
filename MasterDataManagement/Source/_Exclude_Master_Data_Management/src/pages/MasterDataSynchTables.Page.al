@@ -116,7 +116,7 @@ page 7233 "Master Data Synch. Tables"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Table Filter';
-                    ToolTip = 'Specifies the filter on the table to control which records should be synchronized.';
+                    ToolTip = 'Specifies the filter on the table in the current company to control which records should be synchronized.';
                     visible = false;
 
                     trigger OnAssistEdit()
@@ -166,7 +166,7 @@ page 7233 "Master Data Synch. Tables"
                 field(IntegrationTableFilter; IntegrationTableFilterHint)
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Table Filter';
+                    Caption = 'Source Table Filter';
                     ToolTip = 'Specifies a filter on the table in the source company to control which records should be synchronized.';
 
                     trigger OnDrillDown()
@@ -567,6 +567,8 @@ page 7233 "Master Data Synch. Tables"
             I += 1;
         end;
 
+        OnAddSynchronizationTableChooseMappingName(IntegrationTableMappingName, TableNo);
+
         ShouldEnqueueJob := true;
         if MasterDataManagementSetup.Get() then
             ShouldEnqueueJob := (not MasterDataManagementSetup."Delay Job Scheduling");
@@ -664,6 +666,12 @@ page 7233 "Master Data Synch. Tables"
         if JQueueEntry.FindFirst() then
             Page.Run(Page::"Job Queue Entries", JQueueEntry);
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddSynchronizationTableChooseMappingName(var IntegrationTableMappingName: Code[20]; TableNo: Integer);
+    begin
+    end;
+
 }
 
 

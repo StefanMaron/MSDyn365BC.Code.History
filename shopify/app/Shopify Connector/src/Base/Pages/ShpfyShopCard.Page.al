@@ -1106,6 +1106,7 @@ page 30101 "Shpfy Shop Card"
 #if not CLEAN24
         ReplaceOrderAttributeValueDisabled: Boolean;
 #endif
+        ScopeChangeConfirmLbl: Label 'The access scope of shop %1 for the Shopify connector has changed. Do you want to request a new access token?', Comment = '%1 - Shop Code';
 
     trigger OnOpenPage()
     var
@@ -1115,6 +1116,7 @@ page 30101 "Shpfy Shop Card"
 #endif
         CommunicationMgt: Codeunit "Shpfy Communication Mgt.";
         ShopMgt: Codeunit "Shpfy Shop Mgt.";
+        AuthenticationMgt: Codeunit "Shpfy Authentication Mgt.";
 
         ApiVersionExpiryDateTime: DateTime;
     begin
@@ -1133,6 +1135,16 @@ page 30101 "Shpfy Shop Card"
                 if Round((ApiVersionExpiryDateTime - CurrentDateTime()) / 1000 / 3600 / 24, 1) <= 30 then begin
                     ShopMgt.SendExpirationNotification(ApiVersionExpiryDate);
                     Session.LogMessage('0000KO0', ExpirationNotificationTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                end;
+
+            if AuthenticationMgt.CheckScopeChange(Rec) then
+                if Confirm(StrSubstNo(ScopeChangeConfirmLbl, Rec.Code)) then begin
+                    Rec.RequestAccessToken();
+                    Rec."B2B Enabled" := Rec.GetB2BEnabled();
+                    Rec.Modify();
+                end else begin
+                    Rec.Enabled := false;
+                    Rec.Modify();
                 end;
         end;
     end;

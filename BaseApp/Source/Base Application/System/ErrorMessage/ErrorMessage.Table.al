@@ -821,19 +821,22 @@ table 700 "Error Message"
     var
         TempID: Integer;
     begin
-        if not FindSet() then
+        if not Rec.IsTemporary() then
+            Rec.ReadIsolation := ReadIsolation::ReadCommitted;
+        if not Rec.FindSet() then
             exit;
 
         TempID := TempErrorMessage.FindLastID();
         repeat
-            if TempErrorMessage.FindRecord("Record ID", "Field Number", "Message Type", "Message") = 0 then begin
+            if TempErrorMessage.FindRecord(Rec."Record ID", Rec."Field Number", Rec."Message Type", Rec."Message") = 0 then begin
                 TempID += 1;
                 TempErrorMessage := Rec;
                 TempErrorMessage.ID := TempID;
                 TempErrorMessage."Reg. Err. Msg. System ID" := Rec.SystemId;
+                TempErrorMessage.SetErrorCallStack(Rec.GetErrorCallStack());
                 TempErrorMessage.Insert();
             end;
-        until Next() = 0;
+        until Rec.Next() = 0;
         TempErrorMessage.Reset();
     end;
 
@@ -847,6 +850,7 @@ table 700 "Error Message"
         repeat
             ErrorMessage := TempErrorMessage;
             ErrorMessage.ID := 0;
+            ErrorMessage.SetErrorCallStack(TempErrorMessage.GetErrorCallStack());
             ErrorMessage.Insert(true);
         until TempErrorMessage.Next() = 0;
     end;

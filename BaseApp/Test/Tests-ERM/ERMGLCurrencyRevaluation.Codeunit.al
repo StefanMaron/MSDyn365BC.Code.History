@@ -18,10 +18,9 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         PostingDateErr: Label 'Please enter posting date.';
-        CorrectionInsertedMsg: Label 'currency revaluation lines have been created in the general journal';
         isInitialised: Boolean;
         LinesExistErr: Label 'There are already entries in the G/L journal %1. Please post or delete them before you proceed.', Comment = '%1 - batch name';
-        CurrUpdateMsg: Label 'This feature is designed for bank accounts in foreign currency and should only be used for this purpose.';
+        CorrectionInsertedMsg: Label 'currency revaluation lines have been created in the general journal';
         CurrUpdateBalAccErr: Label 'In order to change the currency code, the balance of the account must be zero.';
 
     local procedure Initialize()
@@ -58,7 +57,62 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         // Exercise.
         Commit();
         LibraryVariableStorage.Enqueue(CurrencyExchangeRate."Starting Date");
-        REPORT.Run(REPORT::"G/L Currency Revaluation", true, false, GLAccount);
+        RunRevaluation(GLAccount, true);
+
+        // Verify.
+        VerifyCorrectionlLinesData(GLAccount, GenJournalBatch, CurrencyExchangeRate);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,AdjExchRatesReqPageHandler,GenJnlBatchModalPageHandler,GeneralJournalPageHandler')]
+    [Scope('OnPrem')]
+    procedure AdjustExchRatesOpenGeneralJournalPage()
+    var
+        GLAccount: Record "G/L Account";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        Initialize();
+
+        // Setup.
+        CreateAccountWithSameSourceCurrencySetup(GLAccount);
+        AddDifferentExchangeRate(CurrencyExchangeRate, GLAccount, 1);
+        CreateFCYBalance(GLAccount);
+        GetCorrectionBatch(GenJournalBatch);
+
+        // Exercise.
+        Commit();
+        LibraryVariableStorage.Enqueue(CurrencyExchangeRate."Starting Date");
+        RunRevaluation(GLAccount, false);
+
+        // Verify.
+        VerifyCorrectionlLinesData(GLAccount, GenJournalBatch, CurrencyExchangeRate);
+    end;
+
+
+    [Test]
+    [HandlerFunctions('MessageHandler,AdjExchRatesReqPageHandler,GenJnlBatchModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure AdjustExchRatesUnrealizedLossCorrectionInserted()
+    var
+        GLAccount: Record "G/L Account";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        Initialize();
+
+        // Setup.
+        CreateAccountWithSameSourceCurrencySetup(GLAccount);
+        GLAccount."Unrealized Revaluation" := true;
+        GLAccount.Modify();
+        AddDifferentExchangeRate(CurrencyExchangeRate, GLAccount, 1);
+        CreateFCYBalance(GLAccount);
+        GetCorrectionBatch(GenJournalBatch);
+
+        // Exercise.
+        Commit();
+        LibraryVariableStorage.Enqueue(CurrencyExchangeRate."Starting Date");
+        RunRevaluation(GLAccount, true);
 
         // Verify.
         VerifyCorrectionlLinesData(GLAccount, GenJournalBatch, CurrencyExchangeRate);
@@ -84,7 +138,35 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         // Exercise.
         Commit();
         LibraryVariableStorage.Enqueue(CurrencyExchangeRate."Starting Date");
-        REPORT.Run(REPORT::"G/L Currency Revaluation", true, false, GLAccount);
+        RunRevaluation(GLAccount, true);
+
+        // Verify.
+        VerifyCorrectionlLinesData(GLAccount, GenJournalBatch, CurrencyExchangeRate);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,AdjExchRatesReqPageHandler,GenJnlBatchModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure AdjustExchRatesUnrealizedGainCorrectionInserted()
+    var
+        GLAccount: Record "G/L Account";
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        Initialize();
+
+        // Setup.
+        CreateAccountWithSameSourceCurrencySetup(GLAccount);
+        GLAccount."Unrealized Revaluation" := true;
+        GLAccount.Modify();
+        AddDifferentExchangeRate(CurrencyExchangeRate, GLAccount, -1);
+        CreateFCYBalance(GLAccount);
+        GetCorrectionBatch(GenJournalBatch);
+
+        // Exercise.
+        Commit();
+        LibraryVariableStorage.Enqueue(CurrencyExchangeRate."Starting Date");
+        RunRevaluation(GLAccount, true);
 
         // Verify.
         VerifyCorrectionlLinesData(GLAccount, GenJournalBatch, CurrencyExchangeRate);
@@ -109,7 +191,7 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         GetCorrectionBatch(GenJournalBatch);
         Commit();
         LibraryVariableStorage.Enqueue(CurrencyExchangeRate."Starting Date");
-        REPORT.Run(REPORT::"G/L Currency Revaluation", true, false, GLAccount);
+        RunRevaluation(GLAccount, true);
         VerifyCorrectionlLinesData(GLAccount, GenJournalBatch, CurrencyExchangeRate);
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
@@ -119,7 +201,7 @@ codeunit 134887 "ERM G/L Currency Revaluation"
 
         // Exercise.
         LibraryVariableStorage.Enqueue(CurrencyExchangeRate."Starting Date");
-        REPORT.Run(REPORT::"G/L Currency Revaluation", true, false, GLAccount);
+        RunRevaluation(GLAccount, true);
 
         // Verify.
         VerifyCorrectionLineCount(GenJournalLine, GenJournalBatch, GLAccount, 0);
@@ -302,33 +384,39 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         Correction: Decimal;
     begin
         Currency.Get(CurrencyExchangeRate."Currency Code");
-        GLAccount.SetRange("Date Filter", 0D, CurrencyExchangeRate."Starting Date");
-        GLAccount.CalcFields("Balance at Date");
         GLAccountSourceCurrency."G/L Account No." := GLAccount."No.";
         GLAccountSourceCurrency."Currency Code" := Currency.Code;
         GLAccountSourceCurrency.SetRange("Date Filter", 0D, CurrencyExchangeRate."Starting Date");
-        GLAccountSourceCurrency.CalcFields("Source Curr. Balance at Date");
+        GLAccountSourceCurrency.CalcFields("Balance at Date", "Source Curr. Balance at Date");
 
         Correction :=
             Round(
                 GLAccountSourceCurrency."Source Curr. Balance at Date" /
-                CurrencyExchangeRate.ExchangeRateAdjmt(CurrencyExchangeRate."Starting Date", Currency.Code) - GLAccount."Balance at Date",
+                CurrencyExchangeRate.ExchangeRateAdjmt(CurrencyExchangeRate."Starting Date", Currency.Code) - GLAccountSourceCurrency."Balance at Date",
                 GeneralLedgerSetup."Amount Rounding Precision");
 
         if Correction > 0 then
-            BalGLAccountNo := Currency."Realized Gains Acc."
+            BalGLAccountNo := GetGainsAccount(Currency, GLAccount."Unrealized Revaluation")
         else
-            BalGLAccountNo := Currency."Realized Losses Acc.";
+            BalGLAccountNo := GetLossesAccount(Currency, GLAccount."Unrealized Revaluation");
 
         exit(Correction);
     end;
 
-    local procedure GetReceivablesAccForCustomer(var GLAccount: Record "G/L Account"; Customer: Record Customer)
-    var
-        CustomerPostingGroup: Record "Customer Posting Group";
+    local procedure GetGainsAccount(Currency: Record Currency; Unrealized: Boolean): Code[20]
     begin
-        CustomerPostingGroup.Get(Customer."Customer Posting Group");
-        GLAccount.Get(CustomerPostingGroup."Receivables Account");
+        if Unrealized then
+            exit(Currency.GetUnrealizedGainsAccount());
+
+        exit(Currency.GetRealizedGainsAccount());
+    end;
+
+    local procedure GetLossesAccount(Currency: Record Currency; Unrealized: Boolean): Code[20]
+    begin
+        if Unrealized then
+            exit(Currency.GetUnrealizedLossesAccount());
+
+        exit(Currency.GetRealizedLossesAccount());
     end;
 
     local procedure CreateAccountWithSameSourceCurrencySetup(var GLAccount: Record "G/L Account")
@@ -351,18 +439,22 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         LibraryERM.CreateCurrency(Currency);
         Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
         Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
         Currency.Modify(true);
         LibraryERM.CreateExchangeRate(
             Currency.Code, WorkDate(), LibraryRandom.RandDecInRange(10, 20, 2), LibraryRandom.RandDecInRange(10, 20, 2));
 
+        GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
         GLAccount.Validate("Source Currency Revaluation", true);
         GLAccount.Validate("Source Currency Posting", SourceCurrencuPosting);
         case SourceCurrencuPosting of
             SourceCurrencuPosting::"Same Currency":
-                GLAccount."Source Currency Code" := Currency.Code;
+                GLAccount.Validate("Source Currency Code", Currency.Code);
             SourceCurrencuPosting::"Multiple Currencies":
                 begin
                     GLAccount."Source Currency Code" := '';
+                    GLAccountSourceCurrency.InsertRecord(GLAccount."No.", Currency.Code);
                     LibraryERM.CreateCurrency(Currency2);
                     GLAccountSourceCurrency.InsertRecord(GLAccount."No.", Currency2.Code);
                 end;
@@ -399,11 +491,17 @@ codeunit 134887 "ERM G/L Currency Revaluation"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         BankAccount: Record "Bank Account";
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
         Customer: Record Customer;
         Vendor: Record Vendor;
         GenJournalLine: Record "Gen. Journal Line";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
+        // Replace existing account by new one
+        BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
+        BankAccountPostingGroup."G/L Account No." := LibraryERM.CreateGLAccountNo();
+        BankAccountPostingGroup.Modify();
+
         LibrarySales.CreateCustomer(Customer);
         LibraryPurchase.CreateVendor(Vendor);
 
@@ -414,6 +512,16 @@ codeunit 134887 "ERM G/L Currency Revaluation"
             PostFCYJournal(GLAccount, CurrencyExchangeRate."Starting Date", GenJournalLine."Bal. Account Type"::Customer, Customer."No.");
             PostFCYJournal(GLAccount, CurrencyExchangeRate."Starting Date", GenJournalLine."Bal. Account Type"::Vendor, Vendor."No.");
         until CurrencyExchangeRate.Next() = 0;
+    end;
+
+    local procedure RunRevaluation(var GLAccount: Record "G/L Account"; SkipShowBatch: Boolean)
+    var
+        GLCurrencyRevaluation: Report "G/L Currency Revaluation";
+    begin
+        Clear(GLCurrencyRevaluation);
+        GLCurrencyRevaluation.SetSkipShowBatch(SkipShowBatch);
+        GLCurrencyRevaluation.SetTableView(GLAccount);
+        GLCurrencyRevaluation.Run();
     end;
 
     local procedure VerifyCorrectionLineCount(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; GLAccount: Record "G/L Account"; ExpCount: Integer)
@@ -478,11 +586,11 @@ codeunit 134887 "ERM G/L Currency Revaluation"
         Response := ACTION::LookupOK;
     end;
 
-    [MessageHandler]
+    [PageHandler]
     [Scope('OnPrem')]
-    procedure CurrUpdateMsgHandler(Message: Text[1024])
+    procedure GeneralJournalPageHandler(var GeneralJournal: Page "General Journal")
     begin
-        Assert.AreEqual(Format(CurrUpdateMsg), Message, 'Unexpected message when updating currency code.');
+        GeneralJournal.Close();
     end;
 }
 

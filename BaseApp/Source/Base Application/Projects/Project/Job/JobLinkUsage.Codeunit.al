@@ -124,8 +124,8 @@ codeunit 1026 "Job Link Usage"
         PartialJobPlanningLineQuantityPosting, UpdateQuantity : Boolean;
     begin
         if JobPlanningLine."Assemble to Order" then begin
-            PostedQtyBase := JobPlanningLine."Quantity (Base)" - AssembledQtyBase(JobPlanningLine);
-            TotalRemainingQtyPrePostBase := JobJournalLine."Quantity (Base)" + JobJournalLine."Remaining Qty. (Base)" - AssembledQtyBase(JobPlanningLine);
+            PostedQtyBase := AssembledQtyBase(JobPlanningLine);
+            TotalRemainingQtyPrePostBase := JobPlanningLine."Qty. to Assemble (Base)" - AssembledQtyBase(JobPlanningLine);
         end else begin
             PostedQtyBase := JobPlanningLine."Quantity (Base)" - JobPlanningLine."Remaining Qty. (Base)";
             TotalRemainingQtyPrePostBase := JobJournalLine."Quantity (Base)" + JobJournalLine."Remaining Qty. (Base)";

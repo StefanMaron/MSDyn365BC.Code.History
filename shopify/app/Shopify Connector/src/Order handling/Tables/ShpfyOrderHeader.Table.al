@@ -24,14 +24,12 @@ table 30118 "Shpfy Order Header"
         {
             DataClassification = SystemMetadata;
         }
-#pragma warning disable AS0086
         field(2; Email; Text[80])
         {
             Caption = 'Email';
             DataClassification = CustomerContent;
             ExtendedDatatype = EMail;
         }
-#pragma warning restore AS0086
         field(5; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';

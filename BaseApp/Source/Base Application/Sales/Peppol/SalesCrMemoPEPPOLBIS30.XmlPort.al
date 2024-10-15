@@ -331,6 +331,7 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
 
                         trigger OnBeforePassVariable()
                         begin
+                            PEPPOLMgt.GetAccountingSupplierPartyIdentificationID(SalesHeader, PartyIdentificationID);
                             if PartyIdentificationID = '' then
                                 currXMLport.Skip();
                         end;
@@ -1013,6 +1014,26 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                         }
                     }
                 }
+                textelement(DeliveryParty)
+                {
+                    NamespacePrefix = 'cac';
+                    XMLName = 'DeliveryParty';
+                    textelement(DeliveryPartyName)
+                    {
+                        NamespacePrefix = 'cac';
+                        XmlName = 'PartyName';
+                        textelement(DeliveryPartyNameValue)
+                        {
+                            NamespacePrefix = 'cbc';
+                            XmlName = 'Name';
+                        }
+                    }
+                    trigger OnBeforePassVariable()
+                    begin
+                        if DeliveryPartyNameValue = '' then
+                            currXMLport.Skip();
+                    end;
+                }
 
                 trigger OnBeforePassVariable()
                 begin
@@ -1031,6 +1052,8 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                       DeliveryCountrySubentity,
                       DeliveryCountryIdCode,
                       DummyVar);
+
+                    PEPPOLMgt.GetDeliveryPartyName(SalesHeader, DeliveryPartyNameValue);
                 end;
             }
             textelement(PaymentMeans)
@@ -1110,8 +1133,9 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                       NetworkID);
 
                     PEPPOLMgt.GetPaymentMeansPayeeFinancialAccBIS(
-                      PayeeFinancialAccountID,
-                      FinancialInstitutionBranchID);
+                        SalesHeader,
+                        PayeeFinancialAccountID,
+                        FinancialInstitutionBranchID);
                 end;
             }
             tableelement(pmttermsloop; Integer)

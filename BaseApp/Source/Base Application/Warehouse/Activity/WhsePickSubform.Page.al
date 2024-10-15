@@ -346,7 +346,7 @@ page 5780 "Whse. Pick Subform"
                     ToolTip = 'Scan the items on this line.';
                     RunObject = Page "Scan Warehouse Activity Line";
                     RunPageLink = "No." = field("No.");
-                    RunPageView = sorting("No.", "Line No.", "Activity Type");
+                    RunPageView = sorting("Activity Type", "No.", "Sorting Sequence No.");
                 }
             }
             group("&Line")

@@ -19,6 +19,7 @@ codeunit 137045 "SCM Bugfixes"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -771,6 +772,85 @@ codeunit 137045 "SCM Bugfixes"
     end;
 
     [Test]
+    [HandlerFunctions('TransferOrderSaveAsXML')]
+    [Scope('OnPrem')]
+    procedure PrintMultipleTransferOrdersWhenUsingCarryOutActionMessage()
+    var
+        RequisitionPlanningLine: array[2] of Record "Requisition Line";
+        RequisitionLine: Record "Requisition Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        ReservationEntry: Record "Reservation Entry";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        TransferHeader: Record "Transfer Header";
+        TransOrderChoice: Enum "Planning Create Transfer Order";
+        ItemNo: array[2] of Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 492125] Verify printing of multiple transfer orders in the "planning worksheet" sheet when using Carry Out Action Message.
+        Initialize();
+
+        // [GIVEN] Create Location Array, Update Location, Create Transfer Route
+        CreateUpdateLocations();
+        CreateTransferRoutes();
+
+        // [GIVEN] Select Planning worksheet.
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
+        RequisitionLine.DeleteAll();
+
+        // [GIVEN] remove old Reservation Entry
+        ReservationEntry.SetRange("Source Type", Database::"Requisition Line");
+        ReservationEntry.SetRange("Source Subtype", 0);
+        ReservationEntry.SetRange("Source ID", RequisitionWkshName."Worksheet Template Name");
+        ReservationEntry.SetRange("Source Batch Name", RequisitionWkshName.Name);
+        ReservationEntry.DeleteAll();
+
+        // [GIVEN] Create multiple  items, Create Stock Keeping unit for each Item
+        for i := 1 to ArrayLen(ItemNo) do begin
+            ItemNo[i] := LibraryInventory.CreateItemNo();
+            CreateUpdateStockKeepUnit(StockkeepingUnit, ItemNo[i]);
+
+            // [GIVEN] Create and modify the requisition line.
+            Clear(RequisitionPlanningLine[i]);
+            LibraryPlanning.CreateRequisitionLine(RequisitionPlanningLine[i], RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+            RequisitionPlanningLine[i].Validate("Order Date", WorkDate());
+            RequisitionPlanningLine[i].Validate("Due Date", WorkDate());
+            RequisitionPlanningLine[i].Validate(Type, RequisitionPlanningLine[i].Type::Item);
+            if RequisitionPlanningLine[i]."Due Date" = 0D then
+                RequisitionPlanningLine[i].Validate("Due Date", WorkDate());
+            RequisitionPlanningLine[i]."No." := ItemNo[i];
+            RequisitionPlanningLine[i]."Location Code" := LocationCodesArr[1];
+            RequisitionPlanningLine[i].Validate("No.", ItemNo[i]);
+            RequisitionPlanningLine[i].Validate("Location Code", LocationCodesArr[1]);
+            RequisitionPlanningLine[i].Validate("Transfer Shipment Date", WorkDate());
+            RequisitionPlanningLine[i].Validate("Accept Action Message", true);
+            RequisitionPlanningLine[i].Validate(Quantity, LibraryRandom.RandInt(10));
+            RequisitionPlanningLine[i].Modify(true);
+            RequisitionPlanningLine[i].Testfield("Ref. Order Type", RequisitionPlanningLine[i]."Ref. Order Type"::"Transfer");
+            RequisitionPlanningLine[i].Testfield("Supply From", LocationCodesArr[2]);
+        end;
+
+        // [GIVEN] Filter newly created requisition lines.
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
+        RequisitionLine.SetRange("Ref. Order Type", RequisitionLine."Ref. Order Type"::"Transfer");
+        RequisitionLine.FindSet();
+
+        // [GIVEN] Setup report selection.
+        SetupReportSelections("Report Selection Usage"::Inv1, Report::"Transfer Order");
+
+        // [WHEN] Carry out action in planning worksheet with option "Make Trans. Orders & Print".
+        LibraryPlanning.CarryOutPlanWksh(
+            RequisitionLine, 0, 0, TransOrderChoice::"Make Trans. Order & Print".AsInteger(),
+            0, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, '', '');
+
+        // [THEN] Verify Print of Multiple Transfer Orders When Using Carry Out Action Message.
+        TransferHeader.SetRange("Transfer-to Code", LocationCodesArr[1]);
+        VerifyPrintedTransferOrders(TransferHeader);
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure WhseInboundHandlingTimeOnPurchaseOrderUpdatedOnInsert()
     var
@@ -821,6 +901,29 @@ codeunit 137045 "SCM Bugfixes"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Bugfixes");
+    end;
+
+    local procedure SetupReportSelections(ReportSelectionUsage: Enum "Report Selection Usage"; ReportId: Integer)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ReportSelections.SetRange(Usage, ReportSelectionUsage);
+        ReportSelections.DeleteAll();
+
+        ReportSelections.Init();
+        ReportSelections.Validate(Usage, ReportSelectionUsage);
+        ReportSelections.Validate(Sequence, LibraryRandom.RandText(2));
+        ReportSelections.Validate("Report ID", ReportId);
+        ReportSelections.Insert(true);
+    end;
+
+    local procedure VerifyPrintedTransferOrders(var TransferHeader: Record "Transfer Header")
+    begin
+        TransferHeader.FindSet();
+        repeat
+            LibraryReportDataset.AssertElementWithValueExists('No_TransferHdr', TransferHeader."No.");
+            LibraryReportDataset.GetNextRow();
+        until TransferHeader.Next() = 0;
     end;
 
     local procedure UpdateSalesReceivablesSetup(var TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary; CreditWarnings: Option; StockoutWarning: Boolean)
@@ -1359,6 +1462,14 @@ codeunit 137045 "SCM Bugfixes"
         // Check confirmation message.
         Assert.AreNotEqual(StrPos(Question, ConfirmMessageQst), 0, Question);
         Reply := true;
+    end;
+
+    [ReportHandler]
+    procedure TransferOrderSaveAsXML(var TransferOrder: Report "Transfer Order")
+    var
+        TransferHeader: Record "Transfer Header";
+    begin
+        LibraryReportDataset.RunReportAndLoad(Report::"Transfer Order", TransferHeader, '');
     end;
 
     [ModalPageHandler]

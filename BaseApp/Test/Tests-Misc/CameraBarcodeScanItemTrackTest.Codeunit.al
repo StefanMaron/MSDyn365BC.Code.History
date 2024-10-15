@@ -881,8 +881,7 @@ codeunit 137214 CameraBarcodeScanItemTrackTest
         // [SCENARIO] [Barcode Scanner]
         // When open item tracking lines with item journal, the inbound or outbound status depends on the subtype of item journal.
         // Positive Adjmt and Purchase is inbound
-        // Negative Adjmt and Sale is outbound
-        // The left type should return an error 
+        // Negative Adjmt and Sale is outbound 
         Initialize();
 
         // [GIVEN] Create item
@@ -920,9 +919,17 @@ codeunit 137214 CameraBarcodeScanItemTrackTest
         LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Consumption, WorkDate(), Item."No.", 10, '');
         // [GIVEN] Create ItemJnlLine  
         CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-        // [THEN] Returns an error
-        asserterror ItemTrackingLines.CheckItemtrackingLineIsInBoundForBarcodeScanning();
-        Assert.ExpectedError('The SubType of Item Tracking Specification is incorrect!');
+
+        // [THEN] Is outBound Scenario
+        Assert.IsFalse(ItemTrackingLines.CheckItemtrackingLineIsInBoundForBarcodeScanning(), ExpFalseButTrueErr);
+
+        // [GIVEN] Create ItemJnlLine with subtype Consumption
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Output, WorkDate(), Item."No.", 10, '');
+        // [GIVEN] Create ItemJnlLine  
+        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
+
+        // [THEN] Is inBound Scenario
+        Assert.IsTrue(ItemTrackingLines.CheckItemtrackingLineIsInBoundForBarcodeScanning(), ExpFalseButTrueErr);
     end;
 
     [Test]
@@ -937,7 +944,7 @@ codeunit 137214 CameraBarcodeScanItemTrackTest
         ItemTrackingLines: Page "Item Tracking Lines";
     begin
         // [SCENARIO] [Barcode Scanner]
-        // When open item tracking lines with purchase order, but it's subtype is not Order, so return an error
+        // When open item tracking lines with purchase order, but it's subtype is not Order, error is not thrown
         Initialize();
 
         // [GIVEN] Create item 
@@ -952,9 +959,8 @@ codeunit 137214 CameraBarcodeScanItemTrackTest
         ItemTrackingLines.SetInbound(ItemJournalLine.IsInbound());
         ItemTrackingLines.RunModal();
         // [When] Run the page and check it is inbound or outbound
-        asserterror ItemTrackingLines.CheckItemtrackingLineIsInBoundForBarcodeScanning();
-        // [Then] Return an error of subtype
-        Assert.ExpectedError('The SubType of Item Tracking Specification is incorrect!');
+        ItemTrackingLines.CheckItemtrackingLineIsInBoundForBarcodeScanning();
+        // [Then] Error is not thrown
     end;
 
     [Test]

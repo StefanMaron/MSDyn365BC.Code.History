@@ -314,13 +314,10 @@ report 99001020 "Carry Out Action Msg. - Plan."
         TransWkshName: Code[10];
         ProdWkshTempl: Code[10];
         ProdWkshName: Code[10];
-        CurrReqWkshTemp: Code[10];
-        CurrReqWkshName: Code[10];
         PrintOrders: Boolean;
         CombineTransferOrders: Boolean;
         ReserveforPlannedProd: Boolean;
         HideDialog: Boolean;
-        NoPlanningResiliency: Boolean;
         Counter: Integer;
         CounterTotal: Integer;
         CounterFailed: Integer;
@@ -342,6 +339,9 @@ report 99001020 "Carry Out Action Msg. - Plan."
         PurchOrderChoice: Enum "Planning Create Purchase Order";
         TransOrderChoice: Enum "Planning Create Transfer Order";
         AsmOrderChoice: Enum "Planning Create Assembly Order";
+        NoPlanningResiliency: Boolean;
+        CurrReqWkshTemp: Code[10];
+        CurrReqWkshName: Code[10];
 
     procedure CarryOutActions(SourceType: Enum "Planning Create Source Type"; Choice: Option; WkshTempl: Code[10]; WkshName: Code[10])
     begin
@@ -349,8 +349,10 @@ report 99001020 "Carry Out Action Msg. - Plan."
             CarryOutAction.SetParameters(SourceType, Choice, WkshTempl, WkshName);
             CarryOutAction.Run("Requisition Line");
         end else
-            if not CarryOutAction.TryCarryOutAction(SourceType, "Requisition Line", Choice, WkshTempl, WkshName) then
+            if not CarryOutAction.TryCarryOutAction(SourceType, "Requisition Line", Choice, WkshTempl, WkshName) then begin
                 CounterFailed := CounterFailed + 1;
+                OnCarryOutActionsOnAfterUpdateCounterFailed("Requisition Line", WkshTempl, WkshName);
+            end;
     end;
 
     local procedure RunCarryOutActionsByRefOrderType(var RequisitionLine: Record "Requisition Line")
@@ -731,6 +733,11 @@ report 99001020 "Carry Out Action Msg. - Plan."
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterInitReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCarryOutActionsOnAfterUpdateCounterFailed(var RequisitionLine: Record "Requisition Line"; WkshTempl: Code[10]; WkshName: Code[10])
     begin
     end;
 }

@@ -7,7 +7,7 @@ using System.Utilities;
 
 table 9012 "AAD Application"
 {
-    Caption = 'AAD Application';
+    Caption = 'Microsoft Entra Application';
     DataPerCompany = false;
     ReplicateData = false;
     DataCaptionFields = Description;
@@ -173,15 +173,14 @@ table 9012 "AAD Application"
 
 
     [Scope('OnPrem')]
-    procedure DisableUser()
+    procedure RemoveUser()
     var
         User: Record User;
     begin
         if not UserExists() then
             exit;
         User.Get("User Id");
-        User.State := User.State::Disabled;
-        User.Modify();
+        User.Delete();
     end;
 
     trigger OnInsert()
@@ -191,7 +190,7 @@ table 9012 "AAD Application"
 
     trigger OnDelete()
     begin
-        DisableUser();
+        RemoveUser();
     end;
 
     trigger OnRename()
@@ -202,7 +201,7 @@ table 9012 "AAD Application"
     var
         AADApplicationSetup: Codeunit "AAD Application Setup";
         CannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 Table name';
-        UserMustExistErr: Label 'Register an user before enabling the %1', Comment = '%1 Table AAD Application';
+        UserMustExistErr: Label 'Register a user before enabling the %1', Comment = '%1 Table AAD Application';
         NoPermissionToChangeUserErr: Label 'You need to have either %1 or %2 privileges in the user permission set to update the state.', Comment = '%1 = SUPER; %2 = SECURITY';
         SECURITYPermissionSetTxt: Label 'SECURITY', Locked = true;
         SuperPermissionSetTxt: Label 'SECURITY', Locked = true;
