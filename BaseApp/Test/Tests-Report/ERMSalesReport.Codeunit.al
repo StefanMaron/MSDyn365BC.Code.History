@@ -2942,6 +2942,105 @@ codeunit 134976 "ERM Sales Report"
             'CurrencySymbol', GeneralLedgerSetup."Local Currency Symbol");
     end;
 
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesInvoiceShowsTranslatedVATClause()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        VATClause: Record "VAT Clause";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATClauseTranslation: Record "VAT Clause Translation";
+        Customer: Record Customer;
+        Language: Record Language;
+    begin
+        // [FEATURE] [Sales] [Invoice] [VAT Clause]
+        // [SCENARIO 450385] Report 1306 "Standard Sales - Invoice" shows the translated VAT Clause
+
+        Initialize();
+
+        // [GIVEN] Language code "DEU"
+        Language.Validate(Code, LibraryUtility.GenerateGUID());
+        Language.Insert(true);
+
+        // [GIVEN] VAT Posting Setup with the VAT clause that has a translation for the language code "X". Description = "Beschreibung 1", "Description 2" ="Beschreibung 2"
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryERM.CreateVATClause(VATClause);
+        VATPostingSetup.Validate("VAT Clause Code", VATClause.Code);
+        VATPostingSetup.Modify(true);
+
+        CreateVATClauseTranslation(VATClauseTranslation, VATClause.Code, Language.Code);
+
+        // [GIVEN] Sales Invoice with the VAT Posting setup associated with the VAT Clause
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Language Code", Language.Code);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        CreateSalesLineWithItemWithVATPostingSetup(SalesHeader, VATPostingSetup);
+
+        // [GIVEN] Posted Sales Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] Run report "Standard Sales - Invoice" for Posted Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+
+        // [THEN] Report DataSet contains VAT Clause fields: "Beschreibung 1" and "Beschreibung 2"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists(
+          'Description_VATClauseLine', VATClauseTranslation.Description + ' ' + VATClauseTranslation."Description 2");
+    end;
+
+    [Test]
+    [HandlerFunctions('DraftSalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesDraftInvoiceShowsTranslatedVATClause()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        VATClause: Record "VAT Clause";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATClauseTranslation: Record "VAT Clause Translation";
+        Customer: Record Customer;
+        Language: Record Language;
+    begin
+        // [FEATURE] [Sales] [Invoice] [VAT Clause]
+        // [SCENARIO 450385] Report 1303 "Standard Sales - Draft Invoice" shows the translated VAT Clause
+
+        Initialize();
+
+        // [GIVEN] Language code "DEU"
+        Language.Validate(Code, LibraryUtility.GenerateGUID());
+        Language.Insert(true);
+
+        // [GIVEN] VAT Posting Setup with the VAT clause that has a translation for the language code "X". Description = "Beschreibung 1", "Description 2" ="Beschreibung 2"
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryERM.CreateVATClause(VATClause);
+        VATPostingSetup.Validate("VAT Clause Code", VATClause.Code);
+        VATPostingSetup.Modify(true);
+        CreateVATClauseTranslation(VATClauseTranslation, VATClause.Code, Language.Code);
+
+        // [GIVEN] Sales Invoice with the VAT Posting setup associated with the VAT Clause
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Language Code", Language.Code);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        CreateSalesLineWithItemWithVATPostingSetup(SalesHeader, VATPostingSetup);
+        SalesHeader.SetRecFilter();
+        Commit();
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice" for Sales Invoice
+        REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+
+        // [THEN] Report DataSet contains VAT Clause fields: "Beschreibung 1" and "Beschreibung 2"
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists(
+          'Description_VATClauseLine', VATClauseTranslation.Description + ' ' + VATClauseTranslation."Description 2");
+    end;
+
     local procedure Initialize()
     begin
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -3676,6 +3775,15 @@ codeunit 134976 "ERM Sales Report"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, CustomerNo, CreditAmount);
         UpdateGenJnlLineDim(GenJournalLine, Dimension1Value, Dimension2Value);
+    end;
+
+    local procedure CreateVATClauseTranslation(var VATClauseTranslation: Record "VAT Clause Translation"; VATClauseCode: Code[20]; LanguageCode: Code[10])
+    begin
+        VATClauseTranslation.Validate("VAT Clause Code", VATClauseCode);
+        VATClauseTranslation.Validate("Language Code", LanguageCode);
+        VATClauseTranslation.Validate(Description, LibraryUtility.GenerateGUID());
+        VATClauseTranslation.Validate("Description 2", LibraryUtility.GenerateGUID());
+        VATClauseTranslation.Insert(true);
     end;
 
     local procedure UpdateGenJnlLineDim(var GenJournalLine: Record "Gen. Journal Line"; Dimension1Value: Code[20]; Dimension2Value: Code[20])
