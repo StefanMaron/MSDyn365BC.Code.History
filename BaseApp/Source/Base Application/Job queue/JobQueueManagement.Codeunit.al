@@ -230,8 +230,10 @@ codeunit 456 "Job Queue Management"
             if JobQueueEntry.FindSet() then
                 repeat
                     // Check if job is still running or stale
+                    // JQE is stale if it has no task and no active session
                     // If stale, set to error
-                    if not TaskScheduler.TaskExists(JobQueueEntry."System Task ID") then begin
+                    if not TaskScheduler.TaskExists(JobQueueEntry."System Task ID") and
+                        HasNoActiveSession(JobQueueEntry."User Service Instance ID", JobQueueEntry."User Session ID") then begin
                         JobQueueEntry.SetError(JobSomethingWentWrongMsg);
 
                         StaleJobQueueEntryTelemetry(JobQueueEntry);
@@ -247,8 +249,10 @@ codeunit 456 "Job Queue Management"
                     // Check if job should be processed
                     if ShouldProcessStaleJobQueueLogEntries(JobQueueLogEntry) then
                         // Check if job is still running or stale
+                        // JQLE is stale if it has no task or active session
                         // If stale, set to error
-                        if not TaskScheduler.TaskExists(JobQueueLogEntry."System Task ID") then begin
+                        if not TaskScheduler.TaskExists(JobQueueLogEntry."System Task ID") or
+                            HasNoActiveSession(JobQueueLogEntry."User Service Instance ID", JobQueueLogEntry."User Session ID") then begin
                             JobQueueLogEntry.Status := JobQueueLogEntry.Status::Error;
                             JobQueueLogEntry."Error Message" := JobSomethingWentWrongMsg;
                             JobQueueLogEntry.Modify();
@@ -257,6 +261,15 @@ codeunit 456 "Job Queue Management"
                         end;
                 until JobQueueLogEntry.Next() = 0;
         end;
+    end;
+
+    local procedure HasNoActiveSession(ServerInstanceID: Integer; SessionID: Integer): Boolean
+    var
+        ActiveSession: Record "Active Session";
+    begin
+        ActiveSession.Setrange("Server Instance ID", ServerInstanceID);
+        ActiveSession.Setrange("Session ID", SessionID);
+        exit(ActiveSession.IsEmpty());
     end;
 
     local procedure StaleJobQueueEntryTelemetry(JobQueueEntry: Record "Job Queue Entry")

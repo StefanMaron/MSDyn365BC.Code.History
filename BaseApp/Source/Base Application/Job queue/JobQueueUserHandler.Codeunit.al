@@ -1,5 +1,7 @@
 codeunit 455 "Job Queue User Handler"
 {
+    var
+        JobQueueRescheduledTxt: Label 'Job queue entry rescheduled on login: %1', Comment = '%1 - Job Queue Entry ID', Locked = true;
 
     trigger OnRun()
     begin
@@ -14,25 +16,40 @@ codeunit 455 "Job Queue User Handler"
         JobQueueEntry.SetRange("Recurring Job", true);
         if JobQueueEntry.FindSet(true) then
             repeat
-                if JobShouldBeRescheduled(JobQueueEntry) then begin
-                    JobQueueEntry.RefreshLocked();
-                    JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-                    JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime();
-                    JobQueueEntry.Modify();
-                    if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", JobQueueEntry."Earliest Start Date/Time") then;
-                end;
+                if JobShouldBeRescheduled(JobQueueEntry) then
+                    Reschedule(JobQueueEntry);
             until JobQueueEntry.Next() = 0;
 
         JobQueueEntry.FilterInactiveOnHoldEntries();
         if JobQueueEntry.FindSet(true) then
             repeat
-                if JobQueueEntry.DoesJobNeedToBeRun() then begin
-                    JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-                    JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime();
-                    JobQueueEntry.Modify();
-                    if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", JobQueueEntry."Earliest Start Date/Time") then;
-                end;
+                if JobQueueEntry.DoesJobNeedToBeRun() then
+                    Reschedule(JobQueueEntry);
             until JobQueueEntry.Next() = 0;
+    end;
+
+    local procedure Reschedule(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        Telemetry: Codeunit Telemetry;
+        TelemetrySubscribers: Codeunit "Telemetry Subscribers";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", JobQueueEntry."Earliest Start Date/Time") then begin
+            JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+            JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime();
+            JobQueueEntry.Modify();
+            Dimensions.Add('JobQueueRescheduledNewTask', Format(false));
+        end else begin
+            JobQueueEntry.Restart();
+            Dimensions.Add('JobQueueRescheduledNewTask', Format(true));
+        end;
+        TelemetrySubscribers.SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+
+        Telemetry.LogMessage('0000I49', StrSubstNo(JobQueueRescheduledTxt, Format(JobQueueEntry.ID, 0, 4)),
+                                Verbosity::Normal,
+                                DataClassification::OrganizationIdentifiableInformation,
+                                TelemetryScope::All,
+                                Dimensions)
     end;
 
     local procedure JobShouldBeRescheduled(JobQueueEntry: Record "Job Queue Entry") Result: Boolean

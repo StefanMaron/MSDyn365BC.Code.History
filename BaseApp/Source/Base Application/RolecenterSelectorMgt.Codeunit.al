@@ -304,9 +304,10 @@ codeunit 1485 "Rolecenter Selector Mgt."
     var
         User: Record User;
     begin
-        if User.Get(UserSecurityId()) then
-            if User."User Name" <> '' then
-                SetShowStateFromUserPreference(User."User Name", true);
+        if Session.CurrentClientType() in [ClientType::Web, ClientType::Windows, ClientType::Desktop, ClientType::Tablet, ClientType::Phone] then
+            if User.Get(UserSecurityId()) then
+                if User."User Name" <> '' then
+                    SetShowStateFromUserPreference(User."User Name", true);
     end;
 }
 
