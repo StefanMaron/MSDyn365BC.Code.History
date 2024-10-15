@@ -443,12 +443,14 @@ table 383 "Detailed CV Ledg. Entry Buffer"
     procedure InitDtldCVLedgEntryBuf(GenJnlLine: Record "Gen. Journal Line"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; EntryType: Option; AmountFCY: Decimal; AmountLCY: Decimal; AmountAddCurr: Decimal; AppliedEntryNo: Integer; RemainingPmtDiscPossible: Decimal; MaxPaymentTolerance: Decimal)
     begin
         InitDetailedCVLedgEntryBuf(
-            GenJnlLine, CVLedgEntryBuf, DtldCVLedgEntryBuf, "Detailed CV Ledger Entry Type".FromInteger(EntryType), 
+            GenJnlLine, CVLedgEntryBuf, DtldCVLedgEntryBuf, "Detailed CV Ledger Entry Type".FromInteger(EntryType),
             AmountFCY, AmountLCY, AmountAddCurr, AppliedEntryNo, RemainingPmtDiscPossible, MaxPaymentTolerance);
     end;
 #endif
 
     procedure InitDetailedCVLedgEntryBuf(GenJnlLine: Record "Gen. Journal Line"; var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; EntryType: Enum "Detailed CV Ledger Entry Type"; AmountFCY: Decimal; AmountLCY: Decimal; AmountAddCurr: Decimal; AppliedEntryNo: Integer; RemainingPmtDiscPossible: Decimal; MaxPaymentTolerance: Decimal)
+    var
+        IsHandled: Boolean;
     begin
         with DtldCVLedgEntryBuf do begin
             InitFromGenJnlLine(GenJnlLine);
@@ -460,8 +462,10 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             "Applied CV Ledger Entry No." := AppliedEntryNo;
             "Remaining Pmt. Disc. Possible" := RemainingPmtDiscPossible;
             "Max. Payment Tolerance" := MaxPaymentTolerance;
-            OnBeforeInsertDtldCVLedgEntry(DtldCVLedgEntryBuf, GenJnlLine);
-            InsertDtldCVLedgEntry(DtldCVLedgEntryBuf, CVLedgEntryBuf, false);
+            IsHandled := false;
+            OnBeforeInsertDtldCVLedgEntry(DtldCVLedgEntryBuf, GenJnlLine, IsHandled);
+            if not IsHandled then
+                InsertDtldCVLedgEntry(DtldCVLedgEntryBuf, CVLedgEntryBuf, false);
         end;
     end;
 
@@ -501,7 +505,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertDtldCVLedgEntry(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnBeforeInsertDtldCVLedgEntry(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; GenJournalLine: Record "Gen. Journal Line"; var IsHanled: Boolean)
     begin
     end;
 

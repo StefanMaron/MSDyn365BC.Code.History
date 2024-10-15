@@ -102,34 +102,79 @@ table 20252 "Tax Rate Column Setup"
         end;
     end;
 
-    trigger OnModify()
-    begin
-        UpdateTransactionKeys();
-    end;
-
     procedure UpdateTransactionKeys()
     var
         TaxRate: Record "Tax Rate";
+        TempTaxRate: Record "Tax Rate" temporary;
+        TempTaxRateValue: Record "Tax Rate Value" temporary;
         TaxSetupMatrixMgmt: Codeunit "Tax Setup Matrix Mgmt.";
+        ConfigIDList: List of [Guid];
+        ConfigID: Guid;
+    begin
+        InitTaxRateProgressWindow();
+        UpdateTaxRateProgressWindow(TransferingRecordToTempLbl);
+        TransferToTemp(TempTaxRate, TempTaxRateValue, ConfigIDList);
+        TaxSetupMatrixMgmt.DeleteAllTaxRates("Tax Type", true);
+
+        foreach ConfigID in ConfigIDList do begin
+            UpdateTaxRateProgressWindow(UpdatingKeysValueLbl);
+            TempTaxRate.Get("Tax Type", ConfigID);
+            TempTaxRate."Tax Setup ID" := TaxSetupMatrixMgmt.GenerateTaxSetupID(TempTaxRateValue, TempTaxRate.ID, TempTaxRate."Tax Type");
+            TempTaxRate."Tax Rate ID" := TaxSetupMatrixMgmt.GenerateTaxRateID(TempTaxRateValue, TempTaxRate.ID, TempTaxRate."Tax Type");
+            TempTaxRate.Modify();
+
+            TaxRate.Init();
+            TaxRate := TempTaxRate;
+            UpdateTaxRateProgressWindow(ValidatingKeysValueLbl);
+            TaxSetupMatrixMgmt.CheckForDuplicateSetID(TempTaxRate, ConfigID, "Tax Type", TempTaxRate."Tax Setup ID");
+            TaxRate.Insert();
+
+            TransferToMainRecord(TempTaxRateValue, ConfigID, Rec."Tax Type");
+        end;
+
+        CloseTaxRateProgressWindow();
+    end;
+
+    local procedure TransferToTemp(
+        var TempTaxRate: Record "Tax Rate" temporary;
+        var TempTaxRateValue: Record "Tax Rate Value" temporary;
+        var ConfigIDList: List of [Guid])
+    var
+        TaxRate: Record "Tax Rate";
+        TaxRateValue: Record "Tax Rate Value";
     begin
         TaxRate.SetRange("Tax Type", "Tax Type");
         if TaxRate.FindSet() then
             repeat
-                TaxRate."Tax Setup ID" := TaxSetupMatrixMgmt.GenerateTaxSetupID(TaxRate.ID, TaxRate."Tax Type");
-                TaxRate."Tax Rate ID" := TaxSetupMatrixMgmt.GenerateTaxRateID(TaxRate.ID, TaxRate."Tax Type");
-                TaxRate.Modify();
-                UpdateRateIDOnRateValue(TaxRate.ID, TaxRate."Tax Rate ID");
+                TempTaxRate.Init();
+                TempTaxRate := TaxRate;
+                TempTaxRate.Insert();
+                ConfigIDList.Add(TempTaxRate.ID);
+
             until TaxRate.Next() = 0;
+
+        TaxRateValue.SetRange("Tax Type", "Tax Type");
+        if TaxRateValue.FindSet() then
+            repeat
+                TempTaxRateValue.Init();
+                TempTaxRateValue := TaxRateValue;
+                TempTaxRateValue.Insert();
+            until TaxRateValue.Next() = 0;
     end;
 
-    local procedure UpdateRateIDOnRateValue(ConfigId: Guid; KeyValue: Text[2000])
+    local procedure TransferToMainRecord(var TempTaxRateValue: Record "Tax Rate Value" temporary; ConfigID: Guid; TaxType: Code[20])
     var
         TaxRateValue: Record "Tax Rate Value";
     begin
-        //This will be used to find exact line of Tax Rate on calculation.
-        TaxRateValue.SetRange("Config ID", ConfigId);
-        if not TaxRateValue.IsEmpty() then
-            TaxRateValue.ModifyAll("Tax Rate ID", KeyValue);
+        TempTaxRateValue.Reset();
+        TempTaxRateValue.SetRange("Tax Type", TaxType);
+        TempTaxRateValue.SetRange("Config ID", ConfigID);
+        if TempTaxRateValue.FindSet() then
+            repeat
+                TaxRateValue.Init();
+                TaxRateValue := TempTaxRateValue;
+                TaxRateValue.Insert();
+            until TempTaxRateValue.Next() = 0;
     end;
 
     local procedure GetColumnName(IsLookup: Boolean)
@@ -162,7 +207,40 @@ table 20252 "Tax Rate Column Setup"
         end;
     end;
 
+    local procedure InitTaxRateProgressWindow()
+    begin
+        if not GuiAllowed() then
+            exit;
+
+        TaxRateDialog.Open(
+            UpdatingKeysLbl +
+            TaxTypeLbl +
+            ValueLbl);
+    end;
+
+    local procedure UpdateTaxRateProgressWindow(Stage: Text)
+    begin
+        if not GuiAllowed() then
+            exit;
+        TaxRateDialog.Update(1, "Tax Type");
+        TaxRateDialog.Update(2, Stage);
+    end;
+
+    local procedure CloseTaxRateProgressWindow()
+    begin
+        if not GuiAllowed() then
+            exit;
+        TaxRateDialog.close();
+    end;
+
     var
         ScriptSymbolsMgmt: Codeunit "Script Symbols Mgmt.";
         EmptyGuid: Guid;
+        TaxRateDialog: Dialog;
+        UpdatingKeysLbl: Label 'Updating keys on Tax Rates\';
+        TaxTypeLbl: Label 'Tax Type:              #1######\', Comment = '%1 = Tax Type';
+        ValueLbl: Label 'Stage:              #2######', Comment = '%1 = Key Generation stage';
+        TransferingRecordToTempLbl: Label 'Transfering Records to temporary';
+        UpdatingKeysValueLbl: Label 'Updating keys';
+        ValidatingKeysValueLbl: Label 'Validating keys';
 }

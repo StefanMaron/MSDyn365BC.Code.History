@@ -2373,6 +2373,40 @@ codeunit 136306 "Job Invoicing"
         SalesHeader.TestField("Ship-to Country/Region Code", CountryRegion.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
+    procedure CreateSalesInvoiceFromSelectedJobPlanningLines()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        SalesHeader: Record "Sales Header";
+        JobCreateInvoice: Codeunit "Job Create-Invoice";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Invoice] [Job Planning] [Sales]
+        // [SCENARIO 396007] "Create Sales Invoice" function works properly for a job planning line filtered with "Qty. to Transfer to Invoice" > 0.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Job with job task and job planning line.
+        // [GIVEN] "Qty. to Transfer to Invoice" on the job planning line = 1.
+        CreateJob(Job, '', false);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        CreateJobPlanningLineWithQtyToTransferToInvoice(JobPlanningLine, JobTask, Qty, Qty);
+
+        // [GIVEN] Set filter "Qty. to Transfer to Invoice" > 0 on job planning lines.
+        JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        JobPlanningLine.SetFilter("Qty. to Transfer to Invoice", '>%1', 0);
+
+        // [WHEN] Run "Create Sales Invoice" for the filtered job planning line.
+        Commit();
+        JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);
+
+        // [THEN] The job planning line has been transferred to a sales invoice line.
+        GetSalesDocument(JobPlanningLine, SalesHeader."Document Type"::Invoice, SalesHeader);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

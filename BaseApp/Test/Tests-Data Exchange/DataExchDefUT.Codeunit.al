@@ -464,6 +464,76 @@ codeunit 132543 "Data Exch. Def UT"
         Assert.IsTrue(TransformationRule[2].Find(), '');
     end;
 
+    [Test]
+    procedure ImportDataExchangeXmlDataWithSeveralColumnsWithSamePath()
+    var
+        DataExchDef: Record "Data Exch. Def";
+        DataExchLineDef: Record "Data Exch. Line Def";
+        DataExchColDef: Record "Data Exch. Column Def";
+        DataExchField: Record "Data Exch. Field";
+    begin
+        // [FEAUTRE] [XML] [Import]
+        // [SCENARIO 396422] Data Exchange Xml Import in case of several columns with the same path
+
+        // [GIVEN] Data exchange definition setup for import xml
+        MockDataExchDef(DataExchDef, DataExchDef.Type::"Generic Import", DataExchDef."File Type"::Xml);
+
+        // [GIVEN] Single line definition with "Data Line Tag" = '/root'
+        MockDataExchLineDef(DataExchLineDef, DataExchDef.Code, DataExchLineDef."Line Type"::Detail, '/root');
+
+        // [GIVEN] Two column definitions each with the same "Path" = '/root/testnode'
+        MockDataExchColDef(DataExchColDef, DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, 1, '/root/testnode');
+        MockDataExchColDef(DataExchColDef, DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, 2, '/root/testnode');
+
+        // [WHEN] Import xml file containing "<root> <testnode> testvalue </testnode> </root>"
+        DataExchField."Data Exch. No." :=
+            ImportXmlFromText(DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, '<root><testnode>testvalue</testnode></root>');
+
+        // [THEN] There are 3 data exch. fields have been created: 1 "root" (parent line def) and 2 columns ("testvalue")
+        DataExchField.SetRange("Data Exch. No.", DataExchField."Data Exch. No.");
+        Assert.RecordCount(DataExchField, 3);
+
+        DataExchField.SetRange("Column No.", -1);
+        Assert.RecordCount(DataExchField, 1);
+
+        DataExchField.SetRange("Column No.", 1);
+        DataExchField.FindFirst();
+        DataExchField.TestField(Value, 'testvalue');
+
+        DataExchField.SetRange("Column No.", 2);
+        DataExchField.FindFirst();
+        DataExchField.TestField(Value, 'testvalue');
+    end;
+
+    local procedure MockDataExchDef(var DataExchDef: Record "Data Exch. Def"; Type: Enum "Data Exchange Definition Type"; FileType: Option)
+    begin
+        DataExchDef.Init();
+        DataExchDef.Code := LibraryUtility.GenerateGUID();
+        DataExchDef.Type := Type;
+        DataExchDef."File Type" := FileType;
+        DataExchDef.Insert(true);
+    end;
+
+    local procedure MockDataExchLineDef(var DataExchLineDef: Record "Data Exch. Line Def"; DataExchDefCode: Code[20]; LineType: Option; DataLineTag: Text[250])
+    begin
+        DataExchLineDef.Init();
+        DataExchLineDef."Data Exch. Def Code" := DataExchDefCode;
+        DataExchLineDef.Code := LibraryUtility.GenerateGUID();
+        DataExchLineDef."Line Type" := LineType;
+        DataExchLineDef."Data Line Tag" := DataLineTag;
+        DataExchLineDef.Insert(true);
+    end;
+
+    local procedure MockDataExchColDef(var DataExchColDef: Record "Data Exch. Column Def"; DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; ColumnNo: Integer; Path: Text[250])
+    begin
+        DataExchColDef.Init();
+        DataExchColDef."Data Exch. Def Code" := DataExchDefCode;
+        DataExchColDef."Data Exch. Line Def Code" := DataExchLineDefCode;
+        DataExchColDef."Column No." := ColumnNo;
+        DataExchColDef.Path := Path;
+        DataExchColDef.Insert(true);
+    end;
+
     local procedure CreateTransformationRule(var TransformationRule: Record "Transformation Rule")
     begin
         TransformationRule.Init();
@@ -494,6 +564,22 @@ codeunit 132543 "Data Exch. Def UT"
         XMLPORT.Import(XMLPORT::"Imp / Exp Data Exch Def & Map", InStream, DataExchDef);
     end;
 
+    local procedure ImportXmlFromText(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; SourceText: Text): Integer
+    var
+        DataExch: Record "Data Exch.";
+        OutStream: OutStream;
+    begin
+        DataExch."Entry No." := LibraryUtility.GetNewRecNo(DataExch, DataExch.FieldNo("Entry No."));
+        DataExch."Data Exch. Def Code" := DataExchDefCode;
+        DataExch."Data Exch. Line Def Code" := DataExchLineDefCode;
+        DataExch."File Content".CreateOutStream(OutStream);
+        OutStream.WriteText(SourceText);
+        DataExch.Insert(true);
+        DataExch.SetRecFilter();
+        Codeunit.Run(Codeunit::"Import XML File to Data Exch.", DataExch);
+        exit(DataExch."Entry No.");
+    end;
+
     local procedure RemoveDataExch(DataExchDefCode: Code[20])
     var
         DataExchDef: Record "Data Exch. Def";
@@ -517,18 +603,11 @@ codeunit 132543 "Data Exch. Def UT"
         OptionNumber: Integer;
     begin
         // Setup for Line Type validation
-        DataExchDef.Init();
-        DataExchDef.Code := LibraryUtility.GenerateGUID;
+        MockDataExchDef(DataExchDef, DataExchDef.Type::"Bank Statement Import", DataExchDef."File Type"::Xml);
         DataExchCode := DataExchDef.Code;
-        DataExchDef.Type := DataExchDef.Type::"Bank Statement Import";
-        DataExchDef.Insert(true);
         OptionNumber := LineType;
 
-        DataExchLineDef.Init();
-        DataExchLineDef.Code := LibraryUtility.GenerateGUID;
-        DataExchLineDef."Data Exch. Def Code" := DataExchCode;
-        DataExchLineDef."Line Type" := OptionNumber;
-        DataExchLineDef.Insert(true);
+        MockDataExchLineDef(DataExchLineDef, DataExchDef.Code, OptionNumber, '');
 
         // Export Data Exch Def with Header Type line record via XML1225 to XML file
         DataExchDef.SetRange(Code, DataExchCode);

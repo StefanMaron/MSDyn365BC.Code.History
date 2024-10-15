@@ -3415,7 +3415,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=ReportItems!CurrReport_PAGENOCaption.Value</Value>
+                      <Value EvaluationMode="Constant">Page</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -3438,6 +3438,12 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
+                      <Value xml:space="preserve">            </Value>
+                      <Style>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                    <TextRun>
                       <Value>=ReportItems!Bank_Book_.Value</Value>
                       <Style>
                         <FontWeight>Bold</FontWeight>
@@ -3451,7 +3457,7 @@
               </Paragraphs>
               <Top>0.316cm</Top>
               <Height>0.475cm</Height>
-              <Width>27.30159cm</Width>
+              <Width>26.02944cm</Width>
               <ZIndex>1</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>

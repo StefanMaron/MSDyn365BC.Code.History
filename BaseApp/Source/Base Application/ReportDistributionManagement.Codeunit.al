@@ -99,6 +99,10 @@ codeunit 452 "Report Distribution Management"
                 DocumentTypeText := SalesCrMemoDocTypeTxt;
             Database::"Sales Shipment Header":
                 DocumentTypeText := SalesShipmentDocTypeTxt;
+            Database::"Purch. Inv. Header":
+                DocumentTypeText := PurchaseInvoiceDocTypeTxt;
+            Database::"Purch. Cr. Memo Hdr.":
+                DocumentTypeText := PurchaseCrMemoDocTypeTxt;
             DATABASE::"Service Invoice Header":
                 DocumentTypeText := ServiceInvoiceDocTypeTxt;
             DATABASE::"Service Cr.Memo Header":

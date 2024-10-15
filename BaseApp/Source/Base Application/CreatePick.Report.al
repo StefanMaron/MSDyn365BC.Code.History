@@ -206,6 +206,11 @@ report 5754 "Create Pick"
     {
     }
 
+    trigger OnPostReport()
+    begin
+        OnAfterOnPostReport(FirstPickNo, LastPickNo)
+    end;
+
     var
         NothingToHandedErr: Label 'There is nothing to handle.';
         Text001: Label 'Pick activity no. %1 has been created.';
@@ -483,6 +488,11 @@ report 5754 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetResultMessage(var ReturnValue: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPostReport(FirstPickNo: Code[20]; LastPickNo: Code[20])
     begin
     end;
 

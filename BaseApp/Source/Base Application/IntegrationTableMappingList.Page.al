@@ -256,7 +256,7 @@ page 5335 "Integration Table Mapping List"
                 Image = RefreshLines;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Dynamics 365 Sales entities, as defined in the Integration Table Mappings window.';
+                ToolTip = 'Start a job for full synchronization between records in Business Central and Dataverse entities for each of the selected integration table mappings.';
 
                 trigger OnAction()
                 var
@@ -277,9 +277,8 @@ page 5335 "Integration Table Mapping List"
                 Caption = 'Run Unconditional Full Synchronization';
                 Enabled = HasRecords AND ("Parent Name" = '') AND (Direction <> Direction::Bidirectional);
                 Image = RefreshLines;
-                Promoted = true;
-                PromotedCategory = Category4;
-                ToolTip = 'Start the default integration job for synchronizing this Business Central record type and Dynamics 365 Sales entity, unconditionally for all records.';
+                Promoted = false;
+                ToolTip = 'Start the full synchronization job for all records of this type in Business Central and Dataverse. This includes records that have already been synchronized.';
 
                 trigger OnAction()
                 var
@@ -399,7 +398,7 @@ page 5335 "Integration Table Mapping List"
         IntegrationTableFilter: Text;
         JobQEntryCreatedQst: Label 'A synchronization job queue entry has been created.\\Do you want to view the job queue entry?';
         StartFullSynchronizationQst: Label 'You are about to synchronize all data within the mapping.\The synchronization will run in the background, so you can continue with other tasks.\\Do you want to continue?';
-        StartUnconditionalFullSynchronizationQst: Label 'You are about to synchronize all data within the mapping, regardless of whether they were modified since last synchronization or not.\The synchronization will run in the background, so you can continue with other tasks.\\Do you want to continue?';
+        StartUnconditionalFullSynchronizationQst: Label 'You are about to synchronize all data in the selected mapping, regardless of whether the data has been modified after the last synchronization.\Use this action only if you have recently added a new field mapping and you want to synchronize its value.\We recommend that you use the Integration Table Filter and Table Filter fields on the Integration Table Mappings page to limit the synchronization to a maximum of 5000 records for each run.\\Do you want to continue?';
         StartUncouplingQst: Label 'You are about to uncouple the selected mappings, which means data for the records will no longer synchronize.\The uncoupling will run in the background, so you can continue with other tasks.\\Do you want to continue?';
         StartUncouplingForegroundQst: Label 'You are about to uncouple the selected mappings, which means data for the records will no longer synchronize.\\Do you want to continue?';
         UncouplingCompletedMsg: Label 'Uncoupling completed.';

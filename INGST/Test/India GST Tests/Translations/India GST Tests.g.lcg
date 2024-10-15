@@ -617,6 +617,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GST Preparations Sales - NamedType UnregisteredCustomerSetupErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2626744945 - NamedType 1482280938" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[AssociatedVendor]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GST Purch RCM Charge Item - NamedType AssociatedVendorLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2626744945 - NamedType 466423421" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = Field Caption and Table Caption]D;]A;(LookupHint=Codeunit GST Purch RCM Charge Item - NamedType GSTLEVerifyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2443934576 - NamedType 1482280938" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[AssociatedVendor]]></Val>
