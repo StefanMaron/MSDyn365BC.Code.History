@@ -1,4 +1,4 @@
-page 41 "Sales Quote"
+﻿page 41 "Sales Quote"
 {
     Caption = 'Sales Quote';
     PageType = Document;
@@ -258,7 +258,8 @@ page 41 "Sales Quote"
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
-                    Importance = Additional;
+                    Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
                 group("Work Description")
@@ -1510,6 +1511,7 @@ page 41 "Sales Quote"
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
+        StatusStyleTxt := GetStatusStyleText();
         UpdatePaymentService;
         SetControlAppearance;
     end;
@@ -1601,6 +1603,8 @@ page 41 "Sales Quote"
         PaymentServiceEnabled: Boolean;
         IsCustomerOrContactNotEmpty: Boolean;
         WorkDescription: Text;
+        [InDataSet]
+        StatusStyleTxt: Text;
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;

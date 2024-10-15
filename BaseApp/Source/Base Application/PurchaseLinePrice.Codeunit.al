@@ -129,6 +129,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
         Item: Record Item;
         Resource: Record Resource;
     begin
+        PriceCalculationBuffer."Price Calculation Method" := PurchaseLine."Price Calculation Method";
         PriceCalculationBuffer."Variant Code" := PurchaseLine."Variant Code";
         PriceCalculationBuffer."Location Code" := PurchaseLine."Location Code";
         case PriceCalculationBuffer."Asset Type" of

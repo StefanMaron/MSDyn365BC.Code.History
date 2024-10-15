@@ -67,6 +67,7 @@ page 40 "Item Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number for the journal line.';
+                    ShowMandatory = true;
                 }
                 field("External Document No."; "External Document No.")
                 {

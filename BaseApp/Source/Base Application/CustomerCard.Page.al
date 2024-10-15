@@ -2104,7 +2104,7 @@ page 21 "Customer Card"
                 begin
                     RecRef.Open(DATABASE::Customer);
                     CustomLayoutReporting.SetOutputFileBaseName(StatementFileNameTxt);
-                    CustomLayoutReporting.SetIgnoreRequestParameters(true);
+                    CustomLayoutReporting.SetTableFilterForReportID(Report::"Standard Statement", "No.");
                     CustomLayoutReporting.ProcessReportForData(ReportSelections.Usage::"C.Statement", RecRef, Customer.FieldName("No."),
                       DATABASE::Customer, Customer.FieldName("No."), true);
                 end;
@@ -2370,7 +2370,7 @@ page 21 "Customer Card"
         EUVATRegistrationNoCheck: Page "EU VAT Registration No Check";
         CustomerRecRef: RecordRef;
     begin
-        OnBeforeCreateCustomerFromTemplate(NewMode);
+        OnBeforeCreateCustomerFromTemplate(NewMode, Customer);
 
         if NewMode then begin
             if MiniCustomerTemplate.NewCustomerFromTemplate(Customer) then begin
@@ -2402,7 +2402,7 @@ page 21 "Customer Card"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateCustomerFromTemplate(var NewMode: Boolean)
+    local procedure OnBeforeCreateCustomerFromTemplate(var NewMode: Boolean; var Customer: Record Customer)
     begin
     end;
 

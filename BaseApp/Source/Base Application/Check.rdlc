@@ -3160,7 +3160,7 @@ CStr(Last(Fields!LineAmountFormat.Value))</Value>
                         <TextRun>
                           <Value>=Code.GetData(3,3)</Value>
                           <Style>
-                            <FontFamily>IDAutomationMICR</FontFamily>
+                            <FontFamily>IDAutomationCMC7</FontFamily>
                             <FontSize>7pt</FontSize>
                             <FontWeight>Normal</FontWeight>
                           </Style>
@@ -3190,7 +3190,7 @@ CStr(Last(Fields!LineAmountFormat.Value))</Value>
                     <Paragraph>
                       <TextRuns>
                         <TextRun>
-                          <Value>=Code.GetData(1,2)</Value>
+                          <Value>="[" + Code.GetData(1,2) + "]"</Value>
                           <Style>
                             <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>
@@ -3276,7 +3276,7 @@ CStr(Last(Fields!LineAmountFormat.Value))</Value>
                     <Paragraph>
                       <TextRuns>
                         <TextRun>
-                          <Value>=Code.GetData(4,3)</Value>
+                          <Value>="[" + Code.GetData(4,3) + "]"</Value>
                           <Style>
                             <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>
@@ -3309,7 +3309,7 @@ CStr(Last(Fields!LineAmountFormat.Value))</Value>
                     <Paragraph>
                       <TextRuns>
                         <TextRun>
-                          <Value>="********" + Code.GetData(5,3)</Value>
+                          <Value>="[********" + Code.GetData(5,3) + "]"</Value>
                           <Style>
                             <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>

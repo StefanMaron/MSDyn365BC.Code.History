@@ -478,6 +478,7 @@ page 508 "Blanket Sales Order Subform"
                 {
                     Caption = 'Item Availability by';
                     Image = ItemAvailability;
+                    Enabled = Type = Type::Item;
                     action("Event")
                     {
                         ApplicationArea = Suite;
@@ -785,7 +786,8 @@ page 508 "Blanket Sales Order Subform"
                     ApplicationArea = Suite;
                     Caption = 'E&xplode BOM';
                     Image = ExplodeBOM;
-                    ToolTip = 'Insert new lines for the components on the bill of materials, for example to sell the parent item as a kit. CAUTION: The line for the parent item will be deleted and represented by a description only. To undo, you must delete the component lines and add a line the parent item again.';
+                    Enabled = Type = Type::Item;
+                    ToolTip = 'Add a line for each component on the bill of materials for the selected item. For example, this is useful for selling the parent item as a kit. CAUTION: The line for the parent item will be deleted and only its description will display. To undo this action, delete the component lines and add a line for the parent item again. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
@@ -948,6 +950,8 @@ page 508 "Blanket Sales Order Subform"
     local procedure UpdateEditableOnRow()
     begin
         InvDiscAmountEditable := CurrPage.Editable and not SalesReceivablesSetup."Calc. Inv. Discount";
+
+        OnAfterUpdateEditableOnRow(Rec);
     end;
 
     local procedure ShowOrders()
@@ -1144,6 +1148,11 @@ page 508 "Blanket Sales Order Subform"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateEditableOnRow(SalesLine: Record "Sales Line");
     begin
     end;
 

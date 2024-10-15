@@ -63,10 +63,8 @@ page 322 "ECSL Report Subform"
                 trigger OnAction()
                 var
                     VATEntry: Record "VAT Entry";
-                    TempVATEntry: Record "VAT Entry" temporary;
                     ECSLVATReportLineRelation: Record "ECSL VAT Report Line Relation";
                     ECSLVATReportLine: Record "ECSL VAT Report Line";
-                    VATEntriesPreview: Page "VAT Entries Preview";
                 begin
                     CurrPage.SetSelectionFilter(ECSLVATReportLine);
                     if ECSLVATReportLine.FindFirst then;
@@ -78,14 +76,12 @@ page 322 "ECSL Report Subform"
                         exit;
 
                     repeat
-                        if VATEntry.Get(ECSLVATReportLineRelation."VAT Entry No.") then begin
-                            TempVATEntry.TransferFields(VATEntry, true);
-                            TempVATEntry.Insert();
-                        end;
+                        if VATEntry.Get(ECSLVATReportLineRelation."VAT Entry No.") then
+                            VATEntry.Mark(true);
                     until ECSLVATReportLineRelation.Next = 0;
 
-                    VATEntriesPreview.Set(TempVATEntry);
-                    VATEntriesPreview.Run;
+                    VATEntry.MarkedOnly(true);
+                    PAGE.Run(0, VATEntry);
                 end;
             }
         }

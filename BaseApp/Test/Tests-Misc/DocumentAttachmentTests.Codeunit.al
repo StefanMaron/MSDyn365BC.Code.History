@@ -30,6 +30,8 @@ codeunit 134776 "Document Attachment Tests"
         PrintedToAttachmentTxt: Label 'The document has been printed to attachments.';
         NoSaveToPDFReportTxt: Label 'There are no reports which could be saved to PDF for this document.';
         isInitialized: Boolean;
+        ConfirmConvertToOrderQst: Label 'Do you want to convert the quote to an order?';
+        ConfirmOpeningNewOrderAfterQuoteToOrder: Label 'Do you want to open the new order?';
 
     [Test]
     [Scope('OnPrem')]
@@ -182,7 +184,6 @@ codeunit 134776 "Document Attachment Tests"
     var
         DocumentAttachment: Record "Document Attachment";
         localVendor: Record Vendor;
-        TempBlob: Codeunit "Temp Blob";
         RecRef: RecordRef;
     begin
         // [SCENARIO] Ensure attached documents for a vendor can be deleted.
@@ -195,21 +196,9 @@ codeunit 134776 "Document Attachment Tests"
         localVendor."No." := '22';
         localVendor.Insert();
 
-        DocumentAttachment.Init();
-
         RecRef.GetTable(localVendor);
-
-        CreateTempBLOBWithImageOfType(TempBlob, 'jpeg');
-
-        // Save first file (test.jpeg)
-        DocumentAttachment.SaveAttachment(RecRef, 'foo.jpeg', TempBlob);
-        Clear(DocumentAttachment);
-
-        // Create and save a png file (test.png)
-        DocumentAttachment.Init();
-        CreateTempBLOBWithImageOfType(TempBlob, 'jpeg');
-        DocumentAttachment.SaveAttachment(RecRef, 'bar.jpeg', TempBlob);
-        Clear(DocumentAttachment);
+        CreateDocumentAttachment(DocumentAttachment, RecRef, 'foo.jpeg');
+        CreateDocumentAttachment(DocumentAttachment, RecRef, 'bar.jpeg');
 
         DocumentAttachment.SetRange("Table ID", DATABASE::Vendor);
         DocumentAttachment.SetRange("No.", localVendor."No.");
@@ -222,6 +211,69 @@ codeunit 134776 "Document Attachment Tests"
 
         // Assert all files for this vendor are deleted.
         Assert.AreEqual(0, DocumentAttachment.Count, 'Zero attachments were expected.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('QuoteToOrderConfirmHandler')]
+    procedure EnsureAttachDocCounterUpdatesWhenQuoteConvertedToOrder()
+    var
+        Customer: Record Customer;
+        SalesHeaderQuote: Record "Sales Header";
+        DocumentAttachment: Record "Document Attachment";
+        SalesQuotes: TestPage "Sales Quotes";
+        RecRef: RecordRef;
+        FinalDocAttachedAcount: Integer;
+    begin
+        // [SCENARIO] Ensure that Documents Attachment factbox shows blank when quote is converted to order
+
+        Initialize();
+
+        // [GIVEN] Create quote
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeaderQuote, Customer."No.");
+
+        // [GIVEN] Two attached documents for the quote
+        RecRef.GetTable(SalesHeaderQuote);
+        CreateDocumentAttachment(DocumentAttachment, RecRef, 'foo.jpeg');
+        CreateDocumentAttachment(DocumentAttachment, RecRef, 'bar.jpeg');
+
+        // [WHEN] The sales quotes list is open- navigate to the created quote 
+        SalesQuotes.OpenView();
+        while SalesQuotes."No.".Value() <> SalesHeaderQuote."No." do begin
+            if not SalesQuotes.Next() then
+                break;
+        end;
+
+        // [THEN] The number of attachments is shown as 2
+        Assert.AreEqual(2, SalesQuotes."Attached Documents".Documents.AsInteger(), '2 attachments should have been visible.');
+
+        // [WHEN] Quote is converted to order
+        SalesQuotes.MakeOrder.Invoke();
+
+        // [THEN] Sales quote selected is a different one
+        Assert.AreNotEqual(SalesHeaderQuote."No.", SalesQuotes."No.".Value(), 'Different sales quote selected.');
+
+        // [THEN] The number of attachments is updated
+        FinalDocAttachedAcount := 0;
+        if SalesQuotes."No.".Value() <> '' then begin
+            DocumentAttachment.Reset();
+            DocumentAttachment.SetRange("Table ID", Database::"Sales Header");
+            DocumentAttachment.SetRange("Document Type", SalesHeaderQuote."Document Type"::Quote);
+            DocumentAttachment.SetRange("No.", SalesQuotes."No.".Value());
+            FinalDocAttachedAcount := DocumentAttachment.Count();
+        end;
+        Assert.AreEqual(FinalDocAttachedAcount, SalesQuotes."Attached Documents".Documents.AsInteger(), 'Attachments count should match quote.');
+    end;
+
+    local procedure CreateDocumentAttachment(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef; FileName: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        DocumentAttachment.Init();
+        CreateTempBLOBWithImageOfType(TempBlob, 'jpeg');
+        DocumentAttachment.SaveAttachment(RecRef, FileName, TempBlob);
+        Clear(DocumentAttachment);
     end;
 
     [Test]
@@ -2257,6 +2309,25 @@ codeunit 134776 "Document Attachment Tests"
     procedure MessageHandler(Message: Text[1024])
     begin
         LibraryVariableStorage.Enqueue(Message);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure QuoteToOrderConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        case true of
+            StrPos(Question, ConfirmConvertToOrderQst) > 0:
+                begin
+                    Reply := true;
+                    exit;
+                end;
+            StrPos(Question, ConfirmOpeningNewOrderAfterQuoteToOrder) > 0:
+                begin
+                    Reply := false;
+                    exit;
+                end;
+        end;
+        Assert.Fail('Wrong question: ' + Question);
     end;
 }
 

@@ -404,6 +404,7 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="TransShptLineDesc">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>

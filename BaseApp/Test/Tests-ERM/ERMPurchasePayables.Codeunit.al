@@ -2414,6 +2414,34 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryPermissions.SetTestabilitySoftwareAsAService(false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetStatusStyleTextFavorable()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 342484] GetStatusStyleText = 'Favorable' when Status = Open
+        Initialize();
+
+        // [WHEN] Function GetStatusStyleText is being run for Status = Open
+        // [THEN] Return value is 'Favorable'
+        Assert.AreEqual('Favorable', GetStatusStyleText("Purchase Document Status"::Open), 'Unexpected style text');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetStatusStyleTextStrong()
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 342484] GetStatusStyleText = 'Strong' when Status <> Open
+        // [WHEN] Function GetStatusStyleText is being run for Status <> Open
+        // [THEN] Return value is 'Strong'
+        Assert.AreEqual('Strong', GetStatusStyleText("Purchase Document Status"::"Pending Approval"), 'Unexpected style text');
+        Assert.AreEqual('Strong', GetStatusStyleText("Purchase Document Status"::"Pending Prepayment"), 'Unexpected style text');
+        Assert.AreEqual('Strong', GetStatusStyleText("Purchase Document Status"::Released), 'Unexpected style text');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2985,6 +3013,15 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryCosting.CreatePurchasePrice(PurchasePrice, VendNo, LibraryInventory.CreateItemNo, WorkDate, '', '', '', 0);
         PurchasePrice.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchasePrice.Modify(true);
+    end;
+
+    local procedure GetStatusStyleText(Status: Enum "Purchase Document Status"): Text
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        PurchaseHeader.Init();
+        PurchaseHeader.Status := Status;
+        exit(PurchaseHeader.GetStatusStyleText());
     end;
 
     local procedure OpenPurchasePricesPage(var PurchasePrices: TestPage "Purchase Prices"; VendorNo: Code[20]; StartingDateFilter: Text[30])

@@ -1125,9 +1125,16 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         exit((GenJournalLine."Expiration Date" = 0D) or (GenJournalLine."Expiration Date" >= GenJournalLine."Posting Date"));
     end;
 
-    local procedure IsPostingDateAllowed(GenJournalLine: Record "Gen. Journal Line"): Boolean
+    local procedure IsPostingDateAllowed(GenJournalLine: Record "Gen. Journal Line") IsAllowed: Boolean
+    var
+        IsHandled: Boolean;
     begin
-        exit(not GenJnlCheckLine.DateNotAllowed(GenJournalLine."Posting Date"));
+        IsHandled := false;
+        OnBeforeIsPostingDateAllowed(GenJournalLine, IsAllowed, IsHandled);
+        if IsHandled then
+            exit;
+
+        IsAllowed := not GenJnlCheckLine.DateNotAllowed(GenJournalLine."Posting Date");
     end;
 
     procedure SetPreviewMode(NewPreviewMode: Boolean)
@@ -1197,6 +1204,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 else
                     if (GenJnlLine2."VAT %" = OldVATPct) and (GenJnlLine2."VAT Amount" <> OldVATAmount) then
                         GenJnlLine2.Validate("VAT Amount", OldVATAmount);
+                OnUpdateAndDeleteLinesOnBeforeModifyRecurringLine(GenJnlLine2);
                 GenJnlLine2.Modify();
             until GenJnlLine2.Next = 0;
         end else begin
@@ -1212,15 +1220,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             GenJnlLine3.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
             if GenJnlTemplate."Increment Batch Name" then
                 if not GenJnlLine3.FindLast then
-                    if IncStr(GenJnlLine."Journal Batch Name") <> '' then begin
-                        GenJnlBatch.Delete();
-                        if GenJnlTemplate.Type = GenJnlTemplate.Type::Assets then
-                            FAJnlSetup.IncGenJnlBatchName(GenJnlBatch);
-                        GenJnlBatch.Name := IncStr(GenJnlLine."Journal Batch Name");
-                        if GenJnlBatch.Insert() then;
-                        GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
-                        OnAfterIncrementBatchName(GenJnlBatch, GenJnlLine2."Journal Batch Name");
-                    end;
+                    IncrementBatchName(GenJnlLine);
 
             GenJnlLine3.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
             if (GenJnlBatch."No. Series" = '') and not GenJnlLine3.FindLast then begin
@@ -1339,6 +1339,26 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         OnAfterIsNonZeroAmount(GenJournalLine, Result);
     end;
 
+    local procedure IncrementBatchName(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeIncrementBatchName(GenJnlBatch, IsHandled);
+        if IsHandled then
+            exit;
+
+        if IncStr(GenJnlLine."Journal Batch Name") <> '' then begin
+            GenJnlBatch.Delete();
+            if GenJnlTemplate.Type = GenJnlTemplate.Type::Assets then
+                FAJnlSetup.IncGenJnlBatchName(GenJnlBatch);
+            GenJnlBatch.Name := IncStr(GenJnlLine."Journal Batch Name");
+            if GenJnlBatch.Insert() then;
+            GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
+            OnAfterIncrementBatchName(GenJnlBatch, GenJnlLine2."Journal Batch Name");
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var GenJournalLine: Record "Gen. Journal Line"; PreviewMode: Boolean)
     begin
@@ -1386,6 +1406,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIfCheckBalance(GenJnlTemplate: Record "Gen. Journal Template"; GenJnlLine: Record "Gen. Journal Line"; var LastDocType: Option; var LastDocNo: Code[20]; var LastDate: Date; var CheckIfBalance: Boolean; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsPostingDateAllowed(var GenJournalLine: Record "Gen. Journal Line"; var IsAllowed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1526,6 +1551,16 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckRecurringLine(GenJnlLine2: Record "Gen. Journal Line"; GenJnlTemplate: Record "Gen. Journal Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIncrementBatchName(var GenJnlBatch: Record "Gen. Journal Batch"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAndDeleteLinesOnBeforeModifyRecurringLine(var GenJnlLine: Record "Gen. Journal Line");
     begin
     end;
 }

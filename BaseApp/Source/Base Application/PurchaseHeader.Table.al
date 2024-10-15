@@ -791,7 +791,13 @@ table 38 "Purchase Header"
                 GenJnlLine: Record "Gen. Journal Line";
                 GenJnlApply: Codeunit "Gen. Jnl.-Apply";
                 ApplyVendEntries: Page "Apply Vendor Entries";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupAppliesToDocNo(Rec, VendLedgEntry, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Bal. Account No.", '');
                 VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
                 VendLedgEntry.SetRange("Vendor No.", "Pay-to Vendor No.");
@@ -2426,6 +2432,7 @@ table 38 "Purchase Header"
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         StatusCheckSuspended: Boolean;
         FullPurchaseTypesTxt: Label 'Purchase Quote,Purchase Order,Purchase Invoice,Purchase Credit Memo,Purchase Blanket Order,Purchase Return Order';
+        RecreatePurchaseLinesCancelErr: Label 'You must delete the existing purchase lines before you can change %1.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
 
     procedure InitInsert()
     var
@@ -2703,6 +2710,16 @@ table 38 "Purchase Header"
             Vend.Get(VendNo);
     end;
 
+    procedure GetStatusStyleText() StatusStyleText: Text
+    begin
+        if Status = Status::Open then
+            StatusStyleText := 'Favorable'
+        else
+            StatusStyleText := 'Strong';
+
+        OnAfterGetStatusStyleText(Rec, StatusStyleText);
+    end;
+
     procedure PurchLinesExist(): Boolean
     begin
         PurchLine.Reset();
@@ -2792,6 +2809,7 @@ table 38 "Purchase Header"
 
                 PurchLine.Init();
                 PurchLine."Line No." := 0;
+                OnRecreatePurchLinesOnBeforeTempPurchLineFindSet(TempPurchLine);
                 TempPurchLine.FindSet();
                 ExtendedTextAdded := false;
                 repeat
@@ -2851,7 +2869,7 @@ table 38 "Purchase Header"
                 OnAfterDeleteAllTempPurchLines();
             end;
         end else
-            Rec := xRec;
+            Error(RecreatePurchaseLinesCancelErr, ChangedFieldName);
     end;
 
     local procedure StorePurchCommentLineToTemp(var TempPurchCommentLine: Record "Purch. Comment Line" temporary)
@@ -3625,7 +3643,13 @@ table 38 "Purchase Header"
     procedure ShowDocDim()
     var
         OldDimSetID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDocDim(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
@@ -3991,32 +4015,28 @@ table 38 "Purchase Header"
 
     procedure AddSpecialOrderToAddress(SalesHeader: Record "Sales Header"; ShowError: Boolean)
     var
-        PurchLine3: Record "Purchase Line";
-        LocationCode: Record Location;
+        PurchaseHeader: Record "Purchase Header";
     begin
-        if ShowError then begin
-            PurchLine3.Reset();
-            PurchLine3.SetRange("Document Type", "Document Type"::Order);
-            PurchLine3.SetRange("Document No.", "No.");
-            if not PurchLine3.IsEmpty() then begin
-                LocationCode.Get("Location Code");
-                if "Ship-to Name" <> LocationCode.Name then
+        if ShowError then
+            if PurchLinesExist() then begin
+                PurchaseHeader := Rec;
+                PurchaseHeader.SetShipToForSpecOrder();
+                if "Ship-to Name" <> PurchaseHeader."Ship-to Name" then
                     Error(Text052, FieldCaption("Ship-to Name"), "No.", SalesHeader."No.");
-                if "Ship-to Name 2" <> LocationCode."Name 2" then
+                if "Ship-to Name 2" <> PurchaseHeader."Ship-to Name 2" then
                     Error(Text052, FieldCaption("Ship-to Name 2"), "No.", SalesHeader."No.");
-                if "Ship-to Address" <> LocationCode.Address then
+                if "Ship-to Address" <> PurchaseHeader."Ship-to Address" then
                     Error(Text052, FieldCaption("Ship-to Address"), "No.", SalesHeader."No.");
-                if "Ship-to Address 2" <> LocationCode."Address 2" then
+                if "Ship-to Address 2" <> PurchaseHeader."Ship-to Address 2" then
                     Error(Text052, FieldCaption("Ship-to Address 2"), "No.", SalesHeader."No.");
-                if "Ship-to Post Code" <> LocationCode."Post Code" then
+                if "Ship-to Post Code" <> PurchaseHeader."Ship-to Post Code" then
                     Error(Text052, FieldCaption("Ship-to Post Code"), "No.", SalesHeader."No.");
-                if "Ship-to City" <> LocationCode.City then
+                if "Ship-to City" <> PurchaseHeader."Ship-to City" then
                     Error(Text052, FieldCaption("Ship-to City"), "No.", SalesHeader."No.");
-                if "Ship-to Contact" <> LocationCode.Contact then
+                if "Ship-to Contact" <> PurchaseHeader."Ship-to Contact" then
                     Error(Text052, FieldCaption("Ship-to Contact"), "No.", SalesHeader."No.");
             end else
                 SetShipToForSpecOrder();
-        end;
     end;
 
     procedure InvoicedLineExists(): Boolean
@@ -4571,15 +4591,23 @@ table 38 "Purchase Header"
 
     local procedure SetDefaultPurchaser()
     var
+        UserSetupPurchaserCode: Code[20];
+    begin
+        UserSetupPurchaserCode := GetUserSetupPurchaserCode;
+        if UserSetupPurchaserCode <> '' then
+            if SalespersonPurchaser.Get(UserSetupPurchaserCode) then
+                if not SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+                    Validate("Purchaser Code", UserSetupPurchaserCode);
+    end;
+
+    local procedure GetUserSetupPurchaserCode(): Code[20]
+    var
         UserSetup: Record "User Setup";
     begin
         if not UserSetup.Get(UserId) then
             exit;
 
-        if UserSetup."Salespers./Purch. Code" <> '' then
-            if SalespersonPurchaser.Get(UserSetup."Salespers./Purch. Code") then
-                if not SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
-                    Validate("Purchaser Code", UserSetup."Salespers./Purch. Code");
+        exit(UserSetup."Salespers./Purch. Code");
     end;
 
     local procedure SetShipToCodeEmpty()
@@ -4959,15 +4987,20 @@ table 38 "Purchase Header"
     end;
 
     local procedure SetPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20])
+    var
+        UserSetupPurchaserCode: Code[20];
     begin
+        UserSetupPurchaserCode := GetUserSetupPurchaserCode;
         if PurchaserCodeToCheck <> '' then begin
             if SalespersonPurchaser.Get(PurchaserCodeToCheck) then
-                if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
-                    PurchaserCodeToAssign := ''
-                else
+                if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then begin
+                    if UserSetupPurchaserCode = '' then
+                        PurchaserCodeToAssign := ''
+                end else
                     PurchaserCodeToAssign := PurchaserCodeToCheck;
         end else
-            PurchaserCodeToAssign := '';
+            if UserSetupPurchaserCode = '' then
+                PurchaserCodeToAssign := '';
     end;
 
     procedure ValidatePurchaserOnPurchHeader(PurchaseHeader2: Record "Purchase Header"; IsTransaction: Boolean; IsPostAction: Boolean)
@@ -5251,6 +5284,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetStatusStyleText(PurchaseHeader: Record "Purchase Header"; var StatusStyleText: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetShipToForSpecOrder(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
@@ -5386,6 +5424,11 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupAppliesToDocNo(var PurchaseHeader: Record "Purchase Header"; VendorLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupReceivingNoSeries(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -5417,6 +5460,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDocDim(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5638,6 +5686,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDocument(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreatePurchLinesOnBeforeTempPurchLineFindSet(var TempPurchLine: Record "Purchase Line" temporary)
     begin
     end;
 }

@@ -240,7 +240,7 @@ table 6661 "Return Receipt Line"
         }
         field(91; "Currency Code"; Code[10])
         {
-            CalcFormula = Lookup ("Return Receipt Header"."Currency Code" WHERE("No." = FIELD("Document No.")));
+            CalcFormula = Lookup("Return Receipt Header"."Currency Code" WHERE("No." = FIELD("Document No.")));
             Caption = 'Currency Code';
             Editable = false;
             FieldClass = FlowField;
@@ -436,6 +436,10 @@ table 6661 "Return Receipt Line"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(7001; "Allow Line Disc."; Boolean)
         {
             Caption = 'Allow Line Disc.';
@@ -531,6 +535,11 @@ table 6661 "Return Receipt Line"
         NextLineNo: Integer;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnInsertInvLineFromRetRcptLine(Rec, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         SetRange("Document No.", "Document No.");
 
         TempSalesLine := SalesLine;
@@ -824,6 +833,11 @@ table 6661 "Return Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDescriptionSalesLineInsert(var SalesLine: Record "Sales Line"; ReturnReceiptLine: Record "Return Receipt Line"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRetRcptLine(var ReturnReceiptLine: Record "Return Receipt Line"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }
