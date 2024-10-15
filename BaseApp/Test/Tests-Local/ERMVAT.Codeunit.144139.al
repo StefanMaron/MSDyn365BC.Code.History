@@ -37,6 +37,7 @@ codeunit 144139 "ERM VAT"
 
     trigger OnRun()
     begin
+        // [FEATURE] [VAT Settlement]
     end;
 
     var
@@ -59,6 +60,9 @@ codeunit 144139 "ERM VAT"
         EntryDoesNotExistErr: Label '%1 with filters %2 does not exist.';
         WrongValueErr: Label 'Wrong value of field %2 in table %1.';
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        VATCalculationType: Enum "Tax Calculation Type";
+        GenPostingType: Enum "General Posting Type";
         isInitialized: Boolean;
 
     [Test]
@@ -73,8 +77,8 @@ codeunit 144139 "ERM VAT"
     begin
         // Test to verify error on Unapply Vendor Invoice after running Calculate and Post VAT Settlement report with Unrealized VAT True.
         Initialize;
-        Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity
-        DirectUnitCost := LibraryRandom.RandDec(10, 2);  // Use Random value for Direct Unit Cost
+        Quantity := LibraryRandom.RandDecInRange(10, 20, 2);
+        DirectUnitCost := LibraryRandom.RandDecInRange(100, 200, 2);
         UnapplyVendorLedgerEntryError(
           true, VATPostingSetup."Unrealized VAT Type"::Percentage, "Gen. Journal Document Type"::Invoice, Quantity, DirectUnitCost,
           Quantity * DirectUnitCost / 2);  // True for Unrealized VAT and partial value required for Amount
@@ -95,7 +99,7 @@ codeunit 144139 "ERM VAT"
         // Setup: Post Purchase Document and Payment Journal. Run Calculate and Post VAT Settlement report. Update VAT Period closed on Periodic Settlement VAT entry.
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(UnrealizedVAT, CalcDate('<CY - 1Y>', WorkDate));  // Required for test case to set last date of the previous year to Work Date.
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", false, UnrealizedVATType);  // False for EU Service.
         AppliesToDocNo :=
@@ -119,6 +123,7 @@ codeunit 144139 "ERM VAT"
         UpdateGeneralLedgerAndVATPostingSetups(GeneralLedgerSetup, VATPostingSetup);
         DeletePeriodicSettlementVATEntry(WorkDate);
         DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate));  // '1M' required for one month next to Workdate
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -133,8 +138,8 @@ codeunit 144139 "ERM VAT"
     begin
         // Test to verify error on Unapply Customer Invoice after running Calculate and Post VAT Settlement report with Unrealized VAT True.
         Initialize;
-        Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity
-        UnitPrice := LibraryRandom.RandDec(10, 2);  // Use Random value for Unit Price
+        Quantity := LibraryRandom.RandDecInRange(10, 20, 2);
+        UnitPrice := LibraryRandom.RandDecInRange(100, 200, 2);
         UnapplyCustomerLedgerEntryError(
           true, VATPostingSetup."Unrealized VAT Type"::Percentage, "Gen. Journal Document Type"::Invoice, Quantity, UnitPrice,
           -Quantity * UnitPrice / 2);  // True for Unrealized VAT and partial value required for Amount
@@ -155,7 +160,7 @@ codeunit 144139 "ERM VAT"
         // Setup: Post Sales Document and Cash Receipt Journal. Run Calculate and Post VAT Settlement report. Update VAT Period closed on Periodic Settlement VAT entry.
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(UnrealizedVAT, CalcDate('<CY - 1Y>', WorkDate));  // Required for test case to set last date of the previous year to Work Date.
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", false, UnrealizedVATType);  // False for EU Service
         AppliesToDocNo :=
@@ -179,6 +184,7 @@ codeunit 144139 "ERM VAT"
         UpdateGeneralLedgerAndVATPostingSetups(GeneralLedgerSetup, VATPostingSetup);
         DeletePeriodicSettlementVATEntry(WorkDate);
         DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate));  // '1M' required for one month next to Workdate
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -199,7 +205,7 @@ codeunit 144139 "ERM VAT"
         Initialize;
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, CalcDate('<CY - 1Y>', WorkDate));  // Required for test case to set last date of the previous year to Work Date. True for Unrealized VAT.
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group",
           VATPostingSetup."VAT Prod. Posting Group", false, VATPostingSetup."Unrealized VAT Type"::Percentage);  // False for EU Service
@@ -243,15 +249,15 @@ codeunit 144139 "ERM VAT"
         Initialize;
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, CalcDate('<CY - 1Y>', WorkDate));  // Required for test case to set last date of the previous year to Work Date. True for Unrealized VAT.
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group",
           VATPostingSetup."VAT Prod. Posting Group", false, VATPostingSetup."Unrealized VAT Type"::Percentage);  // False for EU Service
         AppliesToDocNo :=
           CreateAndPostPurchaseDocument(
             PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendor(VATPostingSetup."VAT Bus. Posting Group"), '',
-            CreateItem(VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandDec(10, 2),
-            LibraryRandom.RandDec(100, 2));  // Use Random value for Quantity and Direct Unit Cost, Blank value for Applies To Doc No
+            CreateItem(VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandDecInRange(10, 20, 2),
+            LibraryRandom.RandDecInRange(100, 200, 2));  // Use Random value for Quantity and Direct Unit Cost, Blank value for Applies To Doc No
 
         // Exercise: Create and Post Purchase Credit Memo after applying posted Purchase Invoice.
         DocumentNo :=
@@ -277,6 +283,7 @@ codeunit 144139 "ERM VAT"
         SalesHeader: Record "Sales Header";
         VATPostingSetup: Record "VAT Posting Setup";
         VATPostingSetup2: Record "VAT Posting Setup";
+        DummyVATPostingSetup: Record "VAT Posting Setup";
         DocumentNo: Code[20];
         GLAccountNo: Code[20];
         GLAccountNo2: Code[20];
@@ -285,15 +292,16 @@ codeunit 144139 "ERM VAT"
 
         // Setup: Create Sales Invoice of two lines with different VAT Posting Setup. Update VAT Product Posting groups on two Sales Invoice Lines.
         Initialize;
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group",
           VATPostingSetup."VAT Prod. Posting Group", false, VATPostingSetup."Unrealized VAT Type"::" ");  // False for EU Service.
         GLAccountNo := CreateGLAccount(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
-        LibraryERM.FindVATPostingSetup(VATPostingSetup2, VATPostingSetup2."VAT Calculation Type"::"Reverse Charge VAT");
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup2, VATPostingSetup2."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup2."VAT Bus. Posting Group",
           VATPostingSetup2."VAT Prod. Posting Group", true, VATPostingSetup2."Unrealized VAT Type"::" ");  // True for EU Service.
+        LibraryERM.CreateVATPostingSetup(DummyVATPostingSetup, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup2."VAT Prod. Posting Group");
         GLAccountNo2 := CreateGLAccount(VATPostingSetup2, GLAccount."Gen. Posting Type"::Sale);
         CreateSalesInvoiceWithMultipleLines(SalesHeader, VATPostingSetup."VAT Bus. Posting Group", GLAccountNo, GLAccountNo2);
         UpdateVATProductPostingGroupOnSalesLine(SalesHeader."No.", GLAccountNo, VATPostingSetup2."VAT Prod. Posting Group");
@@ -308,6 +316,7 @@ codeunit 144139 "ERM VAT"
 
         // Tear Down.
         UpdateVATPostingSetups(VATPostingSetup, VATPostingSetup2);
+        DummyVATPostingSetup.Delete();
     end;
 
     [Test]
@@ -318,6 +327,7 @@ codeunit 144139 "ERM VAT"
         ServiceHeader: Record "Service Header";
         VATPostingSetup: Record "VAT Posting Setup";
         VATPostingSetup2: Record "VAT Posting Setup";
+        DummyVATPostingSetup: Record "VAT Posting Setup";
         GLAccountNo: Code[20];
         GLAccountNo2: Code[20];
     begin
@@ -325,15 +335,16 @@ codeunit 144139 "ERM VAT"
 
         // Setup: Create Service Invoice of two lines with different VAT Posting Setup. Update VAT Product Posting groups on two Service Invoice Lines.
         Initialize;
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group",
           VATPostingSetup."VAT Prod. Posting Group", false, VATPostingSetup."Unrealized VAT Type"::" ");
         GLAccountNo := CreateGLAccount(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale);
-        LibraryERM.FindVATPostingSetup(VATPostingSetup2, VATPostingSetup2."VAT Calculation Type"::"Reverse Charge VAT");
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup2, VATPostingSetup2."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup2."VAT Bus. Posting Group",
           VATPostingSetup2."VAT Prod. Posting Group", true, VATPostingSetup2."Unrealized VAT Type"::" ");
+        LibraryERM.CreateVATPostingSetup(DummyVATPostingSetup, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup2."VAT Prod. Posting Group");
         GLAccountNo2 := CreateGLAccount(VATPostingSetup2, GLAccount."Gen. Posting Type"::Sale);
         CreateServiceInvoiceWithMultipleLines(ServiceHeader, VATPostingSetup."VAT Bus. Posting Group", GLAccountNo, GLAccountNo2);
         UpdateVATProductPostingGroupOnServiceLine(ServiceHeader."No.", GLAccountNo, VATPostingSetup2."VAT Prod. Posting Group");
@@ -348,6 +359,7 @@ codeunit 144139 "ERM VAT"
 
         // Tear Down.
         UpdateVATPostingSetups(VATPostingSetup, VATPostingSetup2);
+        DummyVATPostingSetup.Delete();
     end;
 
     [Test]
@@ -358,6 +370,7 @@ codeunit 144139 "ERM VAT"
         PurchaseHeader: Record "Purchase Header";
         VATPostingSetup: Record "VAT Posting Setup";
         VATPostingSetup2: Record "VAT Posting Setup";
+        DummyVATPostingSetup: Record "VAT Posting Setup";
         DocumentNo: Code[20];
         GLAccountNo: Code[20];
         GLAccountNo2: Code[20];
@@ -366,15 +379,16 @@ codeunit 144139 "ERM VAT"
 
         // Setup: Create Purchase Invoice of two lines with different VAT Posting Setup. Update VAT Product Posting groups on two Purchase Invoice Lines.
         Initialize;
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group",
           VATPostingSetup."VAT Prod. Posting Group", false, VATPostingSetup."Unrealized VAT Type"::" ");
         GLAccountNo := CreateGLAccount(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase);
-        LibraryERM.FindVATPostingSetup(VATPostingSetup2, VATPostingSetup2."VAT Calculation Type"::"Reverse Charge VAT");
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup2, VATPostingSetup2."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup2."VAT Bus. Posting Group",
           VATPostingSetup2."VAT Prod. Posting Group", true, VATPostingSetup2."Unrealized VAT Type"::" ");
+        LibraryERM.CreateVATPostingSetup(DummyVATPostingSetup, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup2."VAT Prod. Posting Group");
         GLAccountNo2 := CreateGLAccount(VATPostingSetup2, GLAccount."Gen. Posting Type"::Purchase);
         CreatePurchaseInvoiceWithMultipleLines(PurchaseHeader, VATPostingSetup."VAT Bus. Posting Group", GLAccountNo, GLAccountNo2);
         UpdateVATProductPostingGroupOnPurchaseLine(PurchaseHeader."No.", GLAccountNo, VATPostingSetup2."VAT Prod. Posting Group");
@@ -389,6 +403,7 @@ codeunit 144139 "ERM VAT"
 
         // Tear Down.
         UpdateVATPostingSetups(VATPostingSetup, VATPostingSetup2);
+        DummyVATPostingSetup.Delete();
     end;
 
     [Test]
@@ -843,6 +858,461 @@ codeunit 144139 "ERM VAT"
         Assert.AreEqual(ServiceHeader."Operation Type", NoSeries.Code, 'PurchaseHeader."Operation Type"');
     end;
 
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementFileNameRequestPageHandler')]
+    procedure RunCalcPostVATSttlmtWithPostSetOnSalesDocNormalVAT()
+    var
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        VATEntry: array[3] of Record "VAT Entry";
+        PostedDocNo: array[3] of Code[20];
+        VATSettlementDocNo: Code[20];
+        SettlementVATEntryNo: array[3] of Integer;
+    begin
+        // [FEATURE] [Report] [Sales]
+        // [SCENARIO 404686] Run Calc. and Post VAT Settlement report with Post option set on three posted Sales Invoices with different VAT Posting Setup of "Normal VAT" calculation type.
+        Initialize();
+        UpdateLastSettlementDateOnGLSetup();
+
+        // [GIVEN] Three VAT Posting Setup records with VAT Calculation Type = "Normal VAT". Second VAT Posting Setup has VAT % = 0.
+        CreateThreeVATPostingSetup(VATPostingSetup, VATCalculationType::"Normal VAT");
+
+        // [GIVEN] Three posted Sales Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 are created. 902 has Amount = 0.
+        PostedDocNo[1] := CreateAndPostSalesInvoice(VATPostingSetup[1]);
+        PostedDocNo[2] := CreateAndPostSalesInvoice(VATPostingSetup[2]);
+        PostedDocNo[3] := CreateAndPostSalesInvoice(VATPostingSetup[3]);
+
+        // [WHEN] Run report Calc. And Post VAT Settlement with Post option set. Show VAT Entries option is set.
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
+        RunCalcAndPostVATSettlementReportWithInitialize(VATSettlementDocNo, VATPostingSetup, true);
+        UpdatePeriodicSettlementVATEntry();
+
+        // [THEN] Two VAT Entries with Entry No. 904, 905 and with Type "Settlement" were created.
+        // [THEN] VAT Entries 901 and 903 were closed. Closed by Entry No. for 901 is 904, for 902 is 0, for 903 is 905.
+        // [THEN] "Entry No." for Settlement VAT Entries in report results are 904, 0, 905.
+        FindVATEntries(VATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Sale);
+        GetSettlementVATEntryNo(SettlementVATEntryNo[1], VATPostingSetup[1], VATSettlementDocNo);
+        GetSettlementVATEntryNo(SettlementVATEntryNo[3], VATPostingSetup[3], VATSettlementDocNo);
+        VATEntry[1].TestField(Closed, true);
+        VATEntry[2].TestField(Closed, false);
+        VATEntry[3].TestField(Closed, true);
+        VerifyVATEntryClosedByEntryNo(VATEntry, SettlementVATEntryNo);
+        VerifyVATEntryNoInVATSettlementReportResults(VATEntry, SettlementVATEntryNo);
+
+        // tear down
+        DeletePeriodicSettlementVATEntry(WorkDate());
+        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate()));
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementFileNameRequestPageHandler')]
+    procedure RunCalcPostVATSttlmtWithPostNotSetOnSalesDocNormalVAT()
+    var
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        VATEntry: array[3] of Record "VAT Entry";
+        DummyVATEntry: Record "VAT Entry";
+        PostedDocNo: array[3] of Code[20];
+        VATSettlementDocNo: Code[20];
+        SettlementVATEntryNo: array[3] of Integer;
+    begin
+        // [FEATURE] [Report] [Sales]
+        // [SCENARIO 404686] Run Calc. and Post VAT Settlement report with Post option not set on three posted Sales Invoices with different VAT Posting Setup of "Normal VAT" calculation type.
+        Initialize();
+        UpdateLastSettlementDateOnGLSetup();
+
+        // [GIVEN] Three VAT Posting Setup records with VAT Calculation Type = "Normal VAT". Second VAT Posting Setup has VAT % = 0.
+        CreateThreeVATPostingSetup(VATPostingSetup, VATCalculationType::"Normal VAT");
+
+        // [GIVEN] Three posted Sales Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 are created. 902 has Amount = 0.
+        PostedDocNo[1] := CreateAndPostSalesInvoice(VATPostingSetup[1]);
+        PostedDocNo[2] := CreateAndPostSalesInvoice(VATPostingSetup[2]);
+        PostedDocNo[3] := CreateAndPostSalesInvoice(VATPostingSetup[3]);
+
+        // [WHEN] Run report Calc. And Post VAT Settlement with Post option not set. Show VAT Entries option is set.
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
+        RunCalcAndPostVATSettlementReportWithInitialize(VATSettlementDocNo, VATPostingSetup, false);
+
+        // [THEN] "Entry No." for Settlement VAT Entries in report results are 904, 0, 905.
+        FindVATEntries(VATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Sale);
+        DummyVATEntry.FindLast();
+        SettlementVATEntryNo[1] := DummyVATEntry."Entry No." + 1;
+        SettlementVATEntryNo[2] := 0;
+        SettlementVATEntryNo[3] := DummyVATEntry."Entry No." + 2;
+        VerifyVATEntryNoInVATSettlementReportResults(VATEntry, SettlementVATEntryNo);
+
+        // tear down
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementFileNameRequestPageHandler')]
+    procedure RunCalcPostVATSttlmtWithPostSetOnPurchaseDocReverseChargeVAT()
+    var
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        PurchaseVATEntry: array[3] of Record "VAT Entry";
+        SaleVATEntry: array[3] of Record "VAT Entry";
+        PostedDocNo: array[3] of Code[20];
+        VATSettlementDocNo: Code[20];
+        PurchaseSettlementVATEntryNo: array[3] of Integer;
+        SaleSettlementVATEntryNo: array[3] of Integer;
+    begin
+        // [FEATURE] [Report] [Purchase]
+        // [SCENARIO 404686] Run Calc. and Post VAT Settlement report with Post option set on three posted Purchase Invoices with different VAT Posting Setup of "Reverse Charge VAT" calculation type.
+        Initialize();
+        UpdateLastSettlementDateOnGLSetup();
+
+        // [GIVEN] Three VAT Posting Setup records with VAT Calculation Type = "Reverse Charge VAT". Second VAT Posting Setup has VAT % = 0.
+        CreateThreeVATPostingSetup(VATPostingSetup, VATCalculationType::"Reverse Charge VAT");
+        UpdateReverseSalesVATNoSeries(VATPostingSetup[1]."VAT Bus. Posting Group");
+
+        // [GIVEN] Three posted Purchase Invoices, each posted with its own VAT Posting Setup.
+        // [GIVEN] Three VAT Entries with Entry No. 901, 903, 905 and Type Purchase are created. 903 has Amount = 0.
+        // [GIVEN] Three VAT Entries with Entry No. 902, 904, 906 and Type Sale are created. 904 has Amount = 0.
+        PostedDocNo[1] := CreateAndPostPurchaseInvoice(VATPostingSetup[1]);
+        PostedDocNo[2] := CreateAndPostPurchaseInvoice(VATPostingSetup[2]);
+        PostedDocNo[3] := CreateAndPostPurchaseInvoice(VATPostingSetup[3]);
+
+        // [WHEN] Run report Calc. And Post VAT Settlement with Post option set. Show VAT Entries option is set.
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
+        RunCalcAndPostVATSettlementReportWithInitialize(VATSettlementDocNo, VATPostingSetup, true);
+        UpdatePeriodicSettlementVATEntry();
+
+        // [THEN] Two VAT Entries with Entry No. 907, 909 and with Type "Settlement" were created.
+        // [THEN] VAT Entries (Purchase) 901 and 905 were closed. Closed by Entry No. for 901 is 907, for 903 is 0, for 905 is 909.
+        FindVATEntries(PurchaseVATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Purchase);
+        GetNegativeAmountSettlementVATEntryNo(PurchaseSettlementVATEntryNo[1], VATPostingSetup[1], VATSettlementDocNo);
+        GetNegativeAmountSettlementVATEntryNo(PurchaseSettlementVATEntryNo[3], VATPostingSetup[3], VATSettlementDocNo);
+        PurchaseVATEntry[1].TestField(Closed, true);
+        PurchaseVATEntry[2].TestField(Closed, false);
+        PurchaseVATEntry[3].TestField(Closed, true);
+        VerifyVATEntryClosedByEntryNo(PurchaseVATEntry, PurchaseSettlementVATEntryNo);
+
+        // [THEN] Two VAT Entries with Entry No. 908, 910 and with Type "Settlement" were created.
+        // [THEN] VAT Entries 902 and 906 (Sale) were closed. Closed by Entry No. for 902 is 908, for 904 is 0, for 906 is 910.
+        FindVATEntries(SaleVATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Sale);
+        GetPositiveAmountSettlementVATEntryNo(SaleSettlementVATEntryNo[1], VATPostingSetup[1], VATSettlementDocNo);
+        GetPositiveAmountSettlementVATEntryNo(SaleSettlementVATEntryNo[3], VATPostingSetup[3], VATSettlementDocNo);
+        SaleVATEntry[1].TestField(Closed, true);
+        SaleVATEntry[2].TestField(Closed, false);
+        SaleVATEntry[3].TestField(Closed, true);
+        VerifyVATEntryClosedByEntryNo(SaleVATEntry, SaleSettlementVATEntryNo);
+
+        // [THEN] "Entry No." for Settlement VAT Entries in report results are 907 - 910.
+        VerifyReverseChargeVATVATEntryNoInVATSettlementReportResults(PurchaseVATEntry, SaleVATEntry, PurchaseSettlementVATEntryNo, SaleSettlementVATEntryNo);
+
+        // tear down
+        DeletePeriodicSettlementVATEntry(WorkDate());
+        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate()));
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementFileNameRequestPageHandler')]
+    procedure RunCalcPostVATSttlmtWithPostNotSetOnPurchaseDocReverseChargeVAT()
+    var
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        PurchaseVATEntry: array[3] of Record "VAT Entry";
+        SaleVATEntry: array[3] of Record "VAT Entry";
+        DummyVATEntry: Record "VAT Entry";
+        PostedDocNo: array[3] of Code[20];
+        VATSettlementDocNo: Code[20];
+        PurchaseSettlementVATEntryNo: array[3] of Integer;
+        SaleSettlementVATEntryNo: array[3] of Integer;
+    begin
+        // [FEATURE] [Report] [Sales]
+        // [SCENARIO 404686] Run Calc. and Post VAT Settlement report with Post option not set on three posted Purchase Invoices with different VAT Posting Setup of "Reverse Charge VAT" calculation type.
+        Initialize();
+        UpdateLastSettlementDateOnGLSetup();
+
+        // [GIVEN] Three VAT Posting Setup records with VAT Calculation Type = "Reverse Charge VAT". Second VAT Posting Setup has VAT % = 0.
+        CreateThreeVATPostingSetup(VATPostingSetup, VATCalculationType::"Reverse Charge VAT");
+        UpdateReverseSalesVATNoSeries(VATPostingSetup[1]."VAT Bus. Posting Group");
+
+        // [GIVEN] Three posted Purchase Invoices, each posted with its own VAT Posting Setup.
+        // [GIVEN] Three VAT Entries with Entry No. 901, 903, 905 and Type Purchase are created. 903 has Amount = 0.
+        // [GIVEN] Three VAT Entries with Entry No. 902, 904, 906 and Type Sale are created. 904 has Amount = 0.
+        PostedDocNo[1] := CreateAndPostPurchaseInvoice(VATPostingSetup[1]);
+        PostedDocNo[2] := CreateAndPostPurchaseInvoice(VATPostingSetup[2]);
+        PostedDocNo[3] := CreateAndPostPurchaseInvoice(VATPostingSetup[3]);
+
+        // [WHEN] Run report Calc. And Post VAT Settlement with Post option not set. Show VAT Entries option is set.
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
+        RunCalcAndPostVATSettlementReportWithInitialize(VATSettlementDocNo, VATPostingSetup, false);
+
+        // [THEN] "Entry No." for Settlement VAT Entries in report results are 907 - 910.
+        FindVATEntries(PurchaseVATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Purchase);
+        FindVATEntries(SaleVATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Sale);
+        DummyVATEntry.FindLast();
+        PurchaseSettlementVATEntryNo[1] := DummyVATEntry."Entry No." + 1;
+        SaleSettlementVATEntryNo[1] := DummyVATEntry."Entry No." + 2;
+        PurchaseSettlementVATEntryNo[2] := 0;
+        SaleSettlementVATEntryNo[2] := 0;
+        PurchaseSettlementVATEntryNo[3] := DummyVATEntry."Entry No." + 3;
+        SaleSettlementVATEntryNo[3] := DummyVATEntry."Entry No." + 4;
+        VerifyReverseChargeVATVATEntryNoInVATSettlementReportResults(PurchaseVATEntry, SaleVATEntry, PurchaseSettlementVATEntryNo, SaleSettlementVATEntryNo);
+
+        // tear down
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementFileNameRequestPageHandler')]
+    procedure RunCalcPostVATSttlmtWithPostSetOnSalesDocSalesTax()
+    var
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        VATEntry: array[3] of Record "VAT Entry";
+        PostedDocNo: array[3] of Code[20];
+        VATSettlementDocNo: Code[20];
+        TaxAreaCode: array[3] of Code[20];
+        TaxGroupCode: array[3] of Code[20];
+        SettlementVATEntryNo: array[3] of Integer;
+    begin
+        // [FEATURE] [Report] [Sales] [Sales Tax]
+        // [SCENARIO 404686] Run Calc. and Post VAT Settlement report with Post option set on three posted Sales Invoices with different VAT Posting Setup of "Sales Tax" calculation type.
+        Initialize();
+        UpdateLastSettlementDateOnGLSetup();
+
+        // [GIVEN] Three VAT Posting Setup records with VAT Calculation Type = "Sales Tax".
+        CreateAndSetupThreeSalesTaxVATPostingSetup(VATPostingSetup, TaxAreaCode, TaxGroupCode);
+
+        // [GIVEN] Three posted Sales Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 and Amount = 0 are created.
+        PostedDocNo[1] := CreateAndPostSalesInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1]);
+        PostedDocNo[2] := CreateAndPostSalesInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2]);
+        PostedDocNo[3] := CreateAndPostSalesInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3]);
+
+        // [WHEN] Run report Calc. And Post VAT Settlement with Post option set. Show VAT Entries option is set.
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
+        RunCalcAndPostVATSettlementReportWithInitialize(VATSettlementDocNo, VATPostingSetup, true);
+        UpdatePeriodicSettlementVATEntry();
+
+        // [THEN] Three VAT Entries with Entry No. 904, 905, 906 and with Type "Settlement" were created.
+        // [THEN] VAT Entries 901, 902, 903 were closed. Closed by Entry No. for 901 is 904, for 902 is 905, for 903 is 906.
+        // [THEN] "Entry No." for Settlement VAT Entries in report results are 904, 905, 906.
+        FindVATEntries(VATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Sale);
+        GetSettlementVATEntriesNo(SettlementVATEntryNo, VATPostingSetup, VATSettlementDocNo);
+        VerifyVATEntryClosedByEntryNo(VATEntry, SettlementVATEntryNo);
+        VerifyVATEntryNoInVATSettlementReportResults(VATEntry, SettlementVATEntryNo);
+
+        // tear down
+        DeletePeriodicSettlementVATEntry(WorkDate());
+        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate()));
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementFileNameRequestPageHandler')]
+    procedure RunCalcPostVATSttlmtWithPostNotSetOnSalesDocSalesTax()
+    var
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        VATEntry: array[3] of Record "VAT Entry";
+        DummyVATEntry: Record "VAT Entry";
+        PostedDocNo: array[3] of Code[20];
+        VATSettlementDocNo: Code[20];
+        TaxAreaCode: array[3] of Code[20];
+        TaxGroupCode: array[3] of Code[20];
+        SettlementVATEntryNo: array[3] of Integer;
+    begin
+        // [FEATURE] [Report] [Sales] [Sales Tax]
+        // [SCENARIO 404686] Run Calc. and Post VAT Settlement report with Post option not set on three posted Sales Invoices with different VAT Posting Setup of "Sales Tax" calculation type.
+        Initialize();
+        UpdateLastSettlementDateOnGLSetup();
+
+        // [GIVEN] Three VAT Posting Setup records with VAT Calculation Type = "Sales Tax".
+        CreateAndSetupThreeSalesTaxVATPostingSetup(VATPostingSetup, TaxAreaCode, TaxGroupCode);
+
+        // [GIVEN] Three posted Sales Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 and Amount = 0 are created.
+        PostedDocNo[1] := CreateAndPostSalesInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1]);
+        PostedDocNo[2] := CreateAndPostSalesInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2]);
+        PostedDocNo[3] := CreateAndPostSalesInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3]);
+
+        // [WHEN] Run report Calc. And Post VAT Settlement with Post option not set. Show VAT Entries option is set.
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
+        RunCalcAndPostVATSettlementReportWithInitialize(VATSettlementDocNo, VATPostingSetup, false);
+
+        // [THEN] "Entry No." for Settlement VAT Entries in report results are 904, 905, 906.
+        FindVATEntries(VATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Sale);
+        DummyVATEntry.FindLast();
+        SettlementVATEntryNo[1] := DummyVATEntry."Entry No." + 1;
+        SettlementVATEntryNo[2] := DummyVATEntry."Entry No." + 2;
+        SettlementVATEntryNo[3] := DummyVATEntry."Entry No." + 3;
+        VerifyVATEntryNoInVATSettlementReportResults(VATEntry, SettlementVATEntryNo);
+
+        // tear down
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementFileNameRequestPageHandler')]
+    procedure RunCalcPostVATSttlmtWithPostSetOnPurchaseDocSalesTaxUseTax()
+    var
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        VATEntry: array[3] of Record "VAT Entry";
+        PostedDocNo: array[3] of Code[20];
+        VATSettlementDocNo: Code[20];
+        TaxAreaCode: array[3] of Code[20];
+        TaxGroupCode: array[3] of Code[20];
+        SettlementVATEntryNo: array[3] of Integer;
+    begin
+        // [FEATURE] [Report] [Purchase] [Sales Tax]
+        // [SCENARIO 404686] Run Calc. and Post VAT Settlement report with Post option set on three posted Purchase Invoices with different VAT Posting Setup of "Sales Tax" calculation type. "Use Tax" = true.
+        Initialize();
+        UpdateLastSettlementDateOnGLSetup();
+
+        // [GIVEN] Three VAT Posting Setup records with VAT Calculation Type = "Sales Tax".
+        CreateAndSetupThreeSalesTaxVATPostingSetup(VATPostingSetup, TaxAreaCode, TaxGroupCode);
+
+        // [GIVEN] Three posted Purchase Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 are created. 902 has Amount = 0.
+        PostedDocNo[1] := CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1], true);
+        PostedDocNo[2] := CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2], true);
+        PostedDocNo[3] := CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3], true);
+
+        // [WHEN] Run report Calc. And Post VAT Settlement with Post option set. Show VAT Entries option is set.
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
+        RunCalcAndPostVATSettlementReportWithInitialize(VATSettlementDocNo, VATPostingSetup, true);
+        UpdatePeriodicSettlementVATEntry();
+
+        // [THEN] Three VAT Entries with Entry No. 904, 905, 906 and with Type "Settlement" were created.
+        // [THEN] VAT Entries 901, 902, 903 were closed. Closed by Entry No. for each of these VAT Entries was set to 904, 905, 906 respectively.
+        // [THEN] "Entry No." for Settlement VAT Entries in report results are 904, 905, 906.
+        FindVATEntries(VATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Purchase);
+        GetSettlementVATEntriesNo(SettlementVATEntryNo, VATPostingSetup, VATSettlementDocNo);
+        VerifyVATEntryClosedByEntryNo(VATEntry, SettlementVATEntryNo);
+        VerifyVATEntryNoInVATSettlementReportResults(VATEntry, SettlementVATEntryNo);
+
+        // tear down
+        DeletePeriodicSettlementVATEntry(WorkDate());
+        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate()));
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementFileNameRequestPageHandler')]
+    procedure RunCalcPostVATSttlmtWithPostNotSetOnPurchaseDocSalesTaxUseTax()
+    var
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        VATEntry: array[3] of Record "VAT Entry";
+        DummyVATEntry: Record "VAT Entry";
+        PostedDocNo: array[3] of Code[20];
+        VATSettlementDocNo: Code[20];
+        TaxAreaCode: array[3] of Code[20];
+        TaxGroupCode: array[3] of Code[20];
+        SettlementVATEntryNo: array[3] of Integer;
+    begin
+        // [FEATURE] [Report] [Purchase] [Sales Tax]
+        // [SCENARIO 404686] Run Calc. and Post VAT Settlement report with Post option not set on three posted Purchase Invoices with different VAT Posting Setup of "Sales Tax" calculation type. "Use Tax" = true.
+        Initialize();
+        UpdateLastSettlementDateOnGLSetup();
+
+        // [GIVEN] Three VAT Posting Setup records with VAT Calculation Type = "Sales Tax".
+        CreateAndSetupThreeSalesTaxVATPostingSetup(VATPostingSetup, TaxAreaCode, TaxGroupCode);
+
+        // [GIVEN] Three posted Purchase Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 are created.
+        PostedDocNo[1] := CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1], true);
+        PostedDocNo[2] := CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2], true);
+        PostedDocNo[3] := CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3], true);
+
+        // [WHEN] Run report Calc. And Post VAT Settlement with Post option not set. Show VAT Entries option is set.
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
+        RunCalcAndPostVATSettlementReportWithInitialize(VATSettlementDocNo, VATPostingSetup, false);
+
+        // [THEN] "Entry No." for Settlement VAT Entries in report results are 904, 905, 906.
+        FindVATEntries(VATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Purchase);
+        DummyVATEntry.FindLast();
+        SettlementVATEntryNo[1] := DummyVATEntry."Entry No." + 1;
+        SettlementVATEntryNo[2] := DummyVATEntry."Entry No." + 2;
+        SettlementVATEntryNo[3] := DummyVATEntry."Entry No." + 3;
+        VerifyVATEntryNoInVATSettlementReportResults(VATEntry, SettlementVATEntryNo);
+
+        // tear down
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementFileNameRequestPageHandler')]
+    procedure RunCalcPostVATSttlmtWithPostSetOnPurchaseDocSalesTax()
+    var
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        VATEntry: array[3] of Record "VAT Entry";
+        PostedDocNo: array[3] of Code[20];
+        VATSettlementDocNo: Code[20];
+        TaxAreaCode: array[3] of Code[20];
+        TaxGroupCode: array[3] of Code[20];
+        SettlementVATEntryNo: array[3] of Integer;
+    begin
+        // [FEATURE] [Report] [Purchase] [Sales Tax]
+        // [SCENARIO 404686] Run Calc. and Post VAT Settlement report with Post option set on three posted Purchase Invoices with different VAT Posting Setup of "Sales Tax" calculation type. "Use Tax" = false.
+        Initialize();
+        UpdateLastSettlementDateOnGLSetup();
+
+        // [GIVEN] Three VAT Posting Setup records with VAT Calculation Type = "Sales Tax".
+        CreateAndSetupThreeSalesTaxVATPostingSetup(VATPostingSetup, TaxAreaCode, TaxGroupCode);
+
+        // [GIVEN] Three posted Purchase Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 are created. 902 has Amount = 0.
+        PostedDocNo[1] := CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1], false);
+        PostedDocNo[2] := CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2], false);
+        PostedDocNo[3] := CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3], false);
+
+        // [WHEN] Run report Calc. And Post VAT Settlement with Post option set. Show VAT Entries option is set.
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
+        RunCalcAndPostVATSettlementReportWithInitialize(VATSettlementDocNo, VATPostingSetup, true);
+        UpdatePeriodicSettlementVATEntry();
+
+        // [THEN] Three VAT Entries with Entry No. 904, 905, 906 and with Type "Settlement" were created.
+        // [THEN] VAT Entries 901, 902, 903 were closed. Closed by Entry No. for each of these VAT Entries was set to 904, 905, 906 respectively.
+        // [THEN] "Entry No." for Settlement VAT Entries in report results are 904, 905, 906.
+        FindVATEntries(VATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Purchase);
+        GetSettlementVATEntriesNo(SettlementVATEntryNo, VATPostingSetup, VATSettlementDocNo);
+        VerifyVATEntryClosedByEntryNo(VATEntry, SettlementVATEntryNo);
+        VerifyVATEntryNoInVATSettlementReportResults(VATEntry, SettlementVATEntryNo);
+
+        // tear down
+        DeletePeriodicSettlementVATEntry(WorkDate());
+        DeletePeriodicSettlementVATEntry(CalcDate('<1M>', WorkDate()));
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementFileNameRequestPageHandler')]
+    procedure RunCalcPostVATSttlmtWithPostNotSetOnPurchaseDocSalesTax()
+    var
+        VATPostingSetup: array[3] of Record "VAT Posting Setup";
+        VATEntry: array[3] of Record "VAT Entry";
+        DummyVATEntry: Record "VAT Entry";
+        PostedDocNo: array[3] of Code[20];
+        VATSettlementDocNo: Code[20];
+        TaxAreaCode: array[3] of Code[20];
+        TaxGroupCode: array[3] of Code[20];
+        SettlementVATEntryNo: array[3] of Integer;
+    begin
+        // [FEATURE] [Report] [Purchase] [Sales Tax]
+        // [SCENARIO 404686] Run Calc. and Post VAT Settlement report with Post option not set on three posted Purchase Invoices with different VAT Posting Setup of "Sales Tax" calculation type. "Use Tax" = false.
+        Initialize();
+        UpdateLastSettlementDateOnGLSetup();
+
+        // [GIVEN] Three VAT Posting Setup records with VAT Calculation Type = "Sales Tax".
+        CreateAndSetupThreeSalesTaxVATPostingSetup(VATPostingSetup, TaxAreaCode, TaxGroupCode);
+
+        // [GIVEN] Three posted Purchase Invoices, each posted with its own VAT Posting Setup. Three VAT Entries with Entry No. 901, 902, 903 are created. 902 has Amount = 0.
+        PostedDocNo[1] := CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup[1], TaxAreaCode[1], TaxGroupCode[1], false);
+        PostedDocNo[2] := CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup[2], TaxAreaCode[2], TaxGroupCode[2], false);
+        PostedDocNo[3] := CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup[3], TaxAreaCode[3], TaxGroupCode[3], false);
+
+        // [WHEN] Run report Calc. And Post VAT Settlement with Post option not set. Show VAT Entries option is set.
+        VATSettlementDocNo := LibraryUtility.GenerateGUID();
+        RunCalcAndPostVATSettlementReportWithInitialize(VATSettlementDocNo, VATPostingSetup, false);
+
+        // [THEN] "Entry No." for Settlement VAT Entries in report results are 904, 905, 906.
+        FindVATEntries(VATEntry, VATPostingSetup, PostedDocNo, GenPostingType::Purchase);
+        DummyVATEntry.FindLast();
+        SettlementVATEntryNo[1] := DummyVATEntry."Entry No." + 1;
+        SettlementVATEntryNo[2] := DummyVATEntry."Entry No." + 2;
+        SettlementVATEntryNo[3] := DummyVATEntry."Entry No." + 3;
+        VerifyVATEntryNoInVATSettlementReportResults(VATEntry, SettlementVATEntryNo);
+
+        // tear down
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -885,6 +1355,49 @@ codeunit 144139 "ERM VAT"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));  // Post as Invoice
     end;
 
+    local procedure CreateAndPostPurchaseInvoice(VATPostingSetup: Record "VAT Posting Setup") PostedDocNo: Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorNo: Code[20];
+        ItemNo: Code[20];
+    begin
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        ItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify(true);
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+    end;
+
+    local procedure CreateAndPostPurchaseInvoiceForSalesTax(VATPostingSetup: Record "VAT Posting Setup"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; UseTax: Boolean) PostedDocNo: Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        Item: Record Item;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Validate("Tax Area Code", TaxAreaCode);
+        Vendor.Validate("Tax Liable", false);
+        Vendor.Validate("Prices Including VAT", false);
+        Vendor.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Validate("Tax Group Code", TaxGroupCode);
+        Item.Modify(true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Validate("Use Tax", UseTax);
+        PurchaseLine.Modify(true);
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+    end;
+
     local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; AppliesToDocNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
@@ -895,6 +1408,48 @@ codeunit 144139 "ERM VAT"
         SalesHeader.Modify(true);
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity, UnitPrice);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Post as Invoice
+    end;
+
+    local procedure CreateAndPostSalesInvoice(VATPostingSetup: Record "VAT Posting Setup") PostedDocNo: Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustomerNo: Code[20];
+        ItemNo: Code[20];
+    begin
+        CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        ItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Modify(true);
+        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+    end;
+
+    local procedure CreateAndPostSalesInvoiceForSalesTax(VATPostingSetup: Record "VAT Posting Setup"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]) PostedDocNo: Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        Item: Record Item;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Validate("Tax Area Code", TaxAreaCode);
+        Customer.Validate("Tax Liable", false);
+        Customer.Validate("Prices Including VAT", false);
+        Customer.Modify(true);
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        Item.Validate("Tax Group Code", TaxGroupCode);
+        Item.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Modify(true);
+        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
     end;
 
     local procedure CreateCustomer(VATBusPostingGroup: Code[20]): Code[20]
@@ -1070,6 +1625,65 @@ codeunit 144139 "ERM VAT"
         exit(Vendor."No.");
     end;
 
+    local procedure CreateThreeVATPostingSetup(var VATPostingSetup: array[3] of Record "VAT Posting Setup"; VATCalculationType: Option)
+    var
+        i: Integer;
+    begin
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup[1], VATCalculationType, LibraryRandom.RandDecInRange(10, 20, 2));
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup[2], VATCalculationType, 0);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup[3], VATCalculationType, LibraryRandom.RandDecInRange(10, 20, 2));
+        for i := 1 to ArrayLen(VATPostingSetup) do begin
+            VATPostingSetup[i].Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+            VATPostingSetup[i].Modify(true);
+        end;
+    end;
+
+    local procedure CreateAndSetupThreeSalesTaxVATPostingSetup(var VATPostingSetup: array[3] of Record "VAT Posting Setup"; var TaxAreaCode: array[3] of Code[20]; var TaxGroupCode: array[3] of Code[20])
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        TaxGroup: Record "Tax Group";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxArea: Record "Tax Area";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxDetail: Record "Tax Detail";
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(VATPostingSetup) do begin
+            LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+            LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+            LibraryERM.CreateVATPostingSetup(VATPostingSetup[i], VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+            VATPostingSetup[i].Validate("VAT Calculation Type", VATPostingSetup[i]."VAT Calculation Type"::"Sales Tax");
+            VATPostingSetup[i].Modify(true);
+
+            LibraryERM.CreateTaxGroup(TaxGroup);
+            CreateTaxJurisdiction(TaxJurisdiction);
+            LibraryERM.CreateTaxArea(TaxArea);
+            LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxJurisdiction.Code);
+            LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax", WorkDate());
+            TaxDetail.Validate("Maximum Amount/Qty.", 9999999);
+            TaxDetail.Validate("Tax Below Maximum", LibraryRandom.RandDecInRange(10, 20, 2));
+            TaxDetail.Modify(true);
+
+            TaxAreaCode[i] := TaxArea.Code;
+            TaxGroupCode[i] := TaxGroup.Code;
+        end;
+    end;
+
+    local procedure CreateTaxJurisdiction(var TaxJurisdiction: Record "Tax Jurisdiction")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Balance Sheet";
+        GLAccount.Modify();
+        LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
+        TaxJurisdiction.Validate("Tax Account (Sales)", GLAccount."No.");
+        TaxJurisdiction.Validate("Tax Account (Purchases)", GLAccount."No.");
+        TaxJurisdiction.Validate("Reverse Charge (Purchases)", GLAccount."No.");
+        TaxJurisdiction.Modify(true);
+    end;
+
     local procedure DeletePeriodicSettlementVATEntry(PeriodDate: Date)
     var
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
@@ -1083,6 +1697,65 @@ codeunit 144139 "ERM VAT"
         PeriodicSettlementVATEntry.SetRange(
           "VAT Period", Format(Date2DMY(PeriodDate, 3)) + '/' + ConvertStr(Format(Date2DMY(PeriodDate, 2), 2), ' ', '0'));  // Value Zero required for VAT Period.
         PeriodicSettlementVATEntry.FindFirst;
+    end;
+
+    local procedure FindVATEntries(var VATEntry: array[3] of Record "VAT Entry"; VATPostingSetup: array[3] of Record "VAT Posting Setup"; DocumentNo: array[3] of Code[20]; GenPostingType: Enum "General Posting Type")
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(VATEntry) do begin
+            VATEntry[i].SetRange("VAT Bus. Posting Group", VATPostingSetup[i]."VAT Bus. Posting Group");
+            VATEntry[i].SetRange("VAT Prod. Posting Group", VATPostingSetup[i]."VAT Prod. Posting Group");
+            VATEntry[i].SetRange("Document No.", DocumentNo[i]);
+            VATEntry[i].SetRange(Type, GenPostingType);
+            VATEntry[i].FindFirst();
+        end;
+    end;
+
+    local procedure GetSettlementVATEntryNo(var SettlementVATEntryNo: Integer; VATPostingSetup: Record "VAT Posting Setup"; DocumentNo: Code[20])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange(Type, VATEntry.Type::Settlement);
+        VATEntry.FindFirst();
+        SettlementVATEntryNo := VATEntry."Entry No.";
+    end;
+
+    local procedure GetSettlementVATEntriesNo(var SettlementVATEntryNo: array[3] of Integer; VATPostingSetup: array[3] of Record "VAT Posting Setup"; DocumentNo: Code[20])
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(SettlementVATEntryNo) do
+            GetSettlementVATEntryNo(SettlementVATEntryNo[i], VATPostingSetup[i], DocumentNo);
+    end;
+
+    local procedure GetPositiveAmountSettlementVATEntryNo(var SettlementVATEntryNo: Integer; VATPostingSetup: Record "VAT Posting Setup"; DocumentNo: Code[20])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange(Type, VATEntry.Type::Settlement);
+        VATEntry.SetFilter(Amount, '>%1', 0);
+        VATEntry.FindFirst();
+        SettlementVATEntryNo := VATEntry."Entry No.";
+    end;
+
+    local procedure GetNegativeAmountSettlementVATEntryNo(var SettlementVATEntryNo: Integer; VATPostingSetup: Record "VAT Posting Setup"; DocumentNo: Code[20])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange(Type, VATEntry.Type::Settlement);
+        VATEntry.SetFilter(Amount, '<%1', 0);
+        VATEntry.FindFirst();
+        SettlementVATEntryNo := VATEntry."Entry No.";
     end;
 
     local procedure GetStartingDate(): Date
@@ -1104,6 +1777,20 @@ codeunit 144139 "ERM VAT"
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement");
     end;
 
+    local procedure RunCalcAndPostVATSettlementReportWithInitialize(DocumentNo: Code[20]; VATPostingSetup: array[3] of Record "VAT Posting Setup"; PostSettlement: Boolean)
+    var
+        FilterVATPostingSetup: Record "VAT Posting Setup";
+        CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
+        GLAccountNo: Code[20];
+    begin
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        CalcAndPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), DocumentNo, GLAccountNo, GLAccountNo, GLAccountNo, true, PostSettlement);
+        FilterVATPostingSetup.SetFilter("VAT Bus. Posting Group", '%1|%2|%3', VATPostingSetup[1]."VAT Bus. Posting Group", VATPostingSetup[2]."VAT Bus. Posting Group", VATPostingSetup[3]."VAT Bus. Posting Group");
+        CalcAndPostVATSettlement.SetTableView(FilterVATPostingSetup);
+        Commit();
+        CalcAndPostVATSettlement.Run();
+    end;
+
     local procedure UpdateGeneralLedgerAndVATPostingSetups(GeneralLedgerSetup: Record "General Ledger Setup"; VATPostingSetup: Record "VAT Posting Setup")
     begin
         UpdateVATPostingSetup(
@@ -1122,11 +1809,20 @@ codeunit 144139 "ERM VAT"
         GeneralLedgerSetup.Modify(true);
     end;
 
+    local procedure UpdateLastSettlementDateOnGLSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Last Settlement Date", CalcDate('<-CM - 1D>', WorkDate()));
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     local procedure UpdatePeriodicSettlementVATEntry()
     var
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
     begin
-        FindPeriodicSettlementVATEntry(PeriodicSettlementVATEntry, WorkDate);
+        FindPeriodicSettlementVATEntry(PeriodicSettlementVATEntry, WorkDate());
         PeriodicSettlementVATEntry.Validate("VAT Period Closed", false);
         PeriodicSettlementVATEntry.Modify(true);
     end;
@@ -1195,6 +1891,17 @@ codeunit 144139 "ERM VAT"
     begin
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."Buy-from Vendor No.");
         PurchaseHeader.Modify(true);
+    end;
+
+    local procedure UpdateReverseSalesVATNoSeries(VATBusPostingGroupCode: Code[20])
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        NoSeries: Record "No. Series";
+    begin
+        VATBusinessPostingGroup.Get(VATBusPostingGroupCode);
+        NoSeries.Get(VATBusinessPostingGroup."Default Purch. Operation Type");
+        NoSeries.Validate("Reverse Sales VAT No. Series", '');
+        NoSeries.Modify(true);
     end;
 
     local procedure VerifyGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
@@ -1287,6 +1994,66 @@ codeunit 144139 "ERM VAT"
         ServiceInvoiceLine.TestField("Service Tariff No.", ServiceTariffNo);
     end;
 
+    local procedure VerifyVATEntryClosedByEntryNo(VATEntry: array[3] of Record "VAT Entry"; SettlementVATEntryNo: array[3] of Integer)
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(VATEntry) do
+            VATEntry[i].TestField("Closed by Entry No.", SettlementVATEntryNo[i]);
+    end;
+
+    local procedure VerifyVATEntryNoInVATSettlementReportResults(VATEntry: array[3] of Record "VAT Entry"; SettlementVATEntryNo: array[3] of Integer)
+    var
+        Node: DotNet XmlNode;
+        i: Integer;
+    begin
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText, '');
+
+        for i := 1 to ArrayLen(VATEntry) do begin
+            LibraryXPathXMLReader.GetNodeByElementNameByIndex('/DataSet/Result', Node, (i * 2) - 2);
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'VATBusPostGr_VATPostingSetup', VATEntry[i]."VAT Bus. Posting Group");
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'VATProdPostGr_VATPostingSetup', VATEntry[i]."VAT Prod. Posting Group");
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'EntryNo_VATEntry', Format(VATEntry[i]."Entry No."));
+
+            LibraryXPathXMLReader.GetNodeByElementNameByIndex('/DataSet/Result', Node, (i * 2) - 1);
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'VATBusPostGr_VATPostingSetup', VATEntry[i]."VAT Bus. Posting Group");
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'VATProdPostGr_VATPostingSetup', VATEntry[i]."VAT Prod. Posting Group");
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'NextVATEntryNo', Format(SettlementVATEntryNo[i]));
+        end;
+    end;
+
+    local procedure VerifyReverseChargeVATVATEntryNoInVATSettlementReportResults(PurchaseVATEntry: array[3] of Record "VAT Entry"; SaleVATEntry: array[3] of Record "VAT Entry"; PurchaseSettlementVATEntryNo: array[3] of Integer; SaleSettlementVATEntryNo: array[3] of Integer)
+    var
+        Node: DotNet XmlNode;
+        i: Integer;
+    begin
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText, '');
+
+        for i := 1 to ArrayLen(PurchaseVATEntry) do begin
+            LibraryXPathXMLReader.GetNodeByElementNameByIndex('/DataSet/Result', Node, (i * 4) - 4);
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'VATBusPostGr_VATPostingSetup', PurchaseVATEntry[i]."VAT Bus. Posting Group");
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'VATProdPostGr_VATPostingSetup', PurchaseVATEntry[i]."VAT Prod. Posting Group");
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'EntryNo_VATEntry', Format(PurchaseVATEntry[i]."Entry No."));
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'Type_VATEntry', 'Purchase');
+
+            LibraryXPathXMLReader.GetNodeByElementNameByIndex('/DataSet/Result', Node, (i * 4) - 3);
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'VATBusPostGr_VATPostingSetup', PurchaseVATEntry[i]."VAT Bus. Posting Group");
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'VATProdPostGr_VATPostingSetup', PurchaseVATEntry[i]."VAT Prod. Posting Group");
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'NextVATEntryNo', Format(PurchaseSettlementVATEntryNo[i]));
+
+            LibraryXPathXMLReader.GetNodeByElementNameByIndex('/DataSet/Result', Node, (i * 4) - 2);
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'VATBusPostGr_VATPostingSetup', SaleVATEntry[i]."VAT Bus. Posting Group");
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'VATProdPostGr_VATPostingSetup', SaleVATEntry[i]."VAT Prod. Posting Group");
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'EntryNo_VATEntry', Format(SaleVATEntry[i]."Entry No."));
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'Type_VATEntry', 'Sale');
+
+            LibraryXPathXMLReader.GetNodeByElementNameByIndex('/DataSet/Result', Node, (i * 4) - 1);
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'VATBusPostGr_VATPostingSetup', SaleVATEntry[i]."VAT Bus. Posting Group");
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'VATProdPostGr_VATPostingSetup', SaleVATEntry[i]."VAT Prod. Posting Group");
+            LibraryXPathXMLReader.VerifyNodeValueFromParentNode(Node, 'NextVATEntryNo', Format(SaleSettlementVATEntryNo[i]));
+        end;
+    end;
+
     local procedure CreateVateRegisterWithSalesType(var VATRegister: Record "VAT Register")
     begin
         with VATRegister do begin
@@ -1326,6 +2093,16 @@ codeunit 144139 "ERM VAT"
         CalcAndPostVATSettlement.Post.SetValue(true);
         CalcAndPostVATSettlement.ShowVATEntries.SetValue(true);
         CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    procedure CalcAndPostVATSettlementFileNameRequestPageHandler(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
+    var
+        FileName: Text;
+    begin
+        FileName := LibraryReportDataset.GetFileName();
+        LibraryVariableStorage.Enqueue(FileName);
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), FileName);
     end;
 
     [ConfirmHandler]

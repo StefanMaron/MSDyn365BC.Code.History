@@ -72,10 +72,11 @@ codeunit 12150 "VAT Pmt. Comm. XML Generator"
           VATPmtCommDataLookup.GetTaxDeclarantVATNo, '', TempXMLNode);
         AddElementIfNotEmpty(XMLNode, 'CodiceCaricaDichiarante',
           VATPmtCommDataLookup.GetTaxDeclarantPosionCode, '', TempXMLNode);
-        AddElementIfNotEmpty(XMLNode, 'CodiceFiscaleSocieta',
-          VATPmtCommDataLookup.GetDeclarantFiscalCode, '', TempXMLNode);
+        if not VATPmtCommDataLookup.WasIntermediarySet() then
+            AddElementIfNotEmpty(XMLNode, 'CodiceFiscaleSocieta',
+              VATPmtCommDataLookup.GetDeclarantFiscalCode, '', TempXMLNode);
         XMLDOMManagement.AddElement(XMLNode, 'FirmaDichiarazione', VATPmtCommDataLookup.GetIsSigned, '', TempXMLNode);
-        if VATPmtCommDataLookup.HasIntermediary then
+        if VATPmtCommDataLookup.WasIntermediarySet() then
             AddElementIfNotEmpty(XMLNode, 'CFIntermediario',
               VATPmtCommDataLookup.GetIntermediary, '', TempXMLNode);
         if VATPmtCommDataLookup.HasCommitmentSubmission then

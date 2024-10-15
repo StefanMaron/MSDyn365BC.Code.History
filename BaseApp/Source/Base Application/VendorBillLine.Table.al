@@ -382,6 +382,7 @@ table 12182 "Vendor Bill Line"
         TotalPaymentAmt := CalcTotalAmountFromVendLedgEntry;
         if TotalPaymentAmt * "Remaining Amount" <> 0 then
             VendorBillWithholdingTax."Total Amount" := ComputedWithholdingTax."Total Amount" / TotalPaymentAmt * "Remaining Amount";
+        VendorBillWithholdingTax."Original Total Amount" := ComputedWithholdingTax."Total Amount";
         VendorBillWithholdingTax."Base - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount";
         VendorBillWithholdingTax.Validate("Non Taxable Amount By Treaty", ComputedWithholdingTax."Non Taxable Remaining Amount");
         if ComputedWithholdingTax."WHT Amount Manual" <> 0 then

@@ -187,7 +187,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
                 begin
                     ChangeStatus(VATReportHeader, VATReportHeader.Status::Released); // Release VAT Report.
                     VATReportHeader.Validate("Tax Auth. Receipt No.", Format(LibraryRandom.RandInt(100)));
-                    VATReportHeader.Validate("Tax Auth. Doc. No.", Format(LibraryRandom.RandInt(100)));
+                    VATReportHeader.Validate("Tax Auth. Document No.", Format(LibraryRandom.RandInt(100)));
                     ChangeStatus(VATReportHeader, VATReportHeader.Status::Submitted); // Submit VAT Report.
                     if not AllowModifySubmitted then begin
                         asserterror ChangeStatus(VATReportHeader, VATReportHeader.Status::Open); // Reopen VAT Report.
@@ -309,7 +309,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
 
         // Submit VAT Report.
         VATReportHeader.Validate("Tax Auth. Receipt No.", Format(LibraryRandom.RandInt(100)));
-        VATReportHeader.Validate("Tax Auth. Doc. No.", Format(LibraryRandom.RandInt(100)));
+        VATReportHeader.Validate("Tax Auth. Document No.", Format(LibraryRandom.RandInt(100)));
         ChangeStatus(VATReportHeader, VATReportHeader.Status::Submitted);
         LibraryVariableStorage.Enqueue(VATReportHeader."No.");
 
@@ -347,7 +347,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
 
         // Submit VAT Report.
         VATReportHeader.Validate("Tax Auth. Receipt No.", Format(LibraryRandom.RandInt(100)));
-        VATReportHeader.Validate("Tax Auth. Doc. No.", Format(LibraryRandom.RandInt(100)));
+        VATReportHeader.Validate("Tax Auth. Document No.", Format(LibraryRandom.RandInt(100)));
         ChangeStatus(VATReportHeader, VATReportHeader.Status::Submitted);
 
         // Create 2-nd VAT Report.

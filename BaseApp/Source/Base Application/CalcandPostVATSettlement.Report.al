@@ -321,6 +321,8 @@
                         }
 
                         trigger OnAfterGetRecord()
+                        var
+                            IsPostingAllowed: Boolean;
                         begin
                             // Calculate amount and base
                             VATEntry.CalcSums(
@@ -457,10 +459,11 @@
                                         end;
                                     end;
                             end;
-                            NextVATEntryNo := NextVATEntryNo + 1;
+                            IsPostingAllowed := ("VAT Posting Setup"."VAT Calculation Type" = "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax") or (GenJnlLine."VAT Amount" <> 0);
+                            NextVATEntryNo := GetSettlementVATEntryNo(PostSettlement, IsPostingAllowed);
 
                             // Close current VAT entries
-                            if PostSettlement then
+                            if PostSettlement and (NextVATEntryNo <> 0) then
                                 CloseVATEntriesOnPostSettlement(VATEntry, NextVATEntryNo);
 
                             FinalUndVATAmnt += TotalVATNondeducAmnt;
@@ -964,6 +967,7 @@
         EndDateReq: Date;
         PrintVATEntries: Boolean;
         NextVATEntryNo: Integer;
+        LastVATEntryNo: Integer;
         PostingDate: Date;
         DocNo: Code[20];
         VATType: Enum "General Posting Type";
@@ -1254,6 +1258,38 @@
             (GenPostingType = GenPostingType::" ") or
             (GenPostingType = GenPostingType::Purchase) or
             (GenPostingType = GenPostingType::Sale));
+    end;
+
+    local procedure GetSettlementVATEntryNo(PostVATSettlement: Boolean; IsPostingAllowed: Boolean): Integer
+    var
+        NextAvailableVATEntryNo: Integer;
+        LastPostedVATEntryNo: Integer;
+    begin
+        if not IsPostingAllowed then
+            exit(0);
+
+        if PostVATSettlement then begin
+            NextAvailableVATEntryNo := GenJnlPostLine.GetNextVATEntryNo();
+            if NextAvailableVATEntryNo <> 0 then
+                LastPostedVATEntryNo := NextAvailableVATEntryNo - 1;
+            exit(LastPostedVATEntryNo);
+        end;
+
+        RestoreNextVATEntryNo();
+        NextVATEntryNo += 1;
+        SaveNextVATEntryNo();
+        exit(NextVATEntryNo);
+    end;
+
+    local procedure SaveNextVATEntryNo()
+    begin
+        LastVATEntryNo := NextVATEntryNo;
+    end;
+
+    local procedure RestoreNextVATEntryNo()
+    begin
+        if LastVATEntryNo <> 0 then
+            NextVATEntryNo := LastVATEntryNo;
     end;
 
     [IntegrationEvent(false, false)]
