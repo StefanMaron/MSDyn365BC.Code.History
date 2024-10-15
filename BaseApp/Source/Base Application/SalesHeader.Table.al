@@ -488,7 +488,7 @@ table 36 "Sales Header"
                 OnValidatePostingDateOnBeforeCheckNeedUpdateCurrencyFactor(Rec, Confirmed, NeedUpdateCurrencyFactor);
                 if NeedUpdateCurrencyFactor then begin
                     UpdateCurrencyFactor;
-                    if ("Currency Factor" <> xRec."Currency Factor") and not CalledFromWhseDoc then
+                    if ("Currency Factor" <> xRec."Currency Factor") and not GetCalledFromWhseDoc() then
                         ConfirmCurrencyFactorUpdate();
                 end;
 
@@ -7137,6 +7137,11 @@ table 36 "Sales Header"
     procedure GetStatusCheckSuspended(): Boolean
     begin
         exit(StatusCheckSuspended);
+    end;
+
+    procedure GetCalledFromWhseDoc(): Boolean
+    begin
+        exit(CalledFromWhseDoc);
     end;
 
     procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)

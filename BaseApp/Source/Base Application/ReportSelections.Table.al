@@ -1075,19 +1075,20 @@
 
         RecRef.GetTable(RecordVariant);
         ReportUsageEnum := "Report Selection Usage".FromInteger(ReportUsage);
-
-        if GraphMail.IsEnabled() and GraphMail.HasConfiguration() then begin
-            if O365DocumentSentHistory.NewInProgressFromRecRef(RecRef) then begin
-                O365DocumentSentHistory.SetStatusAsFailed();
-                UpdateDocumentSentHistory := true;
+#if not CLEAN21
+        if GraphMail.IsEnabled() then
+            if GraphMail.HasConfiguration() then begin
+                if O365DocumentSentHistory.NewInProgressFromRecRef(RecRef) then begin
+                    O365DocumentSentHistory.SetStatusAsFailed();
+                    UpdateDocumentSentHistory := true;
+                end;
+		    
+                if SendEmailToCustDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, ShowDialog, CustNo) and UpdateDocumentSentHistory then
+                    O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
+		    
+                exit;
             end;
-
-            if SendEmailToCustDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, ShowDialog, CustNo) and UpdateDocumentSentHistory then
-                O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
-
-            exit;
-        end;
-
+#endif
         if ShowDialog or ShouldSendToCustDirectly(ReportUsageEnum, RecordVariant, CustNo) then begin
             SendEmailToCustDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, true, CustNo);
             exit;
@@ -1235,19 +1236,20 @@
 
         RecRef.GetTable(RecordVariant);
         ReportUsageEnum := "Report Selection Usage".FromInteger(ReportUsage);
-
-        if GraphMail.IsEnabled() and GraphMail.HasConfiguration() then begin
-            if O365DocumentSentHistory.NewInProgressFromRecRef(RecRef) then begin
-                O365DocumentSentHistory.SetStatusAsFailed();
-                UpdateDocumentSentHistory := true;
+#if not CLEAN21
+        if GraphMail.IsEnabled() then
+            if GraphMail.HasConfiguration() then begin
+                if O365DocumentSentHistory.NewInProgressFromRecRef(RecRef) then begin
+                    O365DocumentSentHistory.SetStatusAsFailed();
+                    UpdateDocumentSentHistory := true;
+                end;
+		    
+                if SendEmailToVendorDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, ShowDialog, VendorNo) and UpdateDocumentSentHistory then
+                    O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
+		    
+                exit;
             end;
-
-            if SendEmailToVendorDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, ShowDialog, VendorNo) and UpdateDocumentSentHistory then
-                O365DocumentSentHistory.SetStatusAsSuccessfullyFinished();
-
-            exit;
-        end;
-
+#endif
         if ShowDialog or ShouldSendToVendorDirectly(ReportUsageEnum, RecordVariant, VendorNo) then begin
             SendEmailToVendorDirectly(ReportUsageEnum, RecordVariant, DocNo, DocName, true, VendorNo);
             exit;
