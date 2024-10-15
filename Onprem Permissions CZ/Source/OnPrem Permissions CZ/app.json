@@ -2,7 +2,7 @@
   "id": "f93c2c47-6485-40a7-91c8-a9e8e52d9aa5",
   "name": "OnPrem Permissions (CZ)",
   "publisher": "Microsoft",
-  "version": "24.3.21374.21517",
+  "version": "24.4.22295.22576",
   "brief": "This extension includes permission set for on premise systems.",
   "description": "This extension includes permission set for on premise systems.",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
@@ -20,5 +20,5 @@
     "includeSourceInSymbolFile": true
   },
   "target": "OnPrem",
-  "application": "24.3.0.0"
+  "application": "24.4.0.0"
 }

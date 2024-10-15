@@ -529,9 +529,14 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         AdvanceLetterApplicationCZZ: Record "Advance Letter Application CZZ";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         UsedOnDocument: Text;
+        IsHandled: Boolean;
         UnlinkIsNotPossibleErr: Label 'Unlink is not possible, because %1 entry exists.', Comment = '%1 = Entry type';
         UsedOnDocumentQst: Label 'Advance is used on document(s) %1.\Continue?', Comment = '%1 = Advance No. list';
     begin
+        IsHandled := false;
+        OnBeforeUnlinkAdvancePayment(PurchAdvLetterEntryCZZ, PostingDate, IsHandled);
+        if IsHandled then
+            exit;
         PurchAdvLetterEntryCZZ.TestField("Entry Type", PurchAdvLetterEntryCZZ."Entry Type"::Payment);
         PurchAdvLetterEntryCZZ.TestField(Cancelled, false);
         PurchAdvLetterEntryCZZ2.SetRange("Purch. Adv. Letter No.", PurchAdvLetterEntryCZZ."Purch. Adv. Letter No.");
@@ -1584,6 +1589,11 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckAdvancePayment(AdvLetterUsageDocTypeCZZ: Enum "Adv. Letter Usage Doc.Type CZZ"; DocumentHeader: Variant; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUnlinkAdvancePayment(var PurchAdvLetterEntryCZZ: Record "Purch. Adv. Letter Entry CZZ"; PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

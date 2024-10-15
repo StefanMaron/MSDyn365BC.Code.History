@@ -187,8 +187,11 @@ table 38 "Purchase Header"
 
                 OnValidateBuyFromVendorNoOnAfterUpdateBuyFromCont(Rec, xRec, CurrFieldNo, SkipBuyFromContact);
 
-                if (xRec."Buy-from Vendor No." <> '') and (xRec."Buy-from Vendor No." <> "Buy-from Vendor No.") then
+                if (xRec."Buy-from Vendor No." <> '') and (xRec."Buy-from Vendor No." <> "Buy-from Vendor No.") then begin
                     Rec.RecallModifyAddressNotification(GetModifyVendorAddressNotificationId());
+                    if Rec."Remit-to Code" <> '' then
+                        Rec.Validate("Remit-to Code", '');
+                end;
             end;
         }
         field(3; "No."; Code[20])
@@ -224,6 +227,7 @@ table 38 "Purchase Header"
                    (xRec."Pay-to Vendor No." <> '')
                 then
                     if ConfirmUpdateField(FieldNo("Pay-to Vendor No.")) then begin
+                        OnValidatePayToVendorNoOnAfterConfirmed(Rec);
                         PurchLine.SetRange("Document Type", "Document Type");
                         PurchLine.SetRange("Document No.", "No.");
 
@@ -763,6 +767,7 @@ table 38 "Purchase Header"
             trigger OnValidate()
             var
                 StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+                XRecOfSameRec, CurrencyCodeChanged : Boolean;
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -770,19 +775,21 @@ table 38 "Purchase Header"
                 if IsHandled then
                     exit;
 
-                if not (CurrFieldNo in [0, FieldNo("Posting Date")]) or ("Currency Code" <> xRec."Currency Code") then
+                XRecOfSameRec := (xRec."No." = Rec."No.") and (xRec."Document Type" = Rec."Document Type");
+                CurrencyCodeChanged := ("Currency Code" <> xRec."Currency Code") and XRecOfSameRec;
+                if (not (CurrFieldNo in [0, FieldNo("Posting Date")])) or CurrencyCodeChanged then
                     TestStatusOpen();
 
                 ResetInvoiceDiscountValue();
 
-                if (CurrFieldNo <> FieldNo("Currency Code")) and ("Currency Code" = xRec."Currency Code") then
-                    UpdateCurrencyFactor()
+                if (CurrFieldNo <> FieldNo("Currency Code")) and (not CurrencyCodeChanged) then
+                    UpdateCurrencyFactor(CurrencyCodeChanged)
                 else
                     if "Currency Code" <> xRec."Currency Code" then
-                        UpdateCurrencyFactor()
+                        UpdateCurrencyFactor(CurrencyCodeChanged)
                     else
                         if "Currency Code" <> '' then begin
-                            UpdateCurrencyFactor();
+                            UpdateCurrencyFactor(CurrencyCodeChanged);
                             if "Currency Factor" <> xRec."Currency Factor" then
                                 ConfirmCurrencyFactorUpdate();
                         end;
@@ -2826,10 +2833,7 @@ table 38 "Purchase Header"
         DeleteRecordInApprovalRequest();
         PurchLine.LockTable();
 
-        WhseRequest.SetRange("Source Type", Database::"Purchase Line");
-        WhseRequest.SetRange("Source Subtype", "Document Type");
-        WhseRequest.SetRange("Source No.", "No.");
-        WhseRequest.DeleteAll(true);
+        DeleteWarehouseRequest();
 
         PurchLine.SetRange("Document Type", "Document Type");
         PurchLine.SetRange("Document No.", "No.");
@@ -3803,6 +3807,11 @@ table 38 "Purchase Header"
     end;
 
     procedure UpdateCurrencyFactor()
+    begin
+        UpdateCurrencyFactor(Rec."Currency Code" <> xRec."Currency Code");
+    end;
+
+    local procedure UpdateCurrencyFactor(CurrencyCodeChanged: Boolean)
     var
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         Updated: Boolean;
@@ -3820,13 +3829,13 @@ table 38 "Purchase Header"
 
             if UpdateCurrencyExchangeRates.ExchangeRatesForCurrencyExist(CurrencyDate, "Currency Code") then begin
                 "Currency Factor" := CurrExchRate.ExchangeRate(CurrencyDate, "Currency Code");
-                if "Currency Code" <> xRec."Currency Code" then
+                if CurrencyCodeChanged then
                     RecreatePurchLines(FieldCaption("Currency Code"));
             end else
                 UpdateCurrencyExchangeRates.ShowMissingExchangeRatesNotification("Currency Code");
         end else begin
             "Currency Factor" := 0;
-            if "Currency Code" <> xRec."Currency Code" then
+            if CurrencyCodeChanged then
                 RecreatePurchLines(FieldCaption("Currency Code"));
         end;
 
@@ -4904,8 +4913,20 @@ table 38 "Purchase Header"
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, '');
         IsSuccess := CODEUNIT.Run(PostingCodeunitID, Rec);
-        if not IsSuccess then
+        if not IsSuccess then begin
+            if Rec.Status <> Rec.Status::Released then
+                DeleteWarehouseRequest();
             ErrorMessageHandler.ShowErrors();
+        end;
+    end;
+
+    local procedure DeleteWarehouseRequest()
+    begin
+        WhseRequest.SetRange("Source Type", Database::"Purchase Line");
+        WhseRequest.SetRange("Source Subtype", "Document Type");
+        WhseRequest.SetRange("Source No.", "No.");
+        if not WhseRequest.IsEmpty() then
+            WhseRequest.DeleteAll(true);
     end;
 
     procedure CancelBackgroundPosting()
@@ -8168,6 +8189,11 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterBuyFromAddressEqualsShipToAddress(PurchaseHeader: Record "Purchase Header"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePayToVendorNoOnAfterConfirmed(var PurchaseHeader: Record "Purchase Header");
     begin
     end;
 

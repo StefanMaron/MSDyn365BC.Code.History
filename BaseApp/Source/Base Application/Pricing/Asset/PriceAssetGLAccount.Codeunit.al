@@ -107,10 +107,17 @@ codeunit 7046 "Price Asset - G/L Account" implements "Price Asset"
         PriceAsset.Description := GLAccount.Name;
         PriceAsset."Unit of Measure Code" := '';
         PriceAsset."Variant Code" := '';
+
+        OnAfterFillAdditionalFields(PriceAsset, GLAccount);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPutRelatedAssetsToList(PriceAsset: Record "Price Asset"; var PriceAssetList: Codeunit "Price Asset List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillAdditionalFields(var PriceAsset: Record "Price Asset"; GLAccount: Record "G/L Account")
     begin
     end;
 }

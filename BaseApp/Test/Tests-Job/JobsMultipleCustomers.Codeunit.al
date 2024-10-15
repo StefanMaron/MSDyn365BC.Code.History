@@ -30,6 +30,9 @@ codeunit 136323 "Jobs - Multiple Customers"
         TasksNotUpdatedMsg: Label 'You have changed %1 on the project, but it has not been changed on the existing project tasks.', Comment = '%1 = a Field Caption like Location Code';
         UpdateTasksManuallyMsg: Label 'You must update the existing project tasks manually.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.', Locked = true;
+        OneInvoicesAreCreatedMsg: Label '1 invoice is created.';
+        PostJournalLineQst: Label 'Do you want to post the journal lines?';
+        PostedJournalLinesMsg: Label 'The journal lines were successfully posted.';
 
     [Test]
     procedure DefaultTaskBillingMethodIsPulledOnNewProject()
@@ -1249,7 +1252,6 @@ codeunit 136323 "Jobs - Multiple Customers"
         SalesLine: Record "Sales Line";
         JobCreateSalesInvoice: Report "Job Create Sales Invoice";
         Qty: Decimal;
-        OneInvoicesAreCreatedMsg: Label '1 invoice is created.';
     begin
         // [SCENARIO 501468] One Sales Invoice is Created for Job Tasks with Multiple Customers Billing Method and Same Customer and Currency Data
         Initialize();
@@ -1651,6 +1653,77 @@ codeunit 136323 "Jobs - Multiple Customers"
         Assert.ExpectedError(StrSubstNo(AssociatedEntriesExistErr, JobTask.FieldCaption("Bill-to Customer No."), JobTask.TableCaption()));
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmSpecificMessageHandler,JobCreateSalesInvoiceHandler,MessageHandler')]
+    procedure CreateSalesInvoiceSecondTimeFromProjectCardWithoutJobTaskFilter()
+    var
+        Job: Record Job;
+        Customer: Record Customer;
+        JobJournalLine: Record "Job Journal Line";
+        JobTask: Record "Job Task";
+        SalesHeader: Record "Sales Header";
+        JobTasks: array[2] of Record "Job Task";
+        JobCreateSalesInvoice: Report "Job Create Sales Invoice";
+    begin
+        // [SCENARIO 542476] Create Sales Invoice second time from Project Card without Job Task filter
+        Initialize();
+
+        // [GIVEN] Set Multiple Customers on Project Setup
+        SetMultiupleCustomersOnProjectSetup();
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create new Project
+        LibraryJob.CreateJob(Job, Customer."No.");
+
+        // [GIVEN] Create two Project Tasks
+        LibraryJob.CreateJobTask(Job, JobTasks[1]);
+        LibraryJob.CreateJobTask(Job, JobTasks[2]);
+
+        // [GIVEN] Create Job Journal Lines
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBoth(), LibraryJob.ResourceType(), JobTasks[1], JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBoth(), LibraryJob.ResourceType(), JobTasks[2], JobJournalLine);
+
+        // [GIVEN] Post Job Journal
+        LibraryVariableStorage.Enqueue(PostJournalLineQst);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(PostedJournalLinesMsg);
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [GIVEN] Enqueue data
+        LibraryVariableStorage.Enqueue(OneInvoicesAreCreatedMsg);
+
+        // [GIVEN] Run batch job "Create Job Sales Invoice" for Job Tasks
+        Commit();  // Commit required for batch report.
+        JobTask.SetFilter("Job No.", '%1', Job."No.");
+        JobCreateSalesInvoice.SetTableView(JobTask);
+        JobCreateSalesInvoice.Run();
+
+        // [GIVEN] Find and Post Sales Invoice
+        FindSalesHeader(SalesHeader, Customer."No.", Customer."No.", SalesHeader."Document Type"::Invoice);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Create Job Journal Lines again
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBoth(), LibraryJob.ResourceType(), JobTasks[1], JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBoth(), LibraryJob.ResourceType(), JobTasks[2], JobJournalLine);
+
+        // [GIVEN] Post Job Journal
+        LibraryVariableStorage.Enqueue(PostJournalLineQst);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(PostedJournalLinesMsg);
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [GIVEN] Enqueue data
+        LibraryVariableStorage.Enqueue(OneInvoicesAreCreatedMsg);
+
+        // [THEN] Verify Sales Invoice is created
+        Commit();  // Commit required for batch report.
+        JobTask.SetFilter("Job No.", '%1', Job."No.");
+        JobCreateSalesInvoice.SetTableView(JobTask);
+        JobCreateSalesInvoice.Run();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Jobs - Multiple Customers");
@@ -1840,6 +1913,13 @@ codeunit 136323 "Jobs - Multiple Customers"
     procedure JobCreateSalesInvoiceHandler(var JobCreateSalesInvoice: TestRequestPage "Job Create Sales Invoice")
     begin
         JobCreateSalesInvoice.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmSpecificMessageHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

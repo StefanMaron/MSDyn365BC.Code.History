@@ -509,9 +509,10 @@ codeunit 532 "IC Data Exchange Database" implements "IC Data Exchange"
         if not JobQueueEntry.ReadPermission() then
             Error(MissingPermissionToReadTableErr, JobQueueEntry.TableCaption, ICPartner.Name);
 
-        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := Codeunit::"IC Inbox Outbox Subs. Runner";
+        JobQueueEntry."Maximum No. of Attempts to Run" := 3;
+        JobQueueEntry."Recurring Job" := false;
         JobQueueEntry."Record ID to Process" := ICInboxTransaction.RecordId;
         JobQueueEntry."Job Queue Category Code" := JobQueueCategoryCodeTxt;
         JobQueueEntry."Run in User Session" := false;

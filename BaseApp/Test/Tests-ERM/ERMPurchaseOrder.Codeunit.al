@@ -8184,6 +8184,27 @@
         Assert.AssertRecordNotFound();
     end;
 
+    [Test]
+    procedure ReleasingOfPurchaseOrderHavingPurchaseLineWithoutUOMGivesError()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 522444] When run Release action from a Purchase Order having a Purchase Line without 
+        // Unit of Measure Code, then it gives error and the document is not released.
+        Initialize();
+
+        // [GIVEN] Create a Purchase Order.
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem());
+
+        // [WHEN] Validate Unit of Measure Code in Purchase Line.
+        PurchaseLine.Validate("Unit of Measure Code", '');
+        PurchaseLine.Modify(true);
+
+        // [THEN] Error is shown and the Purchase Order is not released.
+        asserterror LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";

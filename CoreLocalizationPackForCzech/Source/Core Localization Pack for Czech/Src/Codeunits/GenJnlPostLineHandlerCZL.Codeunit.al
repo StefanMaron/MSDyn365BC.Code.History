@@ -4,10 +4,12 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.GeneralLedger.Posting;
 
+using Microsoft.Finance.Deferral;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
@@ -450,6 +452,28 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
             exit;
 
         IsHandled := PersistConfirmResponseCZL.GetPersistentResponse();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnPostDeferralPostBufferOnAfterFindDeferalPostingBuffer', '', false, false)]
+    local procedure GetNonDeductibleVATPctOnPostDeferralPostBufferOnAfterFindDeferalPostingBuffer(GenJournalLine: Record "Gen. Journal Line"; var DeferralPostingBuffer: Record "Deferral Posting Buffer"; var NonDeductibleVATPct: Decimal)
+    begin
+        NonDeductibleVATPct := GetNonDeductibleVATPct(GenJournalLine, DeferralPostingBuffer."Deferral Doc. Type");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnPostDeferralOnAfterGetNonDeductibleVATPct', '', false, false)]
+    local procedure GetNonDeductibleVATPctOnPostDeferralOnAfterGetNonDeductibleVATPct(GenJournalLine: Record "Gen. Journal Line"; DeferralDocType: Enum "Deferral Document Type"; var NonDeductibleVATPct: Decimal)
+    begin
+        NonDeductibleVATPct := GetNonDeductibleVATPct(GenJournalLine, DeferralDocType);
+    end;
+
+    local procedure GetNonDeductibleVATPct(GenJournalLine: Record "Gen. Journal Line"; DeferralDocType: Enum "Deferral Document Type"): Decimal
+    var
+        NonDeductibleVATCZL: Codeunit "Non-Deductible VAT CZL";
+    begin
+        exit(NonDeductibleVATCZL.GetNonDeductibleVATPct(
+            GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group",
+            NonDeductibleVATCZL.GetGeneralPostingTypeFromDeferralDocType(DeferralDocType),
+            GenJournalLine."VAT Reporting Date"));
     end;
 
     [IntegrationEvent(false, false)]

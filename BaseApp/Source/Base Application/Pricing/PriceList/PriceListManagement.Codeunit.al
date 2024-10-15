@@ -729,6 +729,7 @@ codeunit 7017 "Price List Management"
                     PriceListLine.SetRange("Variant Code", PriceAsset."Variant Code")
                 else
                     PriceListLine.SetRange("Variant Code");
+                OnCheckIfPriceListLineMarkingIsNeededOnBeforeFindLines(PriceListLine, PriceAsset);
                 if not PriceListLine.IsEmpty() then begin
                     RecordSetsCounter += 1;
                     if RecordSetsCounter > 1 then begin
@@ -747,6 +748,8 @@ codeunit 7017 "Price List Management"
         PriceListLine.SetRange("Asset Type");
         PriceListLine.SetRange("Asset No.");
         PriceListLine.SetRange("Variant Code");
+
+        OnAfterClearAssetFilters(PriceListLine);
     end;
 
     local procedure BuildSourceFilters(var PriceListLine: Record "Price List Line"; PriceSourceList: Codeunit "Price Source List")
@@ -778,6 +781,8 @@ codeunit 7017 "Price List Management"
         PriceListLine.SetRange("Source Type");
         PriceListLine.SetRange("Source No.");
         PriceListLine.SetRange("Parent Source No.");
+
+        OnAfterClearSourceFilters(PriceListLine);
     end;
 
     procedure FindIfPriceExists()
@@ -1111,6 +1116,21 @@ codeunit 7017 "Price List Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResolveDuplicatePrices(PriceListHeader: Record "Price List Header"; var Resolved: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearSourceFilters(var PriceListLine: Record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterClearAssetFilters(var PriceListLine: Record "Price List Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckIfPriceListLineMarkingIsNeededOnBeforeFindLines(var PriceListLine: Record "Price List Line"; var PriceAsset: Record "Price Asset")
     begin
     end;
 }

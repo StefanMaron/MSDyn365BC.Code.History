@@ -199,7 +199,8 @@ table 297 "Issued Reminder Header"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             CalcFormula = sum("Issued Reminder Line".Amount where("Reminder No." = field("No."),
-                                                                   Type = const("G/L Account")));
+                                                                  Type = const("G/L Account"),
+                                                                  "Line Type" = filter(<> "Not Due")));
             Caption = 'Additional Fee';
             Editable = false;
             FieldClass = FlowField;
@@ -209,7 +210,8 @@ table 297 "Issued Reminder Header"
             AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             CalcFormula = sum("Issued Reminder Line"."VAT Amount" where("Reminder No." = field("No."),
-                                                                         "Detailed Interest Rates Entry" = const(false)));
+                                                                        "Detailed Interest Rates Entry" = const(false),
+                                                                        "Line Type" = filter(<> "Not Due")));
             Caption = 'VAT Amount';
             Editable = false;
             FieldClass = FlowField;

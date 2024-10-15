@@ -54,6 +54,7 @@ codeunit 136201 "Marketing Contacts"
         ExpectedToFindRecErr: Label 'Expected to find Contact Business Relation record.';
         DuplicateContactsMsg: Label 'There are duplicate contacts.';
         ItemDimensionAllowedFilter: Label 'Allowed Dimension filter must match in both Item template and Item.';
+        ValueMustMatch: Label 'Value must match.';
 
     [Test]
     procedure ContactBusinessRelationCompatibility()
@@ -5898,6 +5899,77 @@ codeunit 136201 "Marketing Contacts"
             ItemDimensionAllowedFilter);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RenameBusinessRelationShouldNotUpdateContactBusinessRelation()
+    var
+        Customer: Record Customer;
+        Contact: Record Contact;
+        BusinessRelation: Record "Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
+        MarketingSetup: Record "Marketing Setup";
+        PrevContactCount: Integer;
+    begin
+        // [SCENARIO 538469] A problem with renaming the "Contact Business Relation" field in the Contacts page in BC
+        Initialize();
+
+        // [GIVEN] Setup: Create a new Business Relation and Modify MarketingSetup."Bus. Rel. Code for Customers" = "X".
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        ChangeBusinessRelationCodeForCustomers(BusinessRelation.Code);
+
+        // [THEN] Create a new Customer and Create Contact from Customer by running the report Create Conts. from Customers.
+        LibrarySales.CreateCustomer(Customer);
+        Customer.SetRange("No.", Customer."No.");
+        RunCreateContsFromCustomersReport(Customer);
+
+        // [WHEN] Rename the Business Relation Code to a random text
+        BusinessRelation.CalcFields("No. of Contacts");
+        PrevContactCount := BusinessRelation."No. of Contacts";
+        BusinessRelation.Rename(LibraryRandom.RandText(5));
+
+        // [THEN] Verify: Bus. Rec. Code for Customer is updated on Marketing Setup
+        MarketingSetup.Get();
+        Assert.AreEqual(MarketingSetup."Bus. Rel. Code for Customers", BusinessRelation.Code, ValueMustMatch);
+
+        // [THEN] Verify: No. of Contacts on Business Relation is equal to previosu
+        BusinessRelation.Get(BusinessRelation.Code);
+        BusinessRelation.CalcFields("No. of Contacts");
+        Assert.AreEqual(PrevContactCount, BusinessRelation."No. of Contacts", ValueMustMatch);
+
+        // [THEN] Verify: Check that the Contact Business Relation is Customer.
+        ContactBusinessRelation.SetRange("Business Relation Code", BusinessRelation.Code);
+        ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+        ContactBusinessRelation.SetRange("No.", Customer."No.");
+        ContactBusinessRelation.FindFirst();
+        Contact.Get(ContactBusinessRelation."Contact No.");
+        Assert.AreEqual(Contact."Contact Business Relation", Contact."Contact Business Relation"::Customer, ValueMustMatch);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SameBusinessRelationOnAllMarketingBusinessRelationFields()
+    var
+        BusinessRelation: Record "Business Relation";
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        // [SCENARIO 538469] A problem with renaming the "Contact Business Relation" field in the Contacts page in BC
+        Initialize();
+
+        // [GIVEN] Setup: Create a new Business Relation and Modify all Business Relation related fields on MarketingSetup
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        UpdateSameBusinessRelationCodeOnMarketingSetup(BusinessRelation.Code);
+
+        // [WHEN] Rename the Business Relation Code to a random text
+        BusinessRelation.Rename(LibraryRandom.RandText(5));
+
+        // [THEN] Verify: Business Relation related fields on Marketing Setup
+        MarketingSetup.Get();
+        Assert.AreEqual(MarketingSetup."Bus. Rel. Code for Customers", BusinessRelation.Code, ValueMustMatch);
+        Assert.AreEqual(MarketingSetup."Bus. Rel. Code for Vendors", BusinessRelation.Code, ValueMustMatch);
+        Assert.AreEqual(MarketingSetup."Bus. Rel. Code for Employees", BusinessRelation.Code, ValueMustMatch);
+        Assert.AreEqual(MarketingSetup."Bus. Rel. Code for Bank Accs.", BusinessRelation.Code, ValueMustMatch);
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -7012,6 +7084,18 @@ codeunit 136201 "Marketing Contacts"
     begin
         // Generate Dummy message. Required for executing the test case successfully.
         if Confirm(StrSubstNo(ExpectedMessage)) then;
+    end;
+
+    local procedure UpdateSameBusinessRelationCodeOnMarketingSetup(BusRelCode: Code[10])
+    var
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        MarketingSetup.Get();
+        MarketingSetup.Validate("Bus. Rel. Code for Customers", BusRelCode);
+        MarketingSetup.Validate("Bus. Rel. Code for Vendors", BusRelCode);
+        MarketingSetup.Validate("Bus. Rel. Code for Employees", BusRelCode);
+        MarketingSetup.Validate("Bus. Rel. Code for Bank Accs.", BusRelCode);
+        MarketingSetup.Modify(true);
     end;
 
     [RequestPageHandler]

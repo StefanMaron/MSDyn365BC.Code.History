@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -141,6 +141,7 @@ page 474 "VAT Statement Preview"
 
     procedure UpdateSubForm()
     begin
+        OnBeforeUpdateSubForm(Rec);
         CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr);
     end;
 
@@ -213,6 +214,11 @@ page 474 "VAT Statement Preview"
     local procedure BeforeandWithinPeriodSelection()
     begin
         BeforeandWithinPeriodSelOnPush();
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateSubForm(var VATStatementName: Record "VAT Statement Name")
+    begin
     end;
 }
 

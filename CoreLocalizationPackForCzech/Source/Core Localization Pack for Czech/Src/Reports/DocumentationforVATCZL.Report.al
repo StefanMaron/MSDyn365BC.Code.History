@@ -257,8 +257,6 @@ report 11757 "Documentation for VAT CZL"
                             "VAT Reporting Date" := "VAT Date CZL";
 #pragma warning restore AL0432
 #endif
-                        if "Original VAT Entry No. CZL" <> 0 then
-                            Base := CalcDeductibleVATBaseCZL();
 
                         VATEntrySubtotalAmt[1] += Base;
                         VATEntrySubtotalAmt[2] += Amount;
@@ -422,6 +420,9 @@ report 11757 "Documentation for VAT CZL"
                                 VATEntry.Base := VATEntry."Additional-Currency Base";
                                 VATEntry.Amount := VATEntry."Additional-Currency Amount";
                             end;
+
+                            if VATEntry."Original VAT Entry No. CZL" <> 0 then
+                                VATEntry.Base := VATEntry.CalcDeductibleVATBaseCZL();
 
                             if MergeByDocumentNo then begin
 #if not CLEAN22

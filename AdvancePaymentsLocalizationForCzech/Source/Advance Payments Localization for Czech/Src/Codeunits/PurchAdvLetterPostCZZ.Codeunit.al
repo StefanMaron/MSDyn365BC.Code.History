@@ -1062,6 +1062,7 @@ codeunit 31142 "Purch. Adv. Letter-Post CZZ"
         PurchAdvLetterEntryCZZ.SetRange("Purch. Adv. Letter No.", PurchAdvLetterHeaderCZZ."No.");
         PurchAdvLetterEntryCZZ.SetRange("Entry Type", PurchAdvLetterEntryCZZ."Entry Type"::Payment);
         PurchAdvLetterEntryCZZ.SetRange(Cancelled, false);
+        OnPostAdvanceLetterClosingOnAfterSetPurchAdvLetterEntryFilter(PurchAdvLetterEntryCZZ);
         if PurchAdvLetterEntryCZZ.FindSet() then
             repeat
                 PostAdvanceLetterEntryClosing(
@@ -2765,6 +2766,11 @@ codeunit 31142 "Purch. Adv. Letter-Post CZZ"
 
     [IntegrationEvent(false, false)]
     local procedure OnUnapplyVendLedgEntryOnBeforeUnapplyVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostAdvanceLetterClosingOnAfterSetPurchAdvLetterEntryFilter(var PurchAdvLetterEntryCZZ: Record "Purch. Adv. Letter Entry CZZ")
     begin
     end;
 }
