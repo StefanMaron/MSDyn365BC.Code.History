@@ -29,6 +29,7 @@ codeunit 32000002 "Bank Nos Check"
         Text1090005: Label 'Minimum length for a Reference is 2 characters.';
         Text1090006: Label 'Incorrect reference number.';
         Text1090007: Label 'Check account number for bank account %1.';
+        ZeroReferenceNoErr: Label 'Reference number cannot contain only zeros.';
         RefStartPos: Integer;
 
     [Scope('OnPrem')]
@@ -116,6 +117,9 @@ codeunit 32000002 "Bank Nos Check"
         Length := StrLen(PurchInvReference);
         if Length < 2 then
             Error(Text1090005);
+
+        if DelChr(PurchInvReference, '=', '0') = '' then
+            Error(ZeroReferenceNoErr);
 
         OrigCheckValue := CopyStr(PurchInvReference, Length);
         PurchInvReference := CopyStr(PurchInvReference, 1, Length - 1);

@@ -1,6 +1,9 @@
 {
   "folders": [
     {
+      "path": "./AuditFileExport/Test/Audit File Export Tests"
+    },
+    {
       "path": "./recommendedapps/test/Recommended Apps Tests"
     },
     {

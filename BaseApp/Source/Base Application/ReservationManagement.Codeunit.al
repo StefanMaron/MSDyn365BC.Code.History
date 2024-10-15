@@ -414,7 +414,7 @@ codeunit 99000845 "Reservation Management"
                         else
                             QtyOnOutBound := 0;
 
-                    if Location."Bin Mandatory" or Location."Require Pick" then begin
+                    if Location."Bin Mandatory" and Location."Require Pick" then begin
                         if TotalAvailQty + QtyOnOutBound < TempEntrySummary."Total Available Quantity" then
                             TempEntrySummary."Total Available Quantity" := TotalAvailQty + QtyOnOutBound;
                         TempEntrySummary."Qty. Alloc. in Warehouse" := QtyAllocInWhse;
@@ -2359,6 +2359,7 @@ codeunit 99000845 "Reservation Management"
             WhseActivLine.CalcSums("Qty. Outstanding (Base)");
 
             if Location."Require Pick" then begin
+                WhseItemTrackingSetup.CopyTrackingFromItemTrackingCodeSpecificTracking(ItemTrackingCode);
                 WhseItemTrackingSetup.CopyTrackingFromReservEntry(CalcReservEntry);
 
                 if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" and

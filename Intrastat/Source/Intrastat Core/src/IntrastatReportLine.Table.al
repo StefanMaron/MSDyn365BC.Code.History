@@ -304,7 +304,7 @@ table 4812 "Intrastat Report Line"
             begin
                 if "Suppl. Unit of Measure" <> '' then begin
                     ItemUOM.Get("Item No.", "Suppl. Unit of Measure");
-                    Validate("Suppl. Conversion Factor", ItemUOM."Qty. per Unit of Measure");
+                    Validate("Suppl. Conversion Factor", 1 / ItemUOM."Qty. per Unit of Measure");
                 end else
                     Validate("Suppl. Conversion Factor", 0);
             end;
@@ -644,7 +644,11 @@ table 4812 "Intrastat Report Line"
 
         case ItemLedgerEntry."Source Type" of
             ItemLedgerEntry."Source Type"::Customer:
-                if Customer."No." <> '' then begin
+                begin
+                    if Customer."No." = '' then
+                        if not Customer.Get(ItemLedgerEntry."Source No.") then
+                            exit('');
+
                     IsHandled := false;
                     OnBeforeGetCustomerPartnerIDFromItemEntry(Customer, EU3rdPartyTrade, PartnerID, IsHandled);
                     if IsHandled then
@@ -658,7 +662,11 @@ table 4812 "Intrastat Report Line"
                             IntrastatReportMgt.IsCustomerPrivatePerson(Customer), EU3rdPartyTrade));
                 end;
             ItemLedgerEntry."Source Type"::Vendor:
-                if Vendor."No." <> '' then begin
+                begin
+                    if Vendor."No." = '' then
+                        if not Vendor.Get(ItemLedgerEntry."Source No.") then
+                            exit('');
+
                     IsHandled := false;
                     OnBeforeGetVendorPartnerIDFromItemEntry(Vendor, PartnerID, IsHandled);
                     if IsHandled then
