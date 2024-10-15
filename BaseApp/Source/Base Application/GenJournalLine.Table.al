@@ -294,14 +294,7 @@
                 "VAT Base Amount" := Amount - "VAT Amount";
                 "VAT Difference" := 0;
 
-                if "Currency Code" = '' then
-                    "VAT Amount (LCY)" := "VAT Amount"
-                else
-                    "VAT Amount (LCY)" :=
-                      Round(
-                        CurrExchRate.ExchangeAmtFCYToLCY(
-                          "Posting Date", "Currency Code",
-                          "VAT Amount", "Currency Factor"));
+                "VAT Amount (LCY)" := CalcVATAmountLCY();
                 "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
 
                 OnValidateVATPctOnBeforeUpdateSalesPurchLCY(Rec, Currency);
@@ -453,7 +446,7 @@
 
             trigger OnValidate()
             begin
-                ValidateAmount(true);
+                ValidateAmount();
             end;
         }
         field(14; "Debit Amount"; Decimal)
@@ -903,14 +896,7 @@
                 if Abs("VAT Difference") > Currency."Max. VAT Difference Allowed" then
                     Error(Text013, FieldCaption("VAT Difference"), Currency."Max. VAT Difference Allowed");
 
-                if "Currency Code" = '' then
-                    "VAT Amount (LCY)" := "VAT Amount"
-                else
-                    "VAT Amount (LCY)" :=
-                      Round(
-                        CurrExchRate.ExchangeAmtFCYToLCY(
-                          "Posting Date", "Currency Code",
-                          "VAT Amount", "Currency Factor"));
+                "VAT Amount (LCY)" := CalcVATAmountLCY();
                 "VAT Base Amount (LCY)" := "Amount (LCY)" - "VAT Amount (LCY)";
 
                 UpdateSalesPurchLCY;
@@ -1671,6 +1657,11 @@
             var
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVATProdPostingGroup(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Bank Account"] then
                     TestField("VAT Prod. Posting Group", '');
 
@@ -3082,7 +3073,14 @@
     end;
 
     procedure SetUpNewLine(LastGenJnlLine: Record "Gen. Journal Line"; Balance: Decimal; BottomLine: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetUpNewLine(GenJnlTemplate, GenJnlBatch, GenJnlLine, LastGenJnlLine, GLSetupRead, Balance, BottomLine, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlTemplate.Get("Journal Template Name");
         GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
@@ -3748,7 +3746,7 @@
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
-    local procedure ValidateAmount(ShouldCheckPaymentTolerance: Boolean)
+    local procedure ValidateAmount()
     var
         IsHandled: Boolean;
     begin
@@ -3782,15 +3780,7 @@
         if "Deferral Code" <> '' then
             Validate("Deferral Code");
 
-        if (Amount <> xRec.Amount) or ("Amount (LCY)" <> xRec."Amount (LCY)") then begin
-            if CurrFieldNo = 0 then                     // batch job
-                PaymentToleranceMgt.SetBatchMode(true);
-            if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then
-                SetApplyToAmount;
-            if ShouldCheckPaymentTolerance then
-                if (xRec.Amount <> 0) or (xRec."Applies-to Doc. No." <> '') or (xRec."Applies-to ID" <> '') then
-                    PaymentToleranceMgt.PmtTolGenJnl(Rec);
-        end;
+        UpdateApplyToAmount();
 
         if JobTaskIsSet then begin
             CreateTempJobJnlLine();
@@ -3800,6 +3790,25 @@
         if DTASetup.ReadPermission then
             if "Recipient Bank Account" <> '' then
                 DTAMgt.ProcessGlRefNo(Rec);
+    end;
+
+    local procedure UpdateApplyToAmount()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateApplyToAmount(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (Amount <> xRec.Amount) or ("Amount (LCY)" <> xRec."Amount (LCY)") then begin
+            if CurrFieldNo = 0 then                     // batch job
+                PaymentToleranceMgt.SetBatchMode(true);
+            if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then
+                SetApplyToAmount;
+            if (xRec.Amount <> 0) or (xRec."Applies-to Doc. No." <> '') or (xRec."Applies-to ID" <> '') then
+                PaymentToleranceMgt.PmtTolGenJnl(Rec);
+        end;
     end;
 
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -4305,7 +4314,7 @@
         Cust: Record Customer;
         Vend: Record Vendor;
     begin
-        OnBeforeUpdateCountryCodeAndVATRegNo(Rec, xRec);
+        OnBeforeUpdateCountryCodeAndVATRegNo(Rec, xRec, No);
 
         if No = '' then begin
             "Country/Region Code" := '';
@@ -4329,7 +4338,7 @@
                 end;
         end;
 
-        OnAfterUpdateCountryCodeAndVATRegNo(Rec, xRec);
+        OnAfterUpdateCountryCodeAndVATRegNo(Rec, xRec, No);
     end;
 
     procedure JobTaskIsSet() Result: Boolean
@@ -4373,6 +4382,7 @@
             else
                 CurrencyDate := "Posting Date";
 
+            OnCreateTempJobJnlLineOnBeforeFindJobCurrencyFactor(Rec, CurrExchRate);
             if "Currency Code" = "Job Currency Code" then
                 "Job Currency Factor" := "Currency Factor"
             else
@@ -4461,8 +4471,15 @@
         DeferralPostDate := "Posting Date";
     end;
 
-    procedure IsApplied(): Boolean
+    procedure IsApplied() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsApplied(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if "Applies-to Doc. No." <> '' then
             exit(true);
         if "Applies-to ID" <> '' then
@@ -5524,6 +5541,8 @@
             "Gen. Bus. Posting Group" := IssuedFinChargeMemoHeader."Gen. Bus. Posting Group";
             "VAT Bus. Posting Group" := IssuedFinChargeMemoHeader."VAT Bus. Posting Group";
         end;
+
+        OnAfterCopyFromIssuedFinChargeMemoHeader(IssuedFinChargeMemoHeader, Rec);
     end;
 
     procedure CopyFromIssuedFinChargeMemoLine(IssuedFinChargeMemoLine: Record "Issued Fin. Charge Memo Line")
@@ -5560,6 +5579,8 @@
             "Gen. Bus. Posting Group" := IssuedReminderHeader."Gen. Bus. Posting Group";
             "VAT Bus. Posting Group" := IssuedReminderHeader."VAT Bus. Posting Group";
         end;
+
+        OnAfterCopyFromIssuedReminderHeader(IssuedReminderHeader, Rec);
     end;
 
     procedure CopyFromIssuedReminderLine(IssuedReminderLine: Record "Issued Reminder Line")
@@ -5953,7 +5974,7 @@
             Amount := -Amount;
 
         OnAfterSetAmountWithRemaining(Rec);
-        ValidateAmount(false);
+        ValidateAmount();
     end;
 
     procedure IsOpenedFromBatch(): Boolean
@@ -7019,6 +7040,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetUpNewLine(var GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var GLSetupRead: Boolean; Balance: Decimal; BottomLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdatePricesFromJobJnlLine(var GenJournalLine: Record "Gen. Journal Line"; JobJournalLine: Record "Job Journal Line")
     begin
     end;
@@ -7089,7 +7115,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line");
+    local procedure OnAfterUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; No: Code[20])
     begin
     end;
 
@@ -7220,7 +7246,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line");
+    local procedure OnBeforeUpdateApplyToAmount(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; No: Code[20])
     begin
     end;
 
@@ -7250,6 +7281,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVATProdPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateGenBusPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; var CheckIfFieldIsEmpty: Boolean)
     begin
     end;
@@ -7266,6 +7302,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempJobJnlLineOnBeforeFindJobCurrencyFactor(var GenJournalLine: Record "Gen. Journal Line"; var CurrExchRate: Record "Currency Exchange Rate")
     begin
     end;
 
@@ -7920,8 +7961,38 @@
                 Error(RecurringMethodsLineDimdErr, "Recurring Method");
     end;
 
+    local procedure CalcVATAmountLCY(): Decimal
+    var
+        LCYCurrency: Record Currency;
+        VATAmountLCY: Decimal;
+    begin
+        if "Currency Code" = '' then
+            exit("VAT Amount");
+
+        LCYCurrency.InitRoundingPrecision();
+        if "VAT Difference" = 0 then
+            VATAmountLCY := Round("Amount (LCY)" * "VAT %" / (100 + "VAT %"), LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection())
+        else
+            VATAmountLCY :=
+                Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code", "VAT Amount", "Currency Factor"),
+                    LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection());
+
+        exit(VATAmountLCY);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearCustVendApplnEntry(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromIssuedFinChargeMemoHeader(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromIssuedReminderHeader(IssuedReminderHeader: Record "Issued Reminder Header"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -7942,6 +8013,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; DeferralAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsApplied(var GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
 

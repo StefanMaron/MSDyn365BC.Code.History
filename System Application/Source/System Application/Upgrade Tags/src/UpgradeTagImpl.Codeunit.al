@@ -202,4 +202,3 @@ codeunit 9996 "Upgrade Tag Impl."
         CopyUpgradeTagLbl: Label 'Copying upgrade tag %1. From company: %2. To company: %3', Comment = '%1 tag name, %2 = origin company, % 3 destination company', Locked = true;
         CategoryLbl: Label 'ALUpgrade', Locked = true;
 }
-

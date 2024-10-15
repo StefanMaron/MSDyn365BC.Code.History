@@ -265,7 +265,7 @@ codeunit 426 "Payment Tolerance Management"
         NewCustLedgEntry.Amount := -BankAccReconciliationLine."Statement Amount";
         NewCustLedgEntry."Remaining Amount" := -BankAccReconciliationLine."Statement Amount";
         NewCustLedgEntry."Document Type" := NewCustLedgEntry."Document Type"::Payment;
-
+        NewCustLedgEntry."Currency Code" := BankAccReconciliationLine.GetCurrencyCode();
         exit(
           PmtTolCustLedgEntry(
             NewCustLedgEntry, BankAccReconciliationLine."Account No.", BankAccReconciliationLine."Transaction Date",
@@ -289,6 +289,7 @@ codeunit 426 "Payment Tolerance Management"
         NewVendLedgEntry.Amount := -BankAccReconciliationLine."Statement Amount";
         NewVendLedgEntry."Remaining Amount" := -BankAccReconciliationLine."Statement Amount";
         NewVendLedgEntry."Document Type" := NewVendLedgEntry."Document Type"::Payment;
+        NewVendLedgEntry."Currency Code" := BankAccReconciliationLine.GetCurrencyCode();
 
         exit(
           PmtTolVendLedgEntry(
@@ -440,6 +441,7 @@ codeunit 426 "Payment Tolerance Management"
                 AppliedCustLedgEntry.SetRange(Positive);
                 AppliedCustLedgEntry.Find('-');
                 repeat
+                    OnCalcCustApplnAmountOnBeforeUpdateCustAmountsForApplication(AppliedCustLedgEntry, CustledgEntry, AppliedCustLedgEntryTemp);
                     UpdateCustAmountsForApplication(AppliedCustLedgEntry, CustledgEntry, AppliedCustLedgEntryTemp);
                     CheckCustPaymentAmountsForAppliesToID(
                       CustledgEntry, AppliedCustLedgEntry, AppliedCustLedgEntryTemp, MaxPmtTolAmount, AvailableAmount, TempAmount,
@@ -565,6 +567,7 @@ codeunit 426 "Payment Tolerance Management"
                     if not SuppressCommit then
                         Commit();
                 end;
+                OnCalcCustApplnAmountOnAfterAppliedCustLedgEntryLoop(AppliedCustLedgEntry);
             end;
         end else
             if CustledgEntry."Applies-to Doc. No." <> '' then begin
@@ -630,6 +633,7 @@ codeunit 426 "Payment Tolerance Management"
                 AppliedVendLedgEntry.SetRange(Positive);
                 AppliedVendLedgEntry.Find('-');
                 repeat
+                    OnCalcVendApplnAmountOnBeforeUpdateVendAmountsForApplication(AppliedVendLedgEntry, VendledgEntry, AppliedVendLedgEntryTemp);
                     UpdateVendAmountsForApplication(AppliedVendLedgEntry, VendledgEntry, AppliedVendLedgEntryTemp);
                     CheckVendPaymentAmountsForAppliesToID(
                       VendledgEntry, AppliedVendLedgEntry, AppliedVendLedgEntryTemp, MaxPmtTolAmount, AvailableAmount, TempAmount,
@@ -755,6 +759,7 @@ codeunit 426 "Payment Tolerance Management"
                     if not SuppressCommit then
                         Commit();
                 end;
+                OnCalcVendApplnAmountOnAfterAppliedVendLedgEntryLoop(AppliedVendLedgEntry);
             end;
         end else
             if VendledgEntry."Applies-to Doc. No." <> '' then begin
@@ -2226,6 +2231,26 @@ codeunit 426 "Payment Tolerance Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunModalPmtTolWarningCallPmtTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; var Amount: Decimal; AppliedAmount: Decimal; AccountType: Option Customer,Vendor; var ActionType: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCustApplnAmountOnBeforeUpdateCustAmountsForApplication(var AppliedCustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var AppliedCustLedgerEntryTemp: Record "Cust. Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCustApplnAmountOnAfterAppliedCustLedgEntryLoop(var AppliedCustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVendApplnAmountOnBeforeUpdateVendAmountsForApplication(var AppliedVendorLedgerEntry: Record "Vendor Ledger Entry"; var VendoerLedgerEntry: Record "Vendor Ledger Entry"; var AppliedVendorLedgerEntryTemp: Record "Vendor Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVendApplnAmountOnAfterAppliedVendLedgEntryLoop(var AppliedVendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 

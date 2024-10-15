@@ -792,9 +792,10 @@ codeunit 229 "Document-Print"
         end;
     end;
 
-    procedure GetSalesOrderUsage(Usage: Option "Order Confirmation","Work Order","Pick Instruction"): Enum "Report Selection Usage"
+    procedure GetSalesOrderUsage(Usage: Option "Order Confirmation","Work Order","Pick Instruction") Result: Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
+        IsHandled: Boolean;
     begin
         case Usage of
             Usage::"Order Confirmation":
@@ -804,7 +805,10 @@ codeunit 229 "Document-Print"
             Usage::"Pick Instruction":
                 exit(ReportSelections.Usage::"S.Order Pick Instruction");
             else
-                Error('');
+                IsHandled := false;
+                OnGetSalesOrderUsageElseCase(Usage, Result, IsHandled);
+                if not IsHandled then
+                    Error('');
         end;
     end;
 
@@ -1063,5 +1067,11 @@ codeunit 229 "Document-Print"
     local procedure OnGetPurchArchDocTypeUsageElseCase(PurchaseHeaderArchive: Record "Purchase Header Archive"; var TypeUsage: Integer; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSalesOrderUsageElseCase(Usage: Option; var Result: Enum "Report Selection Usage"; var IsHandled: Boolean)
+    begin
+    end;
+
 }
 

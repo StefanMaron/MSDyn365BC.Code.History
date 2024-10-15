@@ -1396,7 +1396,9 @@
         StartTime := CurrentDateTime;
         BankPmtApplRule."Direct Debit Collect. Matched" := BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered";
 
-        if BankAccReconciliationLine."Transaction ID" = '' then
+        if (BankAccReconciliationLine."Transaction ID" = '') or
+           (StrLen(BankAccReconciliationLine."Transaction ID") > MaxStrLen(TempDirectDebitCollectionEntryBuffer."Transaction ID"))
+        then
             exit;
 
         TempDirectDebitCollectionEntryBuffer.Reset();

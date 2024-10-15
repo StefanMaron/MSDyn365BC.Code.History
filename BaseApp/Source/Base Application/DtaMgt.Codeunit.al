@@ -539,7 +539,7 @@ codeunit 3010541 DtaMgt
             if ("Account Type" = "Account Type"::Vendor) and
                ("Reference No." <> '') and
                ("Document Type" <> "Document Type"::Invoice) and
-               ("Applies-to Doc. No." = '')
+               ("Applies-to Doc. No." = '') and ("Applies-to ID" = '')
             then
                 Error(Text071Err, "Account No.", "Document No.");
 
@@ -805,7 +805,7 @@ codeunit 3010541 DtaMgt
                             Error(Text116Err, "Payment Form", VendorNo, VendBankNo);
                         RecordType := 32;
                     end;
-                    // ***** Bankzahlung Ausland & SWIFT-Zahlung Ausland *****
+                // ***** Bankzahlung Ausland & SWIFT-Zahlung Ausland *****
                 "Payment Form"::"Bank Payment Abroad", "Payment Form"::"SWIFT Payment Abroad":
                     begin
                         if DtaEzag = 'DTA' then

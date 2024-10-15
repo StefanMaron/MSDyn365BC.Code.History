@@ -5,6 +5,7 @@ codeunit 144061 "Test ESR Localized Features"
 
     trigger OnRun()
     begin
+        // [FEATURE] [ESR]
     end;
 
     var
@@ -14,6 +15,9 @@ codeunit 144061 "Test ESR Localized Features"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryJournals: Codeunit "Library - Journals";
         IsInitialized: Boolean;
 
     [Test]
@@ -89,6 +93,69 @@ codeunit 144061 "Test ESR Localized Features"
           (StrPos(GetLastErrorText, Vendor."No.") > 0), 'Unexpected error message');
     end;
 
+    [Test]
+    procedure PostVendorPaymentWithESRReferenceUsingAppliesToID()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Vendor] [Payment] [Reference No.] [Applies-to ID]
+        // [SCENARIO 406307] Post vendor payment with ESR Reference No. using Applies-To ID
+        Init();
+
+        // [GIVEN] Posted purchase invoice with ESR Reference No.
+        InvoiceNo := PostPurchaseInvoiceWithESRReferenceNo(PurchaseHeader);
+
+        // [GIVEN] Payment journal line with vendor payment applied to the invoice using Applies-To ID
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        CreateVendorPayment(
+            GenJournalLine, PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."Bank Code",
+            -VendorLedgerEntry."Remaining Amount", PurchaseHeader."Reference No.", '', LibraryUtility.GenerateGUID());
+        VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
+        VendorLedgerEntry.Validate("Applies-to ID", GenJournalLine."Applies-to ID");
+        Codeunit.Run(Codeunit::"Vend. Entry-Edit", VendorLedgerEntry);
+
+        // [WHEN] Post the journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] The journal has been posted
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        VendorLedgerEntry.TestField("Reference No.", PurchaseHeader."Reference No.");
+    end;
+
+    [Test]
+    procedure PostVendorPaymentWithESRReferenceUsingApplyToDocNo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Vendor] [Payment] [Reference No.] [Applies-to Doc. No.]
+        // [SCENARIO 406307] Post vendor payment with ESR Reference No. using Applies-to Doc. No.
+        Init();
+
+        // [GIVEN] Posted purchase invoice with ESR Reference No.
+        InvoiceNo := PostPurchaseInvoiceWithESRReferenceNo(PurchaseHeader);
+
+        // [GIVEN] Payment journal line with vendor payment applied to the invoice using Applies-to Doc. No.
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        CreateVendorPayment(
+            GenJournalLine, PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."Bank Code",
+            -VendorLedgerEntry."Remaining Amount", PurchaseHeader."Reference No.", InvoiceNo, '');
+
+        // [WHEN] Post the journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] The journal has been posted
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        VendorLedgerEntry.TestField("Reference No.", PurchaseHeader."Reference No.");
+    end;
+
     local procedure Init()
     begin
         LibraryVariableStorage.Clear;
@@ -100,11 +167,20 @@ codeunit 144061 "Test ESR Localized Features"
         IsInitialized := true;
     end;
 
-    [Normal]
+    local procedure PostPurchaseInvoiceWithESRReferenceNo(var PurchaseHeader: Record "Purchase Header"): Code[20]
+    begin
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        PurchaseHeader.Validate("Bank Code", CreateESRVendorBankAccount(PurchaseHeader."Buy-from Vendor No."));
+        PurchaseHeader.Validate("Reference No.", '000000000000000000000000058');
+        PurchaseHeader.Validate("ESR Amount", PurchaseHeader."Amount Including VAT");
+        PurchaseHeader.Modify(true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
     local procedure CreateVendorBankAccounts(VendorNumber: Code[20])
     var
         VendorBankAccount1: Record "Vendor Bank Account";
-        VendorBankAccount2: Record "Vendor Bank Account";
     begin
         with VendorBankAccount1 do begin
             Validate("Vendor No.", VendorNumber);
@@ -113,14 +189,34 @@ codeunit 144061 "Test ESR Localized Features"
             Insert(true);
         end;
 
-        with VendorBankAccount2 do begin
-            Validate("Vendor No.", VendorNumber);
-            Validate(Code, 'ESR');
-            Validate("ESR Type", "ESR Type"::"9/27");
-            Validate("Payment Form", "Payment Form"::ESR);
-            Validate("ESR Account No.", '01-003314-0');
-            Insert(true);
-        end;
+        CreateESRVendorBankAccount(VendorNumber);
+    end;
+
+    local procedure CreateESRVendorBankAccount(VendorNo: Code[20]): Code[20]
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+    begin
+        VendorBankAccount.Validate("Vendor No.", VendorNo);
+        VendorBankAccount.Validate(Code, 'ESR');
+        VendorBankAccount.Validate("ESR Type", VendorBankAccount."ESR Type"::"9/27");
+        VendorBankAccount.Validate("Payment Form", VendorBankAccount."Payment Form"::ESR);
+        VendorBankAccount.Validate("ESR Account No.", '01-003314-0');
+        VendorBankAccount.Insert(true);
+        exit(VendorBankAccount.Code);
+    end;
+
+    local procedure CreateVendorPayment(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; ReceiptBankAccount: Code[20]; Amount: Decimal; ReferenceNo: Code[35]; AppliesToInvoiceNo: Code[20]; AppliesToID: Code[50])
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
+        GenJournalLine.Validate("Recipient Bank Account", ReceiptBankAccount);
+        if AppliesToInvoiceNo <> '' then begin
+            GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+            GenJournalLine.Validate("Applies-to Doc. No.", AppliesToInvoiceNo);
+        end else
+            GenJournalLine.Validate("Applies-to ID", AppliesToID);
+        GenJournalLine.Validate("Reference No.", ReferenceNo);
+        GenJournalLine.Modify(true);
     end;
 }
 

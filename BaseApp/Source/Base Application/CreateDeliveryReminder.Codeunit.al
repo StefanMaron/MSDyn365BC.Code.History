@@ -76,7 +76,9 @@ codeunit 5005271 "Create Delivery Reminder"
         DeliveryReminderHeader.Validate("Vendor No.", PurchHeader."Buy-from Vendor No.");
         DeliveryReminderHeader."Posting Date" := WorkDate;
         DeliveryReminderHeader."Document Date" := WorkDate;
+        OnCreateDelivReminHeaderOnBeforeDeliveryReminderHeaderModify(DeliveryReminderHeader, PurchHeader);
         DeliveryReminderHeader.Modify();
+        OnCreateDelivReminHeaderOnAfterDeliveryReminderHeaderModify(DeliveryReminderHeader, PurchHeader);
     end;
 
     [Scope('OnPrem')]
@@ -306,6 +308,16 @@ codeunit 5005271 "Create Delivery Reminder"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeliveryReminderTextLineInsert(var DeliveryReminderLine: Record "Delivery Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDelivReminHeaderOnAfterDeliveryReminderHeaderModify(var DeliveryReminderHeader: Record "Delivery Reminder Header"; PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateDelivReminHeaderOnBeforeDeliveryReminderHeaderModify(var DeliveryReminderHeader: Record "Delivery Reminder Header"; PurchHeader: Record "Purchase Header")
     begin
     end;
 

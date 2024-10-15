@@ -6,6 +6,7 @@ codeunit 134065 "Test Reten. Pol. Doc. Arch."
     var
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         ArchiveSalesDocQst: Label 'Archive Order no.: %1?';
         ArchiveSalesDocMsg: Label 'Document %1 has been archived.';
@@ -444,6 +445,7 @@ codeunit 134065 "Test Reten. Pol. Doc. Arch."
         PurchaseHeaderArchive: Record "Purchase Header Archive";
         RetentionPolicySetup: Record "Retention Policy Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Reten. Pol. Doc. Arch.");
         LibraryVariableStorage.AssertEmpty();
         SalesHeaderArchive.DeleteAll(true);
         PurchaseHeaderArchive.DeleteAll(true);
@@ -452,9 +454,12 @@ codeunit 134065 "Test Reten. Pol. Doc. Arch."
 
         if IsInitialized then
             exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Test Reten. Pol. Doc. Arch.");
 
         IsInitialized := true;
         Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Test Reten. Pol. Doc. Arch.");
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header");
