@@ -911,6 +911,7 @@
     trigger OnAfterGetRecord()
     begin
         EnableTransferFields := not IsPartiallyShipped();
+        ActivateFields();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -921,8 +922,10 @@
     trigger OnOpenPage()
     begin
         SetDocNoVisible();
+#if not CLEAN23
         EnableTransferFields := not IsPartiallyShipped();
         ActivateFields();
+#endif
     end;
 
     var

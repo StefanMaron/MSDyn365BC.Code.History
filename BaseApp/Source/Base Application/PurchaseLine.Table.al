@@ -3898,10 +3898,9 @@
             PurchLineReserve.VerifyQuantity(Rec, xRec);
         end;
         LockTable();
-        PurchHeader."No." := '';
         if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts();
-
+        PurchHeader."No." := '';
         "IRS 1099 Liable" := (PurchHeader."IRS 1099 Code" <> '');
     end;
 

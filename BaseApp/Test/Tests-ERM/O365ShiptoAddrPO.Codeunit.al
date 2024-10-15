@@ -579,12 +579,12 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
         NewPurchaseOrderFromVendorCard(PurchaseOrder, Vendor);
 
         // [THEN] Purchase Order page has been opened with following values:
-        // [THEN] ShipToOption = "Custom Address"
+        // [THEN] ShipToOption = "Default (Company Address)"
         // [THEN] "Location Code" is not visible
-        // [THEN] "Ship-to Name" = ""
-        PurchaseOrder.ShippingOptionWithLocation.AssertEquals(ShipToOptions::"Custom Address");
+        // [THEN] "Ship-to Name" = <Company.Name>
+        PurchaseOrder.ShippingOptionWithLocation.AssertEquals(ShipToOptions::"Default (Company Address)");
         Assert.IsFalse(PurchaseOrder."Location Code".Visible, FieldShouldNotBeVisibleTxt);
-        PurchaseOrder."Ship-to Name".AssertEquals('');
+        PurchaseOrder."Ship-to Name".AssertEquals(CompanyInformation.Name);
     end;
 
     [Test]
@@ -609,12 +609,14 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
         NewPurchaseOrderFromVendorCard(PurchaseOrder, Vendor);
 
         // [THEN] Purchase Order page has been opened with following values:
-        // [THEN] ShipToOption = "Custom Address"
-        // [THEN] "Location Code" is not visible
-        // [THEN] "Ship-to Name" = ""
-        PurchaseOrder.ShippingOptionWithLocation.AssertEquals(ShipToOptions::"Custom Address");
-        Assert.IsFalse(PurchaseOrder."Location Code".Visible, FieldShouldBeVisibleTxt);
-        PurchaseOrder."Ship-to Name".AssertEquals('');
+        // [THEN] ShipToOption = "Location"
+        // [THEN] "Location Code" is visible
+        // [THEN] "Location Code" = "A"
+        // [THEN] "Ship-to Name" = "B"
+        PurchaseOrder.ShippingOptionWithLocation.AssertEquals(ShipToOptions::Location);
+        Assert.IsTrue(PurchaseOrder."Location Code".Visible, FieldShouldBeVisibleTxt);
+        PurchaseOrder."Location Code".AssertEquals(Location.Code);
+        PurchaseOrder."Ship-to Name".AssertEquals(Location.Name);
     end;
 
     local procedure Initialize()
