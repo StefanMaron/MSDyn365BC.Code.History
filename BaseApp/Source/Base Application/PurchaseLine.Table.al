@@ -1519,6 +1519,8 @@
             Caption = 'Line Amount';
 
             trigger OnValidate()
+            var
+                MaxLineAmount: Decimal;
             begin
                 TestField(Type);
                 TestField(Quantity);
@@ -1526,8 +1528,17 @@
 
                 GetPurchHeader;
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
-                Validate(
-                  "Line Discount Amount", Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision") - "Line Amount");
+                MaxLineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
+
+                if "Line Amount" < 0 then
+                    if "Line Amount" < MaxLineAmount then
+                        Error(LineAmountInvalidErr);
+
+                if "Line Amount" > 0 then
+                    if "Line Amount" > MaxLineAmount then
+                        Error(LineAmountInvalidErr);
+
+                Validate("Line Discount Amount", MaxLineAmount - "Line Amount");
             end;
         }
         field(104; "VAT Difference"; Decimal)
@@ -3880,6 +3891,7 @@
         CannotAllowInvDiscountErr: Label 'The value of the %1 field is not valid when the VAT Calculation Type field is set to "Full VAT".', Comment = '%1 is the name of not valid field';
         CannotChangeVATGroupWithPrepmInvErr: Label 'You cannot change the VAT product posting group because prepayment invoices have been posted.\\You need to post the prepayment credit memo to be able to change the VAT product posting group.';
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
+        LineAmountInvalidErr: Label 'You have set the line amount to a value that results in a discount that is not valid. Consider increasing the unit cost instead.';
 
     protected var
         HideValidationDialog: Boolean;
@@ -9039,7 +9051,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateQtyToReceiveOnAfterCalcShouldCheckLocationRequireReceive(var PurchaseLine: Record "Purchase Line"; ShouldCheckLocationRequireReceive: Boolean)
+    local procedure OnValidateQtyToReceiveOnAfterCalcShouldCheckLocationRequireReceive(var PurchaseLine: Record "Purchase Line"; var ShouldCheckLocationRequireReceive: Boolean)
     begin
     end;
 

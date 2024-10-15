@@ -91,6 +91,7 @@
         PerCompanyUpgradeTags.Add(GetVendorTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCustomerTemplatesUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemTemplatesUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetAzureADSetupFixTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -774,6 +775,11 @@
     procedure GetitemTemplatesUpgradeTag(): Code[250];
     begin
         exit('MS-332155-ItemTemplates-20210817');
+    end;
+
+    procedure GetAzureADSetupFixTag(): Code[250];
+    begin
+        exit('MS-408786-FixAzureAdSetup-20210826');
     end;
 }
 

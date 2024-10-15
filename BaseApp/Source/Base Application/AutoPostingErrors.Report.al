@@ -664,7 +664,6 @@
         AllocationDimText: Text[75];
         ShowDim: Boolean;
         Continue: Boolean;
-        Text063Txt: Label 'Document,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
         Text064Txt: Label '%1 %2 is already used in line %3 (%4 %5).', Comment = '%1=GenJnlLine External Document No. field caption, %2=GenJnlLine External Document No., %3=TempGenJnlLine Line No., %4=GenJnlLine Document No.field caption, %5=TempGenJnlLine Document No.';
         Text065Txt: Label '%1 must not be blocked with type %2 when %3 is %4.', Comment = '%1=Account Type, %2=Cust.Blocked, %3=Document Type field caption, %4=Document Type';
         CurrentICPartner: Code[20];
@@ -850,15 +849,9 @@
                 if GenJnlTemplate."Force Doc. Balance" then begin
                     case true of
                         DocBalance <> 0:
-                            AddError(
-                              StrSubstNo(
-                                Text025Txt,
-                                SelectStr(LastDocType.AsInteger() + 1, Text063Txt), LastDocNo, DocBalance));
+                            AddError(StrSubstNo(Text025Txt, LastDocType, LastDocNo, DocBalance));
                         DocBalanceReverse <> 0:
-                            AddError(
-                              StrSubstNo(
-                                Text026Txt,
-                                SelectStr(LastDocType.AsInteger() + 1, Text063Txt), LastDocNo, DocBalanceReverse));
+                            AddError(StrSubstNo(Text026Txt, LastDocType, LastDocNo, DocBalanceReverse));
                     end;
                     DocBalance := 0;
                     DocBalanceReverse := 0;

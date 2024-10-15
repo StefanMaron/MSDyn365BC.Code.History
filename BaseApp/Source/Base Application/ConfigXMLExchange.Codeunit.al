@@ -220,7 +220,13 @@ codeunit 8614 "Config. XML Exchange"
         StepCount: Integer;
         ExportMetadata: Boolean;
         ShowDialog: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateRecordNodes(ConfigPackageTable, ConfigPackageField, TypeHelper, XMLDOMMgt, WorkingFolder, ExcelMode, Advanced, HideDialog, IsHandled);
+        if IsHandled then
+            exit;
+
         if ConfigMgt.IsSystemTable(ConfigPackageTable."Table ID") then
             exit;
 
@@ -550,7 +556,7 @@ codeunit 8614 "Config. XML Exchange"
     end;
 
     [Scope('OnPrem')]
-    procedure ImportPackageXMLDocument(PackageXML: DotNet XmlDocument; PackageCode: Code[20]): Boolean
+    procedure ImportPackageXMLDocument(PackageXML: DotNet XmlDocument; PackageCode: Code[20]) Result: Boolean
     var
         ConfigPackage: Record "Config. Package";
         ConfigPackageRecord: Record "Config. Package Record";
@@ -689,6 +695,9 @@ codeunit 8614 "Config. XML Exchange"
                     end;
             end;
         end;
+
+        Commit(); // to ensure no deadlock occurs when waiting for background processes
+
         if not HideDialog then
             ConfigProgressBar.Close;
         if not ExcelMode then
@@ -705,7 +714,8 @@ codeunit 8614 "Config. XML Exchange"
         // autoapply configuration lines
         ConfigPackageMgt.ApplyConfigTables(ConfigPackage);
 
-        exit(true);
+        Result := true;
+        OnAfterImportPackageXMLDocument(PackageCode, ExcelMode, Result);
     end;
 
     [TryFunction]
@@ -938,6 +948,8 @@ codeunit 8614 "Config. XML Exchange"
         RecordCount: Integer;
         StepCount: Integer;
         ErrorText: Text[250];
+        ShouldAssignValue: Boolean;
+        ShouldShowTableContainsRecordsQst: Boolean;
     begin
         if ConfigMgt.IsSystemTable(TableID) then
             exit;
@@ -946,7 +958,9 @@ codeunit 8614 "Config. XML Exchange"
             ExcludeRemovedFields(ConfigPackageTable);
             if ExcelMode then begin
                 ConfigPackageTable.CalcFields("No. of Package Records");
-                if ConfigPackageTable."No. of Package Records" > 0 then
+                ShouldShowTableContainsRecordsQst := ConfigPackageTable."No. of Package Records" > 0;
+                OnFillPackageDataFromXMLOnAfterCalcShouldShowTableContainsRecordsQst(ConfigPackageTable, PackageCode, TableID, HideDialog, ShouldShowTableContainsRecordsQst);
+                if ShouldShowTableContainsRecordsQst then
                     if Confirm(TableContainsRecordsQst, true, TableID, PackageCode, ConfigPackageTable."No. of Package Records") then
                         ConfigPackageTable.DeletePackageData
                     else
@@ -995,7 +1009,9 @@ codeunit 8614 "Config. XML Exchange"
                             OnFillPackageDataFromXMLOnAfterConfigPackageDataInsert(ConfigPackageData, TempConfigPackageField, ExcelMode);
                             ConfigPackageData.Insert();
 
-                            if not TempConfigPackageField.Dimension then begin
+                            ShouldAssignValue := not TempConfigPackageField.Dimension;
+                            OnFillPackageDataFromXMLOnAfterCalcShouldAssignValue(ConfigPackageField, ConfigPackageData, ConfigPackageRecord, TempConfigPackageField, ShouldAssignValue);
+                            if ShouldAssignValue then begin
                                 FieldRef := RecRef.Field(ConfigPackageData."Field ID");
                                 if ConfigPackageData.Value <> '' then begin
                                     ErrorText := ConfigValidateMgt.EvaluateValue(FieldRef, ConfigPackageData.Value, not ExcelMode);
@@ -1500,6 +1516,16 @@ codeunit 8614 "Config. XML Exchange"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterImportPackageXMLDocument(PackageCode: Code[20]; ExcelMode: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateRecordNodes(var ConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field"; var TypeHelper: Codeunit "Type Helper"; var XMLDOMManagement: Codeunit "XML DOM Management"; var WorkingFolder: Text; var ExcelMode: Boolean; var Advanced: Boolean; var HideDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeEvaluateMinCountForAsyncImport(var ConfigPackage: Record "Config. Package"; var Value: Text; var IsHandled: Boolean)
     begin
     end;
@@ -1536,6 +1562,16 @@ codeunit 8614 "Config. XML Exchange"
 
     [IntegrationEvent(false, false)]
     local procedure OnFillPackageDataFromXMLOnAfterConfigPackageDataInit(var ConfigPackageData: Record "Config. Package Data"; var ConfigPackageField: Record "Config. Package Field")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillPackageDataFromXMLOnAfterCalcShouldShowTableContainsRecordsQst(var ConfigPackageTable: Record "Config. Package Table"; PackageCode: Code[20]; TableID: Integer; var HideDialog: Boolean; var ShouldShowTableContainsRecordsQst: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillPackageDataFromXMLOnAfterCalcShouldAssignValue(var ConfigPackageField: Record "Config. Package Field"; var ConfigPackageData: Record "Config. Package Data"; var ConfigPackageRecord: Record "Config. Package Record"; var TempConfigPackageField: Record "Config. Package Field" temporary; var ShouldAssignValue: Boolean)
     begin
     end;
 

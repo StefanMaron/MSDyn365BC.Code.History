@@ -634,22 +634,37 @@
     begin
         OnBeforeInitInvtPostBuf(ValueEntry);
 
-        PostBufDimNo := PostBufDimNo + 1;
-        SetAccNo(TempInvtPostBuf[PostBufDimNo], ValueEntry, AccType, BalAccType);
-        SetPostBufAmounts(TempInvtPostBuf[PostBufDimNo], CostToPost, CostToPostACY, InterimAccount);
-        TempInvtPostBuf[PostBufDimNo]."Dimension Set ID" := ValueEntry."Dimension Set ID";
-        OnAfterInitTempInvtPostBuf(TempInvtPostBuf, ValueEntry, PostBufDimNo);
-
-        PostBufDimNo := PostBufDimNo + 1;
-        SetAccNo(TempInvtPostBuf[PostBufDimNo], ValueEntry, BalAccType, AccType);
-        SetPostBufAmounts(TempInvtPostBuf[PostBufDimNo], -CostToPost, -CostToPostACY, InterimAccount);
-        TempInvtPostBuf[PostBufDimNo]."Dimension Set ID" := ValueEntry."Dimension Set ID";
-        TempInvtPostBuf[PostBufDimNo]."FA No." := ValueEntry."FA No.";
-        TempInvtPostBuf[PostBufDimNo]."Depreciation Book Code" := ValueEntry."Depreciation Book Code";
-        TempInvtPostBuf[PostBufDimNo]."FA Entry No." := ValueEntry."FA Entry No.";
-        OnAfterInitTempInvtPostBuf(TempInvtPostBuf, ValueEntry, PostBufDimNo);
+        InitInvtPostBufPerAccount(ValueEntry, AccType, BalAccType, CostToPost, CostToPostACY, InterimAccount, false);
+        InitInvtPostBufPerAccount(ValueEntry, AccType, BalAccType, CostToPost, CostToPostACY, InterimAccount, true);
 
         OnAfterInitInvtPostBuf(ValueEntry);
+    end;
+
+    local procedure InitInvtPostBufPerAccount(var ValueEntry: Record "Value Entry"; AccType: Enum "Invt. Posting Buffer Account Type"; BalAccType: Enum "Invt. Posting Buffer Account Type"; CostToPost: Decimal; CostToPostACY: Decimal; InterimAccount: Boolean; BalancingRecord: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitInvtPostBufPerAccount(ValueEntry, AccType, BalAccType, CostToPost, CostToPostACY, InterimAccount, BalancingRecord, IsHandled);
+        if IsHandled then
+            exit;
+
+        PostBufDimNo := PostBufDimNo + 1;
+
+        if BalancingRecord then begin
+            SetAccNo(TempInvtPostBuf[PostBufDimNo], ValueEntry, BalAccType, AccType);
+            SetPostBufAmounts(TempInvtPostBuf[PostBufDimNo], -CostToPost, -CostToPostACY, InterimAccount);
+            TempInvtPostBuf[PostBufDimNo]."FA No." := ValueEntry."FA No.";
+            TempInvtPostBuf[PostBufDimNo]."Depreciation Book Code" := ValueEntry."Depreciation Book Code";
+            TempInvtPostBuf[PostBufDimNo]."FA Entry No." := ValueEntry."FA Entry No.";
+        end else begin
+            SetAccNo(TempInvtPostBuf[PostBufDimNo], ValueEntry, AccType, BalAccType);
+            SetPostBufAmounts(TempInvtPostBuf[PostBufDimNo], CostToPost, CostToPostACY, InterimAccount);
+        end;
+
+        TempInvtPostBuf[PostBufDimNo]."Dimension Set ID" := ValueEntry."Dimension Set ID";
+
+        OnAfterInitTempInvtPostBuf(TempInvtPostBuf, ValueEntry, PostBufDimNo);
     end;
 
     local procedure CheckAccNo(var AccountNo: Code[20])
@@ -1506,6 +1521,11 @@
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeInitInvtPostBuf(var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeInitInvtPostBufPerAccount(var ValueEntry: Record "Value Entry"; AccType: Enum "Invt. Posting Buffer Account Type"; BalAccType: Enum "Invt. Posting Buffer Account Type"; CostToPost: Decimal; CostToPostACY: Decimal; InterimAccount: Boolean; BalancingRecord: Boolean; var IsHandled: Boolean)
     begin
     end;
 

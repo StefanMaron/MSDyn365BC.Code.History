@@ -208,7 +208,13 @@ table 7320 "Warehouse Shipment Header"
             trigger OnValidate()
             var
                 WhseShptLine: Record "Warehouse Shipment Line";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateShipmentDate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Shipment Date" <> xRec."Shipment Date" then begin
                     WhseShptLine.SetRange("No.", "No.");
                     if not WhseShptLine.IsEmpty() then
@@ -681,6 +687,11 @@ table 7320 "Warehouse Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeDeleteWarehouseShipmentLines(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; HideValidationDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipmentDate(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; xWarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 

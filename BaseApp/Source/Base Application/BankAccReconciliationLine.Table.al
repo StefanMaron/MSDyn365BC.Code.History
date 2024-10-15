@@ -863,6 +863,7 @@
                     if "Statement Amount" = 0 then
                         Error(TransactionAmountMustNotBeZeroErr);
                     PaymentApplication.SetBankAccReconcLine(Rec);
+                    OnDisplayApplicationOnAfterSetBankAccReconcLine(PaymentApplication);
                     PaymentApplication.RunModal;
                 end;
         end;
@@ -1135,6 +1136,8 @@
         "Transaction Date" := WorkDate;
         "Match Confidence" := "Match Confidence"::None;
         "Document No." := '';
+
+        OnAfterSetUpNewLine(Rec, xRec);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1968,6 +1971,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetUpNewLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; xBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetAccountName(AccountType: Option; AccountNo: Code[20]; var Name: Text)
     begin
     end;
@@ -2004,6 +2012,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDisplayApplicationOnAfterBankAccLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDisplayApplicationOnAfterSetBankAccReconcLine(var PaymentApplication: Page "Payment Application");
     begin
     end;
 

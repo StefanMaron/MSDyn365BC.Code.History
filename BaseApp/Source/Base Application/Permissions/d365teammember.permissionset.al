@@ -336,7 +336,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "CRM Option Mapping" = RM,
                   tabledata "CRM Organization" = RM,
                   tabledata "CRM Post" = RM,
-                  tabledata "CRM Post Buffer" = RM,
+                  tabledata "CRM Post Buffer" = RIMD,
                   tabledata "CRM Post Configuration" = RM,
                   tabledata "CRM Pricelevel" = RM,
                   tabledata "CRM Product" = RM,

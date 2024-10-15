@@ -39,8 +39,10 @@
             trigger OnValidate()
             begin
                 TestHeadersValue(FieldNo("Source No."));
-                CopyRecTo(PriceSource);
-                PriceSource.Validate("Source No.", "Source No.");
+                if not FieldLookedUp then begin
+                    CopyRecTo(PriceSource);
+                    PriceSource.Validate("Source No.", "Source No.");
+                end;
                 CopyFrom(PriceSource);
             end;
 
@@ -48,8 +50,9 @@
             begin
                 CopyTo(PriceSource);
                 if PriceSource.LookupNo() then begin
-                    TestHeadersValue(FieldNo("Source No."));
-                    CopyFrom(PriceSource);
+                    FieldLookedUp := true;
+                    Validate("Source No.", PriceSource."Source No.");
+                    FieldLookedUp := false;
                 end;
             end;
         }
@@ -76,11 +79,8 @@
 
                 ParentPriceSource."Source Group" := "Source Group";
                 ParentPriceSource."Source Type" := PriceSource.GetParentSourceType();
-                if ParentPriceSource.LookupNo() then begin
-                    "Parent Source No." := ParentPriceSource."Source No.";
-                    "Source No." := '';
-                    TestHeadersValue(FieldNo("Parent Source No."));
-                end;
+                if ParentPriceSource.LookupNo() then
+                    Validate("Parent Source No.", ParentPriceSource."Source No.");
             end;
         }
         field(6; "Source ID"; Guid)
@@ -123,8 +123,10 @@
             trigger OnValidate()
             begin
                 TestStatusDraft();
-                CopyRecTo(PriceAsset);
-                PriceAsset.Validate("Asset No.", "Asset No.");
+                if not FieldLookedUp then begin
+                    CopyRecTo(PriceAsset);
+                    PriceAsset.Validate("Asset No.", "Asset No.");
+                end;
                 CopyFrom(PriceAsset);
             end;
 
@@ -132,8 +134,9 @@
             begin
                 CopyTo(PriceAsset);
                 if PriceAsset.LookupNo() then begin
-                    TestStatusDraft();
-                    CopyFrom(PriceAsset);
+                    FieldLookedUp := true;
+                    Validate("Asset No.", PriceAsset."Asset No.");
+                    FieldLookedUp := false;
                 end;
             end;
         }
@@ -144,8 +147,10 @@
             trigger OnValidate()
             begin
                 TestStatusDraft();
-                CopyRecTo(PriceAsset);
-                PriceAsset.Validate("Variant Code", "Variant Code");
+                if not FieldLookedUp then begin
+                    CopyRecTo(PriceAsset);
+                    PriceAsset.Validate("Variant Code", "Variant Code");
+                end;
                 CopyFrom(PriceAsset);
             end;
 
@@ -153,8 +158,9 @@
             begin
                 CopyTo(PriceAsset);
                 if PriceAsset.LookupVariantCode() then begin
-                    TestStatusDraft();
-                    CopyFrom(PriceAsset);
+                    FieldLookedUp := true;
+                    Validate("Variant Code", PriceAsset."Variant Code");
+                    FieldLookedUp := false;
                 end;
             end;
         }
@@ -222,8 +228,10 @@
             trigger OnValidate()
             begin
                 TestStatusDraft();
-                CopyRecTo(PriceAsset);
-                PriceAsset.Validate("Unit of Measure Code", "Unit of Measure Code");
+                if not FieldLookedUp then begin
+                    CopyRecTo(PriceAsset);
+                    PriceAsset.Validate("Unit of Measure Code", "Unit of Measure Code");
+                end;
                 CopyFrom(PriceAsset);
             end;
 
@@ -231,8 +239,9 @@
             begin
                 CopyTo(PriceAsset);
                 if PriceAsset.LookupUnitofMeasure() then begin
-                    TestStatusDraft();
-                    "Unit of Measure Code" := PriceAsset."Unit of Measure Code";
+                    FieldLookedUp := true;
+                    Validate("Unit of Measure Code", PriceAsset."Unit of Measure Code");
+                    FieldLookedUp := false;
                 end;
             end;
         }
@@ -484,6 +493,7 @@
 
     var
         IsNewRecord: Boolean;
+        FieldLookedUp: Boolean;
         FieldNotAllowedForAmountTypeErr: Label 'Field %1 is not allowed in the price list line where %2 is %3.',
             Comment = '%1 - the field caption; %2 - Amount Type field caption; %3 - amount type value: Discount or Price';
         LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
