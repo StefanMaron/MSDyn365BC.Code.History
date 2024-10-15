@@ -575,7 +575,7 @@ codeunit 8618 "Config. Excel Exchange"
                         1,
                         '/DataList/' + (ConfigXMLExchange.GetElementName(ConfigPackageTable."Table Caption") + 'List') +
                         '/' + ConfigXMLExchange.GetElementName(ConfigPackageTable."Table Caption") +
-                        '/' + ConfigXMLExchange.GetElementName(ConfigPackageField."Field Caption"),
+                        '/' + ConfigPackageField.GetElementName(),
                         WrkShtWriter.XmlDataType2XmlDataValues(
                           ConfigXMLExchange.GetXSDType(ConfigPackageTable."Table ID", ConfigPackageField."Field ID")));
                     TableColumn := WrkShtWriter.CreateTableColumn(

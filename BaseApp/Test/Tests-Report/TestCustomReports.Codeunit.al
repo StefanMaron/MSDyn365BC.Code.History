@@ -66,6 +66,7 @@ codeunit 134761 "Test Custom Reports"
         BlankStartDateErr: Label 'Start Date must have a value.';
         ReportIDMustHaveValueErr: Label 'Report ID must have a value';
         TargetEmailErr: Label 'The target email address has not been specified in';
+        PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a %2% payment discount.', Comment = '%1 Discount Due Date %2 = value of Payment Discount % ';
 
     [Test]
     [Scope('OnPrem')]
@@ -2264,6 +2265,89 @@ codeunit 134761 "Test Custom Reports"
         InitReportSelections();
     end;
 
+    [Test]
+    [HandlerFunctions('StandardSalesInvoice_SaveAsXML_RPH')]
+    [Scope('OnPrem')]
+    procedure StandardSalesInvoice_PmtDiscTxt()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Standard Sales - Invoice]
+        // [SCENARIO 391271] REP 1306 "Standard Sales - Invoice" prints PmtDiscText correctly
+        Initialize();
+
+        // [GIVEN] Posted sales invoice with "Pmt. Discount Date" and "Payment Discount %"
+        CreateSalesInvoice(SalesHeader, SalesLine, false);
+        SalesHeader."Pmt. Discount Date" := WorkDate;
+        SalesHeader."Payment Discount %" := LibraryRandom.RandIntInRange(3, 5);
+        SalesHeader.Modify();
+
+        // [WHEN] Print the invoice using REP1306 "Standard Sales - Invoice"
+        RunStandardSalesInvoice(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [THEN] There is "If we receive the payment before %1, you are eligible for a %2% payment discount." in PmtDiscText
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists(
+          'PmtDiscText', StrSubstNo(PmtDiscTxt, WorkDate, SalesHeader."Payment Discount %"));
+    end;
+
+    [Test]
+    [HandlerFunctions('OrderReporXMLtRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesOrderConf_PmtDiscTxt()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Standard Sales - Order Conf.]
+        // [SCENARIO 391271] REP 1305 "Standard Sales - Order Conf." prints PmtDiscText correctly
+        Initialize();
+
+        // [GIVEN] Posted Sales Order with "Pmt. Discount Date" and "Payment Discount %"
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        SalesHeader."Pmt. Discount Date" := WorkDate;
+        SalesHeader."Payment Discount %" := LibraryRandom.RandIntInRange(3, 5);
+        SalesHeader.Modify();
+        Commit();
+        SalesHeader.SetRecFilter();
+
+        // [WHEN] Print the invoice using REP1305 "Standard Sales - Order Conf."
+        REPORT.Run(REPORT::"Standard Sales - Order Conf.", true, false, SalesHeader);
+
+        // [THEN] There is "If we receive the payment before %1, you are eligible for a %2% payment discount." in PmtDiscText
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists(
+          'PmtDiscText', StrSubstNo(PmtDiscTxt, WorkDate, SalesHeader."Payment Discount %"));
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardQuoteReporXMLtRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesQuote_PmtDiscTxt()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Standard Sales - Quote]
+        // [SCENARIO 391271] REP1304 "Standard Sales - Quote" prints PmtDiscText correctly
+        Initialize();
+
+        // [GIVEN] Posted Salse Quote with "Pmt. Discount Date" and "Payment Discount %"
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo);
+        SalesHeader."Pmt. Discount Date" := WorkDate;
+        SalesHeader."Payment Discount %" := LibraryRandom.RandIntInRange(3, 5);
+        SalesHeader.Modify();
+        Commit();
+        SalesHeader.SetRecFilter();
+
+        // [WHEN] Print the invoice using REP1304 "Standard Sales - Quote"
+        REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
+
+        // [THEN] There is "If we receive the payment before %1, you are eligible for a %2% payment discount." in PmtDiscText
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists(
+          'PmtDiscText', StrSubstNo(PmtDiscTxt, WorkDate, SalesHeader."Payment Discount %"));
+    end;
+
     [Scope('OnPrem')]
     procedure Initialize()
     var
@@ -3154,6 +3238,20 @@ codeunit 134761 "Test Custom Reports"
           'Incorrect Value in Customer Report Selections');
     end;
     
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure StandardQuoteReporXMLtRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
+    begin
+        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderReporXMLtRequestPageHandler(var StandardSalesOrderConf: TestRequestPage "Standard Sales - Order Conf.")
+    begin
+        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, 8800, 'OnIsTestMode', '', false, false)]
     local procedure EnableTestModeOnIsTestMode(var TestMode: Boolean)
     begin

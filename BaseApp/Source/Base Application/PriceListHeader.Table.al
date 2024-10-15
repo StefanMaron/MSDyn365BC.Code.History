@@ -511,15 +511,10 @@ table 7000 "Price List Header"
         else
             TestField("Parent Source No.", '');
 
-        if "Source Type" in
-            ["Price Source Type"::All,
-            "Price Source Type"::"All Customers",
-            "Price Source Type"::"All Vendors",
-            "Price Source Type"::"All Jobs"]
-        then
-            TestField("Source No.", '')
+        if IsSourceNoAllowed() then
+            TestField("Source No.")
         else
-            TestField("Source No.");
+            TestField("Source No.", '');
     end;
 
     local procedure VerifyLines()

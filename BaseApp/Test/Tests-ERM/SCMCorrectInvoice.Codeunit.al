@@ -22,6 +22,7 @@ codeunit 137019 "SCM Correct Invoice"
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJob: Codeunit "Library - Job";
         IsInitialized: Boolean;
@@ -798,6 +799,74 @@ codeunit 137019 "SCM Correct Invoice"
         VerifySalesLineWithTrackedQty(SalesHeaderCorrection, SalesLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('SetLotItemWithQtyToHandleTrackingPageHandler')]
+    procedure CancelSalesInvoiceFromOrderWithItemTracking()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ReservationEntry: Record "Reservation Entry";
+        TrackingSpecification: Record "Tracking Specification";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        QtyToShip: Decimal;
+        LotNo: Code[50];
+    begin
+        // [FEATURE] [Item Tracking]
+        // [SCENARIO 387956] Item Tracking Lines for the original Sales Order Lines have "Qty. Handled (Base)" and "Qty. Invoiced (Base)" values reverted when canceling Posted Sales Invoice
+        Initialize();
+
+        // [GIVEN] Item with Lot Tracking
+        Item.Get(CreateTrackedItem());
+
+        //[GIVEN] 15 PCS of Item with Lot No. = "L" in Inventory
+        LotNo := LibraryUtility.GenerateGUID();
+        QtyToShip := LibraryRandom.RandDec(10, 2);
+        PostPositiveAdjmtWithLotNo(Item."No.", LotNo, 3 * QtyToShip);
+
+        // [GIVEN] Sales Order for 15 PCS of the Item, with "Qty. to Ship" = "Qty. to Invoice" = 5 PCS
+        LibrarySales.CreateCustomer(Customer);
+        CreateSalesOrderForItem(Customer, Item, 3 * QtyToShip, SalesHeader, SalesLine);
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Item Tracking Line for Lot "L", Quantity = "Qty. to Handle" = 5 PCS
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(QtyToShip);
+        LibraryVariableStorage.Enqueue(QtyToShip);
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Sales Order posted with Ship and Invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Cancel the Posted Sales Invoice 
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // [THEN] Item Tracking for the original Sales Order has "Quantity Handled (Base)" = 0
+        SalesLine.Find();
+        TrackingSpecification.SetSourceFilter(
+            Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.",
+            SalesLine."Line No.", false);
+        Assert.RecordIsEmpty(TrackingSpecification);
+
+        // [THEN] Item Tracking for the original Sales Order has "Quantity Invoiced (Base)" = 0
+        ReservationEntry.SetSourceFilter(
+            Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.",
+            SalesLine."Line No.", false);
+        ReservationEntry.FindFirst();
+        Assert.AreEqual(ReservationEntry."Quantity Invoiced (Base)", 0, 'Quantity Invoiced must be 0.');
+
+        // [THEN] The Sales Order can be posted again
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Modify(true);        
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -878,6 +947,20 @@ codeunit 137019 "SCM Correct Invoice"
         PurchLine.Validate("Unit Cost", UnitCost);
         PurchLine.Modify(true);
         LibraryPurch.PostPurchaseDocument(PurchHeader, true, true);
+    end;
+
+    local procedure PostPositiveAdjmtWithLotNo(ItemNo: Code[20]; LotNo: Code[50]; Quantity: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, ItemNo, '', '', Quantity);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Quantity);
+        LibraryVariableStorage.Enqueue(Quantity);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(
+          ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure PostSalesInvWithNegativeLineAndLotNo(var InvNo: Code[20]; var SalesLine: Record "Sales Line"; ItemNo: Code[20])
@@ -1088,5 +1171,15 @@ codeunit 137019 "SCM Correct Invoice"
         ItemTrackingLines."Assign Lot No.".Invoke;
         ItemTrackingLines.OK.Invoke;
     end;
+
+    [ModalPageHandler]
+    procedure SetLotItemWithQtyToHandleTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK.Invoke;
+    end;
+
 }
 
