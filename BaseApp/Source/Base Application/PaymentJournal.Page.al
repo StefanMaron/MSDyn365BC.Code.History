@@ -1051,7 +1051,10 @@ page 256 "Payment Journal"
                         PromotedCategory = Category4;
                         PromotedIsBig = true;
                         ToolTip = 'Transmit the exported electronic payment file to the bank.';
-                        Visible = false; // W1 action is not relevant for NO
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Action only related to NA local version';
+                        ObsoleteTag = '21.0';
+			Visible = false; // W1 action is not relevant for NO
 
                         trigger OnAction()
                         begin

@@ -34,7 +34,7 @@
                 Clear(ReminderIssue);
                 ReminderIssue.Set("Reminder Header", ReplacePostingDate, PostingDateReq);
                 ReminderIssue.SetGenJnlBatch(GenJnlBatch);
-                OnReminderHeaderOnAfterGetRecordOnAfterReminderIssueSetParams("Reminder Header", ReminderIssue, PrintDoc);
+                OnReminderHeaderOnAfterGetRecordOnAfterReminderIssueSetParams("Reminder Header", ReminderIssue, PrintEmailDocument);
                 if NoOfRecords = 1 then begin
                     ReminderIssue.Run();
                     Mark := false;
@@ -52,7 +52,7 @@
                     Mark := not ReminderIssue.Run();
                 end;
 
-                if PrintDoc <> PrintDoc::" " then begin
+                if PrintEmailDocument <> PrintEmailDocument::" " then begin
                     ReminderIssue.GetIssuedReminder(IssuedReminderHeader);
                     TempIssuedReminderHeader := IssuedReminderHeader;
                     OnBeforeTempIssuedReminderHeaderInsert(TempIssuedReminderHeader);
@@ -68,17 +68,17 @@
             begin
                 Window.Close;
                 Commit();
-                if PrintDoc <> PrintDoc::" " then
+                if PrintEmailDocument <> PrintEmailDocument::" " then
                     if TempIssuedReminderHeader.FindSet() then
-                        repeat
-                            IssuedReminderHeaderPrint := TempIssuedReminderHeader;
-                            IsHandled := false;
-                            OnBeforePrintIssuedReminderHeader(IssuedReminderHeaderPrint, IsHandled);
-                            if not IsHandled then begin
-                                IssuedReminderHeaderPrint.SetRecFilter;
-                                IssuedReminderHeaderPrint.PrintRecords(false, PrintDoc = PrintDoc::Email, HideDialog);
-                            end;
-                        until TempIssuedReminderHeader.Next() = 0;
+                            repeat
+                                IssuedReminderHeaderPrint := TempIssuedReminderHeader;
+                                IsHandled := false;
+                                OnBeforePrintIssuedReminderHeader(IssuedReminderHeaderPrint, IsHandled);
+                                if not IsHandled then begin
+                                    IssuedReminderHeaderPrint.SetRecFilter;
+                                    IssuedReminderHeaderPrint.PrintRecords(false, PrintEmailDocument = PrintEmailDocument::Email, HideDialog);
+                                end;
+                            until TempIssuedReminderHeader.Next() = 0;
                 MarkedOnly := true;
                 if FindFirst() then
                     if ConfirmManagement.GetResponse(ShowNotIssuedQst, true) then
@@ -113,7 +113,7 @@
                 group(Options)
                 {
                     Caption = 'Options';
-                    field(PrintDoc; PrintDoc)
+                    field(PrintDoc; PrintEmailDocument)
                     {
                         ApplicationArea = Suite;
                         Caption = 'Print';
@@ -164,6 +164,8 @@
                             GenJnlManagement: Codeunit GenJnlManagement;
                         begin
                             GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                            if GenJnlLineReq."Journal Batch Name" <> '' then
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                         end;
 
                         trigger OnValidate()
@@ -205,9 +207,9 @@
     begin
         IsOfficeAddin := OfficeMgt.IsAvailable;
         if IsOfficeAddin then
-            PrintDoc := 2;
+            PrintEmailDocument := 2;
 
-        OnAfterInitReport(PrintDoc, ReplacePostingDate, PostingDateReq, HideDialog);
+        OnAfterInitReport(PrintEmailDocument, ReplacePostingDate, PostingDateReq, HideDialog);
     end;
 
     var
@@ -232,7 +234,7 @@
         NewDateTime: DateTime;
         OldDateTime: DateTime;
         ReplacePostingDate: Boolean;
-        PrintDoc: Option " ",Print,Email;
+        PrintEmailDocument: Option " ",Print,Email;
         HideDialog: Boolean;
         [InDataSet]
         IsOfficeAddin: Boolean;

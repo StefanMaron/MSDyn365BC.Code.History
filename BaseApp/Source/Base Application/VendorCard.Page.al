@@ -1908,7 +1908,8 @@
 
         if VendorTemplMgt.InsertVendorFromTemplate(Vendor) then begin
             VerifyVatRegNo(Vendor);
-            Copy(Vendor);
+            Rec.Copy(Vendor);
+            OnCreateVendorFromTemplateOnBeforeCurrPageUpdate(Rec);
             CurrPage.Update();
         end else
             if VendorTemplMgt.TemplatesAreNotEmpty() then
@@ -1953,6 +1954,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeActivateFields(var IsCountyVisible: Boolean; var FormatAddress: Codeunit "Format Address"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateVendorFromTemplateOnBeforeCurrPageUpdate(var Vendor: Record Vendor)
     begin
     end;
 }

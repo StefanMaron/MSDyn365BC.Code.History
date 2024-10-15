@@ -1,4 +1,4 @@
-codeunit 99000838 "Prod. Order Comp.-Reserve"
+﻿codeunit 99000838 "Prod. Order Comp.-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd,
                   TableData "Action Message Entry" = rm;
@@ -628,7 +628,15 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
     local procedure GetSourceValue(ReservEntry: Record "Reservation Entry"; var SourceRecRef: RecordRef; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)"): Decimal
     var
         ProdOrderComp: Record "Prod. Order Component";
+        IsHandled: Boolean;
+        ReturnValue: Decimal;
     begin
+        IsHandled := false;
+        OnBeforeGetSourceValue(ReservEntry, SourceRecRef, ReturnOption, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
+
         ProdOrderComp.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Prod. Order Line", ReservEntry."Source Ref. No.");
         SourceRecRef.GetTable(ProdOrderComp);
         case ReturnOption of
@@ -734,6 +742,11 @@ codeunit 99000838 "Prod. Order Comp.-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferPOCompToItemJnlLineCheckILEOnBeforeTransferReservEntry(NewItemJnlLine: Record "Item Journal Line"; OldReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSourceValue(ReservEntry: Record "Reservation Entry"; var SourceRecRef: RecordRef; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)"; var ReturnValue: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

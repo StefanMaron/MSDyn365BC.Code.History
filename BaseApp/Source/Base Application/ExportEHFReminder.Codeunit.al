@@ -10,6 +10,7 @@ codeunit 10630 "Export EHF Reminder"
         IssuedReminderHeader: Record "Issued Reminder Header";
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         TempRecordExportBuffer: Record "Record Export Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
         RecRef: RecordRef;
     begin
         RecRef.GetTable(DocumentVariant);
@@ -32,7 +33,8 @@ codeunit 10630 "Export EHF Reminder"
                     DATABASE::"Issued Reminder Header":
                         begin
                             RecRef.SetTable(IssuedReminderHeader);
-                            ServerFilePath := GenerateXMLFile(IssuedReminderHeader);
+                            GenerateXMLFile(TempBlob, ServerFilePath, IssuedReminderHeader);
+                            SetFileContent(TempBlob);
                             ClientFileName := GetClientFileName(IssuedReminderHeader.TableCaption(), IssuedReminderHeader."No.");
                             ZipFileName := GetZipFileName(IssuedReminderHeader.TableCaption(), IssuedReminderHeader."No.");
                             Modify();
@@ -40,7 +42,8 @@ codeunit 10630 "Export EHF Reminder"
                     DATABASE::"Issued Fin. Charge Memo Header":
                         begin
                             RecRef.SetTable(IssuedFinChargeMemoHeader);
-                            ServerFilePath := GenerateXMLFile(IssuedFinChargeMemoHeader);
+                            GenerateXMLFile(TempBlob, ServerFilePath, IssuedFinChargeMemoHeader);
+                            SetFileContent(TempBlob);
                             ClientFileName := GetClientFileName(IssuedFinChargeMemoHeader.TableCaption(), IssuedFinChargeMemoHeader."No.");
                             ZipFileName := GetZipFileName(IssuedFinChargeMemoHeader.TableCaption(), IssuedFinChargeMemoHeader."No.");
                             Modify();
@@ -71,10 +74,35 @@ codeunit 10630 "Export EHF Reminder"
         exit(CopyStr(XmlServerPath, 1, 250));
     end;
 
-    local procedure GetClientFileName(TableCaption: Text; DocumentNo: Code[20]): Text[250]
+    procedure GenerateXMLFile(var TempBlob: Codeunit "Temp Blob"; var FilPath: Text[250]; VariantRec: Variant)
+    var
+        PEPPOLManagement: Codeunit "PEPPOL Management";
+        EHFReminder30: XMLport "EHF Reminder 3.0";
+        OutFile: File;
+        InStream: InStream;
+        OutStream: OutStream;
+        BlobOutStream: OutStream;
+        XmlServerPath: Text;
+    begin
+        PEPPOLManagement.InitializeXMLExport(OutFile, XmlServerPath);
+
+        OutFile.CreateOutStream(OutStream);
+        EHFReminder30.Initialize(VariantRec);
+        EHFReminder30.SetDestination(OutStream);
+        EHFReminder30.Export();
+
+        TempBlob.CreateOutStream(BlobOutStream);
+        OutFile.CreateInStream(InStream);
+        CopyStream(BlobOutStream, InStream);
+        OutFile.Close();
+
+        FilPath := CopyStr(XmlServerPath, 1, 250);
+    end;
+
+    local procedure GetClientFileName(TableCaption2: Text; DocumentNo: Code[20]): Text[250]
     begin
         exit(
-          CopyStr(StrSubstNo('%1 - %2.xml', TableCaption, DocumentNo), 1, 250));
+          CopyStr(StrSubstNo('%1 - %2.xml', TableCaption2, DocumentNo), 1, 250));
     end;
 
     local procedure GetZipFileName(TableCaption: Text; DocumentNo: Code[20]): Text[250]

@@ -40,7 +40,7 @@
         ItemFilterTxt: Label '%1|%2', Comment = 'Item No1 | Item No2';
         SuggestedQtyErrMsg: Label 'Suggested Quantity on planning lines must not be less than Maximum Inventory.';
         AvailabilityWarningConfirmationMsg: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
-        OrderDateChangeMsg: Label 'You have changed the Order Date on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.';
+        OrderDateChangeMsg: Label 'You have changed the Order Date on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.';
         SameDateErrMsg: Label 'The dates must not be same.';
         ReservationEntryMustNotExistErr: Label 'Reservation Entry must not exist for Item %1.', Comment = '%1 - Item No';
         DeleteProductionForecastConfirmMessageQst: Label 'Demand forecast %1 has entries. Do you want to delete it anyway?', Comment = '%1 - Forcast No';
