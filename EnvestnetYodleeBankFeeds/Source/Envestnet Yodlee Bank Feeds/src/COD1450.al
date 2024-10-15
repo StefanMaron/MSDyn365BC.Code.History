@@ -139,6 +139,7 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         RequestUnsuccessfulErr: Label 'The request failed due to an underlying issue such as network connectivity, DNS failure, server certificate validation or timeout.';
         UnauthorizedResponseCodeTok: Label '(401)', Locked = true;
         UnableToInsertUnlinkedBankAccToBufferErr: Label 'Unable to insert information about account that is linked on Yodlee. ProviderAccount id - %1, AccountId - %2.', Locked = true;
+        StartingToRegisterUserTxt: Label 'Starting to register user %1 with currency code %2 on Yodlee.', Locked = true;
 
     procedure SetValuesToDefault(var MSYodleeBankServiceSetup: Record 1450);
     var
@@ -549,6 +550,7 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         Password := COPYSTR(PasswordHelper.GeneratePassword(50), 1, 50);
 
         AuthorizationHeaderValue := YodleeAPIStrings.GetAuthorizationHeaderValue(CobrandToken, '');
+        SENDTRACETAG('0000DL9', YodleeTelemetryCategoryTok, Verbosity::Normal, StrSubstNo(StartingToRegisterUserTxt, UserName, LcyCode), DataClassification::CustomerContent);
         ExecuteWebServiceRequest(YodleeAPIStrings.GetRegisterConsumerURL(), 'POST',
             YodleeAPIStrings.GetRegisterConsumerBody(CobrandToken, UserName, Password, Email, LcyCode), AuthorizationHeaderValue,
             ErrorText);
@@ -1692,6 +1694,11 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         IF URL.ToLower().Contains('accounts?accountId') THEN BEGIN
             ResponseMessage.Content().ReadAs(LinkedBankAccountText);
             SENDTRACETAG('0000BLP', YodleeTelemetryCategoryTok, Verbosity::Normal, LinkedBankAccountText, DataClassification::CustomerContent);
+        END;
+
+        IF URL.ToLower().Contains('user/register') THEN BEGIN
+            ResponseMessage.Content().ReadAs(LinkedBankAccountText);
+            SENDTRACETAG('0000DLA', YodleeTelemetryCategoryTok, Verbosity::Normal, LinkedBankAccountText, DataClassification::CustomerContent);
         END;
     end;
 

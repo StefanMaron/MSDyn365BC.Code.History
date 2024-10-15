@@ -203,6 +203,7 @@ table 5628 Insurance
     trigger OnRename()
     begin
         DimMgt.RenameDefaultDim(DATABASE::Insurance, xRec."No.", "No.");
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::Insurance, xRec."No.", "No.");
         "Last Date Modified" := Today;
     end;
 

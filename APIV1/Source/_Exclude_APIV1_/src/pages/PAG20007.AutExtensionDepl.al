@@ -14,7 +14,6 @@ page 20007 "APIV1 - Aut. Extension Depl."
     PageType = API;
     RefreshOnActivate = true;
     SourceTable = "NAV App Tenant Operation";
-    SourceTableTemporary = true;
     Extensible = false;
 
     layout
@@ -90,10 +89,10 @@ page 20007 "APIV1 - Aut. Extension Depl."
             ExtensionManagement.RefreshStatus("Operation ID");
     end;
 
-    trigger OnFindRecord(Which: Text): Boolean
+    trigger OnOpenPage()
     begin
-        SETCURRENTKEY("Started On");
-        ASCENDING(FALSE);
+        SetCurrentKey("Started On");
+        Ascending(false);
     end;
 
     var
