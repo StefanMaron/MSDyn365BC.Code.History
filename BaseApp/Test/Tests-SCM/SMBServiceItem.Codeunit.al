@@ -20,7 +20,9 @@ codeunit 137510 "SMB Service Item"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
+        IndirectCostErr: Label 'Indirect Cost % must be equal to ''0''';
 
     [Test]
     [Scope('OnPrem')]
@@ -1974,6 +1976,45 @@ codeunit 137510 "SMB Service Item"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CannotSetIndirectCostOnPurchaseLineAnyTypeExceptOfItem()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Index: Integer;
+    begin
+        // [FEATURE] [Item Type Service] [Purchase] [UT]
+        // [SCENARIO 394798] System restricts setting "Indirect Cost %" on purchase line when Type is not equal to Item
+        Initialize();
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+
+        PurchaseLine.Init();
+        PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
+        PurchaseLine.Insert(true);
+        PurchaseLine.Validate("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+        PurchaseLine.Modify(true);
+        Commit();
+
+        for Index := 1 to 5 do begin
+            PurchaseLine.Type := Index;
+            PurchaseLine."No." := CopyStr(LibraryRandom.RandText(20), 1, MaxStrLen(PurchaseLine."No."));
+            PurchaseLine.Quantity := LibraryRandom.RandDecInRange(100, 200, 2);
+            PurchaseLine."Direct Unit Cost" := LibraryRandom.RandDecInRange(100, 200, 2);
+            if PurchaseLine.Type <> PurchaseLine.Type::Item then begin
+                asserterror PurchaseLine.Validate("Indirect Cost %", 1 + LibraryRandom.RandIntInRange(1, 99));
+                Assert.ExpectedError(IndirectCostErr);
+                ClearLastError();
+
+                asserterror PurchaseLine.Validate("Unit Cost (LCY)", Round(PurchaseLine."Direct Unit Cost" * 1.1));
+                Assert.ExpectedError(IndirectCostErr);
+                ClearLastError();
+            end;
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ValueEntryForOverheadAmountIsNotPostedForNotInventoriableItem()
     var
         Item: Record Item;
@@ -2207,6 +2248,108 @@ codeunit 137510 "SMB Service Item"
         AssemblyLine.TestField("Location Code", '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetUnitCostAndUpdateIndirectCostPurchaseLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        ExpectedIndirectPercent: Decimal;
+        ExpectedUnitCost: Decimal;
+    begin
+        // [FEATURE] [Item Type Service] [Purchase] [UT]
+        // [SCENARIO 394798] Stan can update "Unit Cost (LCY)" on Purchase Line and system updates "Indirect Cost %".
+        Initialize();
+
+	    GeneralLedgerSetup.GetRecordOnce();
+        GeneralLedgerSetup."Unit-Amount Rounding Precision" := 0.0000001;
+        GeneralLedgerSetup.Modify(true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(10, 20, 2));
+
+        with PurchaseLine do begin
+            Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+            Modify(true);
+
+            TestField("Indirect Cost %", 0);
+
+            ExpectedIndirectPercent := 10;
+            ExpectedUnitCost := Round("Direct Unit Cost" * (100 + ExpectedIndirectPercent) / 100);
+
+            Validate("Unit Cost (LCY)", ExpectedUnitCost);
+            Modify(true);
+
+            GeneralLedgerSetup.GetRecordOnce();
+            ExpectedIndirectPercent :=
+                Round(("Unit Cost (LCY)" - "Direct Unit Cost") * 100 / "Direct Unit Cost", 0.00001); // we have fixed rounding precision
+
+            TestField("Unit Cost (LCY)", ExpectedUnitCost);
+            TestField("Indirect Cost %", ExpectedIndirectPercent);
+        end;
+    end;
+
+    [Test]
+    procedure ReleasingShipmentForATOItemWithNonInventoryComponent()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Bin: Record Bin;
+        AsmItem: Record Item;
+        CompNonInvtItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        // [FEATURE] [Non-Inventory Item] [Assembly] [Warehouse Shipment]
+        // [SCENARIO 397522] Releasing shipment for assemble-to-order item with non-inventory component does not check bin code.
+        Initialize();
+
+        // [GIVEN] Location "L" with required shipment and mandatory bin.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Assemble-to-order item "A".
+        LibraryInventory.CreateItem(AsmItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Validate("Assembly Policy", AsmItem."Assembly Policy"::"Assemble-to-Order");
+        AsmItem.Modify(true);
+
+        // [GIVEN] Non-inventory assembly component "C".
+        LibraryInventory.CreateNonInventoryTypeItem(CompNonInvtItem);
+        LibraryAssembly.CreateAssemblyListComponent(
+          BOMComponent.Type::Item, CompNonInvtItem."No.", AsmItem."No.", '', 0, 1, true);
+
+        // [GIVEN] Sales order for "A" at location "L".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Validate("Shipment Date", LibraryRandom.RandDate(30));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AsmItem."No.", LibraryRandom.RandInt(10));
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create warehouse shipment from the sales order, populate bin code.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+        WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.Validate("Bin Code", Bin.Code);
+        WarehouseShipmentLine.Modify(true);
+
+        // [WHEN] Release the warehouse shipment.
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+
+        // [THEN] The warehouse shipment has been released.
+        WarehouseShipmentHeader.TestField(Status, WarehouseShipmentHeader.Status::Released);
+    end;
+
     local procedure Initialize()
     var
         BOMComponent: Record "BOM Component";
@@ -2226,6 +2369,7 @@ codeunit 137510 "SMB Service Item"
         LibrarySetupStorage.Save(DATABASE::"Warehouse Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         SetNoSeries;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;

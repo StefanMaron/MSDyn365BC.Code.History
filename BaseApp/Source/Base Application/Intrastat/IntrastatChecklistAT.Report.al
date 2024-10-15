@@ -1,7 +1,7 @@
 report 11105 "Intrastat - Checklist AT"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './IntrastatChecklistAT.rdlc';
+    RDLCLayout = './Intrastat/IntrastatChecklistAT.rdlc';
     Caption = 'Intrastat - Checklist AT';
 
     dataset
@@ -307,21 +307,32 @@ report 11105 "Intrastat - Checklist AT"
 
                     OldTariffNo := "Tariff No.";
                     "Tariff No." := DelChr("Tariff No.");
-                    TestField("Tariff No.");
-                    TestField("Country/Region Code");
-                    TestField("Transaction Type");
-                    if CompanyInfo."Check Transport Method" then
-                        TestField("Transport Method");
-                    if CompanyInfo."Check Transaction Specific." then
-                        TestField("Transaction Specification");
+
+#if CLEAN19
+                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist AT", true);
+#else
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist AT", true)
+                    else begin
+                        TestField("Tariff No.");
+                        TestField("Country/Region Code");
+                        TestField("Transaction Type");
+                        if CompanyInfo."Check Transport Method" then
+                            TestField("Transport Method");
+                        if CompanyInfo."Check Transaction Specific." then
+                            TestField("Transaction Specification");
+                        if Type = Type::Receipt then
+                            TestField("Country/Region of Origin Code");
+                        if "Supplementary Units" then
+                            TestField(Quantity);
+                    end;
+#endif
+
                     if Type = Type::Receipt then begin
-                        TestField("Country/Region of Origin Code");
                         OriginCountry.Get("Country/Region of Origin Code");
                         OriginCountry.TestField("Intrastat Code");
                     end else
                         Clear(OriginCountry);
-                    if "Supplementary Units" then
-                        TestField(Quantity);
 
                     Country.Get("Country/Region Code");
                     Country.TestField("Intrastat Code");
@@ -376,6 +387,10 @@ report 11105 "Intrastat - Checklist AT"
             GLSetup.TestField("LCY Code");
             HeaderText := StrSubstNo(Text002, GLSetup."LCY Code");
         end;
+#if not CLEAN19
+        if IntrastatSetup.Get() then;
+#endif
+        IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
     end;
 
     var
@@ -386,6 +401,10 @@ report 11105 "Intrastat - Checklist AT"
         Country: Record "Country/Region";
         GLSetup: Record "General Ledger Setup";
         OriginCountry: Record "Country/Region";
+#if not CLEAN19
+        IntrastatSetup: Record "Intrastat Setup";
+#endif
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         NoOfRecords: Integer;
         PrintJnlLines: Boolean;
         Heading: Boolean;

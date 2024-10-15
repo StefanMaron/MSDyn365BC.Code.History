@@ -1,7 +1,7 @@
 report 11001 "Intrastat - Item List"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './IntrastatItemList.rdlc';
+    RDLCLayout = './Intrastat/IntrastatItemList.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Intrastat - Item List';
     UsageCategory = ReportsAndAnalysis;

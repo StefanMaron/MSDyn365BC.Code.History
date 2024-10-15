@@ -52,21 +52,25 @@
 
     local procedure ApplyTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
     begin
-        Vendor.City := VendorTempl.City;
+        if VendorTempl.City <> '' then
+            Vendor.City := VendorTempl.City;
         Vendor."Vendor Posting Group" := VendorTempl."Vendor Posting Group";
         Vendor."Currency Code" := VendorTempl."Currency Code";
         Vendor."Language Code" := VendorTempl."Language Code";
         Vendor."Payment Terms Code" := VendorTempl."Payment Terms Code";
         Vendor."Fin. Charge Terms Code" := VendorTempl."Fin. Charge Terms Code";
         Vendor."Invoice Disc. Code" := VendorTempl."Invoice Disc. Code";
-        Vendor."Country/Region Code" := VendorTempl."Country/Region Code";
+        if (VendorTempl."Country/Region Code" <> '') and (Vendor."Country/Region Code" = '') then
+            Vendor."Country/Region Code" := VendorTempl."Country/Region Code";
         Vendor."Pay-to Vendor No." := VendorTempl."Pay-to Vendor No.";
         Vendor."Payment Method Code" := VendorTempl."Payment Method Code";
         Vendor."Application Method" := VendorTempl."Application Method".AsInteger();
         Vendor."Prices Including VAT" := VendorTempl."Prices Including VAT";
         Vendor."Gen. Bus. Posting Group" := VendorTempl."Gen. Bus. Posting Group";
-        Vendor."Post Code" := VendorTempl."Post Code";
-        Vendor.County := VendorTempl.County;
+        if VendorTempl."Post Code" <> '' then
+            Vendor."Post Code" := VendorTempl."Post Code";
+        if VendorTempl.County <> '' then
+            Vendor.County := VendorTempl.County;
         Vendor."VAT Bus. Posting Group" := VendorTempl."VAT Bus. Posting Group";
         Vendor."Block Payment Tolerance" := VendorTempl."Block Payment Tolerance";
         Vendor."Validate EU Vat Reg. No." := VendorTempl."Validate EU Vat Reg. No.";

@@ -298,6 +298,46 @@ codeunit 138200 "Normal DemoData"
     end;
 
     [Test]
+    procedure AdvancedIntrastatChecklist()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+    begin
+        Assert.RecordCount(AdvancedIntrastatChecklist, 25);
+
+        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Checklist DE");
+        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Form DE");
+        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Disk Tax Auth DE");
+
+        AdvancedIntrastatChecklistField(Report::"Intrastat - Checklist DE", IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
+    end;
+
+    local procedure AdvancedIntrastatChecklistCommonFields(ReportId: Integer)
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transport Method"), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo(Area), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Receipt');
+    end;
+
+    local procedure AdvancedIntrastatChecklistField(ReportId: Integer; FieldNo: Integer; FilterExpr: Text)
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+    begin
+        AdvancedIntrastatChecklist.SetRange("Object Type", AdvancedIntrastatChecklist."Object Type"::Report);
+        AdvancedIntrastatChecklist.SetRange("Object Id", ReportId);
+        AdvancedIntrastatChecklist.SetRange("Field No.", FieldNo);
+        AdvancedIntrastatChecklist.SetRange("Filter Expression", FilterExpr);
+        Assert.IsFalse(AdvancedIntrastatChecklist.IsEmpty(), 'Advanced Intrastat Checklist Setup');
+    end;
+
+    [Test]
     procedure DEVATStatement2021()
     var
         VATStatementLine: Record "VAT Statement Line";

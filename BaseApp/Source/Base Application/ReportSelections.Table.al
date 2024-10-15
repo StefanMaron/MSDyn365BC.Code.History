@@ -910,6 +910,7 @@
     var
         TempAttachReportSelections: Record "Report Selections" temporary;
         DocumentAttachment: Record "Document Attachment";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
         DocumentAttachmentMgmt: Codeunit "Document Attachment Mgmt";
         TempBlob: Codeunit "Temp Blob";
         RecRef: RecordRef;
@@ -937,7 +938,7 @@
                     TempAttachReportSelections.CalcFields("Report Caption");
                     FileName :=
                         DocumentAttachment.FindUniqueFileName(
-                            STRSUBSTNO('%1 %2 %3', TempAttachReportSelections."Report ID", TempAttachReportSelections."Report Caption", DocumentNo), 'pdf');
+                            StrSubstNo('%1 %2 %3', TempAttachReportSelections."Report ID", ReportDistributionMgt.GetFullDocumentTypeText(RecRef), DocumentNo), 'pdf');
                     DocumentAttachment.SaveAttachment(RecRef, FileName, TempBlob);
                     NumberOfReportsAttached += 1;
                 end;

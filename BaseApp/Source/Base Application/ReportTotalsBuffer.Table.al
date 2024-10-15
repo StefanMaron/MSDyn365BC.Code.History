@@ -56,12 +56,24 @@ table 1150 "Report Totals Buffer"
 
     procedure Add(NewDescription: Text[250]; NewAmount: Decimal; NewBold: Boolean; NewUnderline: Boolean; NewItalics: Boolean)
     begin
-        if FindLast then;
-        Init;
+        AddTotal(NewDescription, NewAmount, NewBold, NewUnderline, NewItalics, Format(Amount, 0, '<Precision,2><Standard Format,0>'));
+    end;
+
+    procedure Add(NewDescription: Text[250]; NewAmount: Decimal; NewBold: Boolean; NewUnderline: Boolean; NewItalics: Boolean; AutoFormatExp: Text[80])
+    var
+        AutoFormat: Codeunit "Auto Format";
+    begin
+        AddTotal(NewDescription, NewAmount, NewBold, NewUnderline, NewItalics, Format(Amount, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, AutoFormatExp)));
+    end;
+
+    local procedure AddTotal(NewDescription: Text[250]; NewAmount: Decimal; NewBold: Boolean; NewUnderline: Boolean; NewItalics: Boolean; AmountFormatted: Text[30])
+    begin
+        if FindLast() then;
+        Init();
         "Line No." += 1;
         Description := NewDescription;
         Amount := NewAmount;
-        "Amount Formatted" := Format(Amount, 0, '<Precision,2><Standard Format,0>');
+        "Amount Formatted" := AmountFormatted;
         "Font Bold" := NewBold;
         "Font Underline" := NewUnderline;
         "Font Italics" := NewItalics;
