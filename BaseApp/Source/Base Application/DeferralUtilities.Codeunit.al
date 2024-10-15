@@ -131,6 +131,7 @@ codeunit 1720 "Deferral Utilities"
         FirstPeriodDate: Date;
         SecondPeriodDate: Date;
         PerDiffSum: Decimal;
+        IsHandled: Boolean;
     begin
         // If the Start Date passed in matches the first date of a financial period, this is essentially the same
         // as the "Equal Per Period" deferral method, so call that function.
@@ -141,12 +142,17 @@ codeunit 1720 "Deferral Utilities"
             if not AccountingPeriod.FindFirst then
                 Error(DeferSchedOutOfBoundsErr);
         end;
-        if AccountingPeriod."Starting Date" = DeferralHeader."Start Date" then begin
-            CalculateEqualPerPeriod(DeferralHeader, DeferralLine, DeferralTemplate);
-            exit;
-        end;
 
-        PeriodicDeferralAmount := Round(DeferralHeader."Amount to Defer" / DeferralHeader."No. of Periods", AmountRoundingPrecision);
+        IsHandled := false;
+        OnCalculateStraightlineOnBeforeCalcPeriodicDeferralAmount(DeferralHeader, PeriodicDeferralAmount, AmountRoundingPrecision, IsHandled);
+        if not IsHandled then begin
+            if AccountingPeriod."Starting Date" = DeferralHeader."Start Date" then begin
+                CalculateEqualPerPeriod(DeferralHeader, DeferralLine, DeferralTemplate);
+                exit;
+            end;
+
+            PeriodicDeferralAmount := Round(DeferralHeader."Amount to Defer" / DeferralHeader."No. of Periods", AmountRoundingPrecision);
+        end;
 
         for PeriodicCount := 1 to (DeferralHeader."No. of Periods" + 1) do begin
             InitializeDeferralHeaderAndSetPostDate(DeferralLine, DeferralHeader, PeriodicCount, PostDate);
@@ -160,6 +166,7 @@ codeunit 1720 "Deferral Utilities"
 
                     // Get the starting date of the next accounting period
                     SecondPeriodDate := GetNextPeriodStartingDate(PostDate);
+                    OnCalculateStraightlineOnAfterCalcSecondPeriodDate(DeferralHeader, PostDate, FirstPeriodDate, SecondPeriodDate);
 
                     HowManyDaysLeftInPeriod := (SecondPeriodDate - DeferralHeader."Start Date");
                     NumberOfDaysInPeriod := (SecondPeriodDate - FirstPeriodDate);
@@ -297,6 +304,8 @@ codeunit 1720 "Deferral Utilities"
                 end else
                     EndDate := (TempDate + NumberOfDaysIntoCurrentPeriod);
         end;
+        OnCalculateDaysPerPeriodOnAfterCalcEndDate(DeferralHeader, DeferralLine, DeferralTemplate, EndDate);
+
         NumberOfDaysInSchedule := (EndDate - DeferralHeader."Start Date");
         DailyDeferralAmount := (DeferralHeader."Amount to Defer" / NumberOfDaysInSchedule);
 
@@ -337,6 +346,7 @@ codeunit 1720 "Deferral Utilities"
 
             DeferralLine.Amount := AmountToDefer;
 
+            OnCalculateDaysPerPeriodOnBeforeDeferralLineInsert(DeferralHeader, DeferralLine);
             DeferralLine.Insert();
         end;
 
@@ -359,6 +369,7 @@ codeunit 1720 "Deferral Utilities"
             CheckPostingDate(DeferralHeader, DeferralLine);
 
             // For User-Defined, user must enter in deferral amounts
+            OnCalculateUserDefinedOnBeforeDeferralLineInsert(DeferralHeader, DeferralLine);
             DeferralLine.Insert();
         end;
 
@@ -998,7 +1009,32 @@ codeunit 1720 "Deferral Utilities"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalculateStraightlineOnAfterCalcSecondPeriodDate(DeferralHeader: Record "Deferral Header"; PostDate: Date; var FirstPeriodDate: Date; var SecondPeriodDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalculateStraightlineOnBeforeDeferralLineInsert(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateStraightlineOnBeforeCalcPeriodicDeferralAmount(var DeferralHeader: Record "Deferral Header"; var PeriodicDeferralAmount: Decimal; AmountRoundingPrecision: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateDaysPerPeriodOnAfterCalcEndDate(var DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template"; var EndDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateDaysPerPeriodOnBeforeDeferralLineInsert(DeferralHeader: Record "Deferral Header"; var DeferralLine: record "Deferral Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateUserDefinedOnBeforeDeferralLineInsert(DeferralHeader: Record "Deferral Header"; var DeferralLine: record "Deferral Line")
     begin
     end;
 

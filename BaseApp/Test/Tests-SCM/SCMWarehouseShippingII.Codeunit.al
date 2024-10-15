@@ -53,6 +53,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         TransferOrderDeletedTxt: Label 'Transfer order %1 was successfully posted and is now deleted.', Comment = '%1 = Transfer Order No.';
         DeletedAllRelatedWarehouseActivityLinesTxt: Label 'All related Warehouse Activity Lines are deleted.';
         PutAwayActivityTxt: Label 'Put-away activity';
+        PickActivityTxt: Label 'Pick activity';
         ReservationEntryMustBeEmptyTxt: Label 'Reservation Entry must be empty.';
         InvtPickActivitiesCreatedTxt: Label 'Number of Invt. Pick activities created';
         OrderExpectedTxt: Label 'Order should be created.';
@@ -2491,6 +2492,97 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         VerifyLineNoInFilteredWhseActivityLine(WarehouseActivityLine, 4, 30000);
         VerifyLineNoInFilteredWhseActivityLine(WarehouseActivityLine, 3, 35000);
         VerifyLineNoInFilteredWhseActivityLine(WarehouseActivityLine, 8, 40000);
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesModalPageHandler,ItemTrackingLinesPageHandler,WhseShipmentCreatePickRequestPageHandler,MessageHandler')]
+    procedure WhseShptLinesWithItemTrackingArePickedFirst()
+    var
+        Item: Record Item;
+        BulkBin: Record Bin;
+        PickBin: Record Bin;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        BulkLotNo: Code[20];
+        PickLotNo: Code[20];
+        SortingSequenceNo: array[2] of Integer;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Warehouse Shipment] [Item Tracking] [Pick]
+        // [SCENARIO 409256] Warehouse shipment lines with item tracking are picked first by demand.
+        Initialize();
+        BulkLotNo := LibraryUtility.GenerateGUID();
+        PickLotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandIntInRange(50, 100);
+
+        // [GIVEN] Location with directed put-away and pick.
+        // [GIVEN] Locate bin "PICK" in pick zone, bin "BULK" in bulk zone.
+        FindBinForPickZone(BulkBin, LocationWhite.Code, false);
+        FindBinForPickZone(PickBin, LocationWhite.Code, true);
+
+        // [GIVEN] Lot-tracked item.
+        CreateItemWithLotItemTrackingCode(Item, true, '');
+
+        // [GIVEN] Post 100 pcs to "BULK" bin, assign lot "BULKLOT".
+        LibraryVariableStorage.Enqueue(BulkLotNo);
+        LibraryVariableStorage.Enqueue(2 * Qty);
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(BulkBin, Item."No.", 2 * Qty, true);
+
+        // [GIVEN] Post 50 pcs to "PICK" bin, assign lot "PICKLOT".
+        LibraryVariableStorage.Enqueue(PickLotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        LibraryWarehouse.UpdateInventoryInBinUsingWhseJournal(PickBin, Item."No.", Qty, true);
+
+        // [GIVEN] Sales order with two lines -
+        // [GIVEN] Line "1": quantity = 2, do not assign item tracking.
+        // [GIVEN] Line "2": quantity = 50, select lot no. "PICKLOT".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Location Code", LocationWhite.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::Item, Item."No.", Qty);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignManualLotNo);
+        LibraryVariableStorage.Enqueue(PickLotNo);
+        SalesLine[2].OpenItemTrackingLines();
+
+        // [GIVEN] Release the sales order, create warehouse shipment, release it.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.");
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+
+        // [WHEN] Create pick with "Prioritize lines with item tracking" = TRUE.
+        LibraryVariableStorage.Enqueue(PickActivityTxt);
+        WarehouseShipmentLine.CreatePickDoc(WarehouseShipmentLine, WarehouseShipmentHeader);
+
+        // [THEN] No pick lines are created for the sales line "1".
+        WarehouseActivityLine.SetSourceFilter(
+          DATABASE::"Sales Line", SalesLine[1]."Document Type", SalesLine[1]."Document No.", SalesLine[1]."Line No.", 0, true);
+        Assert.RecordIsEmpty(WarehouseActivityLine);
+
+        // [THEN] Pick is created for sales line "2", lot no. = "PICKLOT", quantity = 50.
+        WarehouseActivityLine.SetSourceFilter(
+          DATABASE::"Sales Line", SalesLine[2]."Document Type", SalesLine[2]."Document No.", SalesLine[2]."Line No.", 0, true);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField(Quantity, Qty);
+        WarehouseActivityLine.TestField("Lot No.", PickLotNo);
+
+        // [THEN] Warehouse shipment lines are sorted as in the sales order - line "1", line "2".
+        WarehouseShipmentLine.SetSourceFilter(
+          DATABASE::"Sales Line", SalesLine[1]."Document Type", SalesLine[1]."Document No.", SalesLine[1]."Line No.", true);
+        WarehouseShipmentLine.FindFirst;
+        SortingSequenceNo[1] := WarehouseShipmentLine."Sorting Sequence No.";
+        WarehouseShipmentLine.SetSourceFilter(
+          DATABASE::"Sales Line", SalesLine[2]."Document Type", SalesLine[2]."Document No.", SalesLine[2]."Line No.", true);
+        WarehouseShipmentLine.FindFirst();
+        SortingSequenceNo[2] := WarehouseShipmentLine."Sorting Sequence No.";
+        Assert.IsTrue(SortingSequenceNo[1] < SortingSequenceNo[2], 'Wrong sorting of warehouse shipment lines.');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -5166,6 +5258,21 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         RegisterWarehouseActivity(
           WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.",
           WarehouseActivityLine."Activity Type"::"Put-away");
+    end;
+
+    [ModalPageHandler]
+    procedure WhseItemTrackingLinesModalPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        WhseItemTrackingLines.OK.Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure WhseShipmentCreatePickRequestPageHandler(var WhseShipmentCreatePick: TestRequestPage "Whse.-Shipment - Create Pick")
+    begin
+        WhseShipmentCreatePick.CustomSorting.SetValue(true);
+        WhseShipmentCreatePick.OK.Invoke();
     end;
 
     [MessageHandler]

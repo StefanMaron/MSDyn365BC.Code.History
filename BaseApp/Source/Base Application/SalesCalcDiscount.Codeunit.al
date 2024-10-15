@@ -34,6 +34,7 @@ codeunit 60 "Sales-Calc. Discount"
         TempServiceChargeLine: Record "Sales Line" temporary;
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         DiscountNotificationMgt: Codeunit "Discount Notification Mgt.";
+        ShouldGetCustInvDisc: Boolean;
         IsHandled: Boolean;
     begin
         SalesSetup.Get();
@@ -89,7 +90,7 @@ codeunit 60 "Sales-Calc. Discount"
             CustInvDisc.GetRec(
               SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase);
 
-            OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader);
+            OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader, CurrencyDate, ChargeBase);
             if CustInvDisc."Service Charge" <> 0 then begin
                 OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(CustPostingGr);
                 Currency.Initialize(SalesHeader."Currency Code");
@@ -142,8 +143,9 @@ codeunit 60 "Sales-Calc. Discount"
                 exit;
 
             if CustInvDiscRecExists(SalesHeader."Invoice Disc. Code") then begin
-                OnAfterCustInvDiscRecExists(SalesHeader);
-                if InvDiscBase <> ChargeBase then
+                ShouldGetCustInvDisc := InvDiscBase <> ChargeBase;
+                OnAfterCustInvDiscRecExists(SalesHeader, CustInvDisc, InvDiscBase, ChargeBase, ShouldGetCustInvDisc);
+                if ShouldGetCustInvDisc then
                     CustInvDisc.GetRec(
                       SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, InvDiscBase);
 
@@ -289,7 +291,7 @@ codeunit 60 "Sales-Calc. Discount"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCustInvDiscRecExists(var SalesHeader: Record "Sales Header")
+    local procedure OnAfterCustInvDiscRecExists(var SalesHeader: Record "Sales Header"; CustInvDisc: Record "Cust. Invoice Disc."; InvDiscBase: Decimal; ChargeBase: Decimal; var ShouldGetCustInvDisc: Boolean)
     begin
     end;
 
@@ -319,7 +321,7 @@ codeunit 60 "Sales-Calc. Discount"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var SalesHeader: Record "Sales Header")
+    local procedure OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var SalesHeader: Record "Sales Header"; CurrencyDate: Date; ChargeBase: Decimal)
     begin
     end;
 

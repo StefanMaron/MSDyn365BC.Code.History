@@ -50,6 +50,7 @@ codeunit 103 "Cust. Entry-Edit"
         OnBeforeCustLedgEntryModify(CustLedgEntry, Rec);
         CustLedgEntry.TestField("Entry No.", "Entry No.");
         CustLedgEntry.Modify();
+        OnRunOnAfterCustLedgEntryModify(Rec, CustLedgEntry);
         Rec := CustLedgEntry;
     end;
 
@@ -64,6 +65,11 @@ codeunit 103 "Cust. Entry-Edit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var CustLedgerEntryRec: Record "Cust. Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterCustLedgEntryModify(var CustLedgerEntryRec: Record "Cust. Ledger Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

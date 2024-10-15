@@ -126,7 +126,7 @@ page 122 "G/L Entries Preview"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger entry that is posted if you post in an additional reporting currency.';
-                    Visible = false;
+                    Visible = ACYVisible;
                 }
                 field("VAT Amount"; "VAT Amount")
                 {
@@ -300,15 +300,21 @@ page 122 "G/L Entries Preview"
 
     trigger OnOpenPage()
     begin
+        GLSetup.GetRecordOnce();
+        if GLSetup."Additional Reporting Currency" <> '' then
+            ACYVisible := true;
+
         SetDimVisibility();
     end;
 
     var
         GLAcc: Record "G/L Account";
+        GLSetup: Record "General Ledger Setup";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
 
     protected var
+        ACYVisible: Boolean;
         Dim1Visible: Boolean;
         Dim2Visible: Boolean;
         Dim3Visible: Boolean;

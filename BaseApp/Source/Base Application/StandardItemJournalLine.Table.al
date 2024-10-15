@@ -58,6 +58,7 @@ table 753 "Standard Item Journal Line"
                 Description := Item.Description;
                 "Inventory Posting Group" := Item."Inventory Posting Group";
                 "Item Category Code" := Item."Item Category Code";
+                OnValidateItemNoOnAfterCopyItemValues(Rec, Item);
 
                 if ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or
                    ("Item Charge No." <> '')
@@ -1021,6 +1022,11 @@ table 753 "Standard Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var StandardItemJournalLine: Record "Standard Item Journal Line"; var xStandardItemJournalLine: Record "Standard Item Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterCopyItemValues(var StandardItemJournalLine: Record "Standard Item Journal Line"; Item: Record Item)
     begin
     end;
 }

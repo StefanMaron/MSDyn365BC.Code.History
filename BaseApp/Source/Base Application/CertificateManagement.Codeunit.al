@@ -310,7 +310,9 @@ codeunit 1259 "Certificate Management"
     [NonDebuggable]
     procedure SignData(DataInStream: InStream; SignatureOutStream: OutStream; IsolatedCertificate: Record "Isolated Certificate"; ElectronicSignatureProvider: Interface "Electronic Signature Provider")
     var
+#if not CLEAN19
         SignatureKey: Record "Signature Key";
+#endif
         DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
         DotNetAsymmetricAlgorithm: Codeunit DotNet_AsymmetricAlgorithm;
     begin
@@ -318,9 +320,13 @@ codeunit 1259 "Certificate Management"
         IsolatedCertificate.TestField("Has Private Key");
         GetCertAsDotNetX509Certificate2(IsolatedCertificate, DotNetX509Certificate2);
         DotNetX509Certificate2.PrivateKey(DotNetAsymmetricAlgorithm);
+#if CLEAN19
+        ElectronicSignatureProvider.GetSignature(DataInStream, DotNetAsymmetricAlgorithm.ToXmlString(true), SignatureOutStream);
+#else
         SignatureKey."Signature Algorithm" := Enum::SignatureAlgorithm::RSA;
         SignatureKey.FromXmlString(DotNetAsymmetricAlgorithm.ToXmlString(true));
         ElectronicSignatureProvider.GetSignature(DataInStream, SignatureKey, SignatureOutStream);
+#endif
     end;
 
     [NonDebuggable]

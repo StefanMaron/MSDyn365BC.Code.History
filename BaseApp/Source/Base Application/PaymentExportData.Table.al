@@ -601,14 +601,14 @@ table 1226 "Payment Export Data"
     procedure SetCustomerAsRecipient(var Customer: Record Customer; var CustomerBankAccount: Record "Customer Bank Account")
     begin
         "Recipient Name" := Customer.Name;
-        "Recipient Address" := Customer.Address;
+        "Recipient Address" := CopyStr(Customer.Address, 1, 70);
         "Recipient City" := CopyStr(Customer.City, 1, 35);
         "Recipient County" := Customer.County;
         "Recipient Post Code" := Customer."Post Code";
         "Recipient Country/Region Code" := Customer."Country/Region Code";
         "Recipient Email Address" := Customer."E-Mail";
         "Recipient Bank Name" := CustomerBankAccount.Name;
-        "Recipient Bank Address" := CustomerBankAccount.Address;
+        "Recipient Bank Address" := CopyStr(CustomerBankAccount.Address, 1, 70);
         "Recipient Bank City" := CopyStr(CustomerBankAccount.City, 1, 35);
         "Recipient Bank County" := CustomerBankAccount.County;
         "Recipient Bank Post Code" := CustomerBankAccount."Post Code";
@@ -624,14 +624,14 @@ table 1226 "Payment Export Data"
     procedure SetVendorAsRecipient(var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account")
     begin
         "Recipient Name" := Vendor.Name;
-        "Recipient Address" := Vendor.Address;
+        "Recipient Address" := CopyStr(Vendor.Address, 1, 70);
         "Recipient City" := CopyStr(Vendor.City, 1, 35);
         "Recipient County" := Vendor.County;
         "Recipient Post Code" := Vendor."Post Code";
         "Recipient Country/Region Code" := Vendor."Country/Region Code";
         "Recipient Email Address" := Vendor."E-Mail";
         "Recipient Bank Name" := VendorBankAccount.Name;
-        "Recipient Bank Address" := VendorBankAccount.Address;
+        "Recipient Bank Address" := CopyStr(VendorBankAccount.Address, 1, 70);
         "Recipient Bank City" := CopyStr(VendorBankAccount.City, 1, 35);
         "Recipient Bank County" := VendorBankAccount.County;
         "Recipient Bank Post Code" := VendorBankAccount."Post Code";
@@ -647,7 +647,7 @@ table 1226 "Payment Export Data"
     procedure SetEmployeeAsRecipient(var Employee: Record Employee)
     begin
         "Recipient Name" := CopyStr(Employee.FullName, 1, MaxStrLen("Recipient Name"));
-        "Recipient Address" := Employee.Address;
+        "Recipient Address" := CopyStr(Employee.Address, 1, 70);
         "Recipient City" := CopyStr(Employee.City, 1, 35);
         "Recipient County" := Employee.County;
         "Recipient Post Code" := Employee."Post Code";

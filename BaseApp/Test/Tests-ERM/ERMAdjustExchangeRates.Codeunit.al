@@ -1,5 +1,6 @@
-codeunit 134083 "ERM Adjust Exchange Rates"
+﻿codeunit 134083 "ERM Adjust Exchange Rates"
 {
+    EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = NonRestrictive;
 
@@ -227,7 +228,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, 0);  // Entry will be created with zero amount.
         GLEntry.TestField("System-Created Entry", true);
     end;

@@ -38,10 +38,12 @@ codeunit 1512 "Workflow Create Payment Line"
         GenJournalTemplate.Get(WorkflowStepArgument."General Journal Template Name");
         GenJournalBatch.Get(GenJournalTemplate.Name, WorkflowStepArgument."General Journal Batch Name");
 
+        WorkflowStepInstance.SetLoadFields("Record ID");
         WorkflowStepInstance.SetRange(Argument, WorkflowStepArgument.ID);
         if WorkflowStepInstance.FindFirst then
             RecRef.Get(WorkflowStepInstance."Record ID")
         else begin
+            WorkflowStepInstanceArchive.SetLoadFields("Record ID");
             WorkflowStepInstanceArchive.SetRange(Argument, WorkflowStepArgument.ID);
             if not WorkflowStepInstanceArchive.FindFirst then
                 exit;

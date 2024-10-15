@@ -2,6 +2,7 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -1574,6 +1575,50 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
         GenJournalLine.TestField("Document No.", DocumentNo);
     end;
 
+    [Test]
+    [HandlerFunctions('CalculateDepreciationRequestPostingDatePageHandler')]
+    [Scope('OnPrem')]
+    procedure CalculateDepreciationRunBackgroundDateCheck()
+    var
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        ClientTypeManagement: Codeunit "Client Type Management";
+        CalculateDepreciation: Report "Calculate Depreciation";
+        OldClientType: ClientType;
+    begin
+        // [SCENARIO 408658] Calculate Depreciation, when scheduled should use saved dates instead workdate(it was real date before)
+        Initialize();
+
+        // [GIVEN] Calculate Depreciation is initialized with Posting Date/FA Posting Date = Workdate + 1 day
+        CalculateDepreciation.InitializeRequest('', WorkDate() + 1, false, 0, WorkDate() + 1, '', '', false);
+
+        // [WHEN] Calculate Depreciation request page is opened 
+        CalculateDepreciation.UseRequestPage(true);
+        CalculateDepreciation.Run();
+
+        // [THEN] "Posting Date"/"FA Posting Date" on request page = Workdate
+        Assert.AreEqual(WorkDate(), LibraryVariableStorage.DequeueDate(), 'Wrong FA Posting Date');
+        Assert.AreEqual(WorkDate(), LibraryVariableStorage.DequeueDate(), 'Wrong Posting Date');
+
+        // [GIVEN] Client type = background
+        BindSubscription(TestClientTypeSubscriber);
+        OldClientType := ClientTypeManagement.GetCurrentClientType();
+        TestClientTypeSubscriber.SetClientType(ClientType::Background);
+
+        // [GIVEN] Calculate Depreciation is initialized with Posting Date/FA Posting Date = Workdate + 1 day
+        CalculateDepreciation.InitializeRequest('', WorkDate() + 1, false, 0, WorkDate() + 1, '', '', false);
+
+        // [WHEN] Calculated Depreciation request page is opened in background (simulate scheduled report)
+        CalculateDepreciation.Run();
+
+        // [THEN] "Posting Date"/"FA Posting Date" on request page = Workdate + 1
+        Assert.AreEqual(WorkDate() + 1, LibraryVariableStorage.DequeueDate(), 'Wrong FA Posting Date');
+        Assert.AreEqual(WorkDate() + 1, LibraryVariableStorage.DequeueDate(), 'Wrong Posting Date');
+
+        // tear down
+        TestClientTypeSubscriber.SetClientType(OldClientType);
+        UnbindSubscription(TestClientTypeSubscriber);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Fixed Assets Reports - II");
@@ -2610,6 +2655,15 @@ codeunit 134981 "ERM Fixed Assets Reports - II"
     begin
         Assert.ExpectedMessage(CompletionStatsTok, Question);
         Reply := false;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CalculateDepreciationRequestPostingDatePageHandler(var CalculateDepreciationReport: TestRequestPage "Calculate Depreciation")
+    begin
+        LibraryVariableStorage.Enqueue(CalculateDepreciationReport.FAPostingDate.AsDate());
+        LibraryVariableStorage.Enqueue(CalculateDepreciationReport.PostingDate.AsDate());
+        CalculateDepreciationReport.Cancel().Invoke();
     end;
 }
 

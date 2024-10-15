@@ -7,12 +7,22 @@ codeunit 104150 "Upgrade - Local App"
     end;
 
     trigger OnUpgradePerDatabase()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade('') then
+            exit;
+         
         UpdatePermissions();
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         UpdateVATPostingSetup();
         UpdateVATControlReportLine();
         UpdateSalesReceivablesSetup();

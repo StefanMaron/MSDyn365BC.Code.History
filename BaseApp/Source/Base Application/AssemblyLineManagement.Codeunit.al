@@ -40,6 +40,8 @@ codeunit 905 "Assembly Line Management"
     local procedure SetLinkToBOM(AsmHeader: Record "Assembly Header"; var BOMComponent: Record "BOM Component")
     begin
         BOMComponent.SetRange("Parent Item No.", AsmHeader."Item No.");
+
+        OnAfterSetLinkToBOM(BOMComponent, AsmHeader);
     end;
 
     procedure GetNextAsmLineNo(var AsmLine: Record "Assembly Line"; AsmLineRecordIsTemporary: Boolean): Integer
@@ -772,6 +774,11 @@ codeunit 905 "Assembly Line Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAddBOMLineOnAfterValidatedNo(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLinkToBOM(var BOMComponent: Record "BOM Component"; var AssemblyHeader: Record "Assembly Header")
     begin
     end;
 

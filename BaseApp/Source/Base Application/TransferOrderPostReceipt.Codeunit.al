@@ -132,7 +132,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
 #endif
                     OnCheckTransLine(TransLine, TransHeader, Location, WhseReceive);
 
-                    InsertTransRcptLine(TransRcptHeader."No.", TransRcptLine, TransLine);
+                    InsertTransRcptLine(TransRcptHeader, TransRcptLine, TransLine);
                 until TransLine.Next() = 0;
 
             OnRunOnAfterInsertTransRcptLines(TransRcptHeader, TransLine, TransHeader, Location, WhseReceive);
@@ -338,7 +338,14 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     local procedure CheckDimComb(TransferHeader: Record "Transfer Header"; TransferLine: Record "Transfer Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDimComb(TransferHeader, TransferLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if TransferLine."Line No." = 0 then
             if not DimMgt.CheckDimIDComb(TransferHeader."Dimension Set ID") then
                 Error(
@@ -512,12 +519,12 @@ codeunit 5705 "TransferOrder-Post Receipt"
         OnAfterInsertTransRcptHeader(TransRcptHeader, TransHeader);
     end;
 
-    local procedure InsertTransRcptLine(ReceiptNo: Code[20]; var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line")
+    local procedure InsertTransRcptLine(TransferReceiptHeader: Record "Transfer Receipt Header"; var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line")
     var
         IsHandled: Boolean;
     begin
         TransRcptLine.Init();
-        TransRcptLine."Document No." := ReceiptNo;
+        TransRcptLine."Document No." := TransferReceiptHeader."No.";
         TransRcptLine.CopyFromTransferLine(TransLine);
         // NAVCZ
 #if not CLEAN18
@@ -527,12 +534,12 @@ codeunit 5705 "TransferOrder-Post Receipt"
         TransRcptLine."Posting Date" := TransHeader."Posting Date";
         // NAVCZ
         IsHandled := false;
-        OnBeforeInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit, IsHandled);
+        OnBeforeInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit, IsHandled, TransferReceiptHeader);
         if IsHandled then
             exit;
 
         TransRcptLine.Insert();
-        OnAfterInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit);
+        OnAfterInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit, TransferReceiptHeader);
 
         if TransLine."Qty. to Receive" > 0 then begin
             OriginalQuantity := TransLine."Qty. to Receive";
@@ -735,7 +742,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean)
+    local procedure OnAfterInsertTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; TransferReceiptHeader: Record "Transfer Receipt Header")
     begin
     end;
 
@@ -755,6 +762,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimComb(TransferHeader: Record "Transfer Header"; TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDimValuePosting(TransferHeader: Record "Transfer Header"; TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
@@ -770,7 +782,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeInsertTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; TransferReceiptHeader: Record "Transfer Receipt Header")
     begin
     end;
 

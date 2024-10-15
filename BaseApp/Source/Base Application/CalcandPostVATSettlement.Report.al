@@ -1,4 +1,4 @@
-﻿#if not CLEAN17
+#if not CLEAN17
 report 20 "Calc. and Post VAT Settlement"
 {
     DefaultLayout = RDLC;
@@ -434,6 +434,8 @@ report 20 "Calc. and Post VAT Settlement"
                             VATEntry.SetFilter("Advance Letter No.", '<>%1', '');
                         // NAVCZ
 
+                        OnClosingGLAndVATEntryOnAfterGetRecordOnAfterSetVATEntryFilters("VAT Posting Setup", VATEntry, "VAT Entry");
+
                         case "VAT Posting Setup"."VAT Calculation Type" of
                             "VAT Posting Setup"."VAT Calculation Type"::"Normal VAT",
                             "VAT Posting Setup"."VAT Calculation Type"::"Reverse Charge VAT",
@@ -691,7 +693,7 @@ report 20 "Calc. and Post VAT Settlement"
         Clear(GenJnlPostLine);
         // NAVCZ
 
-        OnAfterPreReport;
+        OnAfterPreReport("VAT Entry");
     end;
 
     var
@@ -985,7 +987,7 @@ report 20 "Calc. and Post VAT Settlement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPreReport()
+    local procedure OnAfterPreReport(var VATEntry: Record "VAT Entry")
     begin
     end;
 
@@ -1011,6 +1013,11 @@ report 20 "Calc. and Post VAT Settlement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIncrementGenPostingType(OldGenPostingType: Enum "General Posting Type"; var NewGenPostingType: Enum "General Posting Type")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnClosingGLAndVATEntryOnAfterGetRecordOnAfterSetVATEntryFilters(VATPostingSetup: Record "VAT Posting Setup"; var VATEntry: Record "VAT Entry"; var VATEntry2: Record "VAT Entry")
     begin
     end;
 }

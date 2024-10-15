@@ -73,6 +73,7 @@ codeunit 5703 "Catalog Item Management"
 
     procedure NonstockItemVend(NonStock2: Record "Nonstock Item")
     begin
+        OnBeforeNonstockItemVend(NonStock2);
         ItemVend.SetRange("Item No.", NonStock2."Item No.");
         ItemVend.SetRange("Vendor No.", NonStock2."Vendor No.");
         if ItemVend.FindFirst() then
@@ -458,19 +459,27 @@ codeunit 5703 "Catalog Item Management"
 
     procedure InsertItemUnitOfMeasure(UnitOfMeasureCode: Code[10]; ItemNo: Code[20])
     var
-        UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        if not UnitOfMeasure.Get(UnitOfMeasureCode) then begin
-            UnitOfMeasure.Code := UnitOfMeasureCode;
-            UnitOfMeasure.Insert();
-        end;
+        OnBeforeInsertItemUnitOfMeasure(UnitOfMeasureCode, ItemNo);
+        InsertUnitOfMeasure(UnitOfMeasureCode);
         if not ItemUnitOfMeasure.Get(ItemNo, UnitOfMeasureCode) then begin
             ItemUnitOfMeasure."Item No." := ItemNo;
             ItemUnitOfMeasure.Code := UnitOfMeasureCode;
             ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
             ItemUnitOfMeasure.Insert();
         end;
+    end;
+
+    local procedure InsertUnitOfMeasure(UnitOfMeasureCode: Code[10])
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        if not UnitOfMeasure.Get(UnitOfMeasureCode) then begin
+            UnitOfMeasure.Code := UnitOfMeasureCode;
+            UnitOfMeasure.Insert();
+        end;
+        OnAfterInsertUnitOfMeasure(UnitOfMeasureCode);
     end;
 
     procedure GetNewItemNo(NonstockItem: Record "Nonstock Item"; Length1: Integer; Length2: Integer) NewItemNo: Code[20]
@@ -606,6 +615,11 @@ codeunit 5703 "Catalog Item Management"
 #endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertUnitOfMeasure(UnitOfMeasureCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnNonstockItemReferenceOnAfterSetBarCodeFilters(var ItemReference: Record "Item Reference"; NonstockItem: Record "Nonstock Item")
     begin
     end;
@@ -632,6 +646,16 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     procedure OnBeforeCreateItemFromNonstock(var NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertItemUnitOfMeasure(UnitOfMeasureCode: Code[10]; ItemNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNonstockItemVend(NonStockItem: Record "Nonstock Item")
     begin
     end;
 

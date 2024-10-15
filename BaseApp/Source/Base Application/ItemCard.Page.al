@@ -1890,15 +1890,6 @@ page 30 "Item Card"
                     RunPageLink = "Item No." = FIELD("No.");
                     ToolTip = 'Set up the different units that the item can be traded in, such as piece, box, or hour.';
                 }
-                action("Unit Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Unit Group';
-                    Image = UnitOfMeasure;
-                    RunObject = Page "Item Unit Group List";
-                    RunPageLink = "Source No." = field("No."), "Source Type" = const(Item);
-                    ToolTip = 'View unit group associated with the item.';
-                }
                 action("E&xtended Texts")
                 {
                     ApplicationArea = Suite;
@@ -1972,6 +1963,15 @@ page 30 "Item Card"
                     begin
                         CRMIntegrationManagement.ShowCRMEntityFromRecordID(RecordId);
                     end;
+                }
+                action("Unit Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Unit Group';
+                    Image = UnitOfMeasure;
+                    RunObject = Page "Item Unit Group List";
+                    RunPageLink = "Source No." = field("No."), "Source Type" = const(Item);
+                    ToolTip = 'View unit group associated with the item.';
                 }
                 action(CRMSynchronizeNow)
                 {

@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 codeunit 444 "Purchase-Post Prepayments"
 {
     Permissions = TableData "Purchase Line" = imd,
@@ -306,10 +306,7 @@ codeunit 444 "Purchase-Post Prepayments"
             repeat
                 LineCount := LineCount + 1;
                 Window.Update(2, LineCount);
-                if TempPrepmtInvLineBuffer."Line No." <> 0 then
-                    LineNo := PrevLineNo + TempPrepmtInvLineBuffer."Line No."
-                else
-                    LineNo := PrevLineNo + 10000;
+                LineNo := PrevLineNo + 10000;
                 case DocumentType of
                     DocumentType::Invoice:
                         begin

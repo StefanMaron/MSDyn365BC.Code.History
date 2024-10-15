@@ -1073,7 +1073,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
 
         // [GIVEN] Template with data and dimensions, "Price Includes VAT" = true
-        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
         ItemTempl."Price Includes VAT" := true;
         ItemTempl.Modify(true);
 
@@ -1851,6 +1851,78 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Vendor.TestField("Currency Code");
     end;
 
+    [Test]
+    procedure CustomerRecordAfterApplyCustomerTemplate()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 414127] CustomerTemplMgt.ApplyCustomerTemplate(Customer, CustomerTempl) returns the valid Customer record state
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+
+        CustomerTemplMgt.ApplyCustomerTemplate(Customer, CustomerTempl);
+        Customer.TestField("Global Dimension 1 Code", GetGlobalDim1Value());
+    end;
+
+    [Test]
+    procedure VendorRecordAfterApplyVendorTemplate()
+    var
+        Vendor: Record Vendor;
+        VendorTempl: Record "Vendor Templ.";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 414127] VendorTemplMgt.ApplyVendorTemplate(Vendor, VendorTempl) returns the valid Vendor record state
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateVendorTemplateWithDataAndDimensions(VendorTempl);
+
+        VendorTemplMgt.ApplyVendorTemplate(Vendor, VendorTempl);
+        Vendor.TestField("Global Dimension 1 Code", GetGlobalDim1Value());
+    end;
+
+    [Test]
+    procedure EmployeeRecordAfterApplyEmployeeTemplate()
+    var
+        Employee: Record Employee;
+        EmployeeTempl: Record "Employee Templ.";
+        EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 414127] EmployeeTemplMgt.ApplyEmployeeTemplate(Employee, EmployeeTempl) returns the valid Employee record state
+        Initialize();
+
+        LibraryHumanResource.CreateEmployee(Employee);
+        CreateEmployeeTemplateWithDataAndDimensions(EmployeeTempl);
+
+        EmployeeTemplMgt.ApplyEmployeeTemplate(Employee, EmployeeTempl);
+        Employee.TestField("Global Dimension 1 Code", GetGlobalDim1Value());
+    end;
+
+    [Test]
+    procedure ItemRecordAfterApplyItemTemplate()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 414127] ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl) returns the valid Item record state
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+        Item.TestField("Global Dimension 1 Code", GetGlobalDim1Value());
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Cust/Vend/Item/Empl Templates");
@@ -2011,6 +2083,18 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         ItemTempl.Modify();
     end;
 
+    local procedure CreateEmployeeTemplateWithDataAndDimensions(var EmployeeTempl: Record "Employee Templ.")
+    var
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryTemplates.CreateEmployeeTemplateWithDataAndDimensions(EmployeeTempl);
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        EmployeeTempl."Global Dimension 1 Code" := DimensionValue.Code;
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        EmployeeTempl."Global Dimension 2 Code" := DimensionValue.Code;
+        EmployeeTempl.Modify();
+    end;
+
     local procedure CreateShipmentMethodCode(): Code[10]
     var
         ShipmentMethod: Record "Shipment Method";
@@ -2019,6 +2103,14 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), DATABASE::"Shipment Method");
         ShipmentMethod.Insert();
         exit(ShipmentMethod.Code);
+    end;
+
+    local procedure GetGlobalDim1Value(): Code[20]
+    var
+        DimensionValue: Record "Dimension Value";
+    begin
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        exit(DimensionValue.Code);
     end;
 
     local procedure VerifyTemplateGlobalDimensionIsDefaultDimension(TemplateTableId: Integer; TemplateCode: Code[20]; GlobalDim1CodeValue: Code[20]; GlobalDim2CodeValue: Code[20])

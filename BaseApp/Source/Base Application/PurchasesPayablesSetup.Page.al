@@ -123,7 +123,7 @@ page 460 "Purchases & Payables Setup"
                 field("Default Posting Date"; "Default Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies how to use the Posting Date field on purchase documents.';
+                    ToolTip = 'Specifies which date must be used as the default posting date on purchase documents.';
                 }
                 field("Default Qty. to Receive"; "Default Qty. to Receive")
                 {
@@ -176,7 +176,8 @@ page 460 "Purchases & Payables Setup"
                 }
                 field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
+                    Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of purchase invoices.';
                     Visible = false;

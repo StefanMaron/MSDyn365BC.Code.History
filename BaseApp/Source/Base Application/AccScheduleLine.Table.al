@@ -643,7 +643,7 @@ table 85 "Acc. Schedule Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetCaptionClass(var AccScheduleLine: Record "Acc. Schedule Line"; AccSchedName: Record "Acc. Schedule Name"; AnalysisViewDimType: Integer; Result: Text[250]; var IsHandled: Boolean)
+    local procedure OnBeforeGetCaptionClass(var AccScheduleLine: Record "Acc. Schedule Line"; AccSchedName: Record "Acc. Schedule Name"; AnalysisViewDimType: Integer; var Result: Text[250]; var IsHandled: Boolean)
     begin
     end;
 

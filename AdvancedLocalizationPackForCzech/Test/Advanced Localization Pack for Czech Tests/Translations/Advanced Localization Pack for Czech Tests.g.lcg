@@ -14,6 +14,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Applying G/L Entries CZA - NamedType UnexpectedRemAmtErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2277438616 - Method 611022303 - NamedType 2921628094" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dates must be equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Field Mapping Date Formula CZA - Method FieldMappingAppendValueOfFieldTextType - NamedType DatesErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2505294720 - NamedType 1941270961" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Customer Posting Group  cannot be changed in Customer No.='%1'.]]></Val>

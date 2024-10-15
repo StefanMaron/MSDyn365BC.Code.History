@@ -2013,6 +2013,8 @@ codeunit 5988 "Serv-Documents Mgt."
             ServLine.SetCurrentKey("Document Type", "Document No.", Type, "No.")
         else
             ServLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
+
+        OnAfterSortLines(ServLine);
     end;
 
     local procedure UpdateServiceLedgerEntry(ServLedgEntryNo: Integer)
@@ -2204,6 +2206,11 @@ codeunit 5988 "Serv-Documents Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSortLines(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFinalize(var ServiceHeader: Record "Service Header"; var CloseCondition: Boolean)
     begin
     end;
@@ -2267,7 +2274,6 @@ codeunit 5988 "Serv-Documents Mgt."
     local procedure OnBeforeServShptItemLineInsert(var ServiceShptItemLine: Record "Service Shipment Item Line"; ServiceItemLine: Record "Service Item Line")
     begin
     end;
-
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetGenJnlLineDocNumbers(var ServiceHeader: Record "Service Header"; var DocType: Integer; var DocNo: Code[20]; var ExtDocNo: Code[35])

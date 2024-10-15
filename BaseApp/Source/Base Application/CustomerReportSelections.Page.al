@@ -18,54 +18,53 @@ page 9657 "Customer Report Selections"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Usage';
-                    OptionCaption = 'Quote,Confirmation Order,Invoice,Credit Memo,Customer Statement,Job Quote,Reminder,Shipment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Adv. Letter,Adv. Invoice,Adv. Cr.Memo';
                     ToolTip = 'Specifies which type of document the report is used for.';
 
                     trigger OnValidate()
                     begin
                         case Usage2 of
-                            Usage2::Quote:
-                                Usage := Usage::"S.Quote";
-                            Usage2::"Confirmation Order":
-                                Usage := Usage::"S.Order";
-                            Usage2::Invoice:
-                                Usage := Usage::"S.Invoice";
-                            Usage2::"Credit Memo":
-                                Usage := Usage::"S.Cr.Memo";
-                            Usage2::"Customer Statement":
-                                Usage := Usage::"C.Statement";
-                            Usage2::"Job Quote":
-                                Usage := Usage::JQ;
-                            Usage2::Reminder:
-                                Usage := Usage::Reminder;
-                            Usage2::Shipment:
-                                Usage := Usage::"S.Shipment";
+                            "Custom Report Selection Sales"::Quote:
+                                Rec.Usage := "Report Selection Usage"::"S.Quote";
+                            "Custom Report Selection Sales"::"Confirmation Order":
+                                Rec.Usage := "Report Selection Usage"::"S.Order";
+                            "Custom Report Selection Sales"::Invoice:
+                                Rec.Usage := "Report Selection Usage"::"S.Invoice";
+                            "Custom Report Selection Sales"::"Credit Memo":
+                                Rec.Usage := "Report Selection Usage"::"S.Cr.Memo";
+                            "Custom Report Selection Sales"::"Customer Statement":
+                                Rec.Usage := "Report Selection Usage"::"C.Statement";
+                            "Custom Report Selection Sales"::"Job Quote":
+                                Rec.Usage := "Report Selection Usage"::JQ;
+                            "Custom Report Selection Sales"::Reminder:
+                                Rec.Usage := "Report Selection Usage"::Reminder;
+                            "Custom Report Selection Sales"::Shipment:
+                                Rec.Usage := "Report Selection Usage"::"S.Shipment";
                             // NAVCZ
-                            Usage2::"Adv. Letter":
-                                Usage := Usage::"S.Adv.Let";
-                            Usage2::"Adv. Invoice":
-                                Usage := Usage::"S.Adv.Inv";
-                            Usage2::"Adv. Cr.Memo":
-                                Usage := Usage::"S.Adv.CrM";
-                        // NAVCZ
+                            "Custom Report Selection Sales"::"Adv. Letter":
+                                Rec.Usage := "Report Selection Usage"::"S.Adv.Let";
+                            "Custom Report Selection Sales"::"Adv. Invoice":
+                                Rec.Usage := "Report Selection Usage"::"S.Adv.Inv";
+                            "Custom Report Selection Sales"::"Adv. Cr.Memo":
+                                Rec.Usage := "Report Selection Usage"::"S.Adv.CrM";
+                            // NAVCZ
                             else
                                 OnValidateUsage2OnCaseElse(Rec, Usage2);
                         end;
                     end;
                 }
-                field(ReportID; "Report ID")
+                field(ReportID; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report ID';
                     ToolTip = 'Specifies the ID of the report.';
                 }
-                field(ReportCaption; "Report Caption")
+                field(ReportCaption; Rec."Report Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report Caption';
                     ToolTip = 'Specifies the name of the report.';
                 }
-                field("Custom Report Description"; "Custom Report Description")
+                field("Custom Report Description"; Rec."Custom Report Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Custom Layout Description';
@@ -75,13 +74,13 @@ page 9657 "Customer Report Selections"
 
                     trigger OnDrillDown()
                     begin
-                        LookupCustomReportDescription;
+                        Rec.LookupCustomReportDescription();
                         CurrPage.Update(true);
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupCustomReportDescription;
+                        Rec.LookupCustomReportDescription();
                         CurrPage.Update(true);
                     end;
 
@@ -89,21 +88,21 @@ page 9657 "Customer Report Selections"
                     var
                         CustomReportLayout: Record "Custom Report Layout";
                     begin
-                        if "Custom Report Description" = '' then begin
-                            Validate("Custom Report Layout Code", '');
-                            Modify(true);
+                        if Rec."Custom Report Description" = '' then begin
+                            Rec.Validate("Custom Report Layout Code", '');
+                            Rec.Modify(true);
                         end else begin
-                            CustomReportLayout.SetRange("Report ID", "Report ID");
-                            CustomReportLayout.SetFilter(Description, StrSubstNo('@*%1*', "Custom Report Description"));
+                            CustomReportLayout.SetRange("Report ID", Rec."Report ID");
+                            CustomReportLayout.SetFilter(Description, StrSubstNo('@*%1*', Rec."Custom Report Description"));
                             if not CustomReportLayout.FindFirst then
-                                Error(CouldNotFindCustomReportLayoutErr, "Custom Report Description");
+                                Error(CouldNotFindCustomReportLayoutErr, Rec."Custom Report Description");
 
-                            Validate("Custom Report Layout Code", CustomReportLayout.Code);
-                            Modify(true);
+                            Rec.Validate("Custom Report Layout Code", CustomReportLayout.Code);
+                            Rec.Modify(true);
                         end;
                     end;
                 }
-                field(SendToEmail; "Send To Email")
+                field(SendToEmail; Rec."Send To Email")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send To Email';
@@ -111,21 +110,21 @@ page 9657 "Customer Report Selections"
 
                     trigger OnAssistEdit()
                     begin
-                        ShowSelectedContacts();
+                        Rec.ShowSelectedContacts();
                     end;
                 }
-                field("Use for Email Body"; "Use for Email Body")
+                field("Use for Email Body"; Rec."Use for Email Body")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
                 }
-                field("Email Body Layout Code"; "Email Body Layout Code")
+                field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the email body layout that is used.';
                     Visible = false;
                 }
-                field("Email Body Layout Description"; "Email Body Layout Description")
+                field("Email Body Layout Description"; Rec."Email Body Layout Description")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
@@ -134,13 +133,13 @@ page 9657 "Customer Report Selections"
 
                     trigger OnDrillDown()
                     begin
-                        LookupEmailBodyDescription;
+                        Rec.LookupEmailBodyDescription();
                         CurrPage.Update(true);
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupEmailBodyDescription;
+                        Rec.LookupEmailBodyDescription();
                         CurrPage.Update(true);
                     end;
                 }
@@ -169,7 +168,7 @@ page 9657 "Customer Report Selections"
                 begin
                     CustomReportSelection := Rec;
                     FilterCustomerUsageReportSelections(ReportSelections);
-                    CopyFromReportSelections(ReportSelections, Database::Customer, GetFilter("Source No."));
+                    Rec.CopyFromReportSelections(ReportSelections, Database::Customer, Rec.GetFilter("Source No."));
                     CurrPage.SetRecord(CustomReportSelection);
                 end;
             }
@@ -188,7 +187,7 @@ page 9657 "Customer Report Selections"
                 var
                     ContBusRel: Record "Contact Business Relation";
                 begin
-                    GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Customer.AsInteger(), GetFilter("Source No."));
+                    Rec.GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Customer.AsInteger(), Rec.GetFilter("Source No."));
                 end;
             }
         }
@@ -196,71 +195,71 @@ page 9657 "Customer Report Selections"
 
     trigger OnAfterGetRecord()
     begin
-        MapTableUsageValueToPageValue;
-        GetSendToEmail(false);
+        MapTableUsageValueToPageValue();
+        Rec.GetSendToEmail(false);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        InitUsage;
-        MapTableUsageValueToPageValue;
+        Rec.InitUsage();
+        MapTableUsageValueToPageValue();
     end;
 
     var
-        Usage2: Option Quote,"Confirmation Order",Invoice,"Credit Memo","Customer Statement","Job Quote",Reminder,Shipment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"Adv. Letter","Adv. Invoice","Adv. Cr.Memo";
         CouldNotFindCustomReportLayoutErr: Label 'There is no custom report layout with %1 in the description.', Comment = '%1 Description of custom report layout';
+
+    protected var
+        Usage2: Enum "Custom Report Selection Sales";
 
     local procedure MapTableUsageValueToPageValue()
     var
         CustomReportSelection: Record "Custom Report Selection";
     begin
-        case Usage of
-            CustomReportSelection.Usage::"S.Quote":
-                Usage2 := Usage2::Quote;
-            CustomReportSelection.Usage::"S.Order":
-                Usage2 := Usage2::"Confirmation Order";
-            CustomReportSelection.Usage::"S.Invoice":
-                Usage2 := Usage2::Invoice;
-            CustomReportSelection.Usage::"S.Cr.Memo":
-                Usage2 := Usage2::"Credit Memo";
-            CustomReportSelection.Usage::"C.Statement":
-                Usage2 := Usage2::"Customer Statement";
-            CustomReportSelection.Usage::JQ:
-                Usage2 := Usage2::"Job Quote";
-            CustomReportSelection.Usage::Reminder:
-                Usage2 := Usage2::Reminder;
-            CustomReportSelection.Usage::"S.Shipment":
-                Usage2 := Usage2::Shipment;
+        case Rec.Usage of
+            "Report Selection Usage"::"S.Quote":
+                Usage2 := "Custom Report Selection Sales"::Quote;
+            "Report Selection Usage"::"S.Order":
+                Usage2 := "Custom Report Selection Sales"::"Confirmation Order";
+            "Report Selection Usage"::"S.Invoice":
+                Usage2 := "Custom Report Selection Sales"::Invoice;
+            "Report Selection Usage"::"S.Cr.Memo":
+                Usage2 := "Custom Report Selection Sales"::"Credit Memo";
+            "Report Selection Usage"::"C.Statement":
+                Usage2 := "Custom Report Selection Sales"::"Customer Statement";
+            "Report Selection Usage"::JQ:
+                Usage2 := "Custom Report Selection Sales"::"Job Quote";
+            "Report Selection Usage"::Reminder:
+                Usage2 := "Custom Report Selection Sales"::Reminder;
+            "Report Selection Usage"::"S.Shipment":
+                Usage2 := "Custom Report Selection Sales"::Shipment;
             // NAVCZ
-            CustomReportSelection.Usage::"S.Adv.Let":
+            "Report Selection Usage"::"S.Adv.Let":
                 Usage2 := Usage2::"Adv. Letter";
-            CustomReportSelection.Usage::"S.Adv.Inv":
+            "Report Selection Usage"::"S.Adv.Inv":
                 Usage2 := Usage2::"Adv. Invoice";
-            CustomReportSelection.Usage::"S.Adv.CrM":
+            "Report Selection Usage"::"S.Adv.CrM":
                 Usage2 := Usage2::"Adv. Cr.Memo";
-        // NAVCZ
+            // NAVCZ
             else
                 OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, Usage2);
         end;
     end;
 
     local procedure FilterCustomerUsageReportSelections(var ReportSelections: Record "Report Selections")
-    var
-        CustomReportSelection: Record "Custom Report Selection";
     begin
         ReportSelections.SetFilter(
             Usage, '%1|%2|%3|%4|%5|%6|%7|%8|%9|%10|%11',
-            CustomReportSelection.Usage::"S.Quote",
-            CustomReportSelection.Usage::"S.Order",
-            CustomReportSelection.Usage::"S.Invoice",
-            CustomReportSelection.Usage::"S.Cr.Memo",
-            CustomReportSelection.Usage::"C.Statement",
-            CustomReportSelection.Usage::JQ,
-            CustomReportSelection.Usage::Reminder,
-            CustomReportSelection.Usage::"S.Shipment",
-            CustomReportSelection.Usage::"S.Adv.Let",
-            CustomReportSelection.Usage::"S.Adv.Inv",
-            CustomReportSelection.Usage::"S.Adv.CrM");
+            "Report Selection Usage"::"S.Quote",
+            "Report Selection Usage"::"S.Order",
+            "Report Selection Usage"::"S.Invoice",
+            "Report Selection Usage"::"S.Cr.Memo",
+            "Report Selection Usage"::"C.Statement",
+            "Report Selection Usage"::JQ,
+            "Report Selection Usage"::Reminder,
+            "Report Selection Usage"::"S.Shipment",
+            "Report Selection Usage"::"S.Adv.Let",
+            "Report Selection Usage"::"S.Adv.Inv",
+            "Report Selection Usage"::"S.Adv.CrM");
     end;
 
     [IntegrationEvent(false, false)]

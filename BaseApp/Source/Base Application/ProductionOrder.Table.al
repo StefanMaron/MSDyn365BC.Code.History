@@ -282,7 +282,7 @@ table 5405 "Production Order"
                             "Ending Date-Time" := CreateDateTime("Ending Date", "Ending Time");
                         end;
                         AdjustStartEndingDate;
-                        Modify;
+                        Modify(true);
                     end;
                     OnValidateDueDateOnAfterModify(Rec);
                 end;

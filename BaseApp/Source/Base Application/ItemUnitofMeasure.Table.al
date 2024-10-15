@@ -290,7 +290,13 @@ table 5404 "Item Unit of Measure"
     local procedure CheckNoOutstandingQtyPurchLine()
     var
         PurchLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckNoOutstandingQtyPurchLine(Rec, xRec, PurchLine, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchLine.SetRange(Type, PurchLine.Type::Item);
         PurchLine.SetRange("No.", "Item No.");
         PurchLine.SetRange("Unit of Measure Code", Code);
@@ -304,7 +310,13 @@ table 5404 "Item Unit of Measure"
     local procedure CheckNoOutstandingQtySalesLine()
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckNoOutstandingQtySalesLine(Rec, xRec, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         SalesLine.SetRange("No.", "Item No.");
         SalesLine.SetRange("Unit of Measure Code", Code);
@@ -318,7 +330,13 @@ table 5404 "Item Unit of Measure"
     local procedure CheckNoOutstandingQtyTransferLine()
     var
         TransferLine: Record "Transfer Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckNoOutstandingQtyTransferLine(Rec, xRec, TransferLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TransferLine.SetRange("Item No.", "Item No.");
         TransferLine.SetRange("Unit of Measure Code", Code);
         TransferLine.SetFilter("Outstanding Quantity", '<>%1', 0);
@@ -331,7 +349,13 @@ table 5404 "Item Unit of Measure"
     local procedure CheckNoRemQtyProdOrderLine()
     var
         ProdOrderLine: Record "Prod. Order Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckNoRemQtyProdOrderLine(Rec, xRec, ProdOrderLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ProdOrderLine.SetRange("Item No.", "Item No.");
         ProdOrderLine.SetRange("Unit of Measure Code", Code);
         ProdOrderLine.SetFilter("Remaining Quantity", '<>%1', 0);
@@ -345,7 +369,13 @@ table 5404 "Item Unit of Measure"
     local procedure CheckNoRemQtyProdOrderComponent()
     var
         ProdOrderComponent: Record "Prod. Order Component";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckNoRemQtyProdOrderComponent(Rec, xRec, ProdOrderComponent, IsHandled);
+        if IsHandled then
+            exit;
+
         ProdOrderComponent.SetRange("Item No.", "Item No.");
         ProdOrderComponent.SetRange("Unit of Measure Code", Code);
         ProdOrderComponent.SetFilter("Remaining Quantity", '<>%1', 0);
@@ -359,7 +389,13 @@ table 5404 "Item Unit of Measure"
     local procedure CheckNoOutstandingQtyServiceLine()
     var
         ServiceLine: Record "Service Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckNoOutstandingQtyServiceLine(Rec, xRec, ServiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ServiceLine.SetRange(Type, ServiceLine.Type::Item);
         ServiceLine.SetRange("No.", "Item No.");
         ServiceLine.SetRange("Unit of Measure Code", Code);
@@ -373,7 +409,13 @@ table 5404 "Item Unit of Measure"
     local procedure CheckNoRemQtyAssemblyHeader()
     var
         AssemblyHeader: Record "Assembly Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckNoRemQtyAssemblyHeader(Rec, xRec, AssemblyHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         AssemblyHeader.SetRange("Item No.", "Item No.");
         AssemblyHeader.SetRange("Unit of Measure Code", Code);
         AssemblyHeader.SetFilter("Remaining Quantity", '<>%1', 0);
@@ -386,7 +428,13 @@ table 5404 "Item Unit of Measure"
     local procedure CheckNoRemQtyAssemblyLine()
     var
         AssemblyLine: Record "Assembly Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckNoRemQtyAssemblyLine(Rec, xRec, AssemblyLine, IsHandled);
+        if IsHandled then
+            exit;
+
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
         AssemblyLine.SetRange("No.", "Item No.");
         AssemblyLine.SetRange("Unit of Measure Code", Code);
@@ -424,6 +472,46 @@ table 5404 "Item Unit of Measure"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcCubage(var ItemUnitOfMeasure: Record "Item Unit of Measure"; var xItemUnitOfMeasure: Record "Item Unit of Measure"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoRemQtyAssemblyLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var AssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoOutstandingQtySalesLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoRemQtyAssemblyHeader(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoRemQtyProdOrderLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoRemQtyProdOrderComponent(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ProdOrderComponent: Record "Prod. Order Component"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoOutstandingQtyPurchLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoOutstandingQtyServiceLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoOutstandingQtyTransferLine(ItemUnitOfMeasure: Record "Item Unit of Measure"; xItemUnitOfMeasure: Record "Item Unit of Measure"; var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
 }

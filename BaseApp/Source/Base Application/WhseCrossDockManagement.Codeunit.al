@@ -52,6 +52,8 @@ codeunit 5780 "Whse. Cross-Dock Management"
         FilterCrossDockOpp(WhseCrossDockOpp);
         CalcCrossDockWithoutSpecOrder(WhseCrossDockOpp, TempWhseRcptLineNoSpecOrder, TempItemVariant);
         CalcCrossDockForSpecialOrder(WhseCrossDockOpp, TempWhseRcptLineWthSpecOrder);
+
+        OnAfterCalculateCrossDockLines(WhseCrossDockOpp, NewTemplateName, NewNameNo, NewLocationCode);
     end;
 
     local procedure CalcCrossDockForSpecialOrder(var WhseCrossDockOpp: Record "Whse. Cross-Dock Opportunity"; var TempWhseRcptLine: Record "Warehouse Receipt Line" temporary)
@@ -118,12 +120,13 @@ codeunit 5780 "Whse. Cross-Dock Management"
         end;
     end;
 
-    local procedure CalcRemainingNeededQtyBase(ItemNo: Code[20]; VariantCode: Code[10]; QtyNeededBase: Decimal; var QtyToCrossDockBase: Decimal; var QtyOnCrossDockBase: Decimal; QtyToHandleBase: Decimal) RemainingNeededQtyBase: Decimal
+    procedure CalcRemainingNeededQtyBase(ItemNo: Code[20]; VariantCode: Code[10]; QtyNeededBase: Decimal; var QtyToCrossDockBase: Decimal; var QtyOnCrossDockBase: Decimal; QtyToHandleBase: Decimal) RemainingNeededQtyBase: Decimal
     var
         Dummy: Decimal;
     begin
         CalcCrossDockedItems(ItemNo, VariantCode, '', LocationCode, Dummy, QtyOnCrossDockBase);
         QtyOnCrossDockBase += CalcCrossDockReceivedNotCrossDocked(LocationCode, ItemNo, VariantCode);
+        OnCalcRemainingNeededQtyBaseOnAfterCalcQtyOnCrossDockBase(ItemNo, VariantCode, QtyNeededBase, HasSpecialOrder(), QtyOnCrossDockBase);
 
         QtyToCrossDockBase := QtyNeededBase - QtyOnCrossDockBase;
         if QtyToHandleBase < QtyToCrossDockBase then begin
@@ -150,6 +153,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
 
         CalcCrossDockedItems(ItemNo, VariantCode, '', LocationCode, Dummy, QtyOnCrossDockBase);
         QtyOnCrossDockBase += CalcCrossDockReceivedNotCrossDocked(LocationCode, ItemNo, VariantCode);
+        OnCalculateCrossDockLineOnAfterCalcQtyOnCrossDockBase(ItemNo, VariantCode, QtyNeededBase, HasSpecialOrder(), QtyOnCrossDockBase);
 
         QtyToCrossDockBase := QtyNeededBase - QtyOnCrossDockBase;
         if QtyToHandleBase < QtyToCrossDockBase then
@@ -185,6 +189,8 @@ codeunit 5780 "Whse. Cross-Dock Management"
     end;
 
     procedure InsertCrossDockOpp(var WhseCrossDockOpp: Record "Whse. Cross-Dock Opportunity"; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; QtyOutstanding: Decimal; QtyOutstandingBase: Decimal; QtyOnPick: Decimal; QtyOnPickBase: Decimal; QtyPicked: Decimal; QtyPickedBase: Decimal; UOMCode: Code[10]; QtyPerUOM: Decimal; DueDate: Date; ItemNo: Code[20]; VariantCode: Code[10]; LineNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
         if HasSpecialOrder and (SourceType <> DATABASE::"Sales Line") then
             exit;
@@ -223,8 +229,10 @@ codeunit 5780 "Whse. Cross-Dock Management"
         WhseCrossDockOpp."Picked Qty. (Base)" := Maximum(WhseCrossDockOpp."Picked Qty. (Base)" + QtyPickedBase, 0);
         WhseCrossDockOpp."Picked Qty." := Maximum(WhseCrossDockOpp."Picked Qty." + QtyPicked, 0);
 
-        OnBeforeCrossDockOppInsert(WhseCrossDockOpp, QtyPerUOM, NameNo, LineNo);
-        WhseCrossDockOpp.Insert();
+        IsHandled := false;
+        OnBeforeCrossDockOppInsert(WhseCrossDockOpp, QtyPerUOM, NameNo, LineNo, IsHandled);
+        if not IsHandled then
+            WhseCrossDockOpp.Insert();
     end;
 
     procedure ShowCrossDock(var CrossDockOpp: Record "Whse. Cross-Dock Opportunity"; SourceTemplateName: Code[10]; SourceNameNo: Code[20]; SourceLineNo: Integer; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10])
@@ -360,6 +368,10 @@ codeunit 5780 "Whse. Cross-Dock Management"
                 QtyPickedBase := QtyBase - OutstandingQtyBase;
             end;
         end;
+
+        OnAfterCalculatePickQty(
+            SourceType, SourceSubtype, SourceNo, SourceLineNo, Qty, QtyBase, OutstandingQty,
+            OutstandingQtyBase, QtyOnPick, QtyOnPickBase, QtyPicked, QtyPickedBase);
     end;
 
     procedure SetTemplate(NewTemplateName: Code[10]; NewNameNo: Code[20]; NewLocationCode: Code[10])
@@ -408,7 +420,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
         end;
     end;
 
-    local procedure FilterCrossDockOpp(var WhseCrossDockOpp: Record "Whse. Cross-Dock Opportunity")
+    procedure FilterCrossDockOpp(var WhseCrossDockOpp: Record "Whse. Cross-Dock Opportunity")
     begin
         WhseCrossDockOpp.SetRange("Source Template Name", TemplateName);
         WhseCrossDockOpp.SetRange("Source Name/No.", NameNo);
@@ -532,7 +544,13 @@ codeunit 5780 "Whse. Cross-Dock Management"
         WhseRequest: Record "Warehouse Request";
         QtyOnPickBase: Decimal;
         QtyPickedBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcCrossDockToTransferOrder(WhseCrossDockOpp, ItemNo, VariantCode, LocationCode, LineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         TransferLine.SetRange("Transfer-from Code", LocationCode);
         TransferLine.SetRange(Status, TransferLine.Status::Released);
         TransferLine.SetRange("Derived From Line No.", 0);
@@ -640,6 +658,16 @@ codeunit 5780 "Whse. Cross-Dock Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculatePickQty(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer; Qty: Decimal; QtyBase: Decimal; OutstandingQty: Decimal; OutstandingQtyBase: Decimal; var QtyOnPick: Decimal; var QtyOnPickBase: Decimal; var QtyPicked: Decimal; var QtyPickedBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateCrossDockLines(var WhseCrossDockOpp: Record "Whse. Cross-Dock Opportunity"; NewTemplateName: Code[10]; NewNameNo: Code[20]; NewLocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFilterCrossDockOpp(var WhseCrossDockOpp: Record "Whse. Cross-Dock Opportunity")
     begin
     end;
@@ -650,7 +678,12 @@ codeunit 5780 "Whse. Cross-Dock Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCrossDockOppInsert(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity"; QtyPerUOM: Decimal; NameNo: Code[20]; LineNo: Integer)
+    local procedure OnBeforeCalcCrossDockToTransferOrder(var WhseCrossDockOpp: Record "Whse. Cross-Dock Opportunity"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; LineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCrossDockOppInsert(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity"; QtyPerUOM: Decimal; NameNo: Code[20]; LineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -686,6 +719,16 @@ codeunit 5780 "Whse. Cross-Dock Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateCrossDockOnAfterAssignCrossDocDate(var WhseCrossDockOpp: Record "Whse. Cross-Dock Opportunity"; var CrossDockDate: Date; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRemainingNeededQtyBaseOnAfterCalcQtyOnCrossDockBase(ItemNo: Code[20]; VariantCode: Code[10]; QtyNeededBase: Decimal; SpecialOrder: Boolean; var QtyOnCrossDockBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateCrossDockLineOnAfterCalcQtyOnCrossDockBase(ItemNo: Code[20]; VariantCode: Code[10]; QtyNeededBase: Decimal; SpecialOrder: Boolean; var QtyOnCrossDockBase: Decimal)
     begin
     end;
 

@@ -625,6 +625,8 @@ report 5753 "Get Source Documents"
             WhseShptHeader."Bin Code" := Location."Shipment Bin Code";
         WhseShptHeader."External Document No." := "Warehouse Request"."External Document No.";
         WhseShptHeader."Shipment Method Code" := "Warehouse Request"."Shipment Method Code";
+        WhseShptHeader."Shipping Agent Code" := "Warehouse Request"."Shipping Agent Code";
+        WhseShptHeader."Shipping Agent Service Code" := "Warehouse Request"."Shipping Agent Service Code";
         WhseShptLine.LockTable();
         OnBeforeWhseShptHeaderInsert(WhseShptHeader, "Warehouse Request", "Sales Line", "Transfer Line", "Sales Header");
         WhseShptHeader.Insert(true);

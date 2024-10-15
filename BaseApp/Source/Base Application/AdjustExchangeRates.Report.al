@@ -864,6 +864,12 @@ report 595 "Adjust Exchange Rates"
 
     trigger OnPostReport()
     begin
+        if GenJnlPostLine.IsGLEntryInconsistent() then
+            GenJnlPostLine.ShowInconsistentEntries();
+
+        if not TestMode then // NAVCZ
+            Commit();
+
         UpdateAnalysisView.UpdateAll(0, true);
 
         if not TestMode then // NAVCZ

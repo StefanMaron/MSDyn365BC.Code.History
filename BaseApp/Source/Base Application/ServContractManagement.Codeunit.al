@@ -2043,7 +2043,7 @@ codeunit 5940 ServContractManagement
         end;
     end;
 
-    procedure GetInvoicePeriodText(InvoicePeriod: Enum "Service Contract Header Invoice Period"): Text[4]
+    procedure GetInvoicePeriodText(InvoicePeriod: Enum "Service Contract Header Invoice Period") InvPeriodText: Text[4]
     var
         ServiceContractHeader: Record "Service Contract Header";
     begin
@@ -2058,6 +2058,8 @@ codeunit 5940 ServContractManagement
                 exit('<6M>');
             ServiceContractHeader."Invoice Period"::Year:
                 exit('<1Y>');
+            else
+                OnGetInvoicePeriodTextOnCaseElse(InvoicePeriod, InvPeriodText);
         end;
     end;
 
@@ -2658,6 +2660,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateServiceLedgerEntryOnBeforeInsertMultipleServLedgEntries(var NextInvDate: Date; ServContractHeader: Record "Service Contract Header"; ServContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetInvoicePeriodTextOnCaseElse(InvoicePeriod: Enum "Service Contract Header Invoice Period"; var InvPeriodText: Text[4])
     begin
     end;
 }

@@ -141,13 +141,7 @@ report 29 "Export Acc. Sched. to Excel"
                               '', TempExcelBuffer."Cell Type"::Text);
                             if ColumnLayout.Find('-') then begin
                                 repeat
-                                    if AccSchedLine.Totaling = '' then
-                                        ColumnValue := 0
-                                    else begin
-                                        ColumnValue := AccSchedManagement.CalcCell(AccSchedLine, ColumnLayout, UseAmtsInAddCurr);
-                                        if AccSchedManagement.GetDivisionError then
-                                            ColumnValue := 0
-                                    end;
+                                    CalcColumnValue();
                                     ColumnNo := ColumnNo + 1;
                                     EnterCell(
                                       RowNo, ColumnNo, MatrixMgt.FormatAmount(ColumnValue, ColumnLayout."Rounding Factor", UseAmtsInAddCurr),
@@ -256,6 +250,19 @@ report 29 "Export Acc. Sched. to Excel"
         ColumnLayoutName := ColumnLayoutName2; // NAVCZ
     end;
 
+    local procedure CalcColumnValue()
+    begin
+        OnBeforeCalcColumnValue(UseAmtsInAddCurr, ColumnLayout);
+        if AccSchedLine.Totaling = '' then
+            ColumnValue := 0
+        else begin
+            ColumnValue := AccSchedManagement.CalcCell(AccSchedLine, ColumnLayout, UseAmtsInAddCurr);
+            if AccSchedManagement.GetDivisionError then
+                ColumnValue := 0
+        end;
+        OnAferCalcColumnValue(UseAmtsInAddCurr, ColumnLayout);
+    end;
+
     local procedure EnterFilterInCell(var RowNo: Integer; "Filter": Text[250]; FieldName: Text[100]; Format: Text[30]; CellType: Option)
     begin
         if Filter <> '' then begin
@@ -338,6 +345,16 @@ report 29 "Export Acc. Sched. to Excel"
             exit(false);
 
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcColumnValue(var UseAmtsInAddCurr: Boolean; var ColumnLayout: Record "Column Layout")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAferCalcColumnValue(var UseAmtsInAddCurr: Boolean; var ColumnLayout: Record "Column Layout")
+    begin
     end;
 }
 

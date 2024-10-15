@@ -775,7 +775,7 @@ codeunit 31020 "Purchase-Post Advances"
         AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
         AdvanceLink.SetRange(Type, AdvanceLink.Type::Purchase);
         AdvanceLink.SetRange("Invoice No.", '');
-        OnRestoreTransfAmountWithoutInvOnAfterSetAdvanceLinkFilters(AdvanceLink);
+        OnRestoreTransfAmountWithoutInvOnAfterSetAdvanceLinkFilters(AdvanceLink, PurchAdvanceLetterHeader);
         if AdvanceLink.FindSet then
             repeat
                 if (AdvanceLink."Transfer Date" <> 0D) and
@@ -1474,7 +1474,7 @@ codeunit 31020 "Purchase-Post Advances"
 
                     TempPurchAdvanceLetterHeader2.TestField("VAT Country/Region Code", PurchInvHeader."VAT Country/Region Code");
 
-                    UpdateAdvLetterLineRelationDeductedAmountAndModify(AdvanceLetterLineRelation, AmountToDeduct);
+                    UpdateAdvLetterLineRelationDeductedAmountAndModify(AdvanceLetterLineRelation, AmountToDeduct, PurchInvHeader);
 
                     TempVendLedgEntryGre.Reset();
                     TempVendLedgEntryGre.DeleteAll();
@@ -1537,12 +1537,12 @@ codeunit 31020 "Purchase-Post Advances"
             until AdvanceLetterLineRelation.Next() = 0;
     end;
 
-    local procedure UpdateAdvLetterLineRelationDeductedAmountAndModify(var AdvanceLetterLineRelation: Record "Advance Letter Line Relation"; AmountToDeduct: Decimal)
+    local procedure UpdateAdvLetterLineRelationDeductedAmountAndModify(var AdvanceLetterLineRelation: Record "Advance Letter Line Relation"; AmountToDeduct: Decimal; PurchInvHeader: Record "Purch. Inv. Header")
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateAdvLetterLineRelationDeductedAmountAndModify(AdvanceLetterLineRelation, AmountToDeduct, IsHandled);
+        OnBeforeUpdateAdvLetterLineRelationDeductedAmountAndModify(AdvanceLetterLineRelation, AmountToDeduct, IsHandled, PurchInvHeader);
         if IsHandled then
             exit;
 
@@ -1741,7 +1741,7 @@ codeunit 31020 "Purchase-Post Advances"
         GenJournalLine."Shortcut Dimension 2 Code" := PurchInvHeader."Shortcut Dimension 2 Code";
         GenJournalLine."Dimension Set ID" := PurchInvHeader."Dimension Set ID";
 
-        OnBeforePostVATCorrectionToGL(GenJournalLine, PurchAdvanceLetterLine);
+        OnBeforePostVATCorrectionToGL(GenJournalLine, PurchAdvanceLetterLine, VATAmtToDeduct, BaseToDeduct);
         if BaseToDeductLCY <> 0 then
             GenJnlPostLine.RunWithCheck(GenJournalLine);
 
@@ -1764,6 +1764,7 @@ codeunit 31020 "Purchase-Post Advances"
            PurchAdvanceLetterLine."VAT Calculation Type"::"Reverse Charge VAT"
         then begin
             GenJournalLine."Account No." := GetPurchAdvanceOffsetVATAccount(PurchAdvanceLetterLine."VAT Bus. Posting Group", PurchAdvanceLetterLine."VAT Prod. Posting Group");
+            OnPostVATCorrectionToGLOnAfterGetVATOffsetAccount(PurchAdvanceLetterLine, GenJournalLine."Account No.");
             GenJournalLine."Advance VAT Base Amount" := 0;
             SetPostingGroups(GenJournalLine, PurchAdvanceLetterLine, true);
             GenJournalLine.Validate(Amount, -VATAmountLCY);
@@ -1794,6 +1795,7 @@ codeunit 31020 "Purchase-Post Advances"
                 GenJnlPostLine.RunWithCheck(GenJournalLine);
 
                 GenJournalLine."Account No." := GetPurchAdvanceOffsetVATAccount(PurchAdvanceLetterLine."VAT Bus. Posting Group", PurchAdvanceLetterLine."VAT Prod. Posting Group");
+                OnPostVATCorrectionToGLOnAfterGainLossVATOffsetAccount(PurchAdvanceLetterLine, GenJournalLine."Account No.");
                 GenJournalLine.Validate(Amount, -GenJournalLine."Advance Exch. Rate Difference");
                 GenJournalLine."Shortcut Dimension 1 Code" := PurchInvHeader."Shortcut Dimension 1 Code";
                 GenJournalLine."Shortcut Dimension 2 Code" := PurchInvHeader."Shortcut Dimension 2 Code";
@@ -1920,7 +1922,7 @@ codeunit 31020 "Purchase-Post Advances"
             until PurchInvHeader.Next() = 0;
     end;
 
-    local procedure PreparePmtJnlLine(var GenJnlLine: Record "Gen. Journal Line"; PurchInvHeader: Record "Purch. Inv. Header")
+    procedure PreparePmtJnlLine(var GenJnlLine: Record "Gen. Journal Line"; PurchInvHeader: Record "Purch. Inv. Header")
     begin
         GenJnlLine."Financial Void" := true;
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
@@ -1940,7 +1942,7 @@ codeunit 31020 "Purchase-Post Advances"
         PrepareGenJnlLine(GenJnlLine, PurchInvHeader);
     end;
 
-    local procedure PrepareGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; PurchInvHeader: Record "Purch. Inv. Header")
+    procedure PrepareGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; PurchInvHeader: Record "Purch. Inv. Header")
     begin
         GenJnlLine."Posting Date" := PurchInvHeader."Posting Date";
 #if not CLEAN17
@@ -2221,7 +2223,7 @@ codeunit 31020 "Purchase-Post Advances"
         end;
     end;
 
-    local procedure CalcVATToDeduct(PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; var TotalBase: Decimal; var TotalAmount: Decimal; var TotalBaseLCY: Decimal; var TotalAmountLCY: Decimal; VendEntryNo: Integer)
+    procedure CalcVATToDeduct(PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; var TotalBase: Decimal; var TotalAmount: Decimal; var TotalBaseLCY: Decimal; var TotalAmountLCY: Decimal; VendEntryNo: Integer)
     var
         PurchAdvanceLetterEntry: Record "Purch. Advance Letter Entry";
     begin
@@ -2474,7 +2476,7 @@ codeunit 31020 "Purchase-Post Advances"
         AdvanceLetterLineRelation.ModifyAll("Amount To Deduct", 0);
     end;
 
-    local procedure SetCurrencyPrecision(CurrencyCode: Code[10])
+    procedure SetCurrencyPrecision(CurrencyCode: Code[10])
     begin
         if CurrencyCode = '' then
             Currency.InitRoundingPrecision
@@ -2766,6 +2768,8 @@ codeunit 31020 "Purchase-Post Advances"
                         VATPostingSetup.TestField("Purch. Advance Offset VAT Acc.");
                         GenJnlLine."Account No." := VATPostingSetup."Purch. Advance Offset VAT Acc.";
                     end;
+                    OnAfterPostVATCreditMemoGetPurchAdvanceOffsetVATAccount(
+                      TempPrepmtInvLineBuf, PurchAdvanceLetterHeader."Vendor Posting Group", GenJnlLine."Account No.");
                     GenJnlLine.Validate(Amount, -VATAmountLCYDif);
                     RunGenJnlPostLine(GenJnlLine);
 
@@ -3019,6 +3023,7 @@ codeunit 31020 "Purchase-Post Advances"
                   PurchAdvanceLetterEntry."Entry Type"::VAT,
                   PurchAdvanceLetterEntry."Entry Type"::"VAT Deduction");
                 PurchAdvanceLetterEntry.CalcSums("VAT Base Amount", "VAT Amount");
+                OnFillCreditMemoLineBufOnAfterCalcSums(PurchAdvanceLetterEntry);
                 "VAT Base Amount" := PurchAdvanceLetterEntry."VAT Base Amount";
                 "VAT Amount" := PurchAdvanceLetterEntry."VAT Amount";
                 "Amount Incl. VAT" := "VAT Base Amount" + "VAT Amount";
@@ -3599,6 +3604,7 @@ codeunit 31020 "Purchase-Post Advances"
                                PurchAdvanceLetterLine2."VAT Calculation Type"::"Reverse Charge VAT"
                             then begin
                                 GenJnlLine."Account No." := GetPurchAdvanceOffsetVATAccount(PurchAdvanceLetterLine2."VAT Bus. Posting Group", PurchAdvanceLetterLine2."VAT Prod. Posting Group");
+                                OnUnPostInvoiceCorrectionOnAfterVATDeductionVATOffsetAcc(PurchAdvanceLetterLine2, GenJnlLine."Account No.");
                                 GenJnlLine."Advance VAT Base Amount" := 0;
                                 SetPostingGroups(GenJnlLine, PurchAdvanceLetterLine2, true);
                                 GenJnlLine.Validate(Amount, PurchAdvanceLetterEntry."VAT Amount (LCY)");
@@ -3627,6 +3633,7 @@ codeunit 31020 "Purchase-Post Advances"
                                 GenJnlLine.Validate(Amount, GenJnlLine."Advance Exch. Rate Difference");
                                 UnPostInvCorrGL(PurchInvHeader, GenJnlLine);
                                 GenJnlLine."Account No." := GetPurchAdvanceOffsetVATAccount(PurchAdvanceLetterLine2."VAT Bus. Posting Group", PurchAdvanceLetterLine2."VAT Prod. Posting Group");
+                                OnUnPostInvoiceCorrectionOnAfterVATRateVATOffsetAcc(PurchAdvanceLetterLine2, GenJnlLine."Account No.");
                                 GenJnlLine.Validate(Amount, -GenJnlLine."Advance Exch. Rate Difference");
                                 UnPostInvCorrGL(PurchInvHeader, GenJnlLine);
                             end;
@@ -3654,7 +3661,8 @@ codeunit 31020 "Purchase-Post Advances"
                 TempPurchAdvanceLetterEntry2.Insert();
             until PurchAdvanceLetterEntry.Next(-1) = 0;
             UnPostInvCorrUpdt(PurchInvHeader, AdvanceLinkEntryNo, SourceCodeSetup, TempPurchAdvanceLetterEntry);
-            UnPostInvCorrInvDoc(PurchInvHeader, TempPurchAdvanceLetterEntry2)
+            UnPostInvCorrInvDoc(PurchInvHeader, TempPurchAdvanceLetterEntry2);
+            OnUnPostInvoiceCorrectionOnAfterUnPost(PurchInvHeader, AdvanceLinkEntryNo);
         end;
     end;
 
@@ -5185,7 +5193,7 @@ codeunit 31020 "Purchase-Post Advances"
         end;
     end;
 
-    local procedure CalcLinkedPmtAmountToApplyTmp(PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; TotalAmountToApply: Decimal; var VendLedgEntry: Record "Vendor Ledger Entry"; var VendLedgEntryLink: Record "Vendor Ledger Entry"; var AdvanceLink: Record "Advance Link")
+    procedure CalcLinkedPmtAmountToApplyTmp(PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; TotalAmountToApply: Decimal; var VendLedgEntry: Record "Vendor Ledger Entry"; var VendLedgEntryLink: Record "Vendor Ledger Entry"; var AdvanceLink: Record "Advance Link")
     var
         VendLedgEntry2: Record "Vendor Ledger Entry";
         AmountToApply: Decimal;
@@ -5893,7 +5901,7 @@ codeunit 31020 "Purchase-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostVATCorrectionToGL(var GenJournalLine: Record "Gen. Journal Line"; PurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
+    local procedure OnBeforePostVATCorrectionToGL(var GenJournalLine: Record "Gen. Journal Line"; PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; VATAmtToDeduct: Decimal; BaseToDeduct: Decimal)
     begin
     end;
 
@@ -6028,7 +6036,7 @@ codeunit 31020 "Purchase-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRestoreTransfAmountWithoutInvOnAfterSetAdvanceLinkFilters(var AdvanceLink: Record "Advance Link")
+    local procedure OnRestoreTransfAmountWithoutInvOnAfterSetAdvanceLinkFilters(var AdvanceLink: Record "Advance Link"; PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
     end;
 
@@ -6173,12 +6181,47 @@ codeunit 31020 "Purchase-Post Advances"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateAdvLetterLineRelationDeductedAmountAndModify(var AdvanceLetterLineRelation: Record "Advance Letter Line Relation"; var AmountToDeduct: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateAdvLetterLineRelationDeductedAmountAndModify(var AdvanceLetterLineRelation: Record "Advance Letter Line Relation"; var AmountToDeduct: Decimal; var IsHandled: Boolean; PurchInvHeader: Record "Purch. Inv. Header")
     begin
     end;
 
     [IntegrationEvent(true, false)]
     local procedure OnPostLetter_PreTestOnBeforeCheckDimIDComb(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostVATCorrectionToGLOnAfterGetVATOffsetAccount(PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; var PurchAdvanceOffsetVATAccountNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostVATCorrectionToGLOnAfterGainLossVATOffsetAccount(PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; var PurchAdvanceOffsetVATAccountNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnPostInvoiceCorrectionOnAfterVATDeductionVATOffsetAcc(PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; var PurchAdvanceOffsetVATAccountNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnPostInvoiceCorrectionOnAfterVATRateVATOffsetAcc(PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; var PurchAdvanceOffsetVATAccountNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillCreditMemoLineBufOnAfterCalcSums(var PurchAdvanceLetterEntry: Record "Purch. Advance Letter Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostVATCreditMemoGetPurchAdvanceOffsetVATAccount(TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; VendorPostingGroup: Code[20]; var PurchAdvanceOffsetVATAccountNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUnPostInvoiceCorrectionOnAfterUnPost(PurchInvHeader: Record "Purch. Inv. Header"; AdvanceLinkEntryNo: Integer);
     begin
     end;
 }
