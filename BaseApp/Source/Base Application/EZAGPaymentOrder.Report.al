@@ -381,7 +381,10 @@ report 3010544 "EZAG Payment Order"
     end;
 
     trigger OnPreReport()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUsage('0000KEH', 'DTA Local CH Functionality', 'EZAG Payment Order report');
         if not (Copies in [1 .. 10]) then
             Error(Text004);
 

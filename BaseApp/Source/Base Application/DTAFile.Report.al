@@ -120,7 +120,10 @@ report 3010541 "DTA File"
     }
 
     trigger OnPostReport()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUsage('0000KED', 'DTA Local CH Functionality', 'DTA File report');
         Filename.Close;
 
         if FileBank."File Format" = FileBank."File Format"::"Without CR/LF" then

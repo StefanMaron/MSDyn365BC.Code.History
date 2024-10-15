@@ -460,6 +460,9 @@
                             CalcDemand(TempUnplannedDemand, false) + CalcDemand(UnplannedDemand, true),
                             "Quantity (Base)");
 
+                    if UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Job then
+                        UnplannedDemand."Needed Qty. (Base)" -= ReduceJobRealtedQtyReceivedNotInvoiced(UnplannedDemand."Demand Order No.", "Item No.", "Variant Code", "Location Code", "Demand Date");
+
                     ForceIncludeDemand :=
                       (UnplannedDemand."Demand Order No." = IncludeMetDemandForSpecificSalesOrderNo) and
                       (UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Sales) and
@@ -484,6 +487,41 @@
                 SetRange("Demand Order No.");
             end;
         end;
+    end;
+
+    local procedure ReduceJobRealtedQtyReceivedNotInvoiced(JobNo: Code[20]; ItemNo: Text[250]; VariantFilter: Text[250]; LocationFilter: Text[250]; DemandDate: Date): Decimal
+    var
+        Item: Record Item;
+    begin
+        if ItemNo = '' then
+            exit(0);
+
+        Item.Get(ItemNo);
+        Item.SetRange("Variant Filter", VariantFilter);
+        Item.SetRange("Location Filter", LocationFilter);
+        Item.SetRange("Date Filter", 0D, DemandDate);
+        Item.SetRange("Drop Shipment Filter", false);
+        exit(QtyOnPurchReceiptNotInvoiced(Item, JobNo));
+    end;
+
+    local procedure QtyOnPurchReceiptNotInvoiced(var Item: Record Item; JobNo: Code[20]): Decimal
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetLoadFields("Qty. Rcd. Not Invoiced (Base)");
+        PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", Item."No.");
+        PurchaseLine.SetRange("Job No.", JobNo);
+        PurchaseLine.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+        PurchaseLine.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+        PurchaseLine.SetFilter("Drop Shipment", Item.GetFilter("Drop Shipment Filter"));
+        PurchaseLine.SetFilter("Expected Receipt Date", Item.GetFilter("Date Filter"));
+        PurchaseLine.SetFilter("Shortcut Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
+        PurchaseLine.SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
+        PurchaseLine.SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
+        PurchaseLine.CalcSums("Qty. Rcd. Not Invoiced (Base)");
+        exit(PurchaseLine."Qty. Rcd. Not Invoiced (Base)");
     end;
 
     local procedure CalcDemand(var UnplannedDemand: Record "Unplanned Demand"; Planned: Boolean) DemandQty: Decimal
