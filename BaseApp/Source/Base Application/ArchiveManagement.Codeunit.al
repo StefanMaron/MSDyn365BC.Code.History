@@ -175,6 +175,8 @@ codeunit 5063 ArchiveManagement
         PurchHeaderArchive: Record "Purchase Header Archive";
         PurchLineArchive: Record "Purchase Line Archive";
     begin
+        OnBeforeStorePurchDocument(PurchHeader);
+
         PurchHeaderArchive.Init();
         PurchHeaderArchive.TransferFields(PurchHeader);
         PurchHeaderArchive."Archived By" := UserId;
@@ -811,6 +813,11 @@ codeunit 5063 ArchiveManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnRestoreSalesLinesOnAfterValidateQuantity(var SalesLine: Record "Sales Line"; var SalesLineArchive: Record "Sales Line Archive")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStorePurchDocument(var PurchHeader: Record "Purchase Header")
     begin
     end;
 }

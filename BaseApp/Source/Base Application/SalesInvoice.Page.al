@@ -1,4 +1,4 @@
-page 43 "Sales Invoice"
+﻿page 43 "Sales Invoice"
 {
     Caption = 'Sales Invoice';
     PageType = Document;
@@ -239,12 +239,12 @@ page 43 "Sales Invoice"
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
-                    Importance = Additional;
+                    Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -421,6 +421,11 @@ page 43 "Sales Invoice"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct debit collection of payments.';
+                }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value to export in TipoDocument XML node of the Fattura document.';
                 }
                 field("Fattura Project Code"; "Fattura Project Code")
                 {
@@ -1606,7 +1611,7 @@ page 43 "Sales Invoice"
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
-
+        StatusStyleTxt := GetStatusStyleText();
         UpdatePaymentService;
         SetControlAppearance;
     end;
@@ -1697,6 +1702,8 @@ page 43 "Sales Invoice"
         ChangeExchangeRate: Page "Change Exchange Rate";
         NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         WorkDescription: Text;
+        [InDataSet]
+        StatusStyleTxt: Text;
         HasIncomingDocument: Boolean;
         DocNoVisible: Boolean;
         ExternalDocNoMandatory: Boolean;

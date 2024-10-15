@@ -82,6 +82,7 @@ page 253 "Sales Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number for the journal line.';
+                    ShowMandatory = true;
                 }
                 field("Incoming Document Entry No."; "Incoming Document Entry No.")
                 {
@@ -430,7 +431,6 @@ page 253 "Sales Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Sales/Purch. (LCY)"; "Sales/Purch. (LCY)")
                 {

@@ -187,7 +187,6 @@ page 140 "Posted Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
             }
             part(PurchCrMemoLines; "Posted Purch. Cr. Memo Subform")

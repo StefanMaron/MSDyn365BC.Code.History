@@ -686,6 +686,10 @@ table 112 "Sales Invoice Header"
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(7001; "Allow Line Disc."; Boolean)
         {
             Caption = 'Allow Line Disc.';
@@ -792,6 +796,11 @@ table 112 "Sales Invoice Header"
         field(12186; "Fattura Stamp Amount"; Decimal)
         {
             Caption = 'Fattura Stamp Amount';
+        }
+        field(12187; "Fattura Document Type"; Code[20])
+        {
+            Caption = 'Fattura Document Type';
+            TableRelation = "Fattura Document Type";
         }
         field(12190; "Document Remaining Amount"; Decimal)
         {

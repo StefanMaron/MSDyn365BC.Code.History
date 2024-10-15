@@ -1780,6 +1780,7 @@ Fields!ContracterTxt.Value)</Hidden>
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="TransferShptLineDesc">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>

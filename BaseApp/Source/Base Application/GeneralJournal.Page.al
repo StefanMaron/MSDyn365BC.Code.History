@@ -56,6 +56,7 @@ page 39 "General Journal"
                     Caption = 'Document No.';
                     ToolTip = 'Specifies a document number for the journal line.';
                     Visible = IsSimplePage;
+                    ShowMandatory = true;
 
                     trigger OnValidate()
                     begin
@@ -81,6 +82,7 @@ page 39 "General Journal"
                     ClosingDates = true;
                     ToolTip = 'Specifies the entry''s posting date.';
                     Visible = IsSimplePage;
+                    ShowMandatory = true;
 
                     trigger OnValidate()
                     begin
@@ -136,6 +138,7 @@ page 39 "General Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number for the journal line.';
                     Visible = NOT IsSimplePage;
+                    ShowMandatory = true;
                 }
                 field("Refers to Period"; "Refers to Period")
                 {
@@ -507,7 +510,6 @@ page 39 "General Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {

@@ -88,7 +88,6 @@ page 450 "Issued Finance Charge Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
             }
             part(FinChrgMemoLines; "Issued Fin. Charge Memo Lines")

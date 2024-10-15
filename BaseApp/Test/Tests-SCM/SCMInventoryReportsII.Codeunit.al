@@ -1539,6 +1539,51 @@ codeunit 137302 "SCM Inventory Reports - II"
         VerifyBOMBuffer(TempBOMBuffer, Item[1], QtyPerBOMLine, QtyPerBOMLine * ScrapPct * (2 + ScrapPct / 100) / 100);
     end;
 
+    [Test]
+    [HandlerFunctions('InventoryPostingTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryPostingReportBatchTemplateFilters()
+    var
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ExtraItemJournalBatch: Record "Item Journal Batch";
+        ExtraItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalLine: Record "Item Journal Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // [FEATURE] [Report] [RDLC Layout]
+        // [SCENARIO 348957] "Inventory Posting - Test" report doesn't include empty Item Journal Templates and Batches
+        Initialize();
+
+        // [GIVEN] Created an Item Line for Item Journal Template = IT1, Item Journal Batch = IB1
+        GeneralLedgerSetup.Get();
+        CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
+        CreateItemJournalLine(ItemJournalBatch, ItemJournalLine, Item."No.");
+
+        // [WHEN] Created Item Journal Template = IT2, Item Journal Batch = IB2
+        LibraryInventory.CreateItemJournalTemplate(ExtraItemJournalTemplate);
+        LibraryInventory.CreateItemJournalBatch(ExtraItemJournalBatch, ExtraItemJournalTemplate.Name);
+
+        // [WHEN] Run "Inventory Posting - Test" report for Item Line
+        Commit();
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        REPORT.Run(REPORT::"Inventory Posting - Test", true, false, ItemJournalLine);
+
+        // [THEN] Dataset includes elements for IT1, IB1
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(
+          'Item_Journal_Batch_Name', ItemJournalBatch.Name);
+        LibraryReportDataset.AssertElementWithValueExists(
+          'Item_Journal_Batch_Journal_Template_Name', ItemJournalBatch."Journal Template Name");
+
+        // [THEN] Dataset doesn't include elements for IT2, IB2
+        LibraryReportDataset.AssertElementWithValueNotExist(
+          'Item_Journal_Batch_Journal_Template_Name', ExtraItemJournalTemplate.Name);
+        LibraryReportDataset.AssertElementWithValueNotExist(
+          'Item_Journal_Batch_Name', ExtraItemJournalBatch.Name);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

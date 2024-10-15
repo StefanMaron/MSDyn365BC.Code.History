@@ -53,6 +53,7 @@ page 5636 "FA Reclass. Journal"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a value depending on how you have set up the number series that is assigned to the current journal batch.';
+                    ShowMandatory = true;
                 }
                 field("FA No."; "FA No.")
                 {

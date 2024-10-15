@@ -211,7 +211,25 @@ codeunit 249 "VAT Registration Log Mgt."
             SetRange("Account No.", Customer."No.");
             if IsEmpty then
                 LogUnloggedVATRegistrationNumbers;
+
+            CheckIfCountryCodeIsSet(Customer);
             PAGE.RunModal(PAGE::"VAT Registration Log", VATRegistrationLog);
+        end;
+    end;
+
+    procedure CheckIfCountryCodeIsSet(Customer: Record Customer)
+    var
+        VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
+        CountryRegion: Record "Country/Region";
+        EmptyCountryCodeErr: Label 'You must specify the country that issued the VAT registration number. Choose the country in the Country/Region Code field.';
+        EmptyEUCountryCodeErr: Label 'You must specify the EU Country/Region Code for the country that issued the VAT registration number. You can specify that on the Country/Regions page.';
+    begin
+        if VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then begin
+            if Customer."Country/Region Code" = '' then
+                Error(EmptyCountryCodeErr);
+
+            if not CountryRegion.IsEUCountry(Customer."Country/Region Code") then
+                Error(EmptyEUCountryCodeErr);
         end;
     end;
 

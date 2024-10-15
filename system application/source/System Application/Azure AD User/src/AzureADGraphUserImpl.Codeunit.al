@@ -44,6 +44,17 @@ codeunit 9011 "Azure AD Graph User Impl."
         exit(UserProperty."Authentication Object ID");
     end;
 
+    procedure TryGetUserAuthenticationObjectId(UserSecurityId: Guid; var AuthenticationObjectId: Text): Boolean
+    var
+        UserProperty: Record "User Property";
+    begin
+        if not UserProperty.Get(UserSecurityId) then
+            exit(false);
+
+        AuthenticationObjectId := UserProperty."Authentication Object ID";
+        exit(true);
+    end;
+
     procedure GetUser(AuthenticationObjectID: Text; var User: Record User): Boolean
     var
         UserProperty: Record "User Property";

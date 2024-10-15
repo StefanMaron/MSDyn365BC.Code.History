@@ -299,6 +299,12 @@ report 208 "Sales - Shipment"
                         column(DocNo_SalesShipLine; "Document No.")
                         {
                         }
+                        column(CrossReferenceNo_Line; "Cross-Reference No.")
+                        {
+                        }
+                        column(CrossReferenceNo_Line_Lbl; FieldCaption("Cross-Reference No."))
+                        {
+                        }
                         column(Quantity_SalesShipLine; Quantity)
                         {
                         }

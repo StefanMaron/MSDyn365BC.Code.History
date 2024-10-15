@@ -143,8 +143,7 @@ table 349 "Dimension Value"
 
     trigger OnDelete()
     begin
-        if CheckIfDimValueUsed then
-            Error(Text000, GetCheckDimErr);
+        CheckIfDimValueUsedFromOnDelete();
 
         DimValueComb.SetRange("Dimension 1 Code", "Dimension Code");
         DimValueComb.SetRange("Dimension 1 Value Code", Code);
@@ -234,6 +233,19 @@ table 349 "Dimension Value"
     local procedure GetCheckDimErr(): Text[250]
     begin
         exit(Text005);
+    end;
+
+    local procedure CheckIfDimValueUsedFromOnDelete()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIfDimValueUsedFromOnDelete(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CheckIfDimValueUsed then
+            Error(Text000, GetCheckDimErr);
     end;
 
     local procedure RenameBudgEntryDim()
@@ -591,6 +603,11 @@ table 349 "Dimension Value"
     begin
         Dimension.Get("Dimension Code");
         Validate("Map-to IC Dimension Code", Dimension."Map-to IC Dimension Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfDimValueUsedFromOnDelete(DimensionValue: Record "Dimension Value"; xDimensionValue: Record "Dimension Value"; var IsHandled: Boolean)
+    begin
     end;
 }
 

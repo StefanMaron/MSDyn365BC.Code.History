@@ -58,6 +58,7 @@ page 5628 "Fixed Asset G/L Journal"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a document number for the journal line.';
+                    ShowMandatory = true;
                 }
                 field("External Document No."; "External Document No.")
                 {
@@ -390,7 +391,6 @@ page 5628 "Fixed Asset G/L Journal"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {

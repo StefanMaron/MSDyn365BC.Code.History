@@ -155,10 +155,14 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         JobQueueEntry[2].Find;
         JobQueueEntry[2].TestField(Status, JobQueueEntry[2].Status::"On Hold with Inactivity Timeout");
         // [THEN] Job 'ITEM2' gets status "Ready"
+
         JobQueueEntry[3].Find;
-        JobQueueEntry[3].TestField(Status, JobQueueEntry[3].Status::Ready);
-        // [THEN] new "Earliest Start Date/Time" is about 1 second from now
-        VerifyDateTimeDifference(CurrentDateTime, JobQueueEntry[3]."Earliest Start Date/Time", 1);
+        if TaskScheduler.CanCreateTask() then begin
+            JobQueueEntry[3].TestField(Status, JobQueueEntry[3].Status::Ready);
+            // [THEN] new "Earliest Start Date/Time" is about 1 second from now
+            VerifyDateTimeDifference(CurrentDateTime, JobQueueEntry[3]."Earliest Start Date/Time", 1);
+        end;
+
     end;
 
     [Test]
@@ -255,8 +259,8 @@ codeunit 139032 "Job Queue - Inactivity Detect"
         Assert.AreEqual(JobQueueEntry[4].Status::Ready, JobQueueEntry[4].Status, 'Job D Status');
 
         // [THEN] Jobs 'E' and 'F' are not changed (TfsId 264925)
-        Assert.AreEqual(JobQueueEntry[5].Status::Error, JobQueueEntry[5].Status,'Job E Status');
-        Assert.AreEqual(JobQueueEntry[6].Status::Error, JobQueueEntry[6].Status,'Job F Status');
+        Assert.AreEqual(JobQueueEntry[5].Status::Error, JobQueueEntry[5].Status, 'Job E Status');
+        Assert.AreEqual(JobQueueEntry[6].Status::Error, JobQueueEntry[6].Status, 'Job F Status');
     end;
 
     [Test]

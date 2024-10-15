@@ -204,7 +204,7 @@
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Purch. Comment Line" WHERE("Document Type" = CONST("Posted Return Shipment"),
+            CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = CONST("Posted Return Shipment"),
                                                              "No." = FIELD("No."),
                                                              "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -514,6 +514,10 @@
         {
             Caption = 'Return Order No. Series';
             TableRelation = "No. Series";
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
         }
         field(12106; "Shipping Agent Code"; Code[10])
         {

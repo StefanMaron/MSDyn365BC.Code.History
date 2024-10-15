@@ -36,7 +36,10 @@
             if Status = Status::Released then
                 exit;
 
-            OnBeforeReleaseSalesDoc(SalesHeader, PreviewMode);
+            IsHandled := false;
+            OnBeforeReleaseSalesDoc(SalesHeader, PreviewMode, IsHandled);
+            if IsHandled then
+                exit;
             if not (PreviewMode or SkipCheckReleaseRestrictions) then
                 CheckSalesReleaseRestrictions;
 
@@ -65,6 +68,7 @@
                     repeat
                         if SalesLine.IsInventoriableItem then
                             SalesLine.TestField("Location Code");
+                        OnCodeOnAfterSalesLineCheck(SalesLine);
                     until SalesLine.Next = 0;
                 SalesLine.SetFilter(Type, '>0');
             end;
@@ -260,7 +264,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
+    local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -321,6 +325,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterCheck(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var LinesWereModified: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterSalesLineCheck(var SalesLine: Record "Sales Line")
     begin
     end;
 

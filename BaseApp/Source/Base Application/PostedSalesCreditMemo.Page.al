@@ -205,7 +205,6 @@ page 134 "Posted Sales Credit Memo"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 group("Work Description")
                 {

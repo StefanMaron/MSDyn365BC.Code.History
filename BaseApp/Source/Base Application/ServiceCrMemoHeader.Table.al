@@ -718,6 +718,10 @@ table 5994 "Service Cr.Memo Header"
         {
             Caption = 'Expected Finishing Date';
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(7001; "Allow Line Disc."; Boolean)
         {
             Caption = 'Allow Line Disc.';
@@ -795,6 +799,11 @@ table 5994 "Service Cr.Memo Header"
         field(12186; "Fattura Stamp Amount"; Decimal)
         {
             Caption = 'Fattura Stamp Amount';
+        }
+        field(12187; "Fattura Document Type"; Code[20])
+        {
+            Caption = 'Fattura Document Type';
+            TableRelation = "Fattura Document Type";
         }
     }
 

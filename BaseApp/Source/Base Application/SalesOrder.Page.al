@@ -1,4 +1,4 @@
-page 42 "Sales Order"
+﻿page 42 "Sales Order"
 {
     Caption = 'Sales Order';
     PageType = Document;
@@ -279,7 +279,6 @@ page 42 "Sales Order"
                     ApplicationArea = Basic, Suite;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Job Queue Status"; "Job Queue Status")
                 {
@@ -291,7 +290,8 @@ page 42 "Sales Order"
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
-                    Importance = Additional;
+                    Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     QuickEntry = false;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
@@ -391,6 +391,11 @@ page 42 "Sales Order"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
+                }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value to export in TipoDocument XML node of the Fattura document.';
                 }
                 field("Fattura Stamp"; "Fattura Stamp")
                 {
@@ -2177,6 +2182,7 @@ page 42 "Sales Order"
             CheckItemAvailabilityInLines;
             CallNotificationCheck := false;
         end;
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
@@ -2301,6 +2307,8 @@ page 42 "Sales Order"
         CanCancelApprovalForFlow: Boolean;
         IsCustomerOrContactNotEmpty: Boolean;
         WorkDescription: Text;
+        [InDataSet]
+        StatusStyleTxt: Text;
         IsSaas: Boolean;
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;

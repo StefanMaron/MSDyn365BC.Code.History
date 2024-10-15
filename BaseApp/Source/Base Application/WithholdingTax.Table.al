@@ -164,6 +164,11 @@ table 12116 "Withholding Tax"
             Caption = 'Non-Taxable Income Type';
             OptionCaption = ' ,1,2,5,6,7,8,9,10,11';
             OptionMembers = " ","1","2","5","6","7","8","9","10","11";
+
+            trigger OnValidate()
+            begin
+                ClearRelatedNonTaxableLines();
+            end;
         }
     }
 
@@ -264,6 +269,8 @@ table 12116 "Withholding Tax"
         "Tax Code" := WithholdCode."Tax Code";
 
         "Source-Withholding Tax" := WithholdCode."Source-Withholding Tax";
+
+        ClearRelatedNonTaxableLines();
     end;
 
     [Scope('OnPrem')]
@@ -303,6 +310,14 @@ table 12116 "Withholding Tax"
         SetRange("Posting Date", VendLedgEntry."Posting Date");
         if FindFirst then
             Error(WithholdingTaxEntryAlreadyExistsErr, "Entry No.", "Document No.", "Posting Date");
+    end;
+
+    local procedure ClearRelatedNonTaxableLines()
+    var
+        WithholdingTaxLine: Record "Withholding Tax Line";
+    begin
+        WithholdingTaxLine.SetRange("Withholding Tax Entry No.", "Entry No.");
+        WithholdingTaxLine.DeleteAll(true);
     end;
 }
 

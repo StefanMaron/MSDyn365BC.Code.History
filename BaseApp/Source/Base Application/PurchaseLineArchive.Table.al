@@ -921,6 +921,10 @@ table 5110 "Purchase Line Archive"
             Caption = 'Return Reason Code';
             TableRelation = "Return Reason";
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(12100; "No. of Fixed Asset Cards"; Integer)
         {
             BlankZero = true;
@@ -1012,7 +1016,6 @@ table 5110 "Purchase Line Archive"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 2;
-            Caption = 'Pricelist Cost';
             Editable = false;
         }
         field(99000750; "Routing No."; Code[20])

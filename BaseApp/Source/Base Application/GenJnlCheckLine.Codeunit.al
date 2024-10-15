@@ -1,4 +1,4 @@
-codeunit 11 "Gen. Jnl.-Check Line"
+﻿codeunit 11 "Gen. Jnl.-Check Line"
 {
     Permissions = TableData "General Posting Setup" = rimd;
     TableNo = "Gen. Journal Line";
@@ -235,10 +235,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                 if DateNotAllowed("Posting Date") then
                     FieldError("Posting Date", Text001);
 
-            if "Operation Occurred Date" = 0D then
-                "Operation Occurred Date" := "Posting Date";
-            if ("Operation Occurred Date" < GLSetup."Last Gen. Jour. Printing Date") and (Amount <> 0) then
-                FieldError("Operation Occurred Date", StrSubstNo(Text12001, GLSetup."Last Gen. Jour. Printing Date"));
+            CheckOperationOccurredDate(GenJnlLine);
 
             if "Document Date" <> 0D then
                 if ("Document Date" <> NormalDate("Document Date")) and
@@ -247,6 +244,18 @@ codeunit 11 "Gen. Jnl.-Check Line"
                 then
                     FieldError("Document Date", Text000);
         end;
+    end;
+
+    local procedure CheckOperationOccurredDate(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        OnBeforeCheckOperationOccurredDate(GenJnlLine);
+
+        if GenJnlLine."Operation Occurred Date" = 0D then
+            GenJnlLine."Operation Occurred Date" := GenJnlLine."Posting Date";
+        if (GenJnlLine."Operation Occurred Date" < GLSetup."Last Gen. Jour. Printing Date") and (GenJnlLine.Amount <> 0) then
+            GenJnlLine.FieldError("Operation Occurred Date", StrSubstNo(Text12001, GLSetup."Last Gen. Jour. Printing Date"));
+
+        OnAfterCheckOperationOccurredDate(GenJnlLine);
     end;
 
     local procedure CheckAccountNo(GenJnlLine: Record "Gen. Journal Line")
@@ -291,15 +300,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                         TestField("VAT Bus. Posting Group", '');
                         TestField("VAT Prod. Posting Group", '');
 
-                        if (("Account Type" = "Account Type"::Customer) and
-                            ("Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::Purchase)) or
-                           (("Account Type" = "Account Type"::Vendor) and
-                            ("Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::Sale))
-                        then
-                            Error(
-                              Text010,
-                              FieldCaption("Account Type"), "Account Type",
-                              FieldCaption("Bal. Gen. Posting Type"), "Bal. Gen. Posting Type");
+                        CheckAccountType(GenJnlLine);
 
                         CheckDocType(GenJnlLine);
 
@@ -384,15 +385,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                         TestField("Bal. VAT Bus. Posting Group", '');
                         TestField("Bal. VAT Prod. Posting Group", '');
 
-                        if (("Bal. Account Type" = "Bal. Account Type"::Customer) and
-                            ("Gen. Posting Type" = "Gen. Posting Type"::Purchase)) or
-                           (("Bal. Account Type" = "Bal. Account Type"::Vendor) and
-                            ("Gen. Posting Type" = "Gen. Posting Type"::Sale))
-                        then
-                            Error(
-                              Text010,
-                              FieldCaption("Bal. Account Type"), "Bal. Account Type",
-                              FieldCaption("Gen. Posting Type"), "Gen. Posting Type");
+                        CheckBalAccountType(GenJnlLine);
 
                         CheckBalDocType(GenJnlLine);
 
@@ -660,6 +653,46 @@ codeunit 11 "Gen. Jnl.-Check Line"
         end;
     end;
 
+    local procedure CheckAccountType(GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAccountType(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ((GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer) and
+            (GenJnlLine."Bal. Gen. Posting Type" = GenJnlLine."Bal. Gen. Posting Type"::Purchase)) or
+           ((GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor) and
+            (GenJnlLine."Bal. Gen. Posting Type" = GenJnlLine."Bal. Gen. Posting Type"::Sale))
+        then
+            Error(
+              Text010,
+              GenJnlLine.FieldCaption("Account Type"), GenJnlLine."Account Type",
+              GenJnlLine.FieldCaption("Bal. Gen. Posting Type"), GenJnlLine."Bal. Gen. Posting Type");
+    end;
+
+    local procedure CheckBalAccountType(GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBalAccountType(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ((GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Customer) and
+            (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Purchase)) or
+           ((GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor) and
+            (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Sale))
+        then
+            Error(
+              Text010,
+              GenJnlLine.FieldCaption("Bal. Account Type"), GenJnlLine."Bal. Account Type",
+              GenJnlLine.FieldCaption("Gen. Posting Type"), GenJnlLine."Gen. Posting Type");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckAccountNo(var GenJournalLine: Record "Gen. Journal Line")
     begin
@@ -672,6 +705,11 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckOperationOccurredDate(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -716,6 +754,11 @@ codeunit 11 "Gen. Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckOperationOccurredDate(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSalesDocNoIsNotUsed(DocType: Option; DocNo: Code[20]; var IsHandled: Boolean; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -747,6 +790,16 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckDimensionsOnAfterAssignDimTableIDs(var GenJournalLine: Record "Gen. Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAccountType(GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBalAccountType(GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

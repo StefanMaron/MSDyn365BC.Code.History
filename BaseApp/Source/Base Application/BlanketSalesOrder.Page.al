@@ -172,7 +172,6 @@ page 507 "Blanket Sales Order"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Assigned User ID"; "Assigned User ID")
                 {
@@ -182,6 +181,8 @@ page 507 "Blanket Sales Order"
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
+                    Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
             }
@@ -1043,6 +1044,7 @@ page 507 "Blanket Sales Order"
     begin
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
@@ -1098,6 +1100,8 @@ page 507 "Blanket Sales Order"
         OpenApprovalEntriesExist: Boolean;
         ShowWorkflowStatus: Boolean;
         CanCancelApprovalForRecord: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
 
     protected var

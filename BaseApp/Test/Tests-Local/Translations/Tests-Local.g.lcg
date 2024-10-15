@@ -2552,6 +2552,33 @@
       <Cmt Name="Dev"><![CDATA[%1=XML Element Name;%2=Expected XML Element Value;%3=Actual XML element Value;]D;]A;(LookupHint=Codeunit FatturaPA Discount - NamedType UnexpectedElementValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 646443825 - NamedType 1449977514" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[FatturaPA]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit FatturaPA Document Type - NamedType FatturaPA_ElectronicFormatTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 646443825 - NamedType 2890512375" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected element value for element %1. Expected element value: %2. Actual element value: %3.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=XML Element Name;%2=Expected XML Element Value;%3=Actual XML element Value;]D;]A;(LookupHint=Codeunit FatturaPA Document Type - NamedType UnexpectedElementValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 646443825 - NamedType 3724735310" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Documents of type %1 already have code %2 as default. You can only use one code for each type of document.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = field caption;%2 = code value.]D;]A;(LookupHint=Codeunit FatturaPA Document Type - NamedType OptionAlreadySpecifiedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 312613428 - NamedType 1449977514" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[FatturaPA]]></Val>
@@ -2653,7 +2680,7 @@
   </Item>
   <Item ItemId=";Codeunit 3219615293 - NamedType 411329097" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Si]]></Val>
+      <Val><![CDATA[SI]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -2847,6 +2874,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=caption of a field, %2=key of record]D;]A;(LookupHint=Codeunit IT - CU 2015 Unit Test - NamedType EmptyFieldErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2709192724 - NamedType 2916310800" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Base - Excluded Amount total on lines for Withholding Tax Entry No. = %1 must be equal to Base - Excluded Amount on the Withholding Tax card for that entry (%2).]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1=Entry number,%2=Amount.]D;]A;(LookupHint=Codeunit IT - CU 2015 Unit Test - NamedType BaseExcludedAmountTotalErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 558127152 - NamedType 3287569589" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

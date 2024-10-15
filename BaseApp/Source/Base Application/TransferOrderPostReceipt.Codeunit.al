@@ -149,6 +149,7 @@
                 ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, 1);
             end;
 
+            OnRunOnBeforeCommit(TransHeader, TransRcptHeader, PostedWhseRcptHeader);
             if not (InvtPickPutaway or SuppressCommit) then begin
                 Commit();
                 UpdateAnalysisView.UpdateAll(0, true);
@@ -469,7 +470,10 @@
                 TransRcptHeader."No. Series" := TransportReasonCode."Posted Rcpt. Nos.";
         end else
             TransportReasonCode.Init();
-        TransRcptHeader."No." := NoSeriesMgt.GetNextNo(NoSeries, TransHeader."Posting Date", true);
+
+        OnInsertTransRcptHeaderOnBeforeGetNextNo(TransRcptHeader, TransHeader);
+        if TransRcptHeader."No." = '' then
+            TransRcptHeader."No." := NoSeriesMgt.GetNextNo(TransRcptHeader."No. Series", TransHeader."Posting Date", true);
         TransRcptHeader."Transport Reason Code" := TransHeader."Transport Reason Code";
         TransRcptHeader."Reason Code" := TransportReasonCode."Reason Code";
         OnBeforeTransRcptHeaderInsert(TransRcptHeader, TransHeader);
@@ -758,6 +762,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInsertTransRcptHeader(var TransRcptHeader: Record "Transfer Receipt Header"; TransHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTransRcptHeaderOnBeforeGetNextNo(var TransRcptHeader: Record "Transfer Receipt Header"; TransHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeCommit(var TransHeader: Record "Transfer Header"; TransRcptHeader: Record "Transfer Receipt Header"; PostedWhseRcptHeader: Record "Posted Whse. Receipt Header")
     begin
     end;
 }

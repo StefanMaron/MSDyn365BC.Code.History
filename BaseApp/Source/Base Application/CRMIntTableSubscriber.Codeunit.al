@@ -268,8 +268,14 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 UpdateCRMInvoiceDetailsBeforeInsertRecord(SourceRecordRef, DestinationRecordRef);
         end;
 
-        if DestinationRecordRef.Number() = DATABASE::"Salesperson/Purchaser" then
-            UpdateSalesPersOnBeforeInsertRecord(DestinationRecordRef);
+        case DestinationRecordRef.Number() of
+            Database::"Salesperson/Purchaser":
+                UpdateSalesPersOnBeforeInsertRecord(DestinationRecordRef);
+            Database::"CRM Account":
+                UpdateAccountEnumsFromOptions(DestinationRecordRef);
+            Database::"CRM Invoice":
+                UpdateInvoiceEnumsFromOptions(DestinationRecordRef);
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterInsertRecord', '', false, false)]
@@ -1232,6 +1238,49 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                     end;
                 end;
         end;
+    end;
+
+    local procedure UpdateAccountEnumsFromOptions(var DestinationRecordRef: RecordRef)
+    var
+        CRMAccount: Record "CRM Account";
+        PaymentTermsEnumValue: Enum "CDS Payment Terms Code";
+        ShipmentMethodEnumValue: Enum "CDS Shipment Method Code";
+        ShippingAgentEnumValue: Enum "CDS Shipping Agent Code";
+    begin
+        PaymentTermsEnumValue := DestinationRecordRef.Field(CRMAccount.FieldNo(PaymentTermsCodeEnum)).Value();
+        UpdateEnumFromOption(DestinationRecordRef, CRMAccount.FieldNo(PaymentTermsCode), CRMAccount.FieldNo(PaymentTermsCodeEnum), PaymentTermsEnumValue.AsInteger());
+        
+        ShipmentMethodEnumValue := DestinationRecordRef.Field(CRMAccount.FieldNo(Address1_FreightTermsCodeEnum)).Value();
+        UpdateEnumFromOption(DestinationRecordRef, CRMAccount.FieldNo(Address1_FreightTermsCode), CRMAccount.FieldNo(Address1_FreightTermsCodeEnum), ShipmentMethodEnumValue.AsInteger());
+        
+        ShippingAgentEnumValue := DestinationRecordRef.Field(CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum)).Value();
+        UpdateEnumFromOption(DestinationRecordRef, CRMAccount.FieldNo(Address1_ShippingMethodCode), CRMAccount.FieldNo(Address1_ShippingMethodCodeEnum), ShippingAgentEnumValue.AsInteger());
+    end;
+
+    local procedure UpdateInvoiceEnumsFromOptions(var DestinationRecordRef: RecordRef)
+    var
+        CRMInvoice: Record "CRM Invoice";
+        PaymentTermsEnumValue: Enum "CDS Payment Terms Code";
+        ShippingAgentEnumValue: Enum "CDS Shipping Agent Code";
+    begin
+        PaymentTermsEnumValue := DestinationRecordRef.Field(CRMInvoice.FieldNo(PaymentTermsCodeEnum)).Value();
+        UpdateEnumFromOption(DestinationRecordRef, CRMInvoice.FieldNo(PaymentTermsCode), CRMInvoice.FieldNo(PaymentTermsCodeEnum), PaymentTermsEnumValue.AsInteger());
+        
+        ShippingAgentEnumValue := DestinationRecordRef.Field(CRMInvoice.FieldNo(ShippingMethodCodeEnum)).Value();
+        UpdateEnumFromOption(DestinationRecordRef, CRMInvoice.FieldNo(ShippingMethodCode), CRMInvoice.FieldNo(ShippingMethodCodeEnum), ShippingAgentEnumValue.AsInteger());
+    end;
+
+    local procedure UpdateEnumFromOption(var DestinationRecordRef: RecordRef; OptionFieldNo: Integer; EnumFieldNo: Integer; EnumValue: Integer)
+    var
+        OptionDestinationFielRef: FieldRef;
+        EnumDestinationFielRef: FieldRef;
+        OptionValue: Integer;
+    begin
+        OptionDestinationFielRef := DestinationRecordRef.Field(OptionFieldNo);
+        EnumDestinationFielRef := DestinationRecordRef.Field(EnumFieldNo);
+        OptionValue := OptionDestinationFielRef.Value();
+        if (OptionValue <> 0) and (OptionValue <> EnumValue) then
+            EnumDestinationFielRef.Value := OptionValue;
     end;
 }
 

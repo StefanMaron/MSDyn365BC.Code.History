@@ -22,6 +22,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         ConstFormat: Option AN,CB,CB12,CF,CN,PI,DA,DT,DN,D4,D6,NP,NU,NUp,Nx,PC,PR,QU,PN,VP;
         WrongRecordFoundErr: Label 'Wrong record found.';
         EmptyFieldErr: Label '''%1'' in ''%2'' must not be blank.', Comment = '%1=caption of a field, %2=key of record';
+        BaseExcludedAmountTotalErr: Label 'Base - Excluded Amount total on lines for Withholding Tax Entry No. = %1 must be equal to Base - Excluded Amount on the Withholding Tax card for that entry (%2).', Comment = '%1=Entry number,%2=Amount.';
 
     [Test]
     [Scope('OnPrem')]
@@ -462,6 +463,318 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // Verification is done inside ErrorPageHandler
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportWithholdingTaxWithSplitBaseExcludedValue()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxLine: array[2] of Record "Withholding Tax Line";
+        FileName: Text;
+        LineNo: Integer;
+    begin
+        // [SCENARIO 350177] Base - Excluded amount split in two lines with different Non-taxable income type is correctly exported in two separate lines
+        Initialize();
+
+        // [GIVEN] Withholding tax entry with Non-Taxable Income Type" = " " and Base - Excluded amount = "X+Y"
+        WithholdingTax.Get(
+          CreateWithholdingTaxWithAU001006AndContributionEntry(
+            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+
+        // [GIVEN] Created Withholding tax lines for entry. Line 1 = Amount X and Non-taxable income type 1
+        // [GIVEN] Line 2 = Amount Y and Non-taxable income type 2
+        CreateBaseExcludedSplit(WithholdingTaxLine, WithholdingTax."Entry No.");
+
+        // [WHEN] Run "Withholding tax export" codeunit
+        FileName := Export(CreateCompanyOfficial());
+
+        // [THEN] In the report there are 2 RecordH lines corresponding to Withholding Tax Entry, we skip 3 header lines
+        LoadFile(FileName);
+        LineNo := 4;
+
+        // [THEN] First line has Total Amount = Withholding Tax Entry Total amount, Base Excluded Amount = X + WHT Entry Non-Taxable Amount and Non-taxable income type 1
+        ValidateAmountsInRecordH(WithholdingTaxLine[1], WithholdingTax."Total Amount", WithholdingTax."Non Taxable Amount", LineNo);
+
+        // [THEN] Second line has Total Amount = 0, Base Excluded Amount = Y and Non-Taxable income type 2
+        ValidateAmountsInRecordH(WithholdingTaxLine[2], 0, 0, LineNo + 2);
+
+        // Cleanup
+        WithholdingTaxLine[1].Delete();
+        WithholdingTaxLine[2].Delete();
+    end;
+
+    [Test]
+    [HandlerFunctions('MsgHandler,ErrorPageHandlerWithExpectedErrorMessage')]
+    [Scope('OnPrem')]
+    procedure ExportWithholdingTaxWithSplitBaseExcludedValueErrorOnWrongAmount()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxLine: array[2] of Record "Withholding Tax Line";
+    begin
+        // [SCENARIO 350177] Base - Excluded amount split in two lines with different Non-taxable income type is correctly exported in two separate lines
+        Initialize();
+
+        // [GIVEN] Withholding tax entry with Non-Taxable Income Type" = " " and Base - Excluded amount = "X+Y"
+        WithholdingTax.Get(
+          CreateWithholdingTaxWithAU001006AndContributionEntry(
+            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+
+        // [GIVEN] Created Withholding tax lines for entry. Line 1 = Amount X and Non-taxable income type 1
+        // [GIVEN] Line 2 = Amount Y + 50 and Non-taxable income type 2
+        CreateBaseExcludedSplit(WithholdingTaxLine, WithholdingTax."Entry No.");
+        WithholdingTaxLine[2]."Base - Excluded Amount" := WithholdingTaxLine[2]."Base - Excluded Amount" + LibraryRandom.RandDec(50, 2);
+        WithholdingTaxLine[2].Modify();
+
+        // [WHEN] Run "Withholding tax export" codeunit
+        LibraryVariableStorage.Enqueue(StrSubstNo(
+            BaseExcludedAmountTotalErr, WithholdingTax."Entry No.", WithholdingTax."Base - Excluded Amount"));
+        Export(CreateCompanyOfficial());
+
+        // [THEN] Error for Base - Excluded Amount is shown.
+        // Validated in ErrorPageHandlerWithExpectedErrorMessage
+        LibraryVariableStorage.AssertEmpty();
+
+        // Cleanup
+        WithholdingTaxLine[1].Delete();
+        WithholdingTaxLine[2].Delete();
+    end;
+
+    [Test]
+    [HandlerFunctions('WithholdingTaxLinesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxDrilldownOpensWithholdingTaxLines()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxCard: TestPage "Withholding Tax Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 350177] Withholding tax lines page opens on Base - Excluded Amount drilldown in Withholding Tax Card
+        Initialize();
+
+        // [GIVEN] Withholding tax entry with Non-taxable income type empty
+        WithholdingTax.Get(
+          CreateWithholdingTaxWithAU001006AndContributionEntry(
+            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+
+        // [GIVEN] Withholding Tax card page was open
+        WithholdingTaxCard.OpenEdit();
+        WithholdingTaxCard.Filter.SetFilter("Entry No.", Format(WithholdingTax."Entry No."));
+
+        // [WHEN] User clicks on "Base - Excluded amount" drilldown
+        WithholdingTaxCard."Base - Excluded Amount".DrillDown();
+
+        // [THEN] Withholding tax lines page opens
+        // UI Handled by WithholdingTaxLinesModalPageHandler
+
+        // Cleanup
+        WithholdingTaxCard.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('WithholdingTaxLinesModalPageHandler,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxDrilldownConfirmYesOnNonEmptyNonTaxableIncomeType()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxCard: TestPage "Withholding Tax Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 350177] If Non-taxable income type is not empty, confirm will pop up on Base - Excluded Amount drilldown in Withholding Tax Card
+        // User presses Yes - Withholding tax lines page opens
+        Initialize();
+
+        // [GIVEN] Withholding tax entry with Non-taxable income type empty
+        WithholdingTax.Get(
+          CreateWithholdingTaxWithAU001006AndContributionEntry(
+            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::"7"));
+
+        // [GIVEN] Withholding Tax card page was open
+        WithholdingTaxCard.OpenEdit();
+        WithholdingTaxCard.Filter.SetFilter("Entry No.", Format(WithholdingTax."Entry No."));
+
+        // [WHEN] User clicks on "Base - Excluded amount" drilldown
+        WithholdingTaxCard."Base - Excluded Amount".DrillDown();
+
+        // [THEN] Withholding tax lines page opens
+        // UI Handled by WithholdingTaxLinesModalPageHandler
+
+        // Cleanup
+        WithholdingTaxCard.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxDrilldownConfirmNoOnNonEmptyNonTaxableIncomeType()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxCard: TestPage "Withholding Tax Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 350177] If Non-taxable income type is not empty, confirm will pop up on Base - Excluded Amount drilldown in Withholding Tax Card
+        // User presses No - Withholding tax lines page opens
+        Initialize();
+
+        // [GIVEN] Withholding tax entry with Non-taxable income type empty
+        WithholdingTax.Get(
+          CreateWithholdingTaxWithAU001006AndContributionEntry(
+            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::"7"));
+
+        // [GIVEN] Withholding Tax card page was open
+        WithholdingTaxCard.OpenEdit();
+        WithholdingTaxCard.Filter.SetFilter("Entry No.", Format(WithholdingTax."Entry No."));
+
+        // [WHEN] User clicks on "Base - Excluded amount" drilldown
+        WithholdingTaxCard."Base - Excluded Amount".DrillDown();
+
+        // [THEN] Withholding tax lines page doesn't open
+
+        // Cleanup
+        WithholdingTaxCard.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('WithholdingTaxLinesModalPageHandlerWithCheckTotal')]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxLinesDisplaysWithholdingTaxTotal()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxCard: TestPage "Withholding Tax Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 350177] Withholding tax lines page displays correct Withholding Tax Card total
+        Initialize();
+
+        // [GIVEN] Withholding tax entry with Non-taxable income type empty and Base - ExcludedAmount = X
+        WithholdingTax.Get(
+          CreateWithholdingTaxWithAU001006AndContributionEntry(
+            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+
+        // [GIVEN] Withholding Tax card page was open
+        WithholdingTaxCard.OpenEdit();
+        WithholdingTaxCard.Filter.SetFilter("Entry No.", Format(WithholdingTax."Entry No."));
+
+        // [GIVEN] User clicks on "Base - Excluded amount" drilldown
+        LibraryVariableStorage.Enqueue(WithholdingTax."Base - Excluded Amount");
+        WithholdingTaxCard."Base - Excluded Amount".DrillDown();
+
+        // [THEN] Withholding tax lines page opens
+        // Total amount validated in WithholdingTaxLinesModalPageHandlerWithCheckTotal handler
+        LibraryVariableStorage.AssertEmpty();
+
+        // Cleanup
+        WithholdingTaxCard.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('WithholdingTaxLinesModalPageHandlerWithLineEntry,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxLinesWarningOnClosingWithWrongTotal()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxCard: TestPage "Withholding Tax Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 350177] Withholding tax lines page will warn user that amount total is not correct when closing page
+        Initialize();
+
+        // [GIVEN] Withholding tax entry with Non-taxable income type empty and Base - ExcludedAmount = X
+        WithholdingTax.Get(
+          CreateWithholdingTaxWithAU001006AndContributionEntry(
+            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+
+        // [GIVEN] Withholding Tax card page was open
+        WithholdingTaxCard.OpenEdit();
+        WithholdingTaxCard.Filter.SetFilter("Entry No.", Format(WithholdingTax."Entry No."));
+
+        // [GIVEN] User clicks on "Base - Excluded amount" drilldown
+        LibraryVariableStorage.Enqueue(WithholdingTax."Base - Excluded Amount" + LibraryRandom.RandDec(100, 2));
+        LibraryVariableStorage.Enqueue(WithholdingTax."Non-Taxable Income Type"::"7");
+        WithholdingTaxCard."Base - Excluded Amount".DrillDown();
+
+        // [WHEN] Withholding tax lines page opens Line is entered with a non-taxable income type and amount = X + 100
+        // UI is handled by WithholdingTaxLinesModalPageHandlerWithLineEntry
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] Closing Withholding tax page a confirm pops up with warning
+        // UI is handled by ConfirmHandlerYes
+
+        // Cleanup
+        WithholdingTaxCard.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('WithholdingTaxLinesModalPageHandlerWithCorrectSplit')]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxLinesSplitInTwoLinesWithCorrectTotal()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxLine: Record "Withholding Tax Line";
+        WithholdingTaxCard: TestPage "Withholding Tax Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 350177] Withholding tax lines page will successfully close and create lines when split total correctly
+        Initialize();
+
+        // [GIVEN] Withholding tax entry with Non-taxable income type empty and Base ExcludedAmount = X
+        WithholdingTax.Get(
+          CreateWithholdingTaxWithAU001006AndContributionEntry(
+            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+
+        // [GIVEN] Withholding Tax card page was open
+        WithholdingTaxCard.OpenEdit();
+        WithholdingTaxCard.Filter.SetFilter("Entry No.", Format(WithholdingTax."Entry No."));
+
+        // [GIVEN] User clicks on "Base - Excluded amount" drilldown
+        LibraryVariableStorage.Enqueue(WithholdingTax."Base - Excluded Amount");
+        WithholdingTaxCard."Base - Excluded Amount".DrillDown();
+
+        // [WHEN] Withholding tax lines page opens. User splits the total amount of X correctly into two lines
+        // UI is handled by WithholdingTaxLinesModalPageHandlerWithCorrectSplit
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] Page closes with no warning. Two lines are created.
+        WithholdingTaxLine.SetRange("Withholding Tax Entry No.", WithholdingTax."Entry No.");
+        Assert.RecordCount(WithholdingTaxLine, 2);
+
+        // Cleanup
+        WithholdingTaxCard.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxCardChangeNonTaxableIncomeTypeClearsLines()
+    var
+        WithholdingTax: Record "Withholding Tax";
+        WithholdingTaxLine: Record "Withholding Tax Line";
+        WithholdingTaxCard: TestPage "Withholding Tax Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 350177] Setting Non-taxable income type from empty to non-empty clears associated Withholding Tax Lines
+        Initialize();
+
+        // [GIVEN] Withholding tax entry with Non-taxable income type empty
+        WithholdingTax.Get(
+          CreateWithholdingTaxWithAU001006AndContributionEntry(
+            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
+
+        // [GIVEN] Withholding line was created for this entry
+        CreateWithholdingTaxLine(WithholdingTaxLine, WithholdingTax."Entry No.", 10000, LibraryRandom.RandDec(100, 2), 0);
+
+        // [GIVEN] Withholding Tax card page was open
+        WithholdingTaxCard.OpenEdit();
+        WithholdingTaxCard.Filter.SetFilter("Entry No.", Format(WithholdingTax."Entry No."));
+
+        // [WHEN] User changes value of Non-taxable income type
+        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTax."Non-Taxable Income Type"::"6");
+
+        // [THEN] Withholding tax lines are cleared for this entry
+        WithholdingTaxLine.SetRange("Withholding Tax Entry No.", WithholdingTax."Entry No.");
+        Assert.RecordIsEmpty(WithholdingTaxLine);
+
+        // Cleanup
+        WithholdingTaxCard.Close();
+    end;
+
     local procedure Initialize()
     var
         WithholdingTax: Record "Withholding Tax";
@@ -484,6 +797,20 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         IsInitialized := true;
     end;
 
+    local procedure CreateBaseExcludedSplit(var WithholdingTaxLine: array[2] of Record "Withholding Tax Line"; WHTEntryNo: Integer)
+    var
+        WithholdingTax: Record "Withholding Tax";
+    begin
+        WithholdingTax.Get(WHTEntryNo);
+        CreateWithholdingTaxLine(
+          WithholdingTaxLine[1], WHTEntryNo, 10000,
+          Round(WithholdingTax."Base - Excluded Amount" / 3), WithholdingTax."Non-Taxable Income Type"::"6");
+        CreateWithholdingTaxLine(
+          WithholdingTaxLine[2], WHTEntryNo, 20000,
+          WithholdingTax."Base - Excluded Amount" - WithholdingTaxLine[1]."Base - Excluded Amount",
+          WithholdingTax."Non-Taxable Income Type"::"7");
+    end;
+
     local procedure CalculateContributions(var WithholdingTax: Record "Withholding Tax"; EntryNo: Integer; var TempContributions: Record Contributions temporary)
     var
         Contributions: Record Contributions;
@@ -503,6 +830,16 @@ codeunit 144021 "IT - CU 2015 Unit Test"
                 until Next = 0;
             TempContributions.Modify();
         end;
+    end;
+
+    local procedure CreateWithholdingTaxLine(var WithholdingTaxLine: Record "Withholding Tax Line"; WithholdingTaxEntryNo: Integer; WithholdingTaxLineNo: Integer; BaseExcludedAmount: Decimal; NonTaxableIncomeType: Option)
+    begin
+        WithholdingTaxLine.Init();
+        WithholdingTaxLine."Base - Excluded Amount" := BaseExcludedAmount;
+        WithholdingTaxLine."Non-Taxable Income Type" := NonTaxableIncomeType;
+        WithholdingTaxLine."Withholding Tax Entry No." := WithholdingTaxEntryNo;
+        WithholdingTaxLine."Line No." := WithholdingTaxLineNo;
+        if WithholdingTaxLine.Insert() then;
     end;
 
     local procedure CreateCompanyOfficial(): Code[20]
@@ -673,6 +1010,14 @@ codeunit 144021 "IT - CU 2015 Unit Test"
     local procedure FormatToLength(Value: Variant; Length: Integer): Text
     begin
         exit(PadStr('', Length - StrLen(Format(Value)), '0') + Format(Value));
+    end;
+
+    local procedure ValidateAmountsInRecordH(WithholdingTaxLine: Record "Withholding Tax Line"; TotalAmount: Decimal; NonTaxableAmount: Decimal; LineNumber: Integer)
+    begin
+        if TotalAmount <> 0 then
+            ValidateBlockValue(LineNumber, 'AU001004', ConstFormat::VP, TotalAmount);
+        ValidateBlockValue(LineNumber, 'AU001006', ConstFormat::NP, Format(WithholdingTaxLine."Non-Taxable Income Type"));
+        ValidateBlockValue(LineNumber, 'AU001007', ConstFormat::VP, WithholdingTaxLine."Base - Excluded Amount" + NonTaxableAmount);
     end;
 
     local procedure ValidateExportedWithholdingTaxWithOneReason(SigningCompanyOfficialNo: Code[20]; VendorNo: Code[20]; Filename: Text)
@@ -882,6 +1227,57 @@ codeunit 144021 "IT - CU 2015 Unit Test"
     procedure ConfirmHandlerNo(Message: Text[1024]; var Reply: Boolean)
     begin
         Reply := false;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure ErrorPageHandlerWithExpectedErrorMessage(var ErrorMessages: TestPage "Error Messages")
+    begin
+        ErrorMessages.Description.AssertEquals(LibraryVariableStorage.DequeueText);
+        Assert.IsFalse(ErrorMessages.Next, WrongRecordFoundErr);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxLinesModalPageHandler(var WithholdingTaxLines: TestPage "Withholding Tax Lines")
+    begin
+        WithholdingTaxLines.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxLinesModalPageHandlerWithLineEntry(var WithholdingTaxLines: TestPage "Withholding Tax Lines")
+    begin
+        WithholdingTaxLines."Base - Excluded Amount".SetValue(LibraryVariableStorage.DequeueDecimal);
+        WithholdingTaxLines."Non-Taxable Income Type".SetValue(LibraryVariableStorage.DequeueInteger);
+        WithholdingTaxLines.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxLinesModalPageHandlerWithCheckTotal(var WithholdingTaxLines: TestPage "Withholding Tax Lines")
+    begin
+        WithholdingTaxLines."Total Base - Excluded Amount".AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        WithholdingTaxLines.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxLinesModalPageHandlerWithCorrectSplit(var WithholdingTaxLines: TestPage "Withholding Tax Lines")
+    var
+        FirstLineAmount: Decimal;
+        TotalAmount: Decimal;
+        FirstLineType: Integer;
+    begin
+        TotalAmount := LibraryVariableStorage.DequeueDecimal();
+        FirstLineAmount := Round(TotalAmount / 2);
+        FirstLineType := LibraryRandom.RandInt(7);
+        WithholdingTaxLines."Base - Excluded Amount".SetValue(FirstLineAmount);
+        WithholdingTaxLines."Non-Taxable Income Type".SetValue(FirstLineType);
+        WithholdingTaxLines.Next();
+        WithholdingTaxLines."Base - Excluded Amount".SetValue(TotalAmount - FirstLineAmount);
+        WithholdingTaxLines."Non-Taxable Income Type".SetValue(FirstLineType + 1);
+        WithholdingTaxLines.OK.Invoke();
     end;
 }
 

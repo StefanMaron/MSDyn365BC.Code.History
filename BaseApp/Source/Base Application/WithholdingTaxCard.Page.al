@@ -100,6 +100,11 @@ page 12112 "Withholding Tax Card"
                     ApplicationArea = Basic, Suite;
                     OptionCaption = ' ,,,5,6,7,8,9,10,11';
                     ToolTip = 'Specifies the type of non-taxable income.';
+
+                    trigger OnValidate()
+                    begin
+                        SetBaseExcludedStyleExpr();
+                    end;
                 }
             }
             group("Withholding Tax")
@@ -120,7 +125,34 @@ page 12112 "Withholding Tax Card"
                 field("Base - Excluded Amount"; "Base - Excluded Amount")
                 {
                     ApplicationArea = Basic, Suite;
+                    Style = Unfavorable;
+                    StyleExpr = BaseExcludedStyleExpr;
                     ToolTip = 'Specifies the amount of the original purchase that is excluded from the withholding tax calculation, based on exclusions allowed by law.';
+
+                    trigger OnDrillDown()
+                    var
+                        WithholdingTaxLine: Record "Withholding Tax Line";
+                        ConfirmManagement: Codeunit "Confirm Management";
+                        WithholdingTaxLinesPage: Page "Withholding Tax Lines";
+                    begin
+                        if "Non-Taxable Income Type" <> "Non-Taxable Income Type"::" " then begin
+                            if not ConfirmManagement.GetResponse(ClearNonTaxableIncomeTypeQst, false) then
+                                exit;
+                            Validate("Non-Taxable Income Type", "Non-Taxable Income Type"::" ");
+                        end;
+
+                        WithholdingTaxLine.SetRange("Withholding Tax Entry No.", "Entry No.");
+                        WithholdingTaxLinesPage.SetTableView(WithholdingTaxLine);
+                        Modify(true);
+                        Commit();
+                        WithholdingTaxLinesPage.RunModal();
+                        SetBaseExcludedStyleExpr();
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        SetBaseExcludedStyleExpr();
+                    end;
                 }
                 field("Non Taxable Amount By Treaty"; "Non Taxable Amount By Treaty")
                 {
@@ -194,7 +226,24 @@ page 12112 "Withholding Tax Card"
         Vendor.Init();
     end;
 
+    trigger OnOpenPage()
+    begin
+        SetBaseExcludedStyleExpr();
+    end;
+
     var
         Vendor: Record Vendor;
+        ClearNonTaxableIncomeTypeQst: Label 'To distribute Non-Taxable Amount between several Income Types you must have Non-Taxable Income Type on this Withholding Tax Entry empty. \\ Do you want to clear Non-Taxable Income Type and continue?';
+        BaseExcludedStyleExpr: Boolean;
+
+    local procedure SetBaseExcludedStyleExpr()
+    var
+        WithholdingTaxLine: Record "Withholding Tax Line";
+    begin
+        if "Non-Taxable Income Type" <> "Non-Taxable Income Type"::" " then
+            BaseExcludedStyleExpr := false
+        else
+            BaseExcludedStyleExpr := not (WithholdingTaxLine.GetAmountForEntryNo("Entry No.") = "Base - Excluded Amount");
+    end;
 }
 

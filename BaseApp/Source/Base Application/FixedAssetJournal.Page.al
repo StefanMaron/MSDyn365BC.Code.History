@@ -58,6 +58,7 @@ page 5629 "Fixed Asset Journal"
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a document number for the journal line.';
+                    ShowMandatory = true;
                 }
                 field("FA No."; "FA No.")
                 {

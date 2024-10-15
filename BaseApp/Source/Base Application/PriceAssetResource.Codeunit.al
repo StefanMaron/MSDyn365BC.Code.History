@@ -66,6 +66,7 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
             AmountType::Cost:
                 PriceListLine."Unit Cost" := Resource."Direct Unit Cost";
         end;
+        OnAfterFillBestLine(PriceCalculationBuffer, AmountType, PriceListLine);
     end;
 
     procedure FilterPriceLines(PriceAsset: Record "Price Asset"; var PriceListLine: Record "Price List Line") Result: Boolean;
@@ -103,5 +104,10 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
     begin
         PriceAsset."Unit of Measure Code" := '';
         PriceAsset."Variant Code" := '';
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillBestLine(PriceCalculationBuffer: Record "Price Calculation Buffer"; AmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line")
+    begin
     end;
 }

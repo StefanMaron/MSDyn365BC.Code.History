@@ -290,8 +290,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         // [SCENARIO 227220] VAT Report Lines from different reports must be included in different XML-files
         // [SCENARIO 228340] Exported XML has attributes 'xmlns:xs', 'xmlns:ds' in DatiFattura node
         // [SCENARIO 264740] Exported XML does not have tags <Detraibile> and <Deducibile>
-        Initialize;
-        PostingDate[1] := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate[1] := CalcDate('<CM+1Y>', GetPostingDate());
         PostingDate[2] := PostingDate[1] + 1;
 
         // [GIVEN] Posted Sales Invoice on 15.03.2019
@@ -381,8 +381,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
     begin
         // [FEATURE] [VAT Report Suggest Lines]
         // [SCENARIO 227227] "Fiscal Code" in vendor card must be exported instead of "VAT Registration No." if it is blank
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Vendor with blank "VAT Registration No." and "Fiscal Code" = 'PNDLSN69C50F205N'
         CreateIndividualVendor(Vendor);
@@ -429,8 +429,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
     begin
         // [FEATURE] [VAT Report Suggest Lines]
         // [SCENARIO 227227] "Fiscal Code" in customer card must be exported instead of "VAT Registration No." if it is blank
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Customer with blank "VAT Registration No." and "Fiscal Code" = 'PNDLSN69C50F205N'
         CreateIndividualCustomer(Customer);
@@ -481,8 +481,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         FileName: Text;
     begin
         // [SCENARIO 227476] Export different files for sales (DTE) and purchases (DTR).
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
         CompanyInformation.Get();
 
         // [GIVEN] Two Posted Sales Invoice on 15.03.2019
@@ -583,8 +583,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         SuggestedFileName: array[3] of Text;
     begin
         // [SCENARIO 228490] One file must be exported for every 1000 CessionarioCommittenteDTE occurences and its name must contain progressive number from the second file
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
         CompanyInformation.Get();
 
         // [GIVEN] 2001 Posted Sales Invoices on 15.03.2019
@@ -629,8 +629,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         SuggestedFileName: array[3] of Text;
     begin
         // [SCENARIO 228490] One file must be exported for every 1000 CedentePrestatoreDTR occurences and its name must contain progressive number from the second file
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
         CompanyInformation.Get();
 
         // [GIVEN] 2001 Posted Purchase Invoices on 15.03.2019
@@ -676,8 +676,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         CustomerNo: Code[20];
     begin
         // [SCENARIO 228490] One file with 1000 CessionarioCommittenteDTE occurences having one numeric suffix must be exported
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
         CompanyInformation.Get();
 
         // [GIVEN] 1000 Posted Sales Invoices on 15.03.2019
@@ -714,8 +714,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         VendorNo: Code[20];
     begin
         // [SCENARIO 228490] One file with 1000 CedentePrestatoreDTR occurences having one numeric suffix must be exported
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
         CompanyInformation.Get();
 
         // [GIVEN] 1000 Posted Purchase Invoices on 15.03.2019
@@ -756,8 +756,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         PostingDate: Date;
     begin
         // [SCENARIO 229923] Error is expected when export VAT Report for individual vendor without "Fiscal Code" and "VAT Registration No."
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Individual Vendor "V" without "Fiscal Code" and "VAT Registration No."
         CreateIndividualVendor(Vendor);
@@ -796,8 +796,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         FileName: Text;
     begin
         // [SCENARIO 229923] Export VAT Report for individual vendor with "VAT Registration No." = '08106710158' and blank "Fiscal Code"
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Individual Vendor "V" without "Fiscal Code" and "VAT Registration No." = '08106710158'
         CreateIndividualVendor(Vendor);
@@ -836,8 +836,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         PostingDate: Date;
     begin
         // [SCENARIO 229923] Error is expected when export VAT Report for vendor without "Fiscal Code" and "VAT Registration No."
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Vendor "V" without "Fiscal Code" and "VAT Registration No."
         CreateVendor_Datifattura(Vendor);
@@ -876,8 +876,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         FileName: Text;
     begin
         // [SCENARIO 229923] Export VAT Report for vendor with "Fiscal Code" = 'PNDLSN69C50F205N'and blank "VAT Registration No."
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Vendor "V" without "VAT Registration No." and "Fiscal Code" = 'PNDLSN69C50F205N'
         LibraryPurchase.CreateVendorWithAddress(Vendor);
@@ -916,8 +916,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         FileName: Text;
     begin
         // [SCENARIO 229923] Export VAT Report for vendor with "VAT Registration No." = '08106710158' and blank "Fiscal Code"
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Vendor "V" without "Fiscal Code" and "VAT Registration No." = '08106710158'
         LibraryPurchase.CreateVendorWithAddress(Vendor);
@@ -956,8 +956,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         PostingDate: Date;
     begin
         // [SCENARIO 229923] Error is expected when export VAT Report for individual customer without "Fiscal Code" and "VAT Registration No."
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Individual Customer "C" without "Fiscal Code" and "VAT Registration No."
         CreateIndividualCustomer(Customer);
@@ -996,8 +996,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         FileName: Text;
     begin
         // [SCENARIO 229923] Export VAT Report for individual customer with "VAT Registration No. = '08106710158' and blank "Fiscal Code"
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Individual Customer "C" with "VAT Registration No. = '08106710158' and blank "Fiscal Code"
         CreateIndividualCustomer(Customer);
@@ -1036,8 +1036,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         PostingDate: Date;
     begin
         // [SCENARIO 229923] Error is expected when export VAT Report for customer without "Fiscal Code" and "VAT Registration No."
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Customer "C" without "Fiscal Code" and "VAT Registration No."
         CreateCustomer_Datifattura(Customer);
@@ -1076,8 +1076,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         FileName: Text;
     begin
         // [SCENARIO 229923] Export VAT Report for customer with "Fiscal Code" = 'PNDLSN69C50F205N'and blank "VAT Registration No."
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Customer "C" with "Fiscal Code" = 'PNDLSN69C50F205N'and blank "VAT Registration No."
         LibrarySales.CreateCustomerWithAddress(Customer);
@@ -1117,8 +1117,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         FileName: Text;
     begin
         // [SCENARIO 229923] Export VAT Report for customer with "VAT Registration No. = '08106710158' and blank "Fiscal Code"
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Customer "C" with "VAT Registration No. = '08106710158' and blank "Fiscal Code"
         LibrarySales.CreateCustomerWithAddress(Customer);
@@ -1161,8 +1161,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         FileName: Text;
     begin
         // [SCENARIO 232899] Export VAT Report for EU vendor with "EU Service" = No in VAT Posting Setup
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Vendor "V" with "Country/Region Code" = 'ES'
         CreateVendor_Datifattura(Vendor);
@@ -1208,8 +1208,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         FileName: Text;
     begin
         // [SCENARIO 232899] Export VAT Report for EU vendor with "EU Service" = Yes in VAT Posting Setup
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Vendor "V" with "Country/Region Code" = 'ES'
         CreateVendor_Datifattura(Vendor);
@@ -1263,8 +1263,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         RelatedEntryNo: Integer;
     begin
         // [SCENARIO 255742] Export foreign goods Purchase Invoice with linked Customs Authority Purchase Invoice
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Foreign Vendor "VF" with Country/Region = "US", "VAT Registration No." = "503912693"
         CreateVendor_Datifattura(ForeignVendor);
@@ -1320,8 +1320,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         PostingDate: Date;
     begin
         // [SCENARIO 255742] Export two Purchase Invoice without Vendor Ledger Entries
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Vendor "Vend1"
         CreateVendor_Datifattura(Vendor1);
@@ -1371,8 +1371,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         // [FEATURE] [Tax Representative] [Company]
         // [SCENARIO 264347] Error shown if export VAT Report for vendor with Company contact with blank "VAT Registration No." as Tax Representative
 
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Contact "X" with type "Company" and blank "VAT Registration No."
         CreateContactCompany(Contact, '');
@@ -1414,8 +1414,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         // [FEATURE] [Tax Representative] [Company]
         // [SCENARIO 264347] Export VAT Report for vendor with Company contact with "VAT Registration No." as Tax Representative
 
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Contact "X" with type "Company" and "VAT Registration No." = "Y"
         CreateContactCompany(Contact, LibraryUtility.GenerateRandomCode(Contact.FieldNo("VAT Registration No."), DATABASE::Contact));
@@ -1456,8 +1456,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         // [FEATURE] [Tax Representative] [Person]
         // [SCENARIO 264347] Error shown if export VAT Report for vendor with Person contact with blank "Surname" as Tax Representative
 
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Contact "X" with type "Person" and blank "Surname"
         CreateContactPerson(Contact, '', '');
@@ -1498,8 +1498,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         // [FEATURE] [Tax Representative] [Person]
         // [SCENARIO 264347] Error shown if export VAT Report for vendor with Person contact with blank "First Name" as Tax Representative
 
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Contact "X" with type "Person", Surname and blank "First Name"
         CreateContactPerson(
@@ -1542,8 +1542,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         // [FEATURE] [Tax Representative] [Person]
         // [SCENARIO 264347] Export VAT Report for vendor with Person contact with Surname and "First Name" as Tax Representative
 
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Contact "X" with type "Person", Surname and "First Name"
         CreateContactPerson(
@@ -1587,8 +1587,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         PostingDate: Date;
     begin
         // [SCENARIO 266128] Exported Datifattura Report file has one DatiFatturaBody part for one sales document with multiply lines.
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Customer fot Datifattura Report.
         CreateCustomer_Datifattura(Customer);
@@ -1612,7 +1612,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         ExportFile_Datifattura(VATReportHeader);
 
         // [THEN] One files was exported.
-        FileName := GetFileNameWithCountCheck;
+        FileName := GetFileNameWithCountCheck();
         LibraryXMLRead.Initialize(FileName);
 
         // [THEN] One DatiFatturaBodyDTE appearance.
@@ -1639,8 +1639,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         PostingDate: Date;
     begin
         // [SCENARIO 266128] Exported Datifattura Report file has one DatiFatturaBody part for one purchase document with multiply lines.
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Vendor fot Datifattura Report.
         CreateVendor_Datifattura(Vendor);
@@ -1667,7 +1667,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         ExportFile_Datifattura(VATReportHeader);
 
         // [THEN] One files was exported.
-        FileName := GetFileNameWithCountCheck;
+        FileName := GetFileNameWithCountCheck();
         LibraryXMLRead.Initialize(FileName);
 
         // [THEN] One DatiFatturaBodyDTR appearance.
@@ -1691,8 +1691,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         PostingDate: Date;
     begin
         // [SCENARIO 266128] Exported Datifattura Report file has two DatiFatturaBody part for two sales documents with same Document No.
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Customer fot Datifattura Report.
         CreateCustomer_Datifattura(Customer);
@@ -1716,7 +1716,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         ExportFile_Datifattura(VATReportHeader);
 
         // [THEN] One files was exported.
-        FileName := GetFileNameWithCountCheck;
+        FileName := GetFileNameWithCountCheck();
         LibraryXMLRead.Initialize(FileName);
 
         // [THEN] Two DatiFatturaBodyDTE appearance.
@@ -1741,8 +1741,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         PostingDate: Date;
     begin
         // [SCENARIO 266128] Exported Datifattura Report file has two DatiFatturaBody part for two purchase documents with same Document No.
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Vendor fot Datifattura Report.
         CreateVendor_Datifattura(Vendor);
@@ -1771,7 +1771,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         ExportFile_Datifattura(VATReportHeader);
 
         // [THEN] One files was exported.
-        FileName := GetFileNameWithCountCheck;
+        FileName := GetFileNameWithCountCheck();
         LibraryXMLRead.Initialize(FileName);
 
         // [THEN] Two DatiFatturaBodyDTR appearance.
@@ -1796,8 +1796,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 267045] DatiIVA XML Node exist in exported DatiFattura VAT Report for Purchase Invoice with Posting Groups.
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Vendor.
         CreateVendor_Datifattura(Vendor);
@@ -1840,8 +1840,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 267045] DatiIVA XML Node exist in exported DatiFattura VAT Report for Sales Invoice with Posting Groups.
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Customer.
         CreateCustomer_Datifattura(Customer);
@@ -1884,8 +1884,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
         // [FEATURE] [Purchase]
         // [SCENARIO 266981] Data XML Node contains Document Date in exported DatiFattura VAT Report for Purchase Invoice.
         // [SCENARIO 266981] DataRegistrazione XML Node contains Posting Date in exported DatiFattura VAT Report for Purchase Invoice.
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Vendor.
         CreateVendor_Datifattura(Vendor);
@@ -1922,8 +1922,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 267045] Data XML Node contains Document Date in exported DatiFattura VAT Report for Sales Invoice.
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Customer.
         CreateCustomer_Datifattura(Customer);
@@ -1961,8 +1961,8 @@ codeunit 144012 "IT - VAT Reporting - Export"
     begin
         // [FEATURE] [Purchase] [Datifattura] [Reverse Charge VAT] [VAT Report] [Export]
         // [SCENARIO 320154] Natura XML Node exists in exported DatiFattura VAT Report for Purchase Invoice with Reverse Charge VAT Posting Setup
-        Initialize;
-        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
 
         // [GIVEN] Created Vendor and Reverse Charge VAT Posting Setup with Natura code
         CreateVendor_Datifattura(Vendor);
@@ -1982,6 +1982,120 @@ codeunit 144012 "IT - VAT Reporting - Export"
 
         // [THEN] Exported DatiFattura VAT Report has correct Natura node
         VerifyPurchaseDatiFatturaNaturaNode(VATPostingSetup."VAT Transaction Nature");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DatifatturaSalesDocumentsWithSameNoAndTypeForDifferenVendorExportedAsSeparateElements()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportLine: Record "VAT Report Line";
+        VATEntry: Record "VAT Entry";
+        Customer: array[2] of Record Customer;
+        DocumentNo: Code[20];
+        FileName: Text;
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Sales] [Datifattura] [VAT Report] [Export]
+        // [SCENARIO 354448] Exported Datifattura Report file has three AltriDatiIdentificativi elements for two sales documents with same Document No, Document Type but different Customers.
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
+
+        // [GIVEN] Two Customers for Datifattura Report.
+        CreateCustomer_Datifattura(Customer[1]);
+        CreateCustomer_Datifattura(Customer[2]);
+
+        // [GIVEN] One Document Number for all VAT Entries.
+        DocumentNo :=
+          CopyStr(LibraryUtility.GenerateRandomCode(
+              VATEntry.FieldNo("Document No."), DATABASE::"VAT Entry"), 1, MaxStrLen(VATEntry."Document No."));
+
+        // [GIVEN] Two VAT Entries with one Document Number, Type = Sale and same Document Type for Customers.
+        CreateVATEntryWithDocNoAndType(
+          PostingDate, VATEntry.Type::Sale, Customer[1]."No.", DocumentNo, VATEntry."Document Type"::Invoice);
+        CreateVATEntryWithDocNoAndType(
+          PostingDate, VATEntry.Type::Sale, Customer[2]."No.", DocumentNo, VATEntry."Document Type"::Invoice);
+
+        // [GIVEN] VAT Report with "VAT Report Config. Code" = Datifattura.
+        LibraryVATUtils.CreateVATReport(
+          VATReportHeader, VATReportLine, VATReportHeader."VAT Report Config. Code"::Datifattura, PostingDate, PostingDate);
+
+        // [WHEN] Export VAT Report.
+        ExportFile_Datifattura(VATReportHeader);
+
+        // [THEN] One files was exported.
+        FileName := GetFileNameWithCountCheck();
+        LibraryXMLRead.Initialize(FileName);
+
+        // [THEN] Three AltriDatiIdentificativi elements (one for Company and each Customer).
+        Assert.AreEqual(3, LibraryXMLRead.GetNodesCount('AltriDatiIdentificativi'), DatiFatturaForOneDocumentWithMultipleLinesErr);
+
+        // [THEN] Two DatiFatturaBodyDTE elements.
+        Assert.AreEqual(2, LibraryXMLRead.GetNodesCount('DatiFatturaBodyDTE'), DatiFatturaForOneDocumentWithMultipleLinesErr);
+
+        // [THEN] Two DatiRiepilogo elements.
+        Assert.AreEqual(2, LibraryXMLRead.GetNodesCount('DatiRiepilogo'), DatiFatturaForOneDocumentWithMultipleLinesErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure DatifatturaPurchaseDocumentsWithSameNoAndTypeForDifferenVendorExportedAsSeparateElements()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReportLine: Record "VAT Report Line";
+        VATEntry: Record "VAT Entry";
+        Vendor: array[2] of Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DocumentNo: Code[20];
+        FileName: Text;
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Purchase] [Datifattura] [VAT Report] [Export]
+        // [SCENARIO 354448] Exported Datifattura Report file has three AltriDatiIdentificativi elements for two purchase documents with same Document No, Document Type but different Vendors.
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
+
+        // [GIVEN] Two Vendors for Datifattura Report.
+        CreateVendor_Datifattura(Vendor[1]);
+        CreateVendor_Datifattura(Vendor[2]);
+
+        // [GIVEN] One Document Number for all VAT Entries.
+        DocumentNo :=
+          CopyStr(LibraryUtility.GenerateRandomCode(
+              VATEntry.FieldNo("Document No."), DATABASE::"VAT Entry"), 1, MaxStrLen(VATEntry."Document No."));
+
+        // [GIVEN] Two VAT Entries with one Document Number, Type = Purchase and same Document Type for Vendors.
+        CreateVATEntryWithDocNoAndType(
+          PostingDate, VATEntry.Type::Purchase, Vendor[1]."No.", DocumentNo, VATEntry."Document Type"::Invoice);
+        MockGLEntryAndVendorLedgerEntry(
+          DocumentNo, PostingDate, 0, Vendor[1]."No.", VendorLedgerEntry."Document Type"::Invoice);
+
+        CreateVATEntryWithDocNoAndType(
+          PostingDate, VATEntry.Type::Purchase, Vendor[2]."No.", DocumentNo, VATEntry."Document Type"::Invoice);
+        MockGLEntryAndVendorLedgerEntry(
+          DocumentNo, PostingDate, 0, Vendor[2]."No.", VendorLedgerEntry."Document Type"::Invoice);
+
+        // [GIVEN] VAT Report with "VAT Report Config. Code" = Datifattura.
+        LibraryVATUtils.CreateVATReport(
+          VATReportHeader, VATReportLine, VATReportHeader."VAT Report Config. Code"::Datifattura, PostingDate, PostingDate);
+
+        // [WHEN] Export VAT Report.
+        ExportFile_Datifattura(VATReportHeader);
+
+        // [THEN] One files was exported.
+        FileName := GetFileNameWithCountCheck();
+        LibraryXMLRead.Initialize(FileName);
+
+        // [THEN] Three AltriDatiIdentificativi elements (one for Company and each Vendor).
+        Assert.AreEqual(3, LibraryXMLRead.GetNodesCount('AltriDatiIdentificativi'), DatiFatturaForOneDocumentWithMultipleLinesErr);
+
+        // [THEN] Two DatiFatturaBodyDTR elements.
+        Assert.AreEqual(2, LibraryXMLRead.GetNodesCount('DatiFatturaBodyDTR'), DatiFatturaForOneDocumentWithMultipleLinesErr);
+
+        // [THEN] Two DatiRiepilogo elements.
+        Assert.AreEqual(2, LibraryXMLRead.GetNodesCount('DatiRiepilogo'), DatiFatturaForOneDocumentWithMultipleLinesErr);
     end;
 
     local procedure Initialize()
@@ -2034,7 +2148,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         Verified: Boolean;
         CurrWorkDate: Date;
     begin
-        Initialize;
+        Initialize();
         CurrWorkDate := WorkDate;
 
         // Setup
@@ -2116,7 +2230,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         TextFile: BigText;
         CurrWorkDate: Date;
     begin
-        Initialize;
+        Initialize();
         CurrWorkDate := WorkDate;
 
         // Setup
@@ -2244,7 +2358,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         VATReportNo: Code[20];
         AccountType: Option;
     begin
-        WorkDate(GetPostingDate);
+        WorkDate(GetPostingDate());
         SetupThresholdAmount(WorkDate);
         UpdateVATPostingSetup(VATPostingSetup."VAT Calculation Type"::"Normal VAT", true);
         if GenPostingType = GenJournalLine."Gen. Posting Type"::Sale then

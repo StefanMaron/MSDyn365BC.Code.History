@@ -21,7 +21,7 @@ codeunit 144203 "FatturaPA Stamp"
         IsInitialized: Boolean;
         FatturaPA_ElectronicFormatTxt: Label 'FatturaPA';
         UnexpectedElementValueErr: Label 'Unexpected element value for element %1. Expected element value: %2. Actual element value: %3.', Comment = '%1=XML Element Name;%2=Expected XML Element Value;%3=Actual XML element Value;';
-        YesTok: Label 'Si', Locked = true;
+        YesTok: Label 'SI', Locked = true;
 
     [Test]
     [Scope('OnPrem')]

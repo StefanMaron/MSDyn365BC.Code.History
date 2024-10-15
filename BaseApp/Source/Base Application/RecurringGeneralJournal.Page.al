@@ -208,7 +208,6 @@ page 283 "Recurring General Journal"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {

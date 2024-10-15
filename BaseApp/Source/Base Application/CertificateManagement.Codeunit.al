@@ -36,12 +36,16 @@ codeunit 1259 "Certificate Management"
 
     [Scope('OnPrem')]
     procedure InitIsolatedCertificateFromBlob(var IsolatedCertificate: Record "Isolated Certificate"; NewTempBlob: Codeunit "Temp Blob"): Boolean
+    var
+        User: Record User;
     begin
         TempBlob := NewTempBlob;
         if not VerifyCert(IsolatedCertificate) then
             exit(false);
 
         DeleteCertAndPasswordFromIsolatedStorage(IsolatedCertificate);
+        if User.Get(UserSecurityId()) then
+            IsolatedCertificate.SetScope();
         SaveCertToIsolatedStorage(IsolatedCertificate);
         SavePasswordToIsolatedStorage(IsolatedCertificate);
         exit(true);

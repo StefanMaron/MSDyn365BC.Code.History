@@ -104,7 +104,7 @@ codeunit 143001 "Library - Spesometro"
     begin
         AppointmentCode.Init();
         AppointmentCode.Validate(Code, LibraryUtility.GenerateRandomCode(AppointmentCode.FieldNo(Code), DATABASE::"Appointment Code"));
-        AppointmentCode.Insert();
+        if AppointmentCode.Insert() then;
         exit(AppointmentCode.Code);
     end;
 

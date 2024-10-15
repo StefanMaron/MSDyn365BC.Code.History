@@ -398,6 +398,25 @@ report 393 "Suggest Vendor Payments"
                             end;
                         }
                     }
+                    group(Control22)
+                    {
+                        ShowCaption = false;
+                        Visible = ServiceFieldsVisibiity;
+                        field(JournalTemplateName; GenJnlLine."Journal Template Name")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            ShowCaption = false;
+                            ToolTip = 'Specifies the journal template name of the payment journal.';
+                            Visible = ServiceFieldsVisibiity;
+                        }
+                        field(JournalBatchName; GenJnlLine."Journal Batch Name")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            ShowCaption = false;
+                            ToolTip = 'Specifies the journal batch name of the payment journal.';
+                            Visible = ServiceFieldsVisibiity;
+                        }
+                    }
                 }
             }
         }
@@ -410,6 +429,7 @@ report 393 "Suggest Vendor Payments"
         begin
             SummarizePerDimTextEnable := true;
             SkipExportedPayments := true;
+            ServiceFieldsVisibiity := false;
         end;
 
         trigger OnOpenPage()
@@ -532,6 +552,8 @@ report 393 "Suggest Vendor Payments"
         CheckOtherJournalBatches: Boolean;
         ReviewNotSuggestedLinesQst: Label 'There are payments in other journal batches that are not suggested here. This helps avoid duplicate payments. To add them to this batch, remove the payment from the other batch, and then suggest payments again.\\Do you want to review the payments from the other journal batches now?';
         NotSuggestedPaymentInfoTxt: Label 'There are payments in %1 %2, %3 %4, %5 %6', Comment = 'There are payments in Journal Template Name PAYMENT, Journal Batch Name GENERAL, Applies-to Doc. No. 101321';
+        [InDataSet]
+        ServiceFieldsVisibiity: Boolean;
 
     procedure SetGenJnlLine(NewGenJnlLine: Record "Gen. Journal Line")
     begin

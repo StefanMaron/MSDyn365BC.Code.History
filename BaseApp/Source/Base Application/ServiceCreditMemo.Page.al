@@ -134,7 +134,6 @@ page 5935 "Service Credit Memo"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Salesperson Code"; "Salesperson Code")
                 {
@@ -328,6 +327,11 @@ page 5935 "Service Credit Memo"
                     begin
                         PricesIncludingVATOnAfterValid;
                     end;
+                }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value to export in TipoDocument XML node of the Fattura document.';
                 }
                 field("Fattura Project Code"; "Fattura Project Code")
                 {

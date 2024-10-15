@@ -295,6 +295,7 @@
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         CheckDimensions: Codeunit "Check Dimensions";
     begin
+        OnBeforeCheckPrepmtDoc(SalesHeader, DocumentType, SuppressCommit);
         with SalesHeader do begin
             TestField("Document Type", "Document Type"::Order);
             TestField("Sell-to Customer No.");
@@ -1720,6 +1721,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateVATOnLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; DocumentType: Option Invoice,"Credit Memo",Statistic)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPrepmtDoc(SalesHeader: Record "Sales Header"; DocumentType: Option; CommitIsSuppressed: Boolean)
     begin
     end;
 

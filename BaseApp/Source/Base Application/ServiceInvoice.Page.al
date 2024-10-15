@@ -130,7 +130,6 @@ page 5933 "Service Invoice"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
-                    Visible = false;
                 }
                 field("Salesperson Code"; "Salesperson Code")
                 {
@@ -340,6 +339,11 @@ page 5933 "Service Invoice"
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
+                }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value to export in TipoDocument XML node of the Fattura document.';
                 }
                 field("Fattura Project Code"; "Fattura Project Code")
                 {

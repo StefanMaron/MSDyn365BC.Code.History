@@ -440,6 +440,7 @@ codeunit 410 "Update Analysis View"
             repeat
                 AnalysisViewEntry.Init();
                 AnalysisViewEntry := TempAnalysisViewEntry;
+                OnFlushAnalysisViewEntryOnBeforeAnalysisViewEntryInsert(AnalysisViewEntry, TempAnalysisViewEntry);
                 if not AnalysisViewEntry.Insert() then begin
                     AnalysisViewEntry.Find;
                     AnalysisViewEntry.Amount :=
@@ -626,6 +627,11 @@ codeunit 410 "Update Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateOne(var NewAnalysisView: Record "Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; ShowWindow: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFlushAnalysisViewEntryOnBeforeAnalysisViewEntryInsert(var AnalysisViewEntry: Record "Analysis View Entry"; TempAnalysisViewEntry: Record "Analysis View Entry" temporary)
     begin
     end;
 

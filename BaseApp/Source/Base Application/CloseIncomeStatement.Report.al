@@ -409,6 +409,7 @@ report 94 "Close Income Statement"
     trigger OnPreReport()
     var
         s: Text[1024];
+        IsHandled: Boolean;
     begin
         if EndDateReq = 0D then
             Error(Text000);
@@ -417,10 +418,14 @@ report 94 "Close Income Statement"
             Error(Text001);
 
         SelectedDim.GetSelectedDim(UserId, 3, REPORT::"Close Income Statement", '', TempSelectedDim);
-        s := CheckDimPostingRules(TempSelectedDim);
-        if s <> '' then
-            if not Confirm(s + Text007, false) then
-                Error('');
+        IsHandled := false;
+        OnPreReportOnBeforeCheckDimPostingRules(IsHandled);
+        if not IsHandled then begin
+            s := CheckDimPostingRules(TempSelectedDim);
+            if s <> '' then
+                if not Confirm(s + Text007, false) then
+                    Error('');
+        end;
 
         GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
         SourceCodeSetup.Get();
@@ -704,6 +709,11 @@ report 94 "Close Income Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreReportOnBeforeCheckDimPostingRules(var IsHandled: Boolean)
     begin
     end;
 }

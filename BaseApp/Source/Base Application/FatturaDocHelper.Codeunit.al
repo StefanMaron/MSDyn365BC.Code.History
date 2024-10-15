@@ -30,6 +30,7 @@ codeunit 12184 "Fattura Doc. Helper"
         LineAmountIncludingVATFieldNo: Integer;
         VATProdPostingGroupCodeFieldNo: Integer;
         VATBusPostingGroupCodeFieldNo: Integer;
+        FatturaDocumentTypeFieldNo: Integer;
         FatturaProjectCodeFieldNo: Integer;
         FatturaTenderCodeFieldNo: Integer;
         CustomerPurchaseOrderFieldNo: Integer;
@@ -47,6 +48,27 @@ codeunit 12184 "Fattura Doc. Helper"
         BasicVATTypeLbl: Label 'I', Locked = true;
         ReverseChargeVATDescrLbl: Label 'Reverse Charge VAT %1', Comment = '%1 = VAT percent';
         PricesIncludingVATFieldNo: Integer;
+        InvoiceTxt: Label 'Invoice';
+        InvoiceInAdvanceTxt: Label 'Advance invoice';
+        FeeInAdvanceTxt: Label 'Advance fee';
+        CreditMemoTxt: Label 'Credit Memo';
+        DebitMemoTxt: Label 'Debit Memo';
+        FeeTxt: Label 'Fee';
+        SimplifiedInvoiceTxt: Label 'Simplified Invoice';
+        SimplifiedCrMemoTxt: Label 'Simplified Credit Memo';
+        SimplifiedDebitMemoTxt: Label 'Simplified Debit Memo';
+        IntegrationRevChargeTxt: Label 'Integration of Internal Reverse Charge Invoice';
+        PurchasesFromAbroadTxt: Label 'Purchases from abroad';
+        IntracommunityGoodsTxt: Label 'Intra-community goods';
+        Selfbillingart17Txt: Label 'Integration/self-billing for goods ex art.17 c.2 DPR 633/72';
+        SelfbillingRegulationTxt: Label 'Self-billiing for regulation and integration of invoices (ex art.6 c.8 d.lgs. 471/97 o art.46 c.5 D.L. 331/93)';
+        SelfbillingPlafondOverrunTxt: Label 'Self-billing for plafond overrun';
+        GoodsExtractionTxt: Label 'Goods extraction from VAT deposit';
+        GoodsExtractionVATPmtTxt: Label 'Goods extraction from VAT deposit with VAT payment';
+        DeferredInvLettaTxt: Label 'Deferred invoice (ex art. 21, comma 4, lett. a)';
+        DeferredInvLettbTxt: Label 'Deferred invoice (ex art. 21, comma 4, terzo periodo lett. b)';
+        FixedAssetTransferTxt: Label 'Fixed assed transfer or internal  transfer  (ex art.36 DPR 633/72)';
+        SelfConsumingInvoiceTxt: Label 'Invoice for self-consuming or free gift without VAT Compensation';
 
     [Scope('OnPrem')]
     procedure CollectDocumentInformation(var TempFatturaHeader: Record "Fattura Header" temporary; var TempFatturaLine: Record "Fattura Line" temporary; HeaderRecRef: RecordRef)
@@ -80,7 +102,9 @@ codeunit 12184 "Fattura Doc. Helper"
 
         if TempFatturaHeader."Entry Type" = TempFatturaHeader."Entry Type"::Sales then
             Evaluate(TempFatturaHeader.Prepayment, Format(HeaderRecRef.Field(PrepaymentInvoiceFieldNo).Value));
-        TempFatturaHeader."Fattura Document Type" := GetTipoDocumento(TempFatturaHeader, Customer);
+        TempFatturaHeader."Fattura Document Type" :=
+            copystr(				
+                GetTipoDocumento(TempFatturaHeader, Customer, HeaderRecRef.Field(FatturaDocumentTypeFieldNo).Value),1,Maxstrlen(TempFatturaHeader."Fattura Document Type"));
         if TempFatturaHeader."Document Type" = TempFatturaHeader."Document Type"::Invoice then begin
             TempFatturaHeader."Order No." := Format(HeaderRecRef.Field(OrderNoFieldNo).Value);
             TempFatturaHeader."Customer Purchase Order No." := HeaderRecRef.Field(CustomerPurchaseOrderFieldNo).Value;
@@ -232,6 +256,7 @@ codeunit 12184 "Fattura Doc. Helper"
         CurrencyFactorFieldNo := 33;
         InvoiceDiscountAmountFieldNo := 1305;
         DocNoFieldNo := 3;
+        FatturaDocumentTypeFieldNo := 12187;
         FatturaProjectCodeFieldNo := 12182;
         FatturaTenderCodeFieldNo := 12183;
         CustomerPurchaseOrderFieldNo := 12184;
@@ -601,7 +626,6 @@ codeunit 12184 "Fattura Doc. Helper"
     [Scope('OnPrem')]
     procedure GetFileName(ProgressiveNo: Code[20]): Text[40]
     var
-        CompanyInformation: Record "Company Information";
         ZeroNo: Code[10];
         BaseString: Text;
     begin
@@ -620,21 +644,24 @@ codeunit 12184 "Fattura Doc. Helper"
         exit(NonPublicCompanyLbl);
     end;
 
-    local procedure GetTipoDocumento(TempFatturaHeader: Record "Fattura Header" temporary; Customer: Record Customer): Text[4]
+    local procedure GetTipoDocumento(TempFatturaHeader: Record "Fattura Header" temporary; Customer: Record Customer; FatturaDocType: Variant): Text
     begin
-        if Customer."VAT Registration No." = CompanyInformation."VAT Registration No." then
-            exit('TD20');
-
         if TempFatturaHeader.Prepayment then
-            exit('TD02');
+            exit(GetPrepaymentCode());
+
+        if Format(FatturaDocType) <> '' then
+            exit(Format(FatturaDocType));
+
+        if Customer."VAT Registration No." = CompanyInformation."VAT Registration No." then
+            exit(GetSelfBillingCode());
 
         case TempFatturaHeader."Document Type" of
             TempFatturaHeader."Document Type"::Invoice:
-                exit(GetDefaultFatturaDocType);
+                exit(GetInvoiceCode());
             TempFatturaHeader."Document Type"::"Credit Memo":
-                exit('TD04');
+                exit(GetCrMemoCode());
             else
-                exit('TD02');
+                exit(GetPrepaymentCode());
         end;
     end;
 
@@ -1210,6 +1237,141 @@ codeunit 12184 "Fattura Doc. Helper"
           ReversedVATPostingSetup.Get(
             VATPostingSetup."Reversed VAT Bus. Post. Group",
             VATPostingSetup."Reversed VAT Prod. Post. Group"));
+    end;
+
+    procedure InsertFatturaDocumentTypeList()
+    var
+        FatturaDocumentType: Record "Fattura Document Type";
+    begin
+        if not FatturaDocumentType.IsEmpty() then
+            exit;
+
+        AddFatturaDocumentType('TD01', InvoiceTxt, true, false, false, false);
+        AddFatturaDocumentType('TD02', InvoiceInAdvanceTxt, false, false, false, true);
+        AddFatturaDocumentType('TD03', FeeInAdvanceTxt, false, false, false, false);
+        AddFatturaDocumentType('TD04', CreditMemoTxt, false, true, false, false);
+        AddFatturaDocumentType('TD05', DebitMemoTxt, false, false, false, false);
+        AddFatturaDocumentType('TD06', FeeTxt, false, false, false, false);
+        AddFatturaDocumentType('TD07', SimplifiedInvoiceTxt, false, false, false, false);
+        AddFatturaDocumentType('TD08', SimplifiedCrMemoTxt, false, false, false, false);
+        AddFatturaDocumentType('TD09', SimplifiedDebitMemoTxt, false, false, false, false);
+        AddFatturaDocumentType('TD16', IntegrationRevChargeTxt, false, false, false, false);
+        AddFatturaDocumentType('TD17', PurchasesFromAbroadTxt, false, false, false, false);
+        AddFatturaDocumentType('TD18', IntracommunityGoodsTxt, false, false, false, false);
+        AddFatturaDocumentType(
+          'TD19', Selfbillingart17Txt, false, false, false, false);
+        AddFatturaDocumentType(
+          'TD20', SelfbillingRegulationTxt,
+          false, false, true, false);
+        AddFatturaDocumentType('TD21', SelfbillingPlafondOverrunTxt, false, false, false, false);
+        AddFatturaDocumentType('TD22', GoodsExtractionTxt, false, false, false, false);
+        AddFatturaDocumentType('TD23', GoodsExtractionVATPmtTxt, false, false, false, false);
+        AddFatturaDocumentType('TD24', DeferredInvLettaTxt, false, false, false, false);
+        AddFatturaDocumentType('TD25', DeferredInvLettbTxt, false, false, false, false);
+        AddFatturaDocumentType('TD26', FixedAssetTransferTxt, false, false, false, false);
+        AddFatturaDocumentType('TD27', SelfConsumingInvoiceTxt, false, false, false, false);
+    end;
+
+    local procedure AddFatturaDocumentType("Code": Code[20]; Description: Text[250]; Invoice: Boolean; CreditMemo: Boolean; SelfBilling: Boolean; Prepayment: Boolean)
+    var
+        FatturaDocumentType: Record "Fattura Document Type";
+    begin
+        FatturaDocumentType.Init();
+        FatturaDocumentType.Validate("No.", Code);
+        FatturaDocumentType.Validate(Description, Description);
+        FatturaDocumentType.Validate(Invoice, Invoice);
+        FatturaDocumentType.Validate("Credit Memo", CreditMemo);
+        FatturaDocumentType.Validate("Self-Billing", SelfBilling);
+        FatturaDocumentType.Validate(Prepayment, Prepayment);
+        FatturaDocumentType.Insert(true);
+    end;
+
+    procedure UpdateFatturaDocTypeInSalesDoc(var SalesHeader: Record "Sales Header")
+    var
+        Customer: Record Customer;
+    begin
+        if SalesHeader."Bill-to Customer No." <> '' then begin
+            Customer.Get(SalesHeader."Bill-to Customer No.");
+            CompanyInformation.Get();
+            if Customer."VAT Registration No." = CompanyInformation."VAT Registration No." then begin
+                SalesHeader."Fattura Document Type" := GetSelfBillingCode();
+                exit;
+            end;
+        end;
+
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Quote, SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice:
+                SalesHeader."Fattura Document Type" := GetInvoiceCode();
+            SalesHeader."Document Type"::"Credit Memo":
+                SalesHeader."Fattura Document Type" := GetCrMemoCode();
+        end;
+    end;
+
+    procedure UpdateFatturaDocTypeInServDoc(var ServiceHeader: Record "Service Header")
+    var
+        Customer: Record Customer;
+    begin
+        if ServiceHeader."Bill-to Customer No." <> '' then begin
+            Customer.Get(ServiceHeader."Bill-to Customer No.");
+            CompanyInformation.Get();
+            if Customer."VAT Registration No." = CompanyInformation."VAT Registration No." then begin
+                ServiceHeader."Fattura Document Type" := GetSelfBillingCode();
+                exit;
+            end;
+        end;
+
+        case ServiceHeader."Document Type" of
+            ServiceHeader."Document Type"::Order, ServiceHeader."Document Type"::Invoice:
+                ServiceHeader."Fattura Document Type" := GetInvoiceCode();
+            ServiceHeader."Document Type"::"Credit Memo":
+                ServiceHeader."Fattura Document Type" := GetCrMemoCode();
+        end;
+    end;
+
+    procedure GetSelfBillingCode(): Code[20]
+    var
+        FatturaDocumentType: Record "Fattura Document Type";
+    begin
+        InsertFatturaDocumentTypeList();
+        FatturaDocumentType.SetRange("Self-Billing", true);
+        if FatturaDocumentType.FindFirst() then
+            exit(FatturaDocumentType."No.");
+    end;
+
+    procedure GetPrepaymentCode(): Code[20]
+    var
+        FatturaDocumentType: Record "Fattura Document Type";
+    begin
+        InsertFatturaDocumentTypeList();
+        FatturaDocumentType.SetRange(Prepayment, true);
+        if FatturaDocumentType.FindFirst() then
+            exit(FatturaDocumentType."No.");
+    end;
+
+    procedure GetInvoiceCode(): Code[20]
+    var
+        FatturaDocumentType: Record "Fattura Document Type";
+    begin
+        InsertFatturaDocumentTypeList();
+        FatturaDocumentType.SetRange(Invoice, true);
+        if FatturaDocumentType.FindFirst() then
+            exit(FatturaDocumentType."No.");
+    end;
+
+    procedure GetCrMemoCode(): Code[20]
+    var
+        FatturaDocumentType: Record "Fattura Document Type";
+    begin
+        InsertFatturaDocumentTypeList();
+        FatturaDocumentType.SetRange("Credit Memo", true);
+        if FatturaDocumentType.FindFirst() then
+            exit(FatturaDocumentType."No.");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 1305, 'OnBeforeInsertSalesInvoiceHeader', '', false, false)]
+    local procedure AssignFatturaDocTypeOnBeforeInsertSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Header"; QuoteSalesHeader: Record "Sales Header")
+    begin
+        SalesInvoiceHeader."Fattura Document Type" := QuoteSalesHeader."Fattura Document Type";
     end;
 }
 

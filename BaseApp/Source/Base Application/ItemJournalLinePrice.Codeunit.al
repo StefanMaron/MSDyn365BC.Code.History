@@ -120,6 +120,7 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
     var
         Item: Record Item;
     begin
+        PriceCalculationBuffer."Price Calculation Method" := ItemJournalLine."Price Calculation Method";
         Item.Get(PriceCalculationBuffer."Asset No.");
         PriceCalculationBuffer."VAT Prod. Posting Group" := Item."VAT Prod. Posting Group";
         PriceCalculationBuffer."Variant Code" := ItemJournalLine."Variant Code";

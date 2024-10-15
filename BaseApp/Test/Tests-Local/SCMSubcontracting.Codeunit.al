@@ -771,6 +771,49 @@ codeunit 144081 "SCM Subcontracting"
         PurchaseOrderList."No.".AssertEquals('');
     end;
 
+    [Test]
+    [HandlerFunctions('CarryOutActionMsgRequisitionRequestPageHandler,SubcontrTransferOrderModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostReceiptSubcontractingOrderWithTransportReasonCodeNoSeries()
+    var
+        TransferRoute: Record "Transfer Route";
+        SubcontractingTransferHeader: Record "Transfer Header";
+        NoSeriesLine: Record "No. Series Line";
+        CompItem: Record Item;
+        VendorNo: Code[20];
+        OptionString: Option Open,Post;
+    begin
+        // [FEATURE] [Subcontracting] [WIP Item]
+        // [SCENARIO 353097] Transfer Receipt Header uses NoSeries from TransportReasonCode."Posted Rcpt. Nos." 
+        Initialize();
+
+        // [GIVEN] Create Subcontracting Location and Subcontracting Order
+        CreateSubconLocationWithTransferRoute(TransferRoute);
+        VendorNo := CreateSubcontractingOrderWithSetup(TransferRoute."Transfer-to Code", TransferRoute."Transfer-from Code", true);
+
+        LibraryInventory.CreateItem(CompItem);
+        CreateAndPostItemJournalLine(CompItem."No.", TransferRoute."Transfer-from Code", '', LibraryRandom.RandIntInRange(50, 100));
+
+        // Enqueue value for SubcontrTransferOrderPageHandler.
+        LibraryVariableStorage.Enqueue(OptionString::Open);
+        LibraryVariableStorage.Enqueue(TransferRoute."Transfer-from Code");
+
+        // [GIVEN] Transport Reason Code "T" where Posted Rcpt. Nos. = "X", whose "Last Receipt No." = "Y"
+        // [GIVEN] Create Subcontracting Transfer Order, where "Transport Reason Code" = "T"
+        CreateSubcontractingTransferOrderWithWIPAndOrdinaryItems(SubcontractingTransferHeader, CompItem, TransferRoute."Transfer-from Code", TransferRoute."Transfer-to Code");
+        UpdateTransportReasonCodeInSubcontractingTransferHeader(
+          SubcontractingTransferHeader, TransferRoute."Transfer-from Code",
+          TransferRoute."Transfer-to Code", CreateTransportReasonCodeWithPostedRcptNos(NoSeriesLine));
+
+        // [WHEN] Ship and receipt the Subcontracting Transfer Order
+        LibraryInventory.PostTransferHeader(SubcontractingTransferHeader, true, true);
+
+        // [THEN] Transfer Receipt Header's "No." = "Y"
+        // [THEN] Transfer Receipt Header's "No. Series" = "X"
+        VerifyNoOnTransferReceiptHeader(
+          SubcontractingTransferHeader."No.", NoSeriesLine."Starting No.", NoSeriesLine."Series Code");
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1325,6 +1368,22 @@ codeunit 144081 "SCM Subcontracting"
         end;
     end;
 
+    local procedure CreateTransportReasonCodeWithPostedRcptNos(var NoSeriesLine: Record "No. Series Line"): Code[20]
+    var
+        TransportReasonCode: Record "Transport Reason Code";
+        NoSeries: Record "No. Series";
+    begin
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+        with TransportReasonCode do begin
+            Init;
+            Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Transport Reason Code"));
+            Validate("Posted Rcpt. Nos.", NoSeries.Code);
+            Insert(true);
+            exit(Code)
+        end;
+    end;
+
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20]; LocationCode: Code[10]; IsPositive: Boolean)
     begin
         with ItemLedgerEntry do begin
@@ -1583,6 +1642,18 @@ codeunit 144081 "SCM Subcontracting"
             FindFirst;
             TestField("No.", TransferShipmentHeaderNo);
             TestField("No. Series", TransferShipmentHeaderNoSeries);
+        end;
+    end;
+
+    local procedure VerifyNoOnTransferReceiptHeader(TransferOrderNo: Code[20]; TransferReceiptHeaderNo: Code[20]; TransferReceiptHeaderNoSeries: Code[20])
+    var
+        TransferReceiptHeader: Record "Transfer Receipt Header";
+    begin
+        with TransferReceiptHeader do begin
+            SetRange("Transfer Order No.", TransferOrderNo);
+            FindFirst;
+            TestField("No.", TransferReceiptHeaderNo);
+            TestField("No. Series", TransferReceiptHeaderNoSeries);
         end;
     end;
 
