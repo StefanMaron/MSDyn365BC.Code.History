@@ -89,6 +89,7 @@ table 10602 "VAT Code"
             ObsoleteState = Removed;
             ObsoleteTag = '15.0';
         }
+        field(10621; "Linked VAT Reporting Code"; Code[20]) { }
     }
 
     keys

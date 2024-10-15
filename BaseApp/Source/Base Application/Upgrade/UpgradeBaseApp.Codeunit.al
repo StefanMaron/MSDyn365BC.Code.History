@@ -59,6 +59,9 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeJobQueueEntries();
         UpgradeNotificationEntries();
         UpgradeVATReportSetup();
+#if not CLEAN23
+        UpgradeVATCode();
+#endif
         UpgradeStandardCustomerSalesCodes();
         UpgradeStandardVendorPurchaseCode();
         MoveLastUpdateInvoiceEntryNoValue();
@@ -1183,6 +1186,55 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATRepSetupPeriodRemCalcUpgradeTag());
     end;
 
+#if not CLEAN23
+    local procedure UpgradeVATCode()
+    var
+        VATCode: Record "VAT Code";
+        VATReportingCode: Record "VAT Reporting Code";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetVATCodeUpgradeTag()) then
+            exit;
+
+        if VATReportingCode.IsEmpty() then
+            if VATCode.FindSet(true) then
+                repeat
+                    VATReportingCode.Init();
+                    VATReportingCode.Code := VATCode.Code;
+                    VATReportingCode."Gen. Posting Type" := VATCode."Gen. Posting Type";
+                    VATReportingCode."Test Gen. Posting Type" := VATCode."Test Gen. Posting Type";
+                    VATReportingCode.Description := VATCode.Description;
+                    VATReportingCode."Trade Settlement 2017 Box No." := VATCode."Trade Settlement 2017 Box No.";
+                    VATReportingCode."Reverse Charge Report Box No." := VATCode."Reverse Charge Report Box No.";
+                    VATReportingCode."VAT Specification Code" := VATCode."VAT Specification Code";
+                    VATReportingCode."VAT Note Code" := VATCode."VAT Note Code";
+                    VATReportingCode.Insert();
+
+                    VATCode."Linked VAT Reporting Code" := VATReportingCode.Code;
+                    VATCode.Modify();
+                until VATCode.Next() = 0;
+
+        if VATPostingSetup.FindSet(true) then
+            repeat
+                VATPostingSetup."VAT Number" := VATPostingSetup."VAT Code";
+                VATPostingSetup."Sale VAT Reporting Code" := VATPostingSetup."Sales VAT Reporting Code";
+                VATPostingSetup."Purch. VAT Reporting Code" := VATPostingSetup."Purchase VAT Reporting Code";
+                VATPostingSetup.Modify();
+            until VATPostingSetup.Next() = 0;
+
+        GLAccount.SetFilter("VAT Code", '<>%1', '');
+        if GLAccount.FindSet(true) then
+            repeat
+                GLAccount."VAT Number" := GLAccount."VAT Code";
+                GLAccount.Modify();
+            until GLAccount.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetVATCodeUpgradeTag());
+    end;
+#endif
     local procedure UpgradeStandardCustomerSalesCodes()
     var
         StandardSalesCode: Record "Standard Sales Code";

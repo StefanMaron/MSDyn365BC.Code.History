@@ -3328,6 +3328,7 @@
             trigger OnValidate()
             begin
                 NorwegianVATTools.InitPostingGrps_SalesLine(Rec);
+                "VAT Number" := "VAT Code";
             end;
 #endif
         }
