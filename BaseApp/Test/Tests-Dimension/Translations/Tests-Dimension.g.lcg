@@ -689,13 +689,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Purchase - NamedType DimensionSetIDErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1731419971 - NamedType 3622575458" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1731419971 - NamedType 3789454813" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Purchase - NamedType DimensionValueCodeError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = dimension value field, %2 = dimension value code]D;]A;(LookupHint=Codeunit ERM Dimension Purchase - NamedType DimensionValueCodeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1731419971 - NamedType 3206216306" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -734,13 +734,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Purchase - NamedType NotEqualDimensionsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1731419971 - NamedType 4289393824" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1731419971 - NamedType 520444219" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Purchase - NamedType QuantityReceivedError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = quantity field, %2 = quantity value, %3 = purchase line]D;]A;(LookupHint=Codeunit ERM Dimension Purchase - NamedType QuantityReceivedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1731419971 - NamedType 3012474141" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -767,7 +767,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Purchase - NamedType VendorLedgerEntryErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = open field, %2 = document no. value]D;]A;(LookupHint=Codeunit ERM Dimension Purchase - NamedType VendorLedgerEntryErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3121673584 - NamedType 197888892" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

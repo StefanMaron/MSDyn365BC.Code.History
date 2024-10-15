@@ -348,7 +348,8 @@ codeunit 13 "Gen. Jnl.-Post Batch"
             if GenJnlTemplate."Force Doc. Balance" then
                 GenJnlLine.SetCurrentKey("Document No.", "Posting Date")
             else
-                GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Bal. Account No.");
+                if CheckIfDiffPostingDatesExist(GenJnlBatch, GenJnlLine."Posting Date") then
+                    GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Bal. Account No.");
         LineCount := 0;
         LastDate := 0D;
         LastDocType := LastDocType::" ";
@@ -1886,6 +1887,17 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 GenJnlLine."VAT Reporting Date" := GLSetup.GetVATDate(GenJnlLine."Posting Date", GenJnlLine."Document Date");
             GenJnlLine.Modify();
         end;
+    end;
+
+    local procedure CheckIfDiffPostingDatesExist(GenJournalBatch: Record "Gen. Journal Batch"; PostingDate: Date): Boolean
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        GenJournalLine.SetLoadFields("Journal Template Name", "Journal Batch Name", "Posting Date");
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetFilter("Posting Date", '<>%1', PostingDate);
+        exit(not GenJournalLine.IsEmpty());
     end;
 
     [IntegrationEvent(false, false)]

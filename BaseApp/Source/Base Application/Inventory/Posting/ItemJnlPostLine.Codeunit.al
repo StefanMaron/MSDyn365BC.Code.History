@@ -1240,7 +1240,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
             OnItemQtyPostingOnBeforeApplyItemLedgEntry(ItemJnlLine, GlobalItemLedgEntry);
             ApplyItemLedgEntry(GlobalItemLedgEntry, OldItemLedgEntry, GlobalValueEntry, false);
-            UpdateReservationEntryForNonInventoryItem();
+            UpdateReservationEntryForNonInventoriableItem();
             CheckApplFromInProduction(GlobalItemLedgEntry, "Applies-from Entry");
             AutoTrack(GlobalItemLedgEntry, IsReserved);
 
@@ -2093,7 +2093,7 @@ codeunit 22 "Item Jnl.-Post Line"
 #endif        
     end;
 
-    local procedure UpdateReservationEntryForNonInventoryItem()
+    local procedure UpdateReservationEntryForNonInventoriableItem()
     var
         ReservationEntry: Record "Reservation Entry";
     begin
