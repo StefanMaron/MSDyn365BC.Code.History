@@ -196,6 +196,7 @@ page 4003 "Intelligent Cloud Management"
                             HybridDeployment.Initialize(IntelligentCloudSetup."Product ID");
                             HybridDeployment.ResetCloudData();
                             Message(ResetTriggeredTxt);
+                            OnResetAllCloudData();
                         end;
                 end;
             }
@@ -464,6 +465,11 @@ page 4003 "Intelligent Cloud Management"
 
     [IntegrationEvent(false, false)]
     local procedure CheckAdditionalProcesses(var AdditionalProcessesRunning: Boolean; var ErrorMessage: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnResetAllCloudData()
     begin
     end;
 

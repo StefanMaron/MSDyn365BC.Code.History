@@ -695,7 +695,6 @@ table 5900 "Service Header"
             var
                 ServLine: Record "Service Line";
                 Currency: Record Currency;
-                ConfirmManagement: Codeunit "Confirm Management";
                 RecalculatePrice: Boolean;
             begin
                 if "Prices Including VAT" <> xRec."Prices Including VAT" then begin
@@ -718,12 +717,7 @@ table 5900 "Service Header"
                     ServLine.SetFilter("Unit Price", '<>%1', 0);
                     ServLine.SetFilter("VAT %", '<>%1', 0);
                     if ServLine.Find('-') then begin
-                        RecalculatePrice :=
-                          ConfirmManagement.GetResponseOrDefault(
-                            StrSubstNo(
-                              Text055,
-                              FieldCaption("Prices Including VAT"), ServLine.FieldCaption("Unit Price")),
-                            true);
+                        RecalculatePrice := ConfirmRecalculatePrice();
                         ServLine.SetServHeader(Rec);
 
                         if "Currency Code" = '' then
@@ -4140,6 +4134,19 @@ table 5900 "Service Header"
         FullDocTypeTxt := SelectStr("Document Type" + 1, FullServiceTypesTxt);
     end;
 
+    local procedure ConfirmRecalculatePrice() Result: Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmRecalculatePrice(Rec, HideValidationDialog, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Result := ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text055, FieldCaption("Prices Including VAT"), ServLine.FieldCaption("Unit Price")), true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var ServiceHeader: Record "Service Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
     begin
@@ -4272,6 +4279,11 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateShipToCodeOnBeforeDleereLines(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmRecalculatePrice(ServiceHeader: Record "Service Header"; var HideValidationDialog: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

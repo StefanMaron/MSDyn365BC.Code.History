@@ -5058,6 +5058,12 @@ End Function
         <Field Name="LinNo">
           <DataField>LinNo</DataField>
         </Field>
+        <Field Name="CrossReferenceNo_Line">
+          <DataField>CrossReferenceNo_Line</DataField>
+        </Field>
+        <Field Name="CrossReferenceNo_Line_Lbl">
+          <DataField>CrossReferenceNo_Line_Lbl</DataField>
+        </Field>
         <Field Name="Qty_SalesShptLine">
           <DataField>Qty_SalesShptLine</DataField>
         </Field>

@@ -1833,7 +1833,14 @@ table 1003 "Job Planning Line"
     end;
 
     local procedure ValidateModification(FieldChanged: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateModification(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if FieldChanged then begin
             CalcFields("Qty. Transferred to Invoice");
             TestField("Qty. Transferred to Invoice", 0);
@@ -2244,6 +2251,11 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleCostFactor(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateModification(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 

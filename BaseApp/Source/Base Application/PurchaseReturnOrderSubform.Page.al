@@ -725,7 +725,8 @@ page 6641 "Purchase Return Order Subform"
                     ApplicationArea = PurchReturnOrder;
                     Caption = 'E&xplode BOM';
                     Image = ExplodeBOM;
-                    ToolTip = 'Insert new lines for the components on the bill of materials, for example to sell the parent item as a kit. CAUTION: The line for the parent item will be deleted and represented by a description only. To undo, you must delete the component lines and add a line the parent item again.';
+                    Enabled = Type = Type::Item;
+                    ToolTip = 'Add a line for each component on the bill of materials for the selected item. For example, this is useful for selling the parent item as a kit. CAUTION: The line for the parent item will be deleted and only its description will display. To undo this action, delete the component lines and add a line for the parent item again. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
@@ -750,7 +751,8 @@ page 6641 "Purchase Return Order Subform"
                     ApplicationArea = Reservation;
                     Caption = '&Reserve';
                     Image = Reserve;
-                    ToolTip = 'Reserve one or more units of the item on the job planning line, either from inventory or from incoming supply.';
+                    Enabled = Type = Type::Item;
+                    ToolTip = 'Reserve the quantity of the selected item that is required on the document line from which you opened this page. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
@@ -762,7 +764,8 @@ page 6641 "Purchase Return Order Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Order &Tracking';
                     Image = OrderTracking;
-                    ToolTip = 'Tracks the connection of a supply to its corresponding demand. This can help you find the original demand that created a specific production order or purchase order.';
+                    Enabled = Type = Type::Item;
+                    ToolTip = 'Track the connection of a supply to its corresponding demand for the selected item. This can help you find the original demand that created a specific production order or purchase order. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
@@ -778,6 +781,7 @@ page 6641 "Purchase Return Order Subform"
                 {
                     Caption = 'Item Availability by';
                     Image = ItemAvailability;
+                    Enabled = Type = Type::Item;
                     action("Event")
                     {
                         ApplicationArea = Basic, Suite;
@@ -872,7 +876,8 @@ page 6641 "Purchase Return Order Subform"
                     ApplicationArea = ItemCharges;
                     Caption = 'Item Charge &Assignment';
                     Image = ItemCosts;
-                    ToolTip = 'Assign additional direct costs, for example for freight, to the item on the line.';
+                    Enabled = Type = Type::"Charge (Item)";
+                    ToolTip = 'Record additional direct costs, for example for freight. This action is available only for Charge (Item) line types.';
 
                     trigger OnAction()
                     begin
@@ -886,7 +891,8 @@ page 6641 "Purchase Return Order Subform"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Shift+Ctrl+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    Enabled = Type = Type::Item;
+                    ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
                     trigger OnAction()
                     begin
@@ -1180,6 +1186,8 @@ page 6641 "Purchase Return Order Subform"
 
         CurrPageIsEditable := CurrPage.Editable;
         InvDiscAmountEditable := CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount";
+
+        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber, UnitofMeasureCodeIsChangeable);
     end;
 
     procedure UpdateTypeText()
@@ -1241,6 +1249,11 @@ page 6641 "Purchase Return Order Subform"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterNoOnAfterValidate(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateEditableOnRow(PurchaseLine: Record "Purchase Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean; var UnitofMeasureCodeIsChangeable: Boolean);
     begin
     end;
 

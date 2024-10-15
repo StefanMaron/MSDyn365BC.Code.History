@@ -528,7 +528,8 @@ codeunit 5529 "Purch. Inv. Aggregator"
         PurchInvHeader: Record "Purch. Inv. Header";
         CurrentStatus: Option;
     begin
-        PurchInvHeader.Get(PurchInvEntityAggregate."No.");
+        if not PurchInvHeader.Get(PurchInvEntityAggregate."No.") then
+            exit;
         CurrentStatus := PurchInvEntityAggregate.Status;
 
         SetStatusOptionFromPurchaseInvoiceHeader(PurchInvHeader, PurchInvEntityAggregate);

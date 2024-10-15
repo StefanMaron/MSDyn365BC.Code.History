@@ -692,6 +692,10 @@ table 5990 "Service Shipment Header"
         {
             Caption = 'Expected Finishing Date';
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(7001; "Allow Line Disc."; Boolean)
         {
             Caption = 'Allow Line Disc.';
