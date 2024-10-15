@@ -31,6 +31,7 @@ codeunit 1380 "Batch Processing Mgt."
         CounterToPost: Integer;
         CounterPosted: Integer;
         BatchConfirm: Option " ",Skip,Update;
+        FullBatchProcessed: Boolean;
     begin
         if ProcessingCodeunitID = 0 then
             Error(ProcessingCodeunitNotSetErr);
@@ -53,16 +54,17 @@ codeunit 1380 "Batch Processing Mgt."
 
             if ErrorMessageMgt.Activate(ErrorMessageHandler) then
                 ErrorMessageMgt.PushContext(ErrorContextElement, Number, 0, StrSubstNo(BatchProcessingTxt, Caption));
-            repeat
-                if GuiAllowed then begin
-                    CounterToPost += 1;
-                    Window.Update(1, Round(CounterToPost / CounterTotal * 10000, 1));
-                end;
+            if not BatchShouldBeProcessedInBackground(RecRef, FullBatchProcessed) then
+                repeat
+                    if GuiAllowed then begin
+                        CounterToPost += 1;
+                        Window.Update(1, Round(CounterToPost / CounterTotal * 10000, 1));
+                    end;
 
-                if CanProcessRecord(RecRef) then
-                    if ProcessRecord(RecRef, BatchConfirm) then
-                        CounterPosted += 1;
-            until Next = 0;
+                    if CanProcessRecord(RecRef) then
+                        if ProcessRecord(RecRef, BatchConfirm) then
+                            CounterPosted += 1;
+                until Next = 0;
 
             ResetBatchID;
 
@@ -72,7 +74,7 @@ codeunit 1380 "Batch Processing Mgt."
             if GuiAllowed then begin
                 Window.Close;
                 if not IsHandled then
-                    if CounterPosted <> CounterTotal then
+                    if (CounterPosted <> CounterTotal) and not FullBatchProcessed then
                         ErrorMessageHandler.NotifyAboutErrors
                     else
                         Message(BatchCompletedMsg);
@@ -388,6 +390,35 @@ codeunit 1380 "Batch Processing Mgt."
         ProcessingCodeunitID := NewProcessingCodeunitID;
     end;
 
+    local procedure BatchShouldBeProcessedInBackground(var RecRef: RecordRef; var FullBatchProcessed: Boolean): Boolean
+    var
+        IsProcessed: Boolean;
+        SkippedRecordExists: Boolean;
+    begin
+        IsProcessed := false;
+        OnBeforeBatchShouldBeProcessedInBackground(RecRef, IsProcessed);
+        if IsProcessed then
+            exit(false);
+
+        if not IsPostWithJobQueueEnabled() then
+            exit(false);
+
+        ProcessBatchInBackground(RecRef, SkippedRecordExists);
+        FullBatchProcessed := not SkippedRecordExists;
+
+        exit(true);
+    end;
+
+    local procedure IsPostWithJobQueueEnabled() Result: Boolean
+    begin
+        OnIsPostWithJobQueueEnabled(Result);
+    end;
+
+    local procedure ProcessBatchInBackground(var RecRef: RecordRef; var SkippedRecordExists: Boolean)
+    begin
+        OnProcessBatchInBackground(RecRef, SkippedRecordExists);
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnVerifyRecord(var RecRef: RecordRef; var Result: Boolean)
     begin
@@ -420,6 +451,21 @@ codeunit 1380 "Batch Processing Mgt."
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBatchProcessOnBeforeShowMessage(CounterPosted: Integer; CounterTotal: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBatchShouldBeProcessedInBackground(var RecRef: RecordRef; var IsProcessed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsPostWithJobQueueEnabled(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessBatchInBackground(var RecRef: RecordRef; var SkippedRecordExists: Boolean)
     begin
     end;
 }

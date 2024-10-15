@@ -145,6 +145,8 @@ codeunit 230 GenJnlManagement
         GenJnlBatch.FilterGroup(0);
         GenJnlBatch.SetRange("Journal Template Name", GenJnlTemplate.Name);
         GenJnlBatch.FilterGroup(2);
+
+        OnAfterOpenJournalBatch(GenJnlBatch, GenJnlTemplate);
     end;
 
     procedure IsBatchNoSeriesEmpty(var CurrentJnlBatchName: Code[10]; var GenJnlLine: Record "Gen. Journal Line"): Boolean
@@ -468,6 +470,11 @@ codeunit 230 GenJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetName(var GenJournalLine: Record "Gen. Journal Line"; CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenJournalBatch(GenJnlBatch: Record "Gen. Journal Batch"; GenJnlTemplate: Record "Gen. Journal Template")
     begin
     end;
 

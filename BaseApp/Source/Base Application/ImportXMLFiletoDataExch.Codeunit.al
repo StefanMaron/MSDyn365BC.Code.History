@@ -175,7 +175,7 @@ codeunit 1203 "Import XML File to Data Exch."
 
     procedure EscapeMissingNamespacePrefix(XPath: Text): Text
     var
-        DotNet_Regex: Codeunit DotNet_Regex;
+        Regex: Codeunit Regex;
         PositionOfFirstSlash: Integer;
         FirstXPathElement: Text;
         RestOfXPath: Text;
@@ -192,8 +192,7 @@ codeunit 1203 "Import XML File to Data Exch."
                 begin
                     RegexPattern := '^[a-zA-Z0-9]*$';
                     OnBeforeAssignRegexPattern(RegexPattern);
-                    DotNet_Regex.Regex(RegexPattern);
-                    if (XPath = '') or (not DotNet_Regex.IsMatch(XPath)) then
+                    if (XPath = '') or (not Regex.IsMatch(XPath, RegexPattern)) then
                         exit(XPath);
                     exit(StrSubstNo('*[local-name() = ''%1'']', XPath));
                 end;
