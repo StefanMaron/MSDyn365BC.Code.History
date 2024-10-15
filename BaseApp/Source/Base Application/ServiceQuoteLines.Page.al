@@ -746,7 +746,7 @@
         CurrPage.Update(false);
     end;
 
-    local procedure InsertExtendedText(Unconditionally: Boolean)
+    procedure InsertExtendedText(Unconditionally: Boolean)
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin

@@ -11,6 +11,8 @@ codeunit 144052 "UT REP Purchase & Sales"
     end;
 
     var
+        Assert: Codeunit Assert;
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
@@ -269,6 +271,44 @@ codeunit 144052 "UT REP Purchase & Sales"
         // Purpose of the test is to validate Customer OnAfterGetRecord trigger of Report ID - 188 Create Reminders.
         Initialize;
         OnAfterGetRecordCreateReminders(true);  // Using True for Use Header Level.
+    end;
+
+    [Test]
+    [HandlerFunctions('ECSalesListReportRPH')]
+    [Scope('OnPrem')]
+    procedure ECSalesListRequestPageFieldsBasicApplicationArea()
+    begin
+        // [FEATURE] [ECSL] [Application Area] [UI] [UT]
+        // [SCENARIO 331168] ReportLayout and "Create XML File" fields are enabled on EC Sales List Request page when Application Area = #basic
+        Initialize;
+
+        // [GIVEN] Enabled Application Area = #basic setup
+        LibraryApplicationArea.EnableBasicSetup;
+        Commit;
+
+        // [WHEN] Run "EC Sales List" report
+        // [THEN] ReportLayout and "Create XML File" fields are enabled (check in RPH)
+        REPORT.Run(REPORT::"EC Sales List");
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [HandlerFunctions('ECSalesListReportRPH')]
+    [Scope('OnPrem')]
+    procedure ECSalesListRequestPageFieldsSuiteApplicationArea()
+    begin
+        // [FEATURE] [ECSL] [Application Area] [UI] [UT]
+        // [SCENARIO 331168] ReportLayout and "Create XML File" fields are enabled on EC Sales List Request page when Application Area = #suite
+        Initialize;
+
+        // [GIVEN] Enabled Application Area = #suite setup
+        LibraryApplicationArea.EnableFoundationSetup;
+        Commit;
+
+        // [WHEN] Run "EC Sales List" report
+        // [THEN] ReportLayout and "Create XML File" fields are enabled (check in RPH)
+        REPORT.Run(REPORT::"EC Sales List");
+        LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
     local procedure OnAfterGetRecordCreateReminders(UseHeaderLevel: Boolean)
@@ -816,6 +856,14 @@ codeunit 144052 "UT REP Purchase & Sales"
         LibraryReportValidation: Codeunit "Library - Report Validation";
     begin
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ECSalesListReportRPH(var ECSalesList: TestRequestPage "EC Sales List")
+    begin
+        Assert.IsTrue(ECSalesList."Create XML File".Visible, '');
+        Assert.IsTrue(ECSalesList."Create XML File".Enabled, '');
     end;
 }
 

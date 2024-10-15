@@ -245,6 +245,7 @@ table 740 "VAT Report Header"
         VATReportLineRelation.SetRange("VAT Report No.", "No.");
         VATReportLineRelation.DeleteAll;
         RemoveVATReturnPeriodLink;
+        RemoveECSLLinesAndRelation;
     end;
 
     trigger OnInsert()
@@ -426,6 +427,23 @@ table 740 "VAT Report Header"
                 VATReturnPeriod.Validate("VAT Return No.", '');
                 VATReturnPeriod.Modify(true);
             end;
+    end;
+
+    local procedure RemoveECSLLinesAndRelation()
+    var
+        ECSLVATReportLine: Record "ECSL VAT Report Line";
+        ECSLVATReportLineRelation: Record "ECSL VAT Report Line Relation";
+    begin
+        if "VAT Report Config. Code" <> "VAT Report Config. Code"::"EC Sales List" then
+            exit;
+
+        ECSLVATReportLineRelation.SetRange("ECSL Report No.", "No.");
+        if not ECSLVATReportLineRelation.IsEmpty then
+            ECSLVATReportLineRelation.DeleteAll(true);
+
+        ECSLVATReportLine.SetRange("Report No.", "No.");
+        if not ECSLVATReportLine.IsEmpty then
+            ECSLVATReportLine.DeleteAll(true);
     end;
 }
 

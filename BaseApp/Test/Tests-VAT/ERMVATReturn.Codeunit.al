@@ -134,6 +134,7 @@ codeunit 134096 "ERM VAT Return"
         Assert.IsFalse(
           VATReport."Amounts in Add. Rep. Currency".Editable(),
           'VATReport."Amounts in Add. Rep. Currency" should not be editable');
+        LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
     [Test]

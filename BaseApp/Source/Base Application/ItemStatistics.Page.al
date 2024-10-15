@@ -594,6 +594,8 @@ page 5827 "Item Statistics"
     begin
         Item.Get(NewItem."No.");
         Item.CopyFilters(NewItem);
+
+        OnAfterSetItem(Item, ItemFilter);
     end;
 
     local procedure ItemBufferLineOptionOnAfterVal()
@@ -632,6 +634,11 @@ page 5827 "Item Statistics"
         // IF ColumnDimOption = ColumnDimOption::Period THEN
         if ItemBuffer."Column Option" = ItemBuffer."Column Option"::Period then
             MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItem(var Item: Record item; var ItemFilter: Text);
+    begin
     end;
 }
 

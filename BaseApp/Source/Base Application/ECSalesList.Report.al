@@ -260,6 +260,7 @@ report 130 "EC Sales List"
                     }
                     field("Create XML File"; "Create XML File")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Create XML File';
                         ToolTip = 'Specifies the calculated tax and base amounts, and creates the sales VAT advance notification XML document that will be sent to the tax authority.';
 

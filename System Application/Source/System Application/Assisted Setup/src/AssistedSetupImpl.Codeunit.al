@@ -105,6 +105,18 @@ codeunit 1813 "Assisted Setup Impl."
         exit(not AssistedSetup.Completed);
     end;
 
+    procedure Reset(PageID: Integer)
+    var
+        AssistedSetup: Record "Assisted Setup";
+    begin
+        if not AssistedSetup.WritePermission() then
+            exit;
+        if not AssistedSetup.Get(PageID) then
+            exit;
+        AssistedSetup.Validate(Completed, false);
+        AssistedSetup.Modify(true);
+    end;
+
     procedure Run(ExtensionID: Guid; PageID: Integer)
     var
         AssistedSetup: Record "Assisted Setup";

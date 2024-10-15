@@ -223,8 +223,8 @@
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
-                    Editable = NOT IsBlankNumber;
-                    Enabled = NOT IsBlankNumber;
+                    Editable = NOT IsCommentLine;
+                    Enabled = NOT IsCommentLine;
                     ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
                     ToolTip = 'Specifies how many units are being sold.';
 
@@ -1069,6 +1069,18 @@
                             ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByBOM)
                         end;
                     }
+                    action(ItemAvailabilityByUnitOfMeasure)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Unit of Measure';
+                        Image = UnitOfMeasure;
+                        ToolTip = 'View the item''s availability by a unit of measure.';
+
+                        trigger OnAction()
+                        begin
+                            ItemAvailFormsMgt.ShowItemAvailFromSalesLine(Rec, ItemAvailFormsMgt.ByUOM);
+                        end;
+                    }
                 }
                 group("Related Information")
                 {
@@ -1371,6 +1383,8 @@
             Commit;
             if not ReserveSalesLine.DeleteLineConfirm(Rec) then
                 exit(false);
+
+            OnBeforeDeleteReservationEntries(Rec);
             ReserveSalesLine.DeleteLine(Rec);
         end;
         DocumentTotals.SalesDocTotalsNotUpToDate;
@@ -1726,8 +1740,11 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        CurrPage.SaveRecord;
-        SendLineInvoiceDiscountResetNotification;
+        if "Line Amount" <> xRec."Line Amount" then begin
+            CurrPage.SaveRecord;
+            SendLineInvoiceDiscountResetNotification;
+            CurrPage.Update(false);
+        end;
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1749,6 +1766,8 @@
         CurrPageIsEditable := CurrPage.Editable;
         IsBlankNumber := ("No." = '') or IsCommentLine;
         InvDiscAmountEditable := CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount";
+
+        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
 
     procedure UpdateTypeText()
@@ -1818,7 +1837,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateEditableOnRow(SalesLine: Record "Sales Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var SalesLine: Record "Sales Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteReservationEntries(var SalesLine: Record "Sales Line");
     begin
     end;
 

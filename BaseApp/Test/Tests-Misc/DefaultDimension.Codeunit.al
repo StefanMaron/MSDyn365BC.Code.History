@@ -15,6 +15,7 @@ codeunit 134487 "Default Dimension"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         NoValidateErr: Label 'The field No. of table Default Dimension contains a value (%1) that cannot be found in the related table (%2)';
+        LibraryRapidStart: Codeunit "Library - Rapid Start";
 
     [Test]
     [HandlerFunctions('DefaultDimensionsMPH')]
@@ -109,6 +110,46 @@ codeunit 134487 "Default Dimension"
             repeat
                 ValidateNotExistingNo(TempAllObjWithCaption."Object ID", RenameMasterRecord(TempAllObjWithCaption."Object ID"));
             until TempAllObjWithCaption.Next = 0;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultDimensionLinesAreNotAddedAfterCreatingConfigurationLine()
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        ConfigTemplateLine: Record "Config. Template Line";
+        DefaultDimension: Record "Default Dimension";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DimensionValue: Record "Dimension Value";
+        TableNo: Record "Integer" temporary;
+    begin
+        // [FEATURE] [Rapid Start] [Global Dimension]
+        // [SCENARIO 330950] Create Configuration Template Header and Configuration Template Line for 19 different tables.
+        // [GIVEN] Array of Table, that creates Default Dimension lines, was created.
+        LibraryDimension.GetTableNosWithGlobalDimensionCode(TableNo);
+
+        TableNo.FindSet;
+        repeat
+            // [GIVEN] Configuration Header was created.
+            LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
+            ConfigTemplateHeader.Validate("Table ID", TableNo.Number);
+            ConfigTemplateHeader.Modify(true);
+
+            // [GIVEN] Dimension value for Global Dimension 1 Code was extracted.
+            GeneralLedgerSetup.Get;
+            DimensionValue.SetRange("Dimension Code", GeneralLedgerSetup."Global Dimension 1 Code");
+            DimensionValue.FindFirst;
+
+            // [WHEN] Configuration Template Line is created.
+            LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
+            ConfigTemplateLine.Validate("Field ID", GetFieldNoGlobalDimension1ByTableNo(TableNo.Number));
+            ConfigTemplateLine.Validate("Default Value", DimensionValue.Code);
+            ConfigTemplateLine.Modify(true);
+
+            // [THEN] The lines was not added to Default Dimension.
+            DefaultDimension.SetRange("No.", '');
+            Assert.RecordIsEmpty(DefaultDimension);
+        until TableNo.Next = 0;
     end;
 
     local procedure RenameMasterRecord(TableID: Integer) PK: Code[20]
@@ -217,6 +258,17 @@ codeunit 134487 "Default Dimension"
         DefaultDimensionsPage."Dimension Code".SetValue(DimensionValue."Dimension Code");
         DefaultDimensionsPage."Dimension Value Code".SetValue(DimensionValue.Code);
         DefaultDimensionsPage.OK.Invoke;
+    end;
+
+    local procedure GetFieldNoGlobalDimension1ByTableNo(TableNo: Integer): Integer
+    var
+        "Field": Record "Field";
+    begin
+        Field.Reset;
+        Field.SetRange(TableNo, TableNo);
+        Field.SetRange(FieldName, 'Global Dimension 1 Code');
+        Field.FindFirst;
+        exit(Field."No.");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 408, 'OnAfterSetupObjectNoList', '', false, false)]

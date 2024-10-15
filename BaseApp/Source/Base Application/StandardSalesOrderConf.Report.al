@@ -886,7 +886,7 @@ report 1305 "Standard Sales - Order Conf."
                     {
                         ApplicationArea = Assembly;
                         Caption = 'Show Assembly Components';
-                        ToolTip = 'Specifies if you want the report to include information about components that were used in linked assembly orders that supplied the item(s) being sold.';
+                        ToolTip = 'Specifies if you want the report to include information about components that were used in linked assembly orders that supplied the item(s) being sold. (Only possible for RDLC report layout.)';
                     }
                     field(ArchiveDocument; ArchiveDocument)
                     {

@@ -52,7 +52,7 @@
   </Item>
   <Item ItemId=";Codeunit 2290587599 - NamedType 1455569196" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[test1@test.com, test2@test.com, test3@test.com]]></Val>
+      <Val><![CDATA[test%1@test.com; test%2@test.com; test%3@test.com]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -129,6 +129,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SMTP Mail Test - Method AddBodyHTMLContentIdTest - NamedType BodyHTMLBase64Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2290587599 - Method 2693570764 - NamedType 3361014690" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Text to be appended.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SMTP Mail Test - Method AddBodyPlainTextTest - NamedType AppendTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2290587599 - Method 3819881363 - NamedType 4021519000" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
