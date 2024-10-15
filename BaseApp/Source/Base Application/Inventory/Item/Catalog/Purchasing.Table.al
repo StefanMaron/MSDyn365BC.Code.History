@@ -56,6 +56,8 @@ table 5721 Purchasing
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'This purchasing code may be either a Drop Ship, or a Special Order.';
+#pragma warning restore AA0074
 }
 

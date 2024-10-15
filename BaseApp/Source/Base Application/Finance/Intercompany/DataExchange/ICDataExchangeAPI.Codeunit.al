@@ -722,6 +722,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxPurchaseHeader."Ship-to Post Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'shipToPostCode');
         ICInboxPurchaseHeader."Ship-to County" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'shipToCounty');
         ICInboxPurchaseHeader."Ship-to Country/Region Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'shipToCountryRegionCode');
+        ICInboxPurchaseHeader."Ship-to Phone No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'shipToPhoneNo');
         ICInboxPurchaseHeader."Document Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
         ICInboxPurchaseHeader."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'intercompanyPartnerCode');
         ICInboxPurchaseHeader."IC Transaction No." := GetValueFromJsonTokenOrIntegerZero(IndividualToken, 'intercompanyTransactionNumber');
@@ -798,6 +799,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
         ICInboxSalesHeader."Ship-to Post Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'shipToPostCode');
         ICInboxSalesHeader."Ship-to County" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'shipToCounty');
         ICInboxSalesHeader."Ship-to Country/Region Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'shipToCountryRegionCode');
+        ICInboxSalesHeader."Ship-to Phone No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'shipToPhoneNo');
         ICInboxSalesHeader."Document Date" := GetValueFromJsonTokenOrToday(IndividualToken, 'documentDate');
         ICInboxSalesHeader."External Document No." := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'externalDocumentNumber');
         ICInboxSalesHeader."IC Partner Code" := GetValueFromJsonTokenOrEmptyText(IndividualToken, 'intercompanyPartnerCode');
@@ -1002,7 +1004,7 @@ codeunit 561 "IC Data Exchange API" implements "IC Data Exchange"
             JobQueueEntry.SetRange("Record ID to Process", RecordIdentification);
 
         // Cancel errored or waiting Job Queue Entries exceeding the limit
-        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Error);
+        JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Error, JobQueueEntry.Status::Waiting);
         if JobQueueEntry.Count() >= 2 then begin
             JobQueueEntry.FindSet();
             repeat

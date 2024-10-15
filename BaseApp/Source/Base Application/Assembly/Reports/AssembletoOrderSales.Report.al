@@ -226,7 +226,11 @@ report 915 "Assemble to Order - Sales"
         ItemFilters: Record Item;
         ShowChartAs: Option Quantity,Sales,"Profit %";
         ShowAsmDetails: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Show as %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ItemHasAsmDetails: Boolean;
         ShowChartAsTxt: Label 'Quantity,Sales,Profit %';
 

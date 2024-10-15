@@ -20,7 +20,7 @@ codeunit 149119 "BCPT Purch. Post with N Lines" implements "BCPT Test Param. Pro
         PurchasePostViaJobQueue: Codeunit "Purchase Post Via Job Queue";
         PurchHeaderId: Guid;
     begin
-        if not IsInitialized or true then begin
+        if not IsInitialized then begin
             InitTest();
             IsInitialized := true;
         end;
@@ -48,6 +48,7 @@ codeunit 149119 "BCPT Purch. Post with N Lines" implements "BCPT Test Param. Pro
     var
         PurchaseSetup: Record "Purchases & Payables Setup";
         NoSeriesLine: Record "No. Series Line";
+        RecordModified: Boolean;
     begin
         PurchaseSetup.Get();
         PurchaseSetup.TestField("Order Nos.");
@@ -58,9 +59,12 @@ codeunit 149119 "BCPT Purch. Post with N Lines" implements "BCPT Test Param. Pro
                 NoSeriesLine."Ending No." := '';
                 NoSeriesLine.Validate(Implementation, Enum::"No. Series Implementation"::Sequence);
                 NoSeriesLine.Modify(true);
+                RecordModified := true;
             end;
         until NoSeriesLine.Next() = 0;
-        commit();
+
+        if RecordModified then
+            Commit();
 
         if Evaluate(NoOfLinesToCreate, GlobalBCPTTestContext.GetParameter(NoOfLinesParamLbl)) then;
     end;

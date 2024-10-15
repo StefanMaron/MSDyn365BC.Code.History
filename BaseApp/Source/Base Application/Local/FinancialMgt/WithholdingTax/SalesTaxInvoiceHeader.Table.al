@@ -629,7 +629,7 @@ table 28071 "Sales Tax Invoice Header"
 #endif
     begin
         SalesSetup.Get();
-        if "No." = '' then begin
+        if "No." = '' then
             if TaxInvoiceManagement.CheckTaxableNoSeries("Sell-to Customer No.", 1) then begin
                 SalesSetup.TestField("Posted Non Tax Invoice Nos.");
 #if not CLEAN24
@@ -659,7 +659,6 @@ table 28071 "Sales Tax Invoice Header"
                 end;
 #endif
             end;
-        end;
     end;
 
     var

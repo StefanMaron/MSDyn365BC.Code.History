@@ -21,7 +21,7 @@ report 6 "Trial Balance"
         dataitem("G/L Account"; "G/L Account")
         {
             DataItemTableView = sorting("No.");
-            RequestFilterFields = "No.", "Account Type", "Date Filter", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "G/L Entry Type Filter";
+            RequestFilterFields = "No.", "Account Type", "Date Filter", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
             column(STRSUBSTNO_Text000_PeriodText_; StrSubstNo(Text000, PeriodText))
             {
             }
@@ -50,9 +50,6 @@ report 6 "Trial Balance"
             {
             }
             column(SimulationEntries; SimulationEntriesLbl)
-            {
-            }
-            column(GLEtyTypeFilter_GLAccount; "G/L Account".GetFilter("G/L Entry Type Filter"))
             {
             }
             column(G_L_Account_No_; "No.")
@@ -272,7 +269,11 @@ report 6 "Trial Balance"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Period: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GLSetup: Record "General Ledger Setup";
         ReportMgmnt: Codeunit "Report Management APAC";
         Trial_BalanceCaptionLbl: Label 'Trial Balance';

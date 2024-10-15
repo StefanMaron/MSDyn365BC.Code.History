@@ -25,7 +25,6 @@ codeunit 134020 "ERM Accounts"
         TotalAmount2: Decimal;
         GlobalOption: Option " ","No Limitation",Limited,Blocked;
         IncorrectColumnCaptionErr: Label 'Incorrect Column Caption';
-        AmountMustHaveAValueErr: Label 'Amount must have a value in Gen. Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Line No.=%3. It cannot be zero or empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -493,9 +492,7 @@ codeunit 134020 "ERM Accounts"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Error message that Amount must have a value appears.
-        Assert.ExpectedError(
-          StrSubstNo(AmountMustHaveAValueErr,
-            GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption(Amount), '');
     end;
 
     [Test]
@@ -517,9 +514,7 @@ codeunit 134020 "ERM Accounts"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Error message that Amount must have a value appears.
-        Assert.ExpectedError(
-          StrSubstNo(AmountMustHaveAValueErr,
-            GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption(Amount), '');
     end;
 
     [Test]
@@ -806,11 +801,9 @@ codeunit 134020 "ERM Accounts"
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with GLAccount do begin
-            Validate("Gen. Posting Type", PostingType);
-            Modify(true);
-            exit("No.");
-        end;
+        GLAccount.Validate("Gen. Posting Type", PostingType);
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateAndPostGeneralJnlLines(var GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal; Amount2: Decimal)
@@ -912,10 +905,8 @@ codeunit 134020 "ERM Accounts"
 
         // Setup contract that account must change by +Delta and balancing account by -Delta.
         DeltaAssert.Init();
-        with Account do
-            DeltaAssert.AddWatch(DATABASE::"G/L Account", GetPosition(), FieldNo(Balance), Delta);
-        with BalAccount do
-            DeltaAssert.AddWatch(DATABASE::"G/L Account", GetPosition(), FieldNo(Balance), -Delta);
+        DeltaAssert.AddWatch(DATABASE::"G/L Account", Account.GetPosition(), Account.FieldNo(Balance), Delta);
+        DeltaAssert.AddWatch(DATABASE::"G/L Account", BalAccount.GetPosition(), BalAccount.FieldNo(Balance), -Delta);
     end;
 
     local procedure FindPostingAccount(var Account: Record "G/L Account"; Customer: Record Customer)

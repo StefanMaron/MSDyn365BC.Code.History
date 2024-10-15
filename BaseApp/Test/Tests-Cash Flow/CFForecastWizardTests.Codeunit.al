@@ -214,18 +214,16 @@ codeunit 139315 "CF Forecast Wizard Tests"
         CashFlowForecastWizard.Trap();
         PAGE.Run(PAGE::"Cash Flow Forecast Wizard");
 
-        with CashFlowForecastWizard do begin
-            ActionNext.Invoke(); // Setup page
-            ActionBack.Invoke(); // Welcome page
-            Assert.IsFalse(ActionBack.Enabled(), 'Back should not be enabled at the end of the wizard');
-            ActionNext.Invoke(); // Setup page
-            UpdateFrequency.SetValue(Frequency);
-            ActionNext.Invoke(); // Azure AI Page
-            ActionNext.Invoke(); // Tax page
-            ActionNext.Invoke(); // That's it page
-            Assert.IsTrue(ActionBack.Enabled(), 'Back should be enabled at the end of the wizard');
-            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
-        end;
+        CashFlowForecastWizard.ActionNext.Invoke(); // Setup page
+        CashFlowForecastWizard.ActionBack.Invoke(); // Welcome page
+        Assert.IsFalse(CashFlowForecastWizard.ActionBack.Enabled(), 'Back should not be enabled at the end of the wizard');
+        CashFlowForecastWizard.ActionNext.Invoke(); // Setup page
+        CashFlowForecastWizard.UpdateFrequency.SetValue(Frequency);
+        CashFlowForecastWizard.ActionNext.Invoke(); // Azure AI Page
+        CashFlowForecastWizard.ActionNext.Invoke(); // Tax page
+        CashFlowForecastWizard.ActionNext.Invoke(); // That's it page
+        Assert.IsTrue(CashFlowForecastWizard.ActionBack.Enabled(), 'Back should be enabled at the end of the wizard');
+        Assert.IsFalse(CashFlowForecastWizard.ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
     end;
 
     local procedure GetLiquidFundsGLAccountFilter() CashAccountFilter: Text

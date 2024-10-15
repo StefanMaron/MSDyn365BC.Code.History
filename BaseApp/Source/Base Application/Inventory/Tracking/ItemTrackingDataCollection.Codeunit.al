@@ -34,14 +34,20 @@ codeunit 6501 "Item Tracking Data Collection"
         DirectTransfer: Boolean;
         HideValidationDialog: Boolean;
 
+#pragma warning disable AA0074
         Text004: Label 'Counting records...';
+#pragma warning restore AA0074
         AvailabilityWarningsMsg: Label 'The data used for availability calculation has been updated.\There are availability warnings on one or more lines.';
         NoAvailabilityWarningsMsg: Label 'The data used for availability calculation has been updated.\There are no availability warnings.';
         ListTxt: Label '%1 List', Comment = '%1 - field caption';
+#pragma warning disable AA0074
         AvailabilityText: Label '%1 %2 - Availability', Comment = '%1 - tracking field caption, %2 - field value';
         Text011: Label 'Item Tracking - Select Entries';
+#pragma warning restore AA0074
         PartialGlobalDataSetExists: Boolean;
+#pragma warning disable AA0074
         Text013: Label 'Neutralize consumption/output';
+#pragma warning restore AA0074
         LotNoBySNNotFoundErr: Label 'A lot number could not be found for serial number %1.', Comment = '%1 - serial number.';
         PackageNoBySNNotFoundErr: Label 'A package number could not be found for serial number %1.', Comment = '%1 - serial number.';
 

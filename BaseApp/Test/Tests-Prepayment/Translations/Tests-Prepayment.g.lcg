@@ -32,15 +32,6 @@
       <Cmt Name="Dev"><![CDATA[%2 - field caption, %3 - account number, %1 - "sales order 1001".]D;]A;(LookupHint=Codeunit ERM Prepayment - NamedType CannotChangeSetupOnPrepmtAccErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 526616433 - NamedType 129243633" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Prepayment Invoice must be equal to 'No'  in %1: %2=%3. Current value is 'Yes'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=TableCaption,%2=FieldCaption,%3=Value]D;]A;(LookupHint=Codeunit ERM Prepayment - NamedType CopyDocumentErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 526616433 - NamedType 119177638" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Transaction No of Detailed Cust. Ledg. Entry must not be zero.]]></Val>
@@ -113,33 +104,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment - NamedType PrepaymentPercentErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 526616433 - NamedType 2288667816" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Status must be equal to 'Open'  in %1: Document Type=%2, No.=%3. Current value is 'Pending Prepayment'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment - NamedType PrepaymentStatusErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 526616433 - NamedType 3402869548" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Prepayment Credit Memo must be equal to 'No']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment - NamedType PrepmtCrMemoErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 526616433 - NamedType 2090648294" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Prepayment Invoice must be equal to 'No']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment - NamedType PrepmtInvErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 526616433 - NamedType 3301635851" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Prepmt. Line Amount Excl. VAT cannot be more than]]></Val>
@@ -147,15 +111,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment - NamedType PrepmtLineAmountErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 526616433 - NamedType 16403076" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Prices Including VAT must be equal to '%1'  in %2: Document Type=%3, No.=%4. Current value is '%5'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment - NamedType PricesInclVATMustBeEqualMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 526616433 - NamedType 1065958935" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -444,15 +399,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment IV - NamedType PrepaymentCMErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1036302780 - NamedType 2197140399" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VAT Calculation Type must be equal to '%1'  in VAT Posting Setup]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment IV - NamedType PrepmtVATCalcTypeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1036302780 - NamedType 3570334092" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

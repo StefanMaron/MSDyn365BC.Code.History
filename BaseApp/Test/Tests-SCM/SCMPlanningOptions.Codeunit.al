@@ -20,7 +20,7 @@ codeunit 137008 "SCM Planning Options"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         Initialized: Boolean;
@@ -532,7 +532,7 @@ codeunit 137008 "SCM Planning Options"
         PurchPayablesSetup.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure RequisitionLineValidateDueDateUpdatesUnitCost()
@@ -575,8 +575,7 @@ codeunit 137008 "SCM Planning Options"
         RequisitionLine.Validate("Due Date", CalcDate('<2D>', WorkDate()));
 
         // [THEN] "Direct Unit Cost" on requisition line = 2 * "X"
-        with RequisitionLine do
-            Assert.AreEqual(UnitCost, "Direct Unit Cost", StrSubstNo(WrongFieldValueErr, FieldCaption("Direct Unit Cost"), TableCaption));
+        Assert.AreEqual(UnitCost, RequisitionLine."Direct Unit Cost", StrSubstNo(WrongFieldValueErr, RequisitionLine.FieldCaption("Direct Unit Cost"), RequisitionLine.TableCaption));
     end;
 #endif
 
@@ -1000,20 +999,18 @@ codeunit 137008 "SCM Planning Options"
         SKU.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateItemPurchasePrice(ItemNo: Code[20]; VendorNo: Code[20]; StartingDate: Date; EndingDate: Date; UnitCost: Decimal)
     var
         PurchPrice: Record "Purchase Price";
     begin
-        with PurchPrice do begin
-            Init();
-            Validate("Item No.", ItemNo);
-            Validate("Vendor No.", VendorNo);
-            Validate("Starting Date", StartingDate);
-            Validate("Ending Date", EndingDate);
-            Validate("Direct Unit Cost", UnitCost);
-            Insert(true);
-        end;
+        PurchPrice.Init();
+        PurchPrice.Validate("Item No.", ItemNo);
+        PurchPrice.Validate("Vendor No.", VendorNo);
+        PurchPrice.Validate("Starting Date", StartingDate);
+        PurchPrice.Validate("Ending Date", EndingDate);
+        PurchPrice.Validate("Direct Unit Cost", UnitCost);
+        PurchPrice.Insert(true);
     end;
 #endif
 
@@ -1046,11 +1043,9 @@ codeunit 137008 "SCM Planning Options"
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
-        with RequisitionLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-        end;
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ItemNo);
+        RequisitionLine.FindFirst();
     end;
 
     local procedure AssertPlanningLine(var RequisitionLineFiltered: Record "Requisition Line"; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; NoOfLines: Integer; NoLinesExpected: Boolean)
@@ -1070,18 +1065,16 @@ codeunit 137008 "SCM Planning Options"
 
     local procedure MockPlanningRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; RequisitionLine: Record "Requisition Line")
     begin
-        with PlanningRoutingLine do begin
-            Init();
-            "Worksheet Template Name" := RequisitionLine."Worksheet Template Name";
-            "Worksheet Batch Name" := RequisitionLine."Journal Batch Name";
-            "Worksheet Line No." := RequisitionLine."Line No.";
-            "Operation No." := LibraryUtility.GenerateRandomCode(FieldNo("Operation No."), DATABASE::"Planning Routing Line");
-            "Starting Date" := LibraryRandom.RandDateFromInRange(WorkDate(), 1, 10);
-            "Starting Time" := 100000T + LibraryRandom.RandInt(100000);
-            "Ending Date" := LibraryRandom.RandDateFromInRange(WorkDate(), 15, 20);
-            "Ending Time" := 110000T + LibraryRandom.RandInt(100000);
-            Insert();
-        end;
+        PlanningRoutingLine.Init();
+        PlanningRoutingLine."Worksheet Template Name" := RequisitionLine."Worksheet Template Name";
+        PlanningRoutingLine."Worksheet Batch Name" := RequisitionLine."Journal Batch Name";
+        PlanningRoutingLine."Worksheet Line No." := RequisitionLine."Line No.";
+        PlanningRoutingLine."Operation No." := LibraryUtility.GenerateRandomCode(PlanningRoutingLine.FieldNo("Operation No."), DATABASE::"Planning Routing Line");
+        PlanningRoutingLine."Starting Date" := LibraryRandom.RandDateFromInRange(WorkDate(), 1, 10);
+        PlanningRoutingLine."Starting Time" := 100000T + LibraryRandom.RandInt(100000);
+        PlanningRoutingLine."Ending Date" := LibraryRandom.RandDateFromInRange(WorkDate(), 15, 20);
+        PlanningRoutingLine."Ending Time" := 110000T + LibraryRandom.RandInt(100000);
+        PlanningRoutingLine.Insert();
     end;
 }
 

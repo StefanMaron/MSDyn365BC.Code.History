@@ -15,7 +15,9 @@ codeunit 1530 "Request Page Parameters Helper"
     var
         DataItemPathTxt: Label '/ReportParameters/DataItems/DataItem', Locked = true;
         OptionPathTxt: Label '/ReportParameters/Options/Field', Locked = true;
+#pragma warning disable AA0470
         XmlNodesNotFoundErr: Label 'The XML Nodes at %1 cannot be found in the XML Document %2.';
+#pragma warning restore AA0470
 
     [Scope('OnPrem')]
     procedure ShowRequestPageAndGetFilters(var NewFilters: Text; ExistingFilters: Text; EntityName: Code[20]; TableNum: Integer; PageCaption: Text) FiltersSet: Boolean

@@ -440,6 +440,11 @@ page 6402 "Sales Document Entity"
                     ApplicationArea = All;
                     Caption = 'Ship-to Country/Region Code', Locked = true;
                 }
+                field(shipToPhoneNo; Rec."Ship-to Phone No.")
+                {
+                    ApplicationArea = All;
+                    Caption = 'Ship-to Phone No.', Locked = true;
+                }
                 field(balAccountType; Rec."Bal. Account Type")
                 {
                     ApplicationArea = All;

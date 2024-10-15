@@ -4747,14 +4747,12 @@
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with GLAccount do begin
-            Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
-            Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify(true);
-            exit("No.");
-        end;
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateGLAccountWithPostingGroups(): Code[20]
@@ -4903,13 +4901,11 @@
 
     local procedure CreatePrepPurhcLine(PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; LineGLAccountNo: Code[20])
     begin
-        with PurchLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchLine, PurchHeader, Type::"G/L Account", LineGLAccountNo, LibraryRandom.RandInt(50));
-            Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
-            Validate("Prepayment %", LibraryRandom.RandInt(50));
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+          PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LineGLAccountNo, LibraryRandom.RandInt(50));
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchLine.Validate("Prepayment %", LibraryRandom.RandInt(50));
+        PurchLine.Modify(true);
     end;
 
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; CompressPrepayment: Boolean)
@@ -4962,62 +4958,50 @@
 
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; PrepaymentPct: Decimal; PricesInclVAT: Boolean)
     begin
-        with PurchaseHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchaseHeader, "Document Type"::Order, VendorNo);
-            Validate("Prices Including VAT", PricesInclVAT);
-            Validate("Prepayment %", PrepaymentPct);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+        PurchaseHeader.Validate("Prices Including VAT", PricesInclVAT);
+        PurchaseHeader.Validate("Prepayment %", PrepaymentPct);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; GLAccountNo: Code[20]; NewQuantity: Decimal; DirectUnitCost: Decimal)
     begin
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::"G/L Account", GLAccountNo, NewQuantity);
-            Validate("Direct Unit Cost", DirectUnitCost);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, NewQuantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateCustomItemPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; NewQuantity: Decimal; DirectUnitCost: Decimal)
     begin
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::Item, ItemNo, NewQuantity);
-            Validate("Direct Unit Cost", DirectUnitCost);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, NewQuantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; PrepaymentPct: Decimal; PricesInclVAT: Boolean)
     begin
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Order, CustomerNo);
-            Validate("Prices Including VAT", PricesInclVAT);
-            Validate("Prepayment %", PrepaymentPct);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("Prices Including VAT", PricesInclVAT);
+        SalesHeader.Validate("Prepayment %", PrepaymentPct);
+        SalesHeader.Modify(true);
     end;
 
     local procedure CreateCustomSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; GLAccountNo: Code[20]; NewQuantity: Decimal; UnitPrice: Decimal)
     begin
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, Type::"G/L Account", GLAccountNo, NewQuantity);
-            Validate("Unit Price", UnitPrice);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, NewQuantity);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateCustomItemSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20]; NewQuantity: Decimal; UnitPrice: Decimal)
     begin
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, Type::Item, ItemNo, NewQuantity);
-            Validate("Unit Price", UnitPrice);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, NewQuantity);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateCustomSalesLineAndCalcVATAmountLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; PricesInclVAT: Boolean; PrepmtPct: Decimal; UnitPrice: Decimal)
@@ -5161,19 +5145,17 @@
         PurchaseLine: Record "Purchase Line";
         RecRef: RecordRef;
     begin
-        with PurchaseLine do begin
-            Init();
-            "Document Type" := PurchaseHeader."Document Type";
-            "Document No." := PurchaseHeader."No.";
-            RecRef.GetTable(PurchaseLine);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Purchase Line");
-            "Prepmt. Amt. Inv." := LibraryRandom.RandDec(100, 2);
-            "Gen. Bus. Posting Group" := GenBusPostingGroupCode;
-            "Gen. Prod. Posting Group" := GenProdPostingGroupCode;
-            "Job No." := JobNo;
-            Insert();
-        end;
+        PurchaseLine.Init();
+        PurchaseLine."Document Type" := PurchaseHeader."Document Type";
+        PurchaseLine."Document No." := PurchaseHeader."No.";
+        RecRef.GetTable(PurchaseLine);
+        PurchaseLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, PurchaseLine.FieldNo("Line No."));
+        PurchaseLine."No." := LibraryUtility.GenerateRandomCode(PurchaseLine.FieldNo("No."), DATABASE::"Purchase Line");
+        PurchaseLine."Prepmt. Amt. Inv." := LibraryRandom.RandDec(100, 2);
+        PurchaseLine."Gen. Bus. Posting Group" := GenBusPostingGroupCode;
+        PurchaseLine."Gen. Prod. Posting Group" := GenProdPostingGroupCode;
+        PurchaseLine."Job No." := JobNo;
+        PurchaseLine.Insert();
     end;
 
     local procedure MockSalesHeader(var SalesHeader: Record "Sales Header")
@@ -5189,19 +5171,17 @@
         SalesLine: Record "Sales Line";
         RecRef: RecordRef;
     begin
-        with SalesLine do begin
-            Init();
-            "Document Type" := SalesHeader."Document Type";
-            "Document No." := SalesHeader."No.";
-            RecRef.GetTable(SalesLine);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Line");
-            "Prepmt. Amt. Inv." := LibraryRandom.RandDec(100, 2);
-            "Gen. Bus. Posting Group" := GenBusPostingGroupCode;
-            "Gen. Prod. Posting Group" := GenProdPostingGroupCode;
-            "Job No." := JobNo;
-            Insert();
-        end;
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        RecRef.GetTable(SalesLine);
+        SalesLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, SalesLine.FieldNo("Line No."));
+        SalesLine."No." := LibraryUtility.GenerateRandomCode(SalesLine.FieldNo("No."), DATABASE::"Sales Line");
+        SalesLine."Prepmt. Amt. Inv." := LibraryRandom.RandDec(100, 2);
+        SalesLine."Gen. Bus. Posting Group" := GenBusPostingGroupCode;
+        SalesLine."Gen. Prod. Posting Group" := GenProdPostingGroupCode;
+        SalesLine."Job No." := JobNo;
+        SalesLine.Insert();
     end;
 
     local procedure MockGenBusProdPostingGroups(var GenPostingSetup: Record "General Posting Setup"; var GenBusPostingGroupCode: Code[20]; var GenProdPostingGroupCode: Code[20])
@@ -5334,15 +5314,13 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindSet();
-            repeat
-                Validate("Qty. to Ship", Quantity / 2);
-                Modify();
-            until Next() = 0;
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+        repeat
+            SalesLine.Validate("Qty. to Ship", SalesLine.Quantity / 2);
+            SalesLine.Modify();
+        until SalesLine.Next() = 0;
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -5350,15 +5328,13 @@
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            FindSet();
-            repeat
-                Validate("Qty. to Receive", Quantity / 2);
-                Modify();
-            until Next() = 0;
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindSet();
+        repeat
+            PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity / 2);
+            PurchaseLine.Modify();
+        until PurchaseLine.Next() = 0;
         PurchaseHeader."Vendor Invoice No." := IncStr(PurchaseHeader."Vendor Invoice No.");
         PurchaseHeader.Modify();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -5373,35 +5349,29 @@
 
     local procedure UpdateSalesPrepmtAmtToDeductWithPrepmtAmtInvoiced(var SalesLine: Record "Sales Line")
     begin
-        with SalesLine do begin
-            Find();
-            Validate("Prepmt Amt to Deduct", "Prepmt. Amt. Inv.");
-            Modify(true);
-        end;
+        SalesLine.Find();
+        SalesLine.Validate("Prepmt Amt to Deduct", SalesLine."Prepmt. Amt. Inv.");
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdatePurchPrepmtAmtToDeductWithPrepmtAmtInvoiced(var PurchLine: Record "Purchase Line")
     begin
-        with PurchLine do begin
-            Find();
-            Validate("Prepmt Amt to Deduct", "Prepmt. Amt. Inv.");
-            Modify(true);
-        end;
+        PurchLine.Find();
+        PurchLine.Validate("Prepmt Amt to Deduct", PurchLine."Prepmt. Amt. Inv.");
+        PurchLine.Modify(true);
     end;
 
     local procedure UpdateGeneralSetup(AmountDecimalPlaces: Text[5]; UnitAmountDecimalPlaces: Text[5]; AmountRoundingPrecision: Decimal; UnitAmountRoundingPrecision: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            "Amount Decimal Places" := AmountDecimalPlaces;
-            "Unit-Amount Decimal Places" := UnitAmountDecimalPlaces;
-            "Amount Rounding Precision" := AmountRoundingPrecision;
-            "Unit-Amount Rounding Precision" := UnitAmountRoundingPrecision;
-            "Inv. Rounding Precision (LCY)" := AmountRoundingPrecision;
-            Modify();
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Amount Decimal Places" := AmountDecimalPlaces;
+        GeneralLedgerSetup."Unit-Amount Decimal Places" := UnitAmountDecimalPlaces;
+        GeneralLedgerSetup."Amount Rounding Precision" := AmountRoundingPrecision;
+        GeneralLedgerSetup."Unit-Amount Rounding Precision" := UnitAmountRoundingPrecision;
+        GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := AmountRoundingPrecision;
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure UpdatePurchTotalPrepmtAmount(PurchaseHeader: Record "Purchase Header"; NewPrepmtTotalAmount: Decimal)
@@ -5420,38 +5390,30 @@
 
     local procedure UpdatePurchQtyToReceive(var PurchaseLine: Record "Purchase Line"; QtyToReceive: Decimal)
     begin
-        with PurchaseLine do begin
-            Find();
-            Validate("Qty. to Receive", QtyToReceive);
-            Modify(true);
-        end;
+        PurchaseLine.Find();
+        PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure UpdatePurchQtyToInvoice(var PurchaseLine: Record "Purchase Line"; QtyToInvoice: Decimal)
     begin
-        with PurchaseLine do begin
-            Find();
-            Validate("Qty. to Invoice", QtyToInvoice);
-            Modify(true);
-        end;
+        PurchaseLine.Find();
+        PurchaseLine.Validate("Qty. to Invoice", QtyToInvoice);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure UpdateSalesQtyToShip(var SalesLine: Record "Sales Line"; QtyToShip: Decimal)
     begin
-        with SalesLine do begin
-            Find();
-            Validate("Qty. to Ship", QtyToShip);
-            Modify(true);
-        end;
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdateSalesQtyToInvoice(var SalesLine: Record "Sales Line"; QtyToInvoice: Decimal)
     begin
-        with SalesLine do begin
-            Find();
-            Validate("Qty. to Invoice", QtyToInvoice);
-            Modify(true);
-        end;
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Invoice", QtyToInvoice);
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdatePurchPrepmtAmtToDeduct(var PurchaseLine: Record "Purchase Line"; PrepmtAmtToDeduct: Decimal)
@@ -5497,12 +5459,10 @@
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Bill-to/Pay-to No.", CustomerNo);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit(Amount);
-        end;
+        VATEntry.SetRange("Bill-to/Pay-to No.", CustomerNo);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        exit(VATEntry.Amount);
     end;
 
     local procedure GetPurchaseReceiptLines(PurchaseHeader: Record "Purchase Header")
@@ -5541,38 +5501,30 @@
 
     local procedure FindPostedPurchaseInvoice(var PurchInvHeader: Record "Purch. Inv. Header"; VendorNo: Code[20])
     begin
-        with PurchInvHeader do begin
-            SetRange("Buy-from Vendor No.", VendorNo);
-            SetRange("Prepayment Invoice", true);
-            FindFirst();
-        end;
+        PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchInvHeader.SetRange("Prepayment Invoice", true);
+        PurchInvHeader.FindFirst();
     end;
 
     local procedure FindPostedPurchaseCrMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; VendorNo: Code[20])
     begin
-        with PurchCrMemoHdr do begin
-            SetRange("Buy-from Vendor No.", VendorNo);
-            SetRange("Prepayment Credit Memo", true);
-            FindFirst();
-        end;
+        PurchCrMemoHdr.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchCrMemoHdr.SetRange("Prepayment Credit Memo", true);
+        PurchCrMemoHdr.FindFirst();
     end;
 
     local procedure FindPostedSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"; CustomerNo: Code[20])
     begin
-        with SalesInvoiceHeader do begin
-            SetRange("Sell-to Customer No.", CustomerNo);
-            SetRange("Prepayment Invoice", true);
-            FindFirst();
-        end;
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesInvoiceHeader.SetRange("Prepayment Invoice", true);
+        SalesInvoiceHeader.FindFirst();
     end;
 
     local procedure FindPostedSalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; CustomerNo: Code[20])
     begin
-        with SalesCrMemoHeader do begin
-            SetRange("Sell-to Customer No.", CustomerNo);
-            SetRange("Prepayment Credit Memo", true);
-            FindFirst();
-        end;
+        SalesCrMemoHeader.SetRange("Sell-to Customer No.", CustomerNo);
+        SalesCrMemoHeader.SetRange("Prepayment Credit Memo", true);
+        SalesCrMemoHeader.FindFirst();
     end;
 
     local procedure SetCheckPrepaymentinSalesSetup(CheckPrepmt: Boolean)
@@ -5666,24 +5618,20 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindFirst();
-            Assert.AreEqual("Prepayment Amount" / 2, "Prepmt. Amount Inv. (LCY)", IncorrectPrepmtAmountInvLCYErr);
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        Assert.AreEqual(SalesLine."Prepayment Amount" / 2, SalesLine."Prepmt. Amount Inv. (LCY)", IncorrectPrepmtAmountInvLCYErr);
     end;
 
     local procedure VerifyFirstPurchLinePrepmtAmountInvLCY(PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst();
-            Assert.AreEqual("Prepayment Amount" / 2, "Prepmt. Amount Inv. (LCY)", IncorrectPrepmtAmountInvLCYErr);
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        Assert.AreEqual(PurchaseLine."Prepayment Amount" / 2, PurchaseLine."Prepmt. Amount Inv. (LCY)", IncorrectPrepmtAmountInvLCYErr);
     end;
 
     local procedure VerifyDimensionSetEntryIsExists(DimensionCode: Code[20]; DimensionValueCode: Code[20])
@@ -5730,12 +5678,10 @@
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("G/L Account No.", GLAccountNo);
-            SetRange("Document No.", DocumentNo);
-            CalcSums(Amount);
-            TestField(Amount, ExpectedBalance);
-        end;
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.CalcSums(Amount);
+        GLEntry.TestField(Amount, ExpectedBalance);
     end;
 
     local procedure VerifyCustomerReceivablesAccountAmount(CustomerPostingGroupCode: Code[20]; DocumentNo: Code[20]; ExpectedAmount: Decimal)

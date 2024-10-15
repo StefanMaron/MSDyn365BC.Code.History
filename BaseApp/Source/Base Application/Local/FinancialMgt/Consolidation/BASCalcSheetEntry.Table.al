@@ -49,7 +49,7 @@ table 11604 "BAS Calc. Sheet Entry"
                 VATEntry: Record "VAT Entry";
                 Text000: Label 'You cannot lookup consolidated entries.';
             begin
-                if "Company Name" = CompanyName then begin
+                if "Company Name" = CompanyName then
                     case Type of
                         Type::"G/L Entry":
                             begin
@@ -63,8 +63,8 @@ table 11604 "BAS Calc. Sheet Entry"
                                 VATEntry.SetRange("Entry No.", "Entry No.");
                                 PAGE.RunModal(PAGE::"VAT Entries", VATEntry);
                             end;
-                    end;
-                end else
+                    end
+                else
                     Message(Text000);
             end;
         }

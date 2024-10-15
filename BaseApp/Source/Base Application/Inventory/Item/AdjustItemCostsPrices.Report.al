@@ -241,13 +241,19 @@ report 794 "Adjust Item Costs/Prices"
         Selection1Enable: Boolean;
         Selection2Enable: Boolean;
         Selection3Enable: Boolean;
+#pragma warning disable AA0470
         SelectionErr: Label '%1 is not a valid selection.';
+#pragma warning restore AA0470
         SelectionTxt: Label 'Unit Price,Profit %,Indirect Cost %,Last Direct Cost,Standard Cost';
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Processing items  #1##########';
         Text002: Label 'Processing items     #1##########\';
         Text003: Label 'Processing locations #2##########\';
         Text004: Label 'Processing variants  #3##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure UpdateEnabled()
     begin

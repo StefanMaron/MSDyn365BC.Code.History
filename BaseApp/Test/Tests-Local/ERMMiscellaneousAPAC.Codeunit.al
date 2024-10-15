@@ -1202,6 +1202,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         SalesLine: Record "Sales Line";
         Currency: Record Currency;
         ExpectedAmountACY: Decimal;
+        ExpectedVATACY: Decimal;
         NewExchRate: Decimal;
     begin
         // [SCENARIO 539558] The "Amount (ACY)" value Sales Invoice Statistics is same as in Sales Header when 
@@ -1223,7 +1224,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
             NewExchRate);
 
         // [GIVEN] Create a VAT Posting Setup with Accounts.
-        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 10);
 
         // [GIVEN] Create a Sales Header.
         LibrarySales.CreateSalesHeader(
@@ -1249,6 +1250,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
         // [GIVEN] Generate and save Expected "Amount ACY" in a Variable.
         ExpectedAmountACY := Round(SalesLine."VAT Base Amount");
+        ExpectedVATACY := Round(SalesLine."VAT Base Amount" * 0.1);
 
         // [GIVEN] Create another Sales Line with a VAT Product Posting Group.
         LibrarySales.CreateSalesLine(
@@ -1264,6 +1266,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
         // [GIVEN] Generate and save Expected "Amount ACY".
         ExpectedAmountACY += Round(SalesLine."VAT Base Amount");
+        ExpectedVATACY += Round(SalesLine."VAT Base Amount" * 0.1);
 
         // [WHEN] Calculate VAT Amount Line.
         TempVATAmountLine.DeleteAll();
@@ -1278,6 +1281,9 @@ codeunit 141008 "ERM - Miscellaneous APAC"
                 TempVATAmountLine.FieldCaption("Amount (ACY)"),
                 ExpectedAmountACY,
                 TempVATAmountLine.TableCaption()));
+        // [THEN] VAT ACY fields should be the same values since ACY is the same currency as the invoice.
+        Assert.AreEqual(ExpectedVATACY, TempVATAmountLine."VAT Amount (ACY)", 'VAT Amount should be 10% of the sales line');
+        Assert.AreEqual(ExpectedAmountACY + ExpectedVATACY, TempVATAmountLine."Amount Including VAT (ACY)", 'VAT Amount including VAT should be the total amount in ACY.');
     end;
 
     [Test]
@@ -1289,6 +1295,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         SalesLine: Record "Sales Line";
         CurrencyACY: Record Currency;
         ExpectedAmountACY: Decimal;
+        ExpectedVATACY: Decimal;
         ExchRateACY: Decimal;
         LineAmount1: Decimal;
         LineAmount2: Decimal;
@@ -1303,7 +1310,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryERM.SetAddReportingCurrency(CurrencyACY.Code);
 
         // [GIVEN] Sales Invoice with "Currency Code" = "".
-        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 10);
         LibrarySales.CreateSalesHeader(
             SalesHeader, SalesHeader."Document Type"::Invoice,
             LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -1321,7 +1328,9 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
         // [THEN] "Amount (ACY)" in VAT Amount Line is equal to 5000: <invoice amount> * <additional currency exchange rate amount>.
         ExpectedAmountACY := (LineAmount1 + LineAmount2) * ExchRateACY;
+        ExpectedVATACY := ExpectedAmountACY * 0.1;
         Assert.AreEqual(ExpectedAmountACY, TempVATAmountLine."Amount (ACY)", '');
+        Assert.AreEqual(ExpectedVATACY, TempVATAmountLine."VAT Amount (ACY)", '');
     end;
 
     [Test]
@@ -1334,6 +1343,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CurrencyACY: Record Currency;
         CurrencyInv: Record Currency;
         ExpectedAmountACY: Decimal;
+        ExpectedVATACY: Decimal;
         ExchRateACY: Decimal;
         ExchRateInv: Decimal;
         LineAmount1: Decimal;
@@ -1354,7 +1364,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryERM.CreateExchangeRate(CurrencyInv.Code, WorkDate(), ExchRateInv, ExchRateInv);
 
         // [GIVEN] Sales Invoice with "Currency Code" = "C2".
-        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 10);
         LibrarySales.CreateSalesHeader(
             SalesHeader, SalesHeader."Document Type"::Invoice,
             LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -1374,7 +1384,9 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
         // [THEN] "Amount (ACY)" in VAT Amount Line is equal to 2500: <invoice amount> / <invoice currency exch rate amount> * <additional currency exch rate amount>.
         ExpectedAmountACY := ((LineAmount1 + LineAmount2) / ExchRateInv) * ExchRateACY;
+        ExpectedVATACY := ExpectedAmountACY * 0.1;
         Assert.AreEqual(ExpectedAmountACY, TempVATAmountLine."Amount (ACY)", '');
+        Assert.AreEqual(ExpectedVATACY, TempVATAmountLine."VAT Amount (ACY)", '');
     end;
 
     [Test]
@@ -1387,6 +1399,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CurrencyACY: Record Currency;
         CurrencyInv: Record Currency;
         ExpectedAmountACY: Decimal;
+        ExpectedVATACY: Decimal;
         ExchRateACY: Decimal;
         ExchRateInv: Decimal;
         LineAmount1: Decimal;
@@ -1407,7 +1420,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryERM.CreateExchangeRate(CurrencyInv.Code, WorkDate(), ExchRateInv, ExchRateInv);
 
         // [GIVEN] Sales Invoice with "Currency Code" = "C2".
-        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 10);
         LibrarySales.CreateSalesHeader(
             SalesHeader, SalesHeader."Document Type"::Invoice,
             LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -1431,7 +1444,9 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
         // [THEN] "Amount (ACY)" in VAT Amount Line is equal to 2500: <amount to invoice> / <invoice currency exch rate amount> * <additional currency exch rate amount>.
         ExpectedAmountACY := ((LineAmount1 + LineAmount2) / ExchRateInv) * ExchRateACY;
+        ExpectedVATACY := ExpectedAmountACY * 0.1;
         Assert.AreEqual(ExpectedAmountACY, TempVATAmountLine."Amount (ACY)", '');
+        Assert.AreEqual(ExpectedVATACY, TempVATAmountLine."VAT Amount (ACY)", '');
     end;
 
     [Test]
@@ -1443,6 +1458,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         PurchaseLine: Record "Purchase Line";
         CurrencyACY: Record Currency;
         ExpectedAmountACY: Decimal;
+        ExpectedVATACY: Decimal;
         ExchRateACY: Decimal;
         LineAmount1: Decimal;
         LineAmount2: Decimal;
@@ -1457,7 +1473,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryERM.SetAddReportingCurrency(CurrencyACY.Code);
 
         // [GIVEN] Purchase Invoice with "Currency Code" = "".
-        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 10);
         LibraryPurchase.CreatePurchHeader(
             PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
             LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -1475,7 +1491,9 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
         // [THEN] "Amount (ACY)" in VAT Amount Line is equal to 5000: <invoice amount> * <additional currency exchange rate amount>.
         ExpectedAmountACY := (LineAmount1 + LineAmount2) * ExchRateACY;
+        ExpectedVATACY := ExpectedAmountACY * 0.1;
         Assert.AreEqual(ExpectedAmountACY, TempVATAmountLine."Amount (ACY)", '');
+        Assert.AreEqual(ExpectedVATACY, TempVATAmountLine."VAT Amount (ACY)", '');
     end;
 
     [Test]
@@ -1488,6 +1506,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CurrencyACY: Record Currency;
         CurrencyInv: Record Currency;
         ExpectedAmountACY: Decimal;
+        ExpectedVATACY: Decimal;
         ExchRateACY: Decimal;
         ExchRateInv: Decimal;
         LineAmount1: Decimal;
@@ -1508,7 +1527,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryERM.CreateExchangeRate(CurrencyInv.Code, WorkDate(), ExchRateInv, ExchRateInv);
 
         // [GIVEN] Purchase Invoice with "Currency Code" = "C2".
-        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 10);
         LibraryPurchase.CreatePurchHeader(
             PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
             LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -1528,7 +1547,9 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
         // [THEN] "Amount (ACY)" in VAT Amount Line is equal to 2500: <invoice amount> / <invoice currency exch rate amount> * <additional currency exch rate amount>.
         ExpectedAmountACY := ((LineAmount1 + LineAmount2) / ExchRateInv) * ExchRateACY;
+        ExpectedVATACY := ExpectedAmountACY * 0.1;
         Assert.AreEqual(ExpectedAmountACY, TempVATAmountLine."Amount (ACY)", '');
+        Assert.AreEqual(ExpectedVATACY, TempVATAmountLine."VAT Amount (ACY)", '');
     end;
 
     [Test]
@@ -1541,6 +1562,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CurrencyACY: Record Currency;
         CurrencyInv: Record Currency;
         ExpectedAmountACY: Decimal;
+        ExpectedVATACY: Decimal;
         ExchRateACY: Decimal;
         ExchRateInv: Decimal;
         LineAmount1: Decimal;
@@ -1561,7 +1583,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryERM.CreateExchangeRate(CurrencyInv.Code, WorkDate(), ExchRateInv, ExchRateInv);
 
         // [GIVEN] Purchase Invoice with "Currency Code" = "C2".
-        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 10);
         LibraryPurchase.CreatePurchHeader(
             PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
             LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -1585,7 +1607,9 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
         // [THEN] "Amount (ACY)" in VAT Amount Line is equal to 2500: <amount to invoice> / <invoice currency exch rate amount> * <additional currency exch rate amount>.
         ExpectedAmountACY := ((LineAmount1 + LineAmount2) / ExchRateInv) * ExchRateACY;
+        ExpectedVATACY := ExpectedAmountACY * 0.1;
         Assert.AreEqual(ExpectedAmountACY, TempVATAmountLine."Amount (ACY)", '');
+        Assert.AreEqual(ExpectedVATACY, TempVATAmountLine."VAT Amount (ACY)", '');
     end;
 
     [Test]
@@ -1726,30 +1750,26 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryERM.CreateBankAccReconciliation(
           BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Payment Application");
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
-        with BankAccReconciliationLine do begin
-            Validate("Transaction Date", WorkDate());
-            Validate("Account Type", "Account Type"::"G/L Account");
-            Validate("Account No.", GLAccountNo);
-            Validate("Statement Amount", StmtAmount);
-            Modify();
-        end;
+        BankAccReconciliationLine.Validate("Transaction Date", WorkDate());
+        BankAccReconciliationLine.Validate("Account Type", BankAccReconciliationLine."Account Type"::"G/L Account");
+        BankAccReconciliationLine.Validate("Account No.", GLAccountNo);
+        BankAccReconciliationLine.Validate("Statement Amount", StmtAmount);
+        BankAccReconciliationLine.Modify();
     end;
 
     local procedure CreatePaymentApplication(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; AmountToApply: Decimal)
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
-        with AppliedPaymentEntry do begin
-            Init();
-            "Statement Type" := BankAccReconLine."Statement Type";
-            "Bank Account No." := BankAccReconLine."Bank Account No.";
-            "Statement No." := BankAccReconLine."Statement No.";
-            "Statement Line No." := BankAccReconLine."Statement Line No.";
-            "Account Type" := BankAccReconLine."Account Type";
-            "Account No." := BankAccReconLine."Account No.";
-            "Applied Amount" := AmountToApply;
-            Insert();
-        end;
+        AppliedPaymentEntry.Init();
+        AppliedPaymentEntry."Statement Type" := BankAccReconLine."Statement Type";
+        AppliedPaymentEntry."Bank Account No." := BankAccReconLine."Bank Account No.";
+        AppliedPaymentEntry."Statement No." := BankAccReconLine."Statement No.";
+        AppliedPaymentEntry."Statement Line No." := BankAccReconLine."Statement Line No.";
+        AppliedPaymentEntry."Account Type" := BankAccReconLine."Account Type";
+        AppliedPaymentEntry."Account No." := BankAccReconLine."Account No.";
+        AppliedPaymentEntry."Applied Amount" := AmountToApply;
+        AppliedPaymentEntry.Insert();
 
         BankAccReconLine.Validate("Applied Amount", AmountToApply);
         BankAccReconLine.Modify();
@@ -2212,56 +2232,48 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", PostedDocNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("G/L Account No.", GetReceivablesAccountFromCustomerPostingGroup(CustomerNo));
-            FindFirst();
-            TestField(Description, ExpectedDescription);
-        end;
+        GLEntry.SetRange("Document No.", PostedDocNo);
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("G/L Account No.", GetReceivablesAccountFromCustomerPostingGroup(CustomerNo));
+        GLEntry.FindFirst();
+        GLEntry.TestField(Description, ExpectedDescription);
     end;
 
     local procedure VerifyGLEntriesForNotReceivablesAccountsDescription(PostedDocNo: Code[20]; CustomerNo: Code[20]; ExpectedDescription: Text)
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", PostedDocNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetFilter("G/L Account No.", StrSubstNo('<>%1', GetReceivablesAccountFromCustomerPostingGroup(CustomerNo)));
-            FindSet();
-            repeat
-                TestField(Description, ExpectedDescription);
-            until Next() = 0;
-        end;
+        GLEntry.SetRange("Document No.", PostedDocNo);
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetFilter("G/L Account No.", StrSubstNo('<>%1', GetReceivablesAccountFromCustomerPostingGroup(CustomerNo)));
+        GLEntry.FindSet();
+        repeat
+            GLEntry.TestField(Description, ExpectedDescription);
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyGLEntryForPayablesAccountDescription(PostedDocNo: Code[20]; VendorNo: Code[20]; ExpectedDescription: Text)
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", PostedDocNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("G/L Account No.", GetPayablesAccountFromVendorPostingGroup(VendorNo));
-            FindFirst();
-            TestField(Description, ExpectedDescription);
-        end;
+        GLEntry.SetRange("Document No.", PostedDocNo);
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("G/L Account No.", GetPayablesAccountFromVendorPostingGroup(VendorNo));
+        GLEntry.FindFirst();
+        GLEntry.TestField(Description, ExpectedDescription);
     end;
 
     local procedure VerifyGLEntriesForNotPayablesAccountsDescription(PostedDocNo: Code[20]; VendorNo: Code[20]; ExpectedDescription: Text)
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", PostedDocNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetFilter("G/L Account No.", StrSubstNo('<>%1', GetPayablesAccountFromVendorPostingGroup(VendorNo)));
-            FindSet();
-            repeat
-                TestField(Description, ExpectedDescription);
-            until Next() = 0;
-        end;
+        GLEntry.SetRange("Document No.", PostedDocNo);
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetFilter("G/L Account No.", StrSubstNo('<>%1', GetPayablesAccountFromVendorPostingGroup(VendorNo)));
+        GLEntry.FindSet();
+        repeat
+            GLEntry.TestField(Description, ExpectedDescription);
+        until GLEntry.Next() = 0;
     end;
 
     local procedure InitGSTPurchaseEntry()

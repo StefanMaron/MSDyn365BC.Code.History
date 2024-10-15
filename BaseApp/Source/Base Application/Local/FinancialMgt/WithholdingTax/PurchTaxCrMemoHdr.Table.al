@@ -587,21 +587,20 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
                     NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."Posted Non Tax Credit Memo Nos", "Posting Date", "No.");
                 end;
 #endif
-            end else begin
+            end else
                 TestNoSeries();
-                "No. Series" := GetNoSeriesCode();
+            "No. Series" := GetNoSeriesCode();
 #if not CLEAN24
-                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
-                if not IsHandled then begin
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
 #endif
-                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
-                        "No. Series" := xRec."No. Series";
-                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
 #if not CLEAN24
-                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "Posting Date", "No.");
-                end;
-#endif
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "Posting Date", "No.");
             end;
+#endif
         end;
     end;
 

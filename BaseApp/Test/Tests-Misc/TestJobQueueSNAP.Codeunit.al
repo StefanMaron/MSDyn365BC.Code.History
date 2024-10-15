@@ -602,7 +602,6 @@ codeunit 139020 "Test Job Queue SNAP"
     var
         JobQueueEntry: Record "Job Queue Entry";
         JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
-        TestJobQueueSNAP: Codeunit "Test Job Queue SNAP";
         NewRunDateTime: DateTime;
         DateFormula: DateFormula;
     begin
@@ -615,10 +614,12 @@ codeunit 139020 "Test Job Queue SNAP"
         Evaluate(DateFormula, '<1D + CM>');
         JobQueueEntry.Validate("Next Run Date Formula", DateFormula);
         // [GIVEN] Subscribed to COD448.OnBeforeCalcNextRecurringRunDateTime
-        BindSubscription(TestJobQueueSNAP); // to run OnBeforeCalcNextRecurringRunDateTime, that returns '01.01.01 00:00'
+        BindSubscription(this); // to run OnBeforeCalcNextRecurringRunDateTime, that returns '01.01.01 00:00'
 
         // [WHEN] Run COD448.CalcNextRunTimeForRecurringJob
         NewRunDateTime := JobQueueDispatcher.CalcNextRunTimeForRecurringJob(JobQueueEntry, JobQueueEntry."Earliest Start Date/Time");
+
+        UnBindSubscription(this);
 
         // [THEN] Calculated value is '01.01.01 00:00'
         Assert.AreEqual(CreateDateTime(20010101D, 0T), NewRunDateTime, 'wrong new run datetime');
@@ -873,6 +874,28 @@ codeunit 139020 "Test Job Queue SNAP"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CalcNextRunWhenCrossingMidnight()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        StartingDateTime: DateTime;
+    begin
+        InitializeRecurringJobQueueEntry(JobQueueEntry, 10);
+
+        // Test when Starting Time > Ending Time, e.g. run from 22:00 - 02:00.
+        JobQueueEntry.Validate("Starting Time", 220000T);
+        JobQueueEntry."Ending Time" := 020000T;
+
+        // Test that we just continue over midnight  (23:55 -> 00:05 next day)
+        StartingDateTime := CreateDateTime(DMY2Date(1, 1, 2012), 235500T);
+        CalcAndVerifyNextRuntimes(JobQueueEntry, StartingDateTime, 20120102D, 000500T, DMY2Date(1, 1, 2012), 235500T);
+
+        // Test that we only jump forward to today's starting time (20:00 -> 22:00 same day)
+        StartingDateTime := CreateDateTime(DMY2Date(1, 1, 2012), 200000T);
+        CalcAndVerifyNextRuntimes(JobQueueEntry, StartingDateTime, 20120101D, 220000T, DMY2Date(1, 1, 2012), 220000T);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure T120_Category_CreateTest()
     var
         JobQueueEntry: Record "Job Queue Entry";
@@ -1120,6 +1143,8 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntries: TestPage "Job Queue Entries";
     begin
         CreateFailingJobQueueEntry(JobQueueEntry);
+        // The message does not matter, it is replaced when JQE page is opened
+        // Replaced to "Something went wrong and the job has stopped." and status becomes error
         JobQueueEntry."Error Message" := 'Part 1' + 'Part 2' + 'Part 3' + 'Part 4';
         JobQueueEntry.Modify(true);
 
@@ -1446,10 +1471,11 @@ codeunit 139020 "Test Job Queue SNAP"
 
         // [GIVEN] A job queue that can run but is set outside of running hours 
         CreateSucceedingJobQueueEntry(JobQueueEntry);
-        CurTime := DT2Time(CurrentDateTime());
+        CurTime := CurrentDateTime().Time;
         JobQueueEntry."Starting Time" := CurTime + (1000 * 60 * 60); // 1 hour forward
         JobQueueEntry."Ending Time" := CurTime - (1000 * 60 * 60); // 1 hour backward
         JobQueueEntry.Modify();
+
         Assert.RecordCount(JobQueueEntry, 1);
         Assert.RecordCount(JobQueueLogEntry, 0);
 
@@ -1472,8 +1498,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry.SetFilter("Object ID to Run", '<>%1', Codeunit::"Job Queue Cleanup Tasks");
         JobQueueEntry.FindFirst();
         JobQueueEntry.SetRange("Object ID to Run");
-
-        CurTime := DT2Time(CurrentDateTime());
+        CurTime := CurrentDateTime().Time;
         JobQueueEntry."Starting Time" := CurTime - (1000 * 60 * 60); // 1 hour backward
         JobQueueEntry."Ending Time" := CurTime + (1000 * 60 * 60 * 22); // 22 hour forward
         JobQueueEntry.Modify();
@@ -1486,7 +1511,51 @@ codeunit 139020 "Test Job Queue SNAP"
         Assert.RecordCount(JobQueueLogEntry, 1);
     end;
 
-    local procedure InitializeRecurringJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; Duration: Integer)
+    [Test]
+    procedure RunCleanUpTask()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        JobQueueCategory: Record "Job Queue Category";
+        OrgTaskID: Guid;
+    begin
+        // [SCENARIO] Job queue cleanup will remove stale jobs
+        JobQueueEntry.DeleteAll();
+        JobQueueLogEntry.DeleteAll();
+
+        // [GIVEN] A job queue entry is 'active' but has no scheduled task
+        CreateJobQueueCategory(JobQueueCategory);
+        JobQueueCategory."Recovery Task Id" := CreateGuid(); // simulate that a task was scheduled at some point
+        JobQueueCategory.Modify();
+        OrgTaskID := JobQueueCategory."Recovery Task Id";
+
+        CreateFailingJobQueueEntry(JobQueueEntry);  // status = 'In Process'. Keep this one as is
+        CreateFailingJobQueueEntry(JobQueueEntry);  // status = 'In Process'
+        JobQueueEntry."Job Queue Category Code" := JobQueueCategory.Code;
+        JobQueueEntry.Status := JobQueueEntry.Status::Waiting;
+        JobQueueEntry.Modify();
+
+        Assert.RecordCount(JobQueueEntry, 2);
+        Assert.RecordCount(JobQueueLogEntry, 0);
+
+        // [WHEN] Run the job queue cleanup runs more than 10 minutes later
+        BindSubscription(this); // to run OnGetCheckDelayInMinutes
+        Sleep(1000);  // Just to be sure some time has passed
+        Codeunit.Run(Codeunit::"Job Queue Cleanup Tasks", JobQueueEntry);
+        UnBindSubscription(this);
+
+        // [THEN] The job queue entry is set to 'error'
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Error);
+        Assert.RecordCount(JobQueueEntry, 1);
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Waiting);
+        Assert.RecordCount(JobQueueEntry, 1);
+        Assert.RecordCount(JobQueueLogEntry, 0);
+
+        JobQueueCategory.Find(); // get updated record
+        Assert.AreNotEqual(OrgTaskID, JobQueueCategory."Recovery Task Id", 'recovery task was not scheduled');
+    end;
+
+    local procedure InitializeRecurringJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry"; MinutesBetween: Integer)
     begin
         JobQueueEntry.Init();
         JobQueueEntry.ID := CreateGuid();
@@ -1498,7 +1567,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry."Run on Fridays" := true;
         JobQueueEntry."Run on Saturdays" := true;
         JobQueueEntry."Run on Sundays" := true;
-        JobQueueEntry."No. of Minutes between Runs" := Duration;
+        JobQueueEntry."No. of Minutes between Runs" := MinutesBetween;
     end;
 
     [MessageHandler]
@@ -1543,8 +1612,6 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := 132453;
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
-        // Do not set "User Service Instance ID", that is set is a separate session
-        JobQueueEntry."User Session ID" := SessionId();
         JobQueueEntry.Insert(true);
     end;
 
@@ -1592,6 +1659,12 @@ codeunit 139020 "Test Job Queue SNAP"
     begin
         NewRunDateTime := CreateDateTime(20010101D, 0T);
         IsHandled := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue Management", 'OnGetCheckDelayInMinutes', '', false, false)]
+    local procedure OnGetCheckDelayInMinutes(var DelayInMinutes: Integer)
+    begin
+        DelayInMinutes := 0;
     end;
 
     [MessageHandler]

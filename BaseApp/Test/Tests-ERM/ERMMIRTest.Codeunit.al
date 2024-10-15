@@ -19,7 +19,6 @@ codeunit 134929 "ERM MIR Test"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        ReminderHeaderReminderTermsCodeErr: Label 'Reminder Terms Code must have a value in Reminder Header: No.=%1';
         FinChrgIntRateDateMsg: Label 'Create interest rate with start date prior to %1';
         InterestRateNotificationMsg: Label 'This interest rate will only be used if no relevant interest rate per date has been entered.';
         DescrOnFinChrgMemoLineTxt: Label 'Additional Fee';
@@ -552,7 +551,7 @@ codeunit 134929 "ERM MIR Test"
         OnRunTypeReminderIssue(ReminderLine.Type::" ");
 
         // [THEN] "Amount must be equal to '0'" error
-        Assert.ExpectedError('Amount must be equal to ''0''');
+        Assert.ExpectedTestFieldError(ReminderLine.FieldCaption(Amount), Format(0));
     end;
 
     [Test]
@@ -700,7 +699,7 @@ codeunit 134929 "ERM MIR Test"
         OnRunTypeFinChrgMemoIssue(FinanceChargeMemoLine.Type::" ");
 
         // [THEN] "Amount must be equal to '0'" error
-        Assert.ExpectedError('Amount must be equal to ''0''');
+        Assert.ExpectedTestFieldError(FinanceChargeMemoLine.FieldCaption(Amount), Format(0));
     end;
 
     [Test]
@@ -992,7 +991,7 @@ codeunit 134929 "ERM MIR Test"
 
         asserterror ReminderMake.Code();
 
-        Assert.ExpectedError(StrSubstNo(ReminderHeaderReminderTermsCodeErr, ReminderHeader."No."));
+        Assert.ExpectedTestFieldError(ReminderHeader.FieldCaption("Reminder Terms Code"), '');
     end;
 
     [Test]
@@ -1050,7 +1049,7 @@ codeunit 134929 "ERM MIR Test"
 
         asserterror ReminderMake.Code();
 
-        Assert.ExpectedError(StrSubstNo(ReminderHeaderReminderTermsCodeErr, ReminderHeader."No."));
+        Assert.ExpectedTestFieldError(ReminderHeader.FieldCaption("Reminder Terms Code"), '');
     end;
 
     local procedure Initialize()
@@ -1128,14 +1127,12 @@ codeunit 134929 "ERM MIR Test"
 
     local procedure CreateFinanceChargeInterestRates(var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; FinanceChargeTermsCode: Code[10]; StartDate: Date)
     begin
-        with FinanceChargeInterestRate do begin
-            Init();
-            Validate("Fin. Charge Terms Code", FinanceChargeTermsCode);
-            Validate("Start Date", StartDate);
-            Validate("Interest Rate", LibraryRandom.RandInt(10));
-            Validate("Interest Period (Days)", LibraryRandom.RandInt(100));
-            Insert(true);
-        end;
+        FinanceChargeInterestRate.Init();
+        FinanceChargeInterestRate.Validate("Fin. Charge Terms Code", FinanceChargeTermsCode);
+        FinanceChargeInterestRate.Validate("Start Date", StartDate);
+        FinanceChargeInterestRate.Validate("Interest Rate", LibraryRandom.RandInt(10));
+        FinanceChargeInterestRate.Validate("Interest Period (Days)", LibraryRandom.RandInt(100));
+        FinanceChargeInterestRate.Insert(true);
     end;
 
     local procedure CreateFinChargeTermWithAdditionalFee(var FinanceChargeTerms: Record "Finance Charge Terms"; MinimumAmount: Decimal)

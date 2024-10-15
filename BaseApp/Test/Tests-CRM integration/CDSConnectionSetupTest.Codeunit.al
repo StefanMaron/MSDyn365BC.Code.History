@@ -521,6 +521,7 @@ codeunit 139196 "CDS Connection Setup Test"
     procedure ServerAddressRequiredToEnableO365()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        DummyPassword: Text;
     begin
         // [FEATURE] [UT]
         Initialize();
@@ -528,7 +529,8 @@ codeunit 139196 "CDS Connection Setup Test"
         CDSConnectionSetup.DeleteAll();
         CDSConnectionSetup.Init();
         CDSConnectionSetup."User Name" := 'tester@domain.net';
-        CDSConnectionSetup.SetPassword('T3sting!');
+        DummyPassword := 'T3sting!';
+        CDSConnectionSetup.SetPassword(DummyPassword);
         CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
         CDSConnectionSetup.Insert();
 
@@ -542,6 +544,7 @@ codeunit 139196 "CDS Connection Setup Test"
     procedure ServerAddressRequiredToEnable()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        DummyPassword: Text;
     begin
         // [FEATURE] [UT]
         Initialize();
@@ -549,7 +552,8 @@ codeunit 139196 "CDS Connection Setup Test"
         CDSConnectionSetup.DeleteAll();
         CDSConnectionSetup.Init();
         CDSConnectionSetup."User Name" := 'tester@domain.net';
-        CDSConnectionSetup.SetPassword('T3sting!');
+        DummyPassword := 'T3sting!';
+        CDSConnectionSetup.SetPassword(DummyPassword);
         CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::AD;
         CDSConnectionSetup.Insert();
 
@@ -930,6 +934,7 @@ codeunit 139196 "CDS Connection Setup Test"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         CDSConnectionSetupPage: TestPage "CDS Connection Setup";
+        DummyPassword: Text;
     begin
         // [FEATURE] [UI]
         // [SCENARIO] Action "Test Connection" works when integration is enabled.
@@ -937,7 +942,8 @@ codeunit 139196 "CDS Connection Setup Test"
         // [GIVEN] Disabled CDS Connection
         InitializeSetup(false);
         CDSConnectionSetup.Get();
-        CDSConnectionSetup.SetPassword('test');
+        DummyPassword := 'test';
+        CDSConnectionSetup.SetPassword(DummyPassword);
         CDSConnectionSetup.Modify();
         // [GIVEN] Open CDS Connection Setup page
         CDSConnectionSetupPage.OpenEdit();
@@ -1253,21 +1259,19 @@ codeunit 139196 "CDS Connection Setup Test"
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        with IntegrationTableMapping do begin
-            Init();
-            "Table ID" := DATABASE::Currency;
-            "Integration Table ID" := DATABASE::"CRM Transactioncurrency";
-            Validate("Integration Table UID Fld. No.", CRMTransactioncurrency.FieldNo(TransactionCurrencyId));
-            "Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
+        IntegrationTableMapping.Init();
+        IntegrationTableMapping."Table ID" := DATABASE::Currency;
+        IntegrationTableMapping."Integration Table ID" := DATABASE::"CRM Transactioncurrency";
+        IntegrationTableMapping.Validate("Integration Table UID Fld. No.", CRMTransactioncurrency.FieldNo(TransactionCurrencyId));
+        IntegrationTableMapping."Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
 
-            Name := 'FIRST';
-            Direction := Direction::FromIntegrationTable;
-            Insert();
+        IntegrationTableMapping.Name := 'FIRST';
+        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
+        IntegrationTableMapping.Insert();
 
-            Name := 'SECOND';
-            Direction := Direction::Bidirectional;
-            Insert();
-        end;
+        IntegrationTableMapping.Name := 'SECOND';
+        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::Bidirectional;
+        IntegrationTableMapping.Insert();
     end;
 
     local procedure InitializeSetup(IsEnabled: Boolean)
@@ -1278,12 +1282,14 @@ codeunit 139196 "CDS Connection Setup Test"
     local procedure InitializeSetup(HostName: Text; IsEnabled: Boolean)
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        DummyPassword: Text;
     begin
         CDSConnectionSetup.DeleteAll();
         CDSConnectionSetup.Init();
         CDSConnectionSetup."Server Address" := CopyStr(HostName, 1, MaxStrLen(CDSConnectionSetup."Server Address"));
+        DummyPassword := 'T3sting!';
         if IsEnabled then
-            CDSConnectionSetup.SetPassword('T3sting!');
+            CDSConnectionSetup.SetPassword(DummyPassword);
         CDSConnectionSetup."Is Enabled" := IsEnabled;
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Team;
         CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
@@ -1331,11 +1337,13 @@ codeunit 139196 "CDS Connection Setup Test"
     local procedure MockCDSConnectionSetupWithEnableValidConnection()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        DummyPassword: Text;
     begin
         CDSConnectionSetup.DeleteAll();
         InitializeSetup(false);
         CDSConnectionSetup.Get();
-        CDSConnectionSetup.SetPassword('password');
+        DummyPassword := 'password';
+        CDSConnectionSetup.SetPassword(DummyPassword);
         CDSConnectionSetup.Modify();
     end;
 

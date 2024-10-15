@@ -420,7 +420,9 @@ page 6059 "Contract Statistics"
         ProfitAmountPercent: array[5] of Decimal;
         TotalProfit: Decimal;
         TotalProfitPct: Decimal;
+#pragma warning disable AA0074
         Text000: Label 'Placeholder';
+#pragma warning restore AA0074
 
     local procedure CalcPercentage(PartAmount: Decimal; Base: Decimal): Decimal
     begin

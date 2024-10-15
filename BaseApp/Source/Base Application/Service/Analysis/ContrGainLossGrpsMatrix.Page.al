@@ -530,7 +530,9 @@ page 9259 "Contr. Gain/Loss (Grps) Matrix"
         MATRIX_CellData: array[32] of Text[80];
         MATRIX_CaptionSet: array[32] of Text[80];
         StartFilter: Text[1024];
+#pragma warning disable AA0074
         Text000: Label '<Sign><Integer Thousand><Decimals,3>', Locked = true;
+#pragma warning restore AA0074
         Field1Visible: Boolean;
         Field2Visible: Boolean;
         Field3Visible: Boolean;

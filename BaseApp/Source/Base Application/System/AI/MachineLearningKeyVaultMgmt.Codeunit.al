@@ -229,7 +229,7 @@ codeunit 2004 "Machine Learning KeyVaultMgmt."
 
         exit(GetAsText(JToken, Result));
     end;
-    
+
     [NonDebuggable]
     local procedure GetAsSecretText(JArray: JsonArray; Index: Integer; var SecretResult: SecretText): Boolean
     var

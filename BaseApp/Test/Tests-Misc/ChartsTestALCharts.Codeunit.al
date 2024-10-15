@@ -205,14 +205,12 @@ codeunit 134210 "Charts - Test AL Charts"
         MapName: Text[80];
         ExpectedValue: Text[30];
     begin
-        with TempBusChartMap do begin
-            ExpectedValue := Format(Today, 0, 9);
-            MapName := 'X';
-            Add(MapName, ExpectedValue);
+        ExpectedValue := Format(Today, 0, 9);
+        MapName := 'X';
+        TempBusChartMap.Add(MapName, ExpectedValue);
 
-            Assert.AreEqual(
-              ExpectedValue, GetValueString(GetIndex(MapName)), StrSubstNo('Expected Value <%1> for map <%2>', ExpectedValue, MapName));
-        end;
+        Assert.AreEqual(
+          ExpectedValue, TempBusChartMap.GetValueString(TempBusChartMap.GetIndex(MapName)), StrSubstNo('Expected Value <%1> for map <%2>', ExpectedValue, MapName));
     end;
 
     [Test]

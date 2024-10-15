@@ -43,7 +43,11 @@ codeunit 6638 "Sales-Get Return Receipts"
         UOMMgt: Codeunit "Unit of Measure Management";
         GetReturnRcptLines: Page "Get Return Receipt Lines";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The %1 on the %2 %3 and the %4 %5 must be the same.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CreateInvLines(var ReturnRcptLine2: Record "Return Receipt Line")
     var

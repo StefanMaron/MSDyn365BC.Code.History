@@ -989,13 +989,11 @@ codeunit 144001 "GST Prepayment - Purchase Docs"
         VATProdPostingGroup: Record "VAT Product Posting Group";
         GLAccount: Record "G/L Account";
     begin
-        with VATPostingSetup do begin
-            SetFilter("Purchase VAT Account", '<>%1', '');
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            SetFilter("VAT Bus. Posting Group", PurchaseLine."VAT Bus. Posting Group");
-            SetFilter("VAT Prod. Posting Group", '<>%1', PurchaseLine."VAT Prod. Posting Group");
-            SetFilter("VAT %", '>%1', PurchaseLine."VAT %");
-        end;
+        VATPostingSetup.SetFilter("Purchase VAT Account", '<>%1', '');
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", PurchaseLine."VAT Bus. Posting Group");
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', PurchaseLine."VAT Prod. Posting Group");
+        VATPostingSetup.SetFilter("VAT %", '>%1', PurchaseLine."VAT %");
         if not VATPostingSetup.FindFirst() then begin
             LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, PurchaseLine."VAT Bus. Posting Group", VATProdPostingGroup.Code);

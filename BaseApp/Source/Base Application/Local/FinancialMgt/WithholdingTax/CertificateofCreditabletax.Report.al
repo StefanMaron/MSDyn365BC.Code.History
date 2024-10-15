@@ -17,7 +17,7 @@ report 16626 "Certificate of Creditable tax"
     {
         dataitem("WHT Entry"; "WHT Entry")
         {
-            DataItemTableView = sorting("Bill-to/Pay-to No.", "WHT Revenue Type", "WHT Prod. Posting Group") ORDER(Ascending) where("Transaction Type" = filter(Purchase));
+            DataItemTableView = sorting("Bill-to/Pay-to No.", "WHT Revenue Type", "WHT Prod. Posting Group") order(ascending) where("Transaction Type" = filter(Purchase));
             RequestFilterFields = "Bill-to/Pay-to No.", "WHT Revenue Type";
             column(USERID; UserId)
             {
@@ -25,10 +25,10 @@ report 16626 "Certificate of Creditable tax"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(CI__Post_Code_; CI."Post Code")
+            column(CI__Post_Code_; CompanyInformation."Post Code")
             {
             }
-            column(CI_Name; CI.Name)
+            column(CI_Name; CompanyInformation.Name)
             {
             }
             column(VendName; VendName)
@@ -37,7 +37,7 @@ report 16626 "Certificate of Creditable tax"
             column(VendPostCode; VendPostCode)
             {
             }
-            column(CI_Address; CI.Address)
+            column(CI_Address; CompanyInformation.Address)
             {
             }
             column(VendAddress; VendAddress)
@@ -46,7 +46,7 @@ report 16626 "Certificate of Creditable tax"
             column(FORMAT_EndDate_; Format(EndDate))
             {
             }
-            column(CI__VAT_Registration_No__; CI."VAT Registration No.")
+            column(CI__VAT_Registration_No__; CompanyInformation."VAT Registration No.")
             {
             }
             column(VendTIN; VendTIN)
@@ -285,13 +285,12 @@ report 16626 "Certificate of Creditable tax"
                 if StartDate <> 0D then begin
                     ForMonth := Date2DMY(StartDate, 2);
                     CurrYear := Date2DMY(StartDate, 3);
-                end else begin
+                end else
                     if GetFilter("Posting Date") <> '' then begin
                         ForMonth := Date2DMY(GetRangeMin("Posting Date"), 2);
                         CurrYear := Date2DMY(GetRangeMin("Posting Date"), 3);
                     end;
-                end;
-                CI.Get();
+                CompanyInformation.Get();
             end;
         }
     }
@@ -333,7 +332,7 @@ report 16626 "Certificate of Creditable tax"
 
     var
         WhtPostingSetup: Record "WHT Posting Setup";
-        CI: Record "Company Information";
+        CompanyInformation: Record "Company Information";
         WHTEntry1: Record "WHT Entry";
         ForMonth: Integer;
         FirstMonthWHT: Decimal;

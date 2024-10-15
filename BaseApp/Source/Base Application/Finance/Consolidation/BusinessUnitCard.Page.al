@@ -458,9 +458,11 @@ page 241 "Business Unit Card"
     var
 #if not CLEAN24
         ChangeExchangeRate: Page "Change Exchange Rate";
+#pragma warning disable AA0074
         Text000: Label 'Average Rate (Manual)';
         Text001: Label 'Closing Rate';
         Text002: Label 'Last Closing Rate';
+#pragma warning restore AA0074
 #endif
         UrlOfBCInstanceInvalidErr: Label 'The URL of the Business Central business unit is invalid. You can get this URL from the page "Consolidation Setup" in the other Business Central environment.';
         ConfirmRunInAPIBusinessUnitMsg: Label 'The current business unit is not set up to import data from another Business Central company in the same environment. Do you want to continue?';

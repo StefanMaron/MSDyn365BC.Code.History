@@ -7,9 +7,6 @@ namespace Microsoft.Finance.VAT.Reporting;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
-#if not CLEAN22
-using Microsoft.Foundation.Enums;
-#endif
 
 report 12 "VAT Statement"
 {
@@ -33,7 +30,7 @@ report 12 "VAT Statement"
             dataitem("VAT Statement Line"; "VAT Statement Line")
             {
                 DataItemLink = "Statement Template Name" = field("Statement Template Name"), "Statement Name" = field(Name);
-                DataItemTableView = sorting("Statement Template Name", "Statement Name") where(Print = CONST(true));
+                DataItemTableView = sorting("Statement Template Name", "Statement Name") where(Print = const(true));
                 RequestFilterFields = "Row No.";
                 column(Heading; Heading)
                 {
@@ -158,19 +155,6 @@ report 12 "VAT Statement"
                 group(Options)
                 {
                     Caption = 'Options';
-#if not CLEAN22
-                    field(VATDate; VATDateType)
-                    {
-                        ApplicationArea = VAT;
-                        Caption = 'Period Date Type';
-                        ToolTip = 'Specifies the type of date used for the period for VAT statement lines in the report.';
-                        Visible = false;
-                        Enabled = false;
-                        ObsoleteReason = 'Selected VAT Date type no longer supported.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-                    }
-#endif
                     group("Statement Period")
                     {
                         Caption = 'Statement Period';
@@ -249,9 +233,6 @@ report 12 "VAT Statement"
         VATEntry: Record "VAT Entry";
         GLSetup: Record "General Ledger Setup";
         VATStmtLine: Record "VAT Statement Line";
-#if not CLEAN22
-        VATDateType: Enum "VAT Date Type";
-#endif
         VATStmtLineFilter: Text;
         Heading: Text[50];
         Base: Decimal;
@@ -261,9 +242,13 @@ report 12 "VAT Statement"
         i: Integer;
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
+#pragma warning disable AA0074
         Text000: Label 'VAT entries before and within the period';
+#pragma warning disable AA0470
         Text003: Label 'Amounts are in %1, rounded without decimals.';
+#pragma warning restore AA0470
         Text004: Label 'VAT entries within the period';
+#pragma warning disable AA0470
         Text005: Label 'Period: %1..%2';
         AllAmountAreLbl: Label 'All amounts are in';
         VATStatementCaptionLbl: Label 'VAT Statement';
@@ -274,6 +259,8 @@ report 12 "VAT Statement"
         AllVATentriesCaptionLbl: Label 'The report includes all VAT entries.';
         ClosedVATEntriesCaptionLbl: Label 'The report includes only closed VAT entries.';
         AmountCaptionLbl: Label 'Amount';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DefaultRoundingDirectionTok: Label '<', Locked = true;
 
     protected var
@@ -287,6 +274,7 @@ report 12 "VAT Statement"
         Selection: Enum "VAT Statement Report Selection";
         TotalAmount: Decimal;
         UseAmtsInAddCurr: Boolean;
+        CountryRegionFilter: Text[250];
 
     procedure CalcLineTotal(VATStmtLine2: Record "VAT Statement Line"; var TotalAmount: Decimal; Level: Integer): Boolean
     var
@@ -338,6 +326,8 @@ report 12 "VAT Statement"
                         else
                             VATEntry.SetRange(Closed);
                     end;
+                    if CountryRegionFilter <> '' then
+                        VATEntry.SetFilter("Country/Region Code", CountryRegionFilter);
                     OnCalcLineTotalOnVATEntryTotalingOnAfterVATEntrySetFilters(VATStmtLine2, VATEntry, Selection);
                     case VATStmtLine2."Amount Type" of
                         VATStmtLine2."Amount Type"::Amount:
@@ -469,32 +459,13 @@ report 12 "VAT Statement"
         TotalBase := TotalBase + Base;
     end;
 
-#if not CLEAN22
-    [Obsolete('Replaced by InitializeRequest without VAT Date parameter', '22.0')]
-    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")
-    begin
-        "VAT Statement Name".Copy(NewVATStmtName);
-        "VAT Statement Line".Copy(NewVATStatementLine);
-        Selection := NewSelection;
-        PeriodSelection := NewPeriodSelection;
-        PrintInIntegers := NewPrintInIntegers;
-        UseAmtsInAddCurr := NewUseAmtsInAddCurr;
-        VATDateType := NewVATDateType;
-
-        if NewVATStatementLine.GetFilter("Date Filter") <> '' then begin
-            StartDate := NewVATStatementLine.GetRangeMin("Date Filter");
-            EndDateReq := NewVATStatementLine.GetRangeMax("Date Filter");
-            EndDate := EndDateReq;
-        end else begin
-            StartDate := 0D;
-            EndDateReq := 0D;
-            EndDate := DMY2Date(31, 12, 9999);
-        end;
-    end;
-#endif
-
     procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
     begin
+        InitializeRequest(NewVATStmtName, NewVATStatementLine, NewSelection, NewPeriodSelection, NewPrintInIntegers, NewUseAmtsInAddCurr, '');
+    end;
+
+    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewCountryRegionFilter: Text[250])
+    begin
         "VAT Statement Name".Copy(NewVATStmtName);
         "VAT Statement Line".Copy(NewVATStatementLine);
         Selection := NewSelection;
@@ -511,6 +482,7 @@ report 12 "VAT Statement"
             EndDateReq := 0D;
             EndDate := DMY2Date(31, 12, 9999);
         end;
+        CountryRegionFilter := NewCountryRegionFilter;
     end;
 
     local procedure ConditionalAdd(Amount: Decimal; AmountToAdd: Decimal; AddCurrAmountToAdd: Decimal): Decimal

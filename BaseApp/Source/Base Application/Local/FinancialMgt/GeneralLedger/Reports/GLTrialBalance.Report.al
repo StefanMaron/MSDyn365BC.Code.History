@@ -20,7 +20,7 @@ report 28162 "G/L Trial Balance"
         dataitem("G/L Account"; "G/L Account")
         {
             DataItemTableView = sorting("No.");
-            RequestFilterFields = "No.", "Date Filter", "G/L Entry Type Filter";
+            RequestFilterFields = "No.", "Date Filter";
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -49,9 +49,6 @@ report 28162 "G/L Trial Balance"
             {
             }
             column(Text006; Text006Lbl)
-            {
-            }
-            column(G_L_Account__GETFILTER; "G/L Account".GetFilter("G/L Entry Type Filter"))
             {
             }
             column(G_L_Account__No__; "No.")

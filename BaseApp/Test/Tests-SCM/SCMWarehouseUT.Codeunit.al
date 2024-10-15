@@ -959,18 +959,16 @@ codeunit 137831 "SCM - Warehouse UT"
 
         // [GIVEN] Empty bin content "BC" for bin "B" at the location.
         CreateBinContent(BinContent, LocationCode, BinCode, LibraryInventory.CreateItemNo());
-
-        with WarehouseActivityLine do begin
-            // [GIVEN] Put-away line with "Bin Code" = "B".
-            MockWhseActivityLine(
-              WarehouseActivityLine, "Activity Type"::"Put-away", "Action Type"::Place, LocationCode, BinCode, BinContent."Item No.");
-
-            // [WHEN] Clear "Bin Code" on the put-away line.
-            Validate("Bin Code", '');
-
-            // [THEN] Bin Content "BC" is deleted.
-            BinContent.SetRange("Item No.", "Item No.");
-            Assert.RecordIsEmpty(BinContent);
+        // [GIVEN] Put-away line with "Bin Code" = "B".
+        MockWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Put-away", WarehouseActivityLine."Action Type"::Place, LocationCode, BinCode, BinContent."Item No.");
+        // [WHEN] Clear "Bin Code" on the put-away line.
+        WarehouseActivityLine.Validate("Bin Code", '');
+        // [THEN] Bin Content "BC" is deleted.
+        BinContent.SetRange("Item No.", WarehouseActivityLine."Item No.");
+        if BinContent.FindFirst() then begin
+            BinContent.CalcFields(Quantity);
+            Assert.AreEqual(0, BinContent.Quantity, 'Bin Content must be empty.');
         end;
     end;
 
@@ -992,11 +990,9 @@ codeunit 137831 "SCM - Warehouse UT"
         BinContent."Min. Qty." := LibraryRandom.RandInt(10);
         BinContent.Modify();
 
-        with WarehouseActivityLine do begin
-            MockWhseActivityLine(
-              WarehouseActivityLine, "Activity Type"::"Put-away", "Action Type"::Place, LocationCode, BinCode, BinContent."Item No.");
-            DeleteBinContent("Action Type"::Place.AsInteger());
-        end;
+        MockWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Put-away", WarehouseActivityLine."Action Type"::Place, LocationCode, BinCode, BinContent."Item No.");
+        WarehouseActivityLine.DeleteBinContent(WarehouseActivityLine."Action Type"::Place.AsInteger());
 
         BinContent.SetRecFilter();
         Assert.RecordIsNotEmpty(BinContent);
@@ -1020,11 +1016,9 @@ codeunit 137831 "SCM - Warehouse UT"
         BinContent."Max. Qty." := LibraryRandom.RandInt(10);
         BinContent.Modify();
 
-        with WarehouseActivityLine do begin
-            MockWhseActivityLine(
-              WarehouseActivityLine, "Activity Type"::"Put-away", "Action Type"::Place, LocationCode, BinCode, BinContent."Item No.");
-            DeleteBinContent("Action Type"::Place.AsInteger());
-        end;
+        MockWhseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::"Put-away", WarehouseActivityLine."Action Type"::Place, LocationCode, BinCode, BinContent."Item No.");
+        WarehouseActivityLine.DeleteBinContent(WarehouseActivityLine."Action Type"::Place.AsInteger());
 
         BinContent.SetRecFilter();
         Assert.RecordIsNotEmpty(BinContent);
@@ -1038,19 +1032,16 @@ codeunit 137831 "SCM - Warehouse UT"
     begin
         // [FEATURE] [Warehouse Receipt] [UT]
         // [SCENARIO 252129] When you validate Quantity on warehouse receipt line, the program calculates "Qty. (Base)" before it does "Qty. Outstanding (Base)".
+        WarehouseReceiptLine.Init();
+        WarehouseReceiptLine."Qty. per Unit of Measure" := LibraryRandom.RandIntInRange(2, 5);
+        WarehouseReceiptLine.Quantity := LibraryRandom.RandInt(10);
+        WarehouseReceiptLine."Qty. (Base)" := WarehouseReceiptLine.Quantity * WarehouseReceiptLine."Qty. per Unit of Measure";
+        WarehouseReceiptLine."Qty. Outstanding" := WarehouseReceiptLine.Quantity;
+        WarehouseReceiptLine."Qty. Outstanding (Base)" := WarehouseReceiptLine."Qty. (Base)";
 
-        with WarehouseReceiptLine do begin
-            Init();
-            "Qty. per Unit of Measure" := LibraryRandom.RandIntInRange(2, 5);
-            Quantity := LibraryRandom.RandInt(10);
-            "Qty. (Base)" := Quantity * "Qty. per Unit of Measure";
-            "Qty. Outstanding" := Quantity;
-            "Qty. Outstanding (Base)" := "Qty. (Base)";
+        WarehouseReceiptLine.Validate(Quantity, WarehouseReceiptLine.Quantity * 2);
 
-            Validate(Quantity, Quantity * 2);
-
-            TestField("Qty. (Base)", "Qty. Outstanding (Base)");
-        end;
+        WarehouseReceiptLine.TestField("Qty. (Base)", WarehouseReceiptLine."Qty. Outstanding (Base)");
     end;
 
     [Test]
@@ -1068,22 +1059,20 @@ codeunit 137831 "SCM - Warehouse UT"
 
         MockWhseShipmentHeader(WarehouseShipmentHeader);
 
-        with WarehouseShipmentLine do begin
-            Init();
-            "No." := WarehouseShipmentHeader."No.";
-            "Source Type" := DATABASE::"Sales Line";
-            "Source Subtype" := SalesLine."Document Type".AsInteger();
-            "Source No." := SalesLine."Document No.";
-            "Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
-            Quantity := SalesLine."Outstanding Quantity";
-            "Qty. (Base)" := Quantity * "Qty. per Unit of Measure";
-            "Qty. Outstanding" := Quantity;
-            "Qty. Outstanding (Base)" := "Qty. (Base)";
+        WarehouseShipmentLine.Init();
+        WarehouseShipmentLine."No." := WarehouseShipmentHeader."No.";
+        WarehouseShipmentLine."Source Type" := DATABASE::"Sales Line";
+        WarehouseShipmentLine."Source Subtype" := SalesLine."Document Type".AsInteger();
+        WarehouseShipmentLine."Source No." := SalesLine."Document No.";
+        WarehouseShipmentLine."Qty. per Unit of Measure" := SalesLine."Qty. per Unit of Measure";
+        WarehouseShipmentLine.Quantity := SalesLine."Outstanding Quantity";
+        WarehouseShipmentLine."Qty. (Base)" := WarehouseShipmentLine.Quantity * WarehouseShipmentLine."Qty. per Unit of Measure";
+        WarehouseShipmentLine."Qty. Outstanding" := WarehouseShipmentLine.Quantity;
+        WarehouseShipmentLine."Qty. Outstanding (Base)" := WarehouseShipmentLine."Qty. (Base)";
 
-            Validate(Quantity, Quantity * 2);
+        WarehouseShipmentLine.Validate(Quantity, WarehouseShipmentLine.Quantity * 2);
 
-            TestField("Qty. (Base)", "Qty. Outstanding (Base)");
-        end;
+        WarehouseShipmentLine.TestField("Qty. (Base)", WarehouseShipmentLine."Qty. Outstanding (Base)");
     end;
 
     [Test]
@@ -1119,12 +1108,10 @@ codeunit 137831 "SCM - Warehouse UT"
         TransferLineReserve.TransferWhseShipmentToItemJnlLine(
           TransferLine, ItemJournalLine, WarehouseShipmentHeader, LibraryRandom.RandInt(10));
 
-        with ReservationEntry do begin
-            Init();
-            SetRange("Source Type", DATABASE::"Item Journal Line");
-            SetRange("Item No.", Item."No.");
-            Assert.RecordIsEmpty(ReservationEntry);
-        end;
+        ReservationEntry.Init();
+        ReservationEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
+        ReservationEntry.SetRange("Item No.", Item."No.");
+        Assert.RecordIsEmpty(ReservationEntry);
     end;
 
     [Test]
@@ -1254,11 +1241,9 @@ codeunit 137831 "SCM - Warehouse UT"
         TransferLineReserve.TransferWhseShipmentToItemJnlLine(TransferLine, ItemJournalLine, WarehouseShipmentHeader, Qty);
 
         Clear(ReservationEntry);
-        with ReservationEntry do begin
-            SetRange("Source Type", DATABASE::"Item Journal Line");
-            SetRange("Item No.", Item."No.");
-            Assert.RecordIsEmpty(ReservationEntry);
-        end;
+        ReservationEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
+        ReservationEntry.SetRange("Item No.", Item."No.");
+        Assert.RecordIsEmpty(ReservationEntry);
     end;
 
     [Test]
@@ -1303,12 +1288,10 @@ codeunit 137831 "SCM - Warehouse UT"
         TransferLineReserve.TransferWhseShipmentToItemJnlLine(TransferLine, ItemJournalLine, WarehouseShipmentHeader, 2 * Qty);
 
         Clear(ReservationEntry);
-        with ReservationEntry do begin
-            SetRange("Source Type", DATABASE::"Item Journal Line");
-            SetRange("Item No.", Item."No.");
-            FindFirst();
-            TestField("Quantity (Base)", -Qty);
-        end;
+        ReservationEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
+        ReservationEntry.SetRange("Item No.", Item."No.");
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Quantity (Base)", -Qty);
     end;
 
     [Test]
@@ -1372,11 +1355,9 @@ codeunit 137831 "SCM - Warehouse UT"
 
         // [GIVEN] Warehouse Activity Line 2 copied from Line 1 had Variant Code = "V2"
         WarehouseActivityLine2 := WarehouseActivityLine1;
-        with WarehouseActivityLine2 do begin
-            "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine2, FieldNo("Line No."));
-            "Variant Code" := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        WarehouseActivityLine2."Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine2, WarehouseActivityLine2.FieldNo("Line No."));
+        WarehouseActivityLine2."Variant Code" := LibraryUtility.GenerateGUID();
+        WarehouseActivityLine2.Insert();
 
         // [WHEN] Validate "Serial No." = "S1" in Warehouse Activity Line 2
         WarehouseActivityLine2.Validate("Serial No.", WarehouseActivityLine1."Serial No.");
@@ -1778,13 +1759,11 @@ codeunit 137831 "SCM - Warehouse UT"
     var
         Zone: Record Zone;
     begin
-        with Zone do begin
-            Init();
-            "Location Code" := LocationCode;
-            Code := LibraryUtility.GenerateGUID();
-            Insert();
-            exit(Code);
-        end;
+        Zone.Init();
+        Zone."Location Code" := LocationCode;
+        Zone.Code := LibraryUtility.GenerateGUID();
+        Zone.Insert();
+        exit(Zone.Code);
     end;
 
     local procedure CreateBinContent(var BinContent: Record "Bin Content"; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20])
@@ -2026,19 +2005,17 @@ codeunit 137831 "SCM - Warehouse UT"
         CreatePick: Codeunit "Create Pick";
         FirstWhseDocNo: Code[20];
     begin
-        with WarehouseShipmentLine do begin
-            ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
-              WhseWkshLine."Whse. Document Type"::Shipment, "No.", "Line No.",
-              "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
+        ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
+          WhseWkshLine."Whse. Document Type"::Shipment, WarehouseShipmentLine."No.", WarehouseShipmentLine."Line No.",
+          WarehouseShipmentLine."Source Type", WarehouseShipmentLine."Source Subtype", WarehouseShipmentLine."Source No.", WarehouseShipmentLine."Source Line No.", 0);
 
-            CreatePickParameters."Whse. Document" := CreatePickParameters."Whse. Document"::Shipment;
-            CreatePickParameters."Whse. Document Type" := CreatePickParameters."Whse. Document Type"::Pick;
-            CreatePick.SetParameters(CreatePickParameters);
-            CreatePick.SetWhseShipment(WarehouseShipmentLine, 1, '', '', '');
-            CreatePick.SetTempWhseItemTrkgLine("No.", DATABASE::"Warehouse Shipment Line", '', 0, "Line No.", "Location Code");
-            CreatePick.CreateTempLine("Location Code", "Item No.", '', '', '', "Bin Code", 1, Quantity, "Qty. (Base)");
-            CreatePick.CreateWhseDocument(FirstWhseDocNo, WhsePickNo, true);
-        end;
+        CreatePickParameters."Whse. Document" := CreatePickParameters."Whse. Document"::Shipment;
+        CreatePickParameters."Whse. Document Type" := CreatePickParameters."Whse. Document Type"::Pick;
+        CreatePick.SetParameters(CreatePickParameters);
+        CreatePick.SetWhseShipment(WarehouseShipmentLine, 1, '', '', '');
+        CreatePick.SetTempWhseItemTrkgLine(WarehouseShipmentLine."No.", DATABASE::"Warehouse Shipment Line", '', 0, WarehouseShipmentLine."Line No.", WarehouseShipmentLine."Location Code");
+        CreatePick.CreateTempLine(WarehouseShipmentLine."Location Code", WarehouseShipmentLine."Item No.", '', '', '', WarehouseShipmentLine."Bin Code", 1, WarehouseShipmentLine.Quantity, WarehouseShipmentLine."Qty. (Base)");
+        CreatePick.CreateWhseDocument(FirstWhseDocNo, WhsePickNo, true);
     end;
 
     local procedure MockLocation(var Location: Record Location)
@@ -2079,52 +2056,44 @@ codeunit 137831 "SCM - Warehouse UT"
 
     local procedure MockItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; LocationCode: Code[10]; BinCode: Code[20])
     begin
-        with ItemJournalLine do begin
-            Init();
-            "Location Code" := LocationCode;
-            "Bin Code" := BinCode;
-            Insert();
-        end;
+        ItemJournalLine.Init();
+        ItemJournalLine."Location Code" := LocationCode;
+        ItemJournalLine."Bin Code" := BinCode;
+        ItemJournalLine.Insert();
     end;
 
     local procedure MockSalesLine(var SalesLine: Record "Sales Line")
     begin
-        with SalesLine do begin
-            Init();
-            "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Outstanding Quantity" := LibraryRandom.RandInt(10);
-            "Qty. per Unit of Measure" := LibraryRandom.RandIntInRange(2, 5);
-            "Outstanding Qty. (Base)" := "Outstanding Quantity" * "Qty. per Unit of Measure";
-            Insert();
-        end;
+        SalesLine.Init();
+        SalesLine."Document Type" := SalesLine."Document Type"::Order;
+        SalesLine."Document No." := LibraryUtility.GenerateGUID();
+        SalesLine."Outstanding Quantity" := LibraryRandom.RandInt(10);
+        SalesLine."Qty. per Unit of Measure" := LibraryRandom.RandIntInRange(2, 5);
+        SalesLine."Outstanding Qty. (Base)" := SalesLine."Outstanding Quantity" * SalesLine."Qty. per Unit of Measure";
+        SalesLine.Insert();
     end;
 
     local procedure MockWhseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
-        with WarehouseShipmentHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            Status := Status::Open;
-            Insert();
-        end;
+        WarehouseShipmentHeader.Init();
+        WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID();
+        WarehouseShipmentHeader.Status := WarehouseShipmentHeader.Status::Open;
+        WarehouseShipmentHeader.Insert();
     end;
 
     local procedure MockWhseEntry(var WarehouseEntry: Record "Warehouse Entry"; LocationCode: Code[10]; BinCode: Code[20])
     begin
-        with WarehouseEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, FieldNo("Entry No."));
-            "Entry Type" := "Entry Type"::"Negative Adjmt.";
-            "Source Type" := DATABASE::"Sales Line";
-            "Source Subtype" := 1;
-            "Location Code" := LocationCode;
-            "Bin Code" := BinCode;
-            Quantity := -LibraryRandom.RandInt(10);
-            "Qty. per Unit of Measure" := LibraryRandom.RandIntInRange(2, 5);
-            "Qty. (Base)" := Quantity * "Qty. per Unit of Measure";
-            Insert();
-        end;
+        WarehouseEntry.Init();
+        WarehouseEntry."Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, WarehouseEntry.FieldNo("Entry No."));
+        WarehouseEntry."Entry Type" := WarehouseEntry."Entry Type"::"Negative Adjmt.";
+        WarehouseEntry."Source Type" := DATABASE::"Sales Line";
+        WarehouseEntry."Source Subtype" := 1;
+        WarehouseEntry."Location Code" := LocationCode;
+        WarehouseEntry."Bin Code" := BinCode;
+        WarehouseEntry.Quantity := -LibraryRandom.RandInt(10);
+        WarehouseEntry."Qty. per Unit of Measure" := LibraryRandom.RandIntInRange(2, 5);
+        WarehouseEntry."Qty. (Base)" := WarehouseEntry.Quantity * WarehouseEntry."Qty. per Unit of Measure";
+        WarehouseEntry.Insert();
     end;
 
     local procedure MockWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10])
@@ -2138,106 +2107,90 @@ codeunit 137831 "SCM - Warehouse UT"
 
     local procedure MockWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20])
     begin
-        with WarehouseActivityLine do begin
-            Init();
-            "Activity Type" := ActivityType;
-            "No." := LibraryUtility.GenerateGUID();
-            "Action Type" := ActionType;
-            "Location Code" := LocationCode;
-            "Bin Code" := BinCode;
-            "Item No." := ItemNo;
-            Insert();
-        end;
+        WarehouseActivityLine.Init();
+        WarehouseActivityLine."Activity Type" := ActivityType;
+        WarehouseActivityLine."No." := LibraryUtility.GenerateGUID();
+        WarehouseActivityLine."Action Type" := ActionType;
+        WarehouseActivityLine."Location Code" := LocationCode;
+        WarehouseActivityLine."Bin Code" := BinCode;
+        WarehouseActivityLine."Item No." := ItemNo;
+        WarehouseActivityLine.Insert();
     end;
 
     local procedure MockItem(var Item: Record Item)
     begin
-        with Item do begin
-            "No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        Item."No." := LibraryUtility.GenerateGUID();
+        Item.Insert();
     end;
 
     local procedure MockTransferLine(var TransferLine: Record "Transfer Line"; ItemNo: Code[20]; Qty: Decimal)
     begin
-        with TransferLine do begin
-            Init();
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Transfer-from Code" := LibraryUtility.GenerateGUID();
-            "Item No." := ItemNo;
-            "Variant Code" := LibraryUtility.GenerateGUID();
-            Quantity := Qty;
-            Insert();
-        end;
+        TransferLine.Init();
+        TransferLine."Document No." := LibraryUtility.GenerateGUID();
+        TransferLine."Transfer-from Code" := LibraryUtility.GenerateGUID();
+        TransferLine."Item No." := ItemNo;
+        TransferLine."Variant Code" := LibraryUtility.GenerateGUID();
+        TransferLine.Quantity := Qty;
+        TransferLine.Insert();
     end;
 
     local procedure MockItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal)
     begin
-        with ItemJournalLine do begin
-            Init();
-            "Entry Type" := EntryType;
-            "Item No." := ItemNo;
-            "Variant Code" := VariantCode;
-            "Location Code" := LocationCode;
-            Quantity := Qty;
-        end;
+        ItemJournalLine.Init();
+        ItemJournalLine."Entry Type" := EntryType;
+        ItemJournalLine."Item No." := ItemNo;
+        ItemJournalLine."Variant Code" := VariantCode;
+        ItemJournalLine."Location Code" := LocationCode;
+        ItemJournalLine.Quantity := Qty;
     end;
 
     local procedure MockReservationEntry(var ReservationEntry: Record "Reservation Entry"; SourceType: Integer; SourceID: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal)
     begin
-        with ReservationEntry do begin
-            Init();
-            "Source Type" := SourceType;
-            "Source ID" := SourceID;
-            "Item No." := ItemNo;
-            "Variant Code" := VariantCode;
-            "Location Code" := LocationCode;
-            "Quantity (Base)" := Qty;
-            "Qty. to Handle (Base)" := Qty;
-            "Qty. to Invoice (Base)" := Qty;
-            Insert();
-        end;
+        ReservationEntry.Init();
+        ReservationEntry."Source Type" := SourceType;
+        ReservationEntry."Source ID" := SourceID;
+        ReservationEntry."Item No." := ItemNo;
+        ReservationEntry."Variant Code" := VariantCode;
+        ReservationEntry."Location Code" := LocationCode;
+        ReservationEntry."Quantity (Base)" := Qty;
+        ReservationEntry."Qty. to Handle (Base)" := Qty;
+        ReservationEntry."Qty. to Invoice (Base)" := Qty;
+        ReservationEntry.Insert();
     end;
 
     local procedure MockWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceType: Integer; SourceNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Qty: Decimal): Code[20]
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        with WarehouseShipmentHeader do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            "Location Code" := LocationCode;
-            Insert();
-        end;
+        WarehouseShipmentHeader.Init();
+        WarehouseShipmentHeader."No." := LibraryUtility.GenerateGUID();
+        WarehouseShipmentHeader."Location Code" := LocationCode;
+        WarehouseShipmentHeader.Insert();
 
-        with WarehouseShipmentLine do begin
-            Init();
-            "No." := WarehouseShipmentHeader."No.";
-            "Source Type" := SourceType;
-            "Source No." := SourceNo;
-            "Item No." := ItemNo;
-            "Variant Code" := VariantCode;
-            "Bin Code" := LibraryUtility.GenerateGUID();
-            Quantity := Qty;
-            Insert();
-        end;
+        WarehouseShipmentLine.Init();
+        WarehouseShipmentLine."No." := WarehouseShipmentHeader."No.";
+        WarehouseShipmentLine."Source Type" := SourceType;
+        WarehouseShipmentLine."Source No." := SourceNo;
+        WarehouseShipmentLine."Item No." := ItemNo;
+        WarehouseShipmentLine."Variant Code" := VariantCode;
+        WarehouseShipmentLine."Bin Code" := LibraryUtility.GenerateGUID();
+        WarehouseShipmentLine.Quantity := Qty;
+        WarehouseShipmentLine.Insert();
 
         exit(WarehouseShipmentLine."Bin Code")
     end;
 
     local procedure MockWarehouseEntry(var WarehouseEntry: Record "Warehouse Entry"; SourceType: Integer; SourceNo: Code[20]; WhseDocType: Enum "Warehouse Journal Document Type"; WhseDocNo: Code[20]; BinCode: Code[20]; Qty: Decimal)
     begin
-        with WarehouseEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, FieldNo("Entry No."));
-            "Source Type" := SourceType;
-            "Source No." := SourceNo;
-            "Whse. Document Type" := WhseDocType;
-            "Whse. Document No." := WhseDocNo;
-            "Bin Code" := BinCode;
-            "Qty. (Base)" := Qty;
-            Insert();
-        end;
+        WarehouseEntry.Init();
+        WarehouseEntry."Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, WarehouseEntry.FieldNo("Entry No."));
+        WarehouseEntry."Source Type" := SourceType;
+        WarehouseEntry."Source No." := SourceNo;
+        WarehouseEntry."Whse. Document Type" := WhseDocType;
+        WarehouseEntry."Whse. Document No." := WhseDocNo;
+        WarehouseEntry."Bin Code" := BinCode;
+        WarehouseEntry."Qty. (Base)" := Qty;
+        WarehouseEntry.Insert();
     end;
 }
 

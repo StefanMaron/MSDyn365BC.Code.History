@@ -348,10 +348,8 @@ report 17109 "Transaction Detail Report"
                                     end;
                                 end;
                             "Source Type"::"Bank Account":
-                                begin
-                                    if BankAccount.Get("G/L Entry"."Source No.") then
-                                        SourceName := BankAccount.Name;
-                                end;
+                                if BankAccount.Get("G/L Entry"."Source No.") then
+                                    SourceName := BankAccount.Name;
                             "Source Type"::"Fixed Asset":
                                 begin
                                     if FixedAsset.Get("G/L Entry"."Source No.") then
@@ -439,13 +437,12 @@ report 17109 "Transaction Detail Report"
                                 not PrintAllHavingBal)
                             then
                                 CurrReport.Skip();
-                        end else begin
+                        end else
                             if ("G/L Entry".Amount = 0) and
                                ((StartBalance = 0) or
                                 not PrintAllHavingBal)
                             then
                                 CurrReport.Skip();
-                        end;
                     end;
 
                     trigger OnPostDataItem()

@@ -43,13 +43,11 @@ codeunit 145301 "BAS Managament"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            "Enable GST (Australia)" := true;
-            "BAS to be Lodged as a Group" := true;
-            "BAS Group Company" := true;
-            Modify();
-        end;
+        GLSetup.Get();
+        GLSetup."Enable GST (Australia)" := true;
+        GLSetup."BAS to be Lodged as a Group" := true;
+        GLSetup."BAS Group Company" := true;
+        GLSetup.Modify();
     end;
 
     local procedure InitScenarioImportSubsidiaries(var DocumentNo: Code[11]; var BASVersion: Integer; var T2Value: Decimal)
@@ -96,35 +94,31 @@ codeunit 145301 "BAS Managament"
             LibraryUtility.GetFieldLength(DATABASE::"BAS Calculation Sheet", BASCalcSheet.FieldNo(A1)));
 
         CompanyInformation.Get();
-        with BASCalcSheet do begin
-            Init();
-            A1 := DocumentNo;
-            "BAS Version" := BASVersion;
-            A2 := CompanyInformation.ABN;
-            A2a := CompanyInformation."ABN Division Part No.";
-            A3 := 20110101D;
-            A4 := 20110131D;
-            A5 := 20110128D;
-            A6 := 20110128D;
-            T2 := T2Value;
-            GLSetup.Get();
-            "BAS GST Division Factor" := GLSetup."BAS GST Division Factor";
-            "BAS Setup Name" := BASSetupName;
-            Insert();
-        end;
+        BASCalcSheet.Init();
+        BASCalcSheet.A1 := DocumentNo;
+        BASCalcSheet."BAS Version" := BASVersion;
+        BASCalcSheet.A2 := CompanyInformation.ABN;
+        BASCalcSheet.A2a := CompanyInformation."ABN Division Part No.";
+        BASCalcSheet.A3 := 20110101D;
+        BASCalcSheet.A4 := 20110131D;
+        BASCalcSheet.A5 := 20110128D;
+        BASCalcSheet.A6 := 20110128D;
+        BASCalcSheet.T2 := T2Value;
+        GLSetup.Get();
+        BASCalcSheet."BAS GST Division Factor" := GLSetup."BAS GST Division Factor";
+        BASCalcSheet."BAS Setup Name" := BASSetupName;
+        BASCalcSheet.Insert();
     end;
 
     local procedure InitBASBusinessUnit(BASCalcSheet: Record "BAS Calculation Sheet")
     var
         BASBusinessUnit: Record "BAS Business Unit";
     begin
-        with BASBusinessUnit do begin
-            Init();
-            "Company Name" := CompanyName;
-            "Document No." := BASCalcSheet.A1;
-            "BAS Version" := BASCalcSheet."BAS Version";
-            Insert();
-        end;
+        BASBusinessUnit.Init();
+        BASBusinessUnit."Company Name" := CompanyName;
+        BASBusinessUnit."Document No." := BASCalcSheet.A1;
+        BASBusinessUnit."BAS Version" := BASCalcSheet."BAS Version";
+        BASBusinessUnit.Insert();
     end;
 
     local procedure CreateBASSetupName(var BASSetupName: Record "BAS Setup Name")

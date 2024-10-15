@@ -94,6 +94,10 @@ page 312 "Gen. Business Posting Groups"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'This will change all occurrences of VAT Bus. Posting Group in G/L Account, Customer, and Vendor tables\where Gen. Bus. Posting Group is %1\and VAT Bus. Posting Group is %2. Are you sure that you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

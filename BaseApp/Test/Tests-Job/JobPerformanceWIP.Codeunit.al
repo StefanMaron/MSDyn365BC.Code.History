@@ -679,19 +679,16 @@ codeunit 136304 "Job Performance WIP"
 
         // Exercise
         CalculateWIP(Job);
-
         // Verify
-        with JobWIPEntry do begin
-            SetRange("Job No.", Job."No.");
-            SetRange(Type, Type::"Applied Sales");
-            // WIP entries are compressed
-            Assert.AreEqual(1, Count, '# ' + TableCaption);
+        JobWIPEntry.SetRange("Job No.", Job."No.");
+        JobWIPEntry.SetRange(Type, JobWIPEntry.Type::"Applied Sales");
+        // WIP entries are compressed
+        Assert.AreEqual(1, JobWIPEntry.Count, '# ' + JobWIPEntry.TableCaption);
 
-            FindFirst();
-            Assert.AreEqual("WIP Posting Method Used", "WIP Posting Method Used"::"Per Job Ledger Entry",
-              FieldCaption("WIP Posting Method Used"));
-            Assert.AreEqual(Reverse, true, FieldCaption(Reverse))
-        end
+        JobWIPEntry.FindFirst();
+        Assert.AreEqual(JobWIPEntry."WIP Posting Method Used", JobWIPEntry."WIP Posting Method Used"::"Per Job Ledger Entry",
+          JobWIPEntry.FieldCaption("WIP Posting Method Used"));
+        Assert.AreEqual(JobWIPEntry.Reverse, true, JobWIPEntry.FieldCaption(Reverse))
     end;
 
     [Test]
@@ -783,15 +780,12 @@ codeunit 136304 "Job Performance WIP"
 
         // Exercise
         CalculateWIP(Job);
-
         // Verify
-        with JobWIPEntry do begin
-            JobLedgerEntry.SetRange("Job No.", Job."No.");
-            SetRange("Job No.", Job."No.");
-            SetRange(Type, Type::"Applied Sales");
-            // one WIP entry per ledger entry
-            Assert.AreEqual(JobLedgerEntry.Count, Count, '# ' + TableCaption)
-        end
+        JobLedgerEntry.SetRange("Job No.", Job."No.");
+        JobWIPEntry.SetRange("Job No.", Job."No.");
+        JobWIPEntry.SetRange(Type, JobWIPEntry.Type::"Applied Sales");
+        // one WIP entry per ledger entry
+        Assert.AreEqual(JobLedgerEntry.Count, JobWIPEntry.Count, '# ' + JobWIPEntry.TableCaption)
     end;
 
     [Test]
@@ -839,22 +833,20 @@ codeunit 136304 "Job Performance WIP"
 
         // Verify: corresponding amounts should go to the corresponding accounts
         JobPostingGroup.Get(JobTask."Job Posting Group");
-        with JobWIPEntry do begin
-            SetRange("Job No.", Job."No.");
-            SetRange(Type, Type::"Applied Costs");
+        JobWIPEntry.SetRange("Job No.", Job."No.");
+        JobWIPEntry.SetRange(Type, JobWIPEntry.Type::"Applied Costs");
 
-            SetRange("G/L Account No.", JobPostingGroup."Item Costs Applied Account");
-            FindFirst();
-            Assert.AreEqual(-UsageFraction * ItemScheduleAmount, "WIP Entry Amount", FieldCaption("WIP Entry Amount"));
+        JobWIPEntry.SetRange("G/L Account No.", JobPostingGroup."Item Costs Applied Account");
+        JobWIPEntry.FindFirst();
+        Assert.AreEqual(-UsageFraction * ItemScheduleAmount, JobWIPEntry."WIP Entry Amount", JobWIPEntry.FieldCaption("WIP Entry Amount"));
 
-            SetRange("G/L Account No.", JobPostingGroup."Resource Costs Applied Account");
-            FindFirst();
-            Assert.AreEqual(-UsageFraction * ResourceScheduleAmount, "WIP Entry Amount", FieldCaption("WIP Entry Amount"));
+        JobWIPEntry.SetRange("G/L Account No.", JobPostingGroup."Resource Costs Applied Account");
+        JobWIPEntry.FindFirst();
+        Assert.AreEqual(-UsageFraction * ResourceScheduleAmount, JobWIPEntry."WIP Entry Amount", JobWIPEntry.FieldCaption("WIP Entry Amount"));
 
-            SetRange("G/L Account No.", JobPostingGroup."G/L Costs Applied Account");
-            FindFirst();
-            Assert.AreEqual(-UsageFraction * GLScheduleAmount, "WIP Entry Amount", FieldCaption("WIP Entry Amount"))
-        end
+        JobWIPEntry.SetRange("G/L Account No.", JobPostingGroup."G/L Costs Applied Account");
+        JobWIPEntry.FindFirst();
+        Assert.AreEqual(-UsageFraction * GLScheduleAmount, JobWIPEntry."WIP Entry Amount", JobWIPEntry.FieldCaption("WIP Entry Amount"))
     end;
 
     [Test]
@@ -900,16 +892,13 @@ codeunit 136304 "Job Performance WIP"
 
         // Exercise
         CalculateWIP(Job);
-
         // Verify
-        with JobWIPEntry do begin
-            SetRange("Job No.", Job."No.");
-            SetRange(Type, Type::"Applied Costs");
-            SetRange(Reverse, true);
-            Assert.AreEqual(2, Count, StrSubstNo('# %1', TableCaption));
-            FindLast();
-            Assert.AreEqual("WIP Entry Amount", -UsageFraction * ScheduleAmount, FieldCaption("WIP Entry Amount"));
-        end
+        JobWIPEntry.SetRange("Job No.", Job."No.");
+        JobWIPEntry.SetRange(Type, JobWIPEntry.Type::"Applied Costs");
+        JobWIPEntry.SetRange(Reverse, true);
+        Assert.AreEqual(2, JobWIPEntry.Count, StrSubstNo('# %1', JobWIPEntry.TableCaption));
+        JobWIPEntry.FindLast();
+        Assert.AreEqual(JobWIPEntry."WIP Entry Amount", -UsageFraction * ScheduleAmount, JobWIPEntry.FieldCaption("WIP Entry Amount"));
     end;
 
     [Test]
@@ -2011,16 +2000,14 @@ codeunit 136304 "Job Performance WIP"
         JobTask: Record "Job Task";
         JobJournalLine: Record "Job Journal Line";
     begin
-        with JobJournalLine do begin
-            JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
-            LibraryJob.CreateJobJournalLine("Line Type", JobTask, JobJournalLine);
-            Validate(Type, Type::"G/L Account");
-            Validate("No.", JobPlanningLine."No.");
-            Validate(Quantity, JobPlanningLine.Quantity);
-            Validate("Unit Cost", JobPlanningLine."Unit Cost");
-            Modify(true);
-            LibraryJob.PostJobJournal(JobJournalLine);
-        end;
+        JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::"G/L Account");
+        JobJournalLine.Validate("No.", JobPlanningLine."No.");
+        JobJournalLine.Validate(Quantity, JobPlanningLine.Quantity);
+        JobJournalLine.Validate("Unit Cost", JobPlanningLine."Unit Cost");
+        JobJournalLine.Modify(true);
+        LibraryJob.PostJobJournal(JobJournalLine);
     end;
 
     local procedure CreateJobAndPostJobJournalWithJobTaskAndPlanning(var Job: Record Job; var JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line"; CostsRecognition: Enum "Job WIP Recognized Costs Type"; SalesRecognition: Enum "Job WIP Recognized Sales Type"; WIPPostingMethod: Option)
@@ -2164,35 +2151,32 @@ codeunit 136304 "Job Performance WIP"
     begin
         // Create a mock job ledger entry to similate usage or invoicing.
         // Note, these are NOT "real" job ledger entries.
-
-        with JobLedgerEntry do begin
-            if FindLast() then;
-            Init();
-            "Entry No." += 1;
-            "Job No." := JobPlanningLine."Job No.";
-            "Job Task No." := JobPlanningLine."Job Task No.";
-            "Posting Date" := WorkDate();
-            Type := JobPlanningLine.Type;
-            "No." := JobPlanningLine."No.";
-            case JobPlanningLine."Line Type" of
-                LibraryJob.PlanningLineTypeSchedule():
-                    begin
-                        "Entry Type" := "Entry Type"::Usage;
-                        "Total Cost (LCY)" := Fraction * JobPlanningLine."Total Cost (LCY)";
-                        "Line Amount (LCY)" := Fraction * JobPlanningLine."Line Amount (LCY)"
-                    end;
-                LibraryJob.PlanningLineTypeContract():
-                    begin
-                        "Entry Type" := "Entry Type"::Sale;
-                        "Total Cost (LCY)" := -Fraction * JobPlanningLine."Total Cost (LCY)";
-                        "Total Price (LCY)" := -Fraction * JobPlanningLine."Total Price (LCY)";
-                        "Line Amount (LCY)" := -Fraction * JobPlanningLine."Line Amount (LCY)"
-                    end
-                else
-                    Assert.Fail(StrSubstNo('Unsupported line type: %1', JobPlanningLine."Line Type"));
-            end;
-            Insert();
-        end
+        if JobLedgerEntry.FindLast() then;
+        JobLedgerEntry.Init();
+        JobLedgerEntry."Entry No." += 1;
+        JobLedgerEntry."Job No." := JobPlanningLine."Job No.";
+        JobLedgerEntry."Job Task No." := JobPlanningLine."Job Task No.";
+        JobLedgerEntry."Posting Date" := WorkDate();
+        JobLedgerEntry.Type := JobPlanningLine.Type;
+        JobLedgerEntry."No." := JobPlanningLine."No.";
+        case JobPlanningLine."Line Type" of
+            LibraryJob.PlanningLineTypeSchedule():
+                begin
+                    JobLedgerEntry."Entry Type" := JobLedgerEntry."Entry Type"::Usage;
+                    JobLedgerEntry."Total Cost (LCY)" := Fraction * JobPlanningLine."Total Cost (LCY)";
+                    JobLedgerEntry."Line Amount (LCY)" := Fraction * JobPlanningLine."Line Amount (LCY)"
+                end;
+            LibraryJob.PlanningLineTypeContract():
+                begin
+                    JobLedgerEntry."Entry Type" := JobLedgerEntry."Entry Type"::Sale;
+                    JobLedgerEntry."Total Cost (LCY)" := -Fraction * JobPlanningLine."Total Cost (LCY)";
+                    JobLedgerEntry."Total Price (LCY)" := -Fraction * JobPlanningLine."Total Price (LCY)";
+                    JobLedgerEntry."Line Amount (LCY)" := -Fraction * JobPlanningLine."Line Amount (LCY)"
+                end
+            else
+                Assert.Fail(StrSubstNo('Unsupported line type: %1', JobPlanningLine."Line Type"));
+        end;
+        JobLedgerEntry.Insert();
     end;
 
     local procedure CreateDimensionSet(): Integer
@@ -2280,17 +2264,15 @@ codeunit 136304 "Job Performance WIP"
 
     local procedure UpdateJobPostingGroup(var JobPostingGroup: Record "Job Posting Group")
     begin
-        with JobPostingGroup do begin
-            Validate("WIP Costs Account", CreateGLAccount());
-            Validate("WIP Invoiced Sales Account", CreateGLAccount());
-            Validate("WIP Accrued Sales Account", CreateGLAccount());
-            Validate("Job Costs Applied Account", CreateGLAccount());
-            Validate("Job Sales Applied Account", CreateGLAccount());
-            Validate("Resource Costs Applied Account", CreateGLAccount());
-            Validate("Recognized Costs Account", CreateGLAccount());
-            Validate("Recognized Sales Account", CreateGLAccount());
-            Modify(true);
-        end;
+        JobPostingGroup.Validate("WIP Costs Account", CreateGLAccount());
+        JobPostingGroup.Validate("WIP Invoiced Sales Account", CreateGLAccount());
+        JobPostingGroup.Validate("WIP Accrued Sales Account", CreateGLAccount());
+        JobPostingGroup.Validate("Job Costs Applied Account", CreateGLAccount());
+        JobPostingGroup.Validate("Job Sales Applied Account", CreateGLAccount());
+        JobPostingGroup.Validate("Resource Costs Applied Account", CreateGLAccount());
+        JobPostingGroup.Validate("Recognized Costs Account", CreateGLAccount());
+        JobPostingGroup.Validate("Recognized Sales Account", CreateGLAccount());
+        JobPostingGroup.Modify(true);
     end;
 
     local procedure CompletedJob(JobNo: Code[20])
@@ -2366,23 +2348,21 @@ codeunit 136304 "Job Performance WIP"
     var
         JobPostingGroup: Record "Job Posting Group";
     begin
-        with JobPostingGroup do begin
-            Get(JobPostingGroupCode);
-            Validate("Job Sales Adjustment Account", CreateGLAccount());
-            Validate("Job Sales Applied Account", CreateGLAccount());
-            Validate("Job Costs Applied Account", CreateGLAccount());
-            Validate("Recognized Costs Account", CreateGLAccount());
-            Validate("Item Costs Applied Account", CreateGLAccount());
-            Validate("Job Costs Adjustment Account", CreateGLAccount());
-            Validate("WIP Accrued Costs Account", CreateGLAccount());
-            Validate("WIP Accrued Sales Account", CreateGLAccount());
-            Validate("Recognized Sales Account", CreateGLAccount());
-            Validate("Resource Costs Applied Account", CreateGLAccount());
-            Validate("G/L Costs Applied Account", CreateGLAccount());
-            Validate("WIP Costs Account", CreateGLAccount());
-            Validate("WIP Invoiced Sales Account", CreateGLAccount());
-            Modify(true);
-        end;
+        JobPostingGroup.Get(JobPostingGroupCode);
+        JobPostingGroup.Validate("Job Sales Adjustment Account", CreateGLAccount());
+        JobPostingGroup.Validate("Job Sales Applied Account", CreateGLAccount());
+        JobPostingGroup.Validate("Job Costs Applied Account", CreateGLAccount());
+        JobPostingGroup.Validate("Recognized Costs Account", CreateGLAccount());
+        JobPostingGroup.Validate("Item Costs Applied Account", CreateGLAccount());
+        JobPostingGroup.Validate("Job Costs Adjustment Account", CreateGLAccount());
+        JobPostingGroup.Validate("WIP Accrued Costs Account", CreateGLAccount());
+        JobPostingGroup.Validate("WIP Accrued Sales Account", CreateGLAccount());
+        JobPostingGroup.Validate("Recognized Sales Account", CreateGLAccount());
+        JobPostingGroup.Validate("Resource Costs Applied Account", CreateGLAccount());
+        JobPostingGroup.Validate("G/L Costs Applied Account", CreateGLAccount());
+        JobPostingGroup.Validate("WIP Costs Account", CreateGLAccount());
+        JobPostingGroup.Validate("WIP Invoiced Sales Account", CreateGLAccount());
+        JobPostingGroup.Modify(true);
     end;
 
     local procedure VerifyJobWIP(Job: Record Job; JobWIPMethod: Record "Job WIP Method")
@@ -2431,16 +2411,14 @@ codeunit 136304 "Job Performance WIP"
         // Verify "Invoiced %" and "Cost Completion %" for JobWIPTotal
 
         JobTask.Get(JobWIPTotal."Job No.", JobWIPTotal."Job Task No.");
-        with JobWIPTotal do begin
-            TestField("WIP Method", GetWIPMethod(JobTask, JobWIPMethod));
-            if (JobWIPMethod."Recognized Costs" in
-                [JobWIPMethod."Recognized Costs"::"Cost Value", JobWIPMethod."Recognized Costs"::"Cost of Sales"]) or
-               (JobWIPMethod."Recognized Sales" in
-                [JobWIPMethod."Recognized Sales"::"Sales Value", JobWIPMethod."Recognized Sales"::"Percentage of Completion"])
-            then begin
-                TestField("Invoiced %", Round(100 * "Contract (Invoiced Price)" / "Contract (Total Price)", 0.00001));
-                TestField("Cost Completion %", Round(100 * "Usage (Total Cost)" / "Schedule (Total Cost)", 0.00001));
-            end
+        JobWIPTotal.TestField("WIP Method", GetWIPMethod(JobTask, JobWIPMethod));
+        if (JobWIPMethod."Recognized Costs" in
+            [JobWIPMethod."Recognized Costs"::"Cost Value", JobWIPMethod."Recognized Costs"::"Cost of Sales"]) or
+           (JobWIPMethod."Recognized Sales" in
+            [JobWIPMethod."Recognized Sales"::"Sales Value", JobWIPMethod."Recognized Sales"::"Percentage of Completion"])
+        then begin
+            JobWIPTotal.TestField("Invoiced %", Round(100 * JobWIPTotal."Contract (Invoiced Price)" / JobWIPTotal."Contract (Total Price)", 0.00001));
+            JobWIPTotal.TestField("Cost Completion %", Round(100 * JobWIPTotal."Usage (Total Cost)" / JobWIPTotal."Schedule (Total Cost)", 0.00001));
         end
     end;
 
@@ -2464,31 +2442,27 @@ codeunit 136304 "Job Performance WIP"
         RecogCostsAmt := RecogCostsAmount(Job);
         CostsAppliedAmt := -Max(RecogCostsAmt, UsageTotalCost);
 
-        with JobPostingGroup do begin
-            SetupDeltaAssertion("Recognized Costs Account", RecogCostsAmt);
-            SetupDeltaAssertion("Job Costs Applied Account", CostsAppliedAmt);
-            // The WIP Cost account is the balance account for both Applied Cost and Recognized Cost
-            SetupDeltaAssertion("WIP Costs Account", -(CostsAppliedAmt + RecogCostsAmt));
-            SetupDeltaAssertion("Job Costs Adjustment Account", Max(RecogCostsAmt - UsageTotalCost, 0));
-            SetupDeltaAssertion("WIP Accrued Costs Account", -Max(RecogCostsAmt - UsageTotalCost, 0));
+        SetupDeltaAssertion(JobPostingGroup."Recognized Costs Account", RecogCostsAmt);
+        SetupDeltaAssertion(JobPostingGroup."Job Costs Applied Account", CostsAppliedAmt);
+        // The WIP Cost account is the balance account for both Applied Cost and Recognized Cost
+        SetupDeltaAssertion(JobPostingGroup."WIP Costs Account", -(CostsAppliedAmt + RecogCostsAmt));
+        SetupDeltaAssertion(JobPostingGroup."Job Costs Adjustment Account", Max(RecogCostsAmt - UsageTotalCost, 0));
+        SetupDeltaAssertion(JobPostingGroup."WIP Accrued Costs Account", -Max(RecogCostsAmt - UsageTotalCost, 0));
 
-            SetupDeltaAssertion("Recognized Sales Account", -RecogSalesAmount(Job));
-            SetupDeltaAssertion("Job Sales Applied Account", SalesAppliedAmount(Job));
-            // The WIP Invoiced Sales account is the balance account for both Applied Sales and Recognized Sales
-            SetupDeltaAssertion("WIP Invoiced Sales Account", InvoicedSalesAmount(Job));
-            SetupDeltaAssertion("Job Sales Adjustment Account", SalesAdjAmount(Job));
-            SetupDeltaAssertion("WIP Accrued Sales Account", AccruedSalesAmount(Job))
-        end
+        SetupDeltaAssertion(JobPostingGroup."Recognized Sales Account", -RecogSalesAmount(Job));
+        SetupDeltaAssertion(JobPostingGroup."Job Sales Applied Account", SalesAppliedAmount(Job));
+        // The WIP Invoiced Sales account is the balance account for both Applied Sales and Recognized Sales
+        SetupDeltaAssertion(JobPostingGroup."WIP Invoiced Sales Account", InvoicedSalesAmount(Job));
+        SetupDeltaAssertion(JobPostingGroup."Job Sales Adjustment Account", SalesAdjAmount(Job));
+        SetupDeltaAssertion(JobPostingGroup."WIP Accrued Sales Account", AccruedSalesAmount(Job))
     end;
 
     local procedure SetupDeltaAssertion(AccountNo: Code[20]; Delta: Decimal)
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            Get(AccountNo);
-            DeltaAssert.AddWatch(DATABASE::"G/L Account", GetPosition(), FieldNo(Balance), Delta)
-        end
+        GLAccount.Get(AccountNo);
+        DeltaAssert.AddWatch(DATABASE::"G/L Account", GLAccount.GetPosition(), GLAccount.FieldNo(Balance), Delta)
     end;
 
     local procedure RecogCostsAmount(Job: Record Job) RecogCosts: Decimal
@@ -2518,18 +2492,17 @@ codeunit 136304 "Job Performance WIP"
         GetTotalJobTask(JobTask, TotalJobTask);
         JobWIPMethod.Get(TotalJobTask."WIP Method");
 
-        with TotalJobTask do
-            case JobWIPMethod."Recognized Costs" of
-                JobWIPMethod."Recognized Costs"::"Cost of Sales":
-                    exit("Usage (Total Cost)" - "Schedule (Total Cost)" * "Contract (Invoiced Price)" / "Contract (Total Price)");
-                JobWIPMethod."Recognized Costs"::"Cost Value":
-                    exit("Usage (Total Cost)" * "Contract (Total Price)" / "Schedule (Total Price)" -
-                      "Contract (Invoiced Price)" * "Schedule (Total Cost)" / "Schedule (Total Price)");
-                JobWIPMethod."Recognized Costs"::"Contract (Invoiced Cost)":
-                    exit("Usage (Total Cost)" - "Contract (Invoiced Cost)");
-                JobWIPMethod."Recognized Costs"::"At Completion":
-                    exit("Usage (Total Cost)");
-            end
+        case JobWIPMethod."Recognized Costs" of
+            JobWIPMethod."Recognized Costs"::"Cost of Sales":
+                exit(TotalJobTask."Usage (Total Cost)" - TotalJobTask."Schedule (Total Cost)" * TotalJobTask."Contract (Invoiced Price)" / TotalJobTask."Contract (Total Price)");
+            JobWIPMethod."Recognized Costs"::"Cost Value":
+                exit(TotalJobTask."Usage (Total Cost)" * TotalJobTask."Contract (Total Price)" / TotalJobTask."Schedule (Total Price)" -
+                  TotalJobTask."Contract (Invoiced Price)" * TotalJobTask."Schedule (Total Cost)" / TotalJobTask."Schedule (Total Price)");
+            JobWIPMethod."Recognized Costs"::"Contract (Invoiced Cost)":
+                exit(TotalJobTask."Usage (Total Cost)" - TotalJobTask."Contract (Invoiced Cost)");
+            JobWIPMethod."Recognized Costs"::"At Completion":
+                exit(TotalJobTask."Usage (Total Cost)");
+        end
     end;
 
     local procedure RecogSalesAmount(Job: Record Job) RecogSales: Decimal
@@ -2644,20 +2617,19 @@ codeunit 136304 "Job Performance WIP"
         GetTotalJobTask(JobTask, TotalJobTask);
         JobWIPMethod.Get(TotalJobTask."WIP Method");
 
-        with TotalJobTask do
-            case JobWIPMethod."Recognized Sales" of
-                JobWIPMethod."Recognized Sales"::"Percentage of Completion":
-                    exit(Min("Contract (Total Price)", "Contract (Total Price)" * "Usage (Total Cost)" / "Schedule (Total Cost)") -
-                      "Contract (Invoiced Price)");
-                JobWIPMethod."Recognized Sales"::"Sales Value":
-                    exit("Usage (Total Price)" * "Contract (Total Price)" / "Schedule (Total Price)" - "Contract (Invoiced Price)");
-                JobWIPMethod."Recognized Sales"::"Usage (Total Cost)":
-                    exit("Usage (Total Cost)" - "Contract (Invoiced Price)");
-                JobWIPMethod."Recognized Sales"::"Usage (Total Price)":
-                    exit("Usage (Total Price)" - "Contract (Invoiced Price)");
-                JobWIPMethod."Recognized Sales"::"At Completion":
-                    exit(-"Contract (Invoiced Price)");
-            end
+        case JobWIPMethod."Recognized Sales" of
+            JobWIPMethod."Recognized Sales"::"Percentage of Completion":
+                exit(Min(TotalJobTask."Contract (Total Price)", TotalJobTask."Contract (Total Price)" * TotalJobTask."Usage (Total Cost)" / TotalJobTask."Schedule (Total Cost)") -
+                  TotalJobTask."Contract (Invoiced Price)");
+            JobWIPMethod."Recognized Sales"::"Sales Value":
+                exit(TotalJobTask."Usage (Total Price)" * TotalJobTask."Contract (Total Price)" / TotalJobTask."Schedule (Total Price)" - TotalJobTask."Contract (Invoiced Price)");
+            JobWIPMethod."Recognized Sales"::"Usage (Total Cost)":
+                exit(TotalJobTask."Usage (Total Cost)" - TotalJobTask."Contract (Invoiced Price)");
+            JobWIPMethod."Recognized Sales"::"Usage (Total Price)":
+                exit(TotalJobTask."Usage (Total Price)" - TotalJobTask."Contract (Invoiced Price)");
+            JobWIPMethod."Recognized Sales"::"At Completion":
+                exit(-TotalJobTask."Contract (Invoiced Price)");
+        end
     end;
 
     local procedure UsageTotalCost(JobTask: Record "Job Task"): Decimal
@@ -2812,22 +2784,20 @@ codeunit 136304 "Job Performance WIP"
 
     local procedure AddJobTasks(JobTask: Record "Job Task"; var TotalJobTask: Record "Job Task")
     begin
-        with JobTask do begin
-            CalcFields("Schedule (Total Cost)", "Schedule (Total Price)", "Usage (Total Cost)", "Usage (Total Price)",
-              "Contract (Invoiced Cost)", "Contract (Invoiced Price)", "Contract (Total Price)");
-            TotalJobTask."Schedule (Total Cost)" += "Schedule (Total Cost)";
-            TotalJobTask."Schedule (Total Price)" += "Schedule (Total Price)";
-            TotalJobTask."Usage (Total Cost)" += "Usage (Total Cost)";
-            TotalJobTask."Usage (Total Price)" += "Usage (Total Price)";
-            TotalJobTask."Contract (Invoiced Price)" += "Contract (Invoiced Price)";
-            TotalJobTask."Contract (Invoiced Cost)" += "Contract (Invoiced Cost)";
-            TotalJobTask."Contract (Total Price)" += "Contract (Total Price)";
+        JobTask.CalcFields("Schedule (Total Cost)", "Schedule (Total Price)", "Usage (Total Cost)", "Usage (Total Price)",
+          "Contract (Invoiced Cost)", "Contract (Invoiced Price)", "Contract (Total Price)");
+        TotalJobTask."Schedule (Total Cost)" += JobTask."Schedule (Total Cost)";
+        TotalJobTask."Schedule (Total Price)" += JobTask."Schedule (Total Price)";
+        TotalJobTask."Usage (Total Cost)" += JobTask."Usage (Total Cost)";
+        TotalJobTask."Usage (Total Price)" += JobTask."Usage (Total Price)";
+        TotalJobTask."Contract (Invoiced Price)" += JobTask."Contract (Invoiced Price)";
+        TotalJobTask."Contract (Invoiced Cost)" += JobTask."Contract (Invoiced Cost)";
+        TotalJobTask."Contract (Total Price)" += JobTask."Contract (Total Price)";
 
-            TotalJobTask."Recognized Sales Amount" += "Recognized Sales Amount";
-            TotalJobTask."Recognized Costs Amount" += "Recognized Costs Amount";
-            TotalJobTask."Recognized Sales G/L Amount" += "Recognized Sales G/L Amount";
-            TotalJobTask."Recognized Costs G/L Amount" += "Recognized Costs G/L Amount"
-        end
+        TotalJobTask."Recognized Sales Amount" += JobTask."Recognized Sales Amount";
+        TotalJobTask."Recognized Costs Amount" += JobTask."Recognized Costs Amount";
+        TotalJobTask."Recognized Sales G/L Amount" += JobTask."Recognized Sales G/L Amount";
+        TotalJobTask."Recognized Costs G/L Amount" += JobTask."Recognized Costs G/L Amount"
     end;
 
     local procedure GetRoundingPrecision(): Decimal
@@ -2883,22 +2853,20 @@ codeunit 136304 "Job Performance WIP"
     begin
         JobPostingGroup.Get(JobTask."Job Posting Group");
 
-        with GLEntry do begin
-            SetRange("Job No.", JobTask."Job No.");
-            SetRange("Posting Date", WorkDate());
+        GLEntry.SetRange("Job No.", JobTask."Job No.");
+        GLEntry.SetRange("Posting Date", WorkDate());
 
-            case AccountType of
-                AccountType::"WIP Costs Account":
-                    SetRange("Bal. Account No.", JobPostingGroup."WIP Costs Account");
-                AccountType::"WIP Invoiced Sales Account":
-                    SetRange("Bal. Account No.", JobPostingGroup."WIP Invoiced Sales Account");
-            end;
-            FindSet();
-
-            repeat
-                TotalAmount += Amount;
-            until Next() = 0;
+        case AccountType of
+            AccountType::"WIP Costs Account":
+                GLEntry.SetRange("Bal. Account No.", JobPostingGroup."WIP Costs Account");
+            AccountType::"WIP Invoiced Sales Account":
+                GLEntry.SetRange("Bal. Account No.", JobPostingGroup."WIP Invoiced Sales Account");
         end;
+        GLEntry.FindSet();
+
+        repeat
+            TotalAmount += GLEntry.Amount;
+        until GLEntry.Next() = 0;
 
         Assert.AreEqual(0, TotalAmount, StrSubstNo(TotalAmountErr, AccountType));
     end;
@@ -2947,12 +2915,10 @@ codeunit 136304 "Job Performance WIP"
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        with SalesCrMemoLine do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, LineType);
-            FindFirst();
-            Assert.AreEqual(Qty, Quantity, StrSubstNo(QtyErr, TableCaption));
-        end;
+        SalesCrMemoLine.SetRange("Document No.", DocumentNo);
+        SalesCrMemoLine.SetRange(Type, LineType);
+        SalesCrMemoLine.FindFirst();
+        Assert.AreEqual(Qty, SalesCrMemoLine.Quantity, StrSubstNo(QtyErr, SalesCrMemoLine.TableCaption));
     end;
 
     local procedure VerifyWIPGLEntryReversed(JobNo: Code[20])
@@ -2968,13 +2934,11 @@ codeunit 136304 "Job Performance WIP"
     var
         JobWIPEntry: Record "Job WIP Entry";
     begin
-        with JobWIPEntry do begin
-            SetRange("Job No.", JobNo);
-            SetRange(Type, JobWIPEntryType);
-            FindFirst();
-            Assert.AreEqual(GLAccountNo, "G/L Account No.", JobWIPEntryGLAccountErr);
-            Assert.AreEqual(BalGLAccountNo, "G/L Bal. Account No.", JobWIPEntryGLAccountErr);
-        end;
+        JobWIPEntry.SetRange("Job No.", JobNo);
+        JobWIPEntry.SetRange(Type, JobWIPEntryType);
+        JobWIPEntry.FindFirst();
+        Assert.AreEqual(GLAccountNo, JobWIPEntry."G/L Account No.", JobWIPEntryGLAccountErr);
+        Assert.AreEqual(BalGLAccountNo, JobWIPEntry."G/L Bal. Account No.", JobWIPEntryGLAccountErr);
     end;
 
     [RequestPageHandler]

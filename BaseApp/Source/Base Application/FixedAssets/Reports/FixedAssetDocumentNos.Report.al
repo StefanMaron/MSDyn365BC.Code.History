@@ -210,11 +210,17 @@ report 5636 "Fixed Asset Document Nos."
         ErrorCounter: Integer;
         GoupNo: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'No number series has been used for the following entries:';
+#pragma warning disable AA0470
         Text001: Label 'The number series %1 %2 has been used for the following entries:';
+#pragma warning restore AA0470
         Text002: Label 'There is a gap in the number series.';
         Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
+#pragma warning disable AA0470
         Text004: Label 'Fixed Asset Entry: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Fixed_Asset_Document_Nos_CaptionLbl: Label 'Fixed Asset Document Nos.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         FA_DescriptionCaptionLbl: Label 'FA Description';

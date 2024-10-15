@@ -604,7 +604,7 @@ table 28073 "Sales Tax Cr.Memo Header"
 #endif
     begin
         SalesSetup.Get();
-        if "No." = '' then begin
+        if "No." = '' then
             if TaxInvoiceManagement.CheckTaxableNoSeries("Sell-to Customer No.", 1) then begin
                 SalesSetup.TestField("Posted Non Tax Credit Memo Nos");
 #if not CLEAN24
@@ -634,7 +634,6 @@ table 28073 "Sales Tax Cr.Memo Header"
                 end;
 #endif
             end;
-        end;
     end;
 
     var

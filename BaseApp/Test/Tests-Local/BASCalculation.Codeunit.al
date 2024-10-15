@@ -380,16 +380,12 @@ codeunit 144003 "BAS Calculation"
     var
         BASCalcSheetEntry: Record "BAS Calc. Sheet Entry";
     begin
-        with BASCalcSheetEntry do begin
-            SetRange("BAS Document No.", BASCalculationSheet.A1);
-            SetRange("BAS Version", BASCalculationSheet."BAS Version");
-            DeleteAll(true);
-        end;
+        BASCalcSheetEntry.SetRange("BAS Document No.", BASCalculationSheet.A1);
+        BASCalcSheetEntry.SetRange("BAS Version", BASCalculationSheet."BAS Version");
+        BASCalcSheetEntry.DeleteAll(true);
 
-        with BASCalculationSheet do begin
-            Get(A1, "BAS Version");
-            Delete(true);
-        end;
+        BASCalculationSheet.Get(BASCalculationSheet.A1, BASCalculationSheet."BAS Version");
+        BASCalculationSheet.Delete(true);
     end;
 
     local procedure Cleanup(var BASCalculationSheet: Record "BAS Calculation Sheet"; DebitAccNo: Code[20]; CreditAccNo: Code[20])
@@ -510,8 +506,7 @@ codeunit 144003 "BAS Calculation"
         FieldRef.Value := GLEntry.Amount;
         RecRef.Modify();
 
-        with BASCalculationSheet do
-            Get(A1, "BAS Version");
+        BASCalculationSheet.Get(BASCalculationSheet.A1, BASCalculationSheet."BAS Version");
     end;
 
     local procedure CreateMockBASCalcSheetEntryGST(var BASCalculationSheet: Record "BAS Calculation Sheet"; BASCalcSheetFieldNo: Integer; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20])
@@ -536,8 +531,7 @@ codeunit 144003 "BAS Calculation"
         FieldRef.Value := VATEntry.Amount;
         RecRef.Modify();
 
-        with BASCalculationSheet do
-            Get(A1, "BAS Version");
+        BASCalculationSheet.Get(BASCalculationSheet.A1, BASCalculationSheet."BAS Version");
     end;
 
     local procedure CreateGLAccountICGLAccount(var GLAccount: Record "G/L Account")
@@ -638,81 +632,71 @@ codeunit 144003 "BAS Calculation"
     var
         BasSetup: Record "BAS Setup";
     begin
-        with BasSetup do begin
-            Validate("Setup Name", BasSetupName);
-            Validate("Line No.", SetupFieldNo);
-            Validate("Row No.", Format(SetupFieldNo));
-            Validate("Field No.", SetupFieldNo);
-            Validate(Type, SetupType);
-            Validate("Account Totaling", AccNo);
-            Validate("Gen. Posting Type", GenPostingType);
-            Validate("GST Bus. Posting Group", GSTBusPostingGroupCode);
-            Validate("GST Prod. Posting Group", GSTProdPostingGroupCode);
-            Validate("Amount Type", "Amount Type"::Amount);
-            Validate(Print, true);
+        BasSetup.Validate("Setup Name", BasSetupName);
+        BasSetup.Validate("Line No.", SetupFieldNo);
+        BasSetup.Validate("Row No.", Format(SetupFieldNo));
+        BasSetup.Validate("Field No.", SetupFieldNo);
+        BasSetup.Validate(Type, SetupType);
+        BasSetup.Validate("Account Totaling", AccNo);
+        BasSetup.Validate("Gen. Posting Type", GenPostingType);
+        BasSetup.Validate("GST Bus. Posting Group", GSTBusPostingGroupCode);
+        BasSetup.Validate("GST Prod. Posting Group", GSTProdPostingGroupCode);
+        BasSetup.Validate("Amount Type", BasSetup."Amount Type"::Amount);
+        BasSetup.Validate(Print, true);
 
-            Insert(true);
-        end;
+        BasSetup.Insert(true);
     end;
 
     local procedure InsertBASCalcSheetEntry(var BASCalcSheetEntry: Record "BAS Calc. Sheet Entry"; BASCalculationSheet: Record "BAS Calculation Sheet"; FieldRef: FieldRef; EntryNo: Integer; EntryAmount: Decimal; EntryType: Option)
     begin
-        with BASCalcSheetEntry do begin
-            Validate("Company Name", CompanyName);
-            Validate("BAS Document No.", BASCalculationSheet.A1);
-            Validate("BAS Version", BASCalculationSheet."BAS Version");
-            Validate("Field Label No.", FieldRef.Name);
-            Validate(Type, EntryType);
-            Validate("Entry No.", EntryNo);
-            Validate("Amount Type", "Amount Type"::Amount);
-            Validate(Amount, EntryAmount);
+        BASCalcSheetEntry.Validate("Company Name", CompanyName);
+        BASCalcSheetEntry.Validate("BAS Document No.", BASCalculationSheet.A1);
+        BASCalcSheetEntry.Validate("BAS Version", BASCalculationSheet."BAS Version");
+        BASCalcSheetEntry.Validate("Field Label No.", FieldRef.Name);
+        BASCalcSheetEntry.Validate(Type, EntryType);
+        BASCalcSheetEntry.Validate("Entry No.", EntryNo);
+        BASCalcSheetEntry.Validate("Amount Type", BASCalcSheetEntry."Amount Type"::Amount);
+        BASCalcSheetEntry.Validate(Amount, EntryAmount);
 
-            Insert(true);
-        end;
+        BASCalcSheetEntry.Insert(true);
     end;
 
     local procedure CreateBasCalcSheet(var BASCalculationSheet: Record "BAS Calculation Sheet"; BasSetupName: Code[20]; CreateAsExported: Boolean)
     begin
-        with BASCalculationSheet do begin
-            Validate("BAS Version", 1);
-            A1 := LibraryUtility.GenerateRandomCode(FieldNo(A1), DATABASE::"BAS Calculation Sheet");
-            Validate(A3, WorkDate());
-            Validate(A4, WorkDate());
-            Validate("BAS Setup Name", BasSetupName);
+        BASCalculationSheet.Validate("BAS Version", 1);
+        BASCalculationSheet.A1 := LibraryUtility.GenerateRandomCode(BASCalculationSheet.FieldNo(A1), DATABASE::"BAS Calculation Sheet");
+        BASCalculationSheet.Validate(A3, WorkDate());
+        BASCalculationSheet.Validate(A4, WorkDate());
+        BASCalculationSheet.Validate("BAS Setup Name", BasSetupName);
 
-            Validate(Updated, CreateAsExported);
-            Validate(Exported, CreateAsExported);
+        BASCalculationSheet.Validate(Updated, CreateAsExported);
+        BASCalculationSheet.Validate(Exported, CreateAsExported);
 
-            Insert(true);
-        end;
+        BASCalculationSheet.Insert(true);
     end;
 
     local procedure CalcBasFieldAmount(BasDocNo: Code[11]; BasVersion: Integer; FieldLabelNo: Text[30]): Decimal
     var
         BASCalcSheetEntry: Record "BAS Calc. Sheet Entry";
     begin
-        with BASCalcSheetEntry do begin
-            SetRange("Company Name", CompanyName);
-            SetRange("BAS Document No.", BasDocNo);
-            SetRange("BAS Version", BasVersion);
-            SetRange("Field Label No.", FieldLabelNo);
+        BASCalcSheetEntry.SetRange("Company Name", CompanyName);
+        BASCalcSheetEntry.SetRange("BAS Document No.", BasDocNo);
+        BASCalcSheetEntry.SetRange("BAS Version", BasVersion);
+        BASCalcSheetEntry.SetRange("Field Label No.", FieldLabelNo);
 
-            CalcSums(Amount);
-            exit(Amount);
-        end;
+        BASCalcSheetEntry.CalcSums(Amount);
+        exit(BASCalcSheetEntry.Amount);
     end;
 
     local procedure GetFieldLabel(SetupFieldNo: Integer): Text[30]
     var
         "Field": Record "Field";
     begin
-        with Field do begin
-            SetRange(TableNo, DATABASE::"BAS Calculation Sheet");
-            SetRange("No.", SetupFieldNo);
-            FindFirst();
+        Field.SetRange(TableNo, DATABASE::"BAS Calculation Sheet");
+        Field.SetRange("No.", SetupFieldNo);
+        Field.FindFirst();
 
-            exit(FieldName);
-        end;
+        exit(Field.FieldName);
     end;
 
     local procedure SetupIntercompanyGenJournalBatch()
@@ -746,20 +730,16 @@ codeunit 144003 "BAS Calculation"
         CreateGLAccountICGLAccount(GLAccountSettlement);
         CreateGLAccountICGLAccount(GLAccountRounding);
 
-        with LibraryVariableStorage do begin
-            Enqueue(GLAccountSettlement."No.");
-            Enqueue(GLAccountRounding."No.");
-            Enqueue(LibraryUtility.GenerateGUID());
-            Enqueue(BASCalculationSheet."BAS Setup Name");
-            Enqueue(DoPost);
-            Enqueue(InterCompany);
-            Enqueue(ICPartnerCode);
-        end;
+        LibraryVariableStorage.Enqueue(GLAccountSettlement."No.");
+        LibraryVariableStorage.Enqueue(GLAccountRounding."No.");
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(BASCalculationSheet."BAS Setup Name");
+        LibraryVariableStorage.Enqueue(DoPost);
+        LibraryVariableStorage.Enqueue(InterCompany);
+        LibraryVariableStorage.Enqueue(ICPartnerCode);
 
-        with BASCalculationSheet do begin
-            SetRange(A1, A1);
-            SetRange("BAS Version", "BAS Version");
-        end;
+        BASCalculationSheet.SetRange(A1, BASCalculationSheet.A1);
+        BASCalculationSheet.SetRange("BAS Version", BASCalculationSheet."BAS Version");
 
         Commit();
 
@@ -784,13 +764,11 @@ codeunit 144003 "BAS Calculation"
     var
         BasXmlFieldId: Record "BAS XML Field ID";
     begin
-        with BasXmlFieldId do begin
-            Init();
-            Validate("Line No.", LineNo);
-            Validate("XML Field ID", XmlFieldId);
-            Validate("Field No.", BasFieldNo);
-            Insert(true);
-        end;
+        BasXmlFieldId.Init();
+        BasXmlFieldId.Validate("Line No.", LineNo);
+        BasXmlFieldId.Validate("XML Field ID", XmlFieldId);
+        BasXmlFieldId.Validate("Field No.", BasFieldNo);
+        BasXmlFieldId.Insert(true);
     end;
 
     local procedure CreateBasXmlFieldSetupName(): Code[20]
@@ -807,14 +785,12 @@ codeunit 144003 "BAS Calculation"
     var
         BASXMLFieldIDSetup: Record "BAS XML Field ID Setup";
     begin
-        with BASXMLFieldIDSetup do begin
-            Init();
-            Validate("Setup Name", SetupName);
-            Validate("Line No.", LineNo);
-            Validate("XML Field ID", XmlFieldId);
-            Validate("Field No.", BasFieldNo);
-            Insert(true);
-        end;
+        BASXMLFieldIDSetup.Init();
+        BASXMLFieldIDSetup.Validate("Setup Name", SetupName);
+        BASXMLFieldIDSetup.Validate("Line No.", LineNo);
+        BASXMLFieldIDSetup.Validate("XML Field ID", XmlFieldId);
+        BASXMLFieldIDSetup.Validate("Field No.", BasFieldNo);
+        BASXMLFieldIDSetup.Insert(true);
     end;
 
     local procedure GetRandomFieldNo(TblNo: Integer): Integer
@@ -848,10 +824,9 @@ codeunit 144003 "BAS Calculation"
     begin
         DebitGLAcc.CalcFields(Balance);
         CreditGLAcc.CalcFields(Balance);
-        with BASCalculationSheet do
-            Assert.IsTrue(
-              (CreditGLAcc.Balance = CalcBasFieldAmount(A1, "BAS Version", GetFieldLabel(FieldNo("7C")))) and
-              (DebitGLAcc.Balance = CalcBasFieldAmount(A1, "BAS Version", GetFieldLabel(FieldNo("7D")))),
+        Assert.IsTrue(
+              (CreditGLAcc.Balance = CalcBasFieldAmount(BASCalculationSheet.A1, BASCalculationSheet."BAS Version", GetFieldLabel(BASCalculationSheet.FieldNo("7C")))) and
+              (DebitGLAcc.Balance = CalcBasFieldAmount(BASCalculationSheet.A1, BASCalculationSheet."BAS Version", GetFieldLabel(BASCalculationSheet.FieldNo("7D")))),
               FuelTaxIsIncorrectErr);
     end;
 
@@ -859,12 +834,10 @@ codeunit 144003 "BAS Calculation"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("G/L Account No.", GLAccNo);
-            SetFilter("Document No.", '<>''''');
-            SetRange("BAS Doc. No.", BASCalcSheetA1);
-            Assert.IsFalse(IsEmpty, GLEntryNotFoundErr);
-        end
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        GLEntry.SetFilter("Document No.", '<>''''');
+        GLEntry.SetRange("BAS Doc. No.", BASCalcSheetA1);
+        Assert.IsFalse(GLEntry.IsEmpty, GLEntryNotFoundErr);
     end;
 
     local procedure VerifyBasXmlSetup(XmlFieldId: Text[80]; BasFieldNo: Integer)
@@ -877,11 +850,9 @@ codeunit 144003 "BAS Calculation"
     var
         BasXmlFieldId: Record "BAS XML Field ID";
     begin
-        with BasXmlFieldId do begin
-            SetRange("XML Field ID", XmlFieldId);
-            SetRange("Field No.", BasFieldNo);
-            Assert.IsFalse(IsEmpty, StrSubstNo(BasXmlFieldIdMustExistErr, XmlFieldId, Format(BasFieldNo)));
-        end;
+        BasXmlFieldId.SetRange("XML Field ID", XmlFieldId);
+        BasXmlFieldId.SetRange("Field No.", BasFieldNo);
+        Assert.IsFalse(BasXmlFieldId.IsEmpty, StrSubstNo(BasXmlFieldIdMustExistErr, XmlFieldId, Format(BasFieldNo)));
     end;
 
     local procedure VerifyFieldNoInAllBasXmlSetup(XmlFieldId: Text[80]; BasFieldNo: Integer)
@@ -889,15 +860,13 @@ codeunit 144003 "BAS Calculation"
         BASXMLFieldSetupName: Record "BAS XML Field Setup Name";
         BASXMLFieldIDSetup: Record "BAS XML Field ID Setup";
     begin
-        with BASXMLFieldIDSetup do begin
-            BASXMLFieldSetupName.FindSet();
-            repeat
-                SetRange("Setup Name", BASXMLFieldSetupName.Name);
-                SetRange("XML Field ID", XmlFieldId);
-                SetRange("Field No.", BasFieldNo);
-                Assert.IsFalse(IsEmpty, StrSubstNo(BasXmlFieldIdSetupMustExistErr, XmlFieldId, Format(BasFieldNo)));
-            until BASXMLFieldSetupName.Next() = 0;
-        end;
+        BASXMLFieldSetupName.FindSet();
+        repeat
+            BASXMLFieldIDSetup.SetRange("Setup Name", BASXMLFieldSetupName.Name);
+            BASXMLFieldIDSetup.SetRange("XML Field ID", XmlFieldId);
+            BASXMLFieldIDSetup.SetRange("Field No.", BasFieldNo);
+            Assert.IsFalse(BASXMLFieldIDSetup.IsEmpty, StrSubstNo(BasXmlFieldIdSetupMustExistErr, XmlFieldId, Format(BasFieldNo)));
+        until BASXMLFieldSetupName.Next() = 0;
     end;
 
     local procedure VerifyVATEntryByVATPostingSetup(ExpectedAmount: Decimal; VATPostingSetup: Record "VAT Posting Setup")
@@ -943,29 +912,27 @@ codeunit 144003 "BAS Calculation"
         DocumentNo: Variant;
         BasSetupName: Variant;
     begin
-        with CalcGSTSettlment do begin
-            AccType.SetValue(0);
+        CalcGSTSettlment.AccType.SetValue(0);
 
-            LibraryVariableStorage.Dequeue(GLAccNo);
-            AccNo.SetValue(GLAccNo);
+        LibraryVariableStorage.Dequeue(GLAccNo);
+        CalcGSTSettlment.AccNo.SetValue(GLAccNo);
 
-            LibraryVariableStorage.Dequeue(GLAccNo);
-            RoundAccNo.SetValue(GLAccNo);
+        LibraryVariableStorage.Dequeue(GLAccNo);
+        CalcGSTSettlment.RoundAccNo.SetValue(GLAccNo);
 
-            LibraryVariableStorage.Dequeue(DocumentNo);
-            LibraryVariableStorage.Dequeue(BasSetupName);
+        LibraryVariableStorage.Dequeue(DocumentNo);
+        LibraryVariableStorage.Dequeue(BasSetupName);
 
-            PostDate.SetValue(WorkDate());
-            DocNo.SetValue(DocumentNo);
+        CalcGSTSettlment.PostDate.SetValue(WorkDate());
+        CalcGSTSettlment.DocNo.SetValue(DocumentNo);
 
-            Post.SetValue(LibraryVariableStorage.DequeueBoolean());
-            InterCompany.SetValue(LibraryVariableStorage.DequeueBoolean());
-            ICPartnerCode.SetValue(LibraryVariableStorage.DequeueText());
+        CalcGSTSettlment.Post.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CalcGSTSettlment.InterCompany.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CalcGSTSettlment.ICPartnerCode.SetValue(LibraryVariableStorage.DequeueText());
 
-            SaveAsXml(
-              TemporaryPath + '\' + Format(BasSetupName) + LabelsFileTxt + '.xml',
-              TemporaryPath + '\' + Format(BasSetupName) + '.xml');
-        end;
+        CalcGSTSettlment.SaveAsXml(
+          TemporaryPath + '\' + Format(BasSetupName) + LabelsFileTxt + '.xml',
+          TemporaryPath + '\' + Format(BasSetupName) + '.xml');
     end;
 
     [MessageHandler]

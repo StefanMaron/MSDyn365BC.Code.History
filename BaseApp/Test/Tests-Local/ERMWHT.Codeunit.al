@@ -2343,11 +2343,9 @@ codeunit 141012 "ERM WHT"
     var
         WHTEntry: Record "WHT Entry";
     begin
-        with WHTEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit("Unrealized Base");
-        end;
+        WHTEntry.SetRange("Document No.", DocumentNo);
+        WHTEntry.FindFirst();
+        exit(WHTEntry."Unrealized Base");
     end;
 
     local procedure GetPayablesAccountNo(VendorNo: Code[20]): Code[20]
@@ -2624,66 +2622,62 @@ codeunit 141012 "ERM WHT"
     var
         WHTEntry: Record "WHT Entry";
     begin
-        with WHTEntry do begin
-            SetRange("Document No.", DocumentNo);
-            Assert.RecordCount(WHTEntry, 1);
-            FindFirst();
+        WHTEntry.SetRange("Document No.", DocumentNo);
+        Assert.RecordCount(WHTEntry, 1);
+        WHTEntry.FindFirst();
 
-            Assert.AreNearlyEqual(
-              UnrealizedAmount, "Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(AmountErr, FieldCaption("Unrealized Amount"), UnrealizedAmount));
-            Assert.AreNearlyEqual(
-              UnrealizedBase, "Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(AmountErr, FieldCaption("Unrealized Base"), UnrealizedBase));
+        Assert.AreNearlyEqual(
+          UnrealizedAmount, WHTEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountErr, WHTEntry.FieldCaption("Unrealized Amount"), UnrealizedAmount));
+        Assert.AreNearlyEqual(
+          UnrealizedBase, WHTEntry."Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountErr, WHTEntry.FieldCaption("Unrealized Base"), UnrealizedBase));
 
-            Assert.AreNearlyEqual(
-              RemainingUnrAmount, "Remaining Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(AmountErr, FieldCaption("Remaining Unrealized Amount"), RemainingUnrAmount));
-            Assert.AreNearlyEqual(
-              RemainingUnrBase, "Remaining Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(AmountErr, FieldCaption("Remaining Unrealized Base"), RemainingUnrBase));
+        Assert.AreNearlyEqual(
+          RemainingUnrAmount, WHTEntry."Remaining Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountErr, WHTEntry.FieldCaption("Remaining Unrealized Amount"), RemainingUnrAmount));
+        Assert.AreNearlyEqual(
+          RemainingUnrBase, WHTEntry."Remaining Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountErr, WHTEntry.FieldCaption("Remaining Unrealized Base"), RemainingUnrBase));
 
-            Assert.AreNearlyEqual(
-              RemainingUnrAmount, "Rem Unrealized Amount (LCY)",
-              LibraryERM.GetAmountRoundingPrecision(), FieldCaption("Rem Unrealized Amount (LCY)"));
-            Assert.AreNearlyEqual(
-              RemainingUnrBase, "Rem Unrealized Base (LCY)",
-              LibraryERM.GetAmountRoundingPrecision(), FieldCaption("Rem Unrealized Base (LCY)"));
+        Assert.AreNearlyEqual(
+          RemainingUnrAmount, WHTEntry."Rem Unrealized Amount (LCY)",
+          LibraryERM.GetAmountRoundingPrecision(), WHTEntry.FieldCaption("Rem Unrealized Amount (LCY)"));
+        Assert.AreNearlyEqual(
+          RemainingUnrBase, WHTEntry."Rem Unrealized Base (LCY)",
+          LibraryERM.GetAmountRoundingPrecision(), WHTEntry.FieldCaption("Rem Unrealized Base (LCY)"));
 
-            Assert.AreEqual(IsClosed, Closed,
-              StrSubstNo(IncorrectFieldValueErr, FieldCaption(Closed)));
-        end;
+        Assert.AreEqual(IsClosed, WHTEntry.Closed,
+          StrSubstNo(IncorrectFieldValueErr, WHTEntry.FieldCaption(Closed)));
     end;
 
     local procedure VerifyCrMemoUnrealizedAmountAndBaseOnWHTEntry(DocumentNo: Code[20]; UnrealizedAmount: Decimal; UnrealizedBase: Decimal; RemainingUnrAmount: Decimal; RemainingUnrBase: Decimal)
     var
         WHTEntry: Record "WHT Entry";
     begin
-        with WHTEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
+        WHTEntry.SetRange("Document No.", DocumentNo);
+        WHTEntry.FindFirst();
 
-            Assert.AreNearlyEqual(
-              UnrealizedAmount, "Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(AmountErr, FieldCaption("Unrealized Amount"), UnrealizedAmount));
-            Assert.AreNearlyEqual(
-              UnrealizedBase, "Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(AmountErr, FieldCaption("Unrealized Base"), UnrealizedBase));
+        Assert.AreNearlyEqual(
+          UnrealizedAmount, WHTEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountErr, WHTEntry.FieldCaption("Unrealized Amount"), UnrealizedAmount));
+        Assert.AreNearlyEqual(
+          UnrealizedBase, WHTEntry."Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountErr, WHTEntry.FieldCaption("Unrealized Base"), UnrealizedBase));
 
-            Assert.AreNearlyEqual(
-              RemainingUnrAmount, "Remaining Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(AmountErr, FieldCaption("Remaining Unrealized Amount"), RemainingUnrAmount));
-            Assert.AreNearlyEqual(
-              RemainingUnrBase, "Remaining Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo(AmountErr, FieldCaption("Remaining Unrealized Base"), RemainingUnrBase));
+        Assert.AreNearlyEqual(
+          RemainingUnrAmount, WHTEntry."Remaining Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountErr, WHTEntry.FieldCaption("Remaining Unrealized Amount"), RemainingUnrAmount));
+        Assert.AreNearlyEqual(
+          RemainingUnrBase, WHTEntry."Remaining Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo(AmountErr, WHTEntry.FieldCaption("Remaining Unrealized Base"), RemainingUnrBase));
 
-            Assert.AreNearlyEqual(
-              RemainingUnrAmount, "Rem Unrealized Amount (LCY)",
-              LibraryERM.GetAmountRoundingPrecision(), FieldCaption("Rem Unrealized Amount (LCY)"));
-            Assert.AreNearlyEqual(
-              RemainingUnrBase, "Rem Unrealized Base (LCY)",
-              LibraryERM.GetAmountRoundingPrecision(), FieldCaption("Rem Unrealized Base (LCY)"));
-        end;
+        Assert.AreNearlyEqual(
+          RemainingUnrAmount, WHTEntry."Rem Unrealized Amount (LCY)",
+          LibraryERM.GetAmountRoundingPrecision(), WHTEntry.FieldCaption("Rem Unrealized Amount (LCY)"));
+        Assert.AreNearlyEqual(
+          RemainingUnrBase, WHTEntry."Rem Unrealized Base (LCY)",
+          LibraryERM.GetAmountRoundingPrecision(), WHTEntry.FieldCaption("Rem Unrealized Base (LCY)"));
     end;
 
     local procedure VerifyPaymentWHTEntries(PaymentNo: Code[20]; WHTPayableGLAccountNo: Code[20])

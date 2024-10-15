@@ -263,16 +263,22 @@ report 6521 "Item Tracking Appendix"
         ShowTotal: Boolean;
         DocumentDate: Date;
         MainRecCount: Integer;
+#pragma warning disable AA0074
         Text002: Label 'Pay-to Address';
         Text003: Label 'Bill-to Address';
+#pragma warning restore AA0074
         TrackingSpecCount: Integer;
+#pragma warning disable AA0074
         Text004: Label 'Sales - Shipment';
+#pragma warning restore AA0074
         OldRefNo: Integer;
         OldNo: Code[20];
         TotalQty: Decimal;
+#pragma warning disable AA0074
         Text005: Label 'Sales - Invoice';
         Text006: Label 'Sales';
         Text007: Label 'Purchase';
+#pragma warning restore AA0074
         ItemTrackingAppendixCaptionLbl: Label 'Item Tracking - Appendix';
         DocumentDateCaptionLbl: Label 'Document Date';
         PageCaptionLbl: Label 'Page';

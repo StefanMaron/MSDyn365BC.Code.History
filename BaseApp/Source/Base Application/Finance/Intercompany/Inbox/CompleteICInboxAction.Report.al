@@ -36,14 +36,13 @@ report 511 "Complete IC Inbox Action"
                     HandledInboxJnlLine: Record "Handled IC Inbox Jnl. Line";
                 begin
                     if ("IC Inbox Transaction"."Line Action" = "IC Inbox Transaction"."Line Action"::Accept) and (AccNo <> '') then begin
-                        if "Account Type" = "Account Type"::"G/L Account" then begin
+                        if "Account Type" = "Account Type"::"G/L Account" then
                             if AccType = AccType::"G/L Account" then
                                 "Account Type" := "Account Type"::"G/L Account";
-                            if AccType = AccType::Vendor then
-                                "Account Type" := "Account Type"::Vendor;
-                            Validate("Account No.", AccNo);
-                            Modify();
-                        end;
+                        if AccType = AccType::Vendor then
+                            "Account Type" := "Account Type"::Vendor;
+                        Validate("Account No.", AccNo);
+                        Modify();
                     end;
                     InboxJnlLine2 := "IC Inbox Jnl. Line";
                     case "IC Inbox Transaction"."Line Action" of
@@ -388,15 +387,11 @@ report 511 "Complete IC Inbox Action"
                             begin
                                 case AccType of
                                     AccType::"G/L Account":
-                                        begin
-                                            if PAGE.RunModal(0, GLAcc, GLAcc."No.") = ACTION::LookupOK then
-                                                AccNo := GLAcc."No.";
-                                        end;
+                                        if PAGE.RunModal(0, GLAcc, GLAcc."No.") = ACTION::LookupOK then
+                                            AccNo := GLAcc."No.";
                                     AccType::Vendor:
-                                        begin
-                                            if PAGE.RunModal(0, Vendor, Vendor."No.") = ACTION::LookupOK then
-                                                AccNo := Vendor."No.";
-                                        end;
+                                        if PAGE.RunModal(0, Vendor, Vendor."No.") = ACTION::LookupOK then
+                                            AccNo := Vendor."No.";
                                 end;
                             end;
                         }
@@ -446,7 +441,11 @@ report 511 "Complete IC Inbox Action"
         DimMgt: Codeunit DimensionManagement;
         GLSetupFound: Boolean;
         Forward: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 %2 from IC Partner %3 already exists in the %4 window. You have to delete %1 %2 in the %4 window before you complete the line action.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AccType: Option "G/L Account",Vendor;
         AccNo: Code[10];
         DocPostingDateEditable: Boolean;

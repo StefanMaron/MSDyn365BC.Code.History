@@ -1284,9 +1284,13 @@ page 8626 "Config. Package Records"
         PackageColumnField: array[1000] of Integer;
         MatrixColumnOrdinal: Integer;
         TableNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 value ''%2'' does not exist.';
+#pragma warning restore AA0470
         Text002: Label 'There are no data migration errors in this record.';
         ValueIsTooLong: Label 'Max length of %1 with value ''%2'' is %3.', Comment = '%1 - Table caption, %2 - Value, %3 - Max length';
+#pragma warning restore AA0074
         ErrorFieldNo: Integer;
         Field1Visible: Boolean;
         Field2Visible: Boolean;

@@ -1,4 +1,4 @@
-namespace Microsoft.Purchases.Reports;
+﻿namespace Microsoft.Purchases.Reports;
 
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Team;
@@ -491,12 +491,11 @@ report 412 "Purchase Prepmt. Doc. - Test"
                                 end else
                                     AddError(StrSubstNo(Text007, GLAcc.TableCaption(), GenPostingSetup."Purch. Prepayments Account"));
 
-                            if ErrorCounter = CurrentErrorCount then begin
+                            if ErrorCounter = CurrentErrorCount then
                                 if PurchPostPrepmt.PrepmtAmount("Purchase Line", DocumentType) <> 0 then begin
                                     PurchPostPrepmt.FillInvLineBuffer("Purchase Header", "Purchase Line", TempPrepmtInvLineBuf2);
                                     TempPrepmtInvLineBuf.InsertInvLineBuffer(TempPrepmtInvLineBuf2);
                                 end;
-                            end;
 
                             TempPrepmtInvLineBuf2.Reset();
                             TempPrepmtInvLineBuf2.DeleteAll();
@@ -1028,6 +1027,8 @@ report 412 "Purchase Prepmt. Doc. - Test"
         TotalText: Text[50];
         TotalInclVATText: Text[50];
         TotalExclVATText: Text[50];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be Order.';
         Text001: Label 'Purchase Document: %1';
         Text002: Label 'Total %1';
@@ -1040,11 +1041,17 @@ report 412 "Purchase Prepmt. Doc. - Test"
         Text010: Label '%1 is not within your allowed range of posting dates.';
         Text011: Label 'Purchase %1 %2 already exists for this vendor.';
         Text012: Label '%1 must be entered.';
+#pragma warning restore AA0470
         Text014: Label 'Prepayment Invoice';
         Text015: Label 'Prepayment Credit Memo';
+#pragma warning restore AA0074
         ShowDim: Boolean;
         Continue: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text016: Label '%1 %2 %3 does not exist.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SumPrepaymInvLineBufferAmount: Decimal;
         Currency: Record Currency;
         PurchLineTotal: Record "Purchase Line";

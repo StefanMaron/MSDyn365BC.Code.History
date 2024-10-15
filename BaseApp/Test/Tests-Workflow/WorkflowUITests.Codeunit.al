@@ -29,7 +29,6 @@ codeunit 134316 "Workflow UI Tests"
         SelectedEventDesc: Text;
         WorkflowExistsAsTemplateErr: Label 'The record already exists, as a workflow template.';
         ShowMessageTestMsg: Label 'Test Message';
-        CannotAddStepToNoCodeWorkflowErr: Label 'Workflow Code must have a value in Workflow Step: Workflow Code=, ID=0. It cannot be zero or empty.';
         FieldShouldBeVisibleErr: Label 'The field should be visible';
         ValuesAreNotTheSameErr: Label 'The values are not the same';
 
@@ -1157,6 +1156,7 @@ codeunit 134316 "Workflow UI Tests"
     [Scope('OnPrem')]
     procedure TestCannotAddWorkflowStepToWorkflowWithNoCode()
     var
+        WorkFlowStep: Record "Workflow Step";
         Workflows: TestPage Workflows;
         Workflow: TestPage Workflow;
     begin
@@ -1176,7 +1176,7 @@ codeunit 134316 "Workflow UI Tests"
         asserterror Workflow.WorkflowSubpage."Event Description".Lookup();
 
         // Verify
-        Assert.ExpectedError(CannotAddStepToNoCodeWorkflowErr);
+        Assert.ExpectedTestFieldError(WorkFlowStep.FieldCaption("Workflow Code"), '');
     end;
 
     [Test]
@@ -1681,14 +1681,12 @@ codeunit 134316 "Workflow UI Tests"
     var
         WFEventResponseCombination: Record "WF Event/Response Combination";
     begin
-        with WFEventResponseCombination do begin
-            Init();
-            "Function Name" := WorkflowEventName;
-            Type := Type::"Event";
-            "Predecessor Type" := "Predecessor Type"::"Event";
-            "Predecessor Function Name" := PredesessorFunctionName;
-            Insert();
-        end;
+        WFEventResponseCombination.Init();
+        WFEventResponseCombination."Function Name" := WorkflowEventName;
+        WFEventResponseCombination.Type := WFEventResponseCombination.Type::"Event";
+        WFEventResponseCombination."Predecessor Type" := WFEventResponseCombination."Predecessor Type"::"Event";
+        WFEventResponseCombination."Predecessor Function Name" := PredesessorFunctionName;
+        WFEventResponseCombination.Insert();
     end;
 
     local procedure ValidateUIForWorkflowPage(Workflow: Record Workflow)

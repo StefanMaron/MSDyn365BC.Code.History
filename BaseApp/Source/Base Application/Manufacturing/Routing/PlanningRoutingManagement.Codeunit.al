@@ -11,14 +11,24 @@ codeunit 99000808 PlanningRoutingManagement
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Circular reference in line %1 when calculating %2. Counted sequences %3. Max. sequences %4.';
+#pragma warning restore AA0470
         Text001: Label 'back';
+#pragma warning disable AA0470
         Text002: Label 'Actual number of termination processes in line %1 is %2. They should be 1. Check %3.';
         Text003: Label 'Actual number of start processes in line %1 is %2. They should be 1. Check %3.';
         Text004: Label 'Not all routing lines are sequenced backwards on line %1. Check %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NotAllRoutingLineSequencedForwardErr: Label 'Not all routing lines are sequenced forward on line %1. Check the %2.', Comment = '%1: Field(Line No.); %2 Text ErrList:';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'Previous operations for %1 cannot be found.';
         Text007: Label 'Next operations for %1 cannot be found.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         UOMMgt: Codeunit "Unit of Measure Management";
         ErrList: Text[50];
 

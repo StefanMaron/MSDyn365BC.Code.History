@@ -10,9 +10,15 @@ codeunit 5302 "Outlook Synch. Type Conv"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The filter expression ''%1'' is invalid.\Please redefine your criteria.';
+#pragma warning restore AA0470
         Text002: Label 'The filter cannot be processed because the expression is too long.\Please redefine your criteria.';
+#pragma warning disable AA0470
         Text003: Label 'The synchronization failed because the %1 field in the %2 table is of an unsupported type. Please contact your system administrator.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         "Field": Record "Field";
 
     local procedure GetOptionsQuantity(OptionString: Text): Integer

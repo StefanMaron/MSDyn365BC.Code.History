@@ -11,9 +11,36 @@ codeunit 135207 "Image Analysis Setup Test"
     var
         Assert: Codeunit Assert;
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-        InvalidApiUriErr: Label 'The Api Uri must be a valid Uri for Cognitive Services.';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+        InvalidApiUriErr: Label 'The Api Uri must be a valid Uri for Cognitive Services.';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSetInfiniteAccess()
+    var
+        ImageAnalysisSetupRec: Record "Image Analysis Setup";
+        ImageAnalysisSetup: TestPage "Image Analysis Setup";
+    begin
+        // [SCENARIO] Test SetInfiniteAccess function
+
+        // [GIVEN] An empty Image Analysis Setup
+        LibraryLowerPermissions.SetO365Basic();
+        ImageAnalysisSetupRec.DeleteAll();
+        ImageAnalysisSetupRec.Init();
+        ImageAnalysisSetupRec.Insert();
+
+        // [WHEN] The user open the setup page
+        ImageAnalysisSetup.OpenEdit();
+
+        // [WHEN] The user sets the API key successfully
+        ImageAnalysisSetup."<Api Key>".SetValue('123');
+        // [WHEN] The user sets the API URI successfully
+        ImageAnalysisSetup."Api Uri".SetValue('https://westus.api.cognitive.microsoft.com/vision');
+        // [THEN] The Limit Value is set to 999 and the Limit Type is set to Year
+        Assert.AreEqual(999, ImageAnalysisSetup.LimitValue.AsInteger(), 'Limit should be 999');
+        Assert.AreEqual(0, ImageAnalysisSetup.LimitType.AsInteger(), 'Limit Type should be Year');
+    end;
 
     [Test]
     [Scope('OnPrem')]

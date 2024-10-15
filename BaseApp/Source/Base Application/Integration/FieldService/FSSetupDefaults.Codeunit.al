@@ -19,7 +19,6 @@ using Microsoft.Utilities;
 using System.Reflection;
 using System.Threading;
 using Microsoft.Projects.Project.Job;
-using Microsoft.Service.Item;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Project.Journal;
 using System.Environment.Configuration;
@@ -347,7 +346,7 @@ codeunit 6404 "FS Setup Defaults"
         IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationFieldMapping: Record "Integration Field Mapping";
         FSCustomerAsset: Record "FS Customer Asset";
-        ServiceItem: Record "Service Item";
+        ServiceItem: Record Microsoft.Service.Item."Service Item";
         CDSCompany: Record "CDS Company";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
         EmptyGuid: Guid;
@@ -373,14 +372,14 @@ codeunit 6404 "FS Setup Defaults"
 
         InsertIntegrationTableMapping(
           IntegrationTableMapping, IntegrationTableMappingName,
-          DATABASE::"Service Item", DATABASE::"FS Customer Asset",
+          DATABASE::Microsoft.Service.Item."Service Item", DATABASE::"FS Customer Asset",
           FSCustomerAsset.FieldNo(CustomerAssetId), FSCustomerAsset.FieldNo(ModifiedOn),
           '', '', true);
 
         IntegrationTableMapping.SetIntegrationTableFilter(
           GetTableFilterFromView(DATABASE::"FS Customer Asset", FSCustomerAsset.TableCaption(), FSCustomerAsset.GetView()));
         IntegrationTableMapping.SetTableFilter(
-          GetTableFilterFromView(DATABASE::"Service Item", ServiceItem.TableCaption(), ServiceItem.GetView()));
+          GetTableFilterFromView(DATABASE::Microsoft.Service.Item."Service Item", ServiceItem.TableCaption(), ServiceItem.GetView()));
         IntegrationTableMapping."Dependency Filter" := 'CUSTOMER|ITEM-PRODUCT';
         IntegrationTableMapping.Modify();
 
@@ -588,7 +587,7 @@ codeunit 6404 "FS Setup Defaults"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         case NAVTableID of
-            DATABASE::"Service Item",
+            DATABASE::Microsoft.Service.Item."Service Item",
             DATABASE::"Work Type",
             DATABASE::"Resource":
                 exit(IntegrationTableMapping.Direction::Bidirectional);

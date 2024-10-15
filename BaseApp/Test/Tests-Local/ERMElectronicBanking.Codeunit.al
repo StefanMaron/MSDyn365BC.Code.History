@@ -1987,12 +1987,10 @@ codeunit 141021 "ERM Electronic - Banking"
         PurchInvHeader.CalcFields(Amount);
         InvoiceAmount := PurchInvHeader.Amount;
 
-        with WHTEntry do begin
-            SetRange("Bill-to/Pay-to No.", VendorNo);
-            SetRange("Document No.", InvoiceNo);
-            FindFirst();
-            WHTAmount := "Unrealized Amount";
-        end;
+        WHTEntry.SetRange("Bill-to/Pay-to No.", VendorNo);
+        WHTEntry.SetRange("Document No.", InvoiceNo);
+        WHTEntry.FindFirst();
+        WHTAmount := WHTEntry."Unrealized Amount";
     end;
 
     local procedure ConvertWHTPrepaidAmountInText(TotalRemWHTPrepaidAmount: Decimal): Text
@@ -2156,11 +2154,9 @@ codeunit 141021 "ERM Electronic - Banking"
     local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountNo: Code[20])
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPaymentExport.SelectPaymentJournalTemplate());
-        with GenJournalBatch do begin
-            "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := BalAccountNo;
-            Modify();
-        end;
+        GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
+        GenJournalBatch."Bal. Account No." := BalAccountNo;
+        GenJournalBatch.Modify();
     end;
 
     local procedure CreateGenJournalBatchWithBankAccount(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -2560,15 +2556,13 @@ codeunit 141021 "ERM Electronic - Banking"
 
         // Verify new created General Journal Line after running Suggest Vendor Payment.
         FindPurchInvHeader(PurchInvHeader, DocumentNo);
-        with GenJournalLine do begin
-            SetRange("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            SetRange("Applies-to Doc. No.", DocumentNo);
-            FindFirst();
-            TestField("Account No.", PurchInvHeader."Buy-from Vendor No.");
-            Assert.AreEqual(
-              PurchInvHeader."Vendor Invoice No.", "External Document No.", FieldCaption("External Document No."));
-            Assert.AreNearlyEqual(PurchInvHeader.Amount, Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
-        end;
+        GenJournalLine.SetRange("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.SetRange("Applies-to Doc. No.", DocumentNo);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Account No.", PurchInvHeader."Buy-from Vendor No.");
+        Assert.AreEqual(
+          PurchInvHeader."Vendor Invoice No.", GenJournalLine."External Document No.", GenJournalLine.FieldCaption("External Document No."));
+        Assert.AreNearlyEqual(PurchInvHeader.Amount, GenJournalLine.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
     end;
 
     local procedure VerifyFileLineLength(FilePath: Text; LineNo: Integer)

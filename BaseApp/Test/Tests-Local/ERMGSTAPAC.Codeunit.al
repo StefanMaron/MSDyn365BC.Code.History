@@ -820,33 +820,29 @@ codeunit 141007 "ERM GST APAC"
         CreateGLEntry(GLEntry);
         LibrarySales.CreateCustomer(Customer);
 
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            Insert();
-            "Document Type" := "Document Type"::Invoice;
-            "Customer No." := Customer."No.";
-            Open := true;
-            Positive := true;
-            "Pmt. Disc. Given (LCY)" := LibraryRandom.RandDec(10, 2);
-            "Due Date" := WorkDate();
-            "Posting Date" := WorkDate();
-            "Transaction No." := GLEntry."Transaction No.";
-            "Closed by Entry No." := "Entry No.";
-            Modify();
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry.Insert();
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+        CustLedgerEntry."Customer No." := Customer."No.";
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry.Positive := true;
+        CustLedgerEntry."Pmt. Disc. Given (LCY)" := LibraryRandom.RandDec(10, 2);
+        CustLedgerEntry."Due Date" := WorkDate();
+        CustLedgerEntry."Posting Date" := WorkDate();
+        CustLedgerEntry."Transaction No." := GLEntry."Transaction No.";
+        CustLedgerEntry."Closed by Entry No." := CustLedgerEntry."Entry No.";
+        CustLedgerEntry.Modify();
     end;
 
     local procedure CreateGLEntry(var GLEntry: Record "G/L Entry")
     begin
-        with GLEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            "G/L Account No." := LibraryUTUtility.GetNewCode();
-            "Document No." := LibraryUTUtility.GetNewCode();
-            "Transaction No." := LibraryUtility.GetLastTransactionNo() + 1;
-            Insert();
-        end;
+        GLEntry.Init();
+        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
+        GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode();
+        GLEntry."Document No." := LibraryUTUtility.GetNewCode();
+        GLEntry."Transaction No." := LibraryUtility.GetLastTransactionNo() + 1;
+        GLEntry.Insert();
     end;
 
     local procedure CreateSalesCreditMemoForCustomer(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
@@ -1100,15 +1096,13 @@ codeunit 141007 "ERM GST APAC"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::" ",
-              "Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(),
-              "Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(100));
-            Validate("Gen. Posting Type", "Gen. Posting Type"::Sale);
-            Validate("BAS Adjustment", BASAdjustment);
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+            GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(),
+            GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(100));
+        GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::Sale);
+        GenJournalLine.Validate("BAS Adjustment", BASAdjustment);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreateGenJournalLineWithUpdateBASCalcSheet(var GenJournalLine: Record "Gen. Journal Line")
@@ -1128,67 +1122,55 @@ codeunit 141007 "ERM GST APAC"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(
-              GenJournalLine, "Document Type"::Payment, AccountType, CVNo, LineAmount);
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", PostedInvoiceNo);
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, CVNo, LineAmount);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", PostedInvoiceNo);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure CreateUnrealVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with VATPostingSetup do begin
-            LibraryERM.CreateVATPostingSetupWithAccounts(
-              VATPostingSetup, "VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 30));
-            Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
-            Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
-            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 30));
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure FindGLSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, Type::"G/L Account");
-            FindFirst();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::"G/L Account");
+        SalesLine.FindFirst();
     end;
 
     local procedure FindGLPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            SetRange(Type, Type::"G/L Account");
-            FindFirst();
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::"G/L Account");
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20])
     begin
-        with GLEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-        end;
+        GLEntry.SetRange("Document Type", DocumentType);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; VATEntryType: Enum "General Posting Type"; CVNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with VATEntry do begin
-            SetRange(Type, VATEntryType);
-            SetRange("Bill-to/Pay-to No.", CVNo);
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        VATEntry.SetRange(Type, VATEntryType);
+        VATEntry.SetRange("Bill-to/Pay-to No.", CVNo);
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
     end;
 
     local procedure GetVATAmount(SalesLine: Record "Sales Line"): Decimal
@@ -1270,36 +1252,28 @@ codeunit 141007 "ERM GST APAC"
 
     local procedure UpdateSalesHeaderAdjAppliesTo(var SalesHeader: Record "Sales Header"; AdjustmentAppliesTo: Code[20])
     begin
-        with SalesHeader do begin
-            Validate("Adjustment Applies-to", AdjustmentAppliesTo);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Adjustment Applies-to", AdjustmentAppliesTo);
+        SalesHeader.Modify(true);
     end;
 
     local procedure UpdateSalesHeaderAppliesTo(var SalesHeader: Record "Sales Header"; AppliesToDocNo: Code[20])
     begin
-        with SalesHeader do begin
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", AppliesToDocNo);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Invoice);
+        SalesHeader.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        SalesHeader.Modify(true);
     end;
 
     local procedure UpdatePurchaseHeaderAdjAppliesTo(var PurchaseHeader: Record "Purchase Header"; AdjustmentAppliesTo: Code[20])
     begin
-        with PurchaseHeader do begin
-            Validate("Adjustment Applies-to", AdjustmentAppliesTo);
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Adjustment Applies-to", AdjustmentAppliesTo);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure UpdatePurchaseHeaderAppliesTo(var PurchaseHeader: Record "Purchase Header"; AppliesToDocNo: Code[20])
     begin
-        with PurchaseHeader do begin
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", AppliesToDocNo);
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Applies-to Doc. Type", PurchaseHeader."Applies-to Doc. Type"::Invoice);
+        PurchaseHeader.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure UpdateSalesDocUnitPrice(SalesHeader: Record "Sales Header"; NewUnitPrice: Decimal)
@@ -1322,10 +1296,8 @@ codeunit 141007 "ERM GST APAC"
 
     local procedure ResetUnrealizedVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup")
     begin
-        with VATPostingSetup do begin
-            Validate("Unrealized VAT Type", "Unrealized VAT Type"::" ");
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure VerifyGSTEntry(GSTBase: Decimal; ActualGSTBase: Decimal; GSTAmount: Decimal; ActualGSTAmount: Decimal)
@@ -1338,28 +1310,24 @@ codeunit 141007 "ERM GST APAC"
     var
         GSTSalesEntry: Record "GST Sales Entry";
     begin
-        with GSTSalesEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            Assert.AreEqual(ExpectedCount, Count, StrSubstNo(WrongValueInGSTEntryErr, TableCaption(), LineCountTxt));
-            CalcSums("GST Base");
-            Assert.AreEqual(
-              ExpectedAmount, "GST Base", StrSubstNo(WrongValueInGSTEntryErr, TableCaption(), FieldCaption("GST Base")));
-        end;
+        GSTSalesEntry.SetRange("Document Type", GSTSalesEntry."Document Type"::Invoice);
+        GSTSalesEntry.SetRange("Document No.", DocumentNo);
+        Assert.AreEqual(ExpectedCount, GSTSalesEntry.Count, StrSubstNo(WrongValueInGSTEntryErr, GSTSalesEntry.TableCaption(), LineCountTxt));
+        GSTSalesEntry.CalcSums("GST Base");
+        Assert.AreEqual(
+          ExpectedAmount, GSTSalesEntry."GST Base", StrSubstNo(WrongValueInGSTEntryErr, GSTSalesEntry.TableCaption(), GSTSalesEntry.FieldCaption("GST Base")));
     end;
 
     local procedure VerifyGSTPurchEntries(DocumentNo: Code[20]; ExpectedCount: Integer; ExpectedAmount: Decimal)
     var
         GSTPurchaseEntry: Record "GST Purchase Entry";
     begin
-        with GSTPurchaseEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            Assert.AreEqual(ExpectedCount, Count, StrSubstNo(WrongValueInGSTEntryErr, TableCaption(), LineCountTxt));
-            CalcSums("GST Base");
-            Assert.AreEqual(
-              ExpectedAmount, "GST Base", StrSubstNo(WrongValueInGSTEntryErr, TableCaption(), FieldCaption("GST Base")));
-        end;
+        GSTPurchaseEntry.SetRange("Document Type", GSTPurchaseEntry."Document Type"::Invoice);
+        GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
+        Assert.AreEqual(ExpectedCount, GSTPurchaseEntry.Count, StrSubstNo(WrongValueInGSTEntryErr, GSTPurchaseEntry.TableCaption(), LineCountTxt));
+        GSTPurchaseEntry.CalcSums("GST Base");
+        Assert.AreEqual(
+          ExpectedAmount, GSTPurchaseEntry."GST Base", StrSubstNo(WrongValueInGSTEntryErr, GSTPurchaseEntry.TableCaption(), GSTPurchaseEntry.FieldCaption("GST Base")));
     end;
 
     local procedure VerifyGSTVATEntries(DocumentNo: Code[20])
@@ -1404,14 +1372,12 @@ codeunit 141007 "ERM GST APAC"
 
     local procedure VerifyVATEntryAmounts(VATEntry: Record "VAT Entry"; ExpectedBase: Decimal; ExpectedAmount: Decimal; ExpectedUnrealizedBase: Decimal; ExpectedUnrealizedAmount: Decimal; ExpectedRemUnrealizedBase: Decimal; ExpectedRemUnrealizedAmount: Decimal)
     begin
-        with VATEntry do begin
-            TestField(Base, ExpectedBase);
-            TestField(Amount, ExpectedAmount);
-            TestField("Unrealized Base", ExpectedUnrealizedBase);
-            TestField("Unrealized Amount", ExpectedUnrealizedAmount);
-            TestField("Remaining Unrealized Base", ExpectedRemUnrealizedBase);
-            TestField("Remaining Unrealized Amount", ExpectedRemUnrealizedAmount);
-        end;
+        VATEntry.TestField(Base, ExpectedBase);
+        VATEntry.TestField(Amount, ExpectedAmount);
+        VATEntry.TestField("Unrealized Base", ExpectedUnrealizedBase);
+        VATEntry.TestField("Unrealized Amount", ExpectedUnrealizedAmount);
+        VATEntry.TestField("Remaining Unrealized Base", ExpectedRemUnrealizedBase);
+        VATEntry.TestField("Remaining Unrealized Amount", ExpectedRemUnrealizedAmount);
     end;
 
     [ModalPageHandler]

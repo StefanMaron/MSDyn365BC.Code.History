@@ -18,7 +18,7 @@ report 28000 "BarCode Checking"
     {
         dataitem(PrintAddressID; "Address ID")
         {
-            DataItemTableView = sorting("Table No.", "Table Key", "Address Type") order(Ascending);
+            DataItemTableView = sorting("Table No.", "Table Key", "Address Type") order(ascending);
             column(USERID; UserId)
             {
             }
@@ -94,10 +94,10 @@ report 28000 "BarCode Checking"
                 if CurrentRec = 0 then begin
                     if not TempAddressID.Find('-') then
                         CurrReport.Break();
-                end else begin
+                end else
                     if TempAddressID.Next() = 0 then
                         CurrReport.Break();
-                end;
+
                 if (TempAddressID."Error Flag No." = '') and ShowErrorOnly then
                     CurrReport.Skip();
 

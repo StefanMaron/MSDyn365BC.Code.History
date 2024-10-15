@@ -370,7 +370,7 @@ page 296 "Recurring Req. Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::"Event")
                         end;
                     }
                     action(Period)
@@ -382,7 +382,7 @@ page 296 "Recurring Req. Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::Period)
                         end;
                     }
                     action(Variant)
@@ -394,7 +394,7 @@ page 296 "Recurring Req. Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::Variant)
                         end;
                     }
                     action(Location)
@@ -407,7 +407,7 @@ page 296 "Recurring Req. Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::Location)
                         end;
                     }
                     action(Lot)
@@ -430,7 +430,7 @@ page 296 "Recurring Req. Worksheet"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            ReqLineAvailabilityMgt.ShowItemAvailabilityFromReqLine(Rec, "Item Availability Type"::BOM)
                         end;
                     }
                 }
@@ -468,7 +468,7 @@ page 296 "Recurring Req. Worksheet"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -628,7 +628,7 @@ page 296 "Recurring Req. Worksheet"
     var
         ReorderItems: Report "Calculate Plan - Req. Wksh.";
         ReqJnlManagement: Codeunit ReqJnlManagement;
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        ReqLineAvailabilityMgt: Codeunit "Req. Line Availability Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
 
     protected var

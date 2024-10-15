@@ -94,8 +94,12 @@ table 5052 "Contact Alt. Addr. Date Range"
     var
         Cont: Record Contact;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be before %2.';
         Text001: Label 'The starting date %1 already exists in a %2 for %3 %4.';
         Text002: Label '%1 must be after %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

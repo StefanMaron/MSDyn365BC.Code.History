@@ -789,14 +789,13 @@ report 28072 "Sales - Tax Invoice"
                 end;
 
                 if LogInteraction then
-                    if not CurrReport.Preview then begin
+                    if not CurrReport.Preview then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code", '', "Posting Description", '')
                         else
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code", '', "Posting Description", '');
-                    end;
             end;
         }
     }

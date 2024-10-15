@@ -1,17 +1,9 @@
 ﻿namespace Microsoft.Inventory.Availability;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Purchases.Document;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 table 520 "Availability Info. Buffer"
 {
@@ -182,7 +174,7 @@ table 520 "Availability Info. Buffer"
         }
         field(507; "Qty. on Trans. Order Shipment"; Decimal)
         {
-            AccessByPermission = TableData "Transfer Header" = R;
+            AccessByPermission = TableData Microsoft.Inventory.Transfer."Transfer Header" = R;
             CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                             "Source Type" = const(5741),
                                                                             "Source Subtype" = const("0"),
@@ -288,7 +280,7 @@ table 520 "Availability Info. Buffer"
         }
         field(516; "Qty. on Trans. Order Receipt"; Decimal)
         {
-            AccessByPermission = TableData "Transfer Header" = R;
+            AccessByPermission = TableData Microsoft.Inventory.Transfer."Transfer Header" = R;
             CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("Item No."),
                                                                           "Source Type" = const(5741),
                                                                           "Source Subtype" = const("1"),
@@ -376,284 +368,30 @@ table 520 "Availability Info. Buffer"
 
     internal procedure LookupGrossRequirement(var TempReservationEntry: Record "Reservation Entry" temporary)
     begin
-        LookupReservationEntryForQtyOnSalesOrder(TempReservationEntry);
-        LookupReservationEntryForQtyOnServiceOrder(TempReservationEntry);
-        LookupReservationEntryForQtyOnJobOrder(TempReservationEntry);
-        LookupReservationEntryForQtyOnCompLines(TempReservationEntry);
-        LookupReservationEntryForQtyOnTransOrdShipment(TempReservationEntry);
-        LookupReservationEntryForQtyOnAssemComp(TempReservationEntry);
-        LookupReservationEntryForQtyOnPurchReturn(TempReservationEntry);
+        OnLookupGrossRequirement(TempReservationEntry);
     end;
 
     internal procedure LookupPlannedOrderReceipt(var TempReservationEntry: Record "Reservation Entry" temporary)
     begin
-        LookupReservationEntryForQtyOnPlannedOrderReceipt(TempReservationEntry);
-        LookupReservationEntryForQtyOnPurchReqReceipt(TempReservationEntry);
+        OnLookupPlannedOrderReceipt(TempReservationEntry);
     end;
 
     internal procedure LookupScheduledReceipt(var TempReservationEntry: Record "Reservation Entry" temporary)
     begin
-        LookupReservationEntryForQtyOnProdReceipt(TempReservationEntry);
-        LookupReservationEntryForQtyOnPurchOrder(TempReservationEntry);
-        LookupReservationEntryForQtyOnTransOrderReceipt(TempReservationEntry);
-        LookupReservationEntryForQtyOnAssemblyOrder(TempReservationEntry);
-        LookupReservationEntryForQtyOnSalesReturn(TempReservationEntry);
+        OnLookupScheduledReceipt(TempReservationEntry);
     end;
 
     internal procedure LookupAvailableInventory(var TempReservationEntry: Record "Reservation Entry" temporary)
     begin
-        LookupReservationEntryForQtyOnSalesOrder(TempReservationEntry);
-        LookupReservationEntryForQtyOnServiceOrder(TempReservationEntry);
-        LookupReservationEntryForQtyOnJobOrder(TempReservationEntry);
-        LookupReservationEntryForQtyOnCompLines(TempReservationEntry);
-        LookupReservationEntryForQtyOnTransOrdShipment(TempReservationEntry);
-        LookupReservationEntryForQtyOnAssemComp(TempReservationEntry);
-        LookupReservationEntryForQtyOnPurchReturn(TempReservationEntry);
-        LookupReservationEntryForQtyOnPlannedOrderReceipt(TempReservationEntry);
-        LookupReservationEntryForQtyOnPurchReqReceipt(TempReservationEntry);
-        LookupReservationEntryForQtyOnProdReceipt(TempReservationEntry);
-        LookupReservationEntryForQtyOnPurchOrder(TempReservationEntry);
-        LookupReservationEntryForQtyOnTransOrderReceipt(TempReservationEntry);
-        LookupReservationEntryForQtyOnAssemblyOrder(TempReservationEntry);
-        LookupReservationEntryForQtyOnSalesReturn(TempReservationEntry);
+        OnLookupAvailableInventory(TempReservationEntry);
     end;
 
-    local procedure LookupReservationEntryForQtyOnSalesOrder(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Sales Line",
-            Format(ReservationEntry."Source Subtype"::"1"),
-            GetOptionFilter(
-                ReservationEntry."Reservation Status"::Reservation,
-                ReservationEntry."Reservation Status"::Tracking,
-                ReservationEntry."Reservation Status"::Surplus
-            ),
-            ReservationDateFilterOption::"Shipment Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnServiceOrder(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Service Line",
-            Format(ReservationEntry."Source Subtype"::"1"),
-            GetOptionFilter(
-                ReservationEntry."Reservation Status"::Reservation,
-                ReservationEntry."Reservation Status"::Tracking,
-                ReservationEntry."Reservation Status"::Surplus
-            ),
-            ReservationDateFilterOption::"Shipment Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnJobOrder(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Job Planning Line",
-            Format(ReservationEntry."Source Subtype"::"2"),
-            GetOptionFilter(
-                ReservationEntry."Reservation Status"::Reservation,
-                ReservationEntry."Reservation Status"::Tracking,
-                ReservationEntry."Reservation Status"::Surplus
-            ),
-            ReservationDateFilterOption::"Shipment Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnCompLines(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Prod. Order Component",
-            GetRangeFilter(ReservationEntry."Source Subtype"::"1", ReservationEntry."Source Subtype"::"3"),
-            GetOptionFilter(
-                ReservationEntry."Reservation Status"::Reservation,
-                ReservationEntry."Reservation Status"::Tracking,
-                ReservationEntry."Reservation Status"::Surplus
-            ),
-            ReservationDateFilterOption::"Shipment Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnTransOrdShipment(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Transfer Line",
-            Format(ReservationEntry."Source Subtype"::"0"),
-            GetOptionFilter(
-                ReservationEntry."Reservation Status"::Reservation,
-                ReservationEntry."Reservation Status"::Tracking,
-                ReservationEntry."Reservation Status"::Surplus
-            ),
-            ReservationDateFilterOption::"Shipment Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnAssemComp(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Assembly Line",
-            Format(ReservationEntry."Source Subtype"::"1"),
-            GetOptionFilter(
-                ReservationEntry."Reservation Status"::Reservation,
-                ReservationEntry."Reservation Status"::Tracking,
-                ReservationEntry."Reservation Status"::Surplus
-            ),
-            ReservationDateFilterOption::"Shipment Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnPurchReturn(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Purchase Line",
-            Format(ReservationEntry."Source Subtype"::"5"),
-            GetOptionFilter(
-                ReservationEntry."Reservation Status"::Reservation,
-                ReservationEntry."Reservation Status"::Tracking,
-                ReservationEntry."Reservation Status"::Surplus
-            ),
-            ReservationDateFilterOption::"Shipment Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnPlannedOrderReceipt(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Prod. Order Line",
-            Format(ReservationEntry."Source Subtype"::"1"),
-            Format(ReservationEntry."Reservation Status"::Prospect),
-            ReservationDateFilterOption::"Expected Recipt Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnPurchReqReceipt(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Requisition Line",
-            Format(ReservationEntry."Source Subtype"::"0"),
-            Format(ReservationEntry."Reservation Status"::Prospect),
-            ReservationDateFilterOption::"Expected Recipt Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnProdReceipt(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Prod. Order Line",
-            GetRangeFilter(ReservationEntry."Source Subtype"::"2", ReservationEntry."Source Subtype"::"3"),
-            GetOptionFilter(
-                ReservationEntry."Reservation Status"::Reservation,
-                ReservationEntry."Reservation Status"::Tracking,
-                ReservationEntry."Reservation Status"::Surplus
-            ),
-            ReservationDateFilterOption::"Expected Recipt Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnPurchOrder(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Purchase Line",
-            Format(ReservationEntry."Source Subtype"::"1"),
-            GetOptionFilter(
-                ReservationEntry."Reservation Status"::Reservation,
-                ReservationEntry."Reservation Status"::Tracking,
-                ReservationEntry."Reservation Status"::Surplus
-            ),
-            ReservationDateFilterOption::"Expected Recipt Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnTransOrderReceipt(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Transfer Line",
-            Format(ReservationEntry."Source Subtype"::"1"),
-            GetOptionFilter(
-                ReservationEntry."Reservation Status"::Reservation,
-                ReservationEntry."Reservation Status"::Tracking,
-                ReservationEntry."Reservation Status"::Surplus
-            ),
-            ReservationDateFilterOption::"Expected Recipt Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnAssemblyOrder(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Assembly Header",
-            Format(ReservationEntry."Source Subtype"::"1"),
-            GetOptionFilter(
-                ReservationEntry."Reservation Status"::Reservation,
-                ReservationEntry."Reservation Status"::Tracking,
-                ReservationEntry."Reservation Status"::Surplus
-            ),
-            ReservationDateFilterOption::"Expected Recipt Date"
-        );
-    end;
-
-    local procedure LookupReservationEntryForQtyOnSalesReturn(var TempReservationEntry: Record "Reservation Entry" temporary)
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        AddEntriesForLookUp(
-            TempReservationEntry,
-            Database::"Sales Line",
-            Format(ReservationEntry."Source Subtype"::"5"),
-            GetOptionFilter(
-                ReservationEntry."Reservation Status"::Reservation,
-                ReservationEntry."Reservation Status"::Tracking,
-                ReservationEntry."Reservation Status"::Surplus
-            ),
-            ReservationDateFilterOption::"Expected Recipt Date"
-        );
-    end;
-
-    local procedure AddEntriesForLookUp(
+    procedure AddEntriesForLookUp(
         var TempReservationEntry: Record "Reservation Entry" temporary;
         SourceType: Integer;
         SourceSubTypeFilter: Text;
         ReservationStatusFilter: Text;
-        DateFilterOption: Option ReservationDateFilterOption
+        DateFilterOption: Enum "Reservation Date Filter"
     )
     var
         ReservationEntry: Record "Reservation Entry";
@@ -668,7 +406,7 @@ table 520 "Availability Info. Buffer"
         if Rec.GetFilter("Variant Code Filter") <> '' then
             ReservationEntry.SetRange("Variant Code", Rec.GetFilter("Variant Code Filter"));
 
-        if DateFilterOption = ReservationDateFilterOption::"Shipment Date" then
+        if DateFilterOption = "Reservation Date Filter"::"Shipment Date" then
             ReservationEntry.SetFilter("Shipment Date", Rec.GetFilter("Date Filter"))
         else
             ReservationEntry.SetFilter("Expected Receipt Date", Rec.GetFilter("Date Filter"));
@@ -681,21 +419,38 @@ table 520 "Availability Info. Buffer"
             until ReservationEntry.Next() = 0;
     end;
 
-    local procedure GetRangeFilter(FromVariant: Variant; ToVariant: Variant): Text
+    procedure GetRangeFilter(FromVariant: Variant; ToVariant: Variant): Text
     var
         FilterTxt: Label '%1..%2', Comment = '%1, %2', Locked = true;
     begin
         exit(StrSubstNo(FilterTxt, FromVariant, ToVariant))
     end;
 
-    local procedure GetOptionFilter(Option1Variant: Variant; Option2Variant: Variant; Option3Variant: Variant): Text
+    procedure GetOptionFilter(Option1Variant: Variant; Option2Variant: Variant; Option3Variant: Variant): Text
     var
         FilterTxt: Label '%1|%2|%3', Comment = '%1, %2, %3', Locked = true;
     begin
         exit(StrSubstNo(FilterTxt, Option1Variant, Option2Variant, Option3Variant));
     end;
 
-    var
-        ReservationDateFilterOption: Option "Shipment Date","Expected Recipt Date";
+    [IntegrationEvent(true, false)]
+    local procedure OnLookupAvailableInventory(var TempReservationEntry: Record "Reservation Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnLookupGrossRequirement(var TempReservationEntry: Record "Reservation Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnLookupScheduledReceipt(var TempReservationEntry: Record "Reservation Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnLookupPlannedOrderReceipt(var TempReservationEntry: Record "Reservation Entry" temporary)
+    begin
+    end;
 }
 

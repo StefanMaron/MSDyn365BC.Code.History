@@ -947,14 +947,18 @@ report 595 "Adjust Exchange Rates"
         Text007Txt: Label 'Bank Account    @1@@@@@@@@@@@@@\\';
         Text008Txt: Label 'Customer        @2@@@@@@@@@@@@@\';
         Text009Txt: Label 'Vendor          @3@@@@@@@@@@@@@\';
+#pragma warning disable AA0470
         Text010Txt: Label 'Adjustment      #4#############';
+#pragma warning restore AA0470
         Text011Err: Label 'No currencies have been found.';
         Text012Txt: Label 'Adjusting VAT Entries...\\';
         Text013Txt: Label 'VAT Entry    @1@@@@@@@@@@@@@';
         Text014Txt: Label 'Adjusting general ledger...\\';
         Text015Txt: Label 'G/L Account    @1@@@@@@@@@@@@@';
         Text016Txt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Comment = '%1 = Currency Code, %2= Adjust Amount';
+#pragma warning disable AA0470
         Text017Err: Label '%1 on %2 %3 must be %4. When this %2 is used in %5, the exchange rate adjustment is defined in the %6 field in the %7. %2 %3 is used in the %8 field in the %5. ';
+#pragma warning restore AA0470
         Text018Txt: Label 'Employee          @5@@@@@@@@@@@@@\';
         PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
 

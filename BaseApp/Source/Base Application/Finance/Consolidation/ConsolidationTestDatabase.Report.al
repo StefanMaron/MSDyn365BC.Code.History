@@ -459,12 +459,16 @@ report 14 "Consolidation - Test Database"
         ErrorText: array[100] of Text[250];
         Print_control: Boolean;
 
+#pragma warning disable AA0074
         Text004: Label 'Enter the starting date for the consolidation period.';
         Text005: Label 'Enter the ending date for the consolidation period.';
         Text007: Label 'When using closing dates, the starting and ending dates must be the same.';
+#pragma warning disable AA0470
         Text008: Label 'A %1 with %2 on a closing date (%3) was found while consolidating non-closing entries.';
         Text009: Label 'Period: %1..%2';
+#pragma warning restore AA0470
         Text015: Label 'Copy Dimensions';
+#pragma warning disable AA0470
         Text016: Label '%1 %2 doesn''t exist in %3.';
         Text017: Label '%1 %2 in %3 has a %4 %5 that doesn''t exist in %6.';
         Text018: Label 'There are more than %1 errors.';
@@ -474,6 +478,8 @@ report 14 "Consolidation - Test Database"
         Text023: Label 'Subsidiary (%7) %1 %2 must have the same %3 as Consolidated %1 %4.  (%5 <> %6)';
         Text031: Label '%1 must not be empty when %2 is not empty, in company %3.';
         Text032: Label 'The %1 is later than the %2 in company %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Consolidation___Test_DatabaseCaptionLbl: Label 'Consolidation - Test Database';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Selected_dimensions_will_be_copied_CaptionLbl: Label 'Selected dimensions will be copied.';

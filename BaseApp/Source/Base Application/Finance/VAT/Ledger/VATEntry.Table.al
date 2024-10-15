@@ -22,7 +22,6 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Security.AccessControl;
 using System.Utilities;
@@ -33,8 +32,10 @@ table 254 "VAT Entry"
     LookupPageID = "VAT Entries";
     Permissions = TableData "Sales Invoice Header" = rm,
                     TableData "Sales Cr.Memo Header" = rm,
-                    TableData "Service Invoice Header" = rm,
-                    TableData "Service Cr.Memo Header" = rm,
+#if not CLEAN25
+                    TableData Microsoft.Service.History."Service Invoice Header" = rm,
+                    TableData Microsoft.Service.History."Service Cr.Memo Header" = rm,
+#endif
                     TableData "Issued Reminder Header" = rm,
                     TableData "Issued Fin. Charge Memo Header" = rm,
                     TableData "Purch. Inv. Header" = rm,
@@ -107,9 +108,9 @@ table 254 "VAT Entry"
         field(12; "Bill-to/Pay-to No."; Code[20])
         {
             Caption = 'Bill-to/Pay-to No.';
-            TableRelation = if (Type = CONST(Purchase)) Vendor
+            TableRelation = if (Type = const(Purchase)) Vendor
             else
-            if (Type = CONST(Sale)) Customer;
+            if (Type = const(Sale)) Customer;
 
             trigger OnValidate()
             begin
@@ -367,9 +368,9 @@ table 254 "VAT Entry"
         field(53; "Ship-to/Order Address Code"; Code[10])
         {
             Caption = 'Ship-to/Order Address Code';
-            TableRelation = if (Type = CONST(Purchase)) "Order Address".Code where("Vendor No." = field("Bill-to/Pay-to No."))
+            TableRelation = if (Type = const(Purchase)) "Order Address".Code where("Vendor No." = field("Bill-to/Pay-to No."))
             else
-            if (Type = CONST(Sale)) "Ship-to Address".Code where("Customer No." = field("Bill-to/Pay-to No."));
+            if (Type = const(Sale)) "Ship-to Address".Code where("Customer No." = field("Bill-to/Pay-to No."));
         }
         field(54; "Document Date"; Date)
         {
@@ -500,7 +501,7 @@ table 254 "VAT Entry"
         }
         field(6200; "Non-Deductible VAT %"; Decimal)
         {
-            Caption = 'Non-Deductible VAT %"';
+            Caption = 'Non-Deductible VAT %';
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
@@ -697,7 +698,11 @@ table 254 "VAT Entry"
         GLSetup: Record "General Ledger Setup";
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot change the contents of this field when %1 is %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ConfirmAdjustQst: Label 'Do you want to fill the G/L Account No. field in VAT entries that are linked to G/L Entries?';
         ProgressMsg: Label 'Processed entries: @2@@@@@@@@@@@@@@@@@\';
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';

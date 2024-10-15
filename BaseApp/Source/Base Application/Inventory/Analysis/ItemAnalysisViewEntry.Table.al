@@ -141,9 +141,11 @@ table 7154 "Item Analysis View Entry"
     var
         ItemAnalysisView: Record "Item Analysis View";
 
+#pragma warning disable AA0074
         Text000: Label '1,5,,Dimension 1 Value Code';
         Text001: Label '1,5,,Dimension 2 Value Code';
         Text002: Label '1,5,,Dimension 3 Value Code';
+#pragma warning restore AA0074
 
     procedure GetCaptionClass(AnalysisViewDimType: Integer): Text[250]
     begin

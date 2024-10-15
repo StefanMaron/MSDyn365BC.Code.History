@@ -1,4 +1,4 @@
-namespace Microsoft.Inventory.Item.Substitution;
+﻿namespace Microsoft.Inventory.Item.Substitution;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Company;
@@ -9,8 +9,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
-using Microsoft.Service.Item;
 
 codeunit 5701 "Item Subst."
 {
@@ -28,7 +26,6 @@ codeunit 5701 "Item Subst."
         SalesHeader: Record "Sales Header";
         NonStockItem: Record "Nonstock Item";
         TempSalesLine: Record "Sales Line" temporary;
-        InvServiceLine: Record "Service Line";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         CompanyInfo: Record "Company Information";
         ProdOrderCompSubst: Record "Prod. Order Component";
@@ -46,9 +43,12 @@ codeunit 5701 "Item Subst."
         SaveLocation: Code[10];
         OldSalesUOM: Code[10];
 
-        Text000: Label 'This substitute item has a different sale unit of measure.';
+#pragma warning disable AA0470
+#pragma warning disable AA0074
         Text001: Label 'An Item Substitution with the specified variant does not exist for Item No. ''%1''.';
         Text002: Label 'An Item Substitution does not exist for Item No. ''%1''';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure ItemSubstGet(var SalesLine: Record "Sales Line") Found: Boolean
     var
@@ -71,7 +71,6 @@ codeunit 5701 "Item Subst."
         Item.SetRange("Date Filter", 0D, TempSalesLine."Shipment Date");
         Item.CalcFields(Inventory);
         Item.CalcFields("Qty. on Sales Order");
-        Item.CalcFields("Qty. on Service Order");
         SaveItemSalesUOM(Item);
 
         ItemSubstitution.Reset();
@@ -234,168 +233,15 @@ codeunit 5701 "Item Subst."
             until ItemSubstitution.Next() = 0;
     end;
 
-    procedure ItemServiceSubstGet(var ServiceLine2: Record "Service Line")
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServItemSubstitution', '25.0')]
+    procedure ItemServiceSubstGet(var ServiceLine2: Record Microsoft.Service.Document."Service Line")
     var
-        ServiceLineReserve: Codeunit "Service Line-Reserve";
+        ServItemSubstitution: Codeunit Microsoft.Service.Item."Serv. Item Substitution";
     begin
-        InvServiceLine := ServiceLine2;
-        if InvServiceLine.Type <> InvServiceLine.Type::Item then
-            exit;
-
-        SaveItemNo := InvServiceLine."No.";
-        SaveVariantCode := InvServiceLine."Variant Code";
-        Item.Get(InvServiceLine."No.");
-        Item.SetFilter("Location Filter", InvServiceLine."Location Code");
-        Item.SetFilter("Variant Filter", InvServiceLine."Variant Code");
-        Item.SetRange("Date Filter", 0D, InvServiceLine."Order Date");
-        Item.CalcFields(Inventory);
-        Item.CalcFields("Qty. on Sales Order");
-        Item.CalcFields("Qty. on Service Order");
-        SaveItemSalesUOM(Item);
-
-        ItemSubstitution.Reset();
-        ItemSubstitution.SetRange("No.", InvServiceLine."No.");
-        ItemSubstitution.SetRange("Variant Code", InvServiceLine."Variant Code");
-        ItemSubstitution.SetRange("Location Filter", InvServiceLine."Location Code");
-        if ItemSubstitution.Find('-') then begin
-            TempItemSubstitution.DeleteAll();
-            InsertInSubstServiceList(InvServiceLine."No.", ItemSubstitution, 1);
-            TempItemSubstitution.Reset();
-            if TempItemSubstitution.Find('-') then;
-            if PAGE.RunModal(PAGE::"Service Item Substitutions", TempItemSubstitution) =
-               ACTION::LookupOK
-            then begin
-                if TempItemSubstitution."Substitute Type" =
-                   TempItemSubstitution."Substitute Type"::"Nonstock Item"
-                then begin
-                    NonStockItem.Get(TempItemSubstitution."Substitute No.");
-                    if NonStockItem."Item No." <> '' then
-                        TempItemSubstitution."Substitute No." := NonStockItem."Item No."
-                    else begin
-                        InvServiceLine."No." := TempItemSubstitution."Substitute No.";
-                        InvServiceLine."Variant Code" := TempItemSubstitution."Substitute Variant Code";
-                        CatalogItemMgt.NonStockFSM(InvServiceLine);
-                        TempItemSubstitution."Substitute No." := InvServiceLine."No.";
-                    end;
-                end;
-                InvServiceLine."No." := TempItemSubstitution."Substitute No.";
-                InvServiceLine."Variant Code" := TempItemSubstitution."Substitute Variant Code";
-                SaveQty := InvServiceLine.Quantity;
-                SaveLocation := InvServiceLine."Location Code";
-                InvServiceLine.Quantity := 0;
-                InvServiceLine.Validate("No.", TempItemSubstitution."Substitute No.");
-                InvServiceLine.Validate("Variant Code", TempItemSubstitution."Substitute Variant Code");
-                InvServiceLine."Location Code" := SaveLocation;
-                InvServiceLine.Validate(Quantity, SaveQty);
-                InvServiceLine.Validate("Unit of Measure Code", OldSalesUOM);
-                Commit();
-                if ItemCheckAvail.ServiceInvLineCheck(InvServiceLine) then
-                    InvServiceLine := ServiceLine2;
-                if Item.Get(InvServiceLine."No.") and
-                   (Item."Sales Unit of Measure" <> OldSalesUOM)
-                then
-                    Message(Text000);
-            end;
-        end else
-            Error(Text001, InvServiceLine."No.");
-
-        if (ServiceLine2."No." <> InvServiceLine."No.") or (ServiceLine2."Variant Code" <> InvServiceLine."Variant Code") then
-            ServiceLineReserve.DeleteLine(ServiceLine2);
-
-        ServiceLine2 := InvServiceLine;
+        ServItemSubstitution.ItemServiceSubstGet(ServiceLine2);
     end;
-
-    local procedure InsertInSubstServiceList(OrgNo: Code[20]; var ItemSubstitution3: Record "Item Substitution"; RelationsLevel: Integer)
-    var
-        ItemSubstitution: Record "Item Substitution";
-        ItemSubstitution2: Record "Item Substitution";
-        NonStockItem: Record "Nonstock Item";
-        RelatLevel: Integer;
-    begin
-        ItemSubstitution.Copy(ItemSubstitution3);
-        RelatLevel := RelationsLevel;
-
-        if ItemSubstitution.Find('-') then
-            repeat
-                Clear(TempItemSubstitution);
-                TempItemSubstitution.Type := ItemSubstitution.Type;
-                TempItemSubstitution."No." := ItemSubstitution."No.";
-                TempItemSubstitution."Variant Code" := ItemSubstitution."Variant Code";
-                TempItemSubstitution."Substitute Type" := ItemSubstitution."Substitute Type";
-                TempItemSubstitution."Substitute No." := ItemSubstitution."Substitute No.";
-                TempItemSubstitution."Substitute Variant Code" := ItemSubstitution."Substitute Variant Code";
-                TempItemSubstitution.Description := ItemSubstitution.Description;
-                TempItemSubstitution.Interchangeable := ItemSubstitution.Interchangeable;
-                TempItemSubstitution."Location Filter" := ItemSubstitution."Location Filter";
-                TempItemSubstitution."Relations Level" := RelatLevel;
-
-                if TempItemSubstitution."Substitute Type" = TempItemSubstitution.Type::Item then begin
-                    Item.Get(ItemSubstitution."Substitute No.");
-                    if not SetupDataIsPresent then
-                        GetSetupData();
-                    OnInsertInSubstServiceListOnBeforeCalcQtyAvail(Item, InvServiceLine, TempItemSubstitution);
-                    TempItemSubstitution."Quantity Avail. on Shpt. Date" :=
-                      AvailToPromise.CalcQtyAvailabletoPromise(
-                        Item, GrossReq, SchedRcpt,
-                        Item.GetRangeMax("Date Filter"), "Analysis Period Type"::Month,
-                        CompanyInfo."Check-Avail. Period Calc.");
-                    Item.CalcFields(Inventory);
-                    OnInsertInSubstServiceListOnAfterCalcQtyAvail(Item, InvServiceLine, TempItemSubstitution);
-                    TempItemSubstitution.Inventory := Item.Inventory;
-                end;
-
-                if TempItemSubstitution.Insert() and
-                   (ItemSubstitution."Substitute No." <> '')
-                then begin
-                    ItemSubstitution2.SetRange(Type, ItemSubstitution.Type);
-                    ItemSubstitution2.SetRange("No.", ItemSubstitution."Substitute No.");
-                    ItemSubstitution2.SetFilter("Substitute No.", '<>%1&<>%2', ItemSubstitution."No.", OrgNo);
-                    ItemSubstitution.CopyFilter("Variant Code", ItemSubstitution2."Variant Code");
-                    ItemSubstitution.CopyFilter("Location Filter", ItemSubstitution2."Location Filter");
-                    if ItemSubstitution2.FindFirst() then
-                        InsertInSubstServiceList(OrgNo, ItemSubstitution2, (RelatLevel + 1));
-                end else begin
-                    TempItemSubstitution.Find();
-                    if RelatLevel < TempItemSubstitution."Relations Level" then begin
-                        TempItemSubstitution."Relations Level" := RelatLevel;
-                        TempItemSubstitution.Modify();
-                    end;
-                end;
-
-                if (ItemSubstitution."Substitute Type" = ItemSubstitution."Substitute Type"::"Nonstock Item") and
-                   (ItemSubstitution."Substitute No." <> '') and
-                   NonStockItem.Get(ItemSubstitution."Substitute No.") and
-                   (NonStockItem."Item No." <> '')
-                then begin
-                    Clear(TempItemSubstitution);
-                    TempItemSubstitution.Type := ItemSubstitution.Type;
-                    TempItemSubstitution."No." := ItemSubstitution."No.";
-                    TempItemSubstitution."Variant Code" := ItemSubstitution."Variant Code";
-                    TempItemSubstitution."Substitute Type" := TempItemSubstitution."Substitute Type"::Item;
-                    TempItemSubstitution."Substitute No." := NonStockItem."Item No.";
-                    TempItemSubstitution."Substitute Variant Code" := '';
-                    TempItemSubstitution.Description := ItemSubstitution.Description;
-                    TempItemSubstitution.Interchangeable := ItemSubstitution.Interchangeable;
-                    TempItemSubstitution."Location Filter" := ItemSubstitution."Location Filter";
-                    TempItemSubstitution."Relations Level" := RelatLevel;
-                    if TempItemSubstitution.Insert() then begin
-                        ItemSubstitution2.SetRange(Type, ItemSubstitution2.Type::"Nonstock Item");
-                        ItemSubstitution2.SetRange("No.", NonStockItem."Item No.");
-                        ItemSubstitution2.SetFilter("Substitute No.", '<>%1&<>%2', NonStockItem."Item No.", OrgNo);
-                        ItemSubstitution.CopyFilter("Variant Code", ItemSubstitution2."Variant Code");
-                        ItemSubstitution.CopyFilter("Location Filter", ItemSubstitution2."Location Filter");
-                        if ItemSubstitution2.FindFirst() then
-                            InsertInSubstServiceList(OrgNo, ItemSubstitution2, (RelatLevel + 1));
-                    end else begin
-                        TempItemSubstitution.Find();
-                        if RelatLevel < TempItemSubstitution."Relations Level" then begin
-                            TempItemSubstitution."Relations Level" := RelatLevel;
-                            TempItemSubstitution.Modify();
-                        end;
-                    end;
-                end;
-            until ItemSubstitution.Next() = 0;
-    end;
+#endif
 
     local procedure GetSetupData()
     begin
@@ -586,7 +432,6 @@ codeunit 5701 "Item Subst."
         Item.SetRange("Date Filter", 0D, TempAssemblyLine."Due Date");
         Item.CalcFields(Inventory);
         Item.CalcFields("Qty. on Sales Order");
-        Item.CalcFields("Qty. on Service Order");
         SaveItemSalesUOM(Item);
 
         ItemSubstitution.Reset();
@@ -707,15 +552,31 @@ codeunit 5701 "Item Subst."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnInsertInSubstServiceListOnAfterCalcQtyAvail(var Item: Record Item; ServiceLine: Record "Service Line"; var TempItemSubstitution: Record "Item Substitution" temporary)
+#if not CLEAN25
+    internal procedure RunOnInsertInSubstServiceListOnAfterCalcQtyAvail(var Item: Record Item; ServiceLine: Record Microsoft.Service.Document."Service Line"; var TempItemSubstitution: Record "Item Substitution" temporary)
     begin
+        OnInsertInSubstServiceListOnAfterCalcQtyAvail(Item, ServiceLine, TempItemSubstitution);
     end;
 
+    [Obsolete('Moved to codeunit ServItemSubstitution', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInSubstServiceListOnBeforeCalcQtyAvail(var Item: Record Item; ServiceLine: Record "Service Line"; var TempItemSubstitution: Record "Item Substitution" temporary)
+    local procedure OnInsertInSubstServiceListOnAfterCalcQtyAvail(var Item: Record Item; ServiceLine: Record Microsoft.Service.Document."Service Line"; var TempItemSubstitution: Record "Item Substitution" temporary)
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnInsertInSubstServiceListOnBeforeCalcQtyAvail(var Item: Record Item; ServiceLine: Record Microsoft.Service.Document."Service Line"; var TempItemSubstitution: Record "Item Substitution" temporary)
+    begin
+        OnInsertInSubstServiceListOnBeforeCalcQtyAvail(Item, ServiceLine, TempItemSubstitution);
+    end;
+
+    [Obsolete('Moved to codeunit ServItemSubstitution', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInSubstServiceListOnBeforeCalcQtyAvail(var Item: Record Item; ServiceLine: Record Microsoft.Service.Document."Service Line"; var TempItemSubstitution: Record "Item Substitution" temporary)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSubstListOnAfterCalcQtyAvail(var Item: Record Item; ProdOrderComp: Record "Prod. Order Component"; var TempItemSubstitution: Record "Item Substitution" temporary)

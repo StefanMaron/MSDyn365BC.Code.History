@@ -19,9 +19,6 @@ codeunit 132903 UserCardTest
         ErrorStringCom001Err: Label 'Missing Expected error message: %1. \ Actual error recieved: %2.', Comment = '%1 = Expected exception error message, %2 = Actual exception error message';
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-#if not CLEAN22
-        LibraryPermissions: Codeunit "Library - Permissions";
-#endif
         ValidationError: Text;
         isInitialized: Boolean;
         PasswordsError001Err: Label 'The passwords that you entered do not match.';
@@ -552,34 +549,6 @@ codeunit 132903 UserCardTest
         Assert.AreEqual('', User."Exchange Identifier", 'Expected the Exchange Identifier to be cleared when invoking the action');
     end;
 
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('UserGroupsPageHandler')]
-    [Scope('OnPrem')]
-    procedure LookupUserGroupCode()
-    var
-        UserGroup: Record "User Group";
-        UserCardPage: TestPage "User Card";
-    begin
-        // [SCENARIO 169815] Lookup User Group Code from User Groups subpage opens page User Groups
-        Initialize();
-
-        // [GIVEN] New user group "UserGroup"
-        LibraryPermissions.CreateUserGroup(UserGroup, '');
-
-        // [GIVEN] Opened User Card
-        UserCardPage.OpenEdit();
-        UserCardPage.FindFirstField("User Name", User001Msg);
-
-        // [WHEN] Lookup User Group Code and select User Group "UserGroup"
-        LibraryVariableStorage.Enqueue(UserGroup.Code);
-        UserCardPage.UserGroups.UserGroupCode.Lookup();
-
-        // [THEN] Created user group code "UserGroup" passed to the User Group Code field
-        UserCardPage.UserGroups.UserGroupCode.AssertEquals(UserGroup.Code);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('ConfirmHandlerAnsYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -681,85 +650,6 @@ codeunit 132903 UserCardTest
         User.DeleteAll();
     end;
 
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('UserLookupHandler')]
-    [Scope('OnPrem')]
-    procedure UserAddedToUserGroupByNameOnValidate()
-    var
-        UserGroup: Record "User Group";
-        User: Record User;
-        UserGroups: TestPage "User Groups";
-        UserGroupMembers: TestPage "User Group Members";
-    begin
-        // [SCENARIO 284626] No error thrown when user added to User Group by "User Name".
-        Initialize();
-
-        // [GIVEN] "User Group" - "X"
-        LibraryPermissions.CreateUserGroup(UserGroup, '');
-
-        // [GIVEN] Two users "U1" and "U2"
-        LibraryPermissions.CreateUser(User, User002Msg, false);
-
-        // [GIVEN] "User Group Members" page of "X" with "U2" added
-        UserGroupMembers.Trap();
-        UserGroups.OpenEdit();
-        UserGroups.FILTER.SetFilter(Code, UserGroup.Code);
-        UserGroups.UserGroupMembers.Invoke();
-        LibraryVariableStorage.Enqueue(User002Msg);
-        UserGroupMembers.AddUsers.Invoke();
-
-        // [WHEN] Validate "User Name" with "U1"
-        UserGroupMembers.UserName.SetValue(User001Msg);
-        UserGroupMembers.Close();
-
-        // [THEN] New entry "User Group Member" with "User Group Code" = "X" and user "U1" has been added.
-        VerifyUserGroupMemberAdded(UserGroup.Code);
-
-        User.Delete(true);
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [HandlerFunctions('UserLookupHandler')]
-    [Scope('OnPrem')]
-    procedure UserAddedToUserGroupByNameOnLookup()
-    var
-        UserGroup: Record "User Group";
-        User: Record User;
-        UserGroups: TestPage "User Groups";
-        UserGroupMembers: TestPage "User Group Members";
-    begin
-        // [SCENARIO 284626] No error thrown when user added to User Group on Lookup
-        Initialize();
-
-        // [GIVEN] "User Group" - "X"
-        LibraryPermissions.CreateUserGroup(UserGroup, '');
-
-        // [GIVEN] Two users "U1" and "U2"
-        LibraryPermissions.CreateUser(User, User002Msg, false);
-
-        // [GIVEN] "User Group Members" page of "X" with "U2" added
-        UserGroupMembers.Trap();
-        UserGroups.OpenEdit();
-        UserGroups.FILTER.SetFilter(Code, UserGroup.Code);
-        UserGroups.UserGroupMembers.Invoke();
-        LibraryVariableStorage.Enqueue(User002Msg);
-        UserGroupMembers.AddUsers.Invoke();
-
-        // [WHEN] Validate "User Name" with "U1"
-        LibraryVariableStorage.Enqueue(User001Msg);
-        UserGroupMembers.UserName.Lookup();
-        UserGroupMembers.Close();
-
-        // [THEN] New entry "User Group Member" with "User Group Code" = "X" and user "U1" has been added.
-        VerifyUserGroupMemberAdded(UserGroup.Code);
-
-        User.Delete(true);
-        LibraryVariableStorage.AssertEmpty();
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('ConfirmHandlerAnsNo,DisableUserMessageHandler')]
     [Scope('OnPrem')]
@@ -824,38 +714,6 @@ codeunit 132903 UserCardTest
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure UserGroupEmptyDefaultProfileIDValidation()
-    var
-        UserGroup: Record "User Group";
-        UserGroups: TestPage "User Groups";
-    begin
-        // [SCENARIO] No error thrown when User Group's Default Profile ID is set to empty ('')
-        Initialize();
-
-        // [GIVEN] UserGroup "TEST" with empty Default Profile ID ('')
-        LibraryPermissions.CreateUserGroup(UserGroup, 'TEST');
-
-        // [WHEN] UserGroup's Default Profile ID set to 'ACCOUNTANT' (valid profile)
-        UserGroups.OpenEdit();
-        UserGroups.filter.SetFilter(Code, UserGroup.Code);
-        UserGroups.YourProfileID.Value := 'ACCOUNTANT';
-        UserGroups.Close();
-
-        // [THEN] No error thrown (validation succeeds)
-
-        // [WHEN] UserGroup's Default Profile ID set to empty ('')
-        UserGroups.OpenEdit();
-        UserGroups.filter.SetFilter(Code, UserGroup.Code);
-        UserGroups.YourProfileID.Value := '';
-        UserGroups.Close();
-
-        // [THEN] No error thrown (validation succeeds)
-    end;
-#endif
 
     local procedure AddUserHelper(UserName: Code[50])
     var
@@ -1034,20 +892,6 @@ codeunit 132903 UserCardTest
         UserCardPage.Close();
     end;
 
-#if not CLEAN22
-    local procedure VerifyUserGroupMemberAdded(UserGroupCode: Code[20])
-    var
-        User: Record User;
-        UserGroupMember: Record "User Group Member";
-    begin
-        User.SetRange("User Name", User001Msg);
-        User.FindFirst();
-        UserGroupMember.SetRange("User Security ID", User."User Security ID");
-        UserGroupMember.SetRange("User Group Code", UserGroupCode);
-        Assert.RecordIsNotEmpty(UserGroupMember);
-    end;
-#endif
-
     local procedure CreateSuperUser(): Guid
     var
         User: Record User;
@@ -1060,16 +904,6 @@ codeunit 132903 UserCardTest
 
         exit(User."User Security ID");
     end;
-
-#if not CLEAN22
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure UserGroupsPageHandler(var UserGroups: TestPage "User Groups")
-    begin
-        UserGroups.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
-        UserGroups.OK().Invoke();
-    end;
-#endif
 
     [ConfirmHandler]
     [Scope('OnPrem')]

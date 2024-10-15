@@ -41,7 +41,9 @@ codeunit 5870 "Calculate BOM Tree"
         ShowTotalAvailability: Boolean;
         TreeType: Option " ",Availability,Cost;
 
+#pragma warning disable AA0074
         Text000: Label 'Generating Tree @1@@@@@@@';
+#pragma warning restore AA0074
 
     local procedure OpenWindow()
     begin
@@ -674,9 +676,6 @@ codeunit 5870 "Calculate BOM Tree"
                     ParentBOMBuffer.AddCapOvhdCost(BOMBuffer."Single-Level Cap. Ovhd Cost", BOMBuffer."Rolled-up Capacity Ovhd. Cost");
                     ParentBOMBuffer.AddMfgOvhdCost(BOMBuffer."Single-Level Mfg. Ovhd Cost", BOMBuffer."Rolled-up Mfg. Ovhd Cost");
                     ParentBOMBuffer.AddScrapCost(BOMBuffer."Single-Level Scrap Cost", BOMBuffer."Rolled-up Scrap Cost");
-#if not CLEAN22
-                    OnTraverseCostTreeOnAfterAddCost(ParentBOMBuffer, BOMBuffer);
-#endif
                 end else begin
                     ParentBOMBuffer.AddMaterialCost(
                       BOMBuffer."Single-Level Material Cost" +
@@ -973,7 +972,7 @@ codeunit 5870 "Calculate BOM Tree"
 
         CalcStdCost.SetProperties(WorkDate(), false, false, false, '', false);
         CalcStdCost.CalcRtngLineCost(
-          RoutingLine, CostCalculationMgt.CalcQtyAdjdForBOMScrap(LotSize, ScrapPct), CapCost, SubcontractedCapCost, CapOverhead);
+          RoutingLine, CostCalculationMgt.CalcQtyAdjdForBOMScrap(LotSize, ScrapPct), CapCost, SubcontractedCapCost, CapOverhead, ParentItem);
 
         OnCalcRoutingLineCostsOnBeforeBOMBufferAdd(RoutingLine, LotSize, ScrapPct, CapCost, SubcontractedCapCost, CapOverhead, BOMBuffer);
 
@@ -1133,13 +1132,6 @@ codeunit 5870 "Calculate BOM Tree"
     local procedure OnGenerateProdCompSubTreeOnBeforeBOMBufferModify(var BOMBuffer: Record "BOM Buffer"; var ParentBOMBuffer: Record "BOM Buffer"; ParentItem: Record Item)
     begin
     end;
-#if not CLEAN22
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced with a more generic OnTraverseCostTreeOnAfterAddCosts', '22.0')]
-    local procedure OnTraverseCostTreeOnAfterAddCost(var ParentBOMBuffer: Record "BOM Buffer"; var BOMBuffer: Record "BOM Buffer")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnTraverseCostTreeOnAfterAddCosts(var ParentBOMBuffer: Record "BOM Buffer"; var BOMBuffer: Record "BOM Buffer")

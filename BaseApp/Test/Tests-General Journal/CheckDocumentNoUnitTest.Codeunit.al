@@ -15,6 +15,7 @@ codeunit 134073 "Check Document No. Unit Test"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryNoSeries: Codeunit "Library - No. Series";
         DocumentNoErr: Label 'You have one or more documents that must be posted before you post document no. %1 according to your company''s No. Series setup.', Comment = '%1 = Document number';
         IncorrectNoSeriesCodeErr: Label 'Incorrect No. Series code';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -170,7 +171,7 @@ codeunit 134073 "Check Document No. Unit Test"
 
         LibraryUtility.CreateNoSeries(NoSeries, false, false, false);
         LibraryUtility.CreateNoSeries(RelatedNoSeries, true, false, false);
-        LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, RelatedNoSeries.Code);
+        LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, RelatedNoSeries.Code);
 
         ActualNoSeries := GetNoSeriesWithCheck(NoSeries.Code, false, '');
 
@@ -208,7 +209,7 @@ codeunit 134073 "Check Document No. Unit Test"
 
         LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
         LibraryUtility.CreateNoSeries(RelatedNoSeries, true, false, false);
-        LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, RelatedNoSeries.Code);
+        LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, RelatedNoSeries.Code);
 
         ActualNoSeries := GetNoSeriesWithCheck(NoSeries.Code, true, '');
 
@@ -246,7 +247,7 @@ codeunit 134073 "Check Document No. Unit Test"
 
         LibraryUtility.CreateNoSeries(NoSeries, false, false, false);
         LibraryUtility.CreateNoSeries(RelatedNoSeries, true, false, false);
-        LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, RelatedNoSeries.Code);
+        LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, RelatedNoSeries.Code);
         LibraryVariableStorage.Enqueue(RelatedNoSeries.Code);
 
         ActualNoSeries := GetNoSeriesWithCheck(NoSeries.Code, true, '');
@@ -268,7 +269,7 @@ codeunit 134073 "Check Document No. Unit Test"
 
         LibraryUtility.CreateNoSeries(NoSeries, false, false, false);
         LibraryUtility.CreateNoSeries(RelatedNoSeries, true, false, false);
-        LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, RelatedNoSeries.Code);
+        LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, RelatedNoSeries.Code);
         LibraryVariableStorage.Enqueue(RelatedNoSeries.Code);
 
         ActualNoSeries := GetNoSeriesWithCheck(NoSeries.Code, true, '');
@@ -488,7 +489,7 @@ codeunit 134073 "Check Document No. Unit Test"
 
         // [THEN] TryNoSeriesCode was not reset.
         asserterror NoSeriesMgtInstance.Run();
-        Assert.ExpectedError(StrSubstNo('The No. Series does not exist. Identification fields and values: Code=''%1''', TryNoSeriesCode));
+        Assert.ExpectedErrorCannotFind(Database::"No. Series", TryNoSeriesCode);
         Assert.ExpectedErrorCode('DB:RecordNotFound');
     end;
 #pragma warning restore AL0432

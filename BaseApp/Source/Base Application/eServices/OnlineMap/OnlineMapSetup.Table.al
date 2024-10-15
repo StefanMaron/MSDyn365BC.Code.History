@@ -41,9 +41,12 @@ table 800 "Online Map Setup"
             trigger OnValidate()
             var
                 CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                OnlineMapSetupEnabledLbl: Label 'Online Map Setup enabled by UserSecurityId %1', Locked = true;
             begin
-                if not xRec."Enabled" and Rec."Enabled" then
+                if not xRec."Enabled" and Rec."Enabled" then begin
                     Rec."Enabled" := CustomerConsentMgt.ConfirmUserConsentToMicrosoftService();
+                    Session.LogAuditMessage(StrSubstNo(OnlineMapSetupEnabledLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+                end;
             end;
         }
     }

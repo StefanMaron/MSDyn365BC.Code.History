@@ -229,6 +229,60 @@ codeunit 135100 "CSV Buffer Tests"
 
     [Test]
     [Scope('OnPrem')]
+    procedure TestLoadDataWithColumnDelimiterInColumnValue()
+    begin
+        // [SCENARIO] Load a CSV file with column delimiter in column value
+
+        LoadDataWithColumnDelimiterInColumnValue(',');
+        LoadDataWithColumnDelimiterInColumnValue(';');
+    end;
+
+    local procedure LoadDataWithColumnDelimiterInColumnValue(ColumnDelimiter: Text[1])
+    var
+        TempCSVBuffer: Record "CSV Buffer" temporary;
+        TestFileSource: File;
+        TestInStreamSource: InStream;
+        ServerTempFileNameSource: Text;
+    begin
+        // [GIVEN] A source stream which is loaded into the CSV Buffer
+        ServerTempFileNameSource := CreateSampleCSVFileWithColumnDelimiterInColumnValue(ColumnDelimiter);
+        TestFileSource.Open(ServerTempFileNameSource);
+        TestFileSource.CreateInStream(TestInStreamSource);
+
+        // [WHEN] Data is loaded into the CSV Buffer
+        TempCSVBuffer.LoadDataFromStream(TestInStreamSource, ColumnDelimiter);
+        TestFileSource.Close();
+
+        // [THEN] The number of records and data in the records matches the expected value
+        Assert.AreEqual(12, TempCSVBuffer.Count(), 'The number of records do not match.');
+        TempCSVBuffer.FindSet();
+        TempCSVBuffer.TestField(Value, '01');
+        TempCSVBuffer.Next();
+        TempCSVBuffer.TestField(Value, '"Test' + ColumnDelimiter + ' 1"');
+        TempCSVBuffer.Next();
+        TempCSVBuffer.TestField(Value, '3456');
+        TempCSVBuffer.Next();
+        TempCSVBuffer.TestField(Value, '02');
+        TempCSVBuffer.Next();
+        TempCSVBuffer.TestField(Value, 'Test 2');
+        TempCSVBuffer.Next();
+        TempCSVBuffer.TestField(Value, '"34' + ColumnDelimiter + '56"');
+        TempCSVBuffer.Next();
+        TempCSVBuffer.TestField(Value, '"0' + ColumnDelimiter + '3"');
+        TempCSVBuffer.Next();
+        TempCSVBuffer.TestField(Value, 'Test 3');
+        TempCSVBuffer.Next();
+        TempCSVBuffer.TestField(Value, '3456');
+        TempCSVBuffer.Next();
+        TempCSVBuffer.TestField(Value, '04');
+        TempCSVBuffer.Next();
+        TempCSVBuffer.TestField(Value, 'Test 4');
+        TempCSVBuffer.Next();
+        TempCSVBuffer.TestField(Value, '3456');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure TestInitializeReaderWithEncoding()
     var
         TempCSVBuffer: Record "CSV Buffer" temporary;
@@ -304,6 +358,25 @@ codeunit 135100 "CSV Buffer Tests"
         File.Create(ServerTempFileName);
         File.CreateOutStream(OutStream);
         OutStream.WriteText();
+        File.Close();
+    end;
+
+    local procedure CreateSampleCSVFileWithColumnDelimiterInColumnValue(ColumnDelimiter: Text[1]) ServerTempFileName: Text
+    var
+        FileManagement: Codeunit "File Management";
+        File: File;
+        OutStream: OutStream;
+    begin
+        ServerTempFileName := FileManagement.ServerTempFileName('csv');
+        File.Create(ServerTempFileName);
+        File.CreateOutStream(OutStream);
+        OutStream.WriteText('01' + ColumnDelimiter + '"Test' + ColumnDelimiter + ' 1"' + ColumnDelimiter + '3456');
+        OutStream.WriteText();
+        OutStream.WriteText('02' + ColumnDelimiter + 'Test 2' + ColumnDelimiter + '"34' + ColumnDelimiter + '56"');
+        OutStream.WriteText();
+        OutStream.WriteText('"0' + ColumnDelimiter + '3"' + ColumnDelimiter + 'Test 3' + ColumnDelimiter + '3456');
+        OutStream.WriteText();
+        OutStream.WriteText('04' + ColumnDelimiter + 'Test 4' + ColumnDelimiter + '3456');
         File.Close();
     end;
 }

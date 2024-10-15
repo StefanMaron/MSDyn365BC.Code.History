@@ -8,6 +8,10 @@ table 242 "Source Code Setup"
 {
     Caption = 'Source Code Setup';
     DataClassification = CustomerContent;
+    ObsoleteReason = 'Source Code Setup is moved to Business Foundation';
+    ObsoleteState = Moved;
+    ObsoleteTag = '25.0';
+    MovedTo = 'f3552374-a1f2-4356-848e-196002525837';
 
     fields
     {
@@ -373,11 +377,6 @@ table 242 "Source Code Setup"
         field(5875; "Phys. Invt. Orders"; Code[10])
         {
             Caption = 'Phys. Invt. Orders';
-            TableRelation = "Source Code";
-        }
-        field(5900; "Service Management"; Code[10])
-        {
-            Caption = 'Service Management';
             TableRelation = "Source Code";
         }
         field(7139; "Compress Item Budget"; Code[10])

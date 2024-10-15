@@ -1,3 +1,5 @@
+namespace Microsoft.Sales.Test;
+
 table 131310 "Watch Customer"
 {
     ReplicateData = false;

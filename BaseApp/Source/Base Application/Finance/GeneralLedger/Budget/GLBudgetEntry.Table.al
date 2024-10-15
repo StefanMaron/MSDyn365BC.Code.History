@@ -298,10 +298,12 @@ table 96 "G/L Budget Entry"
         DimMgt: Codeunit DimensionManagement;
         GLSetupRetrieved: Boolean;
 
+#pragma warning disable AA0074
         Text001: Label '1,5,,Budget Dimension 1 Code';
         Text002: Label '1,5,,Budget Dimension 2 Code';
         Text003: Label '1,5,,Budget Dimension 3 Code';
         Text004: Label '1,5,,Budget Dimension 4 Code';
+#pragma warning restore AA0074
         AnalysisViewBudgetEntryExistsErr: Label 'You cannot change the amount on this G/L budget entry because one or more related analysis view budget entries exist.\\You must make the change on the related entry in the G/L Budget window.';
 
     procedure GetLastEntryNo(): Integer;

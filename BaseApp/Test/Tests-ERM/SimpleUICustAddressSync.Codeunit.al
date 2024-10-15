@@ -998,6 +998,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
               MaxStrLen(SalesHeader."Ship-to County")), 1, MaxStrLen(SalesHeader."Ship-to County"));
         SalesHeader."Ship-to Post Code" := CopyStr(LibraryUtility.GenerateRandomText(
               MaxStrLen(SalesHeader."Ship-to Post Code")), 1, MaxStrLen(SalesHeader."Ship-to Post Code"));
+        SalesHeader."Ship-to Phone No." := LibraryUtility.GenerateRandomPhoneNo();
 
         LibraryERM.CreateCountryRegion(CountryRegion);
         SalesHeader."Ship-to Country/Region Code" := CountryRegion.Code;
@@ -1099,6 +1100,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader.TestField("Ship-to County", Customer.County);
         SalesHeader.TestField("Ship-to Country/Region Code", Customer."Country/Region Code");
         SalesHeader.TestField("Ship-to Contact", Customer.Contact);
+        SalesHeader.TestField("Ship-to Phone No.", Customer."Phone No.");
     end;
 
     local procedure VerifyBillToAddressSyncedFromCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer)

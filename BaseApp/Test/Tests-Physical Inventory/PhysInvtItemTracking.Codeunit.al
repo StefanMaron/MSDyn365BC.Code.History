@@ -22,7 +22,7 @@ codeunit 137460 "Phys. Invt. Item Tracking"
         AlreadyExistsErr: Label 'already exists';
         CurrentSaveValuesId: Integer;
         RoundingTo0Err: Label 'Rounding of the field';
-        RoundingErr: Label 'is of lesser precision than expected';
+        RoundingErr: Label 'is of lower precision than expected';
         LinesCreatedMsg: Label '%1 new lines have been created.', Comment = '%1 = counter';
         BlockedItemMsg: Label 'There is at least one blocked item or item variant that was skipped.';//'There is at least one blocked item that was skipped.';
 

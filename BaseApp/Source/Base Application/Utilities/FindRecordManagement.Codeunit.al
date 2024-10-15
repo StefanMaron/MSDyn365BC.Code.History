@@ -11,6 +11,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.Capacity;
 using Microsoft.Projects.Resources.Resource;
 using System.Reflection;
+using System.Text;
 
 codeunit 703 "Find Record Management"
 {
@@ -165,7 +166,7 @@ codeunit 703 "Find Record Management"
     end;
 
     [Scope('OnPrem')]
-    procedure FindRecordByDescriptionAndView(var Result: Text; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; SearchText: Text; RecordView: Text): Integer
+    procedure FindRecordByDescriptionAndView(var Result: Text; Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; SearchText: Text; RecordView: Text) RecordsCount: Integer
     var
         RecRef: RecordRef;
         SearchFieldRef: array[4] of FieldRef;
@@ -182,6 +183,7 @@ codeunit 703 "Find Record Management"
         // SearchFieldNo[2] - "Description"/"Name"
         // SearchFieldNo[3] - "Base Unit of Measure" (used for items)
         Result := '';
+
         if SearchText = '' then
             exit(0);
 
@@ -248,30 +250,34 @@ codeunit 703 "Find Record Management"
         end;
         SearchFieldRef[2].SetRange();
 
-        // Try FINDFIRST "No." OR "Description" by mask "@Search string ?*"
-        RecRef.FilterGroup := -1;
+        // Try FINDSET "No." OR "Description" by mask "@Search string ?*"
         RecFilterFromStart := '''@' + RecWithoutQuote + '*''';
-        SearchFieldRef[1].SetFilter(RecFilterFromStart);
-        SearchFieldRef[2].SetFilter(RecFilterFromStart);
-        OnBeforeFindRecordStartingWithSearchString(Type, RecRef, RecFilterFromStart);
-        RecRef.SetLoadFields(SearchFieldRef[1].Number);
-        if RecRef.FindFirst() then begin
-            Result := SearchFieldRef[1].Value();
-            exit(1);
+        if SearchFieldRef[1].Type <> SearchFieldRef[1].Type::Code then begin //already processed with Try FINDFIRST "No." by mask "Search string *"            
+            SearchFieldRef[1].SetFilter(RecFilterFromStart);
+            GetRecordsSearchResult(RecRef, SearchFieldRef[1].Number, Result, RecordsCount);
+            SearchFieldRef[1].SetRange();
         end;
 
-        // Try FINDFIRST "No." OR "Description" OR additional field by mask "@*Search string ?*"
+        SearchFieldRef[2].SetFilter(RecFilterFromStart);
+        OnBeforeFindRecordStartingWithSearchString(Type, RecRef, RecFilterFromStart);
+        GetRecordsSearchResult(RecRef, SearchFieldRef[1].Number, Result, RecordsCount);
+        SearchFieldRef[2].SetRange();
+
+        if RecordsCount > 0 then
+            exit(RecordsCount);
+
+        // Try FINDSET "No." OR "Description" OR additional field by mask "@*Search string ?*"
         RecFilterContains := '''@*' + RecWithoutQuote + '*''';
+        RecRef.FilterGroup := -1;
         SearchFieldRef[1].SetFilter(RecFilterContains);
         SearchFieldRef[2].SetFilter(RecFilterContains);
         if SearchFieldNo[3] <> 0 then
             SearchFieldRef[3].SetFilter(RecFilterContains);
         OnBeforeFindRecordContainingSearchString(Type, RecRef, RecFilterContains);
-        RecRef.SetLoadFields(SearchFieldRef[1].Number);
-        if RecRef.FindFirst() then begin
-            Result := SearchFieldRef[1].Value();
-            exit(RecRef.Count);
-        end;
+        GetRecordsSearchResult(RecRef, SearchFieldRef[1].Number, Result, RecordsCount);
+
+        if RecordsCount > 0 then
+            exit(RecordsCount);
 
         // Try FINDLAST record with similar "Description"
         IsHandled := false;
@@ -292,6 +298,28 @@ codeunit 703 "Find Record Management"
 
         // Not found
         exit(0);
+    end;
+
+    local procedure GetRecordsSearchResult(var RecRef: RecordRef; SearchFieldOneId: Integer; var Result: Text; var RecordsCount: Integer)
+    begin
+        RecRef.SetLoadFields(SearchFieldOneId);
+        if not RecRef.IsEmpty() then
+            UpdateResultFilter(Result, RecordsCount, RecRef, SearchFieldOneId);
+    end;
+
+    local procedure UpdateResultFilter(var Result: Text; var RecordsCount: Integer; var RecRef: RecordRef; SelectionFieldID: Integer)
+    var
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        FieldRef: FieldRef;
+    begin
+        Result := DelChr(Result, '<>', '|');
+        if RecRef.FindSet() then
+            repeat
+                FieldRef := RecRef.Field(SelectionFieldID);
+                Result += '|' + SelectionFilterManagement.AddQuotes(Format(FieldRef.Value));
+                RecordsCount += 1;
+            until (RecRef.Next() = 0) or (RecordsCount >= 10);
+        Result := DelChr(Result, '<>', '|');
     end;
 
     procedure FindRecordWithSimilarName(RecRef: RecordRef; SearchText: Text; DescriptionFieldNo: Integer): Boolean

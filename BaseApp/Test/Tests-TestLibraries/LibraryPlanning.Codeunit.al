@@ -51,7 +51,7 @@ codeunit 132203 "Library - Planning"
     var
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
     begin
-        OrderPlanningMgt.SetProdOrder();
+        OrderPlanningMgt.SetDemandType("Demand Order Source Type"::"Production Demand");
         OrderPlanningMgt.GetOrdersToPlan(RequisitionLine);
     end;
 
@@ -59,7 +59,7 @@ codeunit 132203 "Library - Planning"
     var
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
     begin
-        OrderPlanningMgt.SetAsmOrder();
+        OrderPlanningMgt.SetDemandType("Demand Order Source Type"::"Assembly Demand");
         OrderPlanningMgt.GetOrdersToPlan(RequisitionLine);
     end;
 
@@ -67,7 +67,7 @@ codeunit 132203 "Library - Planning"
     var
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
     begin
-        OrderPlanningMgt.SetSalesOrder();
+        OrderPlanningMgt.SetDemandType("Demand Order Source Type"::"Sales Demand");
         OrderPlanningMgt.GetOrdersToPlan(RequisitionLine);
     end;
 
@@ -75,7 +75,7 @@ codeunit 132203 "Library - Planning"
     var
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
     begin
-        OrderPlanningMgt.SetServOrder();
+        OrderPlanningMgt.SetDemandType("Demand Order Source Type"::"Service Demand");
         OrderPlanningMgt.GetOrdersToPlan(RequisitionLine);
     end;
 
@@ -83,7 +83,7 @@ codeunit 132203 "Library - Planning"
     var
         OrderPlanningMgt: Codeunit "Order Planning Mgt.";
     begin
-        OrderPlanningMgt.SetJobOrder();
+        OrderPlanningMgt.SetDemandType("Demand Order Source Type"::"Job Demand");
         OrderPlanningMgt.GetOrdersToPlan(RequisitionLine);
     end;
 
@@ -273,47 +273,47 @@ codeunit 132203 "Library - Planning"
     var
         TmpItem: Record Item;
         RequisitionWkshName: Record "Requisition Wksh. Name";
-        GetActionMessages: Report "Get Action Messages";
+        GetActionMessagesReport: Report "Get Action Messages";
     begin
         SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
-        GetActionMessages.SetTemplAndWorksheet(RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
-        GetActionMessages.UseRequestPage(false);
+        GetActionMessagesReport.SetTemplAndWorksheet(RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        GetActionMessagesReport.UseRequestPage(false);
         if Item.HasFilter then
             TmpItem.CopyFilters(Item)
         else begin
             Item.Get(Item."No.");
             TmpItem.SetRange("No.", Item."No.");
         end;
-        GetActionMessages.SetTableView(TmpItem);
-        GetActionMessages.Run();
+        GetActionMessagesReport.SetTableView(TmpItem);
+        GetActionMessagesReport.Run();
     end;
 
     procedure GetSalesOrders(SalesLine: Record "Sales Line"; RequisitionLine: Record "Requisition Line"; RetrieveDimensionsFrom: Option)
     var
-        GetSalesOrders: Report "Get Sales Orders";
+        GetSalesOrdersReport: Report "Get Sales Orders";
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type");
         SalesLine.SetRange("Document No.", SalesLine."Document No.");
-        Clear(GetSalesOrders);
-        GetSalesOrders.SetTableView(SalesLine);
-        GetSalesOrders.InitializeRequest(RetrieveDimensionsFrom);
-        GetSalesOrders.SetReqWkshLine(RequisitionLine, 0);
-        GetSalesOrders.UseRequestPage(false);
-        GetSalesOrders.RunModal();
+        Clear(GetSalesOrdersReport);
+        GetSalesOrdersReport.SetTableView(SalesLine);
+        GetSalesOrdersReport.InitializeRequest(RetrieveDimensionsFrom);
+        GetSalesOrdersReport.SetReqWkshLine(RequisitionLine, 0);
+        GetSalesOrdersReport.UseRequestPage(false);
+        GetSalesOrdersReport.RunModal();
     end;
 
     procedure GetSpecialOrder(var RequisitionLine: Record "Requisition Line"; No: Code[20])
     var
         SalesLine: Record "Sales Line";
-        GetSalesOrders: Report "Get Sales Orders";
+        GetSalesOrdersReport: Report "Get Sales Orders";
         NewRetrieveDimensionsFrom: Option Item,SalesLine;
     begin
         SalesLine.SetRange("No.", No);
-        GetSalesOrders.SetReqWkshLine(RequisitionLine, 1);  // Value required.
-        GetSalesOrders.SetTableView(SalesLine);
-        GetSalesOrders.InitializeRequest(NewRetrieveDimensionsFrom::Item);
-        GetSalesOrders.UseRequestPage(false);
-        GetSalesOrders.Run();
+        GetSalesOrdersReport.SetReqWkshLine(RequisitionLine, 1);  // Value required.
+        GetSalesOrdersReport.SetTableView(SalesLine);
+        GetSalesOrdersReport.InitializeRequest(NewRetrieveDimensionsFrom::Item);
+        GetSalesOrdersReport.UseRequestPage(false);
+        GetSalesOrdersReport.Run();
     end;
 
     procedure MakeSupplyOrders(var ManufacturingUserTemplate: Record "Manufacturing User Template"; var RequisitionLine: Record "Requisition Line")

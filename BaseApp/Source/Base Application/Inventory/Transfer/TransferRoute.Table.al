@@ -65,7 +65,9 @@ table 5742 "Transfer Route"
         HasTransferRoute: Boolean;
         HasShippingAgentService: Boolean;
 
+#pragma warning disable AA0074
         Text003: Label 'The receipt date must be greater or equal to the shipment date.';
+#pragma warning restore AA0074
 
     procedure GetTransferRoute(TransferFromCode: Code[10]; TransferToCode: Code[10]; var InTransitCode: Code[10]; var ShippingAgentCode: Code[10]; var ShippingAgentServiceCode: Code[10])
     var
@@ -254,7 +256,14 @@ table 5742 "Transfer Route"
     end;
 
     procedure GetShippingTime(TransferFromCode: Code[10]; TransferToCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10]; var ShippingTime: DateFormula)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetShippingTime(Rec, TransferFromCode, TransferToCode, ShippingAgentCode, ShippingAgentServiceCode, ShippingTime, IsHandled);
+        if IsHandled then
+            exit;
+
         if (ShippingAgentServices."Shipping Agent Code" <> ShippingAgentCode) or
            (ShippingAgentServices.Code <> ShippingAgentServiceCode)
         then begin
@@ -289,6 +298,11 @@ table 5742 "Transfer Route"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFromCode: Code[10]; TransferToCode: Code[10]; var InTransitCode: Code[10]; var ShippingAgentCode: Code[10]; var ShippingAgentServiceCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetShippingTime(var TransferRoute: Record "Transfer Route"; TransferFromCode: Code[10]; TransferToCode: Code[10]; ShippingAgentCode: Code[10]; ShippingAgentServiceCode: Code[10]; var ShippingTime: DateFormula; var IsHandled: Boolean)
     begin
     end;
 }

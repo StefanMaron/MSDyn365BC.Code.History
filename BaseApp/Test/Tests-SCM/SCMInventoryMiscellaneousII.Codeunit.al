@@ -48,8 +48,6 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         InvPickCreatedMessage: Label 'Number of Invt. Pick activities created: 1 out of a total of 1.';
         NoOfPicksCreatedMsg: Label 'Number of Invt. Pick activities created';
         WhseHandlingRequiredErr: Label 'Warehouse handling is required';
-        SalesHeaderNotOpenErr: Label 'Status must be equal to ''Open''  in Sales Header';
-        PurchHeaderNotOpenErr: Label 'Status must be equal to ''Open''  in Purchase Header';
 
     [Test]
     [Scope('OnPrem')]
@@ -1377,7 +1375,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         asserterror SalesLine.Validate(Type, SalesLine.Type::" ");
 
         // [THEN] Error is raised
-        Assert.ExpectedError(SalesHeaderNotOpenErr);
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
 
@@ -1406,7 +1404,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         asserterror PurchLine.Validate(Type, PurchLine.Type::" ");
 
         // [THEN] Error is raised
-        Assert.ExpectedError(PurchHeaderNotOpenErr);
+        Assert.ExpectedTestFieldError(PurchHeader.FieldCaption(Status), Format(PurchHeader.Status::Open));
     end;
 
     [Test]
@@ -2284,13 +2282,11 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         CreateItemTrackingCodeLotSpecific(ItemTrackingCode);
-        with ItemTrackingCode do begin
-            Validate("Use Expiration Dates", true);
-            Validate("Man. Expir. Date Entry Reqd.", true);
-            Modify(true);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", true);
+        ItemTrackingCode.Modify(true);
 
-            exit(Code);
-        end;
+        exit(ItemTrackingCode.Code);
     end;
 
     local procedure CreateItemWithLotTracking(var Item: Record Item)
@@ -3025,16 +3021,14 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        with ReservEntry do begin
-            SetRange("Item No.", ItemJournalLine."Item No.");
-            SetRange("Source Type", DATABASE::"Item Journal Line");
-            SetRange("Source ID", ItemJournalLine."Journal Template Name");
-            SetRange("Source Batch Name", ItemJournalLine."Journal Batch Name");
-            SetRange("Source Ref. No.", ItemJournalLine."Line No.");
-            FindFirst();
-            Validate("Expiration Date", ExpirationDate);
-            Modify(true);
-        end;
+        ReservEntry.SetRange("Item No.", ItemJournalLine."Item No.");
+        ReservEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
+        ReservEntry.SetRange("Source ID", ItemJournalLine."Journal Template Name");
+        ReservEntry.SetRange("Source Batch Name", ItemJournalLine."Journal Batch Name");
+        ReservEntry.SetRange("Source Ref. No.", ItemJournalLine."Line No.");
+        ReservEntry.FindFirst();
+        ReservEntry.Validate("Expiration Date", ExpirationDate);
+        ReservEntry.Modify(true);
     end;
 
     local procedure UpdateInventoryFromWarehouseJournal(var WarehouseJournalLine: Record "Warehouse Journal Line"; Bin: Record Bin; ItemNo: Code[20])
@@ -3169,11 +3163,9 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     var
         Location: Record Location;
     begin
-        with Location do begin
-            Get(LocationCode);
-            Validate("To-Assembly Bin Code", BinCode);
-            Modify(true);
-        end;
+        Location.Get(LocationCode);
+        Location.Validate("To-Assembly Bin Code", BinCode);
+        Location.Modify(true);
     end;
 
     local procedure VerifyItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
@@ -3195,7 +3187,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         PhysInventoryLedgerEntry.TestField(Quantity, ItemJournalLine.Quantity);
     end;
 
-    local procedure VerifyRequisitionLine(No: Code[20]; LocationCode: Code[10]; Quantity: Decimal; ActionMessage: Enum "Action Message Type"; AcceptActionMessage: Boolean; RefOrderStatus: Option)
+    local procedure VerifyRequisitionLine(No: Code[20]; LocationCode: Code[10]; Quantity: Decimal; ActionMessage: Enum "Action Message Type"; AcceptActionMessage: Boolean; RefOrderStatus: Enum "Requisition Ref. Order Type")
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -3496,13 +3488,11 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::Order);
-            SetRange("Document No.", SalesOrderNo);
-            FindFirst();
-            Validate(Quantity, NewQuantity);
-            Modify(true);
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesOrderNo);
+        SalesLine.FindFirst();
+        SalesLine.Validate(Quantity, NewQuantity);
+        SalesLine.Modify(true);
     end;
 
     [ModalPageHandler]
@@ -3589,18 +3579,16 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrderNo);
-        with WhseActivityLine do begin
-            SetRange("Activity Type", "Activity Type"::"Invt. Pick");
-            SetRange("Source Type", DATABASE::"Sales Line");
-            SetRange("Source Subtype", "Source Subtype"::"1");
-            SetRange("Source No.", SalesOrderNo);
-            SetRange("Lot No.", LotNo);
-            SetRange("Destination Type", "Destination Type"::Customer);
-            SetRange("Destination No.", SalesHeader."Sell-to Customer No.");
-            FindFirst();
+        WhseActivityLine.SetRange("Activity Type", WhseActivityLine."Activity Type"::"Invt. Pick");
+        WhseActivityLine.SetRange("Source Type", DATABASE::"Sales Line");
+        WhseActivityLine.SetRange("Source Subtype", WhseActivityLine."Source Subtype"::"1");
+        WhseActivityLine.SetRange("Source No.", SalesOrderNo);
+        WhseActivityLine.SetRange("Lot No.", LotNo);
+        WhseActivityLine.SetRange("Destination Type", WhseActivityLine."Destination Type"::Customer);
+        WhseActivityLine.SetRange("Destination No.", SalesHeader."Sell-to Customer No.");
+        WhseActivityLine.FindFirst();
 
-            Assert.AreEqual(Quantity, PickQty, '');
-        end;
+        Assert.AreEqual(WhseActivityLine.Quantity, PickQty, '');
     end;
 
     local procedure VerifyInventoryPickLines(SalesOrderNo: Code[20]; LotNos: array[2] of Code[20]; Lot1Qty: Decimal; Lot2Qty: Decimal)

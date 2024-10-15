@@ -1,7 +1,6 @@
 namespace Microsoft.Service.Posting;
 
 using Microsoft.Finance.GeneralLedger.Preview;
-using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Service.Document;
 using Microsoft.Utilities;
 
@@ -122,7 +121,7 @@ codeunit 5981 "Service-Post (Yes/No)"
 
     local procedure ConfirmPost(var ServiceHeader: Record "Service Header"; var Ship: Boolean; var Consume: Boolean; var Invoice: Boolean; DefaultOption: Integer) Result: Boolean
     var
-        PostingSelectionManagement: Codeunit "Posting Selection Management";
+        ServPostingSelectionMgt: Codeunit "Serv. Posting Selection Mgt.";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -130,7 +129,7 @@ codeunit 5981 "Service-Post (Yes/No)"
         if IsHandled then
             exit(Result);
 
-        Result := PostingSelectionManagement.ConfirmPostServiceDocument(ServiceHeader, Ship, Consume, Invoice, DefaultOption, false, false, PreviewMode);
+        Result := ServPostingSelectionMgt.ConfirmPostServiceDocument(ServiceHeader, Ship, Consume, Invoice, DefaultOption, false, false, PreviewMode);
         if not Result then
             exit(false);
 

@@ -330,8 +330,10 @@ report 1125 "Cost Types Details"
         CumulatedAddCurrCredit: Decimal;
         ShowAddCurr: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Date filter:';
         Text002: Label 'Total';
+#pragma warning restore AA0074
         AllAmountAreInLbl: Label 'All amounts are in';
         CostAccountDetailsCaptionLbl: Label 'Cost Types Details';
         PageNoCaptionLbl: Label 'Page';

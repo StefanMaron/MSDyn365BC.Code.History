@@ -618,7 +618,9 @@ page 303 "Vendor Entry Statistics"
         PaymentDiscMissedLCY: array[3] of Decimal;
         i: Integer;
         j: Integer;
+#pragma warning disable AA0074
         Text000: Label 'Placeholder';
+#pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordOnAfterVendLedgEntrySetFiltersCalcAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry")

@@ -433,7 +433,7 @@ report 28026 "Financial Analysis Report"
     var
         i: Integer;
     begin
-        for i := 1 to 6 do begin
+        for i := 1 to 6 do
             if i <= NoOfColumns then begin
                 if FormatString[i] <> '' then
                     ColumnAmountText[i] := Format(ColumnAmount[i], 0, FormatString[i])
@@ -441,19 +441,17 @@ report 28026 "Financial Analysis Report"
                     ColumnAmountText[i] := Format(ColumnAmount[i]);
             end else
                 ColumnAmountText[i] := '';
-        end;
     end;
 
     local procedure PopulateFormatString()
     var
         i: Integer;
     begin
-        for i := 1 to 6 do begin
+        for i := 1 to 6 do
             if RoundingFactor = RoundingFactor::" " then
                 FormatString[i] := '<Precision,2:><Standard Format,0>'
             else
                 FormatString[i] := '<Precision,1:><Standard Format,0>';
-        end;
         case ReportType of
             1, ReportType::"Net Change/Budget", ReportType::"Net Change (This Year/Last Year)":
                 begin
@@ -474,10 +472,9 @@ report 28026 "Financial Analysis Report"
     var
         i: Integer;
     begin
-        for i := 1 to 6 do begin
+        for i := 1 to 6 do
             if not DoNotRoundAmount[i] then
                 ColumnAmount[i] := ReportMngmt.RoundAmount(ColumnAmount[i], RoundingFactor);
-        end;
     end;
 
     local procedure FilterGLAccount(var GLAccount: Record "G/L Account")

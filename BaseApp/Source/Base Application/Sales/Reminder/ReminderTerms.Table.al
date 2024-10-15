@@ -84,10 +84,10 @@ table 292 "Reminder Terms"
         ReminderTermsTranslation.DeleteAll(true);
 
         ReminderAttachmentText.SetRange(Id, "Reminder Attachment Text");
-        ReminderAttachmentText.DeleteAll();
+        ReminderAttachmentText.DeleteAll(true);
 
         ReminderEmailText.SetRange(Id, "Reminder Email Text");
-        ReminderEmailText.DeleteAll();
+        ReminderEmailText.DeleteAll(true);
 
         Customer.SetRange("Reminder Terms Code", Code);
         if not Customer.IsEmpty() then

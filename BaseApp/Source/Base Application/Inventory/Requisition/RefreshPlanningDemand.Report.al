@@ -97,9 +97,13 @@ report 99001021 "Refresh Planning Demand"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Refreshing planning lines...\\';
+#pragma warning disable AA0470
         Text001: Label 'Item No.       #1##########\';
         Text002: Label 'Starting Date  #2##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PlngLnMgt: Codeunit "Planning Line Management";
         Window: Dialog;
         Direction: Option Forward,Backward;

@@ -23,7 +23,6 @@ codeunit 137281 "O365 Location Transfers"
         LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
         WrongInventoryErr: Label 'The amount of inventory transfered is incorrect.';
-        TestFieldErr: Label '%1 must be equal to ''No''  in Location';
         DirectTransferMustBeEditableErr: Label 'Direct Transfer must be editable.';
 
     [Test]
@@ -255,7 +254,7 @@ codeunit 137281 "O365 Location Transfers"
         asserterror CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
 
         // [THEN] Error: "Require Shipment" must equal to 'No' in location
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, FromLocation.FieldCaption("Require Shipment")));
+        Assert.ExpectedTestFieldError(FromLocation.FieldCaption("Require Shipment"), Format(false));
     end;
 
     [Test]
@@ -283,7 +282,7 @@ codeunit 137281 "O365 Location Transfers"
         asserterror CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
 
         // [THEN] Error: "Require Receive" must equal to 'No' in location
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, FromLocation.FieldCaption("Require Receive")));
+        Assert.ExpectedTestFieldError(FromLocation.FieldCaption("Require Receive"), Format(false));
     end;
 
     [Test]
@@ -311,7 +310,7 @@ codeunit 137281 "O365 Location Transfers"
         asserterror CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
 
         // [THEN] Error: "Require Pick" must equal to 'No' in location
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, FromLocation.FieldCaption("Require Pick")));
+        Assert.ExpectedTestFieldError(FromLocation.FieldCaption("Require Pick"), Format(false));
     end;
 
     [Test]
@@ -339,7 +338,7 @@ codeunit 137281 "O365 Location Transfers"
         asserterror CreateDirectTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code);
 
         // [THEN] Error: "Require Put-away" must equal to 'No' in location
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, FromLocation.FieldCaption("Require Put-away")));
+        Assert.ExpectedTestFieldError(FromLocation.FieldCaption("Require Put-away"), Format(false));
     end;
 
     [Test]
@@ -368,7 +367,7 @@ codeunit 137281 "O365 Location Transfers"
         asserterror TransferHeader.Validate("Transfer-from Code", Location[3].Code);
 
         // [THEN] Error: "Require Shipment" must equal to 'No' in location
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, Location[3].FieldCaption("Require Shipment")));
+        Assert.ExpectedTestFieldError(Location[3].FieldCaption("Require Shipment"), Format(false));
     end;
 
     [Test]
@@ -397,7 +396,7 @@ codeunit 137281 "O365 Location Transfers"
         asserterror TransferHeader.Validate("Transfer-to Code", Location[3].Code);
 
         // [THEN] Error: "Require Receive" must equal to 'No' in location
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, Location[3].FieldCaption("Require Receive")));
+        Assert.ExpectedTestFieldError(Location[3].FieldCaption("Require Receive"), Format(false));
     end;
 
     [Test]
@@ -431,7 +430,7 @@ codeunit 137281 "O365 Location Transfers"
         asserterror LibraryInventory.ReleaseTransferOrder(TransferHeader);
 
         // [THEN] Error: "Require Shipment" must equal to 'No' in location
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, FromLocation.FieldCaption("Require Shipment")));
+        Assert.ExpectedTestFieldError(FromLocation.FieldCaption("Require Shipment"), Format(false));
     end;
 
     [Test]
@@ -465,7 +464,7 @@ codeunit 137281 "O365 Location Transfers"
         asserterror LibraryInventory.ReleaseTransferOrder(TransferHeader);
 
         // [THEN] Error: "Require Receive" must equal to 'No' in location
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, ToLocation.FieldCaption("Require Receive")));
+        Assert.ExpectedTestFieldError(FromLocation.FieldCaption("Require Receive"), Format(false));
     end;
 
     [Test]
@@ -504,7 +503,7 @@ codeunit 137281 "O365 Location Transfers"
         asserterror LibraryInventory.PostDirectTransferOrder(TransferHeader);
 
         // [THEN] Error: "Require Shipment" must equal to 'No' in location
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, FromLocation.FieldCaption("Require Shipment")));
+        Assert.ExpectedTestFieldError(FromLocation.FieldCaption("Require Shipment"), Format(false));
     end;
 
     [Test]
@@ -543,7 +542,7 @@ codeunit 137281 "O365 Location Transfers"
         asserterror LibraryInventory.PostDirectTransferOrder(TransferHeader);
 
         // [THEN] Error: "Require Receive" must equal to 'No' in location
-        Assert.ExpectedError(StrSubstNo(TestFieldErr, ToLocation.FieldCaption("Require Receive")));
+        Assert.ExpectedTestFieldError(FromLocation.FieldCaption("Require Receive"), Format(false));
     end;
 
     [Test]

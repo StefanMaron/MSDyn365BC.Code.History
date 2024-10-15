@@ -31,11 +31,9 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            Validate("Enable GST (Australia)", true);
-            Modify();
-        end;
+        GLSetup.Get();
+        GLSetup.Validate("Enable GST (Australia)", true);
+        GLSetup.Modify();
     end;
 
     [Test]
@@ -302,16 +300,14 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            SetRange("Document No.", PaymentDocNo);
-            FindFirst();
-            TestField(Open, false);
+        VendLedgEntry.SetRange("Document No.", PaymentDocNo);
+        VendLedgEntry.FindFirst();
+        VendLedgEntry.TestField(Open, false);
 
-            LibraryERM.UnapplyVendorLedgerEntry(VendLedgEntry);
+        LibraryERM.UnapplyVendorLedgerEntry(VendLedgEntry);
 
-            Find();
-            TestField(Open, true);
-        end;
+        VendLedgEntry.Find();
+        VendLedgEntry.TestField(Open, true);
     end;
 
     local procedure FCYDocAppliedToPmt(DocumentType: Enum "Purchase Document Type")
@@ -523,32 +519,30 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         PmtAmount: Decimal;
     begin
         PrepareJnlBatch(GenJournalLine);
-        with GenJournalLine do begin
-            "Account No." := VendorNo;
+        GenJournalLine."Account No." := VendorNo;
 
-            PmtAmount := 0;
-            DocAmount := -GetBiggerAmount(GetWHTMinDocumentAmount('', ''));
-            if DocumentType = "Document Type"::"Credit Memo" then
-                DocAmount := -DocAmount;
+        PmtAmount := 0;
+        DocAmount := -GetBiggerAmount(GetWHTMinDocumentAmount('', ''));
+        if DocumentType = GenJournalLine."Document Type"::"Credit Memo" then
+            DocAmount := -DocAmount;
 
-            DocumentNo[1] := PostDocJnlLine(GenJournalLine, DocumentType, DocAmount);
-            PmtAmount -= Amount;
+        DocumentNo[1] := PostDocJnlLine(GenJournalLine, DocumentType, DocAmount);
+        PmtAmount -= GenJournalLine.Amount;
 
-            PostDocJnlLine(GenJournalLine, DocumentType, GetBiggerAmount(Amount));
+        PostDocJnlLine(GenJournalLine, DocumentType, GetBiggerAmount(GenJournalLine.Amount));
 
-            DocumentNo[2] := PostDocJnlLine(GenJournalLine, DocumentType, GetBiggerAmount(Amount));
-            PmtAmount -= Amount;
+        DocumentNo[2] := PostDocJnlLine(GenJournalLine, DocumentType, GetBiggerAmount(GenJournalLine.Amount));
+        PmtAmount -= GenJournalLine.Amount;
 
-            SetApplyToIDToDocNo(VendorNo, DocumentType, DocumentNo[1]);
-            SetApplyToIDToDocNo(VendorNo, DocumentType, DocumentNo[2]);
+        SetApplyToIDToDocNo(VendorNo, DocumentType, DocumentNo[1]);
+        SetApplyToIDToDocNo(VendorNo, DocumentType, DocumentNo[2]);
 
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, "Journal Template Name", "Journal Batch Name",
-              GetPmtDocumentType(DocumentType), "Account Type"::Vendor, "Account No.", PmtAmount);
-            Validate("Applies-to ID", UserId);
-            Modify(true);
-            PaymentDocNo := "Document No.";
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          GetPmtDocumentType(DocumentType), GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.", PmtAmount);
+        GenJournalLine.Validate("Applies-to ID", UserId);
+        GenJournalLine.Modify(true);
+        PaymentDocNo := GenJournalLine."Document No.";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -556,32 +550,28 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
     var
         ApplToGenJnlLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            ApplToGenJnlLine := GenJournalLine;
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, "Journal Template Name", "Journal Batch Name",
-              DocumentType, "Account Type"::Vendor, "Account No.", DocAmount);
-            "External Document No." := "Document No.";
-            "Applies-to Doc. Type" := ApplToGenJnlLine."Applies-to Doc. Type";
-            "Applies-to Doc. No." := ApplToGenJnlLine."Applies-to Doc. No.";
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            exit("Document No.");
-        end;
+        ApplToGenJnlLine := GenJournalLine;
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          DocumentType, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.", DocAmount);
+        GenJournalLine."External Document No." := GenJournalLine."Document No.";
+        GenJournalLine."Applies-to Doc. Type" := ApplToGenJnlLine."Applies-to Doc. Type";
+        GenJournalLine."Applies-to Doc. No." := ApplToGenJnlLine."Applies-to Doc. No.";
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure SetApplyToIDToDocNo(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
+        VendLedgEntry.SetRange("Vendor No.", VendorNo);
+        VendLedgEntry.SetRange("Document Type", DocumentType);
+        VendLedgEntry.SetRange("Document No.", DocumentNo);
+        VendLedgEntry.FindFirst();
 
-            LibraryERM.SetAppliestoIdVendor(VendLedgEntry);
-        end;
+        LibraryERM.SetAppliestoIdVendor(VendLedgEntry);
     end;
 
     local procedure PostDocWithPmtJnlLine(DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; ApplyToPostedDoc: Boolean; var DocumentNo: Code[20]; var PaymentDocNo: Code[20])
@@ -590,28 +580,26 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         DocAmount: Decimal;
     begin
         PrepareJnlBatch(GenJournalLine);
-        with GenJournalLine do begin
-            DocAmount := -GetBiggerAmount(GetWHTMinDocumentAmount('', ''));
-            if DocumentType = "Document Type"::"Credit Memo" then
-                DocAmount := -DocAmount;
+        DocAmount := -GetBiggerAmount(GetWHTMinDocumentAmount('', ''));
+        if DocumentType = GenJournalLine."Document Type"::"Credit Memo" then
+            DocAmount := -DocAmount;
 
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, "Journal Template Name", "Journal Batch Name",
-              DocumentType, "Account Type"::Vendor, VendorNo, DocAmount);
-            "External Document No." := "Document No.";
-            Modify(true);
-            DocumentNo := "Document No.";
-            if ApplyToPostedDoc then
-                LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          DocumentType, GenJournalLine."Account Type"::Vendor, VendorNo, DocAmount);
+        GenJournalLine."External Document No." := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+        DocumentNo := GenJournalLine."Document No.";
+        if ApplyToPostedDoc then
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, "Journal Template Name", "Journal Batch Name",
-              GetPmtDocumentType(DocumentType), "Account Type"::Vendor, VendorNo, -DocAmount);
-            Validate("Applies-to Doc. Type", DocumentType);
-            Validate("Applies-to Doc. No.", DocumentNo);
-            Modify(true);
-            PaymentDocNo := "Document No.";
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          GetPmtDocumentType(DocumentType), GenJournalLine."Account Type"::Vendor, VendorNo, -DocAmount);
+        GenJournalLine.Validate("Applies-to Doc. Type", DocumentType);
+        GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+        GenJournalLine.Modify(true);
+        PaymentDocNo := GenJournalLine."Document No.";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -626,10 +614,8 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
 
     local procedure CopyBatchNameToLine(GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLine do begin
-            "Journal Template Name" := GenJournalBatch."Journal Template Name";
-            "Journal Batch Name" := GenJournalBatch.Name;
-        end;
+        GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
+        GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
     end;
 
     local procedure PreparePaymentLine(VendorNo: Code[20]; PostedDocNo: Code[20]; PmtAmount: Decimal; var GenJournalLine: Record "Gen. Journal Line")
@@ -638,13 +624,11 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
     begin
         PrepareJnlBatch(GenJournalLine);
         DocumentType := GetDocumentType(PostedDocNo);
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, "Journal Template Name", "Journal Batch Name",
-              GetPmtDocumentType(DocumentType), "Account Type"::Vendor, VendorNo, PmtAmount);
-            Validate("Applies-to Doc. Type", DocumentType);
-            Validate("Applies-to Doc. No.", PostedDocNo);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+            GetPmtDocumentType(DocumentType), GenJournalLine."Account Type"::Vendor, VendorNo, PmtAmount);
+        GenJournalLine.Validate("Applies-to Doc. Type", DocumentType);
+        GenJournalLine.Validate("Applies-to Doc. No.", PostedDocNo);
     end;
 
     local procedure PostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"): Code[20]
@@ -658,12 +642,10 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            SetRange("Document No.", PostedDocumentNo);
-            FindFirst();
-            CalcFields("Remaining Amount");
-            exit("Remaining Amount" - "Remaining Pmt. Disc. Possible");
-        end;
+        VendLedgEntry.SetRange("Document No.", PostedDocumentNo);
+        VendLedgEntry.FindFirst();
+        VendLedgEntry.CalcFields("Remaining Amount");
+        exit(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible");
     end;
 
     local procedure GetAmountBiggerThanInvoice(PostedDocumentNo: Code[20]): Decimal
@@ -711,12 +693,10 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
 
     local procedure FindPaymentBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        with GenJournalBatch do begin
-            Reset();
-            SetRange("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            SetFilter("Bal. Account No.", '<>%1', '');
-            FindFirst();
-        end;
+        GenJournalBatch.Reset();
+        GenJournalBatch.SetRange("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.SetFilter("Bal. Account No.", '<>%1', '');
+        GenJournalBatch.FindFirst();
     end;
 
     local procedure GetWHTMinDocumentAmountByDocNo(DocumentNo: Code[20]): Decimal
@@ -754,11 +734,9 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
     var
         WHTEntry: Record "WHT Entry";
     begin
-        with WHTEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", PostedDocNo);
-            exit(not IsEmpty);
-        end;
+        WHTEntry.SetRange("Document Type", DocumentType);
+        WHTEntry.SetRange("Document No.", PostedDocNo);
+        exit(not WHTEntry.IsEmpty);
     end;
 
     local procedure VerifyWHTEntryIsRealizedCompletely(DocumentType: Enum "Gen. Journal Document Type"; PostedDocNo: Code[20])
@@ -767,43 +745,37 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         TotalRealizedBase: Decimal;
         TotalRealizedAmount: Decimal;
     begin
-        with WHTEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", PostedDocNo);
-            FindFirst();
+        WHTEntry.SetRange("Document Type", DocumentType);
+        WHTEntry.SetRange("Document No.", PostedDocNo);
+        WHTEntry.FindFirst();
 
-            TestField("Remaining Unrealized Amount", 0);
-            TestField("Remaining Unrealized Base", 0);
-            CalcRealizedWHTAmounts("Entry No.", TotalRealizedBase, TotalRealizedAmount);
-            Assert.AreEqual("Unrealized Base", TotalRealizedBase, 'WHT Base should be realized completely.');
-            Assert.AreEqual("Unrealized Amount", TotalRealizedAmount, 'WHT Amount should be realized completely.');
-        end;
+        WHTEntry.TestField("Remaining Unrealized Amount", 0);
+        WHTEntry.TestField("Remaining Unrealized Base", 0);
+        CalcRealizedWHTAmounts(WHTEntry."Entry No.", TotalRealizedBase, TotalRealizedAmount);
+        Assert.AreEqual(WHTEntry."Unrealized Base", TotalRealizedBase, 'WHT Base should be realized completely.');
+        Assert.AreEqual(WHTEntry."Unrealized Amount", TotalRealizedAmount, 'WHT Amount should be realized completely.');
     end;
 
     local procedure CalcRealizedWHTAmounts(UnrealizedWHTEntryNo: Integer; var TotalRealizedBase: Decimal; var TotalRealizedAmount: Decimal)
     var
         PmtWHTEntry: Record "WHT Entry";
     begin
-        with PmtWHTEntry do begin
-            SetRange("Unrealized WHT Entry No.", UnrealizedWHTEntryNo);
-            FindSet();
-            repeat
-                TotalRealizedBase += Base;
-                TotalRealizedAmount += Amount;
-            until Next() = 0;
-        end;
+        PmtWHTEntry.SetRange("Unrealized WHT Entry No.", UnrealizedWHTEntryNo);
+        PmtWHTEntry.FindSet();
+        repeat
+            TotalRealizedBase += PmtWHTEntry.Base;
+            TotalRealizedAmount += PmtWHTEntry.Amount;
+        until PmtWHTEntry.Next() = 0;
     end;
 
     local procedure VerifyPaymentDiscountIsPosted(PostedPmtDocNo: Code[20])
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DtldVendLedgEntry do begin
-            SetFilter("Document Type", '%1|%2', "Document Type"::Payment, "Document Type"::Refund);
-            SetRange("Document No.", PostedPmtDocNo);
-            SetRange("Entry Type", "Entry Type"::"Payment Discount");
-            Assert.IsTrue(not IsEmpty, 'Payment Discount entry expected to be posted.');
-        end;
+        DtldVendLedgEntry.SetFilter("Document Type", '%1|%2', DtldVendLedgEntry."Document Type"::Payment, DtldVendLedgEntry."Document Type"::Refund);
+        DtldVendLedgEntry.SetRange("Document No.", PostedPmtDocNo);
+        DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::"Payment Discount");
+        Assert.IsTrue(not DtldVendLedgEntry.IsEmpty, 'Payment Discount entry expected to be posted.');
     end;
 
     local procedure GetDocumentType(DocumentNo: Code[20]): Enum "Gen. Journal Document Type"

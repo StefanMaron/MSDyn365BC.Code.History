@@ -30,8 +30,8 @@ report 28140 "Adjust Settlement Exch. Rates"
                 CurrExchRate.Reset();
                 CurrExchRate.SetRange("Currency Code", Code);
                 CurrExchRate.SetRange("Starting Date", 0D, StartDate);
-                if CurrExchRate.FindLast() then begin
-                    if CurrExchRate."Relational Currency Code" <> '' then begin
+                if CurrExchRate.FindLast() then
+                    if CurrExchRate."Relational Currency Code" <> '' then
                         if UseDailyRate then begin
                             SettRate := CurrExchRate."Settlement Rate Amount";
                             RelSettRate := CurrExchRate."Relational Sett. Rate Amount";
@@ -45,8 +45,6 @@ report 28140 "Adjust Settlement Exch. Rates"
                                 CurrencyFactor := (RelSettRate * RelExchRate) / (ExchRate * SettRate);
                             end;
                         end;
-                    end;
-                end;
                 VATCount := 0;
                 CurrExchRate.Reset();
                 CurrExchRate.SetRange("Currency Code", Code);

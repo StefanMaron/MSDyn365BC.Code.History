@@ -266,7 +266,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                             RemainingAmount := RemainingAmountLCY;
                     end;
 
-                    for i := 1 to 5 do begin
+                    for i := 1 to 5 do
                         if (EntryDate >= PeriodStartDate[i]) and
                            (EntryDate <= ClosingDate(CalcDate('-1D', PeriodStartDate[i + 1])))
                         then begin
@@ -281,7 +281,6 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                             UpdateTotal(CVLedgerEntryBuffer5, TempCurrency4, '', i, 0, RemainingAmountLCY);
                         end else
                             EntryAmount[i] := 0;
-                    end;
                 end;
 
                 trigger OnPreDataItem()

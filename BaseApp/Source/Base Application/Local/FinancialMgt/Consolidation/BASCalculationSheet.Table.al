@@ -855,7 +855,7 @@ table 11601 "BAS Calculation Sheet"
         }
         field(112; Comment; Boolean)
         {
-            CalcFormula = Exist ("BAS Comment Line" where("No." = field(A1),
+            CalcFormula = exist("BAS Comment Line" where("No." = field(A1),
                                                           "Version No." = field("BAS Version")));
             Caption = 'Comment';
             Editable = false;

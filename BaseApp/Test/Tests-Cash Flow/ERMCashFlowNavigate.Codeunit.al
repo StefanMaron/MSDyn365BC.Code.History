@@ -909,13 +909,11 @@ codeunit 134559 "ERM Cash Flow Navigate"
     begin
         CFForecastEntry.DeleteAll();
 
-        with CFForecastEntry do begin
-            Init();
-            "Entry No." := 1;
-            "Source No." := SourceNo;
-            "Source Type" := SourceType;
-            Insert();
-        end;
+        CFForecastEntry.Init();
+        CFForecastEntry."Entry No." := 1;
+        CFForecastEntry."Source No." := SourceNo;
+        CFForecastEntry."Source Type" := SourceType;
+        CFForecastEntry.Insert();
     end;
 
     local procedure OpenBudgetPageWithGLAccountFilter()

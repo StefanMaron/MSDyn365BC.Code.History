@@ -153,11 +153,17 @@ report 5691 "Index Insurance"
         NoSeries: Code[20];
         NextLineNo: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must specify %1.';
+#pragma warning restore AA0470
         Text001: Label 'Posting Date must not be a closing date.';
         Text002: Label 'Index Figure must not be 100.';
         Text003: Label 'Index Figure must be positive.';
+#pragma warning disable AA0470
         Text004: Label 'Indexing insurance    #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         PostingDate: Date;

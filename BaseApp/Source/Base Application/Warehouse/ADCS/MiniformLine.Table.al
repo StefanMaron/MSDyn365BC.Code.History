@@ -139,7 +139,9 @@ table 7701 "Miniform Line"
     var
         MiniFormHeader: Record "Miniform Header";
         "Field": Record "Field";
+#pragma warning disable AA0074
         Text000: Label '%1 not allowed for %2 %3.', Comment = '%1 = Field type, %2= Form Type field caption, %3 = Form type';
+#pragma warning restore AA0074
 
     local procedure GetMiniFormHeader()
     begin

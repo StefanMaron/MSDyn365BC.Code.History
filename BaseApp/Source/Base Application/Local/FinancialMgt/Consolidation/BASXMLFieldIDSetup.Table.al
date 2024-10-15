@@ -38,7 +38,7 @@ table 11608 "BAS XML Field ID Setup"
         }
         field(4; "Field Label No."; Text[30])
         {
-            CalcFormula = Lookup(Field.FieldName where(TableNo = filter(11601),
+            CalcFormula = lookup(Field.FieldName where(TableNo = filter(11601),
                                                         "No." = field("Field No.")));
             Caption = 'Field Label No.';
             Editable = true;
@@ -46,7 +46,7 @@ table 11608 "BAS XML Field ID Setup"
         }
         field(5; "Field Description"; Text[80])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = filter(11601),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = filter(11601),
                                                               "No." = field("Field No.")));
             Caption = 'Field Description';
             Editable = true;

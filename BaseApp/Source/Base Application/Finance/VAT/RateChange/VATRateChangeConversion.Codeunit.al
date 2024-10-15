@@ -20,8 +20,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.Document;
-using Microsoft.Service.Pricing;
 using Microsoft.Warehouse.Request;
 using System.Reflection;
 
@@ -51,23 +49,32 @@ codeunit 550 "VAT Rate Change Conversion"
         VATRateChangeConversion: Record "VAT Rate Change Conversion";
         UOMMgt: Codeunit "Unit of Measure Management";
         ProgressWindow: Dialog;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text0001: Label 'Progressing Table #1#####################################  ';
         Text0002: Label 'Progressing Record #2############ of #3####################  ';
         Text0004: Label 'Order line %1 has a drop shipment purchasing code. Update the order manually.';
         Text0005: Label 'Order line %1 has a special order purchasing code. Update the order manually.';
+#pragma warning restore AA0470
         Text0006: Label 'The order has a partially shipped line with link to a WHSE document. Update the order manually.';
         Text0007: Label 'There is nothing to convert. The outstanding quantity is zero.';
+#pragma warning disable AA0470
         Text0008: Label 'There must be an entry in the %1 table for the combination of VAT business posting group %2 and VAT product posting group %3.';
         Text0009: Label 'Conversion cannot be performed before %1 is set to true.';
-        Text0010: Label 'The line has been shipped.';
+#pragma warning restore AA0470
         Text0011: Label 'Documents that have posted prepayment must be converted manually.';
+#pragma warning disable AA0470
         Text0012: Label 'This line %1 has been split into two lines. The outstanding quantity will be on the new line.';
         Text0013: Label 'This line %1 has been added. It contains the outstanding quantity from line %2.';
         Text0014: Label 'The order line %1 of type %2 have been partial Shipped/Invoiced . Update the order manually.';
+#pragma warning restore AA0470
         Text0015: Label 'A defined conversion does not exist. Define the conversion.';
         Text0016: Label 'Defined tables for conversion do not exist.';
+#pragma warning disable AA0470
         Text0017: Label 'This line %1 will be split into two lines. The outstanding quantity will be on the new line.';
+#pragma warning restore AA0470
         Text0018: Label 'This document is linked to an assembly order. You must convert the document manually.';
+#pragma warning restore AA0074
 
     local procedure Convert()
     var
@@ -99,10 +106,8 @@ codeunit 550 "VAT Rate Change Conversion"
         UpdateItem();
         UpdateResource();
         UpdateGLAccount();
-        UpdateServPriceAdjDetail();
         UpdatePurchase();
         UpdateSales();
-        UpdateService();
         UpdateTables();
 
         OnBeforeFinishConvert(VATRateChangeSetup, ProgressWindow);
@@ -1275,48 +1280,6 @@ codeunit 550 "VAT Rate Change Conversion"
         exit(NextLineNo <> SalesLine."Line No.");
     end;
 
-    local procedure UpdateServPriceAdjDetail()
-    var
-        VatRateChangeConversion: Record "VAT Rate Change Conversion";
-        ServPriceAdjustmentDetail: Record "Serv. Price Adjustment Detail";
-        ServPriceAdjustmentDetailNew: Record "Serv. Price Adjustment Detail";
-        VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
-        RecRef: RecordRef;
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeUpdateServPriceAdjDetail(VATRateChangeSetup, IsHandled);
-        if IsHandled then
-            exit;
-
-        if VATRateChangeSetup."Update Serv. Price Adj. Detail" <>
-           VATRateChangeSetup."Update Serv. Price Adj. Detail"::"Gen. Prod. Posting Group"
-        then
-            exit;
-        VatRateChangeConversion.SetRange(Type, VatRateChangeConversion.Type::"Gen. Prod. Posting Group");
-        if VatRateChangeConversion.FindSet() then
-            repeat
-                ServPriceAdjustmentDetail.SetRange("Gen. Prod. Posting Group", VatRateChangeConversion."From Code");
-                if ServPriceAdjustmentDetail.FindSet() then
-                    repeat
-                        VATRateChangeLogEntry.Init();
-                        RecRef.GetTable(ServPriceAdjustmentDetailNew);
-                        VATRateChangeLogEntry."Record ID" := RecRef.RecordId;
-                        VATRateChangeLogEntry."Table ID" := Database::"Serv. Price Adjustment Detail";
-                        VATRateChangeLogEntry."Old Gen. Prod. Posting Group" := ServPriceAdjustmentDetail."Gen. Prod. Posting Group";
-                        VATRateChangeLogEntry."New Gen. Prod. Posting Group" := VatRateChangeConversion."To Code";
-                        ServPriceAdjustmentDetailNew := ServPriceAdjustmentDetail;
-                        if VATRateChangeSetup."Perform Conversion" then begin
-                            ServPriceAdjustmentDetailNew.Rename(
-                              ServPriceAdjustmentDetail."Serv. Price Adjmt. Gr. Code", ServPriceAdjustmentDetail.Type, ServPriceAdjustmentDetail."No.", ServPriceAdjustmentDetail."Work Type", VatRateChangeConversion."To Code");
-                            VATRateChangeLogEntry.Converted := true
-                        end else
-                            VATRateChangeLogEntry.Description := StrSubstNo(Text0009, VATRateChangeSetup.FieldCaption("Perform Conversion"));
-                        WriteLogEntry(VATRateChangeLogEntry);
-                    until ServPriceAdjustmentDetail.Next() = 0;
-            until VatRateChangeConversion.Next() = 0;
-    end;
-
     procedure GetRoundingPrecision(CurrencyCode: Code[10]): Decimal
     var
         Currency: Record Currency;
@@ -1328,272 +1291,15 @@ codeunit 550 "VAT Rate Change Conversion"
         exit(Currency."Unit-Amount Rounding Precision");
     end;
 
-    local procedure CanUpdateService(ServiceLine: Record "Service Line"): Boolean
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit "Serv. VAT Rate Change Conv."', '25.0')]
+    procedure GetNextServiceLineNo(ServiceLine: Record Microsoft.Service.Document."Service Line"; var NextLineNo: Integer): Boolean
     var
-        ServiceHeader: Record "Service Header";
-        VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
-        RecRef: RecordRef;
-        DescriptionTxt: Text[250];
+        ServVATRateChangeConv: Codeunit "Serv. VAT Rate Change Conv.";
     begin
-        DescriptionTxt := '';
-        if ServiceLine."Shipment No." <> '' then
-            DescriptionTxt := Text0010;
-        if DescriptionTxt = '' then
-            exit(true);
-
-        VATRateChangeLogEntry.Init();
-        ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
-        RecRef.GetTable(ServiceHeader);
-        VATRateChangeLogEntry.Init();
-        VATRateChangeLogEntry."Record ID" := RecRef.RecordId;
-        VATRateChangeLogEntry."Table ID" := RecRef.Number;
-        VATRateChangeLogEntry.Description := DescriptionTxt;
-        WriteLogEntry(VATRateChangeLogEntry);
+        exit(ServVATRateChangeConv.GetNextServiceLineNo(ServiceLine, NextLineNo));
     end;
-
-    local procedure UpdateService()
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceHeader2: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        ServiceLineOld: Record "Service Line";
-        VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
-        RecRef: RecordRef;
-        NewVATProdPotingGroup: Code[20];
-        NewGenProdPostingGroup: Code[20];
-        ConvertVATProdPostingGroup: Boolean;
-        ConvertGenProdPostingGroup: Boolean;
-        ServiceHeaderStatusChanged: Boolean;
-        RoundingPrecision: Decimal;
-        LastDocNo: Code[20];
-        IsHandled: Boolean;
-    begin
-        ProgressWindow.Update(1, ServiceLine.TableCaption());
-        ConvertVATProdPostingGroup := ConvertVATProdPostGrp(VATRateChangeSetup."Update Service Docs.");
-        ConvertGenProdPostingGroup := ConvertGenProdPostGrp(VATRateChangeSetup."Update Service Docs.");
-        if not ConvertVATProdPostingGroup and not ConvertGenProdPostingGroup then
-            exit;
-
-        IsHandled := false;
-        OnBeforeUpdateService(VATRateChangeSetup, IsHandled);
-        if IsHandled then
-            exit;
-
-        ServiceLine.SetFilter("Document Type", '%1|%2|%3', ServiceLine."Document Type"::Quote, ServiceLine."Document Type"::Order, ServiceLine."Document Type"::Invoice);
-        ServiceLine.SetRange("Shipment No.", '');
-        LastDocNo := '';
-        if ServiceLine.Find('-') then
-            repeat
-                if LineInScope(ServiceLine."Gen. Prod. Posting Group", ServiceLine."VAT Prod. Posting Group", ConvertGenProdPostingGroup, ConvertVATProdPostingGroup) then
-                    if CanUpdateService(ServiceLine) and IncludeServiceLine(ServiceLine.Type, ServiceLine."No.") then begin
-                        if LastDocNo <> ServiceLine."Document No." then begin
-                            ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
-                            LastDocNo := ServiceHeader."No.";
-                        end;
-
-                        if VATRateChangeSetup."Ignore Status on Service Docs." then
-                            if ServiceHeader."Release Status" <> ServiceHeader."Release Status"::Open then begin
-                                ServiceHeader2 := ServiceHeader;
-                                ServiceHeader."Release Status" := ServiceHeader."Release Status"::Open;
-                                ServiceHeader.Modify();
-                                ServiceHeaderStatusChanged := true;
-                            end;
-
-                        if ServiceLine.Quantity = ServiceLine."Outstanding Quantity" then begin
-                            if ServiceHeader."Prices Including VAT" then
-                                ServiceLineOld := ServiceLine;
-
-                            RecRef.GetTable(ServiceLine);
-                            UpdateRec(
-                              RecRef, ConvertVATProdPostGrp(VATRateChangeSetup."Update Service Docs."),
-                              ConvertGenProdPostGrp(VATRateChangeSetup."Update Service Docs."));
-
-                            ServiceLine.Find();
-                            if ServiceHeader."Prices Including VAT" and VATRateChangeSetup."Perform Conversion" and
-                               (ServiceLine."VAT %" <> ServiceLineOld."VAT %") and
-                               VATRateChangeSetup."Update Unit Price For G/L Acc." and
-                               (ServiceLine.Type = ServiceLine.Type::"G/L Account")
-                            then begin
-                                RecRef.SetTable(ServiceLine);
-                                RoundingPrecision := GetRoundingPrecision(ServiceHeader."Currency Code");
-                                ServiceLine.Validate(ServiceLine."Unit Price", Round(ServiceLine."Unit Price" * (100 + ServiceLine."VAT %") / (100 + ServiceLineOld."VAT %"), RoundingPrecision));
-                                ServiceLine.Modify(true);
-                            end;
-                        end else
-                            if VATRateChangeSetup."Perform Conversion" and (ServiceLine."Outstanding Quantity" <> 0) then begin
-                                NewVATProdPotingGroup := ServiceLine."VAT Prod. Posting Group";
-                                NewGenProdPostingGroup := ServiceLine."Gen. Prod. Posting Group";
-                                if ConvertVATProdPostingGroup then
-                                    if VATRateChangeConversion.Get(
-                                         VATRateChangeConversion.Type::"VAT Prod. Posting Group", ServiceLine."VAT Prod. Posting Group")
-                                    then
-                                        NewVATProdPotingGroup := VATRateChangeConversion."To Code";
-                                if ConvertGenProdPostingGroup then
-                                    if VATRateChangeConversion.Get(
-                                         VATRateChangeConversion.Type::"Gen. Prod. Posting Group", ServiceLine."Gen. Prod. Posting Group")
-                                    then
-                                        NewGenProdPostingGroup := VATRateChangeConversion."To Code";
-                                AddNewServiceLine(ServiceLine, NewVATProdPotingGroup, NewGenProdPostingGroup);
-                            end else begin
-                                RecRef.GetTable(ServiceLine);
-                                InitVATRateChangeLogEntry(VATRateChangeLogEntry, RecRef, ServiceLine."Outstanding Quantity", ServiceLine."Line No.");
-                                VATRateChangeLogEntry.UpdateGroups(
-                                  ServiceLine."Gen. Prod. Posting Group", ServiceLine."Gen. Prod. Posting Group", ServiceLine."VAT Prod. Posting Group", ServiceLine."VAT Prod. Posting Group");
-                                WriteLogEntry(VATRateChangeLogEntry);
-                            end;
-
-                        if ServiceHeaderStatusChanged then begin
-                            ServiceHeader."Release Status" := ServiceHeader2."Release Status";
-                            ServiceHeader.Modify();
-                            ServiceHeaderStatusChanged := false;
-                        end;
-                    end;
-            until ServiceLine.Next() = 0;
-    end;
-
-    local procedure AddNewServiceLine(ServiceLine: Record "Service Line"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
-    var
-        NewServiceLine: Record "Service Line";
-        OldServiceLine: Record "Service Line";
-        ServiceHeader: Record "Service Header";
-        OldReservationEntry: Record "Reservation Entry";
-        NewReservationEntry: Record "Reservation Entry";
-        VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
-        RecRef: RecordRef;
-        NewLineNo: Integer;
-        RoundingPrecision: Decimal;
-    begin
-        if not GetNextServiceLineNo(ServiceLine, NewLineNo) then
-            exit;
-
-        NewServiceLine.Init();
-        NewServiceLine := ServiceLine;
-        NewServiceLine."Line No." := NewLineNo;
-        NewServiceLine."Qty. to Invoice" := 0;
-        NewServiceLine."Qty. to Ship" := 0;
-        NewServiceLine."Qty. Shipped Not Invoiced" := 0;
-        NewServiceLine."Quantity Shipped" := 0;
-        NewServiceLine."Quantity Invoiced" := 0;
-        NewServiceLine."Qty. to Invoice (Base)" := 0;
-        NewServiceLine."Qty. to Ship (Base)" := 0;
-        NewServiceLine."Qty. Shipped Not Invd. (Base)" := 0;
-        NewServiceLine."Qty. Shipped (Base)" := 0;
-        NewServiceLine."Qty. Invoiced (Base)" := 0;
-        NewServiceLine."Qty. to Consume" := 0;
-        NewServiceLine."Quantity Consumed" := 0;
-        NewServiceLine."Qty. to Consume (Base)" := 0;
-        NewServiceLine."Qty. Consumed (Base)" := 0;
-        if (GenProdPostingGroup <> '') and ConvertGenProdPostGrp(VATRateChangeSetup."Update Service Docs.") then
-            NewServiceLine.Validate(NewServiceLine."Gen. Prod. Posting Group", GenProdPostingGroup);
-        if (VATProdPostingGroup <> '') and ConvertVATProdPostGrp(VATRateChangeSetup."Update Service Docs.") then
-            NewServiceLine.Validate(NewServiceLine."VAT Prod. Posting Group", VATProdPostingGroup);
-
-        NewServiceLine.Validate(NewServiceLine.Quantity, ServiceLine."Outstanding Quantity");
-        NewServiceLine.Validate(NewServiceLine."Qty. to Ship", ServiceLine."Qty. to Ship");
-        NewServiceLine.Validate(NewServiceLine."Qty. to Consume", ServiceLine."Qty. to Consume");
-        if Abs(ServiceLine."Qty. to Invoice") >
-           (Abs(ServiceLine."Quantity Shipped") - Abs(ServiceLine."Quantity Invoiced"))
-        then
-            NewServiceLine.Validate(
-              NewServiceLine."Qty. to Invoice",
-              ServiceLine."Qty. to Invoice" - (ServiceLine."Quantity Shipped" - ServiceLine."Quantity Invoiced"))
-        else
-            NewServiceLine.Validate(NewServiceLine."Qty. to Invoice", 0);
-        ServiceHeader.Get(NewServiceLine."Document Type", NewServiceLine."Document No.");
-        RoundingPrecision := GetRoundingPrecision(ServiceHeader."Currency Code");
-        if ServiceHeader."Prices Including VAT" then
-            NewServiceLine.Validate(NewServiceLine."Unit Price", Round(ServiceLine."Unit Price" * (100 + NewServiceLine."VAT %") / (100 + ServiceLine."VAT %"), RoundingPrecision))
-        else
-            NewServiceLine.Validate(NewServiceLine."Unit Price", ServiceLine."Unit Price");
-        NewServiceLine.Validate(NewServiceLine."Line Discount %", ServiceLine."Line Discount %");
-        NewServiceLine.Insert();
-        RecRef.GetTable(ServiceLine);
-        VATRateChangeLogEntry.Init();
-        VATRateChangeLogEntry."Record ID" := RecRef.RecordId;
-        VATRateChangeLogEntry."Table ID" := RecRef.Number;
-        VATRateChangeLogEntry.Description := StrSubstNo(Text0012, Format(ServiceLine."Line No."));
-        VATRateChangeLogEntry.UpdateGroups(
-          ServiceLine."Gen. Prod. Posting Group", ServiceLine."Gen. Prod. Posting Group",
-          ServiceLine."VAT Prod. Posting Group", ServiceLine."VAT Prod. Posting Group");
-        VATRateChangeLogEntry.Converted := true;
-        WriteLogEntry(VATRateChangeLogEntry);
-
-        RecRef.GetTable(NewServiceLine);
-        VATRateChangeLogEntry.Init();
-        VATRateChangeLogEntry."Record ID" := RecRef.RecordId;
-        VATRateChangeLogEntry."Table ID" := RecRef.Number;
-        VATRateChangeLogEntry.UpdateGroups(
-          ServiceLine."Gen. Prod. Posting Group", NewServiceLine."Gen. Prod. Posting Group",
-          ServiceLine."VAT Prod. Posting Group", NewServiceLine."VAT Prod. Posting Group");
-        VATRateChangeLogEntry.Description := StrSubstNo(Text0013, Format(NewServiceLine."Line No."), Format(ServiceLine."Line No."));
-        VATRateChangeLogEntry.Converted := true;
-        WriteLogEntry(VATRateChangeLogEntry);
-
-        ServiceLine.CalcFields("Reserved Quantity");
-        if ServiceLine."Reserved Quantity" <> 0 then begin
-            OldReservationEntry.Reset();
-            OldReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
-            OldReservationEntry.SetRange("Source ID", ServiceLine."Document No.");
-            OldReservationEntry.SetRange("Source Ref. No.", ServiceLine."Line No.");
-            OldReservationEntry.SetRange("Source Type", Database::"Service Line");
-            OldReservationEntry.SetRange("Source Subtype", ServiceLine."Document Type");
-            OldReservationEntry.SetRange("Reservation Status", OldReservationEntry."Reservation Status"::Reservation);
-            if OldReservationEntry.FindSet() then
-                repeat
-                    NewReservationEntry := OldReservationEntry;
-                    NewReservationEntry."Source Ref. No." := NewLineNo;
-                    NewReservationEntry.Modify();
-                until OldReservationEntry.Next() = 0;
-        end;
-
-        OldReservationEntry.Reset();
-        OldReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
-        OldReservationEntry.SetRange("Source ID", ServiceLine."Document No.");
-        OldReservationEntry.SetRange("Source Ref. No.", ServiceLine."Line No.");
-        OldReservationEntry.SetRange("Source Type", Database::"Service Line");
-        OldReservationEntry.SetRange("Source Subtype", ServiceLine."Document Type");
-        OldReservationEntry.SetRange("Reservation Status", OldReservationEntry."Reservation Status"::Surplus);
-        if OldReservationEntry.Find('-') then
-            repeat
-                NewReservationEntry := OldReservationEntry;
-                NewReservationEntry."Source Ref. No." := NewLineNo;
-                NewReservationEntry.Modify();
-            until OldReservationEntry.Next() = 0;
-
-        OldServiceLine.Get(ServiceLine."Document Type", ServiceLine."Document No.", ServiceLine."Line No.");
-        OldServiceLine.Validate(Quantity, ServiceLine."Quantity Shipped");
-        OldServiceLine.Validate("Unit Price", ServiceLine."Unit Price");
-        OldServiceLine.Validate("Line Discount %", ServiceLine."Line Discount %");
-        OldServiceLine.Validate("Qty. to Ship", 0);
-        OldServiceLine.Validate("Qty. to Consume", 0);
-        if Abs(OldServiceLine."Qty. to Invoice") >
-           (Abs(OldServiceLine."Quantity Shipped") - Abs(OldServiceLine."Quantity Consumed") - Abs(ServiceLine."Quantity Invoiced"))
-        then
-            OldServiceLine.Validate(
-              "Qty. to Invoice", OldServiceLine."Qty. to Invoice" - ServiceLine."Quantity Shipped" - OldServiceLine."Quantity Consumed")
-        else
-            OldServiceLine.Validate("Qty. to Invoice", OldServiceLine."Qty. to Invoice");
-
-        OnAddNewServiceLineOnBeforeOldServiceLineModify(OldServiceLine, NewServiceLine, VATProdPostingGroup, GenProdPostingGroup);
-        OldServiceLine.Modify();
-    end;
-
-    procedure GetNextServiceLineNo(ServiceLine: Record "Service Line"; var NextLineNo: Integer): Boolean
-    var
-        ServiceLine2: Record "Service Line";
-    begin
-        ServiceLine2.Reset();
-        ServiceLine2.SetRange("Document Type", ServiceLine."Document Type");
-        ServiceLine2.SetRange("Document No.", ServiceLine."Document No.");
-        ServiceLine2 := ServiceLine;
-        if ServiceLine2.Find('>') then
-            NextLineNo := ServiceLine."Line No." + (ServiceLine2."Line No." - ServiceLine."Line No.") div 2;
-        if (NextLineNo = ServiceLine."Line No.") or (NextLineNo = 0) then begin
-            ServiceLine2.FindLast();
-            NextLineNo := ServiceLine2."Line No." + 10000;
-        end;
-        exit(NextLineNo <> ServiceLine."Line No.");
-    end;
+#endif
 
     local procedure GetNextItemChrgAssSaleLineNo(ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"): Integer
     var
@@ -1655,10 +1361,6 @@ codeunit 550 "VAT Rate Change Conversion"
             exit(true);
         if VATRateChangeSetup."Update Std. Item Jnl. Lines" <> VATRateChangeSetup."Update Std. Item Jnl. Lines"::No then
             exit(true);
-        if VATRateChangeSetup."Update Service Docs." <> VATRateChangeSetup."Update Service Docs."::No then
-            exit(true);
-        if VATRateChangeSetup."Update Serv. Price Adj. Detail" <> VATRateChangeSetup."Update Serv. Price Adj. Detail"::No then
-            exit(true);
         if VATRateChangeSetup."Update Sales Documents" <> VATRateChangeSetup."Update Sales Documents"::No then
             exit(true);
         if VATRateChangeSetup."Update Purchase Documents" <> VATRateChangeSetup."Update Purchase Documents"::No then
@@ -1677,25 +1379,6 @@ codeunit 550 "VAT Rate Change Conversion"
 
         OnAfterAreTablesSelected(VATRateChangeSetup, Result);
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by procedures IncludeSalesLine() and IncludePurchLine()', '22.0')]
-    procedure IncludeLine(Type: Option " ","G/L Account",Item,Resource; No: Code[20]): Boolean
-    var
-        IsHandled: Boolean;
-        Result: Boolean;
-    begin
-        case Type of
-            Type::"G/L Account":
-                exit(IncludeGLAccount(No));
-            Type::Item:
-                exit(IncludeItem(No));
-            Type::Resource:
-                exit(IncludeRes(No));
-        end;
-        exit(true);
-    end;
-#endif
 
     procedure IncludeSalesLine(Type: Enum "Sales Line Type"; No: Code[20]): Boolean
     var
@@ -1774,19 +1457,6 @@ codeunit 550 "VAT Rate Change Conversion"
         exit(Res.Find());
     end;
 
-    local procedure IncludeServiceLine(Type: Enum "Service Line Type"; No: Code[20]): Boolean
-    begin
-        case Type of
-            Type::"G/L Account":
-                exit(IncludeGLAccount(No));
-            Type::Item:
-                exit(IncludeItem(No));
-            Type::Resource:
-                exit(IncludeRes(No));
-        end;
-        exit(true);
-    end;
-
     procedure InitVATRateChangeLogEntry(var VATRateChangeLogEntry: Record "VAT Rate Change Log Entry"; RecRef: RecordRef; OutstandingQuantity: Decimal; LineNo: Integer)
     begin
         VATRateChangeLogEntry.Init();
@@ -1836,10 +1506,18 @@ codeunit 550 "VAT Rate Change Conversion"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnAddNewServiceLineOnBeforeOldServiceLineModify(var OldServiceLine: Record Microsoft.Service.Document."Service Line"; var NewServiceLine: Record Microsoft.Service.Document."Service Line"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
+    begin
+        OnAddNewServiceLineOnBeforeOldServiceLineModify(OldServiceLine, NewServiceLine, VATProdPostingGroup, GenProdPostingGroup);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit Serv. VAT Rate Change Conv.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAddNewServiceLineOnBeforeOldServiceLineModify(var OldServiceLine: Record "Service Line"; var NewServiceLine: Record "Service Line"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
+    local procedure OnAddNewServiceLineOnBeforeOldServiceLineModify(var OldServiceLine: Record Microsoft.Service.Document."Service Line"; var NewServiceLine: Record Microsoft.Service.Document."Service Line"; VATProdPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitNewSalesLineFromSalesLine(var NewSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line")
@@ -1921,15 +1599,31 @@ codeunit 550 "VAT Rate Change Conversion"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeUpdateServPriceAdjDetail(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean)
+    begin
+        OnBeforeUpdateServPriceAdjDetail(VATRateChangeSetup, IsHandled);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit Serv. VAT Rate Change Conv.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateServPriceAdjDetail(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeUpdateService(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean)
+    begin
+        OnBeforeUpdateService(VATRateChangeSetup, IsHandled);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit Serv. VAT Rate Change Conv.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateService(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateRec(var RecRef: RecordRef; ConvertVATProdPostingGroup: Boolean; ConvertGenProdPostingGroup: Boolean; var IsHandled: Boolean)

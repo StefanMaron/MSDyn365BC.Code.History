@@ -17,6 +17,8 @@ page 5604 "FA Ledger Entries"
     SourceTable = "FA Ledger Entry";
     SourceTableView = sorting("Entry No.");
     UsageCategory = History;
+    AboutTitle = 'About FA Ledger Entries';
+    AboutText = 'With the **FA Ledger Entries**, you can review the fixed asset ledger entry that is created when you post to a fixed asset account. You can select the entry and create cancel entries / reverse transactions. When activating analysis mode on this page, you can also perform ad-hoc analysis on Fixed Assets transactions as an alternative to running reports.';
 
     layout
     {
@@ -302,6 +304,8 @@ page 5604 "FA Ledger Entries"
                     Caption = 'Cancel Entries';
                     Ellipsis = true;
                     Image = CancelLine;
+                    AboutTitle = 'Cancel the wrong entries';
+                    AboutText = 'Use the Cancel Entries option to create the cancel entry in the Fixed Asset G/L Journal or Fixed Asset Journal with this the entry will get removed from the FA ledger entries.';
                     ToolTip = 'Remove one or more fixed asset ledger entries from the FA Ledger Entries window. If you posted erroneous transactions to one or more fixed assets, you can use this function to cancel the fixed asset ledger entries. In the FA Ledger Entries window, select the entry or entries that you want to cancel.';
 
                     trigger OnAction()
@@ -391,8 +395,12 @@ page 5604 "FA Ledger Entries"
         CalcRunningFABalance: Codeunit "Calc. Running FA Balance";
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
         Navigate: Page Navigate;
+#pragma warning disable AA0470
         CannotUndoErr: Label 'You cannot undo the FA Ledger Entry No. %1 by using the Reverse Transaction function because Depreciation Book %2 does not have the appropriate G/L integration setup.';
+#pragma warning restore AA0470
+#pragma warning disable AA0074
         Text001: Label 'You cannot reverse the transaction because the fixed asset has been sold.';
+#pragma warning restore AA0074
 
     protected var
         Dim1Visible: Boolean;

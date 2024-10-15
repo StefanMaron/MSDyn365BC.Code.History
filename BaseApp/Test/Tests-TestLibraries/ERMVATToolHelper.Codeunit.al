@@ -162,6 +162,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         SalesLine: Record "Sales Line";
         ServiceLine: Record "Service Line";
         VATRateChangeConversion: Codeunit "VAT Rate Change Conversion";
+        ServVATRateChangeConv: Codeunit "Serv. VAT Rate Change Conv.";
         FieldRef: FieldRef;
         LineNo: Integer;
         NextLineNo: Integer;
@@ -206,7 +207,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                     TempRecRef.SetTable(ServiceLine);
                     TempRecRef := TempRecRef.Duplicate();
                     FieldRef := TempRecRef.Field(ServiceLine.FieldNo("Line No."));
-                    VATRateChangeConversion.GetNextServiceLineNo(ServiceLine, NextLineNo);
+                    ServVATRateChangeConv.GetNextServiceLineNo(ServiceLine, NextLineNo);
                     FieldRef.Value(NextLineNo);
                     TempRecRef.Insert(false);
                     FieldRef := TempRecRef.Field(ServiceLine.FieldNo(Quantity));

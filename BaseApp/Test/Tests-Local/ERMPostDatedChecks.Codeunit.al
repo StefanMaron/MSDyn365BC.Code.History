@@ -724,12 +724,10 @@ codeunit 141031 "ERM Post Dated Checks"
         CreatePDCInstallment(VendorNo, LibraryRandom.RandIntInRange(2, 5));
         CreatePaymentJournal(VendorNo);
 
-        with GenJnlLine do begin
-            SetRange("Account No.", VendorNo);
-            ModifyAll("Bank Payment Type", "Bank Payment Type"::"Manual Check");
-            ModifyAll("WHT Product Posting Group", WHTProdPostingGroupCode);
-            NoOfInst := Count;
-        end;
+        GenJnlLine.SetRange("Account No.", VendorNo);
+        GenJnlLine.ModifyAll("Bank Payment Type", GenJnlLine."Bank Payment Type"::"Manual Check");
+        GenJnlLine.ModifyAll("WHT Product Posting Group", WHTProdPostingGroupCode);
+        NoOfInst := GenJnlLine.Count;
         PostPaymentJournal(VendorNo);
         exit(GenJnlLine."Document No.");
     end;
@@ -886,12 +884,10 @@ codeunit 141031 "ERM Post Dated Checks"
         CreatePaymentJournalWithVAT(
           PurchaseLine, Vendor."No.", true, LibraryRandom.RandIntInRange(2, 5));
 
-        with GenJournalLine do begin
-            SetRange("Account No.", Vendor."No.");
-            FindFirst();
-            Validate("Bank Payment Type", "Bank Payment Type"::"Manual Check");
-            Modify(true);
-        end;
+        GenJournalLine.SetRange("Account No.", Vendor."No.");
+        GenJournalLine.FindFirst();
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Manual Check");
+        GenJournalLine.Modify(true);
         PostPaymentJournal(Vendor."No.");
         exit(GenJournalLine."Bal. Account No.")
     end;
@@ -906,12 +902,10 @@ codeunit 141031 "ERM Post Dated Checks"
         LibraryAPACLocalization.CreateWHTPostingSetup(
           WHTPostingSetup, WHTBusPostingGroup.Code, WHTProdPostingGroup.Code);
 
-        with WHTPostingSetup do begin
-            Validate("WHT %", LibraryRandom.RandIntInRange(10, 20));
-            Validate("Payable WHT Account Code", LibraryERM.CreateGLAccountNo());
-            Validate("Realized WHT Type", "Realized WHT Type"::Payment);
-            Modify(true);
-        end;
+        WHTPostingSetup.Validate("WHT %", LibraryRandom.RandIntInRange(10, 20));
+        WHTPostingSetup.Validate("Payable WHT Account Code", LibraryERM.CreateGLAccountNo());
+        WHTPostingSetup.Validate("Realized WHT Type", WHTPostingSetup."Realized WHT Type"::Payment);
+        WHTPostingSetup.Modify(true);
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -931,14 +925,12 @@ codeunit 141031 "ERM Post Dated Checks"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         UpdateVendorPostingSetup(Vendor."Vendor Posting Group");
-        with Vendor do begin
-            Validate(ABN, '');
-            Validate("ABN Division Part No.", '');
-            Validate("WHT Business Posting Group", WHTBusPostingGroupCode);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate(ABN, '');
+        Vendor.Validate("ABN Division Part No.", '');
+        Vendor.Validate("WHT Business Posting Group", WHTBusPostingGroupCode);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateItemWithWHT(WHTProductPostingGroup: Code[20]; VATProdPostingGroupCode: Code[20]): Code[20]
@@ -946,12 +938,10 @@ codeunit 141031 "ERM Post Dated Checks"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("WHT Product Posting Group", WHTProductPostingGroup);
-            Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Item.Validate("WHT Product Posting Group", WHTProductPostingGroup);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure UpdateGLSetupWHT(EnableWHT: Boolean; EnableGST: Boolean; var OldEnableWHT: Boolean; var OldEnableGST: Boolean)
@@ -1144,13 +1134,11 @@ codeunit 141031 "ERM Post Dated Checks"
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
-        with CheckLedgerEntry do begin
-            SetRange("Bank Account No.", BankAccountNo);
-            FindFirst();
-            Assert.AreEqual(
-              "Entry Status"::"Financially Voided", "Entry Status",
-              StrSubstNo(ValueIncorrectErr, FieldCaption("Entry Status")));
-        end;
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        CheckLedgerEntry.FindFirst();
+        Assert.AreEqual(
+          CheckLedgerEntry."Entry Status"::"Financially Voided", CheckLedgerEntry."Entry Status",
+          StrSubstNo(ValueIncorrectErr, CheckLedgerEntry.FieldCaption("Entry Status")));
     end;
 
     local procedure VoidCheck(BankAccountNo: Code[20])

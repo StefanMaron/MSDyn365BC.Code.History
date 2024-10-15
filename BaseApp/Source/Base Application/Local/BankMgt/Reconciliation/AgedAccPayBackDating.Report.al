@@ -254,7 +254,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
                             RemainingAmount := RemainingAmountLCY;
                     end;
 
-                    for i := 1 to 5 do begin
+                    for i := 1 to 5 do
                         if (EntryDate >= PeriodStartDate[i]) and
                            (EntryDate <= ClosingDate(CalcDate('-1D', PeriodStartDate[i + 1])))
                         then begin
@@ -269,7 +269,6 @@ report 17117 "Aged Acc. Pay. (BackDating)"
                             UpdateTotal(CVLedgerEntryBuffer5, TempCurrency4, '', i, 0, RemainingAmountLCY);
                         end else
                             EntryAmount[i] := 0;
-                    end;
                 end;
 
                 trigger OnPreDataItem()
@@ -306,7 +305,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
             }
             dataitem(AccountTotalsPerCurrency; "Integer")
             {
-                DataItemTableView = sorting(Number) WHERE(Number = filter(1 ..));
+                DataItemTableView = sorting(Number) where(Number = filter(1 ..));
                 column(GetCurrencyCode_TempCurrency2_Code_; GetCurrencyCode(TempCurrency2.Code))
                 {
                 }
@@ -368,7 +367,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
             }
             dataitem(AccountTotals; "Integer")
             {
-                DataItemTableView = sorting(Number) WHERE(Number = const(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(GetCurrencyCode_____Control1450078; GetCurrencyCode(''))
                 {
                 }
@@ -499,7 +498,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
         }
         dataitem(TotalsPerCurrency; "Integer")
         {
-            DataItemTableView = sorting(Number) WHERE(Number = filter(1 ..));
+            DataItemTableView = sorting(Number) where(Number = filter(1 ..));
             column(GetCurrencyCode_TempCurrency3_Code_; GetCurrencyCode(TempCurrency3.Code))
             {
             }
@@ -559,7 +558,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
         }
         dataitem(Totals; "Integer")
         {
-            DataItemTableView = sorting(Number) WHERE(Number = const(1));
+            DataItemTableView = sorting(Number) where(Number = const(1));
             column(GetCurrencyCode_____Control1450066; GetCurrencyCode(''))
             {
             }

@@ -443,7 +443,8 @@ codeunit 141066 "UT Address Format"
         CustomAddressFormat: Record "Custom Address Format";
     begin
         CustomAddressFormat.SetRange("Country/Region Code", CountryRegionCode);
-        CustomAddressFormat.FindLast();
+        CustomAddressFormat.Find('+');
+        CustomAddressFormat.Next(-1);
         CustomAddressFormat.TestField("Line Format", ExpectedLineFormat);
     end;
 

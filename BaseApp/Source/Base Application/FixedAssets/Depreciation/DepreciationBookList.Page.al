@@ -13,6 +13,8 @@ page 5611 "Depreciation Book List"
     SourceTable = "Depreciation Book";
     UsageCategory = Administration;
     AnalysisModeEnabled = false;
+    AboutTitle = 'About Depreciation Books';
+    AboutText = 'Here you overview all registered depreciation books that you use in the Fixed Asset card to record the acquisition and calculate the depreciation.';
 
     layout
     {

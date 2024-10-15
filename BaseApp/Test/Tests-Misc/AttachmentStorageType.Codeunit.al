@@ -1162,26 +1162,22 @@ codeunit 136450 "Attachment Storage Type"
         Contact: Record Contact;
     begin
         LibraryMarketing.CreateCompanyContact(Contact);
-        with InteractionLogEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(InteractionLogEntry, FieldNo("Entry No."));
-            "Contact No." := Contact."No.";
-            "Correspondence Type" := CorrespondenceType;
-            "Attachment No." := AttachmentNo;
-            Insert(true);
-            exit("Entry No.");
-        end;
+        InteractionLogEntry.Init();
+        InteractionLogEntry."Entry No." := LibraryUtility.GetNewRecNo(InteractionLogEntry, InteractionLogEntry.FieldNo("Entry No."));
+        InteractionLogEntry."Contact No." := Contact."No.";
+        InteractionLogEntry."Correspondence Type" := CorrespondenceType;
+        InteractionLogEntry."Attachment No." := AttachmentNo;
+        InteractionLogEntry.Insert(true);
+        exit(InteractionLogEntry."Entry No.");
     end;
 
     local procedure MockDeliverySorter(var DeliverySorter: Record "Delivery Sorter"; InteractionLogEntry: Record "Interaction Log Entry")
     begin
-        with DeliverySorter do begin
-            Init();
-            "No." := InteractionLogEntry."Entry No.";
-            "Correspondence Type" := InteractionLogEntry."Correspondence Type";
-            "Attachment No." := InteractionLogEntry."Attachment No.";
-            Insert(true);
-        end;
+        DeliverySorter.Init();
+        DeliverySorter."No." := InteractionLogEntry."Entry No.";
+        DeliverySorter."Correspondence Type" := InteractionLogEntry."Correspondence Type";
+        DeliverySorter."Attachment No." := InteractionLogEntry."Attachment No.";
+        DeliverySorter.Insert(true);
     end;
 
     local procedure GenerateContentBodyText(): Text

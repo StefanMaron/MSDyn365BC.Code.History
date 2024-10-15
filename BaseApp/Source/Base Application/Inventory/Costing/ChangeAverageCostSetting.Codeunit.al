@@ -61,9 +61,13 @@ codeunit 5810 "Change Average Cost Setting"
         WindowNo: Text[20];
         WindowPostingDate: Date;
         WindowUpdateDateTime: DateTime;
+#pragma warning disable AA0074
         Text000: Label 'Processing Item...\\';
+#pragma warning disable AA0470
         Text001: Label 'Item No.       #1######\';
         Text002: Label 'Valuation Date #2######';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure UpdateAvgCostFromAccPeriodChg(AccPeriod: Record "Accounting Period")
     var

@@ -389,6 +389,11 @@ table 79 "Company Information"
         {
             Caption = 'Contact Person';
         }
+        field(52; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(90; GLN; Code[13])
         {
             Caption = 'GLN';
@@ -579,8 +584,10 @@ table 79 "Company Information"
         NotValidIBANErr: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?', Comment = '%1 - an actual IBAN';
         ABNManagement: Codeunit "ABN Management";
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
+#pragma warning disable AA0470
         NoPaymentInfoMsg: Label 'No payment information is provided in %1. Review the report.';
         GLNCheckDigitErr: Label 'The %1 is not valid.';
+#pragma warning restore AA0470
         DevBetaModeTxt: Label 'DEV_BETA', Locked = true;
         ContactUsFullTxt: Label 'Questions? Contact us at %1 or %2.', Comment = '%1 = phone number, %2 = email';
         ContactUsShortTxt: Label 'Questions? Contact us at %1.', Comment = '%1 = phone number or email';

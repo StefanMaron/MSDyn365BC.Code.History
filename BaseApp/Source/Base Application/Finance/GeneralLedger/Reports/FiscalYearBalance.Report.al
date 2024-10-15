@@ -505,16 +505,22 @@ report 36 "Fiscal Year Balance"
         PeriodStartingDate: Date;
         PeriodEndingDate: Date;
         FYStartingDate: Date;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Period : %1..%2';
         Text002: Label 'Fiscal Year Starting Date : %1';
+#pragma warning restore AA0470
         Text003: Label 'Enter the starting date for the first period.';
         Text004: Label 'The starting date is not the starting date of an Accounting Period.';
         Text011: Label 'Amounts are rounded to 1';
         Text012: Label 'Amounts are in whole 1000s.';
         Text013: Label 'Amounts are in whole 1000000s.';
+#pragma warning disable AA0470
         Text014: Label 'Indentation Level %1 is not used in the Chart of Accounts. This Chart of Accounts uses max. %2 levels.';
         Text015: Label 'Indentation Level : %1';
+#pragma warning restore AA0470
         Text016: Label 'In case of no indentation, the Chart of Accounts will show only postings.';
+#pragma warning restore AA0074
         IndentTxt: Label 'None,0,1,2,3,4,5';
         Indent: Option "None","0","1","2","3","4","5";
         MaxIndent: Text[5];
@@ -522,10 +528,14 @@ report 36 "Fiscal Year Balance"
         ShowResults: Boolean;
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
+#pragma warning disable AA0074
         LastPageCap: Label '/ Last Page';
         ContinuedCap: Label '/ Continued';
+#pragma warning restore AA0074
         Fiscal_Year_BalanceCaptionLbl: Label 'Fiscal Year Balance';
+#pragma warning disable AA0074
         NameCap: Label 'Name';
+#pragma warning restore AA0074
         DebitCaptionLbl: Label 'Debit';
         CreditCaptionLbl: Label 'Credit';
         Closing_BalanceCaptionLbl: Label 'Closing Balance';

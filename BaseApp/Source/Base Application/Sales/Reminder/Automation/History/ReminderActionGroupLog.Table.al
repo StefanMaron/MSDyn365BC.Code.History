@@ -23,14 +23,19 @@ table 6753 "Reminder Action Group Log"
         field(11; "Last Step ID"; Integer)
         {
         }
+#if not CLEAN25
 #pragma warning disable AA0232
         field(15; "Number of Errors"; Integer)
 #pragma warning restore AA0232
         {
+            ObsoleteReason = 'Field is removed do not use';
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
             FieldClass = FlowField;
             CalcFormula = sum("Reminder Action Log"."Total Errors" where("Reminder Action Group ID" = field("Reminder Action Group ID"), "Run Id" = field("Run Id")));
             Editable = false;
         }
+#endif
         field(16; "Started On"; DateTime)
         {
         }

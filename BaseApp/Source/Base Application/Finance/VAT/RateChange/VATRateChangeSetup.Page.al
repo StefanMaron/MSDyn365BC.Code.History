@@ -91,11 +91,6 @@ page 550 "VAT Rate Change Setup"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the VAT rate change for general product posting groups.';
                 }
-                field("Update Serv. Price Adj. Detail"; Rec."Update Serv. Price Adj. Detail")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the VAT rate change for service price adjustment detail.';
-                }
                 field("Update Work Centers"; Rec."Update Work Centers")
                 {
                     ApplicationArea = Manufacturing;
@@ -168,16 +163,6 @@ page 550 "VAT Rate Change Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies all existing purchase documents regardless of status, including documents with a status of released, are updated.';
-                }
-                field("Update Service Docs."; Rec."Update Service Docs.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the VAT rate change for service lines.';
-                }
-                field("Ignore Status on Service Docs."; Rec."Ignore Status on Service Docs.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies that all existing service documents regardless of release status are updated.';
                 }
                 field("Update Production Orders"; Rec."Update Production Orders")
                 {

@@ -17,7 +17,7 @@ report 16630 "E-Filing"
     {
         dataitem("WHT Entry"; "WHT Entry")
         {
-            DataItemTableView = sorting("Bill-to/Pay-to No.", "WHT Revenue Type", "WHT Prod. Posting Group") ORDER(Ascending) where("Transaction Type" = const(Purchase), "Applies-to Entry No." = filter(<> 0));
+            DataItemTableView = sorting("Bill-to/Pay-to No.", "WHT Revenue Type", "WHT Prod. Posting Group") order(ascending) where("Transaction Type" = const(Purchase), "Applies-to Entry No." = filter(<> 0));
             PrintOnlyIfDetail = false;
 
             trigger OnAfterGetRecord()

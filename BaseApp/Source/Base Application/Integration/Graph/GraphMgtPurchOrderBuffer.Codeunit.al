@@ -4,7 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Integration.Graph;
 
-using Microsoft.Foundation.Company;
 using Microsoft.Integration.Entity;
 using Microsoft.Inventory.Item;
 using Microsoft.Purchases.Document;
@@ -170,7 +169,7 @@ codeunit 5497 "Graph Mgt - Purch Order Buffer"
         TargetRecordRef.Insert(true);
 
         PurchaseHeader.Get(TargetRecordRef.RecordId());
-        CheckShippingDetails(PurchaseHeader, PurchaseOrderEntityBuffer);
+        SetShipToAddress(PurchaseHeader, PurchaseOrderEntityBuffer);
         PurchaseHeader.CopyBuyFromAddressToPayToAddress();
         PurchaseHeader.Modify(true);
 
@@ -259,24 +258,24 @@ codeunit 5497 "Graph Mgt - Purch Order Buffer"
             PurchaseOrderEntityBuffer.Insert(true);
     end;
 
-    local procedure CheckShippingDetails(var PurchaseHeader: Record "Purchase Header"; var PurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer")
-    var
-        CompanyInfo: Record "Company Information";
+    local procedure SetShipToAddress(var PurchaseHeader: Record "Purchase Header"; PurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer")
     begin
-        if PurchaseOrderEntityBuffer."Ship-to Name" <> CompanyInfo."Ship-to Name" then
+        if PurchaseOrderEntityBuffer."Ship-to Name" <> '' then
             PurchaseHeader."Ship-to Name" := PurchaseOrderEntityBuffer."Ship-to Name";
-        if PurchaseOrderEntityBuffer."Ship-to Address" <> CompanyInfo."Ship-to Address" then
+        if PurchaseOrderEntityBuffer."Ship-to Address" <> '' then
             PurchaseHeader."Ship-to Address" := PurchaseOrderEntityBuffer."Ship-to Address";
-        if PurchaseOrderEntityBuffer."Ship-to Address 2" <> CompanyInfo."Ship-to Address 2" then
+        if PurchaseOrderEntityBuffer."Ship-to Address 2" <> '' then
             PurchaseHeader."Ship-to Address 2" := PurchaseOrderEntityBuffer."Ship-to Address 2";
-        if PurchaseOrderEntityBuffer."Ship-to City" <> CompanyInfo."Ship-to City" then
+        if PurchaseOrderEntityBuffer."Ship-to City" <> '' then
             PurchaseHeader."Ship-to City" := PurchaseOrderEntityBuffer."Ship-to City";
-        if PurchaseOrderEntityBuffer."Ship-to Country/Region Code" <> CompanyInfo."Ship-to Country/Region Code" then
+        if PurchaseOrderEntityBuffer."Ship-to Country/Region Code" <> '' then
             PurchaseHeader."Ship-to Country/Region Code" := PurchaseOrderEntityBuffer."Ship-to Country/Region Code";
-        if PurchaseOrderEntityBuffer."Ship-to Post Code" <> CompanyInfo."Ship-to Post Code" then
+        if PurchaseOrderEntityBuffer."Ship-to Post Code" <> '' then
             PurchaseHeader."Ship-to Post Code" := PurchaseOrderEntityBuffer."Ship-to Post Code";
-        if PurchaseOrderEntityBuffer."Ship-to County" <> CompanyInfo."Ship-to County" then
+        if PurchaseOrderEntityBuffer."Ship-to County" <> '' then
             PurchaseHeader."Ship-to County" := PurchaseOrderEntityBuffer."Ship-to County";
+        if PurchaseOrderEntityBuffer."Ship-to Phone No." <> '' then
+            PurchaseHeader."Ship-to Phone No." := PurchaseOrderEntityBuffer."Ship-to Phone No.";
     end;
 
     local procedure SetStatusOptionFromPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; var PurchaseOrderEntityBuffer: Record "Purchase Order Entity Buffer")

@@ -360,16 +360,14 @@ codeunit 141080 "VAT On Document Statistics II"
         SalesLine: Record "Sales Line";
     begin
         VATAmount := 0;
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            if FindSet() then
-                repeat
-                    VATAmount += "Line Amount" * "VAT %" / 100;
-                until Next() = 0;
-            CalcSums(Amount);
-            TotalAmount := Amount;
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                VATAmount += SalesLine."Line Amount" * SalesLine."VAT %" / 100;
+            until SalesLine.Next() = 0;
+        SalesLine.CalcSums(Amount);
+        TotalAmount := SalesLine.Amount;
     end;
 
     local procedure CalcPurchaseLineAmounts(PurchaseHeader: Record "Purchase Header"; var VATAmount: Decimal; var TotalAmount: Decimal)
@@ -377,16 +375,14 @@ codeunit 141080 "VAT On Document Statistics II"
         PurchaseLine: Record "Purchase Line";
     begin
         VATAmount := 0;
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            if FindSet() then
-                repeat
-                    VATAmount += "Line Amount" * "VAT %" / 100;
-                until Next() = 0;
-            CalcSums(Amount);
-            TotalAmount := Amount;
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        if PurchaseLine.FindSet() then
+            repeat
+                VATAmount += PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100;
+            until PurchaseLine.Next() = 0;
+        PurchaseLine.CalcSums(Amount);
+        TotalAmount := PurchaseLine.Amount;
     end;
 
     local procedure OpenSalesInvoiceStatistics(DocumentNo: Code[20])

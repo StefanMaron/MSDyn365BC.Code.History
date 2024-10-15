@@ -85,14 +85,12 @@ codeunit 145300 "Post Dated Check Line"
     var
         GenJnlTemplate: Record "Gen. Journal Template";
     begin
-        with GenJnlTemplate do begin
-            SetRange("Page ID", PageID);
-            SetRange(Recurring, false);
-            SetRange(Type, PageTemplate);
-            FindFirst();
+        GenJnlTemplate.SetRange("Page ID", PageID);
+        GenJnlTemplate.SetRange(Recurring, false);
+        GenJnlTemplate.SetRange(Type, PageTemplate);
+        GenJnlTemplate.FindFirst();
 
-            exit(Name);
-        end;
+        exit(GenJnlTemplate.Name);
     end;
 
     local procedure CreateGenJnlBatchWithBankAcc(var GenJnlBatch: Record "Gen. Journal Batch")
@@ -117,23 +115,19 @@ codeunit 145300 "Post Dated Check Line"
     begin
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, SelectGenJnlTemplate(PAGE::"Cash Receipt Journal", PageTemplate::"Cash Receipts"));
 
-        with GenJnlBatch do begin
-            Validate("Bal. Account Type", AccountType);
-            Validate("Bal. Account No.", AccountCode);
-            Modify(true);
-        end;
+        GenJnlBatch.Validate("Bal. Account Type", AccountType);
+        GenJnlBatch.Validate("Bal. Account No.", AccountCode);
+        GenJnlBatch.Modify(true);
     end;
 
     local procedure SetDefaultSalesCheckBatch(GenJnlBatch: Record "Gen. Journal Batch")
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        with SalesSetup do begin
-            Get();
-            Validate("Post Dated Check Template", GenJnlBatch."Journal Template Name");
-            Validate("Post Dated Check Batch", GenJnlBatch.Name);
-            Modify(true);
-        end;
+        SalesSetup.Get();
+        SalesSetup.Validate("Post Dated Check Template", GenJnlBatch."Journal Template Name");
+        SalesSetup.Validate("Post Dated Check Batch", GenJnlBatch.Name);
+        SalesSetup.Modify(true);
     end;
 
     local procedure CreatePostDatedCheckLine(var PostDatedCheckLine: Record "Post Dated Check Line")
@@ -142,13 +136,11 @@ codeunit 145300 "Post Dated Check Line"
     begin
         LibrarySales.CreateCustomer(Customer);
 
-        with PostDatedCheckLine do begin
-            Init();
-            Validate("Account Type", "Account Type"::Customer);
-            Validate("Account No.", Customer."No.");
-            "Check Date" := WorkDate();
-            Insert(true);
-        end;
+        PostDatedCheckLine.Init();
+        PostDatedCheckLine.Validate("Account Type", PostDatedCheckLine."Account Type"::Customer);
+        PostDatedCheckLine.Validate("Account No.", Customer."No.");
+        PostDatedCheckLine."Check Date" := WorkDate();
+        PostDatedCheckLine.Insert(true);
     end;
 
     local procedure VerifyCashReceiptJournalLineCreated(GenJnlBatch: Record "Gen. Journal Batch")

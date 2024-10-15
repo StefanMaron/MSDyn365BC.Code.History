@@ -26,7 +26,6 @@ codeunit 137047 "SCM Warehouse I"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         isInitialized: Boolean;
         ErrInvalidDimensionTransfer: Label 'The dimensions that are used in transfer order %1, line no. %2 are not valid.';
-        ErrItemBlocked: Label 'Blocked must be equal to ''No''  in Item: No.=%1.';
         ErrNoRecord: Label 'There must not be any record within the filter. ';
         EmptyTableErr: Label 'There must be %1 records in %2 within the filter %3.';
         SortingOrderErr: Label 'Wrong sorting order in %1';
@@ -472,7 +471,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
         // Verify: Error Message - Blocked must be 'No' in Item.
-        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
 
         // Teardown.
         UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
@@ -515,7 +514,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
         // Verify: Error Message - Blocked must be 'No' in Item, and posted Sales shipment.
-        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item2."No."));
+        Assert.ExpectedTestFieldError(Item2.FieldCaption(Blocked), Format(false));
         VerifyPostedShipmentLinesSales(WarehouseShipmentHeader."No.", Item."No.", SalesHeader."No.");
 
         // Teardown.
@@ -558,7 +557,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
         // Verify: Error Message - Blocked must be 'No' in Item, and posted entries.
-        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
 
         // Verify: Verify nothing is posted.
         PostedWhseShipmentLine.SetFilter("Whse. Shipment No.", '%1', WarehouseShipmentHeader."No.");
@@ -609,7 +608,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
 
         // Verify: Error Message - Blocked must be 'No' in Item, and posted entries.
-        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
 
         // Exercise: Unblock Item and Post successfully.
         BlockItemForPosting(Item."No.", false);
@@ -753,7 +752,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
 
         // Verify: Error Message - Item blocked.
-        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
 
         // Teardown.
         UpdateWarehouseSetup(WarehouseSetup."Shipment Posting Policy", WarehouseSetup."Receipt Posting Policy");
@@ -791,7 +790,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
 
         // Verify: Error Message - Blocked must be 'No' in Item.
-        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
 
         // Exercise: Unblock Item and Post Receipt.
         BlockItemForPosting(Item."No.", false);
@@ -842,7 +841,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
 
         // Verify: Error Message - Blocked must be 'No' in Item; and posted Sales Return receipt.
-        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
         VerifyPostedReceiptLinesSales(WarehouseReceiptHeader."No.", Item2."No.", SalesHeader."No.");
 
         // Teardown.
@@ -884,7 +883,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
 
         // Verify: Error Message - Blocked must be 'No' in Item.
-        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
 
         // Verify: Verify nothing is posted.
         VerifyRcptLineNotExist(WarehouseReceiptHeader."No.");
@@ -1078,7 +1077,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.CreateWhseReceiptFromPO(PurchHeader);
 
         // [THEN] Error message: "Blocked must be equal to "No" in Item"
-        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1181,7 +1180,7 @@ codeunit 137047 "SCM Warehouse I"
         asserterror LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
         // [THEN] Error message: "Blocked must be equal to "No" in Item I2".
-        Assert.ExpectedError(StrSubstNo(ErrItemBlocked, BlockedItem."No."));
+        Assert.ExpectedTestFieldError(BlockedItem.FieldCaption(Blocked), Format(false));
 
         // [THEN] Warehouse shipment is not created.
         WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
@@ -2383,6 +2382,155 @@ codeunit 137047 "SCM Warehouse I"
     end;
 
     [Test]
+    [HandlerFunctions('WhseItemTrackingLinesAssignMultipleSerialNoPageHandler')]
+    [Scope('OnPrem')]
+    procedure ScanningSetsNextUnfulfilledAsTheCurrentRecordAfterASuccessfulScan()
+    var
+        Location: Record Location;
+        TrackedItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ScanWarehouseActivityLine: Codeunit "Scan Warehouse Activity Line";
+        SerialNos: Array[5] of Code[10];
+        SkippedLines: Array[4] of Integer;
+        NeedsRefresh: Boolean;
+        AllLinesAreDone: Boolean;
+    begin
+        // [FEATURE] [Item Tracking] [Validate Barcode] [Warehouse Pick]
+        // [SCENARIO] Scanning sets next unfulfilled as the current record after a successful scan
+
+        Initialize();
+
+        CreateFullWMSLocation(Location, 2);
+
+        // [GIVEN] Item "I1" tracked by Serial No.
+        CreateItemWithSNWarehouseTracking(TrackedItem);
+
+        // [GIVEN] Both items are in stock on WHITE location. 
+        SerialNos[1] := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(SerialNos[1]);
+        LibraryVariableStorage.Enqueue(1);
+        SerialNos[2] := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(SerialNos[2]);
+        LibraryVariableStorage.Enqueue(1);
+        SerialNos[3] := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(SerialNos[3]);
+        LibraryVariableStorage.Enqueue(1);
+        SerialNos[4] := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(SerialNos[4]);
+        LibraryVariableStorage.Enqueue(1);
+        SerialNos[5] := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(SerialNos[5]);
+        LibraryVariableStorage.Enqueue(1);
+        LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(TrackedItem."No.", Location.Code, 5, true);
+
+        // Sales order with 1 line for item "I1"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, TrackedItem."No.", 4);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+
+        // Create warehouse shipment and pick from the sales order
+        CreateWhsePickFromSalesOrder(SalesHeader);
+        FindWarehouseActivityLine(WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.ModifyAll("Qty. to Handle", 0);
+
+        // Lines are sorted by Action Type so that all Take lines are before all Place lines
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.Validate("Sorting Method", WarehouseActivityHeader."Sorting Method"::"Action Type");
+        WarehouseActivityHeader.Modify(true);
+        WarehouseActivityHeader.SortWhseDoc();
+
+        WarehouseActivityLine.SetCurrentKey("Sorting Sequence No.");
+        WarehouseActivityLine.FindSet();
+
+        // Ensure Serial No. is set to empty and "Qty. to Handle" is 0
+        WarehouseActivityLine.TestField("Serial No.", '');
+        WarehouseActivityLine.TestField("Qty. to Handle", 0);
+
+        // Serial No. is passed to the CheckAndSetBarcode method and is set on the firs tline
+        Clear(NeedsRefresh);
+        Clear(AllLinesAreDone);
+        ScanWarehouseActivityLine.CheckAndSetBarcode(WarehouseActivityLine, SerialNos[1], NeedsRefresh, AllLinesAreDone); // First Take line is set
+        // Serial No. is validated as barcode, NeedsRefresh is true, AllLinesAreDone is false so that WarehouseActivityLine moved by one and the page is refreshed
+        Assert.IsTrue(NeedsRefresh, 'NeedsRefresh should be true');
+        Assert.IsFalse(AllLinesAreDone, 'AllLinesAreDone should be false');
+
+        // Ship next 2 lines, so that we set first and last take lines
+        SkippedLines[1] := WarehouseActivityLine."Line No.";
+        WarehouseActivityLine.Next(); // Second Take line is skipped
+
+        SkippedLines[2] := WarehouseActivityLine."Line No.";
+        WarehouseActivityLine.Next(); // Third Take line is skipped
+
+        // Serial No. is passed to the CheckAndSetBarcode method and is set on the fourth line
+        Clear(NeedsRefresh);
+        Clear(AllLinesAreDone);
+        ScanWarehouseActivityLine.CheckAndSetBarcode(WarehouseActivityLine, SerialNos[4], NeedsRefresh, AllLinesAreDone); // Fourth Take line is set
+        Assert.IsTrue(NeedsRefresh, 'NeedsRefresh should be true');
+        Assert.IsFalse(AllLinesAreDone, 'AllLinesAreDone should be false');
+
+        // Serial No. is passed to the CheckAndSetBarcode method and is set on the first place line
+        Clear(NeedsRefresh);
+        Clear(AllLinesAreDone);
+        ScanWarehouseActivityLine.CheckAndSetBarcode(WarehouseActivityLine, SerialNos[1], NeedsRefresh, AllLinesAreDone); // First Place line is set
+        Assert.IsTrue(NeedsRefresh, 'NeedsRefresh should be true');
+        Assert.IsFalse(AllLinesAreDone, 'AllLinesAreDone should be false');
+
+        // Serial No. is passed to the CheckAndSetBarcode method and is set on the second place line
+        Clear(NeedsRefresh);
+        Clear(AllLinesAreDone);
+        ScanWarehouseActivityLine.CheckAndSetBarcode(WarehouseActivityLine, SerialNos[4], NeedsRefresh, AllLinesAreDone); // Second Place line is set
+        Assert.IsTrue(NeedsRefresh, 'NeedsRefresh should be true');
+        Assert.IsFalse(AllLinesAreDone, 'AllLinesAreDone should be false');
+
+        // Third and fourth place lines are skipped
+        SkippedLines[3] := WarehouseActivityLine."Line No.";
+        WarehouseActivityLine.Next(); // Third Place line is skipped
+
+        SkippedLines[4] := WarehouseActivityLine."Line No.";
+        WarehouseActivityLine.Next(); // Fourth Place line is skipped
+
+        // Reset and move to second line
+        WarehouseActivityLine.FindSet();
+        WarehouseActivityLine.Next(); // Goto second line
+
+        // Fill in second take line
+        Clear(NeedsRefresh);
+        Clear(AllLinesAreDone);
+        ScanWarehouseActivityLine.CheckAndSetBarcode(WarehouseActivityLine, SerialNos[2], NeedsRefresh, AllLinesAreDone); // Second Take line is set
+        Assert.IsTrue(NeedsRefresh, 'NeedsRefresh should be true');
+        Assert.IsFalse(AllLinesAreDone, 'AllLinesAreDone should be false');
+        Assert.AreEqual(WarehouseActivityLine."Line No.", SkippedLines[2], 'Second skipped line should be selected');
+
+        // Fill in third take line
+        Clear(NeedsRefresh);
+        Clear(AllLinesAreDone);
+        ScanWarehouseActivityLine.CheckAndSetBarcode(WarehouseActivityLine, SerialNos[3], NeedsRefresh, AllLinesAreDone); // Third Take line is set
+        Assert.IsTrue(NeedsRefresh, 'NeedsRefresh should be true');
+        Assert.IsFalse(AllLinesAreDone, 'AllLinesAreDone should be false');
+        Assert.AreEqual(WarehouseActivityLine."Line No.", SkippedLines[3], 'Second skipped line should be selected');
+
+        // Fill in Third place line
+        Clear(NeedsRefresh);
+        Clear(AllLinesAreDone);
+        ScanWarehouseActivityLine.CheckAndSetBarcode(WarehouseActivityLine, SerialNos[2], NeedsRefresh, AllLinesAreDone); // Second Place line is set
+        Assert.IsTrue(NeedsRefresh, 'NeedsRefresh should be true');
+        Assert.IsFalse(AllLinesAreDone, 'AllLinesAreDone should be false');
+        Assert.AreEqual(WarehouseActivityLine."Line No.", SkippedLines[4], 'Second skipped line should be selected');
+
+        // Fill in the fourth and last place line
+        Clear(NeedsRefresh);
+        Clear(AllLinesAreDone);
+        ScanWarehouseActivityLine.CheckAndSetBarcode(WarehouseActivityLine, SerialNos[3], NeedsRefresh, AllLinesAreDone); // Second Place line is set
+        // After the last line is filled, needsRefresh is false and AllLinesAreDone is true enabling the code to finish the scanning process
+        Assert.IsFalse(NeedsRefresh, 'NeedsRefresh should be false');
+        Assert.IsTrue(AllLinesAreDone, 'AllLinesAreDone should be true');
+    end;
+
+    [Test]
     procedure GetBinContent()
     var
         Location: Record Location;
@@ -3056,18 +3204,16 @@ codeunit 137047 "SCM Warehouse I"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source No.", SourceNo);
-            SetRange("Lot No.", LotNo);
-            FindSet();
-            repeat
-                ;
-                Validate("Qty. to Handle", QtyToHandle);
-                Modify(true);
-            until Next() = 0;
-        end;
+        WarehouseActivityLine.SetRange("Source Type", SourceType);
+        WarehouseActivityLine.SetRange("Source Subtype", SourceSubtype);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Lot No.", LotNo);
+        WarehouseActivityLine.FindSet();
+        repeat
+            ;
+            WarehouseActivityLine.Validate("Qty. to Handle", QtyToHandle);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure BlockItemForPosting(ItemNo: Code[20]; Blocked: Boolean)
@@ -3141,13 +3287,11 @@ codeunit 137047 "SCM Warehouse I"
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; SourceLineNo: Integer)
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source No.", SourceNo);
-            SetRange("Source Line No.", SourceLineNo);
-            FindSet();
-        end;
+        WarehouseActivityLine.SetRange("Source Type", SourceType);
+        WarehouseActivityLine.SetRange("Source Subtype", SourceSubtype);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Source Line No.", SourceLineNo);
+        WarehouseActivityLine.FindSet();
     end;
 
     local procedure UpdateInventoryOnDirectedPutAwayPickLocationTrackedItem(ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal; ItemTrackingNo: Code[20])
@@ -3202,11 +3346,9 @@ codeunit 137047 "SCM Warehouse I"
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        with WarehouseShipmentLine do begin
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            TestField("Qty. Picked", QtyPicked);
-        end;
+        WarehouseShipmentLine.SetRange("Item No.", ItemNo);
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.TestField("Qty. Picked", QtyPicked);
     end;
 
     local procedure VerifyPostedShipmentLinesSales(WhseShipmentNo: Code[20]; ItemNo: Code[20]; DocumentNo: Code[20])
@@ -3286,12 +3428,10 @@ codeunit 137047 "SCM Warehouse I"
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        with ReservEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Source Type", DATABASE::"Item Ledger Entry");
-            FindFirst();
-            TestField("Lot No.", LotNo);
-        end;
+        ReservEntry.SetRange("Item No.", ItemNo);
+        ReservEntry.SetRange("Source Type", DATABASE::"Item Ledger Entry");
+        ReservEntry.FindFirst();
+        ReservEntry.TestField("Lot No.", LotNo);
     end;
 
     local procedure VerifyReservationEntryLotQty(SourceType: Integer; LotNo: Code[50]; Qty: Decimal)
@@ -3308,31 +3448,27 @@ codeunit 137047 "SCM Warehouse I"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
-            FindFirst();
-            TestField("Reservation Status", "Reservation Status"::Reservation);
-            TestField("Lot No.", LotNo);
-            Reset();
-            SetRange("Entry No.", "Entry No.");
-            SetRange(Positive, not Positive);
-            FindFirst();
-            TestField("Source Type", DATABASE::"Item Ledger Entry");
-            TestField("Lot No.", LotNo);
-        end;
+        ReservationEntry.SetSourceFilter(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.TestField("Lot No.", LotNo);
+        ReservationEntry.Reset();
+        ReservationEntry.SetRange("Entry No.", ReservationEntry."Entry No.");
+        ReservationEntry.SetRange(Positive, not ReservationEntry.Positive);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Source Type", DATABASE::"Item Ledger Entry");
+        ReservationEntry.TestField("Lot No.", LotNo);
     end;
 
     local procedure VerifyPurchaseSurplusReservEntry(PurchaseLine: Record "Purchase Line"; LotNo: Code[50])
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetSourceFilter(
-              DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", false);
-            FindFirst();
-            TestField("Reservation Status", "Reservation Status"::Surplus);
-            TestField("Lot No.", LotNo);
-        end;
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.", false);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
+        ReservationEntry.TestField("Lot No.", LotNo);
     end;
 
     local procedure VerifyGetBinContentInItemJournal(ItemJournalBatch: Record "Item Journal Batch"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal)
@@ -3354,19 +3490,17 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
         SortingSequenceNo: Integer;
     begin
-        with WarehouseShipmentLine do begin
-            SetRange("Item No.", ItemNo);
-            SetFilter("Sorting Sequence No.", '<>%1', 0);
-            Assert.AreEqual(
-              DocCount,
-              Count,
-              StrSubstNo(EmptyTableErr, DocCount, TableCaption(), GetFilters));
-            FindSet();
-            SortingSequenceNo := "Sorting Sequence No.";
-            while Next() <> 0 do begin
-                Assert.IsTrue("Sorting Sequence No." > SortingSequenceNo, StrSubstNo(SortingOrderErr, TableCaption));
-                SortingSequenceNo := "Sorting Sequence No.";
-            end;
+        WarehouseShipmentLine.SetRange("Item No.", ItemNo);
+        WarehouseShipmentLine.SetFilter("Sorting Sequence No.", '<>%1', 0);
+        Assert.AreEqual(
+          DocCount,
+          WarehouseShipmentLine.Count,
+          StrSubstNo(EmptyTableErr, DocCount, WarehouseShipmentLine.TableCaption(), WarehouseShipmentLine.GetFilters));
+        WarehouseShipmentLine.FindSet();
+        SortingSequenceNo := WarehouseShipmentLine."Sorting Sequence No.";
+        while WarehouseShipmentLine.Next() <> 0 do begin
+            Assert.IsTrue(WarehouseShipmentLine."Sorting Sequence No." > SortingSequenceNo, StrSubstNo(SortingOrderErr, WarehouseShipmentLine.TableCaption));
+            SortingSequenceNo := WarehouseShipmentLine."Sorting Sequence No.";
         end;
     end;
 
@@ -3375,19 +3509,17 @@ codeunit 137047 "SCM Warehouse I"
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
         SortingSequenceNo: Integer;
     begin
-        with WarehouseReceiptLine do begin
-            SetRange("Item No.", ItemNo);
-            SetFilter("Sorting Sequence No.", '<>%1', 0);
-            Assert.AreEqual(
-              DocCount,
-              Count,
-              StrSubstNo(EmptyTableErr, DocCount, TableCaption(), GetFilters));
-            FindSet();
-            SortingSequenceNo := "Sorting Sequence No.";
-            while Next() <> 0 do begin
-                Assert.IsTrue("Sorting Sequence No." > SortingSequenceNo, StrSubstNo(SortingOrderErr, TableCaption));
-                SortingSequenceNo := "Sorting Sequence No.";
-            end;
+        WarehouseReceiptLine.SetRange("Item No.", ItemNo);
+        WarehouseReceiptLine.SetFilter("Sorting Sequence No.", '<>%1', 0);
+        Assert.AreEqual(
+          DocCount,
+          WarehouseReceiptLine.Count,
+          StrSubstNo(EmptyTableErr, DocCount, WarehouseReceiptLine.TableCaption(), WarehouseReceiptLine.GetFilters));
+        WarehouseReceiptLine.FindSet();
+        SortingSequenceNo := WarehouseReceiptLine."Sorting Sequence No.";
+        while WarehouseReceiptLine.Next() <> 0 do begin
+            Assert.IsTrue(WarehouseReceiptLine."Sorting Sequence No." > SortingSequenceNo, StrSubstNo(SortingOrderErr, WarehouseReceiptLine.TableCaption));
+            SortingSequenceNo := WarehouseReceiptLine."Sorting Sequence No.";
         end;
     end;
 
@@ -3395,54 +3527,44 @@ codeunit 137047 "SCM Warehouse I"
     var
         WhseReceiptLine: Record "Warehouse Receipt Line";
     begin
-        with WhseReceiptLine do begin
-            FilterWhseReceiptLines(WhseReceiptLine, DocumentNo, ItemNo);
-            Assert.IsFalse(IsEmpty, StrSubstNo(EmptyTableErr, 1, TableCaption(), GetFilter("No.")));
-        end;
+        FilterWhseReceiptLines(WhseReceiptLine, DocumentNo, ItemNo);
+        Assert.IsFalse(WhseReceiptLine.IsEmpty, StrSubstNo(EmptyTableErr, 1, WhseReceiptLine.TableCaption(), WhseReceiptLine.GetFilter("No.")));
     end;
 
     local procedure VerifyWhseReceiptLineNotCreated(DocumentNo: Code[20]; ItemNo: Code[20])
     var
         WhseReceiptLine: Record "Warehouse Receipt Line";
     begin
-        with WhseReceiptLine do begin
-            FilterWhseReceiptLines(WhseReceiptLine, DocumentNo, ItemNo);
-            Assert.IsTrue(IsEmpty, ErrNoRecord);
-        end;
+        FilterWhseReceiptLines(WhseReceiptLine, DocumentNo, ItemNo);
+        Assert.IsTrue(WhseReceiptLine.IsEmpty, ErrNoRecord);
     end;
 
     local procedure VerifyWhseShipmentLineCreated(DocumentNo: Code[20]; ItemNo: Code[20])
     var
         WhseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        with WhseShipmentLine do begin
-            FilterWhseShipmentLines(WhseShipmentLine, DocumentNo, ItemNo);
-            Assert.IsFalse(IsEmpty, StrSubstNo(EmptyTableErr, 1, TableCaption(), GetFilter("No.")));
-        end;
+        FilterWhseShipmentLines(WhseShipmentLine, DocumentNo, ItemNo);
+        Assert.IsFalse(WhseShipmentLine.IsEmpty, StrSubstNo(EmptyTableErr, 1, WhseShipmentLine.TableCaption(), WhseShipmentLine.GetFilter("No.")));
     end;
 
     local procedure VerifyWhseShipmentLineNotCreated(DocumentNo: Code[20]; ItemNo: Code[20])
     var
         WhseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        with WhseShipmentLine do begin
-            FilterWhseShipmentLines(WhseShipmentLine, DocumentNo, ItemNo);
-            Assert.IsTrue(IsEmpty, ErrNoRecord);
-        end;
+        FilterWhseShipmentLines(WhseShipmentLine, DocumentNo, ItemNo);
+        Assert.IsTrue(WhseShipmentLine.IsEmpty, ErrNoRecord);
     end;
 
     local procedure VerifyWhseShipmentCompletelyPicked(SalesDocType: Option; SalesDocNo: Code[20]; ItemNo: Code[20])
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
-        with WarehouseShipmentLine do begin
-            SetRange("Source Type", DATABASE::"Sales Line");
-            SetRange("Source Subtype", SalesDocType);
-            SetRange("Source No.", SalesDocNo);
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            TestField("Qty. Picked", Quantity);
-        end;
+        WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Sales Line");
+        WarehouseShipmentLine.SetRange("Source Subtype", SalesDocType);
+        WarehouseShipmentLine.SetRange("Source No.", SalesDocNo);
+        WarehouseShipmentLine.SetRange("Item No.", ItemNo);
+        WarehouseShipmentLine.FindFirst();
+        WarehouseShipmentLine.TestField("Qty. Picked", WarehouseShipmentLine.Quantity);
     end;
 
     [StrMenuHandler]
@@ -3544,6 +3666,18 @@ codeunit 137047 "SCM Warehouse I"
     begin
         WhseItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
         WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        WhseItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesAssignMultipleSerialNoPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        while LibraryVariableStorage.Length() > 0 do begin
+            WhseItemTrackingLines.New();
+            WhseItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+            WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        end;
         WhseItemTrackingLines.OK().Invoke();
     end;
 }

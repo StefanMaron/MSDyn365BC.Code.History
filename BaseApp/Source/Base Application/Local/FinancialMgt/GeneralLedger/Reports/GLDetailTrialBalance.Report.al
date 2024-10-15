@@ -22,7 +22,7 @@ report 28163 "G/L Detail Trial Balance"
         dataitem("G/L Account"; "G/L Account")
         {
             DataItemTableView = sorting("No.");
-            RequestFilterFields = "No.", "Date Filter", "G/L Entry Type Filter";
+            RequestFilterFields = "No.", "Date Filter";
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -51,9 +51,6 @@ report 28163 "G/L Detail Trial Balance"
             {
             }
             column(Text009; Text009Lbl)
-            {
-            }
-            column(GLAccountTypeFilter; GLAccountTypeFilter)
             {
             }
             column(G_L_Account__No__; "No.")
@@ -114,9 +111,6 @@ report 28163 "G/L Detail Trial Balance"
             {
             }
             column(G_L_Entry___Debit_Amount_____G_L_Entry___Credit_Amount__Control1500074; "G/L Entry"."Debit Amount" - "G/L Entry"."Credit Amount")
-            {
-            }
-            column(G_L_Account_G_L_Entry_Type_Filter; "G/L Entry Type Filter")
             {
             }
             column(G_L_Account_Global_Dimension_1_Filter; "Global Dimension 1 Filter")
@@ -423,7 +417,6 @@ report 28163 "G/L Detail Trial Balance"
     trigger OnPreReport()
     begin
         Filter := "G/L Account".GetFilters();
-        GLAccountTypeFilter := "G/L Account".GetFilter("G/L Entry Type Filter");
     end;
 
     var
@@ -447,7 +440,6 @@ report 28163 "G/L Detail Trial Balance"
         DocNumSort: Boolean;
         ShowBodyGLAccount: Boolean;
         "Filter": Text[250];
-        GLAccountTypeFilter: Text[250];
         Text010: Label 'The selected starting date %1 is not the start of a %2.';
         Text011: Label 'The selected ending date %1 is not the end of a %2.';
         Period: Record Date;

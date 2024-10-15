@@ -95,6 +95,8 @@ report 5871 "Item - Able to Make (Timeline)"
 
     requestpage
     {
+        AboutTitle = 'About Item - Able to Make (Timeline)';
+        AboutText = 'Provides an overview on the dynamic BOM availability. Visualise key inventory figures and forecast production capabilities to meet demand efficiently. Stay ahead with real-time insights into your assembly and production schedules.';
 
         layout
         {
@@ -186,7 +188,9 @@ report 5871 "Item - Able to Make (Timeline)"
         ShowDetails: Boolean;
         ShowBy: Enum "BOM Structure Show By";
 
+#pragma warning disable AA0074
         Text000: Label 'The number of intervals cannot be greater than 31.';
+#pragma warning restore AA0074
 
     local procedure GenerateAvailTrend(CurrDate: Date): Boolean
     var

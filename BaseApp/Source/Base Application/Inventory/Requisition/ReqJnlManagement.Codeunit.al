@@ -16,11 +16,15 @@ codeunit 330 ReqJnlManagement
         LastReqLine: Record "Requisition Line";
         OpenFromBatch: Boolean;
 
+#pragma warning disable AA0074
         Text002: Label 'RECURRING';
         Text004: Label 'DEFAULT';
         Text005: Label 'Default Journal';
+#pragma warning disable AA0470
         Text99000000: Label '%1 Worksheet';
+#pragma warning restore AA0470
         Text99000001: Label 'Recurring Worksheet';
+#pragma warning restore AA0074
 
     procedure WkshTemplateSelection(PageID: Integer; RecurringJnl: Boolean; TemplateType: Enum "Req. Worksheet Template Type"; var ReqLine: Record "Requisition Line"; var JnlSelected: Boolean)
     var

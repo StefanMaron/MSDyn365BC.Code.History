@@ -4,11 +4,13 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Inventory.Journal;
 using Microsoft.Utilities;
 using System.Security.AccessControl;
+using Microsoft.Foundation.NoSeries;
 
 table 7313 "Warehouse Register"
 {
     Caption = 'Warehouse Register';
     LookupPageID = "Warehouse Registers";
+    Permissions = TableData "Warehouse Register" = ri;
     DataClassification = CustomerContent;
 
     fields
@@ -19,12 +21,12 @@ table 7313 "Warehouse Register"
         }
         field(2; "From Entry No."; Integer)
         {
-            Caption = 'From Entry No.';
+            Caption = 'First Entry No.';
             TableRelation = "Warehouse Entry";
         }
         field(3; "To Entry No."; Integer)
         {
-            Caption = 'To Entry No.';
+            Caption = 'Last Entry No.';
             TableRelation = "Warehouse Entry";
         }
         field(4; "Creation Date"; Date)
@@ -68,11 +70,51 @@ table 7313 "Warehouse Register"
     {
     }
 
+    procedure InsertRecord(UseLegacyPosting: Boolean)
+    begin
+        if UseLegacyPosting then
+            Rec.Insert()
+        else
+            InsertRecord();
+    end;
+
+    procedure InsertRecord()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        if not Rec.Insert() then begin
+            SequenceNoMgt.RebaseSeqNo(DATABASE::"Warehouse Register");
+            "No." := SequenceNoMgt.GetNextSeqNo(DATABASE::"Warehouse Register");
+            Rec.Insert();
+        end;
+    end;
+
+    procedure GetNextEntryNo(UseLegacyPosting: Boolean): Integer
+    begin
+        if not UseLegacyPosting then
+            exit(GetNextEntryNo());
+        Rec.LockTable();
+        exit(GetLastEntryNo() + 1);
+    end;
+
+    procedure GetNextEntryNo(): Integer
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        exit(SequenceNoMgt.GetNextSeqNo(DATABASE::"Warehouse Register"));
+    end;
+
     procedure GetLastEntryNo(): Integer;
     var
         FindRecordManagement: Codeunit "Find Record Management";
     begin
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("No.")))
+    end;
+
+    procedure Lock()
+    begin
+        LockTable();
+        if FindLast() then;
     end;
 }
 

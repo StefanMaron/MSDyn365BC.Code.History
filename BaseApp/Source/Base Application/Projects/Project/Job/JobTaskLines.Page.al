@@ -435,7 +435,7 @@ page 1002 "Job Task Lines"
                     ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '25.0';
-
+                    
                     action(ManageCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;

@@ -828,12 +828,10 @@ codeunit 137030 "SCM Extend Warehouse"
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
         Clear(WhseActivityLine);
-        with WhseActivityLine do begin
-            SetRange("Activity Type", WhseActivityHdr.Type);
-            SetRange("No.", WhseActivityHdr."No.");
-            FindFirst();
-            TestField(Quantity, Qty);
-        end;
+        WhseActivityLine.SetRange("Activity Type", WhseActivityHdr.Type);
+        WhseActivityLine.SetRange("No.", WhseActivityHdr."No.");
+        WhseActivityLine.FindFirst();
+        WhseActivityLine.TestField(Quantity, Qty);
     end;
 
     local procedure AssertWhseActivityHdr(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Enum "Warehouse Activity Type"; Message: Text[30])
@@ -1139,6 +1137,63 @@ codeunit 137030 "SCM Extend Warehouse"
         FindBin(ToBin[2], Location, not Location."Directed Put-away and Pick", 4);
         FindBin(FromBin[2], Location, not Location."Directed Put-away and Pick", 5);
         FindBin(OSFBBin[2], Location, not Location."Directed Put-away and Pick", 6);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckItemAvailabilityWhenCreatingPickAndExistReservedQtyForProdOrder()
+    var
+        Item: Record Item;
+        ItemComponent: Record Item;
+        Bin: Record Bin;
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProductionBOMHeader: Record "Production BOM Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        QtyUnit: Decimal;
+
+    begin
+        Initialize();
+        QtyUnit := LibraryRandom.RandIntInRange(30, 50);
+
+        // [GIVEN] Parent item with child item and Production BOM
+        ItemSetup(Item, Item."Replenishment System"::"Prod. Order", Item."Flushing Method"::Manual);
+        CreateBOM(ProductionBOMHeader, 1, 2 * QtyUnit);
+        ParentItemSetupOnBOM(Item, ProductionBOMHeader);
+        FindChild(Item, ItemComponent, 1);
+
+        // [GIVEN] Warehouse employee with default location directed put-away and pick
+        SetWarehouseEmployeeDefaultLocation(LocationWhite.Code);
+
+        // [GIVEN] location directed put-away and pick with dedicated bins for production
+        SetProductionBinsAsDedicated(LocationWhite);
+
+        // [GIVEN] Inventory in pickable bin of component item 
+        FindBinForPick(Bin, LocationWhite, false, 1);
+        UpdateInventoryUsingWarehouseJournal(Bin, ItemComponent, 3 * QtyUnit, ItemComponent."Base Unit of Measure", false);
+
+        // [GIVEN] Released Production Order with reserved quantity
+        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 1, LocationWhite.Code, '');
+        FindComponent(ProdOrderComponent, ProductionOrder, ItemComponent, 1);
+        ReserveComponentLine(ProdOrderComponent, false, 2 * QtyUnit);
+
+        // [GIVEN] Created warehouse pick from production, partly registered and deleted rest
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        UpdateQtyToHandleRegisterPickAndDeleteRest(ProdOrderComponent, 2 * QtyUnit, 0.9);
+
+        Clear(ProductionOrder);
+        Clear(ProdOrderComponent);
+        Clear(WarehouseActivityLine);
+
+        // [WHEN] Create new production order for same item and warehouse pick from production
+        CreateRelProdOrderAndRefresh(ProductionOrder, Item."No.", 1, LocationWhite.Code, '');
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        FindComponent(ProdOrderComponent, ProductionOrder, ItemComponent, 1);
+
+        // [THEN] Warehouse activity lines are created just for the remaining quantity
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+         WarehouseActivityLine, Database::"Prod. Order Component", ProdOrderComponent."Status".AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.");
+        WarehouseActivityLine.TestField(Quantity, QtyUnit);
     end;
 
     [Test]
@@ -7469,6 +7524,125 @@ codeunit 137030 "SCM Extend Warehouse"
 
         Item[1].Validate("Production BOM No.", ProductionBOMHeader."No.");
         Item[1].Modify(true);
+    end;
+
+    local procedure UpdateInventoryUsingWarehouseJournal(Bin: Record Bin; Item: Record Item; Quantity: Decimal; UnitOfMeasureCode: Code[10]; ItemTracking: Boolean)
+    var
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+    begin
+        LibraryWarehouse.WarehouseJournalSetup(Bin."Location Code", WarehouseJournalTemplate, WarehouseJournalBatch);
+        CreateAndRegisterWarehouseJournalLine(WarehouseJournalBatch, Bin, Item, Quantity, UnitOfMeasureCode, ItemTracking);
+        CalculateWarehouseAdjustmentAndPostItemJournalLine(Item);
+    end;
+
+    local procedure CreateAndRegisterWarehouseJournalLine(WarehouseJournalBatch: Record "Warehouse Journal Batch"; Bin: Record Bin; Item: Record Item; Quantity: Decimal; UnitOfMeasureCode: Code[10]; ItemTracking: Boolean)
+    var
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+    begin
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code",
+          Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
+        WarehouseJournalLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        WarehouseJournalLine.Modify(true);
+        if ItemTracking then
+            WarehouseJournalLine.OpenItemTrackingLines();
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code", true);
+    end;
+
+    local procedure CalculateWarehouseAdjustmentAndPostItemJournalLine(var Item: Record Item)
+    begin
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+    end;
+
+    local procedure SetProductionBinsAsDedicated(Location: Record Location)
+    var
+        Bin: Record Bin;
+    begin
+        if not Location."Directed Put-away and Pick" then
+            exit;
+
+        Bin.Get(Location.Code, Location."From-Production Bin Code");
+        if not Bin.Dedicated then begin
+            Bin.Dedicated := true;
+            Bin.Modify(true);
+        end;
+
+        Bin.Get(Location.Code, Location."To-Production Bin Code");
+        if not Bin.Dedicated then begin
+            Bin.Dedicated := true;
+            Bin.Modify(true);
+        end;
+    end;
+
+    local procedure UpdateQtyToHandleRegisterPickAndDeleteRest(ProdOrderComponent: Record "Prod. Order Component"; PickLineQty: Decimal; Rate: Decimal)
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+        WarehouseActivityLine, Database::"Prod. Order Component", ProdOrderComponent."Status".AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.");
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type::Pick, WarehouseActivityLine."No.");
+
+        WarehouseActivityLine.Reset();
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader."Type");
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        if WarehouseActivityLine.FindSet(true) then
+            repeat
+                WarehouseActivityLine.TestField(Quantity, PickLineQty);
+                WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity * Rate);
+                WarehouseActivityLine.Modify(true);
+            until WarehouseActivityLine.Next() = 0;
+
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        WarehouseActivityHeader.Get(WarehouseActivityHeader.Type, WarehouseActivityHeader."No.");
+        WarehouseActivityHeader.Delete(true);
+    end;
+
+    local procedure SetWarehouseEmployeeDefaultLocation(LocationCode: Code[10])
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        if UserId() = '' then
+            exit;
+
+        WarehouseEmployee.SetRange("User ID", UserId);
+        WarehouseEmployee.SetRange("Location Code", LocationCode);
+        WarehouseEmployee.SetRange(Default, true);
+        if WarehouseEmployee.IsEmpty then begin
+            WarehouseEmployee.SetRange("Location Code");
+            if WarehouseEmployee.FindFirst() then begin
+                WarehouseEmployee.Default := false;
+                WarehouseEmployee.Modify(true);
+            end;
+
+            WarehouseEmployee.SetRange("Location Code", LocationCode);
+            if not WarehouseEmployee.FindFirst() then
+                LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationCode, true)
+            else begin
+                WarehouseEmployee.Default := true;
+                WarehouseEmployee.Modify(true);
+            end;
+        end;
+    end;
+
+    local procedure FindBinForPick(var Bin: Record Bin; Location: Record Location; Dedicated: Boolean; BinIndex: Integer)
+    begin
+        Bin.Init();
+        Bin.Reset();
+        Bin.SetRange("Location Code", Location.Code);
+        if Location."Directed Put-away and Pick" then
+            Bin.SetRange("Zone Code", 'PICK');
+
+        Bin.SetRange(Dedicated, Dedicated);
+        Bin.FindSet(true);
+
+        if BinIndex > 1 then
+            Bin.Next(BinIndex - 1);
     end;
 
     local procedure PC431(var Item: array[4] of Record Item; var ProductionBOMHeader: Record "Production BOM Header"; var RoutingHeader: Record "Routing Header"; FlushingMethodOfChild1: Enum "Flushing Method"; FlushingMethodOfChild2: Enum "Flushing Method"; FlushingMethodOfWorkCenter: Enum "Flushing Method")

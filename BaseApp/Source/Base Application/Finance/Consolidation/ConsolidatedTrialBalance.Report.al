@@ -16,7 +16,7 @@ report 17 "Consolidated Trial Balance"
         dataitem("G/L Account"; "G/L Account")
         {
             DataItemTableView = sorting("No.");
-            RequestFilterFields = "No.", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "G/L Entry Type Filter";
+            RequestFilterFields = "No.", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
             column(PeriodText; StrSubstNo(Text002, PeriodText))
             {
             }
@@ -30,9 +30,6 @@ report 17 "Consolidated Trial Balance"
             {
             }
             column(InclSimulationEntries; InclSimulationEntriesLbl)
-            {
-            }
-            column(GLEntryTypeFilter_GLAcc; "G/L Account".GetFilter("G/L Entry Type Filter"))
             {
             }
             column(No_GLAcc; "No.")
@@ -277,9 +274,13 @@ report 17 "Consolidated Trial Balance"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Enter the starting date for the consolidation period.';
         Text001: Label 'Enter the ending date for the consolidation period.';
+#pragma warning disable AA0470
         Text002: Label 'Period: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InThousands: Boolean;
         ConsolidStartDate: Date;
         ConsolidEndDate: Date;

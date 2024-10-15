@@ -897,11 +897,9 @@ codeunit 145302 "BAS Reporting"
         if IsInitialized then
             exit;
 
-        with GLSetup do begin
-            Get();
-            "Enable GST (Australia)" := true;
-            Modify();
-        end;
+        GLSetup.Get();
+        GLSetup."Enable GST (Australia)" := true;
+        GLSetup.Modify();
 
         LibrarySetupStorage.Save(DATABASE::"VAT Report Setup");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -936,35 +934,31 @@ codeunit 145302 "BAS Reporting"
 
     local procedure MockGLEntry(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20]; PostingDate: Date)
     begin
-        with GLEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            Amount := LibraryRandom.RandDec(30, 2);
-            "Posting Date" := PostingDate;
-            "VAT Reporting Date" := PostingDate;
-            "G/L Account No." := GLAccountNo;
-            Insert();
-        end;
+        GLEntry.Init();
+        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
+        GLEntry.Amount := LibraryRandom.RandDec(30, 2);
+        GLEntry."Posting Date" := PostingDate;
+        GLEntry."VAT Reporting Date" := PostingDate;
+        GLEntry."G/L Account No." := GLAccountNo;
+        GLEntry.Insert();
     end;
 
     local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; PostingDate: Date; EntryType: Enum "General Posting Type")
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            Type := Type;
-            "Posting Date" := PostingDate;
-            "VAT Reporting Date" := PostingDate;
-            "Bill-to/Pay-to No." := LibrarySales.CreateCustomerNo();
-            "VAT Bus. Posting Group" := VATBusPostingGroup;
-            "VAT Prod. Posting Group" := VATProdPostingGroup;
-            Base := LibraryRandom.RandDecInRange(10, 20, 2);
-            Amount := LibraryRandom.RandDecInDecimalRange(1, Base, 2);
-            "Additional-Currency Base" := LibraryRandom.RandDecInRange(10, 20, 2);
-            "Additional-Currency Amount" := LibraryRandom.RandDecInDecimalRange(1, Base, 2);
-            Type := EntryType;
-            Insert();
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry.Type := VATEntry.Type;
+        VATEntry."Posting Date" := PostingDate;
+        VATEntry."VAT Reporting Date" := PostingDate;
+        VATEntry."Bill-to/Pay-to No." := LibrarySales.CreateCustomerNo();
+        VATEntry."VAT Bus. Posting Group" := VATBusPostingGroup;
+        VATEntry."VAT Prod. Posting Group" := VATProdPostingGroup;
+        VATEntry.Base := LibraryRandom.RandDecInRange(10, 20, 2);
+        VATEntry.Amount := LibraryRandom.RandDecInDecimalRange(1, VATEntry.Base, 2);
+        VATEntry."Additional-Currency Base" := LibraryRandom.RandDecInRange(10, 20, 2);
+        VATEntry."Additional-Currency Amount" := LibraryRandom.RandDecInDecimalRange(1, VATEntry.Base, 2);
+        VATEntry.Type := EntryType;
+        VATEntry.Insert();
     end;
 
     local procedure UpdateVATReportsConfiguration(VATStatementName: Code[10]; VATStatementTemplateName: Code[10])

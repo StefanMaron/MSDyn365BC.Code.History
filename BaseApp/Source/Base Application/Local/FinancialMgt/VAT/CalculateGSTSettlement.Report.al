@@ -350,7 +350,7 @@ report 11603 "Calculate GST Settlement"
                         if TempGLAccountNetChange.Find('-') then begin
                             // Post clearing accounts
                             repeat
-                                if TempGLAccountNetChange."Net Change in Jnl." <> 0 then begin
+                                if TempGLAccountNetChange."Net Change in Jnl." <> 0 then
                                     if InterCompany then begin
                                         InitGenJnlLine(GenJnlLine1, false);
                                         SetBASDataForGenJnlLine(GenJnlLine1);
@@ -381,13 +381,12 @@ report 11603 "Calculate GST Settlement"
                                         TotalAmt := TotalAmt + TempGLAccountNetChange."Net Change in Jnl.";
                                         GenJnlPostLine.Run(TempGenJnlLine[1]);
                                     end;
-                                end;
                             until TempGLAccountNetChange.Next() = 0;
 
                             // Post settlement account
                             if ((RoundAccNo = '') and (TotalAmt <> 0)) or
                                ((RoundAccNo <> '') and (CurrAmt <> 0))
-                            then begin
+                            then
                                 if InterCompany then begin
                                     InitGenJnlLine(GenJnlLine1, true);
                                     SetBASDataForGenJnlLine(GenJnlLine1);
@@ -434,7 +433,6 @@ report 11603 "Calculate GST Settlement"
                                     if VATEntry2.FindLast() then
                                         VATApplyEntryNo := VATEntry2."Entry No.";
                                 end;
-                            end;
 
                             // Post rounding account
                             if (RoundAccNo <> '') and (TotalAmt - CurrAmt <> 0) then begin
@@ -620,15 +618,11 @@ report 11603 "Calculate GST Settlement"
                         begin
                             case AccType of
                                 AccType::"G/L Account":
-                                    begin
-                                        if PAGE.RunModal(0, GLAcc, GLAcc."No.") = ACTION::LookupOK then
-                                            AccNo := GLAcc."No.";
-                                    end;
+                                    if PAGE.RunModal(0, GLAcc, GLAcc."No.") = ACTION::LookupOK then
+                                        AccNo := GLAcc."No.";
                                 AccType::Vendor:
-                                    begin
-                                        if PAGE.RunModal(0, Vendor, Vendor."No.") = ACTION::LookupOK then
-                                            AccNo := Vendor."No.";
-                                    end;
+                                    if PAGE.RunModal(0, Vendor, Vendor."No.") = ACTION::LookupOK then
+                                        AccNo := Vendor."No.";
                             end;
                         end;
                     }
@@ -819,10 +813,6 @@ report 11603 "Calculate GST Settlement"
             end;
         end;
         NewGenJnlLine.Init();
-#if not CLEAN22
-        if ICPartner then
-            NewGenJnlLine.Validate("IC Partner G/L Acc. No.", '');
-#endif
         if ICPartner then
             NewGenJnlLine.Validate("IC Account No.", '');
         NewGenJnlLine.Validate("Posting Date", PostDate);
@@ -854,9 +844,6 @@ report 11603 "Calculate GST Settlement"
             end;
         end;
 
-#if not CLEAN22
-        GenJournalLine.Validate("IC Partner G/L Acc. No.", ICPartnerGLAccount);
-#endif
         if (GenJournalLine."IC Account Type" = "IC Journal Account Type"::"G/L Account") then
             GenJournalLine.Validate("IC Account No.", ICPartnerGLAccount);
         GenJournalLine."IC Partner Code" := ICPartnerCode;

@@ -1,7 +1,6 @@
 namespace Microsoft.Manufacturing.Document;
 
 using Microsoft.Finance.Dimension;
-using Microsoft.Foundation.Navigate;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Substitution;
@@ -395,7 +394,7 @@ page 99000818 "Prod. Order Components"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderComp(Rec, ItemAvailFormsMgt.ByEvent());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderComp(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -407,7 +406,7 @@ page 99000818 "Prod. Order Components"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderComp(Rec, ItemAvailFormsMgt.ByPeriod());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderComp(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -419,7 +418,7 @@ page 99000818 "Prod. Order Components"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderComp(Rec, ItemAvailFormsMgt.ByVariant());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderComp(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -432,7 +431,7 @@ page 99000818 "Prod. Order Components"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderComp(Rec, ItemAvailFormsMgt.ByLocation());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderComp(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -455,7 +454,7 @@ page 99000818 "Prod. Order Components"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderComp(Rec, ItemAvailFormsMgt.ByBOM());
+                            ProdOrderAvailabilityMgt.ShowItemAvailFromProdOrderComp(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -492,7 +491,7 @@ page 99000818 "Prod. Order Components"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -587,11 +586,8 @@ page 99000818 "Prod. Order Components"
                     ToolTip = 'Tracks the connection of a supply to its corresponding demand. This can help you find the original demand that created a specific production order or purchase order.';
 
                     trigger OnAction()
-                    var
-                        TrackingForm: Page "Order Tracking";
                     begin
-                        TrackingForm.SetProdOrderComponent(Rec);
-                        TrackingForm.RunModal();
+                        Rec.ShowOrderTracking();
                     end;
                 }
             }
@@ -688,9 +684,13 @@ page 99000818 "Prod. Order Components"
     end;
 
     var
-        Text000: Label 'You cannot reserve components with status %1.';
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
         VariantCodeMandatory: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text000: Label 'You cannot reserve components with status %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

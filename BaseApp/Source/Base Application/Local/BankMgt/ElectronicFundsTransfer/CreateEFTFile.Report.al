@@ -25,12 +25,11 @@ report 11608 "Create EFT File"
             begin
                 Counter += 1;
                 ProcessWindow.Update(1, Round(Counter / NoOfRec * 10000, 1.0));
-                if Vendor.Get("Account No.") then begin
+                if Vendor.Get("Account No.") then
                     if Vendor."EFT Payment" then
                         Vendor.TestField("EFT Bank Account No.")
                     else
                         Error(Text11003, "Account No.");
-                end;
                 TestField("EFT Payment");
                 if "EFT Register No." <> 0 then
                     Error(PaymentAlreadyExportedErr, "Journal Template Name", "Journal Batch Name", "Line No.");

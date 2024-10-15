@@ -148,7 +148,11 @@ report 5981 "Contr. Gain/Loss - Resp. Ctr."
         ContractGainLossFilter: Text;
         CustName: Text[100];
         ShowContractGainLossDetails: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The total of entries grouped by the %1 %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GrandTotalLbl: Label 'Grand Total:';
         CntrctGainLossRespCenterCaptionLbl: Label 'Contract Gain/Loss - Responsibility Center';
         CurrReportPageNoCaptionLbl: Label 'Page';

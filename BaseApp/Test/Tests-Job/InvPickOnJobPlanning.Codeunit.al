@@ -154,7 +154,7 @@ codeunit 136317 "Inv. Pick On Job Planning"
         JobCard.OpenEdit();
         JobCard.GoToRecord(Job);
         asserterror JobCard."Create Inventory Pick".Invoke();
-        Assert.ExpectedError('Status must be equal to');
+        Assert.ExpectedTestFieldError(Job.FieldCaption(Status), '');
     end;
 
     [Test]
@@ -483,10 +483,8 @@ codeunit 136317 "Inv. Pick On Job Planning"
                 if (JobPlanningLine.Type = JobPlanningLine.Type::Item) and ((JobPlanningLine."Line Type" = JobPlanningLine."Line Type"::Budget) or (JobPlanningLine."Line Type" = JobPlanningLine."Line Type"::"Both Budget and Billable")) then begin
                     JobPlanningLine.TestField("Remaining Qty.", 0);
                     JobPlanningLine.TestField("Qty. Posted", JobPlanningLine.Quantity);
-                end
-                else begin
+                end else
                     JobPlanningLine.TestField("Qty. Posted", 0);
-                end;
             until JobPlanningLine.Next() = 0;
 
         // [THEN] Verify Warehouse Entries

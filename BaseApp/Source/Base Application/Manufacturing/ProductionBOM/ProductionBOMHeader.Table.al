@@ -228,14 +228,20 @@ table 99000771 "Production BOM Header"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'This Production BOM is being used on Items.';
         Text001: Label 'All versions attached to the BOM will be closed. Close BOM?';
+#pragma warning restore AA0074
         MfgSetup: Record "Manufacturing Setup";
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMVersion: Record "Production BOM Version";
         ProdBOMLine: Record "Production BOM Line";
         MfgComment: Record "Manufacturing Comment Line";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'You cannot rename the %1 when %2 is %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AssistEdit(OldProdBOMHeader: Record "Production BOM Header"): Boolean
     var

@@ -19,8 +19,6 @@ codeunit 134097 "ERM Check Posting Groups"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
-        EmptyGenProdPostingGroupErr: Label 'Gen. Prod. Posting Group must have a value in Gen. Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Line No.=%3. It cannot be zero';
-        EmptyBalGenProdPostingGroupErr: Label 'Bal. Gen. Prod. Posting Group must have a value in Gen. Journal Line: Journal Template Name=%1, Journal Batch Name=%2, Line No.=%3. It cannot be zero';
 
     [Test]
     [Scope('OnPrem')]
@@ -206,29 +204,26 @@ codeunit 134097 "ERM Check Posting Groups"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
-        with VATPostingSetup do begin
-            "Sales VAT Account" := LibraryERM.CreateGLAccountNo();
-            "Sales VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
-            "Purchase VAT Account" := LibraryERM.CreateGLAccountNo();
-            "Purch. VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
-            "Reverse Chrg. VAT Acc." := LibraryERM.CreateGLAccountNo();
-            "Reverse Chrg. VAT Unreal. Acc." := LibraryERM.CreateGLAccountNo();
-            Modify();
-
-            // Verify
-            Assert.AreEqual(
-              "Sales VAT Account", GetSalesAccount(false), 'Sales VAT Accounts are not equal');
-            Assert.AreEqual(
-              "Sales VAT Unreal. Account", GetSalesAccount(true), 'Sales VAT Unreal. Accounts are not equal');
-            Assert.AreEqual(
-              "Purchase VAT Account", GetPurchAccount(false), 'Purchase VAT Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. VAT Unreal. Account", GetPurchAccount(true), 'Purch. VAT Unreal. Accounts are not equal');
-            Assert.AreEqual(
-              "Reverse Chrg. VAT Acc.", GetRevChargeAccount(false), 'Reverse Chrg. VAT Accounts are not equal');
-            Assert.AreEqual(
-              "Reverse Chrg. VAT Unreal. Acc.", GetRevChargeAccount(true), 'Reverse Chrg. VAT Unreal. Accounts are not equal');
-        end;
+        VATPostingSetup."Sales VAT Account" := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup."Sales VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup."Purchase VAT Account" := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup."Purch. VAT Unreal. Account" := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup."Reverse Chrg. VAT Acc." := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup."Reverse Chrg. VAT Unreal. Acc." := LibraryERM.CreateGLAccountNo();
+        VATPostingSetup.Modify();
+        // Verify
+        Assert.AreEqual(
+          VATPostingSetup."Sales VAT Account", VATPostingSetup.GetSalesAccount(false), 'Sales VAT Accounts are not equal');
+        Assert.AreEqual(
+          VATPostingSetup."Sales VAT Unreal. Account", VATPostingSetup.GetSalesAccount(true), 'Sales VAT Unreal. Accounts are not equal');
+        Assert.AreEqual(
+          VATPostingSetup."Purchase VAT Account", VATPostingSetup.GetPurchAccount(false), 'Purchase VAT Accounts are not equal');
+        Assert.AreEqual(
+          VATPostingSetup."Purch. VAT Unreal. Account", VATPostingSetup.GetPurchAccount(true), 'Purch. VAT Unreal. Accounts are not equal');
+        Assert.AreEqual(
+          VATPostingSetup."Reverse Chrg. VAT Acc.", VATPostingSetup.GetRevChargeAccount(false), 'Reverse Chrg. VAT Accounts are not equal');
+        Assert.AreEqual(
+          VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.", VATPostingSetup.GetRevChargeAccount(true), 'Reverse Chrg. VAT Unreal. Accounts are not equal');
     end;
 
     [Test]
@@ -253,40 +248,37 @@ codeunit 134097 "ERM Check Posting Groups"
             LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
             LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, InventoryPostingGroup.Code);
         end;
-        with InventoryPostingSetup do begin
-            RecRef.GetTable(InventoryPostingSetup);
-            SuggestAccount2(RecRef, "Location Code", "Invt. Posting Group Code", FieldNo("Inventory Account"));
-            SuggestAccount2(RecRef, "Location Code", "Invt. Posting Group Code", FieldNo("Inventory Account (Interim)"));
-            SuggestAccount2(RecRef, "Location Code", "Invt. Posting Group Code", FieldNo("WIP Account"));
-            SuggestAccount2(RecRef, "Location Code", "Invt. Posting Group Code", FieldNo("Material Variance Account"));
-            SuggestAccount2(RecRef, "Location Code", "Invt. Posting Group Code", FieldNo("Capacity Variance Account"));
-            SuggestAccount2(RecRef, "Location Code", "Invt. Posting Group Code", FieldNo("Mfg. Overhead Variance Account"));
-            SuggestAccount2(RecRef, "Location Code", "Invt. Posting Group Code", FieldNo("Cap. Overhead Variance Account"));
-            SuggestAccount2(RecRef, "Location Code", "Invt. Posting Group Code", FieldNo("Subcontracted Variance Account"));
-            TestInventoryPostingSetup := InventoryPostingSetup;
-            Init();
-            SuggestSetupAccounts();
-            Modify();
-
-            // Verify
-            Assert.AreEqual(
-              "Inventory Account", TestInventoryPostingSetup."Inventory Account",
-              'Inventory Accounts are not equal');
-            Assert.AreEqual(
-              "Inventory Account (Interim)", TestInventoryPostingSetup."Inventory Account (Interim)",
-              'Inventory Accounts (Interim) are not equal');
-            Assert.AreEqual(
-              "WIP Account", TestInventoryPostingSetup."WIP Account", 'WIP Accounts are not equal');
-            Assert.AreEqual(
-              "Material Variance Account", TestInventoryPostingSetup."Material Variance Account",
-              'Material Variance Accounts are not equal');
-            Assert.AreEqual(
-              "Capacity Variance Account", TestInventoryPostingSetup."Capacity Variance Account",
-              'Capacity Variance Accounts are not equal');
-            Assert.AreEqual(
-              "Mfg. Overhead Variance Account", TestInventoryPostingSetup."Mfg. Overhead Variance Account",
-              'Mfg. Overhead Variance Accounts are not equal');
-        end;
+        RecRef.GetTable(InventoryPostingSetup);
+        SuggestAccount2(RecRef, InventoryPostingSetup."Location Code", InventoryPostingSetup."Invt. Posting Group Code", InventoryPostingSetup.FieldNo("Inventory Account"));
+        SuggestAccount2(RecRef, InventoryPostingSetup."Location Code", InventoryPostingSetup."Invt. Posting Group Code", InventoryPostingSetup.FieldNo("Inventory Account (Interim)"));
+        SuggestAccount2(RecRef, InventoryPostingSetup."Location Code", InventoryPostingSetup."Invt. Posting Group Code", InventoryPostingSetup.FieldNo("WIP Account"));
+        SuggestAccount2(RecRef, InventoryPostingSetup."Location Code", InventoryPostingSetup."Invt. Posting Group Code", InventoryPostingSetup.FieldNo("Material Variance Account"));
+        SuggestAccount2(RecRef, InventoryPostingSetup."Location Code", InventoryPostingSetup."Invt. Posting Group Code", InventoryPostingSetup.FieldNo("Capacity Variance Account"));
+        SuggestAccount2(RecRef, InventoryPostingSetup."Location Code", InventoryPostingSetup."Invt. Posting Group Code", InventoryPostingSetup.FieldNo("Mfg. Overhead Variance Account"));
+        SuggestAccount2(RecRef, InventoryPostingSetup."Location Code", InventoryPostingSetup."Invt. Posting Group Code", InventoryPostingSetup.FieldNo("Cap. Overhead Variance Account"));
+        SuggestAccount2(RecRef, InventoryPostingSetup."Location Code", InventoryPostingSetup."Invt. Posting Group Code", InventoryPostingSetup.FieldNo("Subcontracted Variance Account"));
+        TestInventoryPostingSetup := InventoryPostingSetup;
+        InventoryPostingSetup.Init();
+        InventoryPostingSetup.SuggestSetupAccounts();
+        InventoryPostingSetup.Modify();
+        // Verify
+        Assert.AreEqual(
+          InventoryPostingSetup."Inventory Account", TestInventoryPostingSetup."Inventory Account",
+          'Inventory Accounts are not equal');
+        Assert.AreEqual(
+          InventoryPostingSetup."Inventory Account (Interim)", TestInventoryPostingSetup."Inventory Account (Interim)",
+          'Inventory Accounts (Interim) are not equal');
+        Assert.AreEqual(
+          InventoryPostingSetup."WIP Account", TestInventoryPostingSetup."WIP Account", 'WIP Accounts are not equal');
+        Assert.AreEqual(
+          InventoryPostingSetup."Material Variance Account", TestInventoryPostingSetup."Material Variance Account",
+          'Material Variance Accounts are not equal');
+        Assert.AreEqual(
+          InventoryPostingSetup."Capacity Variance Account", TestInventoryPostingSetup."Capacity Variance Account",
+          'Capacity Variance Accounts are not equal');
+        Assert.AreEqual(
+          InventoryPostingSetup."Mfg. Overhead Variance Account", TestInventoryPostingSetup."Mfg. Overhead Variance Account",
+          'Mfg. Overhead Variance Accounts are not equal');
     end;
 
     [Test]
@@ -306,108 +298,105 @@ codeunit 134097 "ERM Check Posting Groups"
         LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
         LibraryERM.CreateGeneralPostingSetup(GenPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
-        with GenPostingSetup do begin
-            RecRef.GetTable(GenPostingSetup);
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Sales Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Sales Line Disc. Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Sales Inv. Disc. Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Sales Pmt. Disc. Debit Acc."));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Purch. Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Purch. Line Disc. Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Purch. Inv. Disc. Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Purch. Pmt. Disc. Credit Acc."));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("COGS Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Inventory Adjmt. Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Sales Credit Memo Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Purch. Credit Memo Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Sales Pmt. Tol. Debit Acc."));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Sales Pmt. Tol. Credit Acc."));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Purch. Pmt. Tol. Debit Acc."));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Purch. Pmt. Tol. Credit Acc."));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Sales Prepayments Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Purch. Prepayments Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Purch. FA Disc. Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Invt. Accrual Acc. (Interim)"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("COGS Account (Interim)"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Direct Cost Applied Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Overhead Applied Account"));
-            SuggestAccount2(RecRef, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", FieldNo("Purchase Variance Account"));
-            TestGenPostingSetup := GenPostingSetup;
-            Init();
-            SuggestSetupAccounts();
-            Modify();
-
-            // Verify
-            Assert.AreEqual(
-              "Sales Account", TestGenPostingSetup."Sales Account", 'Sales Accountccounts are not equal');
-            Assert.AreEqual(
-              "Sales Line Disc. Account", TestGenPostingSetup."Sales Line Disc. Account",
-              'Sales Line Disc. Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Inv. Disc. Account", TestGenPostingSetup."Sales Inv. Disc. Account",
-              'Sales Inv. Disc. Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Pmt. Disc. Debit Acc.", TestGenPostingSetup."Sales Pmt. Disc. Debit Acc.",
-              'Sales Pmt. Disc. Debit Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Account", TestGenPostingSetup."Purch. Account", 'Purch. Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Line Disc. Account", TestGenPostingSetup."Purch. Line Disc. Account",
-              'Purch. Line Disc. Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Inv. Disc. Account", TestGenPostingSetup."Purch. Inv. Disc. Account",
-              'Purch. Inv. Disc. Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Pmt. Disc. Credit Acc.", TestGenPostingSetup."Purch. Pmt. Disc. Credit Acc.",
-              'Purch. Pmt. Disc. Credit Accounts are not equal');
-            Assert.AreEqual(
-              "COGS Account", TestGenPostingSetup."COGS Account", 'COGS Accounts are not equal');
-            Assert.AreEqual(
-              "Inventory Adjmt. Account", TestGenPostingSetup."Inventory Adjmt. Account",
-              'Inventory Adjmt. Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Credit Memo Account", TestGenPostingSetup."Sales Credit Memo Account",
-              'Sales Credit Memo Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Credit Memo Account", TestGenPostingSetup."Purch. Credit Memo Account",
-              'Purch. Credit Memo Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Pmt. Tol. Debit Acc.", TestGenPostingSetup."Sales Pmt. Tol. Debit Acc.",
-              'Sales Pmt. Tol. Debit Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Pmt. Tol. Credit Acc.", TestGenPostingSetup."Sales Pmt. Tol. Credit Acc.",
-              'Sales Pmt. Tol. Credit Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Pmt. Tol. Debit Acc.", TestGenPostingSetup."Purch. Pmt. Tol. Debit Acc.",
-              'Purch. Pmt. Tol. Debit Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Pmt. Tol. Credit Acc.", TestGenPostingSetup."Purch. Pmt. Tol. Credit Acc.",
-              'Purch. Pmt. Tol. Credit Accounts are not equal');
-            Assert.AreEqual(
-              "Sales Prepayments Account", TestGenPostingSetup."Sales Prepayments Account",
-              'Sales Prepayments Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. Prepayments Account", TestGenPostingSetup."Purch. Prepayments Account",
-              'Purch. Prepayments Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. FA Disc. Account", TestGenPostingSetup."Purch. FA Disc. Account",
-              'Purch. FA Disc. Accounts are not equal');
-            Assert.AreEqual(
-              "Invt. Accrual Acc. (Interim)", TestGenPostingSetup."Invt. Accrual Acc. (Interim)",
-              'Invt. Accrual Accounts (Interim) are not equal');
-            Assert.AreEqual(
-              "COGS Account (Interim)", TestGenPostingSetup."COGS Account (Interim)",
-              'COGS Accounts (Interim) are not equal');
-            Assert.AreEqual(
-              "Direct Cost Applied Account", TestGenPostingSetup."Direct Cost Applied Account",
-              'Direct Cost Applied Accounts are not equal');
-            Assert.AreEqual(
-              "Overhead Applied Account", TestGenPostingSetup."Overhead Applied Account",
-              'Overhead Applied Accounts are not equal');
-            Assert.AreEqual(
-              "Purchase Variance Account", TestGenPostingSetup."Purchase Variance Account",
-              'Purchase Variance Accounts are not equal');
-        end;
+        RecRef.GetTable(GenPostingSetup);
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Sales Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Sales Line Disc. Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Sales Inv. Disc. Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Sales Pmt. Disc. Debit Acc."));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Purch. Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Purch. Line Disc. Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Purch. Inv. Disc. Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Purch. Pmt. Disc. Credit Acc."));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("COGS Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Inventory Adjmt. Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Sales Credit Memo Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Purch. Credit Memo Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Sales Pmt. Tol. Debit Acc."));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Sales Pmt. Tol. Credit Acc."));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Purch. Pmt. Tol. Debit Acc."));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Purch. Pmt. Tol. Credit Acc."));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Sales Prepayments Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Purch. Prepayments Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Purch. FA Disc. Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Invt. Accrual Acc. (Interim)"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("COGS Account (Interim)"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Direct Cost Applied Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Overhead Applied Account"));
+        SuggestAccount2(RecRef, GenPostingSetup."Gen. Bus. Posting Group", GenPostingSetup."Gen. Prod. Posting Group", GenPostingSetup.FieldNo("Purchase Variance Account"));
+        TestGenPostingSetup := GenPostingSetup;
+        GenPostingSetup.Init();
+        GenPostingSetup.SuggestSetupAccounts();
+        GenPostingSetup.Modify();
+        // Verify
+        Assert.AreEqual(
+          GenPostingSetup."Sales Account", TestGenPostingSetup."Sales Account", 'Sales Accountccounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Line Disc. Account", TestGenPostingSetup."Sales Line Disc. Account",
+          'Sales Line Disc. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Inv. Disc. Account", TestGenPostingSetup."Sales Inv. Disc. Account",
+          'Sales Inv. Disc. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Pmt. Disc. Debit Acc.", TestGenPostingSetup."Sales Pmt. Disc. Debit Acc.",
+          'Sales Pmt. Disc. Debit Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Account", TestGenPostingSetup."Purch. Account", 'Purch. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Line Disc. Account", TestGenPostingSetup."Purch. Line Disc. Account",
+          'Purch. Line Disc. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Inv. Disc. Account", TestGenPostingSetup."Purch. Inv. Disc. Account",
+          'Purch. Inv. Disc. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Pmt. Disc. Credit Acc.", TestGenPostingSetup."Purch. Pmt. Disc. Credit Acc.",
+          'Purch. Pmt. Disc. Credit Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."COGS Account", TestGenPostingSetup."COGS Account", 'COGS Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Inventory Adjmt. Account", TestGenPostingSetup."Inventory Adjmt. Account",
+          'Inventory Adjmt. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Credit Memo Account", TestGenPostingSetup."Sales Credit Memo Account",
+          'Sales Credit Memo Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Credit Memo Account", TestGenPostingSetup."Purch. Credit Memo Account",
+          'Purch. Credit Memo Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Pmt. Tol. Debit Acc.", TestGenPostingSetup."Sales Pmt. Tol. Debit Acc.",
+          'Sales Pmt. Tol. Debit Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Pmt. Tol. Credit Acc.", TestGenPostingSetup."Sales Pmt. Tol. Credit Acc.",
+          'Sales Pmt. Tol. Credit Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Pmt. Tol. Debit Acc.", TestGenPostingSetup."Purch. Pmt. Tol. Debit Acc.",
+          'Purch. Pmt. Tol. Debit Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Pmt. Tol. Credit Acc.", TestGenPostingSetup."Purch. Pmt. Tol. Credit Acc.",
+          'Purch. Pmt. Tol. Credit Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Sales Prepayments Account", TestGenPostingSetup."Sales Prepayments Account",
+          'Sales Prepayments Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. Prepayments Account", TestGenPostingSetup."Purch. Prepayments Account",
+          'Purch. Prepayments Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purch. FA Disc. Account", TestGenPostingSetup."Purch. FA Disc. Account",
+          'Purch. FA Disc. Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Invt. Accrual Acc. (Interim)", TestGenPostingSetup."Invt. Accrual Acc. (Interim)",
+          'Invt. Accrual Accounts (Interim) are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."COGS Account (Interim)", TestGenPostingSetup."COGS Account (Interim)",
+          'COGS Accounts (Interim) are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Direct Cost Applied Account", TestGenPostingSetup."Direct Cost Applied Account",
+          'Direct Cost Applied Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Overhead Applied Account", TestGenPostingSetup."Overhead Applied Account",
+          'Overhead Applied Accounts are not equal');
+        Assert.AreEqual(
+          GenPostingSetup."Purchase Variance Account", TestGenPostingSetup."Purchase Variance Account",
+          'Purchase Variance Accounts are not equal');
     end;
 
     [Test]
@@ -427,39 +416,36 @@ codeunit 134097 "ERM Check Posting Groups"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
-        with VATPostingSetup do begin
-            RecRef.GetTable(VATPostingSetup);
-            SuggestAccount2(RecRef, "VAT Bus. Posting Group", "VAT Prod. Posting Group", FieldNo("Sales VAT Account"));
-            SuggestAccount2(RecRef, "VAT Bus. Posting Group", "VAT Prod. Posting Group", FieldNo("Sales VAT Unreal. Account"));
-            SuggestAccount2(RecRef, "VAT Bus. Posting Group", "VAT Prod. Posting Group", FieldNo("Purchase VAT Account"));
-            SuggestAccount2(RecRef, "VAT Bus. Posting Group", "VAT Prod. Posting Group", FieldNo("Purch. VAT Unreal. Account"));
-            SuggestAccount2(RecRef, "VAT Bus. Posting Group", "VAT Prod. Posting Group", FieldNo("Reverse Chrg. VAT Acc."));
-            SuggestAccount2(RecRef, "VAT Bus. Posting Group", "VAT Prod. Posting Group", FieldNo("Reverse Chrg. VAT Unreal. Acc."));
-            TestVATPostingSetup := VATPostingSetup;
-            Init();
-            SuggestSetupAccounts();
-            Modify();
-
-            // Verify
-            Assert.AreEqual(
-              "Sales VAT Account", TestVATPostingSetup."Sales VAT Account",
-              'Sales VAT Accounts are not equal');
-            Assert.AreEqual(
-              "Sales VAT Unreal. Account", TestVATPostingSetup."Sales VAT Unreal. Account",
-              'Sales VAT Unreal. Accounts are not equal');
-            Assert.AreEqual(
-              "Purchase VAT Account", TestVATPostingSetup."Purchase VAT Account",
-              'Purchase VAT Accounts are not equal');
-            Assert.AreEqual(
-              "Purch. VAT Unreal. Account", TestVATPostingSetup."Purch. VAT Unreal. Account",
-              'Purch. VAT Unreal. Accounts are not equal');
-            Assert.AreEqual(
-              "Reverse Chrg. VAT Acc.", TestVATPostingSetup."Reverse Chrg. VAT Acc.",
-              'Reverse Chrg. VAT Accounts are not equal');
-            Assert.AreEqual(
-              "Reverse Chrg. VAT Unreal. Acc.", TestVATPostingSetup."Reverse Chrg. VAT Unreal. Acc.",
-              'Reverse Chrg. VAT Unreal. Accounts are not equal');
-        end;
+        RecRef.GetTable(VATPostingSetup);
+        SuggestAccount2(RecRef, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup.FieldNo("Sales VAT Account"));
+        SuggestAccount2(RecRef, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup.FieldNo("Sales VAT Unreal. Account"));
+        SuggestAccount2(RecRef, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup.FieldNo("Purchase VAT Account"));
+        SuggestAccount2(RecRef, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup.FieldNo("Purch. VAT Unreal. Account"));
+        SuggestAccount2(RecRef, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup.FieldNo("Reverse Chrg. VAT Acc."));
+        SuggestAccount2(RecRef, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup.FieldNo("Reverse Chrg. VAT Unreal. Acc."));
+        TestVATPostingSetup := VATPostingSetup;
+        VATPostingSetup.Init();
+        VATPostingSetup.SuggestSetupAccounts();
+        VATPostingSetup.Modify();
+        // Verify
+        Assert.AreEqual(
+          VATPostingSetup."Sales VAT Account", TestVATPostingSetup."Sales VAT Account",
+          'Sales VAT Accounts are not equal');
+        Assert.AreEqual(
+          VATPostingSetup."Sales VAT Unreal. Account", TestVATPostingSetup."Sales VAT Unreal. Account",
+          'Sales VAT Unreal. Accounts are not equal');
+        Assert.AreEqual(
+          VATPostingSetup."Purchase VAT Account", TestVATPostingSetup."Purchase VAT Account",
+          'Purchase VAT Accounts are not equal');
+        Assert.AreEqual(
+          VATPostingSetup."Purch. VAT Unreal. Account", TestVATPostingSetup."Purch. VAT Unreal. Account",
+          'Purch. VAT Unreal. Accounts are not equal');
+        Assert.AreEqual(
+          VATPostingSetup."Reverse Chrg. VAT Acc.", TestVATPostingSetup."Reverse Chrg. VAT Acc.",
+          'Reverse Chrg. VAT Accounts are not equal');
+        Assert.AreEqual(
+          VATPostingSetup."Reverse Chrg. VAT Unreal. Acc.", TestVATPostingSetup."Reverse Chrg. VAT Unreal. Acc.",
+          'Reverse Chrg. VAT Unreal. Accounts are not equal');
     end;
 
     [Test]
@@ -474,45 +460,42 @@ codeunit 134097 "ERM Check Posting Groups"
 
         // Execute
         LibraryERM.CreateCurrency(Currency);
-        with Currency do begin
-            RecRef.GetTable(Currency);
-            SuggestAccount(RecRef, Code, FieldNo("Unrealized Gains Acc."));
-            SuggestAccount(RecRef, Code, FieldNo("Realized Gains Acc."));
-            SuggestAccount(RecRef, Code, FieldNo("Unrealized Losses Acc."));
-            SuggestAccount(RecRef, Code, FieldNo("Realized Losses Acc."));
-            SuggestAccount(RecRef, Code, FieldNo("Realized G/L Gains Account"));
-            SuggestAccount(RecRef, Code, FieldNo("Realized G/L Losses Account"));
-            SuggestAccount(RecRef, Code, FieldNo("Residual Gains Account"));
-            SuggestAccount(RecRef, Code, FieldNo("Residual Losses Account"));
-            SuggestAccount(RecRef, Code, FieldNo("Conv. LCY Rndg. Debit Acc."));
-            SuggestAccount(RecRef, Code, FieldNo("Conv. LCY Rndg. Credit Acc."));
-            TestCurrency := Currency;
-            Init();
-            SuggestSetupAccounts();
-            Modify();
-
-            // Verify
-            Assert.AreEqual(
-              "Unrealized Gains Acc.", TestCurrency."Unrealized Gains Acc.", 'Unrealized Gains Accounts are not equal');
-            Assert.AreEqual(
-              "Realized Gains Acc.", TestCurrency."Realized Gains Acc.", 'Realized Gains Accounts are not equal');
-            Assert.AreEqual(
-              "Unrealized Losses Acc.", TestCurrency."Unrealized Losses Acc.", 'Unrealized Losses Accounts are not equal');
-            Assert.AreEqual(
-              "Realized Losses Acc.", TestCurrency."Realized Losses Acc.", 'Realized Losses Accounts are not equal');
-            Assert.AreEqual(
-              "Realized G/L Gains Account", TestCurrency."Realized G/L Gains Account", 'Realized G/L Gains Accounts are not equal');
-            Assert.AreEqual(
-              "Realized G/L Losses Account", TestCurrency."Realized G/L Losses Account", 'Realized G/L Losses Accounts are not equal');
-            Assert.AreEqual(
-              "Residual Gains Account", TestCurrency."Residual Gains Account", 'Residual Gains Accounts are not equal');
-            Assert.AreEqual(
-              "Residual Losses Account", TestCurrency."Residual Losses Account", 'Residual Losses Accounts are not equal');
-            Assert.AreEqual(
-              "Conv. LCY Rndg. Credit Acc.", TestCurrency."Conv. LCY Rndg. Credit Acc.", 'Conv. LCY Rndg. Credit Accounts are not equal');
-            Assert.AreEqual(
-              "Conv. LCY Rndg. Debit Acc.", TestCurrency."Conv. LCY Rndg. Debit Acc.", 'Conv. LCY Rndg. Debit Accounts are not equal');
-        end;
+        RecRef.GetTable(Currency);
+        SuggestAccount(RecRef, Currency.Code, Currency.FieldNo("Unrealized Gains Acc."));
+        SuggestAccount(RecRef, Currency.Code, Currency.FieldNo("Realized Gains Acc."));
+        SuggestAccount(RecRef, Currency.Code, Currency.FieldNo("Unrealized Losses Acc."));
+        SuggestAccount(RecRef, Currency.Code, Currency.FieldNo("Realized Losses Acc."));
+        SuggestAccount(RecRef, Currency.Code, Currency.FieldNo("Realized G/L Gains Account"));
+        SuggestAccount(RecRef, Currency.Code, Currency.FieldNo("Realized G/L Losses Account"));
+        SuggestAccount(RecRef, Currency.Code, Currency.FieldNo("Residual Gains Account"));
+        SuggestAccount(RecRef, Currency.Code, Currency.FieldNo("Residual Losses Account"));
+        SuggestAccount(RecRef, Currency.Code, Currency.FieldNo("Conv. LCY Rndg. Debit Acc."));
+        SuggestAccount(RecRef, Currency.Code, Currency.FieldNo("Conv. LCY Rndg. Credit Acc."));
+        TestCurrency := Currency;
+        Currency.Init();
+        Currency.SuggestSetupAccounts();
+        Currency.Modify();
+        // Verify
+        Assert.AreEqual(
+          Currency."Unrealized Gains Acc.", TestCurrency."Unrealized Gains Acc.", 'Unrealized Gains Accounts are not equal');
+        Assert.AreEqual(
+          Currency."Realized Gains Acc.", TestCurrency."Realized Gains Acc.", 'Realized Gains Accounts are not equal');
+        Assert.AreEqual(
+          Currency."Unrealized Losses Acc.", TestCurrency."Unrealized Losses Acc.", 'Unrealized Losses Accounts are not equal');
+        Assert.AreEqual(
+          Currency."Realized Losses Acc.", TestCurrency."Realized Losses Acc.", 'Realized Losses Accounts are not equal');
+        Assert.AreEqual(
+          Currency."Realized G/L Gains Account", TestCurrency."Realized G/L Gains Account", 'Realized G/L Gains Accounts are not equal');
+        Assert.AreEqual(
+          Currency."Realized G/L Losses Account", TestCurrency."Realized G/L Losses Account", 'Realized G/L Losses Accounts are not equal');
+        Assert.AreEqual(
+          Currency."Residual Gains Account", TestCurrency."Residual Gains Account", 'Residual Gains Accounts are not equal');
+        Assert.AreEqual(
+          Currency."Residual Losses Account", TestCurrency."Residual Losses Account", 'Residual Losses Accounts are not equal');
+        Assert.AreEqual(
+          Currency."Conv. LCY Rndg. Credit Acc.", TestCurrency."Conv. LCY Rndg. Credit Acc.", 'Conv. LCY Rndg. Credit Accounts are not equal');
+        Assert.AreEqual(
+          Currency."Conv. LCY Rndg. Debit Acc.", TestCurrency."Conv. LCY Rndg. Debit Acc.", 'Conv. LCY Rndg. Debit Accounts are not equal');
     end;
 
     [Test]
@@ -1432,9 +1415,7 @@ codeunit 134097 "ERM Check Posting Groups"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] The error is thrown: 'Gen. Prod. Posting Group must have a value in Gen. Journal Line'
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo(EmptyGenProdPostingGroupErr, GenJournalLine."Journal Template Name",
-            GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Gen. Prod. Posting Group"), '');
     end;
 
     [Test]
@@ -1474,9 +1455,8 @@ codeunit 134097 "ERM Check Posting Groups"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] The error is thrown: 'Bal. Gen. Prod. Posting Group must have a value in Gen. Journal Line'
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo(EmptyBalGenProdPostingGroupErr, GenJournalLine."Journal Template Name",
-            GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
+
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Bal. Gen. Prod. Posting Group"), '');
     end;
 
     [Test]
@@ -1516,9 +1496,7 @@ codeunit 134097 "ERM Check Posting Groups"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] The error is thrown: 'Gen. Prod. Posting Group must have a value in Gen. Journal Line'
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(STRSUBSTNO(EmptyGenProdPostingGroupErr, GenJournalLine."Journal Template Name",
-            GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Gen. Prod. Posting Group"), '');
     end;
 
     [Test]
@@ -1558,9 +1536,7 @@ codeunit 134097 "ERM Check Posting Groups"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] The error is thrown: 'Bal. Gen. Prod. Posting Group must have a value in Gen. Journal Line'
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(STRSUBSTNO(EmptyBalGenProdPostingGroupErr, GenJournalLine."Journal Template Name",
-            GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Bal. Gen. Prod. Posting Group"), '');
     end;
 
     local procedure Initialize()
@@ -1636,44 +1612,40 @@ codeunit 134097 "ERM Check Posting Groups"
     local procedure CreateCustomerPostingGroup(var CustomerPostingGroup: Record "Customer Posting Group"; ViewAllAccounts: Boolean)
     begin
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
-        with CustomerPostingGroup do begin
-            "Receivables Account" := CreateGLAccountNo(false, false);
-            "Service Charge Acc." := CreateGLAccountNo(true, true);
-            "Payment Disc. Debit Acc." := CreateGLAccountNo(false, false);
-            "Payment Disc. Credit Acc." := CreateGLAccountNo(false, false);
-            "Invoice Rounding Account" := CreateGLAccountNo(true, false);
-            "Additional Fee Account" := CreateGLAccountNo(true, true);
-            "Interest Account" := CreateGLAccountNo(true, false);
-            "Debit Curr. Appln. Rndg. Acc." := CreateGLAccountNo(false, false);
-            "Credit Curr. Appln. Rndg. Acc." := CreateGLAccountNo(false, false);
-            "Debit Rounding Account" := CreateGLAccountNo(false, false);
-            "Credit Rounding Account" := CreateGLAccountNo(false, false);
-            "Payment Tolerance Debit Acc." := CreateGLAccountNo(false, false);
-            "Payment Tolerance Credit Acc." := CreateGLAccountNo(false, false);
-            "Add. Fee per Line Account" := CreateGLAccountNo(true, false);
-            "View All Accounts on Lookup" := ViewAllAccounts;
-            Modify();
-        end;
+        CustomerPostingGroup."Receivables Account" := CreateGLAccountNo(false, false);
+        CustomerPostingGroup."Service Charge Acc." := CreateGLAccountNo(true, true);
+        CustomerPostingGroup."Payment Disc. Debit Acc." := CreateGLAccountNo(false, false);
+        CustomerPostingGroup."Payment Disc. Credit Acc." := CreateGLAccountNo(false, false);
+        CustomerPostingGroup."Invoice Rounding Account" := CreateGLAccountNo(true, false);
+        CustomerPostingGroup."Additional Fee Account" := CreateGLAccountNo(true, true);
+        CustomerPostingGroup."Interest Account" := CreateGLAccountNo(true, false);
+        CustomerPostingGroup."Debit Curr. Appln. Rndg. Acc." := CreateGLAccountNo(false, false);
+        CustomerPostingGroup."Credit Curr. Appln. Rndg. Acc." := CreateGLAccountNo(false, false);
+        CustomerPostingGroup."Debit Rounding Account" := CreateGLAccountNo(false, false);
+        CustomerPostingGroup."Credit Rounding Account" := CreateGLAccountNo(false, false);
+        CustomerPostingGroup."Payment Tolerance Debit Acc." := CreateGLAccountNo(false, false);
+        CustomerPostingGroup."Payment Tolerance Credit Acc." := CreateGLAccountNo(false, false);
+        CustomerPostingGroup."Add. Fee per Line Account" := CreateGLAccountNo(true, false);
+        CustomerPostingGroup."View All Accounts on Lookup" := ViewAllAccounts;
+        CustomerPostingGroup.Modify();
     end;
 
     local procedure CreateVendorPostingGroup(var VendorPostingGroup: Record "Vendor Posting Group"; ViewAllAccounts: Boolean)
     begin
         LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
-        with VendorPostingGroup do begin
-            "Payables Account" := CreateGLAccountNo(false, false);
-            "Service Charge Acc." := CreateGLAccountNo(true, true);
-            "Payment Disc. Debit Acc." := CreateGLAccountNo(false, false);
-            "Payment Disc. Credit Acc." := CreateGLAccountNo(false, false);
-            "Invoice Rounding Account" := CreateGLAccountNo(true, false);
-            "Debit Curr. Appln. Rndg. Acc." := CreateGLAccountNo(false, false);
-            "Credit Curr. Appln. Rndg. Acc." := CreateGLAccountNo(false, false);
-            "Debit Rounding Account" := CreateGLAccountNo(false, false);
-            "Credit Rounding Account" := CreateGLAccountNo(false, false);
-            "Payment Tolerance Debit Acc." := CreateGLAccountNo(false, false);
-            "Payment Tolerance Credit Acc." := CreateGLAccountNo(false, false);
-            "View All Accounts on Lookup" := ViewAllAccounts;
-            Modify();
-        end;
+        VendorPostingGroup."Payables Account" := CreateGLAccountNo(false, false);
+        VendorPostingGroup."Service Charge Acc." := CreateGLAccountNo(true, true);
+        VendorPostingGroup."Payment Disc. Debit Acc." := CreateGLAccountNo(false, false);
+        VendorPostingGroup."Payment Disc. Credit Acc." := CreateGLAccountNo(false, false);
+        VendorPostingGroup."Invoice Rounding Account" := CreateGLAccountNo(true, false);
+        VendorPostingGroup."Debit Curr. Appln. Rndg. Acc." := CreateGLAccountNo(false, false);
+        VendorPostingGroup."Credit Curr. Appln. Rndg. Acc." := CreateGLAccountNo(false, false);
+        VendorPostingGroup."Debit Rounding Account" := CreateGLAccountNo(false, false);
+        VendorPostingGroup."Credit Rounding Account" := CreateGLAccountNo(false, false);
+        VendorPostingGroup."Payment Tolerance Debit Acc." := CreateGLAccountNo(false, false);
+        VendorPostingGroup."Payment Tolerance Credit Acc." := CreateGLAccountNo(false, false);
+        VendorPostingGroup."View All Accounts on Lookup" := ViewAllAccounts;
+        VendorPostingGroup.Modify();
     end;
 
     local procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; ViewAllAccounts: Boolean)
@@ -1684,21 +1656,19 @@ codeunit 134097 "ERM Check Posting Groups"
         LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
-        with GeneralPostingSetup do begin
-            LibraryERM.SetGeneralPostingSetupSalesAccounts(GeneralPostingSetup);
-            LibraryERM.SetGeneralPostingSetupSalesPmtDiscAccounts(GeneralPostingSetup);
-            LibraryERM.SetGeneralPostingSetupPurchAccounts(GeneralPostingSetup);
-            LibraryERM.SetGeneralPostingSetupPurchPmtDiscAccounts(GeneralPostingSetup);
-            LibraryERM.SetGeneralPostingSetupInvtAccounts(GeneralPostingSetup);
-            LibraryERM.SetGeneralPostingSetupPrepAccounts(GeneralPostingSetup);
-            UpdateGenProdPostingGroupOnGLAccount(GeneralPostingSetup."Sales Prepayments Account");
-            UpdateGenProdPostingGroupOnGLAccount(GeneralPostingSetup."Purch. Prepayments Account");
-            LibraryERM.SetGeneralPostingSetupMfgAccounts(GeneralPostingSetup);
-            LibraryERM.SetGeneralPostingSetupSalesAccounts(GeneralPostingSetup);
-            "Purch. FA Disc. Account" := LibraryERM.CreateGLAccountNo();
-            "View All Accounts on Lookup" := ViewAllAccounts;
-            Modify();
-        end;
+        LibraryERM.SetGeneralPostingSetupSalesAccounts(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupSalesPmtDiscAccounts(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupPurchAccounts(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupPurchPmtDiscAccounts(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupInvtAccounts(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupPrepAccounts(GeneralPostingSetup);
+        UpdateGenProdPostingGroupOnGLAccount(GeneralPostingSetup."Sales Prepayments Account");
+        UpdateGenProdPostingGroupOnGLAccount(GeneralPostingSetup."Purch. Prepayments Account");
+        LibraryERM.SetGeneralPostingSetupMfgAccounts(GeneralPostingSetup);
+        LibraryERM.SetGeneralPostingSetupSalesAccounts(GeneralPostingSetup);
+        GeneralPostingSetup."Purch. FA Disc. Account" := LibraryERM.CreateGLAccountNo();
+        GeneralPostingSetup."View All Accounts on Lookup" := ViewAllAccounts;
+        GeneralPostingSetup.Modify();
     end;
 
     local procedure UpdateGenProdPostingGroupOnGLAccount(GLAccontNo: Code[20])
@@ -1725,18 +1695,16 @@ codeunit 134097 "ERM Check Posting Groups"
             LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
             LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, InventoryPostingGroup.Code);
         end;
-        with InventoryPostingSetup do begin
-            "Inventory Account" := LibraryERM.CreateGLAccountNo();
-            "Inventory Account (Interim)" := LibraryERM.CreateGLAccountNo();
-            "WIP Account" := LibraryERM.CreateGLAccountNo();
-            "Material Variance Account" := LibraryERM.CreateGLAccountNo();
-            "Capacity Variance Account" := LibraryERM.CreateGLAccountNo();
-            "Mfg. Overhead Variance Account" := LibraryERM.CreateGLAccountNo();
-            "Cap. Overhead Variance Account" := LibraryERM.CreateGLAccountNo();
-            "Subcontracted Variance Account" := LibraryERM.CreateGLAccountNo();
-            "View All Accounts on Lookup" := ViewAllAccounts;
-            Modify();
-        end;
+        InventoryPostingSetup."Inventory Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."Inventory Account (Interim)" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."WIP Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."Material Variance Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."Capacity Variance Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."Mfg. Overhead Variance Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."Cap. Overhead Variance Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."Subcontracted Variance Account" := LibraryERM.CreateGLAccountNo();
+        InventoryPostingSetup."View All Accounts on Lookup" := ViewAllAccounts;
+        InventoryPostingSetup.Modify();
     end;
 
     local procedure LookupCustPostingGroupAccount(LookupFieldNo: Integer; ViewAllAccounts: Boolean)

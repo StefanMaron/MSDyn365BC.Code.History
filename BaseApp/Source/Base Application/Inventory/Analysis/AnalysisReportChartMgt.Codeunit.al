@@ -11,12 +11,16 @@ codeunit 770 "Analysis Report Chart Mgt."
     end;
 
     var
+#pragma warning disable AA0074
         DefaultTXT: Label 'DEFAULT', Comment = 'The default name of the chart setup.';
+#pragma warning disable AA0470
         DuplicateDescERR: Label 'Account Schedule %1 has duplicate Description values.';
         DuplicateColHdrERR: Label 'Column Layout %1 has duplicate Column Header values.';
+#pragma warning restore AA0470
         Text001: Label '%1 | %2 (Updated %3)', Comment = '%1 Account Schedule Chart Setup Name, %2 Period, %3 Current time';
         Text002: Label '%1..%2', Comment = '%1 = Start Date, %2 = End Date', Locked = true;
         Text003: Label 'Analysis line or analysis column has been modified since the chart setup was created. Please reset your chart setup.';
+#pragma warning restore AA0074
 
     local procedure GetSetup(var AnalysisReportChartSetup: Record "Analysis Report Chart Setup"; AnalysisArea: Option; ChartName: Text[30])
     var

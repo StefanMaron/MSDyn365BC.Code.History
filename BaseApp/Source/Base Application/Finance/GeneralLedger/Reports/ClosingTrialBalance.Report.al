@@ -20,7 +20,7 @@ report 10 "Closing Trial Balance"
         dataitem("G/L Account"; "G/L Account")
         {
             DataItemTableView = sorting("No.");
-            RequestFilterFields = "No.", "Account Type", "Global Dimension 1 Filter", "Global Dimension 2 Filter", "G/L Entry Type Filter";
+            RequestFilterFields = "No.", "Account Type", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
             column(PeriodText; StrSubstNo(Text001, PeriodText))
             {
             }
@@ -37,9 +37,6 @@ report 10 "Closing Trial Balance"
             {
             }
             column(RepIncSimulationEntries; RepIncSimulationEntriesLbl)
-            {
-            }
-            column(GLAccGLEntryTypeFilter; "G/L Account".GetFilter("G/L Entry Type Filter"))
             {
             }
             column(GLAccTableCaptGLFilter; "G/L Account".TableCaption + ': ' + GLFilter)
@@ -252,7 +249,9 @@ report 10 "Closing Trial Balance"
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter the starting date for the fiscal year.';
+#pragma warning disable AA0470
         Text001: Label 'Period: %1';
         RepIncSimulationEntriesLbl: Label 'This report includes simulation entries.';
         ClosingTrialBalCaptionLbl: Label 'Closing Trial Balance';
@@ -266,6 +265,8 @@ report 10 "Closing Trial Balance"
         LastYearBalCreditCaptionLbl: Label 'Credit';
         AllAmtAreInLbl: Label 'All amounts are in';
         GLAccountTypePosting: Boolean;
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure GetCurrency(): Code[10]
     begin

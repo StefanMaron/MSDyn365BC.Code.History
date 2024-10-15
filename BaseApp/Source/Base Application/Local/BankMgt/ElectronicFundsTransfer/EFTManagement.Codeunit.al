@@ -379,7 +379,7 @@ codeunit 11603 "EFT Management"
                         VendorLedgerEntry."Document No.",
                         VendorLedgerEntry."Payment Reference",
                         VendorLedgerEntry.Amount,
-                        True);
+                        true);
                     repeat
                         UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, TempVendorLedgerEntry, true);
                     until TempVendorLedgerEntry.Next() = 0;

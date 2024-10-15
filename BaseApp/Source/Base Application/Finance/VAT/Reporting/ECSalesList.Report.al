@@ -280,10 +280,18 @@ report 130 "EC Sales List"
         EUTrdPartyAmt: Decimal;
         NotEUTrdPartyAmt: Decimal;
         EUTrdPartyAmtService: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'All amounts are in whole %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NotEUTrdPartyAmtService: Decimal;
         ReportLayout: Option "Separate &Lines","Column with &Amount";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Page %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ThirdPartyTrade: Boolean;
         ResetVATEntry: Boolean;
         Grouping: Option NotEUTrdPartyAmt,NotEUTrdPartyAmtService,EUTrdPartyAmt,EUTrdPartyAmtService;

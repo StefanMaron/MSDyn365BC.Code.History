@@ -24,6 +24,7 @@ using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.ExtendedText;
+using Microsoft.Foundation.Navigate;
 using Microsoft.Foundation.UOM;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Intercompany.Partner;
@@ -118,8 +119,8 @@ table 39 "Purchase Line"
 
                 TestField("Prepmt. Amt. Inv.", 0);
 
-                CheckAssosiatedSalesOrder();
-                CheckAssosiatedProdOrder();
+                CheckAssociatedSalesOrder();
+                CheckAssociatedProdOrder();
 
                 if Type <> xRec.Type then begin
                     case xRec.Type of
@@ -196,6 +197,7 @@ table 39 "Purchase Line"
             var
                 TempPurchLine: Record "Purchase Line" temporary;
                 IsHandled: Boolean;
+                ShouldAssignQuantityFromXRec: Boolean;
             begin
                 IsHandled := false;
                 OnBeforeValidateNo(Rec, xRec, CurrFieldNo, IsHandled);
@@ -219,8 +221,8 @@ table 39 "Purchase Line"
 
                 TestReturnFieldsZero();
 
-                CheckAssosiatedSalesOrder();
-                CheckAssosiatedProdOrder();
+                CheckAssociatedSalesOrder();
+                CheckAssociatedProdOrder();
 
                 OnValidateNoOnAfterChecks(Rec, xRec, CurrFieldNo);
 
@@ -311,7 +313,8 @@ table 39 "Purchase Line"
                     PlanPriceCalcByField(FieldNo("No."));
                     IsHandled := false;
                     OnValidateNoOnBeforeAssignQtyFromXRec(Rec, xRec, IsHandled);
-                    if not IsHandled then
+                    ShouldAssignQuantityFromXRec := (not IsHandled) and (not QuantityDefaultedFromGLAccount());
+                    if ShouldAssignQuantityFromXRec then
                         Quantity := xRec.Quantity;
                     OnValidateNoOnAfterAssignQtyFromXRec(Rec, TempPurchLine);
                     Validate("Unit of Measure Code");
@@ -2438,10 +2441,9 @@ table 39 "Purchase Line"
                     if JobPlanningLine.Quantity >= 0 then begin
                         if "Job Remaining Qty." < 0 then
                             "Job Remaining Qty." := 0;
-                    end else begin
+                    end else
                         if "Job Remaining Qty." > 0 then
                             "Job Remaining Qty." := 0;
-                    end;
                 end;
                 "Job Remaining Qty." := UOMMgt.RoundAndValidateQty("Job Remaining Qty.", "Qty. Rounding Precision", FieldCaption("Job Remaining Qty."));
                 "Job Remaining Qty. (Base)" := CalcBaseQtyForJobPlanningLine("Job Remaining Qty.", FieldCaption("Job Remaining Qty."), FieldCaption("Job Remaining Qty. (Base)"), JobPlanningLine);
@@ -4032,42 +4034,6 @@ table 39 "Purchase Line"
     end;
 
     var
-        Text000: Label 'You cannot rename a %1.';
-        Text001: Label 'You cannot change %1 because the order line is associated with sales order %2.';
-        Text002: Label 'Prices including VAT cannot be calculated when %1 is %2.';
-        Text004: Label 'must not be less than %1';
-        Text006: Label 'You can''t invoice more than %1 units.', Comment = '%1 - the field value';
-        Text007: Label 'You cannot invoice more than %1 base units.';
-        Text008: Label 'You cannot receive more than %1 units.';
-        Text009: Label 'You cannot receive more than %1 base units.';
-        Text010: Label 'You cannot change %1 when %2 is %3.';
-        Text011: Label ' must be 0 when %1 is %2';
-        MustNotBeSpecifiedErr: Label 'must not be specified when %1 = %2', Comment = '%1 - the field name, %2 - the field value';
-        Text016: Label '%1 is required for %2 = %3.';
-        WhseRequirementMsg: Label '%1 is required for this line. The entered information may be disregarded by warehouse activities.', Comment = '%1=Document';
-        Text018: Label '%1 %2 is earlier than the work date %3.';
-        Text020: Label 'You cannot return more than %1 units.';
-        Text021: Label 'You cannot return more than %1 base units.';
-        Text022: Label 'You cannot change %1, if item charge is already posted.';
-        Text023: Label 'You cannot change the %1 when the %2 has been filled in.';
-        Text029: Label 'must be positive.';
-        Text030: Label 'must be negative.';
-        Text031: Label 'You cannot define item tracking on this line because it is linked to production order %1.';
-        Text032: Label '%1 must not be greater than the sum of %2 and %3.';
-        Text033: Label 'Warehouse ';
-        Text034: Label 'Inventory ';
-        Text035: Label '%1 units for %2 %3 have already been returned or transferred. Therefore, only %4 units can be returned.';
-        Text037: Label 'cannot be %1.';
-        Text038: Label 'cannot be less than %1.';
-        Text039: Label 'cannot be more than %1.';
-        QtyInvoiceNotValidTitleLbl: Label 'Qty. to Invoice isn''t valid';
-        QtyInvoiceActionLbl: Label 'Set value to %1', Comment = '%1 - Qty. to Invoice';
-        QtyInvoiceActionDescriptionLbl: Label 'Corrects %1 to %2', Comment = '%1 - Qty. to Invoice field caption, %2 - Quantity';
-        QtyReceiveNotValidTitleLbl: Label 'Qty. to Receive isn''t valid';
-        QtyReceiveActionLbl: Label 'Set value to %1', comment = '%1=Qty. to Receive';
-        QtyReceiveActionDescriptionLbl: Label 'Corrects %1 to %2', Comment = '%1 - Qty. to Receive field caption, %2 - Quantity';
-        ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
-        Text99000000: Label 'You cannot change %1 when the purchase order is associated to a production order.';
         PurchHeader: Record "Purchase Header";
         PurchLine2: Record "Purchase Line";
         GLAcc: Record "G/L Account";
@@ -4086,6 +4052,8 @@ table 39 "Purchase Line"
         CalChange: Record "Customized Calendar Change";
         TempJobJnlLine: Record "Job Journal Line" temporary;
         PurchSetup: Record "Purchases & Payables Setup";
+        AddCurrency: Record Currency;
+        BASManagement: Codeunit "BAS Management";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         PurchLineReserve: Codeunit "Purch. Line-Reserve";
         PurchasesWarehouseMgt: Codeunit "Purchases Warehouse Mgt.";
@@ -4106,21 +4074,66 @@ table 39 "Purchase Line"
         UnitCostCurrency: Decimal;
         UpdateFromVAT: Boolean;
         HasBeenShown: Boolean;
+        PrePaymentLineAmountEntered: Boolean;
+        PurchSetupRead: Boolean;
+        OnesText: array[20] of Text[30];
+        TensText: array[10] of Text[30];
+        ExponentText: array[5] of Text[30];
+        CurrencyFactor: Decimal;
+        VATAmt: Decimal;
+        VATBase: Decimal;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text000: Label 'You cannot rename a %1.';
+        Text001: Label 'You cannot change %1 because the order line is associated with sales order %2.';
+        Text002: Label 'Prices including VAT cannot be calculated when %1 is %2.';
+        Text004: Label 'must not be less than %1';
+#pragma warning restore AA0470
+        Text006: Label 'You can''t invoice more than %1 units.', Comment = '%1 - the field value';
+#pragma warning disable AA0470
+        Text007: Label 'You cannot invoice more than %1 base units.';
+        Text008: Label 'You cannot receive more than %1 units.';
+        Text009: Label 'You cannot receive more than %1 base units.';
+        Text010: Label 'You cannot change %1 when %2 is %3.';
+        Text011: Label ' must be 0 when %1 is %2';
+        Text016: Label '%1 is required for %2 = %3.';
+        Text018: Label '%1 %2 is earlier than the work date %3.';
+        Text020: Label 'You cannot return more than %1 units.';
+        Text021: Label 'You cannot return more than %1 base units.';
+        Text022: Label 'You cannot change %1, if item charge is already posted.';
+        Text023: Label 'You cannot change the %1 when the %2 has been filled in.';
+#pragma warning restore AA0470
+        Text029: Label 'must be positive.';
+        Text030: Label 'must be negative.';
+#pragma warning disable AA0470
+        Text031: Label 'You cannot define item tracking on this line because it is linked to production order %1.';
+        Text032: Label '%1 must not be greater than the sum of %2 and %3.';
+#pragma warning restore AA0470
+        Text033: Label 'Warehouse ';
+        Text034: Label 'Inventory ';
+#pragma warning disable AA0470
+        Text035: Label '%1 units for %2 %3 have already been returned or transferred. Therefore, only %4 units can be returned.';
+        Text037: Label 'cannot be %1.';
+        Text038: Label 'cannot be less than %1.';
+        Text039: Label 'cannot be more than %1.';
         Text042: Label 'You cannot return more than the %1 units that you have received for %2 %3.';
         Text043: Label 'must be positive when %1 is not 0.';
         Text044: Label 'You cannot change %1 because this purchase order is associated with %2 %3.';
         Text046: Label '%3 will not update %1 when changing %2 because a prepayment invoice has been posted. Do you want to continue?', Comment = '%1 - product name';
         Text047: Label '%1 can only be set when %2 is set.';
         Text048: Label '%1 cannot be changed when %2 is set.';
-        PrePaymentLineAmountEntered: Boolean;
         Text049: Label 'You have changed one or more dimensions on the %1, which is already shipped. When you post the line with the changed dimension to General Ledger, amounts on the Inventory Interim account will be out of balance when reported per dimension.\\Do you want to keep the changed dimension?';
+#pragma warning restore AA0470
         Text050: Label 'Cancelled.';
         Text051: Label 'must have the same sign as the receipt';
+#pragma warning disable AA0470
         Text052: Label 'The quantity that you are trying to invoice is greater than the quantity in receipt %1.';
+#pragma warning restore AA0470
         Text053: Label 'must have the same sign as the return shipment';
+#pragma warning disable AA0470
         Text054: Label 'The quantity that you are trying to invoice is greater than the quantity in return shipment %1.';
-        AddCurrency: Record Currency;
-        BASManagement: Codeunit "BAS Management";
+        Text99000000: Label 'You cannot change %1 when the purchase order is associated to a production order.';
+#pragma warning restore AA0470
         Text1500000: Label 'ONE';
         Text1500001: Label 'TWO';
         Text1500002: Label 'THREE';
@@ -4184,13 +4197,16 @@ table 39 "Purchase Line"
         Text1500060: Label 'HUNDRED';
         Text1500061: Label 'ZERO';
         Text1500062: Label 'AND';
-        OnesText: array[20] of Text[30];
-        TensText: array[10] of Text[30];
-        ExponentText: array[5] of Text[30];
-        CurrencyFactor: Decimal;
-        VATAmt: Decimal;
-        VATBase: Decimal;
-        PurchSetupRead: Boolean;
+#pragma warning restore AA0074        
+        MustNotBeSpecifiedErr: Label 'must not be specified when %1 = %2', Comment = '%1 - the field name, %2 - the field value';
+        WhseRequirementMsg: Label '%1 is required for this line. The entered information may be disregarded by warehouse activities.', Comment = '%1=Document';
+        QtyInvoiceNotValidTitleLbl: Label 'Qty. to Invoice isn''t valid';
+        QtyInvoiceActionLbl: Label 'Set value to %1', Comment = '%1 - Qty. to Invoice';
+        QtyInvoiceActionDescriptionLbl: Label 'Corrects %1 value to %2', Comment = '%1 - Qty. to Invoice field caption, %2 - Quantity';
+        QtyReceiveNotValidTitleLbl: Label 'Qty. to Receive isn''t valid';
+        QtyReceiveActionLbl: Label 'Set value to %1', comment = '%1=Qty. to Receive';
+        QtyReceiveActionDescriptionLbl: Label 'Corrects %1 value to %2', Comment = '%1 - Qty. to Receive field caption, %2 - Quantity';
+        ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
         CannotFindDescErr: Label 'Cannot find %1 with Description %2.\\Make sure to use the correct type.', Comment = '%1 = Type caption %2 = Description';
         CommentLbl: Label 'Comment';
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
@@ -4211,6 +4227,9 @@ table 39 "Purchase Line"
         SkipTaxCalculation: Boolean;
         TrackingBlocked: Boolean;
 
+    /// <summary>
+    /// Initializes outstanding quantities and amounts of the purchase line.
+    /// </summary>
     procedure InitOutstanding()
     var
         IsHandled: Boolean;
@@ -4238,6 +4257,9 @@ table 39 "Purchase Line"
         InitOutstandingAmount();
     end;
 
+    /// <summary>
+    /// Initializes the outstanding amounts of the purchase line.
+    /// </summary>
     procedure InitOutstandingAmount()
     var
         AmountInclVAT: Decimal;
@@ -4277,6 +4299,9 @@ table 39 "Purchase Line"
         OnAfterInitOutstandingAmount(Rec, xRec, PurchHeader, Currency);
     end;
 
+    /// <summary>
+    /// Initializes the quantity to receive and quantity to invoice of the purchase line.
+    /// </summary>
     procedure InitQtyToReceive()
     var
         IsHandled: Boolean;
@@ -4301,6 +4326,9 @@ table 39 "Purchase Line"
         InitQtyToInvoice();
     end;
 
+    /// <summary>
+    /// Initializes the return quantity to ship and quantity to invoice of the purchase line.
+    /// </summary>
     procedure InitQtyToShip()
     var
         IsHandled: Boolean;
@@ -4324,6 +4352,13 @@ table 39 "Purchase Line"
         InitQtyToInvoice();
     end;
 
+    /// <summary>
+    /// Initializes the quantity to invoice and vat of the purchase line.
+    /// Calculates invoice disc. amount to invoice.
+    /// </summary>
+    /// <remarks>
+    /// If document type is not an invoice, prepayment amount to deduct is calculated.
+    /// </remarks>
     procedure InitQtyToInvoice()
     var
         IsHandled: Boolean;
@@ -4427,6 +4462,10 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Calculates maximum quantity that can be invoiced for the purchase line.
+    /// </summary>
+    /// <returns>Maximum quantity that can be invoiced.</returns>
     procedure MaxQtyToInvoice(): Decimal
     var
         MaxQty: Decimal;
@@ -4447,6 +4486,10 @@ table 39 "Purchase Line"
         exit("Quantity Received" + "Qty. to Receive" - "Quantity Invoiced");
     end;
 
+    /// <summary>
+    /// Calculates maximum quantity (base) that can be invoiced for the purchase line.
+    /// </summary>
+    /// <returns>Maximum quantity (base) that can be invoiced.</returns>
     procedure MaxQtyToInvoiceBase(): Decimal
     var
         MaxQtyBase: Decimal;
@@ -4464,6 +4507,11 @@ table 39 "Purchase Line"
         exit("Qty. Received (Base)" + "Qty. to Receive (Base)" - "Qty. Invoiced (Base)");
     end;
 
+    /// <summary>
+    /// Returns the maximum quantity (base) that can be received for a given quantity.
+    /// </summary>
+    /// <param name="QtyToReceiveBase">Quantity (base).</param>
+    /// <returns>The maximum quantity (base) thant can be received.</returns>
     procedure MaxQtyToReceiveBase(QtyToReceiveBase: Decimal): Decimal
     begin
         if Abs(QtyToReceiveBase) > Abs("Outstanding Qty. (Base)") then
@@ -4478,6 +4526,9 @@ table 39 "Purchase Line"
         OnAfterGetVatBaseDiscountPct(Rec, PurchaseHeader, Result);
     end;
 
+    /// <summary>
+    /// Calculates and sets the invoices discount amount to invoice and updates vat.
+    /// </summary>
     procedure CalcInvDiscToInvoice()
     var
         OldInvDiscAmtToInv: Decimal;
@@ -4510,6 +4561,10 @@ table 39 "Purchase Line"
         OnAfterCalcInvDiscToInvoice(Rec, OldInvDiscAmtToInv);
     end;
 
+    /// <summary>
+    /// Calculates the line amount minus inv. discount amount for the purchase line.
+    /// </summary>
+    /// <returns>Line amount minus inv. discount amount.</returns>
     procedure CalcLineAmount() LineAmount: Decimal
     begin
         LineAmount := "Line Amount" - "Inv. Discount Amount";
@@ -4610,6 +4665,7 @@ table 39 "Purchase Line"
             "Allow Item Charge Assignment" := false;
             OnNotHandledCopyFromGLAccount(Rec, GLAcc);
             InitDeferralCode();
+            SetDefaultGLAccountQuantity();
         end;
         OnAfterAssignGLAccountValues(Rec, GLAcc, PurchHeader, xRec, TempPurchaseLine);
     end;
@@ -4792,6 +4848,10 @@ table 39 "Purchase Line"
             Validate("Appl.-to Item Entry", ItemLedgEntry."Entry No.");
     end;
 
+    /// <summary>
+    /// Assigns given purchase header to the global variable and initializes the currency variable.
+    /// </summary>
+    /// <param name="NewPurchHeader">Purchase header to be set.</param>
     procedure SetPurchHeader(NewPurchHeader: Record "Purchase Header")
     begin
         PurchHeader := NewPurchHeader;
@@ -4805,12 +4865,21 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Retrieves the global purchase header for the current purchase line.
+    /// </summary>
+    /// <returns>Purchase header of the current purchase line.</returns>
     procedure GetPurchHeader(): Record "Purchase Header"
     begin
         GetPurchHeader(PurchHeader, Currency);
         exit(PurchHeader);
     end;
 
+    /// <summary>
+    /// Gets the purchase header and currency for the current purchase line.
+    /// </summary>
+    /// <param name="OutPurchHeader">Return value: Purchase header of the purchase line.</param>
+    /// <param name="OutCurrency">Return value: Currency of the purchase line.</param>
     procedure GetPurchHeader(var OutPurchHeader: Record "Purchase Header"; var OutCurrency: Record Currency)
     var
         IsHandled: Boolean;
@@ -4840,6 +4909,10 @@ table 39 "Purchase Line"
         OutCurrency := Currency;
     end;
 
+    /// <summary>
+    /// Returns the item record.
+    /// </summary>
+    /// <returns>The item record.</returns>
     procedure GetItem(): Record Item
     var
         Item: Record Item;
@@ -4857,6 +4930,11 @@ table 39 "Purchase Line"
         OnAfterGetItem(Item, Rec);
     end;
 
+    /// <summary>
+    /// Returns remaining unreserved quantity and quantity (base) of the purchase line.
+    /// </summary>
+    /// <param name="RemainingQty">Return value: Remaining unreserved quantity.</param>
+    /// <param name="RemainingQtyBase">Return value: Remaining unreserved quantity (base).</param>
     procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
     begin
         CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
@@ -4864,6 +4942,14 @@ table 39 "Purchase Line"
         RemainingQtyBase := "Outstanding Qty. (Base)" - Abs("Reserved Qty. (Base)");
     end;
 
+    /// <summary>
+    /// Returns reservation quantities.
+    /// </summary>
+    /// <param name="QtyReserved">Return value: Reserved quantity.</param>
+    /// <param name="QtyReservedBase">Return value: Reserved quantity (base).</param>
+    /// <param name="QtyToReserve">Return value: Quantity to reserve.</param>
+    /// <param name="QtyToReserveBase">Return value: Quantity to reserve (base).</param>
+    /// <returns>Qty per unit of measure.</returns>
     procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal) Result: Decimal
     var
         IsHandled: Boolean;
@@ -4885,11 +4971,19 @@ table 39 "Purchase Line"
         OnAfterGetReservationQty(Rec, QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, Result);
     end;
 
+    /// <summary>
+    /// Returns a text that consists of the document type, document no. and line number separated by a space.
+    /// </summary>
+    /// <returns>Formated text.</returns>
     procedure GetSourceCaption(): Text
     begin
         exit(StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "No."));
     end;
 
+    /// <summary>
+    /// Initializes the reservation entries from the purchase line.
+    /// </summary>
+    /// <param name="ReservEntry">Return value: Initialized reservation entry.</param>
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
     begin
         ReservEntry.SetSource(Database::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", '', 0);
@@ -4903,6 +4997,10 @@ table 39 "Purchase Line"
         OnAfterSetReservationEntry(ReservEntry, Rec);
     end;
 
+    /// <summary>
+    /// Filters reservation entry from the purchase line.
+    /// </summary>
+    /// <param name="ReservEntry">Return value: Filtered reservation entry.</param>
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
     begin
         ReservEntry.SetSourceFilter(Database::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", false);
@@ -4911,6 +5009,10 @@ table 39 "Purchase Line"
         OnAfterSetReservationFilters(ReservEntry, Rec);
     end;
 
+    /// <summary>
+    /// Checks if reservation entry exists for the purchase line.
+    /// </summary>
+    /// <returns>True if reservation entry exists, otherwise false</returns>
     procedure ReservEntryExist(): Boolean
     var
         ReservEntry: Record "Reservation Entry";
@@ -4920,6 +5022,13 @@ table 39 "Purchase Line"
         exit(not ReservEntry.IsEmpty);
     end;
 
+    /// <summary>
+    /// Returns line amount excluding VAT for the purchase line.
+    /// </summary>
+    /// <remarks>
+    /// If the prices includes VAT in its prices, it calculates the line amount excluding VAT.
+    /// </remarks>
+    /// <returns>Line amount excluding VAT.</returns>
     procedure GetLineAmountExclVAT(): Decimal
     begin
         if "Document No." = '' then
@@ -4931,6 +5040,13 @@ table 39 "Purchase Line"
         exit(Round("Line Amount" / (1 + "VAT %" / 100), Currency."Amount Rounding Precision"));
     end;
 
+    /// <summary>
+    /// Returns line amount including VAT for the purchase line.
+    /// </summary>
+    /// <remarks>
+    /// If the prices does not include VAT in its prices, it calculates the line amount including VAT.
+    /// </remarks>
+    /// <returns>Line amount including VAT.</returns>
     procedure GetLineAmountInclVAT(): Decimal
     begin
         if "Document No." = '' then
@@ -4942,27 +5058,49 @@ table 39 "Purchase Line"
         exit(Round("Line Amount" * (1 + "VAT %" / 100), Currency."Amount Rounding Precision"));
     end;
 
+    /// <summary>
+    /// Sets the global flag HasBeenShown to true.
+    /// </summary>
+    /// <remarks>
+    /// The global flag is used to determine if the message which states that the order date is earlier than the work date has been shown.
+    /// </remarks>
     procedure SetHasBeenShown()
     begin
         HasBeenShown := true;
     end;
 
+    /// <summary>
+    /// Checks if the procedure has been called from the field that was previously planned.
+    /// </summary>
+    /// <param name="CurrPriceFieldNo">Field that called the price calculation.</param>
+    /// <returns>True if the if the calculation is triggered by the planned field, otherwise false.</returns>
     procedure IsPriceCalcCalledByField(CurrPriceFieldNo: Integer): Boolean;
     begin
         exit(FieldCausedPriceCalculation = CurrPriceFieldNo);
     end;
 
+    /// <summary>
+    /// Sets the field that initiates the price calculation if it is not already set.
+    /// </summary>
+    /// <param name="CurrPriceFieldNo">Field number that cause price calculation.</param>
     procedure PlanPriceCalcByField(CurrPriceFieldNo: Integer)
     begin
         if FieldCausedPriceCalculation = 0 then
             FieldCausedPriceCalculation := CurrPriceFieldNo;
     end;
 
+    /// <summary>
+    /// Clears the field number that is planned to initiate the price calculation.
+    /// </summary>
     procedure ClearFieldCausedPriceCalculation()
     begin
         FieldCausedPriceCalculation := 0;
     end;
 
+    /// <summary>
+    /// Updates the direct unit cost of the purchase line.
+    /// </summary>
+    /// <param name="CalledByFieldNo">Field number that called direct unit cost calculation.</param>
     procedure UpdateDirectUnitCost(CalledByFieldNo: Integer)
     var
         IsHandled: Boolean;
@@ -5061,6 +5199,11 @@ table 39 "Purchase Line"
         Rec := Line;
     end;
 
+    /// <summary>
+    /// Gets price calculation interface implementation for the purchase line.
+    /// </summary>
+    /// <param name="PurchaseHeader">Purchase header that is used to get price calculation implementation.</param>
+    /// <param name="PriceCalculation">Return value: Price calculation interface inplementation.</param>
     procedure GetPriceCalculationHandler(PurchaseHeader: Record "Purchase Header"; var PriceCalculation: Interface "Price Calculation")
     var
         PriceCalculationMgt: codeunit "Price Calculation Mgt.";
@@ -5074,6 +5217,10 @@ table 39 "Purchase Line"
         PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
     end;
 
+    /// <summary>
+    /// Gets the default or overridden line with price interface implementation.
+    /// </summary>
+    /// <param name="LineWithPrice">Return value: line with price implementation.</param>
     procedure GetLineWithPrice(var LineWithPrice: Interface "Line With Price")
     var
         PurchaseLinePrice: Codeunit "Purchase Line - Price";
@@ -5082,6 +5229,12 @@ table 39 "Purchase Line"
         OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
+    /// <summary>
+    /// Wrapper for price calculation method CountDiscount.
+    /// Returns the count of price list lines containing discounts suitable for the purchase line.
+    /// </summary>
+    /// <param name="ShowAll">If true, it expands the filter criteria applied to the price list line.</param>
+    /// <returns>The number of price list lines with discounts.</returns>
     procedure CountDiscount(ShowAll: Boolean): Integer;
     var
         PriceCalculation: Interface "Price Calculation";
@@ -5090,6 +5243,12 @@ table 39 "Purchase Line"
         exit(PriceCalculation.CountDiscount(ShowAll));
     end;
 
+    /// <summary>
+    /// Wrapper for price calculation method CountPrice.
+    /// Returns the count of price list lines containing prices suitable for the purchase line.
+    /// </summary>
+    /// <param name="ShowAll">If true, it expands the filter criteria applied to the price list line.</param>
+    /// <returns>The number of price list lines with prices.</returns>
     procedure CountPrice(ShowAll: Boolean): Integer;
     var
         PriceCalculation: Interface "Price Calculation";
@@ -5098,6 +5257,12 @@ table 39 "Purchase Line"
         exit(PriceCalculation.CountPrice(ShowAll));
     end;
 
+    /// <summary>
+    /// Wrapper for price calculation method IsDiscountExists.
+    /// Returns true if there are any price list lines containing discounts that are applicable to the purchase line.
+    /// </summary>
+    /// <param name="ShowAll">If true, it expands the filter criteria applied to the price list line.</param>
+    /// <returns>Returns true if at least one price list line is found, otherwise false.</returns>
     procedure DiscountExists(ShowAll: Boolean): Boolean;
     var
         PriceCalculation: Interface "Price Calculation";
@@ -5106,6 +5271,12 @@ table 39 "Purchase Line"
         exit(PriceCalculation.IsDiscountExists(ShowAll));
     end;
 
+    /// <summary>
+    /// Wrapper for price calculation method IsPriceExists.
+    /// Returns true if there are any price list lines containing prices that are applicable to the purchase line.
+    /// </summary>
+    /// <param name="ShowAll">If true, it expands the filter criteria applied to the price list line.</param>
+    /// <returns>Returns true if at least one price list line is found, otherwise false.</returns>
     procedure PriceExists(ShowAll: Boolean): Boolean;
     var
         PriceCalculation: Interface "Price Calculation";
@@ -5114,6 +5285,11 @@ table 39 "Purchase Line"
         exit(PriceCalculation.IsPriceExists(ShowAll));
     end;
 
+    /// <summary>
+    /// Wrapper for price calculation method PickDiscount.
+    /// Opens a price list selection to choose discounts suitable for the purchase line.
+    /// The discounts are assigned to the purchase line after selection.
+    /// </summary>
     procedure PickDiscount()
     var
         PriceCalculation: Interface "Price Calculation";
@@ -5123,6 +5299,11 @@ table 39 "Purchase Line"
         GetLineWithCalculatedPrice(PriceCalculation);
     end;
 
+    /// <summary>
+    /// Wrapper for price calculation method PickPrice.
+    /// Opens a price list selection to choose prices suitable for the purchase line.
+    /// The prices are assigned to the purchase line after selection.
+    /// </summary>
     procedure PickPrice()
     var
         PriceCalculation: Interface "Price Calculation";
@@ -5132,6 +5313,9 @@ table 39 "Purchase Line"
         GetLineWithCalculatedPrice(PriceCalculation);
     end;
 
+    /// <summary>
+    /// Updates the purchase line's price and discount based on the item reference number.
+    /// </summary>
     procedure UpdateReferencePriceAndDiscount();
     var
         PriceCalculation: Interface "Price Calculation";
@@ -5142,6 +5326,9 @@ table 39 "Purchase Line"
         GetLineWithCalculatedPrice(PriceCalculation);
     end;
 
+    /// <summary>
+    /// Updates the unit cost of the purchase line.
+    /// </summary>
     procedure UpdateUnitCost()
     var
         Item: Record Item;
@@ -5213,6 +5400,13 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Updates line, vat, prepayment and deferral amounts of the purchase line.
+    /// Initializes outstanding amounts.
+    /// </summary>
+    /// <remarks>
+    /// If purchase line type is charge (item), it updates item charge assignment.
+    /// </remarks>
     procedure UpdateAmounts()
     var
         VATBaseAmount: Decimal;
@@ -5302,6 +5496,9 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Updates amounts, vat amounts and vat procentage of the purchase line.
+    /// </summary>
     procedure UpdateVATAmounts()
     var
         PurchLine2: Record "Purchase Line";
@@ -5333,6 +5530,7 @@ table 39 "Purchase Line"
             Amount := 0;
             "VAT Base Amount" := 0;
             "Amount Including VAT" := 0;
+            NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
             "VAT Base (ACY)" := 0;
             "Amount Including VAT (ACY)" := 0;
             OnUpdateVATAmountsOnBeforePurchLineModify(Rec, PurchLine2);
@@ -5501,6 +5699,9 @@ table 39 "Purchase Line"
         OnAfterUpdateVATAmounts(Rec, TotalLineAmount, TotalInvDiscAmount, TotalAmount, TotalAmountInclVAT, TotalVATDifference, TotalQuantityBase);
     end;
 
+    /// <summary>
+    /// Checks prepayment setups and assigns prepayment fields to the purchase line.
+    /// </summary>
     procedure UpdatePrepmtSetupFields()
     var
         GenPostingSetup: Record "General Posting Setup";
@@ -5558,6 +5759,9 @@ table 39 "Purchase Line"
         UpdateSalesCost();
     end;
 
+    /// <summary>
+    /// Updates unit costs of the purchase line.
+    /// </summary>
     procedure UpdateSalesCost()
     var
         SalesOrderLine: Record "Sales Line";
@@ -5687,6 +5891,9 @@ table 39 "Purchase Line"
         OnAfterFindDefaultFADeprBook(Rec, Result);
     end;
 
+    /// <summary>
+    /// Updates unit cost, unit price and direct unit cost for the purchase line.
+    /// </summary>
     procedure UpdateUOMQtyPerStockQty()
     var
         Item: Record Item;
@@ -5713,6 +5920,12 @@ table 39 "Purchase Line"
         UpdateDirectUnitCostByField(FieldNo("Unit of Measure Code"));
     end;
 
+    /// <summary>
+    /// Opens a selection of items page. After that, selected items are added to purchase lines.
+    /// </summary>
+    /// <remarks>
+    /// If document type is not return order or credit memo, selection shows only items that have purchasing blocked field set to false. 
+    /// </remarks>
     procedure SelectMultipleItems()
     var
         ItemListPage: Page "Item List";
@@ -5734,6 +5947,10 @@ table 39 "Purchase Line"
         OnAfterSelectMultipleItems(Rec);
     end;
 
+    /// <summary>
+    /// Adds items to the purchase lines based on a selection filter.
+    /// </summary>
+    /// <param name="SelectionFilter">Filter text of the selected items.</param>
     procedure AddItems(SelectionFilter: Text)
     var
         Item: Record Item;
@@ -5753,6 +5970,14 @@ table 39 "Purchase Line"
             until Item.Next() = 0;
     end;
 
+    /// <summary>
+    /// Inserts an item to the purchase line.
+    /// </summary>
+    /// <remarks>
+    /// If purchase line has automatic ext. texts enabled, it inserts extended texts to purchase line.
+    /// </remarks>
+    /// <param name="PurchLine">Return value: Inserted purchase line.</param>
+    /// <param name="ItemNo">Item number to be inserted.</param>
     procedure AddItem(var PurchLine: Record "Purchase Line"; ItemNo: Code[20])
     var
         LastPurchLine: Record "Purchase Line";
@@ -5771,6 +5996,10 @@ table 39 "Purchase Line"
         OnAfterAddItem(PurchLine, LastPurchLine);
     end;
 
+    /// <summary>
+    /// Initializes a new purchase line based on the current purchase line.
+    /// </summary>
+    /// <param name="NewPurchLine">Return value: Initialized purchase line.</param>
     procedure InitNewLine(var NewPurchLine: Record "Purchase Line")
     var
         PurchLine: Record "Purchase Line";
@@ -5784,6 +6013,18 @@ table 39 "Purchase Line"
             NewPurchLine."Line No." := 0;
     end;
 
+    procedure ShowOrderTracking()
+    var
+        OrderTracking: Page "Order Tracking";
+    begin
+        OrderTracking.SetVariantRec(Rec, Rec."No.", Rec."Outstanding Qty. (Base)", Rec."Expected Receipt Date", Rec."Expected Receipt Date");
+        OrderTracking.RunModal();
+    end;
+
+
+    /// <summary>
+    /// Opens the reservation page for an item in a purchase line.
+    /// </summary>
     procedure ShowReservation()
     var
         Reservation: Page Reservation;
@@ -5802,6 +6043,10 @@ table 39 "Purchase Line"
         Reservation.RunModal();
     end;
 
+    /// <summary>
+    /// Opens a reservation entries page for the current purchase line.
+    /// </summary>
+    /// <param name="Modal">If true, execution is halted until the page is closed.</param>
     procedure ShowReservationEntries(Modal: Boolean)
     var
         ReservEntry: Record "Reservation Entry";
@@ -5846,6 +6091,10 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Returns the posting date from the related purchase header if it's available, otherwise it returns the current work date.
+    /// </summary>
+    /// <returns>Document's posting date or work date.</returns>
     procedure GetDate(): Date
     var
         ResultDate: Date;
@@ -5863,6 +6112,11 @@ table 39 "Purchase Line"
         exit(WorkDate());
     end;
 
+    /// <summary>
+    /// Returns a signed decimal value based on the document type of the purchase line.
+    /// </summary>
+    /// <param name="Value">The value to sign.</param>
+    /// <returns>Signed value.</returns>
     procedure Signed(Value: Decimal): Decimal
     var
         Result: Decimal;
@@ -5885,6 +6139,10 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Opens a page to select blanket order line for the current purchase line.
+    /// Selected blanket order line information is assigned to the purchase line.
+    /// </summary>
     procedure BlanketOrderLookup()
     var
         IsHandled: Boolean;
@@ -5910,12 +6168,24 @@ table 39 "Purchase Line"
         OnAfterBlanketOrderLookup(Rec);
     end;
 
+    /// <summary>
+    /// Sets TrackingBlocked flag to the given value. Also sets global Blocked flag of purchase line reserve codeunit.
+    /// </summary>
+    /// <remarks>
+    /// This flag is used to disallow changes to existing reservation entries for the purchase line.
+    /// </remarks>
+    /// <param name="SetBlock">Flag value to set.</param>
     procedure BlockDynamicTracking(SetBlock: Boolean)
     begin
         TrackingBlocked := SetBlock;
         PurchLineReserve.Block(SetBlock);
     end;
 
+    /// <summary>
+    /// Opens a page for editing dimensions for the purchase line. 
+    /// Upon closing the page, it updates the dimensions on the purcahse line.
+    /// </summary>
+    /// <returns>True if the dimensions were changed, otherwise false.</returns>
     procedure ShowDimensions() IsChanged: Boolean
     var
         OldDimSetID: Integer;
@@ -5937,6 +6207,9 @@ table 39 "Purchase Line"
         OnAfterShowDimensions(Rec, xRec);
     end;
 
+    /// <summary>
+    /// Opens a page for editing item tracking lines for the purchase line.
+    /// </summary>
     procedure OpenItemTrackingLines()
     var
         IsHandled: Boolean;
@@ -5956,6 +6229,10 @@ table 39 "Purchase Line"
         PurchLineReserve.CallItemTracking(Rec);
     end;
 
+    /// <summary>
+    /// Creates dimensions for the purchase line based on the provided default dimension sources.
+    /// </summary>
+    /// <param name="DefaultDimSource">The list of default dimension sources.</param>
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -6034,6 +6311,14 @@ table 39 "Purchase Line"
             end;
     end;
 
+    /// <summary>
+    /// Verifies whether the provided shortcut dimension code and value are valid.
+    /// </summary>
+    /// <remarks>
+    /// If the dimensions of a received or shipped item have changed in a purchase line, the confirmation is shown.
+    /// </remarks>
+    /// <param name="FieldNumber">Number of the shortcut dimension.</param>
+    /// <param name="ShortcutDimCode">Value of the shortcut dimension.</param>
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
         IsHandled: Boolean;
@@ -6130,6 +6415,11 @@ table 39 "Purchase Line"
             CalendarMgmt.CalcDateBOC2(ReversedInternalLeadTimeDays("Expected Receipt Date"), "Expected Receipt Date", CustomCalendarChange, false))
     end;
 
+    /// <summary>
+    /// Opens a page for selecting a dimension code, then assigns the selected value to the presented number of the shortcut dimension. 
+    /// </summary>
+    /// <param name="FieldNumber">Number of the shortcut dimension.</param>
+    /// <param name="ShortcutDimCode">Return value: Value of the selected shortcut dimension.</param>
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
         IsHandled: Boolean;
@@ -6143,6 +6433,10 @@ table 39 "Purchase Line"
         Rec.ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
     end;
 
+    /// <summary>
+    /// Gets an array of shortcut dimension values from the dimensions of the purchase line.
+    /// </summary>
+    /// <param name="ShortcutDimCode">Return value: The array of shortcut dimension values.</param>
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
@@ -6163,6 +6457,12 @@ table 39 "Purchase Line"
         OnAfterGetSKU(Rec, Result);
     end;
 
+    /// <summary>
+    /// Opens item charge assignment page, where receipt lines can be selected and additional cost is passed to the selected items.
+    /// </summary>
+    /// <remarks>
+    /// If the purchase line type is not an item (charge), a message is displayed, and the procedure is ended.
+    /// </remarks>
     procedure ShowItemChargeAssgnt()
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
@@ -6231,6 +6531,13 @@ table 39 "Purchase Line"
         OnAfterShowItemChargeAssgnt(Rec, ItemChargeAssgntPurch, ItemChargeAssgnts);
     end;
 
+    /// <summary>
+    /// Updates item chage assignment amounts and unit cost for the pruchase line.
+    /// </summary>
+    /// <remarks>
+    /// If the document type is a blanket order, the procedure is ended.
+    /// If the quantity invoiced is greater than the sum of the quantity assigned and the quantity to assign, an error message is displayed.
+    /// </remarks>
     procedure UpdateItemChargeAssgnt()
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
@@ -6308,6 +6615,13 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Deletes item charge assignments that are applied to purchase document line.
+    /// The provided parameters filter out item charge assignments to delete.
+    /// </summary>
+    /// <param name="DocType">Purchase document type.</param>
+    /// <param name="DocNo">Purchase document no.</param>
+    /// <param name="DocLineNo">Purchase document line no.</param>
     procedure DeleteItemChargeAssignment(DocType: Enum "Purchase Document Type"; DocNo: Code[20]; DocLineNo: Integer)
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
@@ -6317,12 +6631,20 @@ table 39 "Purchase Line"
         ItemChargeAssgntPurch.SetRange("Applies-to Doc. Line No.", DocLineNo);
         if not ItemChargeAssgntPurch.IsEmpty() then
             ItemChargeAssgntPurch.DeleteAll(true);
-#if not CLEAN22
-        OnAfterDeleteChargeChargeAssgnt(Rec, xRec, CurrFieldNo);
-#endif
         OnAfterDeleteItemChargeAssignment(Rec, xRec, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Deletes item charge assignments for a purchase document line.
+    /// The provided parameters filter out item charge assignments to delete.
+    /// </summary>
+    /// <remarks>
+    /// If document type is not a blanket order and quantity invoiced is not 0, 
+    /// the procedure tests if qty. assigned and quantity invoiced are not zero.
+    ///</remarks>
+    /// <param name="DocType">Purchase document type.</param>
+    /// <param name="DocNo">Purchase document no.</param>
+    /// <param name="DocLineNo">Purchase document line no.</param>
     procedure DeleteChargeChargeAssgnt(DocType: Enum "Purchase Document Type"; DocNo: Code[20]; DocLineNo: Integer)
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
@@ -6343,6 +6665,10 @@ table 39 "Purchase Line"
         OnAfterDeleteChargeChargeAssgntProcedure(Rec, xRec, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Checks if there are any item charge assignments assigned for the purchase line.
+    /// If so, it checks if item charge assignment is allowed and if the quantity to assign is zero.
+    /// </summary>
     procedure CheckItemChargeAssgnt()
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
@@ -6360,7 +6686,7 @@ table 39 "Purchase Line"
         end;
     end;
 
-    local procedure CheckAssosiatedSalesOrder()
+    procedure CheckAssociatedSalesOrder()
     var
         IsHandled: Boolean;
     begin
@@ -6375,7 +6701,7 @@ table 39 "Purchase Line"
             Error(Text001, FieldCaption("No."), "Special Order Sales No.");
     end;
 
-    local procedure CheckAssosiatedProdOrder()
+    local procedure CheckAssociatedProdOrder()
     var
         IsHandled: Boolean;
     begin
@@ -6417,24 +6743,29 @@ table 39 "Purchase Line"
         TestField(Quantity);
     end;
 
-#if not CLEAN22
-    [Obsolete('Renaming the global procedure to GetSkipTaxCalculation():Boolean', '22.0')]
-    procedure CanCalculateTax(): Boolean
-    begin
-        exit(SkipTaxCalculation);
-    end;
-#endif
-
+    /// <summary>
+    /// Returns the value of global SkipTaxCalculation flag.
+    /// </summary>
+    /// <returns>The value of global SkipTaxCalculation flag.</returns>
     procedure GetSkipTaxCalculation(): Boolean
     begin
         exit(SkipTaxCalculation);
     end;
 
+    /// <summary>
+    /// Sets the global flag SkipTaxCalculation value.
+    /// </summary>
+    /// <param name="Skip">The value to set.</param>
     procedure SetSkipTaxCalulation(Skip: Boolean)
     begin
         SkipTaxCalculation := Skip;
     end;
 
+    /// <summary>
+    /// Gets a caption class for a field.
+    /// </summary>
+    /// <param name="FieldNumber">The number of the field to get the caption class for.</param>
+    /// <returns>The caption class of a field.</returns>
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
     var
         PurchLineCaptionClassMgmt: Codeunit "Purch. Line CaptionClass Mgmt";
@@ -6442,6 +6773,12 @@ table 39 "Purchase Line"
         exit(PurchLineCaptionClassMgmt.GetPurchaseLineCaptionClass(Rec, FieldNumber));
     end;
 
+    /// <summary>
+    /// Checks whether the purchase header of the line is open.
+    /// </summary>
+    /// <remarks>
+    /// The check is performed exclusively for non-system generated lines, type changes, and lines with non-blank type.
+    /// </remarks>
     procedure TestStatusOpen()
     var
         IsHandled: Boolean;
@@ -6462,16 +6799,30 @@ table 39 "Purchase Line"
         OnAfterTestStatusOpen(Rec, PurchHeader);
     end;
 
+    /// <summary>
+    /// Returns the value of the global variable StatusCheckSuspended.
+    /// </summary>
+    /// <returns>The value of the global variable StatusCheckSuspended.</returns>
     procedure GetSuspendedStatusCheck(): Boolean
     begin
         exit(StatusCheckSuspended);
     end;
 
+    /// <summary>
+    /// Sets the value of the global variable StatusCheckSuspended.
+    /// </summary>
+    /// <param name="Suspend">The new value to set.</param>
     procedure SuspendStatusCheck(Suspend: Boolean)
     begin
         StatusCheckSuspended := Suspend;
     end;
 
+    /// <summary>
+    /// Updates Lead Time fields based on the item, location, variant, and vendor for the purchase line.
+    /// </summary>
+    /// <remarks>
+    /// If the purchase line type is not item, the procedure is ended.
+    /// </remarks>
     procedure UpdateLeadTimeFields()
     var
         IsHandled: Boolean;
@@ -6494,6 +6845,9 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Updates the expected receipt date or order date of a purchase line with the corresponding date in the purchase header.
+    /// </summary>
     procedure GetUpdateBasicDates()
     begin
         GetPurchHeader();
@@ -6503,6 +6857,11 @@ table 39 "Purchase Line"
             Validate("Order Date", PurchHeader."Order Date");
     end;
 
+    /// <summary>
+    /// Updates purchase line dates based on the promised receipt date or requested receipt date.
+    /// If both dates are empty, the procedure updates the expected receipt date or oreder date of a purchase line
+    /// with the corresponding date in the purchase header.
+    /// </summary>
     procedure UpdateDates()
     var
         IsHandled: Boolean;
@@ -6523,6 +6882,12 @@ table 39 "Purchase Line"
         OnAfterUpdateDates(Rec);
     end;
 
+    /// <summary>
+    /// Returns the total lead time in days for a purchase line, taking into account the safety lead time and inbound whse. handling time.
+    /// Used to calculate expected receipt date for the purchase line.
+    /// </summary>
+    /// <param name="PurchDate">Planned receipt date of the purchase line.</param>
+    /// <returns>Total lead time in days.</returns>
     procedure InternalLeadTimeDays(PurchDate: Date): Text[30]
     var
         TotalDays: DateFormula;
@@ -6548,6 +6913,17 @@ table 39 "Purchase Line"
         exit(Format(TotalDays));
     end;
 
+    /// <summary>
+    /// Updates VAT and related amounts on all lines of the document.
+    /// </summary>
+    /// <remarks>
+    /// If parameter QtyType is Shipping procedure is ended without updating the lines.
+    /// </remarks>
+    /// <param name="QtyType">The type of quantity to consider for the update (Qty, QtyToInvoice, QtyToReceive).</param>
+    /// <param name="PurchHeader">The purchase header of the document. The purchase lines are filtered based on this document.</param>
+    /// <param name="PurchLine">Purhcase line record that will be iterated through. Any existing filters on this record will narrow down the lines to consider.</param>
+    /// <param name="VATAmountLine">Calculated VAT amount set. For each purchase line, the corresponding VAT amount line will be extracted from this collection.</param>
+    /// <returns>True if any line was modified, otherwise false.</returns>
     procedure UpdateVATOnLines(QtyType: Option General,Invoicing,Shipping; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line") LineWasModified: Boolean
     var
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
@@ -6832,6 +7208,16 @@ table 39 "Purchase Line"
         OnAfterUpdateVATOnLines(PurchHeader, PurchLine, VATAmountLine, QtyType);
     end;
 
+    /// <summary>
+    /// Calculates the VAT amounts for purchase lines based on the quantity type, and updates the VAT amount lines accordingly.
+    /// </summary>
+    /// <remarks>
+    /// VATAmountLine parameter must be temporary, because DeleteAll is called for it.
+    /// </remarks>
+    /// <param name="QtyType">The type of quantity to consider for the update (Qty, QtyToInvoice, QtyToReceive).</param>
+    /// <param name="PurchHeader">The purchase header of the document. The purchase lines are filtered based on this document.</param>
+    /// <param name="PurchLine">Purhcase line record that will be iterated through. Any existing filters on this record will narrow down the lines to consider.</param>
+    /// <param name="VATAmountLine">Return value: Calculated and inserted VAT amount lines.</param>
     procedure CalcVATAmountLines(QtyType: Option General,Invoicing,Shipping; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line")
     var
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
@@ -6909,8 +7295,7 @@ table 39 "Purchase Line"
                                 VATAmountLine.Quantity += PurchLine."Quantity (Base)";
                                 NonDeductibleVAT.AddNonDedAmountsOfPurchLineToVATAmountLine(VATAmountLine, TempVATAmountLineRemainder, PurchLine, Currency, 1, 1);
                                 OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
-                                VATAmountLine.SumLine(
-                                  PurchLine."Line Amount", PurchLine."Inv. Discount Amount", PurchLine."VAT Difference", PurchLine."Allow Invoice Disc.", PurchLine."Prepayment Line");
+                                SumVATAmountLine(PurchHeader, PurchLine, VATAmountLine, QtyType, AmtToHandle, QtyToHandle);
                                 VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
                                 VATAmountLine."VAT Difference (ACY)" += PurchLine."VAT Difference (ACY)";
                                 VATAmountLine.Modify();
@@ -6948,13 +7333,7 @@ table 39 "Purchase Line"
                                 AmtToHandle := PurchLine.GetLineAmountToHandleInclPrepmt(QtyToHandle);
                                 NonDeductibleVAT.AddNonDedAmountsOfPurchLineToVATAmountLine(VATAmountLine, TempVATAmountLineRemainder, PurchLine, Currency, QtyToHandle, PurchLine.Quantity);
                                 OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
-                                if PurchHeader."Invoice Discount Calculation" <> PurchHeader."Invoice Discount Calculation"::Amount then
-                                    VATAmountLine.SumLine(
-                                      AmtToHandle, Round(PurchLine."Inv. Discount Amount" * QtyToHandle / PurchLine.Quantity, Currency."Amount Rounding Precision"),
-                                      PurchLine."VAT Difference", PurchLine."Allow Invoice Disc.", PurchLine."Prepayment Line")
-                                else
-                                    VATAmountLine.SumLine(
-                                      AmtToHandle, PurchLine."Inv. Disc. Amount to Invoice", PurchLine."VAT Difference", PurchLine."Allow Invoice Disc.", PurchLine."Prepayment Line");
+                                SumVATAmountLine(PurchHeader, PurchLine, VATAmountLine, QtyType, AmtToHandle, QtyToHandle);
                                 VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
                                 VATAmountLine."VAT Difference (ACY)" += PurchLine."VAT Difference (ACY)";
                                 VATAmountLine.Modify();
@@ -6971,9 +7350,7 @@ table 39 "Purchase Line"
                                 end;
                                 AmtToHandle := PurchLine.GetLineAmountToHandleInclPrepmt(QtyToHandle);
                                 OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
-                                VATAmountLine.SumLine(
-                                  AmtToHandle, Round(PurchLine."Inv. Discount Amount" * QtyToHandle / PurchLine.Quantity, Currency."Amount Rounding Precision"),
-                                  PurchLine."VAT Difference", PurchLine."Allow Invoice Disc.", PurchLine."Prepayment Line");
+                                SumVATAmountLine(PurchHeader, PurchLine, VATAmountLine, QtyType, AmtToHandle, QtyToHandle);
                                 VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
                                 VATAmountLine."VAT Difference (ACY)" += PurchLine."VAT Difference (ACY)";
                                 VATAmountLine.Modify();
@@ -7007,7 +7384,7 @@ table 39 "Purchase Line"
                    (PrevVatAmountLine."Use Tax" <> VATAmountLine."Use Tax")
                 then
                     PrevVatAmountLine.Init();
-                if PurchHeader."Prices Including VAT" then begin
+                if PurchHeader."Prices Including VAT" then
                     case VATAmountLine."VAT Calculation Type" of
                         VATAmountLine."VAT Calculation Type"::"Normal VAT",
                         VATAmountLine."VAT Calculation Type"::"Reverse Charge VAT":
@@ -7087,8 +7464,8 @@ table 39 "Purchase Line"
                                 else
                                     VATAmountLine."VAT %" := Round(100 * VATAmountLine."VAT Amount" / VATAmountLine."VAT Base", 0.00001);
                             end;
-                    end;
-                end else
+                    end
+                else
                     case VATAmountLine."VAT Calculation Type" of
                         VATAmountLine."VAT Calculation Type"::"Normal VAT",
                         VATAmountLine."VAT Calculation Type"::"Reverse Charge VAT":
@@ -7184,6 +7561,49 @@ table 39 "Purchase Line"
         OnAfterCalcVATAmountLines(PurchHeader, PurchLine, VATAmountLine, QtyType);
     end;
 
+    local procedure SumVATAmountLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping; AmtToHandle: Decimal; QtyToHandle: Decimal)
+    begin
+        case QtyType of
+            QtyType::General:
+                begin
+                    VATAmountLine."Line Amount" += PurchaseLine."Line Amount";
+                    if PurchaseLine."Allow Invoice Disc." then
+                        VATAmountLine."Inv. Disc. Base Amount" += PurchaseLine."Line Amount";
+                    VATAmountLine."Invoice Discount Amount" += PurchaseLine."Inv. Discount Amount";
+                end;
+            QtyType::Invoicing:
+                if PurchaseHeader."Invoice Discount Calculation" <> PurchaseHeader."Invoice Discount Calculation"::Amount then begin
+                    VATAmountLine."Line Amount" += AmtToHandle;
+                    if PurchaseLine."Allow Invoice Disc." then
+                        VATAmountLine."Inv. Disc. Base Amount" += AmtToHandle;
+                    VATAmountLine."Invoice Discount Amount" += Round(PurchaseLine."Inv. Discount Amount" * QtyToHandle / PurchaseLine.Quantity, Currency."Amount Rounding Precision");
+                end else begin
+                    VATAmountLine."Line Amount" += AmtToHandle;
+                    if PurchaseLine."Allow Invoice Disc." then
+                        VATAmountLine."Inv. Disc. Base Amount" += AmtToHandle;
+                    VATAmountLine."Invoice Discount Amount" += PurchaseLine."Inv. Disc. Amount to Invoice";
+                end;
+            QtyType::Shipping:
+                begin
+                    VATAmountLine."Line Amount" += AmtToHandle;
+                    if PurchaseLine."Allow Invoice Disc." then
+                        VATAmountLine."Inv. Disc. Base Amount" += AmtToHandle;
+                    VATAmountLine."Invoice Discount Amount" += Round(PurchaseLine."Inv. Discount Amount" * QtyToHandle / PurchaseLine.Quantity, Currency."Amount Rounding Precision");
+                end;
+        end;
+        VATAmountLine."VAT Difference" += PurchaseLine."VAT Difference";
+        if PurchaseLine."Prepayment Line" then
+            VATAmountLine."Includes Prepayment" := true;
+        OnSumVATAmountLineOnBeforeModify(PurchaseLine, VATAmountLine);
+        VATAmountLine.Modify();
+    end;
+
+    /// <summary>
+    /// Retrieves the VAT amount line corresponding to the purchase line with the highest absolute amount from the set of VAT amount lines.
+    /// </summary>
+    /// <param name="VATAmountLine">Return value: The VAT amount line with the maximum absolute amount.</param>
+    /// <param name="PurchaseLine">The purchase line record to filter the VAT amount line set.</param>
+    /// <returns>True if a VAT amount line was found, otherwise false.</returns>
     procedure GetVATAmountLineOfMaxAmt(var VATAmountLine: Record "VAT Amount Line"; PurchaseLine: Record "Purchase Line"): Boolean
     var
         VATAmount1: Decimal;
@@ -7212,6 +7632,9 @@ table 39 "Purchase Line"
             PurchaseLine."VAT Identifier", PurchaseLine."VAT Calculation Type", PurchaseLine."Tax Group Code", false, IsPositive2));
     end;
 
+    /// <summary>
+    /// Updates the quantities to receive or return for a purchase line based on the document type, quantity, and the location.
+    /// </summary>
     procedure UpdateWithWarehouseReceive()
     var
         IsHandled: Boolean;
@@ -7251,6 +7674,13 @@ table 39 "Purchase Line"
         SetDefaultQuantity();
     end;
 
+    /// <summary>
+    /// Checks warehouse requirements for a purchase line.
+    /// </summary>
+    /// <remarks>
+    /// The check is only conducted under the condition that the purchase line is inbound, the item in the purchase line has an inventory type, and the location has a mandatory bin.
+    /// </remarks>
+    /// <param name="ShowDialogMessage">If true, then error or message is shown to inform the user about the requirements or issues.</param>
     procedure CheckWarehouse(ShowDialogMessage: Boolean)
     var
         Location2: Record Location;
@@ -7357,6 +7787,10 @@ table 39 "Purchase Line"
         HandleDedicatedBin(true);
     end;
 
+    /// <summary>
+    /// Calculates the overhead rate in foreign currency for the purchase line.
+    /// </summary>
+    /// <returns>Overhead rate in foreign currency.</returns>
     protected procedure GetOverheadRateFCY() Result: Decimal
     var
         Item: Record Item;
@@ -7381,6 +7815,10 @@ table 39 "Purchase Line"
             GetDate(), "Currency Code", "Overhead Rate" * QtyPerUOM, PurchHeader."Currency Factor"));
     end;
 
+    /// <summary>
+    /// Gets the translation of an item's description based on the language code of the purchase header 
+    /// and updates the description fields of the purchase line.
+    /// </summary>
     procedure GetItemTranslation()
     var
         ItemTranslation: Record "Item Translation";
@@ -7415,6 +7853,11 @@ table 39 "Purchase Line"
         OnAfterGetPurchSetup(Rec, PurchSetup);
     end;
 
+    /// <summary>
+    /// Formats a date formula parameter and returns it as a text.
+    /// </summary>
+    /// <param name="DateFormulatoAdjust">Date formula to adjust.</param>
+    /// <returns>Formated date formula as text.</returns>
     procedure AdjustDateFormula(DateFormulatoAdjust: DateFormula): Text[30]
     begin
         if Format(DateFormulatoAdjust) <> '' then
@@ -7432,6 +7875,10 @@ table 39 "Purchase Line"
                 Location.Get(LocationCode);
     end;
 
+    /// <summary>
+    /// Generates a unique identifier text for a purchase line record which is used for item tracking or drop shipment creation.
+    /// </summary>
+    /// <returns>Generated text</returns>
     procedure RowID1(): Text[250]
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
@@ -7469,6 +7916,10 @@ table 39 "Purchase Line"
         OnAfterGetDefaultBin(Rec);
     end;
 
+    /// <summary>
+    /// Determines if a purchase line is inbound based on the document type and quantity.
+    /// </summary>
+    /// <returns>True if purchase line is inbound, otherwise false.</returns>
     procedure IsInbound(): Boolean
     var
         IsInboundDocument: Boolean;
@@ -7507,6 +7958,11 @@ table 39 "Purchase Line"
             FieldError("Job No.", StrSubstNo(MustNotBeSpecifiedErr, FieldCaption(Type), Type));
     end;
 
+    /// <summary>
+    /// Checks if an item with a given item number exists in the Item table, but only if the type of the purchase line is item.
+    /// </summary>
+    /// <param name="ItemNo">Item number to check.</param>
+    /// <returns>True if the item exists, otherwise false.</returns>
     procedure ItemExists(ItemNo: Code[20]): Boolean
     var
         Item2: Record Item;
@@ -7517,6 +7973,11 @@ table 39 "Purchase Line"
         exit(true);
     end;
 
+    /// <summary>
+    /// Finds or creates a record by a given number and returns the number of the found or created record.
+    /// </summary>
+    /// <param name="SourceNo">A record number to find or create.</param>
+    /// <returns>Number of the found or newly created record.</returns>
     procedure FindOrCreateRecordByNo(SourceNo: Code[20]): Code[20]
     var
         Item: Record Item;
@@ -7542,6 +8003,13 @@ table 39 "Purchase Line"
         exit(SourceNo);
     end;
 
+    /// <summary>
+    /// Returns smaller absolute value between QtyToHandle and QtyHandled to ensure that the quantity being handled 
+    /// does not exceed the quantity that is available to handle.
+    /// </summary>
+    /// <param name="QtyToHandle">Quantity to handle value.</param>
+    /// <param name="QtyHandled">Quantity handled value.</param>
+    /// <returns>Smaller absolute value.</returns>
     procedure GetAbsMin(QtyToHandle: Decimal; QtyHandled: Decimal) Result: Decimal
     var
         IsHandled: Boolean;
@@ -7583,10 +8051,9 @@ table 39 "Purchase Line"
         if IsCreditDocType() then begin
             if Quantity < 0 then
                 FieldError(Quantity, Text029);
-        end else begin
+        end else
             if Quantity > 0 then
                 FieldError(Quantity, Text030);
-        end;
         ItemLedgEntry.Get("Appl.-to Item Entry");
         ItemLedgEntry.TestField(Positive, true);
         ItemLedgEntry.CheckTrackingDoesNotExist(RecordId, FieldCaption("Appl.-to Item Entry"));
@@ -7622,6 +8089,9 @@ table 39 "Purchase Line"
         exit(ItemLedgEntry."Location Code");
     end;
 
+    /// <summary>
+    /// Updates prepayment amount to deduct of the purchase line.
+    /// </summary>
     procedure CalcPrepaymentToDeduct()
     var
         IsHandled: Boolean;
@@ -7644,11 +8114,23 @@ table 39 "Purchase Line"
             "Prepmt Amt to Deduct" := 0
     end;
 
+    /// <summary>
+    /// Determines if the current purchase line is the final invoice based on the quantity and quantity to invoice.
+    /// </summary>
+    /// <returns>True if it is a final invoice, otherwise false.</returns>
     procedure IsFinalInvoice(): Boolean
     begin
         exit("Qty. to Invoice" = Quantity - "Quantity Invoiced");
     end;
 
+    /// <summary>
+    /// Calculates the line amount to handle for a purchase line based on the quantity to handle.
+    /// </summary>
+    /// <remarks>
+    /// Calculated line amount includes the line discount amount.
+    /// </remarks>
+    /// <param name="QtyToHandle">Quantity to handle.</param>
+    /// <returns>Calculated line amount to handle.</returns>
     procedure GetLineAmountToHandle(QtyToHandle: Decimal): Decimal
     var
         LineAmount: Decimal;
@@ -7683,6 +8165,14 @@ table 39 "Purchase Line"
         exit(LineAmount - LineDiscAmount);
     end;
 
+    /// <summary>
+    /// Returns the line amount to handle for a purchase line, including prepayment.
+    /// </summary>
+    /// <remarks>
+    /// Prepayment amounts are included in the calculations only if purchase line has to be fully prepaid.
+    /// </remarks>
+    /// <param name="QtyToHandle">Quantity to handle.</param>
+    /// <returns>Calculated line amount to handle.</returns>
     procedure GetLineAmountToHandleInclPrepmt(QtyToHandle: Decimal): Decimal
     var
         PurchasePostPrepayments: Codeunit "Purchase-Post Prepayments";
@@ -7702,6 +8192,13 @@ table 39 "Purchase Line"
         exit(GetLineAmountToHandle(QtyToHandle));
     end;
 
+    /// <summary>
+    /// Determines if the purchase line has a job task set.
+    /// </summary>
+    /// <remarks>
+    /// If job task is set, then journal lines can be created.
+    /// </remarks>
+    /// <returns>True if the job task is set, otherwise false.</returns>
     procedure JobTaskIsSet(): Boolean
     var
         JobTaskSet: Boolean;
@@ -7711,6 +8208,13 @@ table 39 "Purchase Line"
         exit(JobTaskSet);
     end;
 
+    /// <summary>
+    /// Creates a temporary global job journal line based on the purchase line.
+    /// </summary>
+    /// <param name="GetPrices">
+    /// If true, it recalculates amounts from unit cost of the purchase line, 
+    /// otherwise it sets the amounts directly from the purchase line.
+    /// </param>
     procedure CreateTempJobJnlLine(GetPrices: Boolean)
     var
         IsHandled: Boolean;
@@ -7760,6 +8264,10 @@ table 39 "Purchase Line"
         OnAfterCreateTempJobJnlLine(TempJobJnlLine, Rec, xRec, GetPrices, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Updates the job prices in the purchase line record based on the purchase receipt line,
+    /// or the global job journal line if receipt line doesn't exist.
+    /// </summary>
     procedure UpdateJobPrices()
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
@@ -7796,6 +8304,9 @@ table 39 "Purchase Line"
         OnAfterUpdateJobPrices(Rec, TempJobJnlLine, PurchRcptLine);
     end;
 
+    /// <summary>
+    /// Updates the job currency factor from the temporary global job journal line.
+    /// </summary>
     procedure JobSetCurrencyFactor()
     var
         IsHandled: Boolean;
@@ -7813,11 +8324,19 @@ table 39 "Purchase Line"
         "Job Currency Factor" := TempJobJnlLine."Currency Factor";
     end;
 
+    /// <summary>
+    /// Sets the value of the global variable UpdateFromVAT.
+    /// </summary>
+    /// <param name="UpdateFromVAT2">The new value to set.</param>
     procedure SetUpdateFromVAT(UpdateFromVAT2: Boolean)
     begin
         UpdateFromVAT := UpdateFromVAT2;
     end;
 
+    /// <summary>
+    /// Initializes the quantity to receive and invoice.
+    /// Additionally, claculates the invoice discount and prepayment amounts.
+    /// </summary>
     procedure InitQtyToReceive2()
     begin
         "Qty. to Receive" := "Outstanding Quantity";
@@ -7963,6 +8482,13 @@ table 39 "Purchase Line"
             AddToNoText(NoText, NoTextIndex, PrintExponent, CurrencyCode);
     end;
 
+    /// <summary>
+    /// Toggles the filter for lines with errors between displaying all lines and only lines with errors.
+    /// </summary>
+    /// <param name="ShowAllLinesEnabled">
+    /// Return value: A toggle for showing all lines or just lines with errors. After switching the filter, 
+    /// the toggle is returned with the opposite value.
+    /// </param>
     procedure SwitchLinesWithErrorsFilter(var ShowAllLinesEnabled: Boolean)
     var
         TempLineErrorMessage: Record "Error Message" temporary;
@@ -7983,6 +8509,9 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Resets qty. to receive values to zero if the document type is an order and the purchase setup has default qty. to receive blank.
+    /// </summary>
     procedure ClearQtyIfBlank()
     var
         IsHandled: Boolean;
@@ -8002,6 +8531,9 @@ table 39 "Purchase Line"
         OnAfterClearQtyIfBlank(Rec, xRec, PurchSetup);
     end;
 
+    /// <summary>
+    /// Opens a page to show comments for the purchase line.
+    /// </summary>
     procedure ShowLineComments()
     var
         PurchCommentLine: Record "Purch. Comment Line";
@@ -8011,6 +8543,9 @@ table 39 "Purchase Line"
         PurchCommentLine.ShowComments("Document Type".AsInteger(), "Document No.", "Line No.");
     end;
 
+    /// <summary>
+    /// Resets quantities to receive/return and invoice to zero based on the purchase setup setting for default qty. to receive.
+    /// </summary>
     procedure SetDefaultQuantity()
     var
         IsHandled: Boolean;
@@ -8039,6 +8574,34 @@ table 39 "Purchase Line"
         OnAfterSetDefaultQuantity(Rec, xRec);
     end;
 
+    local procedure SetDefaultGLAccountQuantity()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultGLAccountQuantity(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        GetPurchSetup();
+        if PurchSetup."Default G/L Account Quantity" then
+            Validate(Quantity, 1);
+    end;
+
+    local procedure QuantityDefaultedFromGLAccount(): Boolean
+    begin
+        if Rec.Type <> Rec.Type::"G/L Account" then
+            exit(false);
+        GetPurchSetup();
+        exit(PurchSetup."Default G/L Account Quantity");
+    end;
+
+    /// <summary>
+    /// Recalculates prepayment amounts to reflect changes in quantity.
+    /// </summary>
+    /// <remarks>
+    /// If the document type in not an invoice or the prepayment percentage is 0, the prepayment amounts are not updated.
+    /// </remarks>
     procedure UpdatePrePaymentAmounts()
     var
         ReceiptLine: Record "Purch. Rcpt. Line";
@@ -8121,6 +8684,9 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Sets the vendor item number for the purchase line.
+    /// </summary>
     procedure SetVendorItemNo()
     var
         Item: Record Item;
@@ -8141,6 +8707,14 @@ table 39 "Purchase Line"
         OnAfterSetVendorItemNo(Rec, ItemVend, Item);
     end;
 
+    /// <summary>
+    /// Determines if the line has a zero amount. It always returns true for a line with a blank type.
+    /// </summary>
+    /// <param name="QtyType">   
+    /// The type of quantity to check. 
+    /// Only Invoicing option makes a difference by checking if quantity to invoice is zero, other options are ignored.
+    /// </param>
+    /// <returns>True if the line has a zero amount, otherwise false.</returns>
     procedure ZeroAmountLine(QtyType: Option General,Invoicing,Shipping) Result: Boolean
     var
         IsHandled: Boolean;
@@ -8162,6 +8736,11 @@ table 39 "Purchase Line"
         exit(false);
     end;
 
+    /// <summary>
+    /// Sets filters on the purchase line for item lines, a specified document type, and various flow filters set in the provided item record.
+    /// </summary>
+    /// <param name="Item">Item record to filter the purchase lines with.</param>
+    /// <param name="DocumentType">The document type to filter the purchase lines with.</param>
     procedure FilterLinesWithItemToPlan(var Item: Record Item; DocumentType: Enum "Purchase Document Type")
     begin
         Reset();
@@ -8181,18 +8760,37 @@ table 39 "Purchase Line"
         OnAfterFilterLinesWithItemToPlan(Rec, Item, DocumentType.AsInteger());
     end;
 
+    /// <summary>
+    /// Retrieves a record set of item purchase lines that match the provided document type and various filters set on the item.
+    /// </summary>
+    /// <param name="Item">Item record to filter the purchase lines with.</param>
+    /// <param name="DocumentType">The document type to filter the purchase lines with.</param>
+    /// <returns>True if any purchase line was found, otherwise false.</returns>
     procedure FindLinesWithItemToPlan(var Item: Record Item; DocumentType: Enum "Purchase Document Type"): Boolean
     begin
         FilterLinesWithItemToPlan(Item, DocumentType);
         exit(Find('-'));
     end;
 
+    /// <summary>
+    /// Determines if any purchase lines exist that match the provided document type and various flow filters set on the item.
+    /// </summary>
+    /// <param name="Item">Item record to filter the purchase lines with.</param>
+    /// <param name="DocumentType">The document type to filter the purchase lines with.</param>
+    /// <returns>True if any purchase lines exist, otherwise false.</returns>
     procedure LinesWithItemToPlanExist(var Item: Record Item; DocumentType: Enum "Purchase Document Type"): Boolean
     begin
         FilterLinesWithItemToPlan(Item, DocumentType);
         exit(not IsEmpty);
     end;
 
+    /// <summary>
+    /// Sets filters on the purchase line for item lines that match the provided reservation entry.
+    /// </summary>
+    /// <param name="ReservationEntry">Reservation entry to filter the purchase lines with.</param>
+    /// <param name="DocumentType">The document type to filter the purchase lines with.</param>
+    /// <param name="AvailabilityFilter">Date filter to apply to the expected receipt date field.</param>
+    /// <param name="Positive">A flag to determine if the quantity (base) filter should be positive or negative.</param>
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Enum "Purchase Document Type"; AvailabilityFilter: Text; Positive: Boolean)
     var
         IsHandled: Boolean;
@@ -8219,6 +8817,11 @@ table 39 "Purchase Line"
         OnAfterFilterLinesForReservation(Rec, ReservationEntry, DocumentType, AvailabilityFilter, Positive);
     end;
 
+    /// <summary>
+    /// Retrieves the invoice rounding account number from the vendor posting group associated with the purchase header.
+    /// </summary>
+    /// <param name="PurchHeader">Purchase header to filter from.</param>
+    /// <returns>Invoice rounding account number from the vendor posting group.</returns>
     procedure GetVPGInvRoundAcc(var PurchHeader: Record "Purchase Header") AccountNo: Code[20]
     var
         Vendor: Record Vendor;
@@ -8282,12 +8885,20 @@ table 39 "Purchase Line"
             ConfirmReceivedShippedItemDimChange();
     end;
 
+    /// <summary>
+    /// Determines if the dimensions have changed on an already received or shipped item line.
+    /// </summary>
+    /// <returns>True if the dimensions have changed, otherwise false.</returns>
     procedure IsReceivedShippedItemDimChanged(): Boolean
     begin
         exit(("Dimension Set ID" <> xRec."Dimension Set ID") and (Type = Type::Item) and
           (("Qty. Rcd. Not Invoiced" <> 0) or ("Return Qty. Shipped Not Invd." <> 0)));
     end;
 
+    /// <summary>
+    /// Checks if the purchase line is a service charge.
+    /// </summary>
+    /// <returns>True if the line is a service charge line, otherwise false.</returns>
     procedure IsServiceCharge(): Boolean
     var
         VendorPostingGroup: Record "Vendor Posting Group";
@@ -8300,6 +8911,10 @@ table 39 "Purchase Line"
         exit(VendorPostingGroup."Service Charge Acc." = "No.");
     end;
 
+    /// <summary>
+    /// Raises a confirmation dialog to confirm the change of dimensions on an already received or shipped item line. 
+    /// </summary>
+    /// <returns>True if the user confirms the change, otherwise an error is thrown.</returns>
     procedure ConfirmReceivedShippedItemDimChange() Result: Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
@@ -8316,6 +8931,9 @@ table 39 "Purchase Line"
         exit(true);
     end;
 
+    /// <summary>
+    /// Initializes the type of the purchase line.
+    /// </summary>
     procedure InitType()
     var
         IsHandled: Boolean;
@@ -8339,6 +8957,10 @@ table 39 "Purchase Line"
         OnAfterInitType(rec, xRec, PurchHeader);
     end;
 
+    /// <summary>
+    /// Returns the default document line type from the purchase setup if it is not blank.
+    /// </summary>
+    /// <returns>The document default line type from the purchase setup, otherwise blank.</returns>
     procedure GetDefaultLineType(): Enum "Purchase Line Type"
     begin
         GetPurchSetup();
@@ -8525,12 +9147,11 @@ table 39 "Purchase Line"
             VATAmountLine."Invoice Discount Amount" := -1 * Round(VATAmountLine."Invoice Discount Amount", Currency."Amount Rounding Precision");
             if PriceIncludingVAT then
                 VATAmountLine."Amount Including VAT" := Round(VATAmountLine."Line Amount", Currency."Amount Rounding Precision")
-            else begin
+            else
                 if not VATAmountLine.Positive then
                     VATAmountLine."Amount Including VAT" := VATAmountLine."Line Amount" - PurchLine."Inv. Discount Amount" + VATAmountLine."VAT Amount"
                 else
                     VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Base" - PurchLine."Inv. Discount Amount" + VATAmountLine."VAT Amount";
-            end;
         end;
     end;
 
@@ -8555,6 +9176,10 @@ table 39 "Purchase Line"
         Location.TestField("Directed Put-away and Pick", false);
     end;
 
+    /// <summary>
+    /// Checks if the line has receipt/shipment when it's mandatory by the location, but only performs this check
+    /// if the item in the line is inventoriable.
+    /// </summary>
     procedure CheckLocationOnWMS()
     var
         DialogText: Text;
@@ -8585,6 +9210,10 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Determines if the line is a non-inventoriable item line.
+    /// </summary>
+    /// <returns>True if the line is a non-inventoriable item line, otherwise false.</returns>
     procedure IsNonInventoriableItem(): Boolean
     var
         Item: Record Item;
@@ -8593,10 +9222,15 @@ table 39 "Purchase Line"
             exit(false);
         if "No." = '' then
             exit(false);
+        Item.SetLoadFields(Type);
         GetItem(Item);
         exit(Item.IsNonInventoriableType());
     end;
 
+    /// <summary>
+    /// Determines if the line is an inventoriable item line.
+    /// </summary>
+    /// <returns>True if the line is an inventoriable item line, otherwise false.</returns>
     procedure IsInventoriableItem(): Boolean
     var
         Item: Record Item;
@@ -8605,10 +9239,15 @@ table 39 "Purchase Line"
             exit(false);
         if "No." = '' then
             exit(false);
+        Item.SetLoadFields(Type);
         GetItem(Item);
         exit(Item.IsInventoriableType());
     end;
 
+    /// <summary>
+    /// Determines if the line is an extended text line.
+    /// </summary>
+    /// <returns>True if the line is an extended text line, otherwise false.</returns>
     procedure IsExtendedText(): Boolean
     begin
         exit((Type = Type::" ") and ("Attached to Line No." <> 0) and (Quantity = 0));
@@ -8622,6 +9261,10 @@ table 39 "Purchase Line"
             exit(false);
     end;
 
+    /// <summary>
+    /// Retrieves the journal template name if g/l setup has a journal template name mandatory field set to true.
+    /// </summary>
+    /// <returns>Journal template name if g/l setup has a journal template name mandatory field set to true.</returns>
     procedure GetJnlTemplateName(): Code[10]
     begin
         GLSetup.Get();
@@ -8678,6 +9321,11 @@ table 39 "Purchase Line"
         UpdateDirectUnitCostByField(CallingFieldNo);
     end;
 
+    /// <summary>
+    /// Updates the line discount percentage for the purchase line. 
+    /// Additionally, updates line, vat, prepayment and deferral amounts, initializes outstanding amounts and updates the unit cost.
+    /// </summary>
+    /// <param name="DropInvoiceDiscountAmount">If true, invoice discount amounts will be set to 0.</param>
     procedure ValidateLineDiscountPercent(DropInvoiceDiscountAmount: Boolean)
     var
         IsHandled: Boolean;
@@ -8782,6 +9430,9 @@ table 39 "Purchase Line"
         OnAfterUpdateVendorItemNoFromItemReference(Rec, xRec);
     end;
 
+    /// <summary>
+    /// Updates the intercompany partner information on the purchase line if the purchase header has outgoing intercompany direction.
+    /// </summary>
     procedure UpdateICPartner()
     var
         ICPartner: Record "IC Partner";
@@ -8789,10 +9440,8 @@ table 39 "Purchase Line"
     begin
         IsHandled := false;
         OnBeforeUpdateICPartner(Rec, GLAcc, PurchHeader, IsHandled);
-        if not IsHandled then begin
-            if PurchHeader."Send IC Document" and
-               (PurchHeader."IC Direction" = PurchHeader."IC Direction"::Outgoing)
-            then
+        if not IsHandled then
+            if PurchHeader."Send IC Document" and (PurchHeader."IC Direction" = PurchHeader."IC Direction"::Outgoing) then
                 case Type of
                     Type::" ", Type::"Charge (Item)":
                         begin
@@ -8833,7 +9482,7 @@ table 39 "Purchase Line"
                             "IC Partner Reference" := '';
                         end;
                 end;
-        end;
+
         OnAfterUpdateICPartner(Rec, PurchHeader);
     end;
 
@@ -8870,6 +9519,13 @@ table 39 "Purchase Line"
         OnAfterCalcTotalAmtToAssign(Rec, PurchHeader, Currency, TotalQtyToAssign, TotalAmtToAssign);
     end;
 
+    /// <summary>
+    /// Checks if the current purchase line record has a type that requires mandatory fields to be filled.
+    /// </summary>
+    /// <remarks>
+    /// By default, only the blank type will return false, but this behavior can be altered by an event subscriber.
+    /// </remarks>
+    /// <returns>True if purchase line has a type that requires mandatory fields to be filled, otherwise false.</returns>
     procedure HasTypeToFillMandatoryFields() ReturnValue: Boolean
     begin
         ReturnValue := Type <> Type::" ";
@@ -8877,6 +9533,10 @@ table 39 "Purchase Line"
         OnAfterHasTypeToFillMandatoryFields(Rec, ReturnValue);
     end;
 
+    /// <summary>
+    /// Gets the defferal amount for the purchase line to be used in deferral schedules.
+    /// </summary>
+    /// <returns>The deferral amount.</returns>
     procedure GetDeferralAmount() DeferralAmount: Decimal
     var
         IsHandled: Boolean;
@@ -8900,6 +9560,9 @@ table 39 "Purchase Line"
         OnAfterGetDeferralPostDate(Rec, PurchaseHeader, DeferralPostDate);
     end;
 
+    /// <summary>
+    /// Removes or updates the deferral schedule for the purchase line.
+    /// </summary>
     procedure UpdateDeferralAmounts()
     var
         DeferralPostDate: Date;
@@ -8923,6 +9586,15 @@ table 39 "Purchase Line"
             GetDeferralAmount(), DeferralPostDate, Description, PurchHeader."Currency Code", AdjustStartDate);
     end;
 
+    /// <summary>
+    /// Opens a page with deferral schedule for the purchase line.
+    /// </summary>
+    /// <remarks>
+    /// If the deferral schedule doesn't exist yet, a new one is created and commited before the page is opened.
+    /// </remarks>
+    /// <param name="PostingDate">Posting date which is used as a start date on the deferral schedule if it needs to be created.</param>
+    /// <param name="CurrencyCode">Currency code to use for a new deferral schedule.</param>
+    /// <returns>True if deferral schedule was changed, otherwise false.</returns>
     procedure ShowDeferrals(PostingDate: Date; CurrencyCode: Code[10]): Boolean
     var
         IsHandled: Boolean;
@@ -8940,6 +9612,9 @@ table 39 "Purchase Line"
                 GetDeferralAmount(), PostingDate, Description, CurrencyCode));
     end;
 
+    /// <summary>
+    /// Initializes the deferral code for the purchase line based on its type.
+    /// </summary>
     procedure InitDeferralCode()
     var
         Item: Record Item;
@@ -8974,23 +9649,41 @@ table 39 "Purchase Line"
             end;
     end;
 
+    /// <summary>
+    /// Initializes the deferral code for the purchase if the type is g/l account, item or resource.
+    /// </summary>
     procedure DefaultDeferralCode()
     begin
         if Type in [Type::"G/L Account", Type::Item, Type::Resource] then
             InitDeferralCode();
     end;
 
+    /// <summary>
+    /// Determines if the document type is a credit document.
+    /// </summary>
+    /// <returns>True if the document type is return order or credit memo, otherwise false.</returns>
     procedure IsCreditDocType() Result: Boolean
     begin
         Result := "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"];
         OnAfterIsCreditDocType(Rec, Result);
     end;
 
+    /// <summary>
+    /// Determines if the document type of the line is order or invoice.
+    /// </summary>
+    /// <returns>True if the document type is order or invoice, otherwise false.</returns>
     procedure IsInvoiceDocType(): Boolean
     begin
         exit("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]);
     end;
 
+    /// <summary>
+    /// Determines if incoming document came from OCR.
+    /// </summary>
+    /// <remarks>
+    /// If there's no incoming document associated with the purchase document, the procedure returns false.
+    /// </remarks>
+    /// <returns>True, if incoming document has ocr status success, otherwise false.</returns>
     procedure IsReceivedFromOcr(): Boolean
     var
         IncomingDocument: Record "Incoming Document";
@@ -9008,6 +9701,13 @@ table 39 "Purchase Line"
         TestField("Return Shipment No.", '');
     end;
 
+    /// <summary>
+    /// Checks if item unit of measure code can be edited.
+    /// </summary>
+    /// <remarks>
+    /// If this is not an item line or if item is not selected the procedure always returns true.
+    /// </remarks>
+    /// <returns>True if item unit of measure code can be edited, otherwise false.</returns>
     procedure CanEditUnitOfMeasureCode(): Boolean
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -9019,6 +9719,13 @@ table 39 "Purchase Line"
         exit(true);
     end;
 
+    /// <summary>
+    /// Verifies that the pruchase line is an item line and the fields match the provided values.
+    /// If the values do not match, an error is thrown.
+    /// </summary>
+    /// <param name="ItemNo">The item number to match.</param>
+    /// <param name="VariantCode">The variant code to match.</param>
+    /// <param name="LocationCode">The location code to match.</param>
     procedure TestItemFields(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     begin
         TestField(Type, Type::Item);
@@ -9027,6 +9734,9 @@ table 39 "Purchase Line"
         TestField("Location Code", LocationCode);
     end;
 
+    /// <summary>
+    /// Clears global PurchHeader variable.
+    /// </summary>
     procedure ClearPurchaseHeader()
     begin
         Clear(PurchHeader);
@@ -9064,6 +9774,9 @@ table 39 "Purchase Line"
         NotificationLifecycleMgt.SendNotification(NotificationToSend, Rec.RecordId());
     end;
 
+    /// <summary>
+    /// Sends a notification when the invoice discount amount for the purchase line record has been reset.
+    /// </summary>
     procedure SendLineInvoiceDiscountResetNotification()
     var
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
@@ -9083,6 +9796,13 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Gets the formated text of the line type for the purchase line. 
+    /// </summary>
+    /// <remarks>
+    /// If line type is blank, comment label is returned.
+    /// </remarks>
+    /// <returns>Formated text of the line type.</returns>
     procedure FormatType() FormattedType: Text[20]
     var
         IsHandled: Boolean;
@@ -9098,6 +9818,15 @@ table 39 "Purchase Line"
         exit(Format(Type));
     end;
 
+    /// <summary>
+    /// Renames the number of all purchase lines corresponding to the specified line type and number. 
+    /// </summary>
+    /// <remarks>
+    /// Used when related entities are renamed.
+    /// </remarks>
+    /// <param name="LineType">Filter lines based on this line type.</param>
+    /// <param name="OldNo">The old number to rename from.</param>
+    /// <param name="NewNo">The new number to rename to.</param>
     procedure RenameNo(LineType: Enum "Purchase Document Type"; OldNo: Code[20]; NewNo: Code[20])
     begin
         Reset();
@@ -9130,6 +9859,12 @@ table 39 "Purchase Line"
         OnAfterUpdateLineDiscPct(Rec);
     end;
 
+    /// <summary>
+    /// Updates the base amounts for the purchase line.
+    /// </summary>
+    /// <param name="NewAmount">Value to which amount will be updated.</param>
+    /// <param name="NewAmountIncludingVAT">Value to which amount including VAT will be uptaded.</param>
+    /// <param name="NewVATBaseAmount">Value to which VAT base amount will be uptaded.</param>
     procedure UpdateBaseAmounts(NewAmount: Decimal; NewAmountIncludingVAT: Decimal; NewVATBaseAmount: Decimal)
     begin
         Amount := NewAmount;
@@ -9138,8 +9873,6 @@ table 39 "Purchase Line"
 
         OnAfterUpdateBaseAmounts(Rec, xRec, CurrFieldNo, NewAmount, NewAmountIncludingVAT, NewVATBaseAmount);
     end;
-
-
 
     local procedure CalculateOutstandingAmountExclTax(): Decimal
     var
@@ -9153,6 +9886,9 @@ table 39 "Purchase Line"
         exit(OutstandingAmount);
     end;
 
+    /// <summary>
+    /// Updates the prepayment amounts for the purchase line.
+    /// </summary>
     procedure UpdatePrepmtAmounts()
     var
         IsHandled: Boolean;
@@ -9257,10 +9993,17 @@ table 39 "Purchase Line"
         if not OverReceiptMgt.IsOverReceiptAllowed() or (Abs("Qty. to Receive") <= Abs("Outstanding Quantity")) then
             exit(false);
 
+        if (Rec."Over-Receipt Code" = '') and (OverReceiptMgt.GetDefaultOverReceiptCode(Rec) = '') then
+            exit(false);
+
         Validate("Over-Receipt Quantity", "Qty. to Receive" - Quantity + "Quantity Received" + "Over-Receipt Quantity");
         exit(true);
     end;
 
+    /// <summary>
+    /// Returns resource record from the resource number on the purchase line.
+    /// </summary>
+    /// <returns>Resource record.</returns>
     procedure GetResource(): Record Resource
     var
         Resource: Record Resource;
@@ -9389,6 +10132,10 @@ table 39 "Purchase Line"
         TestField("Direct Unit Cost");
     end;
 
+    /// <summary>
+    /// Open a page with the purchase lines related to the blanket order line.
+    /// </summary>
+    /// <param name="DocumentType">The document type of the purchase lines to show.</param>
     procedure ShowBlanketOrderPurchaseLines(DocumentType: Enum "Purchase Document Type")
     var
         RelatedPurchLine: Record "Purchase Line";
@@ -9401,6 +10148,9 @@ table 39 "Purchase Line"
         PAGE.RunModal(PAGE::"Purchase Lines", RelatedPurchLine);
     end;
 
+    /// <summary>
+    /// Open a page with the posted purchase receipt lines related to the blanket order line.
+    /// </summary>
     procedure ShowBlanketOrderPostedReceiptLines()
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
@@ -9412,6 +10162,9 @@ table 39 "Purchase Line"
         PAGE.RunModal(PAGE::"Posted Purchase Receipt Lines", PurchRcptLine);
     end;
 
+    /// <summary>
+    /// Open a page with the posted purchase invoice lines related to the blanket order line.
+    /// </summary>
     procedure ShowBlanketOrderPostedInvoiceLines()
     var
         PurchInvLine: Record "Purch. Inv. Line";
@@ -9423,6 +10176,9 @@ table 39 "Purchase Line"
         PAGE.RunModal(PAGE::"Posted Purchase Invoice Lines", PurchInvLine);
     end;
 
+    /// <summary>
+    /// Open a page with the posted return shipment lines related to the blanket order line.
+    /// </summary>
     procedure ShowBlanketOrderPostedReturnReceiptLines()
     var
         ReturnShptLine: Record "Return Shipment Line";
@@ -9434,6 +10190,9 @@ table 39 "Purchase Line"
         PAGE.RunModal(PAGE::"Posted Return Shipment Lines", ReturnShptLine);
     end;
 
+    /// <summary>
+    /// Open a page with the posted purchase credit memo lines related to the blanket order line.
+    /// </summary>
     procedure ShowBlanketOrderPostedCreditMemoLines()
     var
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
@@ -9502,6 +10261,10 @@ table 39 "Purchase Line"
             JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code", Qty, JobPlanningLine."Qty. per Unit of Measure", JobPlanningLine."Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
+    /// <summary>
+    /// Initializes the dimensions for the purchase line if default dimensions are defined for the related entry.
+    /// </summary>
+    /// <param name="FieldNo">The field number for which to initialize the dimensions.</param>
     procedure CreateDimFromDefaultDim(FieldNo: Integer)
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
@@ -9518,6 +10281,11 @@ table 39 "Purchase Line"
         OnAfterCreateDimFromDefaultDim(Rec, DefaultDimSource, FieldNo);
     end;
 
+    /// <summary>
+    /// Returns a dictionary mapping table IDs to field values for the purchase line for a specified field no.
+    /// </summary>
+    /// <param name="FieldNo">Field number to map.</param>
+    /// <returns>Dictionary which has mapped provided field value with its corresponding table id.</returns>
     procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
     var
         IsHandled: Boolean;
@@ -9551,6 +10319,10 @@ table 39 "Purchase Line"
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
+    /// <summary>
+    /// Saves the selected record from the lookup to the lookup state manager.
+    /// </summary>
+    /// <param name="SelectedRecordRef">The reference to the selected record from the lookup.</param>
     procedure SaveLookupSelection(SelectedRecordRef: RecordRef)
     var
         GLAccount: Record "G/L Account";
@@ -9595,7 +10367,7 @@ table 39 "Purchase Line"
         end;
     end;
 
-    internal procedure AttachToInventoryItemLine(var SelectedPurchLine: Record "Purchase Line")
+    procedure AttachToInventoryItemLine(var SelectedPurchLine: Record "Purchase Line")
     var
         InvtItemPurchLine: Record "Purchase Line";
         TempPurchaseLine: Record "Purchase Line" temporary;
@@ -9633,6 +10405,9 @@ table 39 "Purchase Line"
                 until SelectedPurchLine.Next() = 0;
     end;
 
+    /// <summary>
+    /// Restores the selected record from the lookup state manager to the purchase line.
+    /// </summary>
     procedure RestoreLookupSelection()
     var
         GLAccount: Record "G/L Account";
@@ -9696,6 +10471,10 @@ table 39 "Purchase Line"
         end;
     end;
 
+    /// <summary>
+    /// Gets the date required for purchase line calculations.
+    /// </summary>
+    /// <returns>The date for calculations.</returns>
     procedure GetDateForCalculations() CalculationDate: Date;
     var
         FromPurchaseHeader: Record "Purchase Header";
@@ -9705,6 +10484,11 @@ table 39 "Purchase Line"
         CalculationDate := GetDateForCalculations(FromPurchaseHeader);
     end;
 
+    /// <summary>
+    /// Gets the date required for purchase line calculations.
+    /// </summary>
+    /// <param name="FromPurchaseHeader">The purchase header to get the date from.</param>
+    /// <returns>The date for calculations.</returns>
     procedure GetDateForCalculations(FromPurchaseHeader: Record "Purchase Header") CalculationDate: Date;
     begin
         if FromPurchaseHeader."Document Type" in [FromPurchaseHeader."Document Type"::Invoice, FromPurchaseHeader."Document Type"::"Credit Memo"] then
@@ -9727,6 +10511,12 @@ table 39 "Purchase Line"
             "System-Created Entry", "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "VAT %", "Allow Invoice Disc.", "Prepayment Line", "Completely Received");
     end;
 
+    /// <summary>
+    /// Checks if the quantity to post for the purchase line meets the specified quantity in the reservation entries.
+    /// </summary>
+    /// <param name="QtyToPost">Quantity that will be posted.</param>
+    /// <param name="ReservedFromStock">Reservation from stock type.</param>
+    /// <returns>True if the reserved quantity meets the quantity in the reservation entries, otherwise false.</returns>
     procedure CheckIfPurchaseLineMeetsReservedFromStockSetting(QtyToPost: Decimal; ReservedFromStock: Enum "Reservation From Stock") Result: Boolean
     var
         QtyReservedFromStock: Decimal;
@@ -9842,14 +10632,6 @@ table 39 "Purchase Line"
     local procedure OnAfterBlanketOrderLookup(var PurchaseLine: Record "Purchase Line")
     begin
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by OnAfterDeleteItemChargeAssignment with the same arguments', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterDeleteChargeChargeAssgnt(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteItemChargeAssignment(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
@@ -10033,6 +10815,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDefaultQuantity(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultGLAccountQuantity(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -11036,11 +11823,21 @@ table 39 "Purchase Line"
     begin
     end;
 
+    /// <summary>
+    /// Determines if the line is a charge item line that has been at least partially assigned.
+    /// </summary>
+    /// <returns>True if the line is a charge item line that has been at least partially assigned, otherwise false.</returns>
     procedure AssignedItemCharge(): Boolean
     begin
         exit((Type = Type::"Charge (Item)") and ("No." <> '') and ("Qty. to Assign" < Quantity));
     end;
 
+    /// <summary>
+    /// Opens a page with deferral schedule for the purchase line.
+    /// </summary>
+    /// <remarks>
+    /// If the deferral schedule doesn't exist yet, a new one is created and commited before the page is opened.
+    /// </remarks>
     procedure ShowDeferralSchedule()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -11694,6 +12491,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearQtyIfBlank(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; PurchasePayablesSetup: Record "Purchases & Payables Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumVATAmountLineOnBeforeModify(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
 

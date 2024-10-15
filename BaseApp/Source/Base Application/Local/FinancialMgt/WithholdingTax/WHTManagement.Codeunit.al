@@ -529,10 +529,9 @@ codeunit 28040 WHTManagement
                 if WHTPostingSetup.Get(PurchInvLine."WHT Business Posting Group", PurchInvLine."WHT Product Posting Group") then begin
                     if (WHTBusPostGrp <> PurchInvLine."WHT Business Posting Group") or
                        (WHTProdPostGrp <> PurchInvLine."WHT Product Posting Group")
-                    then begin
+                    then
                         if WHTMinInvoiceAmt <> WHTPostingSetup."WHT Minimum Invoice Amount" then
                             Error(Text1500004);
-                    end;
                     WHTBusPostGrp := PurchInvLine."WHT Business Posting Group";
                     WHTProdPostGrp := PurchInvLine."WHT Product Posting Group";
                 end;
@@ -684,10 +683,9 @@ codeunit 28040 WHTManagement
                 if WHTPostingSetup.Get(PurchCreditLine."WHT Business Posting Group", PurchCreditLine."WHT Product Posting Group") then begin
                     if (WHTBusPostGrp <> PurchCreditLine."WHT Business Posting Group") or
                        (WHTProdPostGrp <> PurchCreditLine."WHT Product Posting Group")
-                    then begin
+                    then
                         if WHTMinInvoiceAmt <> WHTPostingSetup."WHT Minimum Invoice Amount" then
                             Error(Text1500004);
-                    end;
                     WHTBusPostGrp := PurchCreditLine."WHT Business Posting Group";
                     WHTProdPostGrp := PurchCreditLine."WHT Product Posting Group";
                 end;
@@ -825,10 +823,9 @@ codeunit 28040 WHTManagement
                 if WHTPostingSetup.Get(SalesInvLine."WHT Business Posting Group", SalesInvLine."WHT Product Posting Group") then begin
                     if (WHTBusPostGrp <> SalesInvLine."WHT Business Posting Group") or
                        (WHTProdPostGrp <> SalesInvLine."WHT Product Posting Group")
-                    then begin
+                    then
                         if WHTMinInvoiceAmt <> WHTPostingSetup."WHT Minimum Invoice Amount" then
                             Error(Text1500004);
-                    end;
                     WHTBusPostGrp := SalesInvLine."WHT Business Posting Group";
                     WHTProdPostGrp := SalesInvLine."WHT Product Posting Group";
                 end;
@@ -910,10 +907,9 @@ codeunit 28040 WHTManagement
                 if WHTPostingSetup.Get(SalesCreditLine."WHT Business Posting Group", SalesCreditLine."WHT Product Posting Group") then begin
                     if (WHTBusPostGrp <> SalesCreditLine."WHT Business Posting Group") or
                        (WHTProdPostGrp <> SalesCreditLine."WHT Product Posting Group")
-                    then begin
+                    then
                         if WHTMinInvoiceAmt <> WHTPostingSetup."WHT Minimum Invoice Amount" then
                             Error(Text1500004);
-                    end;
                     WHTBusPostGrp := SalesCreditLine."WHT Business Posting Group";
                     WHTProdPostGrp := SalesCreditLine."WHT Product Posting Group";
                 end;
@@ -1370,7 +1366,7 @@ codeunit 28040 WHTManagement
                         WHTEntry2."Amount (LCY)" := WHTEntry2.Amount;
                         WHTEntry2."Base (LCY)" := WHTEntry2.Base;
                     end;
-                    if VendLedgEntry."Original Pmt. Disc. Possible" <> 0 then begin
+                    if VendLedgEntry."Original Pmt. Disc. Possible" <> 0 then
                         if WHTEntry2.Base <> WHTEntry."Unrealized Base" then begin
                             if VendLedgEntry."Remaining Amount" = 0 then begin
                                 WHTEntry3."Rem Unrealized Amount (LCY)" := WHTEntry2."Rem Unrealized Amount (LCY)";
@@ -1386,14 +1382,13 @@ codeunit 28040 WHTManagement
                                 WHTEntry3."WHT Difference" :=
                                   WHTEntry3."WHT Difference" + Abs(Abs(WHTEntry3."Pymt. Disc. Diff. Amount") -
                                   Abs(WHTEntry."Unrealized Amount" - (WHTEntry4.Amount + WHTEntry2.Amount)));
-                            end
-                        end
-                    end else begin
-                        WHTEntry3."Rem Unrealized Amount (LCY)" :=
-                          WHTEntry."Rem Unrealized Amount (LCY)" - WHTEntry2."Amount (LCY)";
-                        WHTEntry3."Rem Unrealized Base (LCY)" :=
-                          WHTEntry."Rem Unrealized Base (LCY)" - WHTEntry2."Base (LCY)";
-                    end;
+                            end;
+                        end else begin
+                            WHTEntry3."Rem Unrealized Amount (LCY)" :=
+                              WHTEntry."Rem Unrealized Amount (LCY)" - WHTEntry2."Amount (LCY)";
+                            WHTEntry3."Rem Unrealized Base (LCY)" :=
+                              WHTEntry."Rem Unrealized Base (LCY)" - WHTEntry2."Base (LCY)";
+                        end;
 
                     WHTEntry2.Insert();
                     WHTEntry3.Modify();
@@ -1406,11 +1401,9 @@ codeunit 28040 WHTManagement
                     else
                         TempGenJnlTemp.SetRange(Type, TempGenJnlTemp.Type::Purchases);
                     if TempGenJnlTemp.FindFirst() then
-                        if GenJnlLine."Journal Template Name" <> TempGenJnlTemp.Name then begin
-                            // Payment Method Code.End;
+                        if GenJnlLine."Journal Template Name" <> TempGenJnlTemp.Name then
                             if WHTEntry2.Amount <> 0 then
-                                InsertWHTPostingBuffer(WHTEntry2, GenJnlLine, 0, AmountWithDisc)
-                        end; // Payment Method Code
+                                InsertWHTPostingBuffer(WHTEntry2, GenJnlLine, 0, AmountWithDisc);
                 end;
             until (WHTEntry.Next() = 0);
         if (WHTPostingSetup."Realized WHT Type" =
@@ -2063,7 +2056,7 @@ codeunit 28040 WHTManagement
                             TempWHTEntry.Modify();
                             WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
                         end;
-                    end else begin
+                    end else
                         if "Applies-toID" <> '' then begin
                             if (TransType = TransType::Purchase) and
                                (WHTEntry."Document Type" = WHTEntry."Document Type"::"Credit Memo")
@@ -2126,7 +2119,7 @@ codeunit 28040 WHTManagement
                                             TempWHTEntry.SetRange("Document No.", CustLedgerEntry1."Document No.");
                                             TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
                                             TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                            if TempWHTEntry.FindFirst() then begin
+                                            if TempWHTEntry.FindFirst() then
                                                 if Abs(WHTEntry."Remaining Unrealized Amount") <=
                                                    Abs(TempWHTEntry."Remaining Unrealized Amount")
                                                 then begin
@@ -2142,13 +2135,11 @@ codeunit 28040 WHTManagement
                                                     WHTEntry.Closed := true;
                                                     WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
                                                 end;
-                                            end;
                                         end;
                                     end;
                                 end;
                             end;
                         end;
-                    end;
                 end else begin
                     if AbsorbBase <> 0 then
                         WHTEntry.Base := AbsorbBase
@@ -2179,7 +2170,7 @@ codeunit 28040 WHTManagement
                             WHTEntry."Rem Realized Amount" := WHTEntry.Amount;
                             if (WHTPostingSetup."Realized WHT Type" =
                                 WHTPostingSetup."Realized WHT Type"::Earliest)
-                            then begin
+                            then
                                 if WHTEntry."Applies-to Doc. No." <> '' then begin
                                     TempWHTEntry.Reset();
                                     // TempWHTEntry.SETRANGE(Settled,FALSE);
@@ -2200,7 +2191,7 @@ codeunit 28040 WHTManagement
                                           TempWHTEntry."Document Type"::Invoice,
                                           TempWHTEntry."Document Type"::Refund);
 
-                                    if TempWHTEntry.FindFirst() then begin
+                                    if TempWHTEntry.FindFirst() then
                                         if TempWHTEntry.Prepayment then begin
                                             PaymentAmount1 := WHTEntry.Base;
                                             WHTEntry3.Reset();
@@ -2368,7 +2359,7 @@ codeunit 28040 WHTManagement
 
                                                         if ((WHTEntry."Document Type" = WHTEntry."Document Type"::Payment) and
                                                             (TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Invoice))
-                                                        then begin
+                                                        then
                                                             if CheckPmtDisc(
                                                                  TempGenJnlLine."Posting Date",
                                                                  TempVendLedgEntry."Pmt. Discount Date",
@@ -2378,7 +2369,6 @@ codeunit 28040 WHTManagement
                                                                  Abs(TotAmt))
                                                             then
                                                                 TotAmt := TotAmt - TempVendLedgEntry."Original Pmt. Disc. Possible";
-                                                        end;
 
                                                         if Abs(TempVendLedgEntry."Rem. Amt for WHT") < Abs(TotAmt) then begin
                                                             if ((TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::"Credit Memo") or
@@ -2387,7 +2377,7 @@ codeunit 28040 WHTManagement
                                                                 WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" + TempWHTEntry."Rem Realized Base";
                                                                 WHTEntry."Rem Realized Amount" :=
                                                                   WHTEntry."Rem Realized Amount" + TempWHTEntry."Rem Realized Amount";
-                                                            end else begin
+                                                            end else
                                                                 if CheckPmtDisc(
                                                                      TempGenJnlLine."Posting Date",
                                                                      TempVendLedgEntry."Pmt. Discount Date",
@@ -2418,7 +2408,6 @@ codeunit 28040 WHTManagement
                                                                     WHTEntry."Rem Realized Amount" := WHTEntry."Rem Realized Amount" -
                                                                       Round(Abs(TempVendLedgEntry."Rem. Amt for WHT" - TempWHTEntry.Amount) * WHTEntry."WHT %" / 100);
                                                                 end;
-                                                            end;
                                                             TempWHTEntry."Rem Realized Base" := 0;
                                                             TempWHTEntry."Rem Realized Amount" := 0;
                                                             TempWHTEntry."Rem Realized Base (LCY)" := 0;
@@ -2464,8 +2453,7 @@ codeunit 28040 WHTManagement
                                                 TempWHTEntry.Closed := true;
                                             TempWHTEntry.Modify();
                                         end;
-                                    end;
-                                end else begin
+                                end else
                                     if "Applies-toID" <> '' then begin
                                         if WHTEntry."Document Type" = WHTEntry."Document Type"::Payment then begin
                                             TotAmt := 0;
@@ -2506,7 +2494,7 @@ codeunit 28040 WHTManagement
                                                             TempWHTEntry."Rem Realized Amount" := 0;
                                                             TempWHTEntry."Rem Realized Base (LCY)" := 0;
                                                             TempWHTEntry."Rem Realized Amount (LCY)" := 0;
-                                                        end else begin
+                                                        end else
                                                             if (Abs(TotalWHT) > 0) and (Abs(TotalWHT) <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
                                                                 TempWHTEntry."Rem Realized Base" :=
                                                                   TempWHTEntry."Rem Realized Base" + TotalWHTBase;
@@ -2517,7 +2505,6 @@ codeunit 28040 WHTManagement
                                                                 TotalWHTBase := 0;
                                                                 TotalWHT := 0;
                                                             end;
-                                                        end;
 
                                                         if CurrencyCode = '' then begin
                                                             TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
@@ -2876,7 +2863,7 @@ codeunit 28040 WHTManagement
                                                             TempWHTEntry."Rem Realized Amount" := 0;
                                                             TempWHTEntry."Rem Realized Base (LCY)" := 0;
                                                             TempWHTEntry."Rem Realized Amount (LCY)" := 0;
-                                                        end else begin
+                                                        end else
                                                             if (TotalWHT > 0) and (TotalWHT <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
                                                                 if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::"Credit Memo" then begin
                                                                     TempWHTEntry."Rem Realized Base" :=
@@ -2896,7 +2883,6 @@ codeunit 28040 WHTManagement
                                                                 TotalWHTBase := 0;
                                                                 TotalWHT := 0;
                                                             end;
-                                                        end;
 
                                                         if CurrencyCode = '' then begin
                                                             TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
@@ -2922,8 +2908,6 @@ codeunit 28040 WHTManagement
                                             end;
                                         end;
                                     end;
-                                end;
-                            end;
                         end;
 
                         // Purchase Credit Memo & Refund
@@ -2937,7 +2921,7 @@ codeunit 28040 WHTManagement
                             WHTEntry."Rem Realized Amount" := WHTEntry.Amount;
                             if (WHTPostingSetup."Realized WHT Type" =
                                 WHTPostingSetup."Realized WHT Type"::Earliest)
-                            then begin
+                            then
                                 if WHTEntry."Applies-to Doc. No." <> '' then begin
                                     TempWHTEntry.Reset();
                                     // TempWHTEntry.SETRANGE(Settled,FALSE);
@@ -3014,213 +2998,209 @@ codeunit 28040 WHTManagement
                                         then
                                             TempWHTEntry.Closed := true;
                                         TempWHTEntry.Modify();
-                                    end;
-                                end else begin
-                                    if "Applies-toID" <> '' then begin
-                                        if WHTEntry."Document Type" = WHTEntry."Document Type"::"Credit Memo" then begin
-                                            VendLedgerEntry.Reset();
-                                            VendLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
-                                            VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Refund);
-                                            if VendLedgerEntry.FindSet() then begin
-                                                TotalWHTBase := WHTEntry."Rem Realized Base";
-                                                TotalWHT := WHTEntry."Rem Realized Amount";
-                                                repeat
-                                                    TempWHTEntry.Reset();
-                                                    TempWHTEntry.SetRange(Settled, false);
-                                                    TempWHTEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
-                                                    TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
-                                                    TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst() then begin
-                                                        if Abs(TotalWHT) > Abs(TempWHTEntry."Rem Realized Amount") then begin
-                                                            WHTEntry.Base := WHTEntry.Base + TempWHTEntry."Rem Realized Base";
-                                                            WHTEntry.Amount := WHTEntry.Amount + TempWHTEntry."Rem Realized Amount";
-                                                            WHTEntry."Rem Realized Base" :=
-                                                              WHTEntry."Rem Realized Base" + TempWHTEntry."Rem Realized Base";
-                                                            WHTEntry."Rem Realized Amount" :=
-                                                              WHTEntry."Rem Realized Amount" + TempWHTEntry."Rem Realized Amount";
-                                                            TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
-                                                            TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
-                                                            TempWHTEntry."Rem Realized Base" := 0;
-                                                            TempWHTEntry."Rem Realized Amount" := 0;
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := 0;
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := 0;
-                                                        end else begin
-                                                            if (Abs(TotalWHT) > 0) and (Abs(TotalWHT) <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
-                                                                TempWHTEntry."Rem Realized Base" :=
-                                                                  TempWHTEntry."Rem Realized Base" + TotalWHTBase;
-                                                                TempWHTEntry."Rem Realized Amount" :=
-                                                                  TempWHTEntry."Rem Realized Amount" + TotalWHT;
-                                                                WHTEntry.Base := 0;
-                                                                WHTEntry.Amount := 0;
-                                                                WHTEntry."Rem Realized Amount" := 0;
-                                                                WHTEntry."Rem Realized Base" := 0;
-                                                                TotalWHTBase := 0;
-                                                                TotalWHT := 0;
-                                                            end;
-                                                        end;
-
-                                                        if CurrencyCode = '' then begin
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
-                                                        end else begin
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
-                                                            TempWHTEntry."Rem Realized Base (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
-                                                        end;
-                                                        if ((TempWHTEntry."Rem Realized Amount" = 0) and
-                                                            (TempWHTEntry."Rem Realized Base" = 0))
-                                                        then
-                                                            TempWHTEntry.Closed := true;
-                                                        TempWHTEntry.Modify();
-                                                    end;
-                                                until VendLedgerEntry.Next() = 0;
-                                                WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
-                                            end;
-
-                                            VendLedgerEntry.Reset();
-                                            VendLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
-                                            VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Invoice);
-                                            if VendLedgerEntry.FindSet() then begin
-                                                TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
-                                                TotalWHT := Abs(WHTEntry."Rem Realized Amount");
-                                                repeat
-                                                    TempWHTEntry.Reset();
-                                                    TempWHTEntry.SetRange(Settled, false);
-                                                    TempWHTEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
-                                                    TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
-                                                    TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst() then begin
-                                                        if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
-                                                            WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" + TempWHTEntry."Rem Realized Base";
-                                                            WHTEntry."Rem Realized Amount" := WHTEntry."Rem Realized Amount" + TempWHTEntry."Rem Realized Amount";
-                                                            TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
-                                                            TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
-                                                            TempWHTEntry."Rem Realized Base" := 0;
-                                                            TempWHTEntry."Rem Realized Amount" := 0;
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := 0;
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := 0;
-                                                        end else begin
-                                                            if (TotalWHT > 0) and (Abs(TotalWHT) <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
-                                                                TempWHTEntry."Rem Realized Base" :=
-                                                                  TempWHTEntry."Rem Realized Base" - TotalWHTBase;
-                                                                TempWHTEntry."Rem Realized Amount" :=
-                                                                  TempWHTEntry."Rem Realized Amount" - TotalWHT;
-                                                                WHTEntry."Rem Realized Amount" := 0;
-                                                                WHTEntry."Rem Realized Base" := 0;
-                                                                TotalWHTBase := 0;
-                                                                TotalWHT := 0;
-                                                            end;
-                                                        end;
-
-                                                        if CurrencyCode = '' then begin
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
-                                                        end else begin
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
-                                                            TempWHTEntry."Rem Realized Base (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
-                                                        end;
-                                                        if ((TempWHTEntry."Rem Realized Amount" = 0) and
-                                                            (TempWHTEntry."Rem Realized Base" = 0))
-                                                        then
-                                                            TempWHTEntry.Closed := true;
-                                                        TempWHTEntry.Modify();
-                                                    end;
-                                                until VendLedgerEntry.Next() = 0;
-                                                WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
-                                            end;
-                                        end;
-
-                                        if WHTEntry."Document Type" = WHTEntry."Document Type"::Refund then begin
-                                            VendLedgerEntry.Reset();
-                                            VendLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
-                                            VendLedgerEntry.SetFilter(
-                                              "Document Type",
-                                              '%1|%2',
-                                              VendLedgerEntry."Document Type"::Payment,
-                                              VendLedgerEntry."Document Type"::"Credit Memo");
-                                            if VendLedgerEntry.FindSet() then begin
-                                                TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
-                                                TotalWHT := Abs(WHTEntry."Rem Realized Amount");
-                                                repeat
-                                                    TempWHTEntry.Reset();
-                                                    TempWHTEntry.SetRange(Settled, false);
-                                                    TempWHTEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
-                                                    TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
-                                                    TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst() then begin
-                                                        if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
-                                                            if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::"Credit Memo" then begin
-                                                                WHTEntry.Base := WHTEntry.Base + Abs(TempWHTEntry."Rem Realized Base");
-                                                                WHTEntry.Amount := WHTEntry.Amount + Abs(TempWHTEntry."Rem Realized Amount");
-                                                            end;
-                                                            WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" + Abs(TempWHTEntry."Rem Realized Base");
-                                                            WHTEntry."Rem Realized Amount" :=
-                                                              WHTEntry."Rem Realized Amount" + Abs(TempWHTEntry."Rem Realized Amount");
-                                                            TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
-                                                            TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
-                                                            TempWHTEntry."Rem Realized Base" := 0;
-                                                            TempWHTEntry."Rem Realized Amount" := 0;
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := 0;
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := 0;
-                                                        end else begin
-                                                            if (TotalWHT > 0) and (TotalWHT <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
-                                                                if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Payment then begin
-                                                                    TempWHTEntry."Rem Realized Base" :=
-                                                                      TempWHTEntry."Rem Realized Base" - TotalWHTBase;
-                                                                    TempWHTEntry."Rem Realized Amount" :=
-                                                                      TempWHTEntry."Rem Realized Amount" - TotalWHT;
-                                                                end else begin
+                                    end
+                                    else
+                                        if "Applies-toID" <> '' then begin
+                                            if WHTEntry."Document Type" = WHTEntry."Document Type"::"Credit Memo" then begin
+                                                VendLedgerEntry.Reset();
+                                                VendLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
+                                                VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Refund);
+                                                if VendLedgerEntry.FindSet() then begin
+                                                    TotalWHTBase := WHTEntry."Rem Realized Base";
+                                                    TotalWHT := WHTEntry."Rem Realized Amount";
+                                                    repeat
+                                                        TempWHTEntry.Reset();
+                                                        TempWHTEntry.SetRange(Settled, false);
+                                                        TempWHTEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
+                                                        TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
+                                                        TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
+                                                        if TempWHTEntry.FindFirst() then begin
+                                                            if Abs(TotalWHT) > Abs(TempWHTEntry."Rem Realized Amount") then begin
+                                                                WHTEntry.Base := WHTEntry.Base + TempWHTEntry."Rem Realized Base";
+                                                                WHTEntry.Amount := WHTEntry.Amount + TempWHTEntry."Rem Realized Amount";
+                                                                WHTEntry."Rem Realized Base" :=
+                                                                  WHTEntry."Rem Realized Base" + TempWHTEntry."Rem Realized Base";
+                                                                WHTEntry."Rem Realized Amount" :=
+                                                                  WHTEntry."Rem Realized Amount" + TempWHTEntry."Rem Realized Amount";
+                                                                TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
+                                                                TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
+                                                                TempWHTEntry."Rem Realized Base" := 0;
+                                                                TempWHTEntry."Rem Realized Amount" := 0;
+                                                                TempWHTEntry."Rem Realized Base (LCY)" := 0;
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" := 0;
+                                                            end else
+                                                                if (Abs(TotalWHT) > 0) and (Abs(TotalWHT) <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
                                                                     TempWHTEntry."Rem Realized Base" :=
                                                                       TempWHTEntry."Rem Realized Base" + TotalWHTBase;
                                                                     TempWHTEntry."Rem Realized Amount" :=
                                                                       TempWHTEntry."Rem Realized Amount" + TotalWHT;
                                                                     WHTEntry.Base := 0;
                                                                     WHTEntry.Amount := 0;
+                                                                    WHTEntry."Rem Realized Amount" := 0;
+                                                                    WHTEntry."Rem Realized Base" := 0;
+                                                                    TotalWHTBase := 0;
+                                                                    TotalWHT := 0;
                                                                 end;
-                                                                WHTEntry."Rem Realized Amount" := 0;
-                                                                WHTEntry."Rem Realized Base" := 0;
-                                                                TotalWHTBase := 0;
-                                                                TotalWHT := 0;
-                                                            end;
-                                                        end;
 
-                                                        if CurrencyCode = '' then begin
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
-                                                        end else begin
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
-                                                            TempWHTEntry."Rem Realized Base (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
+                                                            if CurrencyCode = '' then begin
+                                                                TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
+                                                            end else begin
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" :=
+                                                                  Round(
+                                                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                                                      DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
+                                                                TempWHTEntry."Rem Realized Base (LCY)" :=
+                                                                  Round(
+                                                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                                                      DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
+                                                            end;
+                                                            if ((TempWHTEntry."Rem Realized Amount" = 0) and
+                                                                (TempWHTEntry."Rem Realized Base" = 0))
+                                                            then
+                                                                TempWHTEntry.Closed := true;
+                                                            TempWHTEntry.Modify();
                                                         end;
-                                                        if ((TempWHTEntry."Rem Realized Amount" = 0) and
-                                                            (TempWHTEntry."Rem Realized Base" = 0))
-                                                        then
-                                                            TempWHTEntry.Closed := true;
-                                                        TempWHTEntry.Modify();
-                                                    end;
-                                                until VendLedgerEntry.Next() = 0;
-                                                WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
+                                                    until VendLedgerEntry.Next() = 0;
+                                                    WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
+                                                end;
+
+                                                VendLedgerEntry.Reset();
+                                                VendLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
+                                                VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Invoice);
+                                                if VendLedgerEntry.FindSet() then begin
+                                                    TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
+                                                    TotalWHT := Abs(WHTEntry."Rem Realized Amount");
+                                                    repeat
+                                                        TempWHTEntry.Reset();
+                                                        TempWHTEntry.SetRange(Settled, false);
+                                                        TempWHTEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
+                                                        TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
+                                                        TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
+                                                        if TempWHTEntry.FindFirst() then begin
+                                                            if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
+                                                                WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" + TempWHTEntry."Rem Realized Base";
+                                                                WHTEntry."Rem Realized Amount" := WHTEntry."Rem Realized Amount" + TempWHTEntry."Rem Realized Amount";
+                                                                TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
+                                                                TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
+                                                                TempWHTEntry."Rem Realized Base" := 0;
+                                                                TempWHTEntry."Rem Realized Amount" := 0;
+                                                                TempWHTEntry."Rem Realized Base (LCY)" := 0;
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" := 0;
+                                                            end else
+                                                                if (TotalWHT > 0) and (Abs(TotalWHT) <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
+                                                                    TempWHTEntry."Rem Realized Base" :=
+                                                                      TempWHTEntry."Rem Realized Base" - TotalWHTBase;
+                                                                    TempWHTEntry."Rem Realized Amount" :=
+                                                                      TempWHTEntry."Rem Realized Amount" - TotalWHT;
+                                                                    WHTEntry."Rem Realized Amount" := 0;
+                                                                    WHTEntry."Rem Realized Base" := 0;
+                                                                    TotalWHTBase := 0;
+                                                                    TotalWHT := 0;
+                                                                end;
+
+                                                            if CurrencyCode = '' then begin
+                                                                TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
+                                                            end else begin
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" :=
+                                                                  Round(
+                                                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                                                      DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
+                                                                TempWHTEntry."Rem Realized Base (LCY)" :=
+                                                                  Round(
+                                                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                                                      DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
+                                                            end;
+                                                            if ((TempWHTEntry."Rem Realized Amount" = 0) and
+                                                                (TempWHTEntry."Rem Realized Base" = 0))
+                                                            then
+                                                                TempWHTEntry.Closed := true;
+                                                            TempWHTEntry.Modify();
+                                                        end;
+                                                    until VendLedgerEntry.Next() = 0;
+                                                    WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
+                                                end;
+                                            end;
+
+                                            if WHTEntry."Document Type" = WHTEntry."Document Type"::Refund then begin
+                                                VendLedgerEntry.Reset();
+                                                VendLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
+                                                VendLedgerEntry.SetFilter(
+                                                  "Document Type",
+                                                  '%1|%2',
+                                                  VendLedgerEntry."Document Type"::Payment,
+                                                  VendLedgerEntry."Document Type"::"Credit Memo");
+                                                if VendLedgerEntry.FindSet() then begin
+                                                    TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
+                                                    TotalWHT := Abs(WHTEntry."Rem Realized Amount");
+                                                    repeat
+                                                        TempWHTEntry.Reset();
+                                                        TempWHTEntry.SetRange(Settled, false);
+                                                        TempWHTEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
+                                                        TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
+                                                        TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
+                                                        if TempWHTEntry.FindFirst() then begin
+                                                            if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
+                                                                if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::"Credit Memo" then begin
+                                                                    WHTEntry.Base := WHTEntry.Base + Abs(TempWHTEntry."Rem Realized Base");
+                                                                    WHTEntry.Amount := WHTEntry.Amount + Abs(TempWHTEntry."Rem Realized Amount");
+                                                                end;
+                                                                WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" + Abs(TempWHTEntry."Rem Realized Base");
+                                                                WHTEntry."Rem Realized Amount" :=
+                                                                  WHTEntry."Rem Realized Amount" + Abs(TempWHTEntry."Rem Realized Amount");
+                                                                TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
+                                                                TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
+                                                                TempWHTEntry."Rem Realized Base" := 0;
+                                                                TempWHTEntry."Rem Realized Amount" := 0;
+                                                                TempWHTEntry."Rem Realized Base (LCY)" := 0;
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" := 0;
+                                                            end else
+                                                                if (TotalWHT > 0) and (TotalWHT <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
+                                                                    if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Payment then begin
+                                                                        TempWHTEntry."Rem Realized Base" :=
+                                                                          TempWHTEntry."Rem Realized Base" - TotalWHTBase;
+                                                                        TempWHTEntry."Rem Realized Amount" :=
+                                                                          TempWHTEntry."Rem Realized Amount" - TotalWHT;
+                                                                    end else begin
+                                                                        TempWHTEntry."Rem Realized Base" :=
+                                                                          TempWHTEntry."Rem Realized Base" + TotalWHTBase;
+                                                                        TempWHTEntry."Rem Realized Amount" :=
+                                                                          TempWHTEntry."Rem Realized Amount" + TotalWHT;
+                                                                        WHTEntry.Base := 0;
+                                                                        WHTEntry.Amount := 0;
+                                                                    end;
+                                                                    WHTEntry."Rem Realized Amount" := 0;
+                                                                    WHTEntry."Rem Realized Base" := 0;
+                                                                    TotalWHTBase := 0;
+                                                                    TotalWHT := 0;
+                                                                end;
+
+                                                            if CurrencyCode = '' then begin
+                                                                TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
+                                                            end else begin
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" :=
+                                                                  Round(
+                                                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                                                      DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
+                                                                TempWHTEntry."Rem Realized Base (LCY)" :=
+                                                                  Round(
+                                                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                                                      DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
+                                                            end;
+                                                            if ((TempWHTEntry."Rem Realized Amount" = 0) and
+                                                                (TempWHTEntry."Rem Realized Base" = 0))
+                                                            then
+                                                                TempWHTEntry.Closed := true;
+                                                            TempWHTEntry.Modify();
+                                                        end;
+                                                    until VendLedgerEntry.Next() = 0;
+                                                    WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
+                                                end;
                                             end;
                                         end;
-                                    end;
                                 end;
-                            end;
                         end;
                     end;
 
@@ -3254,7 +3234,6 @@ codeunit 28040 WHTManagement
                                               '%1|%2',
                                               TempWHTEntry."Document Type"::Payment,
                                               TempWHTEntry."Document Type"::"Credit Memo");
-
                                         if WHTEntry."Document Type" = WHTEntry."Document Type"::Payment then
                                             TempWHTEntry.SetFilter(
                                               "Document Type",
@@ -3320,8 +3299,8 @@ codeunit 28040 WHTManagement
                                         end;
                                     end else
                                         WHTEntry.Amount := 0;
-                                end else begin
-                                    if "Applies-toID" <> '' then begin
+                                end else
+                                    if "Applies-toID" <> '' then
                                         if WHTEntry."Document Type" = WHTEntry."Document Type"::Payment then begin
                                             IsRefund := false;
                                             CustLedgerEntry.Reset();
@@ -3349,7 +3328,7 @@ codeunit 28040 WHTManagement
                                                             TempWHTEntry."Rem Realized Amount" := 0;
                                                             TempWHTEntry."Rem Realized Base (LCY)" := 0;
                                                             TempWHTEntry."Rem Realized Amount (LCY)" := 0;
-                                                        end else begin
+                                                        end else
                                                             if (TotalWHT > 0) and (Abs(TotalWHT) <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
                                                                 TempWHTEntry."Rem Realized Base" :=
                                                                   TempWHTEntry."Rem Realized Base" - TotalWHTBase;
@@ -3360,7 +3339,6 @@ codeunit 28040 WHTManagement
                                                                 TotalWHTBase := 0;
                                                                 TotalWHT := 0;
                                                             end;
-                                                        end;
 
                                                         if CurrencyCode = '' then begin
                                                             TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
@@ -3410,7 +3388,7 @@ codeunit 28040 WHTManagement
                                                             TempWHTEntry."Rem Realized Amount" := 0;
                                                             TempWHTEntry."Rem Realized Base (LCY)" := 0;
                                                             TempWHTEntry."Rem Realized Amount (LCY)" := 0;
-                                                        end else begin
+                                                        end else
                                                             if (TotalWHT > 0) and (Abs(TotalWHT) <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
                                                                 TempWHTEntry."Rem Realized Base" :=
                                                                   TempWHTEntry."Rem Realized Base" + TotalWHTBase;
@@ -3423,7 +3401,6 @@ codeunit 28040 WHTManagement
                                                                 TotalWHTBase := 0;
                                                                 TotalWHT := 0;
                                                             end;
-                                                        end;
 
                                                         if CurrencyCode = '' then begin
                                                             TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
@@ -3451,83 +3428,80 @@ codeunit 28040 WHTManagement
                                                     WHTEntry.Amount := 0;
                                         end;
 
-                                        if WHTEntry."Document Type" = WHTEntry."Document Type"::Invoice then begin
-                                            CustLedgerEntry.Reset();
-                                            CustLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
-                                            CustLedgerEntry.SetFilter(
-                                              "Document Type",
-                                              '%1|%2',
-                                              CustLedgerEntry."Document Type"::Payment,
-                                              CustLedgerEntry."Document Type"::"Credit Memo");
-                                            if CustLedgerEntry.FindSet() then begin
-                                                TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
-                                                TotalWHT := Abs(WHTEntry."Rem Realized Amount");
-                                                repeat
-                                                    TempWHTEntry.Reset();
-                                                    TempWHTEntry.SetRange(Settled, false);
-                                                    TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
-                                                    TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
-                                                    TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst() then begin
-                                                        if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
-                                                            if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Payment then begin
-                                                                WHTEntry.Base := WHTEntry.Base + Abs(TempWHTEntry."Rem Realized Base");
-                                                                WHTEntry.Amount := WHTEntry.Amount + Abs(TempWHTEntry."Rem Realized Amount");
-                                                            end;
-                                                            WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" + Abs(TempWHTEntry."Rem Realized Base");
-                                                            WHTEntry."Rem Realized Amount" :=
-                                                              WHTEntry."Rem Realized Amount" + Abs(TempWHTEntry."Rem Realized Amount");
-                                                            TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
-                                                            TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
-                                                            TempWHTEntry."Rem Realized Base" := 0;
-                                                            TempWHTEntry."Rem Realized Amount" := 0;
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := 0;
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := 0;
-                                                        end else begin
-                                                            if (TotalWHT > 0) and (TotalWHT <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
-                                                                if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::"Credit Memo" then begin
-                                                                    TempWHTEntry."Rem Realized Base" :=
-                                                                      TempWHTEntry."Rem Realized Base" - TotalWHTBase;
-                                                                    TempWHTEntry."Rem Realized Amount" :=
-                                                                      TempWHTEntry."Rem Realized Amount" - TotalWHT;
-                                                                end else begin
-                                                                    TempWHTEntry."Rem Realized Base" :=
-                                                                      TempWHTEntry."Rem Realized Base" + TotalWHTBase;
-                                                                    TempWHTEntry."Rem Realized Amount" :=
-                                                                      TempWHTEntry."Rem Realized Amount" + TotalWHT;
-                                                                    WHTEntry.Base := 0;
-                                                                    WHTEntry.Amount := 0;
-                                                                end;
-                                                                WHTEntry."Rem Realized Amount" := 0;
-                                                                WHTEntry."Rem Realized Base" := 0;
-                                                                TotalWHTBase := 0;
-                                                                TotalWHT := 0;
-                                                            end;
-                                                        end;
-
-                                                        if CurrencyCode = '' then begin
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
-                                                        end else begin
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
-                                                            TempWHTEntry."Rem Realized Base (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
-                                                        end;
-                                                        if ((TempWHTEntry."Rem Realized Amount" = 0) and
-                                                            (TempWHTEntry."Rem Realized Base" = 0))
-                                                        then
-                                                            TempWHTEntry.Closed := true;
-                                                        TempWHTEntry.Modify();
+                                if WHTEntry."Document Type" = WHTEntry."Document Type"::Invoice then begin
+                                    CustLedgerEntry.Reset();
+                                    CustLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
+                                    CustLedgerEntry.SetFilter(
+                                      "Document Type",
+                                      '%1|%2',
+                                      CustLedgerEntry."Document Type"::Payment,
+                                      CustLedgerEntry."Document Type"::"Credit Memo");
+                                    if CustLedgerEntry.FindSet() then begin
+                                        TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
+                                        TotalWHT := Abs(WHTEntry."Rem Realized Amount");
+                                        repeat
+                                            TempWHTEntry.Reset();
+                                            TempWHTEntry.SetRange(Settled, false);
+                                            TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
+                                            TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
+                                            TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
+                                            if TempWHTEntry.FindFirst() then begin
+                                                if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
+                                                    if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Payment then begin
+                                                        WHTEntry.Base := WHTEntry.Base + Abs(TempWHTEntry."Rem Realized Base");
+                                                        WHTEntry.Amount := WHTEntry.Amount + Abs(TempWHTEntry."Rem Realized Amount");
                                                     end;
-                                                until CustLedgerEntry.Next() = 0;
-                                                WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
+                                                    WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" + Abs(TempWHTEntry."Rem Realized Base");
+                                                    WHTEntry."Rem Realized Amount" :=
+                                                      WHTEntry."Rem Realized Amount" + Abs(TempWHTEntry."Rem Realized Amount");
+                                                    TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
+                                                    TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
+                                                    TempWHTEntry."Rem Realized Base" := 0;
+                                                    TempWHTEntry."Rem Realized Amount" := 0;
+                                                    TempWHTEntry."Rem Realized Base (LCY)" := 0;
+                                                    TempWHTEntry."Rem Realized Amount (LCY)" := 0;
+                                                end else
+                                                    if (TotalWHT > 0) and (TotalWHT <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
+                                                        if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::"Credit Memo" then begin
+                                                            TempWHTEntry."Rem Realized Base" :=
+                                                              TempWHTEntry."Rem Realized Base" - TotalWHTBase;
+                                                            TempWHTEntry."Rem Realized Amount" :=
+                                                              TempWHTEntry."Rem Realized Amount" - TotalWHT;
+                                                        end else begin
+                                                            TempWHTEntry."Rem Realized Base" :=
+                                                              TempWHTEntry."Rem Realized Base" + TotalWHTBase;
+                                                            TempWHTEntry."Rem Realized Amount" :=
+                                                              TempWHTEntry."Rem Realized Amount" + TotalWHT;
+                                                            WHTEntry.Base := 0;
+                                                            WHTEntry.Amount := 0;
+                                                        end;
+                                                        WHTEntry."Rem Realized Amount" := 0;
+                                                        WHTEntry."Rem Realized Base" := 0;
+                                                        TotalWHTBase := 0;
+                                                        TotalWHT := 0;
+                                                    end;
+
+                                                if CurrencyCode = '' then begin
+                                                    TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
+                                                    TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
+                                                end else begin
+                                                    TempWHTEntry."Rem Realized Amount (LCY)" :=
+                                                      Round(
+                                                        CurrExchRate.ExchangeAmtFCYToLCY(
+                                                          DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
+                                                    TempWHTEntry."Rem Realized Base (LCY)" :=
+                                                      Round(
+                                                        CurrExchRate.ExchangeAmtFCYToLCY(
+                                                          DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
+                                                end;
+                                                if ((TempWHTEntry."Rem Realized Amount" = 0) and
+                                                    (TempWHTEntry."Rem Realized Base" = 0))
+                                                then
+                                                    TempWHTEntry.Closed := true;
+                                                TempWHTEntry.Modify();
                                             end;
-                                        end;
+                                        until CustLedgerEntry.Next() = 0;
+                                        WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
                                     end;
                                 end;
                             end;
@@ -3544,7 +3518,7 @@ codeunit 28040 WHTManagement
                             WHTEntry."Rem Realized Amount" := WHTEntry.Amount;
                             if (WHTPostingSetup."Realized WHT Type" =
                                 WHTPostingSetup."Realized WHT Type"::Earliest)
-                            then begin
+                            then
                                 if WHTEntry."Applies-to Doc. No." <> '' then begin
                                     TempWHTEntry.Reset();
                                     TempWHTEntry.SetRange(Settled, false);
@@ -3621,213 +3595,209 @@ codeunit 28040 WHTManagement
                                         then
                                             TempWHTEntry.Closed := true;
                                         TempWHTEntry.Modify();
-                                    end;
-                                end else begin
-                                    if "Applies-toID" <> '' then begin
-                                        if WHTEntry."Document Type" = WHTEntry."Document Type"::"Credit Memo" then begin
-                                            CustLedgerEntry.Reset();
-                                            CustLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
-                                            CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Refund);
-                                            if CustLedgerEntry.FindSet() then begin
-                                                TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
-                                                TotalWHT := Abs(WHTEntry."Rem Realized Amount");
-                                                repeat
-                                                    TempWHTEntry.Reset();
-                                                    TempWHTEntry.SetRange(Settled, false);
-                                                    TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
-                                                    TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
-                                                    TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst() then begin
-                                                        if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
-                                                            WHTEntry.Base := WHTEntry.Base - TempWHTEntry."Rem Realized Base";
-                                                            WHTEntry.Amount := WHTEntry.Amount - TempWHTEntry."Rem Realized Amount";
-                                                            WHTEntry."Rem Realized Base" :=
-                                                              WHTEntry."Rem Realized Base" - TempWHTEntry."Rem Realized Base";
-                                                            WHTEntry."Rem Realized Amount" :=
-                                                              WHTEntry."Rem Realized Amount" - TempWHTEntry."Rem Realized Amount";
-                                                            TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
-                                                            TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
-                                                            TempWHTEntry."Rem Realized Base" := 0;
-                                                            TempWHTEntry."Rem Realized Amount" := 0;
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := 0;
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := 0;
-                                                        end else begin
-                                                            if (TotalWHT > 0) and (TotalWHT <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
-                                                                TempWHTEntry."Rem Realized Base" :=
-                                                                  TempWHTEntry."Rem Realized Base" - TotalWHTBase;
-                                                                TempWHTEntry."Rem Realized Amount" :=
-                                                                  TempWHTEntry."Rem Realized Amount" - TotalWHT;
-                                                                WHTEntry.Base := 0;
-                                                                WHTEntry.Amount := 0;
-                                                                WHTEntry."Rem Realized Amount" := 0;
-                                                                WHTEntry."Rem Realized Base" := 0;
-                                                                TotalWHTBase := 0;
-                                                                TotalWHT := 0;
-                                                            end;
-                                                        end;
-
-                                                        if CurrencyCode = '' then begin
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
-                                                        end else begin
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
-                                                            TempWHTEntry."Rem Realized Base (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
-                                                        end;
-                                                        if ((TempWHTEntry."Rem Realized Amount" = 0) and
-                                                            (TempWHTEntry."Rem Realized Base" = 0))
-                                                        then
-                                                            TempWHTEntry.Closed := true;
-                                                        TempWHTEntry.Modify();
-                                                    end;
-                                                until CustLedgerEntry.Next() = 0;
-                                                WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
-                                            end;
-
-                                            CustLedgerEntry.Reset();
-                                            CustLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
-                                            CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-                                            if CustLedgerEntry.FindSet() then begin
-                                                TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
-                                                TotalWHT := Abs(WHTEntry."Rem Realized Amount");
-                                                repeat
-                                                    TempWHTEntry.Reset();
-                                                    TempWHTEntry.SetRange(Settled, false);
-                                                    TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
-                                                    TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
-                                                    TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst() then begin
-                                                        if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
-                                                            WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" + TempWHTEntry."Rem Realized Base";
-                                                            WHTEntry."Rem Realized Amount" := WHTEntry."Rem Realized Amount" + TempWHTEntry."Rem Realized Amount";
-                                                            TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
-                                                            TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
-                                                            TempWHTEntry."Rem Realized Base" := 0;
-                                                            TempWHTEntry."Rem Realized Amount" := 0;
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := 0;
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := 0;
-                                                        end else begin
-                                                            if (TotalWHT > 0) and (TotalWHT <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
-                                                                TempWHTEntry."Rem Realized Base" :=
-                                                                  TempWHTEntry."Rem Realized Base" + TotalWHTBase;
-                                                                TempWHTEntry."Rem Realized Amount" :=
-                                                                  TempWHTEntry."Rem Realized Amount" + TotalWHT;
-                                                                WHTEntry."Rem Realized Amount" := 0;
-                                                                WHTEntry."Rem Realized Base" := 0;
-                                                                TotalWHTBase := 0;
-                                                                TotalWHT := 0;
-                                                            end;
-                                                        end;
-
-                                                        if CurrencyCode = '' then begin
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
-                                                        end else begin
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
-                                                            TempWHTEntry."Rem Realized Base (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
-                                                        end;
-                                                        if ((TempWHTEntry."Rem Realized Amount" = 0) and
-                                                            (TempWHTEntry."Rem Realized Base" = 0))
-                                                        then
-                                                            TempWHTEntry.Closed := true;
-                                                        TempWHTEntry.Modify();
-                                                    end;
-                                                until CustLedgerEntry.Next() = 0;
-                                                WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
-                                            end;
-                                        end;
-
-                                        if WHTEntry."Document Type" = WHTEntry."Document Type"::Refund then begin
-                                            CustLedgerEntry.Reset();
-                                            CustLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
-                                            CustLedgerEntry.SetFilter(
-                                              "Document Type",
-                                              '%1|%2',
-                                              CustLedgerEntry."Document Type"::Payment,
-                                              CustLedgerEntry."Document Type"::"Credit Memo");
-                                            if CustLedgerEntry.FindSet() then begin
-                                                TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
-                                                TotalWHT := Abs(WHTEntry."Rem Realized Amount");
-                                                repeat
-                                                    TempWHTEntry.Reset();
-                                                    TempWHTEntry.SetRange(Settled, false);
-                                                    TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
-                                                    TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
-                                                    TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                    if TempWHTEntry.FindFirst() then begin
-                                                        if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
-                                                            if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::"Credit Memo" then begin
-                                                                WHTEntry.Base := WHTEntry.Base - Abs(TempWHTEntry."Rem Realized Base");
-                                                                WHTEntry.Amount := WHTEntry.Amount - Abs(TempWHTEntry."Rem Realized Amount");
-                                                            end;
-                                                            WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" - Abs(TempWHTEntry."Rem Realized Base");
-                                                            WHTEntry."Rem Realized Amount" :=
-                                                              WHTEntry."Rem Realized Amount" - Abs(TempWHTEntry."Rem Realized Amount");
-                                                            TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
-                                                            TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
-                                                            TempWHTEntry."Rem Realized Base" := 0;
-                                                            TempWHTEntry."Rem Realized Amount" := 0;
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := 0;
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := 0;
-                                                        end else begin
-                                                            if (TotalWHT > 0) and (TotalWHT <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
-                                                                if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Payment then begin
-                                                                    TempWHTEntry."Rem Realized Base" :=
-                                                                      TempWHTEntry."Rem Realized Base" + TotalWHTBase;
-                                                                    TempWHTEntry."Rem Realized Amount" :=
-                                                                      TempWHTEntry."Rem Realized Amount" + TotalWHT;
-                                                                end else begin
+                                    end
+                                    else
+                                        if "Applies-toID" <> '' then begin
+                                            if WHTEntry."Document Type" = WHTEntry."Document Type"::"Credit Memo" then begin
+                                                CustLedgerEntry.Reset();
+                                                CustLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
+                                                CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Refund);
+                                                if CustLedgerEntry.FindSet() then begin
+                                                    TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
+                                                    TotalWHT := Abs(WHTEntry."Rem Realized Amount");
+                                                    repeat
+                                                        TempWHTEntry.Reset();
+                                                        TempWHTEntry.SetRange(Settled, false);
+                                                        TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
+                                                        TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
+                                                        TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
+                                                        if TempWHTEntry.FindFirst() then begin
+                                                            if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
+                                                                WHTEntry.Base := WHTEntry.Base - TempWHTEntry."Rem Realized Base";
+                                                                WHTEntry.Amount := WHTEntry.Amount - TempWHTEntry."Rem Realized Amount";
+                                                                WHTEntry."Rem Realized Base" :=
+                                                                  WHTEntry."Rem Realized Base" - TempWHTEntry."Rem Realized Base";
+                                                                WHTEntry."Rem Realized Amount" :=
+                                                                  WHTEntry."Rem Realized Amount" - TempWHTEntry."Rem Realized Amount";
+                                                                TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
+                                                                TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
+                                                                TempWHTEntry."Rem Realized Base" := 0;
+                                                                TempWHTEntry."Rem Realized Amount" := 0;
+                                                                TempWHTEntry."Rem Realized Base (LCY)" := 0;
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" := 0;
+                                                            end else
+                                                                if (TotalWHT > 0) and (TotalWHT <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
                                                                     TempWHTEntry."Rem Realized Base" :=
                                                                       TempWHTEntry."Rem Realized Base" - TotalWHTBase;
                                                                     TempWHTEntry."Rem Realized Amount" :=
                                                                       TempWHTEntry."Rem Realized Amount" - TotalWHT;
                                                                     WHTEntry.Base := 0;
                                                                     WHTEntry.Amount := 0;
+                                                                    WHTEntry."Rem Realized Amount" := 0;
+                                                                    WHTEntry."Rem Realized Base" := 0;
+                                                                    TotalWHTBase := 0;
+                                                                    TotalWHT := 0;
                                                                 end;
-                                                                WHTEntry."Rem Realized Amount" := 0;
-                                                                WHTEntry."Rem Realized Base" := 0;
-                                                                TotalWHTBase := 0;
-                                                                TotalWHT := 0;
-                                                            end;
-                                                        end;
 
-                                                        if CurrencyCode = '' then begin
-                                                            TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
-                                                        end else begin
-                                                            TempWHTEntry."Rem Realized Amount (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
-                                                            TempWHTEntry."Rem Realized Base (LCY)" :=
-                                                              Round(
-                                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                                  DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
+                                                            if CurrencyCode = '' then begin
+                                                                TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
+                                                            end else begin
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" :=
+                                                                  Round(
+                                                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                                                      DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
+                                                                TempWHTEntry."Rem Realized Base (LCY)" :=
+                                                                  Round(
+                                                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                                                      DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
+                                                            end;
+                                                            if ((TempWHTEntry."Rem Realized Amount" = 0) and
+                                                                (TempWHTEntry."Rem Realized Base" = 0))
+                                                            then
+                                                                TempWHTEntry.Closed := true;
+                                                            TempWHTEntry.Modify();
                                                         end;
-                                                        if ((TempWHTEntry."Rem Realized Amount" = 0) and
-                                                            (TempWHTEntry."Rem Realized Base" = 0))
-                                                        then
-                                                            TempWHTEntry.Closed := true;
-                                                        TempWHTEntry.Modify();
-                                                    end;
-                                                until CustLedgerEntry.Next() = 0;
-                                                WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
+                                                    until CustLedgerEntry.Next() = 0;
+                                                    WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
+                                                end;
+
+                                                CustLedgerEntry.Reset();
+                                                CustLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
+                                                CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+                                                if CustLedgerEntry.FindSet() then begin
+                                                    TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
+                                                    TotalWHT := Abs(WHTEntry."Rem Realized Amount");
+                                                    repeat
+                                                        TempWHTEntry.Reset();
+                                                        TempWHTEntry.SetRange(Settled, false);
+                                                        TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
+                                                        TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
+                                                        TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
+                                                        if TempWHTEntry.FindFirst() then begin
+                                                            if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
+                                                                WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" + TempWHTEntry."Rem Realized Base";
+                                                                WHTEntry."Rem Realized Amount" := WHTEntry."Rem Realized Amount" + TempWHTEntry."Rem Realized Amount";
+                                                                TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
+                                                                TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
+                                                                TempWHTEntry."Rem Realized Base" := 0;
+                                                                TempWHTEntry."Rem Realized Amount" := 0;
+                                                                TempWHTEntry."Rem Realized Base (LCY)" := 0;
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" := 0;
+                                                            end else
+                                                                if (TotalWHT > 0) and (TotalWHT <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
+                                                                    TempWHTEntry."Rem Realized Base" :=
+                                                                      TempWHTEntry."Rem Realized Base" + TotalWHTBase;
+                                                                    TempWHTEntry."Rem Realized Amount" :=
+                                                                      TempWHTEntry."Rem Realized Amount" + TotalWHT;
+                                                                    WHTEntry."Rem Realized Amount" := 0;
+                                                                    WHTEntry."Rem Realized Base" := 0;
+                                                                    TotalWHTBase := 0;
+                                                                    TotalWHT := 0;
+                                                                end;
+
+                                                            if CurrencyCode = '' then begin
+                                                                TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
+                                                            end else begin
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" :=
+                                                                  Round(
+                                                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                                                      DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
+                                                                TempWHTEntry."Rem Realized Base (LCY)" :=
+                                                                  Round(
+                                                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                                                      DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
+                                                            end;
+                                                            if ((TempWHTEntry."Rem Realized Amount" = 0) and
+                                                                (TempWHTEntry."Rem Realized Base" = 0))
+                                                            then
+                                                                TempWHTEntry.Closed := true;
+                                                            TempWHTEntry.Modify();
+                                                        end;
+                                                    until CustLedgerEntry.Next() = 0;
+                                                    WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
+                                                end;
+                                            end;
+
+                                            if WHTEntry."Document Type" = WHTEntry."Document Type"::Refund then begin
+                                                CustLedgerEntry.Reset();
+                                                CustLedgerEntry.SetRange("Applies-to ID", "Applies-toID");
+                                                CustLedgerEntry.SetFilter(
+                                                  "Document Type",
+                                                  '%1|%2',
+                                                  CustLedgerEntry."Document Type"::Payment,
+                                                  CustLedgerEntry."Document Type"::"Credit Memo");
+                                                if CustLedgerEntry.FindSet() then begin
+                                                    TotalWHTBase := Abs(WHTEntry."Rem Realized Base");
+                                                    TotalWHT := Abs(WHTEntry."Rem Realized Amount");
+                                                    repeat
+                                                        TempWHTEntry.Reset();
+                                                        TempWHTEntry.SetRange(Settled, false);
+                                                        TempWHTEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
+                                                        TempWHTEntry.SetRange("WHT Bus. Posting Group", WHTEntry."WHT Bus. Posting Group");
+                                                        TempWHTEntry.SetRange("WHT Prod. Posting Group", WHTEntry."WHT Prod. Posting Group");
+                                                        if TempWHTEntry.FindFirst() then begin
+                                                            if TotalWHT > Abs(TempWHTEntry."Rem Realized Amount") then begin
+                                                                if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::"Credit Memo" then begin
+                                                                    WHTEntry.Base := WHTEntry.Base - Abs(TempWHTEntry."Rem Realized Base");
+                                                                    WHTEntry.Amount := WHTEntry.Amount - Abs(TempWHTEntry."Rem Realized Amount");
+                                                                end;
+                                                                WHTEntry."Rem Realized Base" := WHTEntry."Rem Realized Base" - Abs(TempWHTEntry."Rem Realized Base");
+                                                                WHTEntry."Rem Realized Amount" :=
+                                                                  WHTEntry."Rem Realized Amount" - Abs(TempWHTEntry."Rem Realized Amount");
+                                                                TotalWHTBase := TotalWHTBase - Abs(TempWHTEntry."Rem Realized Base");
+                                                                TotalWHT := TotalWHT - Abs(TempWHTEntry."Rem Realized Amount");
+                                                                TempWHTEntry."Rem Realized Base" := 0;
+                                                                TempWHTEntry."Rem Realized Amount" := 0;
+                                                                TempWHTEntry."Rem Realized Base (LCY)" := 0;
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" := 0;
+                                                            end else
+                                                                if (TotalWHT > 0) and (TotalWHT <= Abs(TempWHTEntry."Rem Realized Amount")) then begin
+                                                                    if TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Payment then begin
+                                                                        TempWHTEntry."Rem Realized Base" :=
+                                                                          TempWHTEntry."Rem Realized Base" + TotalWHTBase;
+                                                                        TempWHTEntry."Rem Realized Amount" :=
+                                                                          TempWHTEntry."Rem Realized Amount" + TotalWHT;
+                                                                    end else begin
+                                                                        TempWHTEntry."Rem Realized Base" :=
+                                                                          TempWHTEntry."Rem Realized Base" - TotalWHTBase;
+                                                                        TempWHTEntry."Rem Realized Amount" :=
+                                                                          TempWHTEntry."Rem Realized Amount" - TotalWHT;
+                                                                        WHTEntry.Base := 0;
+                                                                        WHTEntry.Amount := 0;
+                                                                    end;
+                                                                    WHTEntry."Rem Realized Amount" := 0;
+                                                                    WHTEntry."Rem Realized Base" := 0;
+                                                                    TotalWHTBase := 0;
+                                                                    TotalWHT := 0;
+                                                                end;
+
+                                                            if CurrencyCode = '' then begin
+                                                                TempWHTEntry."Rem Realized Base (LCY)" := TempWHTEntry."Rem Realized Base";
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" := TempWHTEntry."Rem Realized Amount";
+                                                            end else begin
+                                                                TempWHTEntry."Rem Realized Amount (LCY)" :=
+                                                                  Round(
+                                                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                                                      DocDate, CurrencyCode, TempWHTEntry."Rem Realized Amount (LCY)", CurrFactor));
+                                                                TempWHTEntry."Rem Realized Base (LCY)" :=
+                                                                  Round(
+                                                                    CurrExchRate.ExchangeAmtFCYToLCY(
+                                                                      DocDate, CurrencyCode, TempWHTEntry."Rem Realized Base (LCY)", CurrFactor));
+                                                            end;
+                                                            if ((TempWHTEntry."Rem Realized Amount" = 0) and
+                                                                (TempWHTEntry."Rem Realized Base" = 0))
+                                                            then
+                                                                TempWHTEntry.Closed := true;
+                                                            TempWHTEntry.Modify();
+                                                        end;
+                                                    until CustLedgerEntry.Next() = 0;
+                                                    WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
+                                                end;
                                             end;
                                         end;
-                                    end;
                                 end;
-                            end;
                         end;
                     end;
 
@@ -3893,10 +3863,10 @@ codeunit 28040 WHTManagement
                     end;
                 end;
 
-                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
                     if Abs(WHTEntry.Base) < WHTPostingSetup."WHT Minimum Invoice Amount" then
                         exit;
-                end;
+
                 WHTEntry.Insert();
                 NextWHTEntryNo := WHTEntry."Entry No." + 1;
 
@@ -4268,7 +4238,7 @@ codeunit 28040 WHTManagement
         TempVendLedgEntry.Reset();
         TempVendLedgEntry.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         TempVendLedgEntry.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
-        if TempVendLedgEntry.FindFirst() then begin
+        if TempVendLedgEntry.FindFirst() then
             if TempVendLedgEntry."Document Type" = TempVendLedgEntry."Document Type"::Invoice then begin
                 TempVendLedgEntry.CalcFields(
                   Amount,
@@ -4323,7 +4293,7 @@ codeunit 28040 WHTManagement
                     else
                         GenJnlLine.Validate(Amount, -TotAmt);
                 end;
-        end;
+
         TotalWHTAmount := 0;
         PaymentAmount := GenJnlLine.Amount;
         PaymentAmount1 := GenJnlLine.Amount;
@@ -5150,7 +5120,7 @@ codeunit 28040 WHTManagement
             TempVendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Document No.");
             TempVendLedgEntry.SetRange(Open, true);
             TempVendLedgEntry.SetFilter("Document Type", '<>%1', TempVendLedgEntry."Document Type"::"Credit Memo");
-            if TempVendLedgEntry.FindSet() then begin
+            if TempVendLedgEntry.FindSet() then
                 repeat
                     TempVendLedgEntry.CalcFields(
                       Amount,
@@ -5210,8 +5180,8 @@ codeunit 28040 WHTManagement
                     NextEntry := ApplyTempWHTEntry(GenJnlLineTemp, Currency::Vendor);
                     if ExitLoop then
                         exit(NextEntry);
-                until TempVendLedgEntry.Next() = 0;
-            end else
+                until TempVendLedgEntry.Next() = 0
+            else
                 NextEntry := ApplyTempWHTEntry(GenJnlLineTemp, Currency::Vendor);
         end else
             NextEntry := ApplyTempWHTEntry(GenJnlLineTemp, Currency::Vendor);
@@ -5516,9 +5486,9 @@ codeunit 28040 WHTManagement
                         ExitLoop := true;
                     end;
 
-                    if TempCustLedgEntry."Document Type" = TempCustLedgEntry."Document Type"::Invoice then begin
-                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
-                    end else
+                    if TempCustLedgEntry."Document Type" = TempCustLedgEntry."Document Type"::Invoice then
+                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice
+                    else
                         if TempCustLedgEntry."Document Type" = TempCustLedgEntry."Document Type"::"Credit Memo" then begin
                             GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
                             RemainingAmt := RemainingAmt - TempCustLedgEntry."Rem. Amt for WHT";
@@ -6245,16 +6215,14 @@ codeunit 28040 WHTManagement
         if WHTPostingSetup.Get(
              GenJnlLine."WHT Business Posting Group",
              GenJnlLine."WHT Product Posting Group")
-        then begin
+        then
             if (WHTPostingSetup."Realized WHT Type" =
                 WHTPostingSetup."Realized WHT Type"::Earliest)
-            then begin
+            then
                 if GenJnlLine."WHT Absorb Base" <> 0 then
                     WHTBase := Abs(GenJnlLine."WHT Absorb Base")
                 else
                     WHTBase := Abs(GenJnlLine.Amount);
-            end;
-        end;
         TotalWHTBase := WHTBase;
         if GenJnlLine."Applies-to Doc. No." <> '' then begin
             VendorLedgerEntry.Reset();
@@ -6395,7 +6363,7 @@ codeunit 28040 WHTManagement
                             end;
                 end;
             end;
-        end else begin
+        end else
             if GenJnlLine."Applies-to ID" <> '' then begin
                 if ((GenJnlLine."Document Type" = GenJnlLine."Document Type"::Invoice) or
                     (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund))
@@ -6420,7 +6388,7 @@ codeunit 28040 WHTManagement
                                         if ((WHTPostingSetup."Realized WHT Type" =
                                              WHTPostingSetup."Realized WHT Type"::Earliest) and
                                             (WHTEntry."WHT %" = WHTPostingSetup."WHT %"))
-                                        then begin
+                                        then
                                             if TotalWHTBase > Abs(WHTEntry."Rem Realized Base") then begin
                                                 TotalWHTBase := TotalWHTBase - Abs(WHTEntry."Rem Realized Base");
                                                 if (((GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund) and
@@ -6439,7 +6407,6 @@ codeunit 28040 WHTManagement
                                                 then
                                                     WHTBase := 0;
                                             end;
-                                        end;
                                 until WHTEntry.Next() = 0;
                         until VendorLedgerEntry.Next() = 0;
                 end;
@@ -6490,19 +6457,17 @@ codeunit 28040 WHTManagement
                                         if ((WHTPostingSetup."Realized WHT Type" =
                                              WHTPostingSetup."Realized WHT Type"::Earliest) and
                                             (WHTEntry."WHT %" = WHTPostingSetup."WHT %"))
-                                        then begin
+                                        then
                                             if TotalWHTBase > Abs(WHTEntry."Rem Realized Base") then begin
                                                 TotalWHTBase := TotalWHTBase - Abs(WHTEntry."Rem Realized Base");
                                                 if GenJnlLine."Document Type" = GenJnlLine."Document Type"::"Credit Memo" then
                                                     WHTBase := WHTBase - Abs(WHTEntry."Rem Realized Base");
-                                            end else begin
+                                            end else
                                                 if (TotalWHTBase > 0) and (Abs(TotalWHTBase) <= Abs(WHTEntry."Rem Realized Base")) then begin
                                                     TotalWHTBase := 0;
                                                     if GenJnlLine."Document Type" = GenJnlLine."Document Type"::"Credit Memo" then
                                                         WHTBase := 0;
                                                 end;
-                                            end;
-                                        end;
                                 until WHTEntry.Next() = 0;
                         until VendorLedgerEntry.Next() = 0;
 
@@ -6686,7 +6651,7 @@ codeunit 28040 WHTManagement
                                                      (WHTEntry."Unrealized Base" + TempRemAmt)) /
                                                     ExpectedAmount);
                                             TotalWHTAmount := Round(TotalWHTAmount + AppldAmount * WHTEntry."WHT %" / 100);
-                                            if GenJnlLine."Currency Code" <> '' then begin
+                                            if GenJnlLine."Currency Code" <> '' then
                                                 TotalWHTAmount2 :=
                                                   Round(
                                                     TotalWHTAmount2 +
@@ -6695,8 +6660,8 @@ codeunit 28040 WHTManagement
                                                         GenJnlLine."Document Date",
                                                         GenJnlLine."Currency Code",
                                                         AppldAmount * WHTEntry."WHT %" / 100,
-                                                        CurrFactor)));
-                                            end else
+                                                        CurrFactor)))
+                                            else
                                                 TotalWHTAmount2 := TotalWHTAmount;
 
                                             WHTEntry3.Reset();
@@ -6788,17 +6753,13 @@ codeunit 28040 WHTManagement
                     end;
                 end;
             end;
-        end;
 
         WHTAmount := Round(WHTBase * WHTPostingSetup."WHT %" / 100);
 
-        if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group",
-             GenJnlLine."WHT Product Posting Group")
-        then
-            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+        if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then
+            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
                 if WHTBase < WHTPostingSetup."WHT Minimum Invoice Amount" then
                     WHTAmount := 0;
-            end;
     end;
 
     [Scope('OnPrem')]
@@ -6828,16 +6789,14 @@ codeunit 28040 WHTManagement
         if WHTPostingSetup.Get(
              GenJnlLine."WHT Business Posting Group",
              GenJnlLine."WHT Product Posting Group")
-        then begin
+        then
             if (WHTPostingSetup."Realized WHT Type" =
                 WHTPostingSetup."Realized WHT Type"::Earliest)
-            then begin
+            then
                 if GenJnlLine."WHT Absorb Base" <> 0 then
                     WHTBase := Abs(GenJnlLine."WHT Absorb Base")
                 else
                     WHTBase := Abs(GenJnlLine.Amount);
-            end;
-        end;
         TotalWHTBase := WHTBase;
         if GenJnlLine."Applies-to Doc. No." <> '' then begin
             CustLedgerEntry.Reset();
@@ -6878,15 +6837,14 @@ codeunit 28040 WHTManagement
                             if ((WHTPostingSetup."Realized WHT Type" =
                                  WHTPostingSetup."Realized WHT Type"::Earliest) and
                                 (WHTEntry."WHT %" = WHTPostingSetup."WHT %"))
-                            then begin
+                            then
                                 if Abs(WHTEntry."Rem Realized Base") >= WHTBase then
                                     WHTBase := 0
                                 else
                                     WHTBase := WHTBase - Abs(WHTEntry."Rem Realized Base");
-                            end;
                 end else
                     WHTBase := 0;
-        end else begin
+        end else
             if GenJnlLine."Applies-to ID" <> '' then begin
                 if ((GenJnlLine."Document Type" = GenJnlLine."Document Type"::Invoice) or
                     (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund))
@@ -6911,7 +6869,7 @@ codeunit 28040 WHTManagement
                                         if ((WHTPostingSetup."Realized WHT Type" =
                                              WHTPostingSetup."Realized WHT Type"::Earliest) and
                                             (WHTEntry."WHT %" = WHTPostingSetup."WHT %"))
-                                        then begin
+                                        then
                                             if TotalWHTBase > Abs(WHTEntry."Rem Realized Base") then begin
                                                 TotalWHTBase := TotalWHTBase - Abs(WHTEntry."Rem Realized Base");
                                                 if (((GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund) and
@@ -6930,7 +6888,6 @@ codeunit 28040 WHTManagement
                                                 then
                                                     WHTBase := 0;
                                             end;
-                                        end;
                                 until WHTEntry.Next() = 0;
                         until CustLedgerEntry.Next() = 0;
                 end;
@@ -6956,19 +6913,17 @@ codeunit 28040 WHTManagement
                                         if ((WHTPostingSetup."Realized WHT Type" =
                                              WHTPostingSetup."Realized WHT Type"::Earliest) and
                                             (WHTEntry."WHT %" = WHTPostingSetup."WHT %"))
-                                        then begin
+                                        then
                                             if TotalWHTBase > Abs(WHTEntry."Rem Realized Base") then begin
                                                 TotalWHTBase := TotalWHTBase - Abs(WHTEntry."Rem Realized Base");
                                                 if GenJnlLine."Document Type" = GenJnlLine."Document Type"::"Credit Memo" then
                                                     WHTBase := WHTBase - Abs(WHTEntry."Rem Realized Base");
-                                            end else begin
+                                            end else
                                                 if (TotalWHTBase > 0) and (Abs(TotalWHTBase) <= Abs(WHTEntry."Rem Realized Base")) then begin
                                                     TotalWHTBase := 0;
                                                     if GenJnlLine."Document Type" = GenJnlLine."Document Type"::"Credit Memo" then
                                                         WHTBase := 0;
                                                 end;
-                                            end;
-                                        end;
                                 until WHTEntry.Next() = 0;
                         until CustLedgerEntry.Next() = 0;
 
@@ -6989,19 +6944,17 @@ codeunit 28040 WHTManagement
                                         if ((WHTPostingSetup."Realized WHT Type" =
                                              WHTPostingSetup."Realized WHT Type"::Earliest) and
                                             (WHTEntry."WHT %" = WHTPostingSetup."WHT %"))
-                                        then begin
+                                        then
                                             if TotalWHTBase > Abs(WHTEntry."Rem Realized Base") then begin
                                                 TotalWHTBase := TotalWHTBase - Abs(WHTEntry."Rem Realized Base");
                                                 if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Payment then
                                                     WHTBase := WHTBase - Abs(WHTEntry."Rem Realized Base");
-                                            end else begin
+                                            end else
                                                 if (TotalWHTBase > 0) and (Abs(TotalWHTBase) <= Abs(WHTEntry."Rem Realized Base")) then begin
                                                     TotalWHTBase := 0;
                                                     if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Payment then
                                                         WHTBase := 0;
                                                 end;
-                                            end;
-                                        end;
                                 until WHTEntry.Next() = 0;
                         until CustLedgerEntry.Next() = 0
                     else
@@ -7009,7 +6962,6 @@ codeunit 28040 WHTManagement
                             WHTBase := 0;
                 end;
             end;
-        end;
 
         WHTAmount := Round(WHTBase * WHTPostingSetup."WHT %" / 100);
     end;
@@ -7456,7 +7408,7 @@ codeunit 28040 WHTManagement
         WHTEntry.SetRange("Document No.", DocNo);
         WHTEntry.SetRange("WHT Bus. Posting Group", WHTBusPostingGr);
         WHTEntry.SetRange("WHT Prod. Posting Group", WHTProdPostingGr);
-        exit(WHTEntry.FindFirst())
+        exit(WHTEntry.FindFirst());
     end;
 
     local procedure SetWHTEntryAmounts(var WHTEntry: Record "WHT Entry"; AbsorbBase: Decimal; AmountVAT: Decimal; CurrFactor: Decimal)

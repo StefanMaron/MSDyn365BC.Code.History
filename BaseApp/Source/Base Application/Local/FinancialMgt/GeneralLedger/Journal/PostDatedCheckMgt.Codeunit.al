@@ -130,7 +130,7 @@ codeunit 28090 PostDatedCheckMgt
                 end;
             end
             else
-                if PostDatedCheck."Account Type" = PostDatedCheck."Account Type"::Vendor then begin
+                if PostDatedCheck."Account Type" = PostDatedCheck."Account Type"::Vendor then
                     if PostDatedCheck."Applies-to ID" <> '' then begin
                         VendLedgEntry.SetRange("Applies-to ID", PostDatedCheck."Applies-to ID");
                         if VendLedgEntry.FindSet() then
@@ -140,7 +140,6 @@ codeunit 28090 PostDatedCheckMgt
                             until VendLedgEntry.Next() = 0;
                         GenJnlLine."Applies-to ID" := GenJnlLine."Document No.";
                     end;
-                end;
 
             GenJnlLine.Validate("Currency Code", PostDatedCheck."Currency Code");
             GenJnlLine.Validate(Amount, PostDatedCheck.Amount);
@@ -160,17 +159,13 @@ codeunit 28090 PostDatedCheckMgt
 
         case GenJnlLine."Account Type" of
             GenJnlLine."Account Type"::Customer:
-                begin
-                    if CheckCount > 0 then
-                        Message(Text1500000, CheckCount, SalesSetup."Post Dated Check Template",
-                          SalesSetup."Post Dated Check Batch");
-                end;
+                if CheckCount > 0 then
+                    Message(Text1500000, CheckCount, SalesSetup."Post Dated Check Template",
+                        SalesSetup."Post Dated Check Batch");
             GenJnlLine."Account Type"::Vendor:
-                begin
-                    if CheckCount > 0 then
-                        Message(Text1500000, CheckCount, PurchSetup."Post Dated Check Template",
-                          PurchSetup."Post Dated Check Batch");
-                end;
+                if CheckCount > 0 then
+                    Message(Text1500000, CheckCount, PurchSetup."Post Dated Check Template",
+                        PurchSetup."Post Dated Check Batch");
         end;
     end;
 
@@ -233,7 +228,7 @@ codeunit 28090 PostDatedCheckMgt
                 PostDatedCheck."Applies-to ID" := PostDatedCheck."Document No.";
             end;
         end else
-            if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor then begin
+            if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor then
                 if GenJnlLine."Applies-to ID" <> '' then begin
                     VendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
                     if VendLedgEntry.FindSet() then
@@ -243,7 +238,7 @@ codeunit 28090 PostDatedCheckMgt
                         until VendLedgEntry.Next() = 0;
                     PostDatedCheck."Applies-to ID" := PostDatedCheck."Document No.";
                 end;
-            end;
+
         if GenJnlLine."Check Printed" then begin
             PostDatedCheck."Bank Account" := GenJnlLine."Bal. Account No.";
             PostDatedCheck."Document No." := GenJnlLine."Document No.";

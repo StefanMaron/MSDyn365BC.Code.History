@@ -2550,33 +2550,27 @@ codeunit 134553 "ERM Cash Flow - Filling II"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            exit(Count);
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        exit(SalesLine.Count);
     end;
 
     local procedure GetNumberOfPurchaseLines(PurchaseHeader: Record "Purchase Header"): Integer
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            exit(Count);
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        exit(PurchaseLine.Count);
     end;
 
     local procedure GetNumberOfServiceLines(ServiceHeader: Record "Service Header"): Integer
     var
         ServiceLine: Record "Service Line";
     begin
-        with ServiceLine do begin
-            SetRange("Document Type", ServiceHeader."Document Type");
-            SetRange("Document No.", ServiceHeader."No.");
-            exit(Count);
-        end;
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        exit(ServiceLine.Count);
     end;
 
     local procedure OpenSalesOrderList(SalesHeader: Record "Sales Header"; SkipShowingLinesWithoutVAT: Boolean)

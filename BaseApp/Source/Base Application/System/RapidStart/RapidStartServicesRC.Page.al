@@ -59,6 +59,10 @@ page 9021 "RapidStart Services RC"
             {
                 ApplicationArea = Suite;
             }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part("Configuration Areas"; "Config. Areas")
             {
                 ApplicationArea = Basic, Suite;

@@ -36,6 +36,7 @@ codeunit 424 "Export Analysis View"
         ServerFileName: Text;
         SkipDownload: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'You can only export Actual amounts and Budgeted amounts.\Please change the option in the Show field.';
         Text001: Label 'This combination is not valid. You cannot export Debit and Credit amounts for Budgeted amounts.\Please enter Amount in the Show Amount field.';
         Text002: Label 'General Info._';
@@ -66,6 +67,7 @@ codeunit 424 "Export Analysis View"
         Text029: Label 'Yes';
         Text030: Label 'No';
         Text031: Label 'Data_';
+#pragma warning restore AA0074
 
     procedure ExportData(var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     var

@@ -137,9 +137,9 @@ codeunit 28070 TaxInvoiceManagement
                             GenJnlLine.Validate(Amount, TotAmt);
                         TotAmt := -1;
                     end;
-                    if TempVendLedgEntry."Document Type" = TempVendLedgEntry."Document Type"::Invoice then begin
-                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
-                    end else begin
+                    if TempVendLedgEntry."Document Type" = TempVendLedgEntry."Document Type"::Invoice then
+                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice
+                    else begin
                         if TempVendLedgEntry."Document Type" = TempVendLedgEntry."Document Type"::"Credit Memo" then
                             GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
                         RemainingAmt := RemainingAmt - TempVendLedgEntry."Rem. Amt for WHT";
@@ -191,9 +191,9 @@ codeunit 28070 TaxInvoiceManagement
                         TotAmt := -1;
                     end;
 
-                    if TempVendLedgEntry."Document Type" = TempVendLedgEntry."Document Type"::Invoice then begin
-                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
-                    end else begin
+                    if TempVendLedgEntry."Document Type" = TempVendLedgEntry."Document Type"::Invoice then
+                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice
+                    else begin
                         if TempVendLedgEntry."Document Type" = TempVendLedgEntry."Document Type"::"Credit Memo" then
                             GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
                         RemainingAmt := RemainingAmt + TempVendLedgEntry."Rem. Amt for WHT";
@@ -247,9 +247,9 @@ codeunit 28070 TaxInvoiceManagement
                       "Original Amount", "Original Amt. (LCY)");
                     if TempCustLedgEntry1."Rem. Amt for WHT" = 0 then
                         TempCustLedgEntry1."Rem. Amt for WHT" := TempCustLedgEntry1."Remaining Amt. (LCY)";
-                    if GenJnlLine."Posting Date" <= TempCustLedgEntry1."Pmt. Discount Date" then begin
-                        RemainingAmt := RemainingAmt + TempCustLedgEntry1."Rem. Amt for WHT" - TempCustLedgEntry1."Original Pmt. Disc. Possible";
-                    end else
+                    if GenJnlLine."Posting Date" <= TempCustLedgEntry1."Pmt. Discount Date" then
+                        RemainingAmt := RemainingAmt + TempCustLedgEntry1."Rem. Amt for WHT" - TempCustLedgEntry1."Original Pmt. Disc. Possible"
+                    else
                         RemainingAmt := RemainingAmt + TempCustLedgEntry1."Rem. Amt for WHT";
 
                     if TempCustLedgEntry1."Document Type" = TempCustLedgEntry1."Document Type"::"Credit Memo" then
@@ -313,9 +313,9 @@ codeunit 28070 TaxInvoiceManagement
                             GenJnlLine.Validate(Amount, Abs(TotAmt) - Abs(WHTAmount));
                         TotAmt := -1;
                     end;
-                    if TempCustLedgEntry."Document Type" = TempCustLedgEntry."Document Type"::Invoice then begin
-                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
-                    end else
+                    if TempCustLedgEntry."Document Type" = TempCustLedgEntry."Document Type"::Invoice then
+                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice
+                    else
                         if TempCustLedgEntry."Document Type" = TempCustLedgEntry."Document Type"::"Credit Memo" then begin
                             GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
                             RemainingAmt := RemainingAmt - TempCustLedgEntry."Rem. Amt for WHT";
@@ -385,9 +385,9 @@ codeunit 28070 TaxInvoiceManagement
                             GenJnlLine.Validate(Amount, -Abs(TotAmt) + Abs(WHTAmount));
                         TotAmt := -1;
                     end;
-                    if TempCustLedgEntry."Document Type" = TempCustLedgEntry."Document Type"::Invoice then begin
-                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
-                    end else
+                    if TempCustLedgEntry."Document Type" = TempCustLedgEntry."Document Type"::Invoice then
+                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice
+                    else
                         if TempCustLedgEntry."Document Type" = TempCustLedgEntry."Document Type"::"Credit Memo" then begin
                             GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
                             RemainingAmt := RemainingAmt - TempCustLedgEntry."Rem. Amt for WHT";
@@ -485,9 +485,9 @@ codeunit 28070 TaxInvoiceManagement
                             GenJnlLine.Validate(Amount, TotAmt);
                         TotAmt := -1;
                     end;
-                    if TempVendLedgEntry."Document Type" = TempVendLedgEntry."Document Type"::Invoice then begin
-                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
-                    end else begin
+                    if TempVendLedgEntry."Document Type" = TempVendLedgEntry."Document Type"::Invoice then
+                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice
+                    else begin
                         if TempVendLedgEntry."Document Type" = TempVendLedgEntry."Document Type"::"Credit Memo" then
                             GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
                         RemainingAmt := RemainingAmt - TempVendLedgEntry."Rem. Amt for WHT";
@@ -536,9 +536,9 @@ codeunit 28070 TaxInvoiceManagement
                       "Original Amount", "Original Amt. (LCY)");
                     if TempCustLedgEntry1."Rem. Amt for WHT" = 0 then
                         TempCustLedgEntry1."Rem. Amt for WHT" := TempCustLedgEntry1."Remaining Amt. (LCY)";
-                    if GenJnlLine."Posting Date" <= TempCustLedgEntry1."Pmt. Discount Date" then begin
-                        RemainingAmt := RemainingAmt + TempCustLedgEntry1."Rem. Amt for WHT" - TempCustLedgEntry1."Original Pmt. Disc. Possible";
-                    end else
+                    if GenJnlLine."Posting Date" <= TempCustLedgEntry1."Pmt. Discount Date" then
+                        RemainingAmt := RemainingAmt + TempCustLedgEntry1."Rem. Amt for WHT" - TempCustLedgEntry1."Original Pmt. Disc. Possible"
+                    else
                         RemainingAmt := RemainingAmt + TempCustLedgEntry1."Rem. Amt for WHT";
 
                     if TempCustLedgEntry1."Document Type" = TempCustLedgEntry1."Document Type"::"Credit Memo" then
@@ -592,9 +592,9 @@ codeunit 28070 TaxInvoiceManagement
                             GenJnlLine.Validate(Amount, Abs(TotAmt));
                         TotAmt := -1;
                     end;
-                    if TempCustLedgEntry."Document Type" = TempCustLedgEntry."Document Type"::Invoice then begin
-                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
-                    end else
+                    if TempCustLedgEntry."Document Type" = TempCustLedgEntry."Document Type"::Invoice then
+                        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice
+                    else
                         if TempCustLedgEntry."Document Type" = TempCustLedgEntry."Document Type"::"Credit Memo" then begin
                             GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::"Credit Memo";
                             RemainingAmt := RemainingAmt - TempCustLedgEntry."Rem. Amt for WHT";

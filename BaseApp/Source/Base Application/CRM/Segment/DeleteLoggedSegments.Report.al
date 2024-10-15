@@ -56,6 +56,10 @@ report 5191 "Delete Logged Segments"
 
     var
         NoOfSegments: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 has been deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

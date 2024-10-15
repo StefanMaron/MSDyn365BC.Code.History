@@ -12,12 +12,14 @@ codeunit 270 ResJnlManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'RESOURCES';
         Text001: Label 'Resource Journals';
         Text002: Label 'RECURRING';
         Text003: Label 'Recurring Resource Journal';
         Text004: Label 'DEFAULT';
         Text005: Label 'Default Journal';
+#pragma warning restore AA0074
         OldResNo: Code[20];
         OpenFromBatch: Boolean;
         ResJnlBatchEmptyErr: Label 'The Resource Journal batch job is empty.';

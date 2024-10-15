@@ -26,9 +26,6 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Reports;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Reports;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Reports;
@@ -143,15 +140,6 @@ codeunit 1901 "Report Selection Mgt."
     procedure InitReportSelectionServ()
     begin
         OnBeforeInitReportSelectionServ();
-
-        InitReportSelection("Report Selection Usage"::"SM.Quote");
-        InitReportSelection("Report Selection Usage"::"SM.Order");
-        InitReportSelection("Report Selection Usage"::"SM.Invoice");
-        InitReportSelection("Report Selection Usage"::"SM.Credit Memo");
-        InitReportSelection("Report Selection Usage"::"SM.Shipment");
-        InitReportSelection("Report Selection Usage"::"SM.Contract Quote");
-        InitReportSelection("Report Selection Usage"::"SM.Contract");
-        InitReportSelection("Report Selection Usage"::"SM.Test");
 
         OnAfterInitReportSelectionServ();
     end;
@@ -278,22 +266,6 @@ codeunit 1901 "Report Selection Mgt."
                 InsertRepSelection("Report Selection Usage"::M2, '1', REPORT::"Prod. Order - Mat. Requisition");
             "Report Selection Usage"::M3:
                 InsertRepSelection("Report Selection Usage"::M3, '1', REPORT::"Prod. Order - Shortage List");
-            "Report Selection Usage"::"SM.Quote":
-                InsertRepSelection("Report Selection Usage"::"SM.Quote", '1', REPORT::"Service Quote");
-            "Report Selection Usage"::"SM.Order":
-                InsertRepSelection("Report Selection Usage"::"SM.Order", '1', REPORT::"Service Order");
-            "Report Selection Usage"::"SM.Invoice":
-                InsertRepSelection("Report Selection Usage"::"SM.Invoice", '1', REPORT::"Service - Invoice");
-            "Report Selection Usage"::"SM.Credit Memo":
-                InsertRepSelection("Report Selection Usage"::"SM.Credit Memo", '1', REPORT::"Service - Credit Memo");
-            "Report Selection Usage"::"SM.Shipment":
-                InsertRepSelection("Report Selection Usage"::"SM.Shipment", '1', REPORT::"Service - Shipment");
-            "Report Selection Usage"::"SM.Contract Quote":
-                InsertRepSelection("Report Selection Usage"::"SM.Contract Quote", '1', REPORT::"Service Contract Quote");
-            "Report Selection Usage"::"SM.Contract":
-                InsertRepSelection("Report Selection Usage"::"SM.Contract", '1', REPORT::"Service Contract");
-            "Report Selection Usage"::"SM.Test":
-                InsertRepSelection("Report Selection Usage"::"SM.Test", '1', REPORT::"Service Document - Test");
             "Report Selection Usage"::"Asm.Order":
                 InsertRepSelection("Report Selection Usage"::"Asm.Order", '1', REPORT::"Assembly Order");
             "Report Selection Usage"::"P.Asm.Order":

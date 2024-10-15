@@ -209,17 +209,15 @@ codeunit 145403 "AU Feature Bugs"
         CreateVATPostingSetup(VATPostingSetup);
         LibraryPurchase.CreateVendor(Vendor);
         CreateGeneralJournalBatch(GenJournalBatch);
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::Invoice,
-              "Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithVATPostingSetup(
-                VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase), LibraryRandom.RandInt(100));
-            Validate("Bal. Account Type", "Bal. Account Type"::Vendor);
-            Validate("Bal. Account No.", Vendor."No.");
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            exit("Document No.");
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithVATPostingSetup(
+            VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase), LibraryRandom.RandInt(100));
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Vendor);
+        GenJournalLine.Validate("Bal. Account No.", Vendor."No.");
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -389,13 +387,11 @@ codeunit 145403 "AU Feature Bugs"
     var
         GSTPurchaseEntry: Record "GST Purchase Entry";
     begin
-        with GSTPurchaseEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst();
-            CalcSums(Amount);
-            Assert.AreEqual(Amount, 0, AmountMustBeZeroMsg);
-        end;
+        GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
+        GSTPurchaseEntry.SetRange("Document Type", GSTPurchaseEntry."Document Type"::Invoice);
+        GSTPurchaseEntry.FindFirst();
+        GSTPurchaseEntry.CalcSums(Amount);
+        Assert.AreEqual(GSTPurchaseEntry.Amount, 0, AmountMustBeZeroMsg);
     end;
 
     local procedure PrepareGeneralJournal(var GenJournalBatch: Record "Gen. Journal Batch")

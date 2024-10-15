@@ -1987,14 +1987,12 @@ codeunit 134102 "ERM Prepayment III"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            Validate("Enable GST (Australia)", DisableGST);
-            Validate("Full GST on Prepayment", DisableGST);
-            Validate("GST Report", DisableGST);
-            Validate("Adjustment Mandatory", DisableGST);
-            Modify(true);
-        end;
+        GLSetup.Get();
+        GLSetup.Validate("Enable GST (Australia)", DisableGST);
+        GLSetup.Validate("Full GST on Prepayment", DisableGST);
+        GLSetup.Validate("GST Report", DisableGST);
+        GLSetup.Validate("Adjustment Mandatory", DisableGST);
+        GLSetup.Modify(true);
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])

@@ -594,7 +594,7 @@ table 28075 "Purch. Tax Inv. Header"
 #endif
     begin
         PurchSetup.Get();
-        if "No." = '' then begin
+        if "No." = '' then
             if TaxInvoiceManagement.CheckTaxableNoSeries("Buy-from Vendor No.", 0) then begin
                 PurchSetup.TestField("Posted Non Tax Invoice Nos.");
 #if not CLEAN24
@@ -624,7 +624,6 @@ table 28075 "Purch. Tax Inv. Header"
                 end;
 #endif
             end;
-        end;
     end;
 
     var

@@ -105,9 +105,13 @@ report 1140 "Update Cost Acctg. Dimensions"
         NewCCDimension: Code[20];
         NewCODimension: Code[20];
         UpdateDimension: Boolean;
+#pragma warning disable AA0074
         Text001: Label 'Before you change the corresponding dimension on G/L entries, make sure all G/L entries using the previously defined dimension have been transferred to Cost Accounting. \\Do you want to proceed?';
         Text002: Label 'The dimension values for cost center and cost object cannot be same.';
+#pragma warning disable AA0470
         Text003: Label '%1 must be filled in. Enter a value.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure GetInitialDimensions()
     begin

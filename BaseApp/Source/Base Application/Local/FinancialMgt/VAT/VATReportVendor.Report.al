@@ -19,7 +19,7 @@ report 28027 "VAT Report - Vendor"
     {
         dataitem("VAT Entry"; "VAT Entry")
         {
-            DataItemTableView = sorting(Type, "Bill-to/Pay-to No.", "Transaction No.") ORDER(Ascending) where(Type = const(Purchase), Base = filter(<> 0), Amount = filter(<> 0));
+            DataItemTableView = sorting(Type, "Bill-to/Pay-to No.", "Transaction No.") order(ascending) where(Type = const(Purchase), Base = filter(<> 0), Amount = filter(<> 0));
             RequestFilterFields = "Bill-to/Pay-to No.";
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
