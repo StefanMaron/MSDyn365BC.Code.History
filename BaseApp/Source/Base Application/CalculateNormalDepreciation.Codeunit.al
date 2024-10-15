@@ -250,6 +250,17 @@
           EmptyStartingDate);
     end;
 
+    local procedure ProcessDaysInPeriod()
+    begin
+        if DaysInPeriod > 0 then begin
+            Factor := DaysInPeriod / NumberOfDays;
+            NumberOfDays := DaysInPeriod;
+            if FADeprBook."Last Depreciation Date" = 0D then
+                FirstDeprDate := DeprStartingDate;
+        end;
+        OnAfterProcessDaysInPeriod(NumberofDays, DaysInPeriod, Factor, FA, DeprBook, FirstDeprDate, UntilDate, Year365Days);
+    end;
+
     local procedure CalculateDeprAmount(): Decimal
     var
         Amount: Decimal;
@@ -277,12 +288,7 @@
             Factor := 1;
             if NumberOfDays <= 0 then
                 exit(0);
-            if DaysInPeriod > 0 then begin
-                Factor := DaysInPeriod / NumberOfDays;
-                NumberOfDays := DaysInPeriod;
-                if FADeprBook."Last Depreciation Date" = 0D then
-                    FirstDeprDate := DeprStartingDate;
-            end;
+            ProcessDaysInPeriod();
             if (DeprMethodRU = DeprMethodRU::SLRU) or (DeprMethodRU = DeprMethodRU::DBSLRU) then begin
                 FirstDeprDate := DeprPeriod;
                 DaysInPeriod := 30;
@@ -751,19 +757,7 @@
         if CalcTempDeprAmount(TempDeprAmount) then
             Error('');
 
-        if (DeprMethod = DeprMethod::"Declining-Balance 1") or (DeprMethod = DeprMethod::"DB1/SL") then
-            HalfYearPercent := DBPercent
-        else
-            if SLPercent > 0 then
-                HalfYearPercent := SLPercent
-            else
-                if DeprYears > 0 then
-                    HalfYearPercent :=
-                      100 /
-                      (DepreciationCalc.DeprDays(NewYearDate, FADeprBook."Depreciation Ending Date", Year365Days) +
-                       DaysInFiscalYear / 2) * DaysInFiscalYear
-                else
-                    HalfYearPercent := 0;
+        HalfYearPercent := CalcHalfYearPercent();
 
         HalfYearFactor :=
           DaysInFiscalYear / 2 /
@@ -786,6 +780,10 @@
         else
             DeprAmount :=
               (-HalfYearPercent / 100) * (NumberOfDays / DaysInFiscalYear) * DeprBasis * HalfYearFactor;
+        OnCalcHalfYearConventionDeprOnAfterFirstCalcDeprAmount(
+            FADeprBook, FixedAmount, NumberOfDays, DaysInFiscalYear,
+            HalfYearFactor, UntilDate, HalfYearPercent, NewYearDate, FirstDeprDate, DeprAmount);
+
         if DeprInTwoFiscalYears then begin
             NumberOfDays := DepreciationCalc.DeprDays(NewYearDate, UntilDate, Year365Days);
             FirstDeprDate := NewYearDate;
@@ -806,6 +804,30 @@
         FirstDeprDate := OriginalFirstDeprDate;
         DeprInTwoFiscalYears := false;
         exit(DeprAmount);
+    end;
+
+    local procedure CalcHalfYearPercent() HalfYearPercent: Decimal
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcHalfYearPercent(FADeprBook, NewYearDate, Year365Days, DaysInFiscalYear, DeprMethod, SLPercent, HalfYearPercent, IsHandled);
+        if IsHandled then
+            exit(HalfYearPercent);
+
+        if (DeprMethod = DeprMethod::"Declining-Balance 1") or (DeprMethod = DeprMethod::"DB1/SL") then
+            HalfYearPercent := DBPercent
+        else
+            if SLPercent > 0 then
+                HalfYearPercent := SLPercent
+            else
+                if DeprYears > 0 then
+                    HalfYearPercent :=
+                      100 /
+                      (DepreciationCalc.DeprDays(NewYearDate, FADeprBook."Depreciation Ending Date", Year365Days) +
+                       DaysInFiscalYear / 2) * DaysInFiscalYear
+                else
+                    HalfYearPercent := 0;
     end;
 
     local procedure SetDeprMethod(FADeprBook: Record "FA Depreciation Book")
@@ -1243,6 +1265,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterProcessDaysInPeriod(var NumberofDays: Integer; var DaysInPeriod: Integer; var Factor: Decimal; FixedAsset: Record "Fixed Asset"; DeprBook: Record "Depreciation Book"; var FirstDeprDate: date; UntilDate: Date; Year365Days: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcHalfYearPercent(FADeprBook: Record "FA Depreciation Book"; NewYearDate: Date; Year365Days: Boolean; DaysInFiscalYear: Integer; DeprMethod: Enum "FA Depr. Method Internal"; SLPercent: Decimal; var HalfYearPercent: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalculateDeprAmountOnAfterAssignAmountLastEntry(FADepreciationBook: Record "FA Depreciation Book"; UntilDate: Date; DateFromProjection: Date; BookValue: Decimal; UseHalfYearConvention: Boolean; DaysInFiscalYear: Integer; NumberOfDays: Integer)
     begin
     end;
@@ -1264,6 +1296,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateDeprAmountOnDeprMethodCaseLastDeprEntry(FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; DaysInFiscalYear: Integer; NumberOfDays: Integer; var Amount: Decimal; DateFromProjection: Date; UntilDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcHalfYearConventionDeprOnAfterFirstCalcDeprAmount(FADeprBook: Record "FA Depreciation Book"; FixedAmount: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; HalfYearFactor: Decimal; UntilDate: Date; HalfYearPercent: Decimal; NewYearDate: Date; FirstDeprDate: Date; var DeprAmount: Decimal)
     begin
     end;
 }

@@ -555,7 +555,13 @@
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
         ReportSelection: Record "Report Selections";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintRecords(Rec, ShowRequestForm, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchRcptHeader do begin
             Copy(Rec);
             ReportSelection.PrintWithDialogForVend(
@@ -648,6 +654,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; PurchRcptHeader: Record "Purch. Rcpt. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(var PurchRcptHeader: Record "Purch. Rcpt. Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
     begin
     end;
 

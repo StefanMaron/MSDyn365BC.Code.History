@@ -21,6 +21,7 @@ codeunit 136208 "Marketing Interaction"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryWorkflow: Codeunit "Library - Workflow";
+        LibraryPermissions: Codeunit "Library - Permissions";
         FileMgt: Codeunit "File Management";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         isInitialized: Boolean;
@@ -2548,6 +2549,49 @@ codeunit 136208 "Marketing Interaction"
         // [THEN] Segment is logged and Interaction Log Entry created
         InteractionLogEntry.SetRange("Contact No.", Contact."No.");
         Assert.RecordCount(InteractionLogEntry, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OutboundFlowEntryTitleUserName()
+    var
+        Contact: Record Contact;
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        InteractionTemplate: Record "Interaction Template";
+        User: Record User;
+        UserName: Code[50];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 434823] Contact Interaction Subform shows title for Outbound interaction template with actual User Name
+        Initialize();
+
+        // [GIVEN] User "U" with User Name "UN"
+        User.Get(LibraryPermissions.CreateUserWithName(''));
+        UserName := User."User Name";
+
+        // [GIVEN] Interaction Template "X" with "Information Flow" = Outbound
+        LibraryMarketing.CreateInteractionTemplate(InteractionTemplate);
+        InteractionTemplate."Information Flow" := InteractionTemplate."Information Flow"::Outbound;
+        InteractionTemplate.Modify();
+
+        // [GIVEN] Contact with Name = "C"
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact.Modify();
+
+        // [GIVEN] Mock interaction log entry for contact "C" and template "X" and "User Id" = "UN"
+        MockInterLogEntry(InteractionLogEntry);
+        InteractionLogEntry."Contact No." := Contact."No.";
+        InteractionLogEntry."Contact Company No." := Contact."Company No.";
+        InteractionLogEntry."Interaction Template Code" := InteractionTemplate.Code;
+        InteractionLogEntry."User ID" := UserName;
+        InteractionLogEntry.Modify();
+
+        // [WHEN] GetEntryTitle function run for interaction entry
+        // [THEN] Contact Interaction Subform shows "Title" = "TD - by UN" (not current user)
+        Assert.AreEqual(StrSubstNo(TitleByLbl, InteractionTemplate.Description, UserName), InteractionLogEntry.GetEntryTitle(), 'Invalid Title');
+
+        User.Delete();
     end;
 
     [Test]

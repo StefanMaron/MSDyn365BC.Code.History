@@ -323,6 +323,7 @@
         UseQtyToHandle: Boolean;
         IsHandled: Boolean;
         DoCreateNewButUnchangedVersion: Boolean;
+        ShouldCreateWhseItemTrkgLines: Boolean;
     begin
         if TransferQty = 0 then
             exit;
@@ -463,9 +464,11 @@
                        (OldReservEntry."Source Type" = DATABASE::"Item Journal Line") and
                        (OldReservEntry."Reservation Status" = OldReservEntry."Reservation Status"::Reservation)
                     then begin
-                        if ItemTrkgMgt.GetWhseItemTrkgSetup(OldReservEntry."Item No.") and
-                            Location.RequireShipment(OldReservEntry."Location Code")
-                        then
+                        ShouldCreateWhseItemTrkgLines :=
+                            ItemTrkgMgt.GetWhseItemTrkgSetup(OldReservEntry."Item No.") and
+                            Location.RequireShipment(OldReservEntry."Location Code");
+                        OnTransferReservEntryOnAfterCalcShouldCreateWhseItemTrkgLines(OldReservEntry, ShouldCreateWhseItemTrkgLines);
+                        if ShouldCreateWhseItemTrkgLines then
                             CreateWhseItemTrkgLines(NewReservEntry);
                     end;
                 end else
@@ -1170,6 +1173,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferReservEntryOnAfterNewReservEntryInsert(var NewReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReservEntryOnAfterCalcShouldCreateWhseItemTrkgLines(OldReservEntry: Record "Reservation Entry"; var ShouldCreateWhseItemTrkgLines: Boolean)
     begin
     end;
 

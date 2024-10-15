@@ -65,6 +65,8 @@ codeunit 131013 "Library - O365 Sync"
     end;
 
     procedure SetupNavUser()
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
         // Sets up the user if it doesn't exist (e.g. we're using Windows Auth and have no users defined)
         User.SetRange("User Name", UserId);
@@ -73,7 +75,8 @@ codeunit 131013 "Library - O365 Sync"
             User."User Security ID" := CreateGuid;
             User."User Name" := UserId;
             User."Full Name" := User."User Name";
-            User."Windows Security ID" := Sid(User."User Name");
+            if not EnvironmentInformation.IsSaaS() then
+                User."Windows Security ID" := Sid(User."User Name");
             User.Insert(true);
         end;
 

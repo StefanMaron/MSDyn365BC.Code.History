@@ -30,6 +30,7 @@
                 end;
                 if "Invoice Disc. Code" = '' then
                     "Invoice Disc. Code" := "No.";
+                OnAfterValidateNo(Rec, xRec);
             end;
         }
         field(2; Name; Text[100])
@@ -1067,6 +1068,10 @@
         {
             Caption = 'Partner Type';
         }
+        field(133; "Intrastat Partner Type"; Enum "Partner Type")
+        {
+            Caption = 'Intrastat Partner Type';
+        }
         field(140; Image; Media)
         {
             Caption = 'Image';
@@ -1848,7 +1853,14 @@
     end;
 
     trigger OnRename()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRename(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
         DimMgt.RenameDefaultDim(DATABASE::Vendor, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Vendor, xRec."No.", "No.");
@@ -2238,26 +2250,16 @@
         end;
     end;
 
-    procedure HasAddress(): Boolean
+    procedure HasAddress() Result: Boolean
     begin
-        case true of
-            Address <> '':
-                exit(true);
-            "Address 2" <> '':
-                exit(true);
-            City <> '':
-                exit(true);
-            "Country/Region Code" <> '':
-                exit(true);
-            County <> '':
-                exit(true);
-            "Post Code" <> '':
-                exit(true);
-            Contact <> '':
-                exit(true);
-        end;
-
-        exit(false);
+        Result := (Address <> '') or
+                  ("Address 2" <> '') or
+                  (City <> '') or
+                  ("Country/Region Code" <> '') or
+                  (County <> '') or
+                  ("Post Code" <> '') or
+                  (Contact <> '');
+        OnAfterHasAddress(Rec, Result);
     end;
 
     procedure GetBalanceAsCustomer(var LinkedCustomerNo: Code[20]) BalanceAsCustomer: Decimal;
@@ -2755,7 +2757,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterHasAddress(Vendor: Record Vendor; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateCity(var Vendor: Record Vendor; xVendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateNo(var Vendor: Record Vendor; xVendor: Record Vendor)
     begin
     end;
 
@@ -2826,6 +2838,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnInsert(var Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRename(var Vendor: Record Vendor; xVendor: Record Vendor; var IsHandled: Boolean)
     begin
     end;
 

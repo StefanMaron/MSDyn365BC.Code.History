@@ -2,6 +2,7 @@
 {
     Permissions = TableData "Bank Account Ledger Entry" = rm,
                   TableData "Check Ledger Entry" = rm,
+                  TableData "Bank Account" = rm,
                   TableData "Bank Account Statement" = ri,
                   TableData "Bank Account Statement Line" = ri,
                   TableData "Posted Payment Recon. Hdr" = ri;
@@ -157,7 +158,7 @@
                     AppliedAmount := 0;
 
                     BankAccReconLine.FilterManyToOneMatches(BankAccRecMatchBuffer);
-                    if BankAccRecMatchBuffer.FindFirst() then begin
+                    if ("Statement Type" = "Statement Type"::"Bank Reconciliation") and BankAccRecMatchBuffer.FindFirst() then begin
                         if (not BankAccRecMatchBuffer."Is Processed") then
                             CloseBankAccLEManyToOne(BankAccRecMatchBuffer, AppliedAmount);
                     end else begin

@@ -2307,7 +2307,14 @@ page 39 "General Journal"
     end;
 
     local procedure SetDataForSimpleModeOnPost()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDataForSimpleModeOnPost(Rec, IsSimplePage, IsHandled);
+        if IsHandled then
+            exit;
+
         PostedFromSimplePage := true;
         SetCurrentKey("Document No.", "Line No.");
         if FindFirst() then
@@ -2364,6 +2371,11 @@ page 39 "General Journal"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSelectTemplate(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlManagement: Codeunit GenJnlManagement; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDataForSimpleModeOnPost(var GenJournalLine: Record "Gen. Journal Line"; IsSimplePage: Boolean; var IsHandled: Boolean)
     begin
     end;
 

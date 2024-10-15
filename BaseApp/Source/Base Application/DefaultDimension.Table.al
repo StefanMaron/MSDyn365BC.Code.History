@@ -284,9 +284,13 @@ table 352 "Default Dimension"
     end;
 
     trigger OnRename()
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
     begin
         if ("Table ID" <> xRec."Table ID") or ("Dimension Code" <> xRec."Dimension Code") then
             Error(Text000, TableCaption);
+
+        DimValuePerAccount.RenameNo("Table ID", xRec."No.", "No.", "Dimension Code");
     end;
 
     var
@@ -926,6 +930,8 @@ table 352 "Default Dimension"
         KeyRef := RecRef.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(KeyRef.FieldCount);
         FieldRef.SetRange(Value);
+
+        OnAfterSetRangeToLastFieldInPrimaryKey(RecRef, Value, FieldRef);
     end;
 
     local procedure UpdateNo(ParentId: Guid; ParentType: Enum "Default Dimension Parent Type")
@@ -1242,6 +1248,11 @@ table 352 "Default Dimension"
             end;
             EmployeeTempl.Modify(true);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetRangeToLastFieldInPrimaryKey(RecRef: RecordRef; Value: Code[20]; var FieldRef: FieldRef)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

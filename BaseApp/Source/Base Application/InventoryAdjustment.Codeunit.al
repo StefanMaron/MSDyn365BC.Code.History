@@ -809,71 +809,77 @@
         InbndItemLedgEntry: Record "Item Ledger Entry";
         QtyNotInvoiced: Decimal;
         ShareOfTotalCost: Decimal;
+        IsHandled: Boolean;
     begin
-        AdjustedCostElementBuf.DeleteAll();
-        with InbndValueEntry do begin
-            InbndItemLedgEntry.Get(InbndItemLedgEntryNo);
-            SetCurrentKey("Item Ledger Entry No.");
-            SetRange("Item Ledger Entry No.", InbndItemLedgEntryNo);
-            QtyNotInvoiced := InbndItemLedgEntry.Quantity - InbndItemLedgEntry."Invoiced Quantity";
+        IsHandled := false;
+        OnBeforeCalcInbndEntryAdjustedCost(AdjustedCostElementBuf, ItemApplnEntry, OutbndItemLedgEntryNo, InbndItemLedgEntryNo, ExactCostReversing, Recursion, CompletelyInvoiced, IsHandled);
+        if not IsHandled then begin
+            AdjustedCostElementBuf.DeleteAll();
+            with InbndValueEntry do begin
+                InbndItemLedgEntry.Get(InbndItemLedgEntryNo);
+                SetCurrentKey("Item Ledger Entry No.");
+                SetRange("Item Ledger Entry No.", InbndItemLedgEntryNo);
+                QtyNotInvoiced := InbndItemLedgEntry.Quantity - InbndItemLedgEntry."Invoiced Quantity";
 
-            FindSet();
-            repeat
-                if IncludedInCostCalculation(InbndValueEntry, OutbndItemLedgEntryNo) and
-                   not ExpCostIsCompletelyInvoiced(InbndItemLedgEntry, InbndValueEntry)
-                then begin
-                    if TempInvtAdjmtBuf.Get("Entry No.") then
-                        AddCost(TempInvtAdjmtBuf);
-                    case true of
-                        IsInterimRevaluation(InbndValueEntry):
-                            begin
-                                ShareOfTotalCost := InbndItemLedgEntry.Quantity / "Valued Quantity";
+                FindSet();
+                repeat
+                    if IncludedInCostCalculation(InbndValueEntry, OutbndItemLedgEntryNo) and
+                       not ExpCostIsCompletelyInvoiced(InbndItemLedgEntry, InbndValueEntry)
+                    then begin
+                        if TempInvtAdjmtBuf.Get("Entry No.") then
+                            AddCost(TempInvtAdjmtBuf);
+                        case true of
+                            IsInterimRevaluation(InbndValueEntry):
+                                begin
+                                    ShareOfTotalCost := InbndItemLedgEntry.Quantity / "Valued Quantity";
+                                    AdjustedCostElementBuf.AddActualCostElement(
+                                      AdjustedCostElementBuf.Type::"Direct Cost", AdjustedCostElementBuf."Variance Type"::" ",
+                                      ("Cost Amount (Expected)" + "Cost Amount (Actual)") * ShareOfTotalCost,
+                                      ("Cost Amount (Expected) (ACY)" + "Cost Amount (Actual) (ACY)") * ShareOfTotalCost);
+                                end;
+                            "Expected Cost":
+                                begin
+                                    ShareOfTotalCost := QtyNotInvoiced / "Valued Quantity";
+                                    AdjustedCostElementBuf.AddActualCostElement(
+                                      AdjustedCostElementBuf.Type::"Direct Cost", AdjustedCostElementBuf."Variance Type"::" ",
+                                      "Cost Amount (Expected)" * ShareOfTotalCost,
+                                      "Cost Amount (Expected) (ACY)" * ShareOfTotalCost);
+                                end;
+                            "Partial Revaluation":
+                                begin
+                                    ShareOfTotalCost := InbndItemLedgEntry.Quantity / "Valued Quantity";
+                                    AdjustedCostElementBuf.AddActualCostElement(
+                                      AdjustedCostElementBuf.Type::"Direct Cost", AdjustedCostElementBuf."Variance Type"::" ",
+                                      "Cost Amount (Actual)" * ShareOfTotalCost,
+                                      "Cost Amount (Actual) (ACY)" * ShareOfTotalCost);
+                                end;
+                            ("Entry Type".AsInteger() <= "Entry Type"::Revaluation.AsInteger()) or not ExactCostReversing:
                                 AdjustedCostElementBuf.AddActualCostElement(
                                   AdjustedCostElementBuf.Type::"Direct Cost", AdjustedCostElementBuf."Variance Type"::" ",
-                                  ("Cost Amount (Expected)" + "Cost Amount (Actual)") * ShareOfTotalCost,
-                                  ("Cost Amount (Expected) (ACY)" + "Cost Amount (Actual) (ACY)") * ShareOfTotalCost);
-                            end;
-                        "Expected Cost":
-                            begin
-                                ShareOfTotalCost := QtyNotInvoiced / "Valued Quantity";
+                                  "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
+                            "Entry Type" = "Entry Type"::"Indirect Cost":
                                 AdjustedCostElementBuf.AddActualCostElement(
-                                  AdjustedCostElementBuf.Type::"Direct Cost", AdjustedCostElementBuf."Variance Type"::" ",
-                                  "Cost Amount (Expected)" * ShareOfTotalCost,
-                                  "Cost Amount (Expected) (ACY)" * ShareOfTotalCost);
-                            end;
-                        "Partial Revaluation":
-                            begin
-                                ShareOfTotalCost := InbndItemLedgEntry.Quantity / "Valued Quantity";
+                                  AdjustedCostElementBuf.Type::"Indirect Cost", AdjustedCostElementBuf."Variance Type"::" ",
+                                  "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
+                            else
                                 AdjustedCostElementBuf.AddActualCostElement(
-                                  AdjustedCostElementBuf.Type::"Direct Cost", AdjustedCostElementBuf."Variance Type"::" ",
-                                  "Cost Amount (Actual)" * ShareOfTotalCost,
-                                  "Cost Amount (Actual) (ACY)" * ShareOfTotalCost);
-                            end;
-                        ("Entry Type".AsInteger() <= "Entry Type"::Revaluation.AsInteger()) or not ExactCostReversing:
-                            AdjustedCostElementBuf.AddActualCostElement(
-                              AdjustedCostElementBuf.Type::"Direct Cost", AdjustedCostElementBuf."Variance Type"::" ",
-                              "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-                        "Entry Type" = "Entry Type"::"Indirect Cost":
-                            AdjustedCostElementBuf.AddActualCostElement(
-                              AdjustedCostElementBuf.Type::"Indirect Cost", AdjustedCostElementBuf."Variance Type"::" ",
-                              "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-                        else
-                            AdjustedCostElementBuf.AddActualCostElement(
-                              AdjustedCostElementBuf.Type::Variance, AdjustedCostElementBuf."Variance Type"::" ",
-                              "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
+                                  AdjustedCostElementBuf.Type::Variance, AdjustedCostElementBuf."Variance Type"::" ",
+                                  "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
+                        end;
                     end;
-                end;
-            until Next() = 0;
+                until Next() = 0;
 
-            CalcNewAdjustedCost(AdjustedCostElementBuf, ItemApplnEntry.Quantity / InbndItemLedgEntry.Quantity);
+                CalcNewAdjustedCost(AdjustedCostElementBuf, ItemApplnEntry.Quantity / InbndItemLedgEntry.Quantity);
 
-            if AdjustAppliedCostEntry(ItemApplnEntry, InbndItemLedgEntryNo, Recursion) then
-                RndgResidualBuf.AddAdjustedCost(
-                  ItemApplnEntry."Inbound Item Entry No.",
-                  AdjustedCostElementBuf."Actual Cost", AdjustedCostElementBuf."Actual Cost (ACY)",
-                  ItemApplnEntry."Output Completely Invd. Date" <> 0D);
+                if AdjustAppliedCostEntry(ItemApplnEntry, InbndItemLedgEntryNo, Recursion) then
+                    RndgResidualBuf.AddAdjustedCost(
+                      ItemApplnEntry."Inbound Item Entry No.",
+                      AdjustedCostElementBuf."Actual Cost", AdjustedCostElementBuf."Actual Cost (ACY)",
+                      ItemApplnEntry."Output Completely Invd. Date" <> 0D);
+            end;
+            CompletelyInvoiced := InbndItemLedgEntry."Completely Invoiced";
         end;
-        CompletelyInvoiced := InbndItemLedgEntry."Completely Invoiced";
+
         OnAfterCalcInbndEntryAdjustedCost(AdjustedCostElementBuf, InbndValueEntry, InbndItemLedgEntry, ItemApplnEntry, OutbndItemLedgEntryNo, CompletelyInvoiced);
     end;
 
@@ -1625,6 +1631,7 @@
         ItemJnlLine: Record "Item Journal Line";
         OrigItemLedgEntry: Record "Item Ledger Entry";
         OrigValueEntry: Record "Value Entry";
+        IsHandled: Boolean;
     begin
         OrigValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         OrigValueEntry.SetRange("Item Ledger Entry No.", TempInvtAdjmtBuf."Item Ledger Entry No.");
@@ -1644,8 +1651,10 @@
             OrigItemLedgEntry.Get("Item Ledger Entry No.");
             ItemJnlLine.Adjustment := ("Order Type" = "Order Type"::Assembly) and (OrigItemLedgEntry."Invoiced Quantity" <> 0);
 
-            OnPostOutputOnBeforePostItemJnlLine(ItemJnlLine, OrigValueEntry, InvtAdjmtBuf);
-            PostItemJnlLine(ItemJnlLine, OrigValueEntry, InvtAdjmtBuf."Cost Amount (Actual)", InvtAdjmtBuf."Cost Amount (Actual) (ACY)");
+            IsHandled := false;
+            OnPostOutputOnBeforePostItemJnlLine(ItemJnlLine, OrigValueEntry, InvtAdjmtBuf, GLSetup, IsHandled);
+            if not IsHandled then
+                PostItemJnlLine(ItemJnlLine, OrigValueEntry, InvtAdjmtBuf."Cost Amount (Actual)", InvtAdjmtBuf."Cost Amount (Actual) (ACY)");
 
             OrigItemLedgEntry.Get("Item Ledger Entry No.");
             if not OrigItemLedgEntry."Completely Invoiced" then
@@ -1893,7 +1902,7 @@
                 ItemJnlLine."Posting Date" := "Posting Date"
             else
                 ItemJnlLine."Posting Date" := PostingDateForClosedPeriod;
-            OnPostItemJnlLineOnAfterSetPostingDate(ItemJnlLine, OrigValueEntry);
+            OnPostItemJnlLineOnAfterSetPostingDate(ItemJnlLine, OrigValueEntry, PostingDateForClosedPeriod);
 
             ItemJnlLine."Entry Type" := "Item Ledger Entry Type";
             ItemJnlLine."Document No." := "Document No.";
@@ -2886,6 +2895,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcInbndEntryAdjustedCost(var AdjustedCostElementBuf: Record "Cost Element Buffer"; ItemApplnEntry: Record "Item Application Entry"; OutbndItemLedgEntryNo: Integer; InbndItemLedgEntryNo: Integer; ExactCostReversing: Boolean; Recursion: Boolean; var CompletelyInvoiced: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyILEToILE(var Item: Record Item; ItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -2991,7 +3005,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnAfterSetPostingDate(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry")
+    local procedure OnPostItemJnlLineOnAfterSetPostingDate(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry"; PostingDateForClosedPeriod: Date)
     begin
     end;
 
@@ -3036,7 +3050,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostOutputOnBeforePostItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; InvtAdjmtBuf: Record "Inventory Adjustment Buffer")
+    local procedure OnPostOutputOnBeforePostItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; var InvtAdjmtBuf: Record "Inventory Adjustment Buffer"; var GLSetup: Record "General Ledger Setup"; var IsHandled: Boolean)
     begin
     end;
 

@@ -5469,6 +5469,123 @@ codeunit 136201 "Marketing Contacts"
         Job.TestField("Bill-to Contact No.", CompanyContact."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerPrimaryContactDeletion()
+    var
+        Customer: Record Customer;
+        CompanyContact: Record Contact;
+        PersonContact: Record Contact;
+    begin
+        // [SCENARIO 433957] 'Primary Contact No.' and 'Contact' fields should be cleared when the Contact is deleted
+        Initialize();
+
+        // [GIVEN] Company Contact "CC"
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+
+        // [GIVEN] Person Contact "PC" related to "CC" 
+        LibraryMarketing.CreatePersonContact(PersonContact);
+        PersonContact.Validate("Company No.", CompanyContact."Company No.");
+        PersonContact.Modify(true);
+
+        // [GIVEN] Customer created from "CC" Company Contact
+        CompanyContact.SetHideValidationDialog(true);
+        CompanyContact.CreateCustomerFromTemplate('');
+        Customer.SetRange(Name, CompanyContact.Name);
+        Customer.FindFirst();
+
+        // [GIVEN] Customer Primary Contact No. = "PC", Customer Contact = PC.Name
+        Customer.Validate("Primary Contact No.", PersonContact."No.");
+        Customer.Modify();
+        Customer.TestField("Primary Contact No.", PersonContact."No.");
+        Customer.TestField(Contact, PersonContact.Name);
+
+        // [WHEN] Contact "PC" is deleted
+        PersonContact.Delete(true);
+
+        // [THEN] Customer 'Primary Contact No.' and 'Contact' are cleared
+        Customer.Find();
+        Customer.TestField("Primary Contact No.", '');
+        Customer.TestField(Contact, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorPrimaryContactDeletion()
+    var
+        Vendor: Record Vendor;
+        CompanyContact: Record Contact;
+        PersonContact: Record Contact;
+    begin
+        // [SCENARIO 433957] 'Primary Contact No.' and 'Contact' fields should be cleared when the Contact is deleted
+        Initialize();
+
+        // [GIVEN] Company Contact "CC"
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+
+        // [GIVEN] Person Contact "PC" related to "CC" 
+        LibraryMarketing.CreatePersonContact(PersonContact);
+        PersonContact.Validate("Company No.", CompanyContact."Company No.");
+        PersonContact.Modify(true);
+
+        // [GIVEN] Customer created from "CC" Company Contact
+        CompanyContact.SetHideValidationDialog(true);
+        CompanyContact.CreateVendorFromTemplate('');
+        Vendor.SetRange(Name, CompanyContact.Name);
+        Vendor.FindFirst();
+
+        // [GIVEN] Vendor Primary Contact No. = "PC", Customer Contact = PC.Name
+        Vendor.Validate("Primary Contact No.", PersonContact."No.");
+        Vendor.Modify();
+        Vendor.TestField("Primary Contact No.", PersonContact."No.");
+        Vendor.TestField(Contact, PersonContact.Name);
+
+        // [WHEN] Contact "PC" is deleted
+        PersonContact.Delete(true);
+
+        // [THEN] Vendor 'Primary Contact No.' and 'Contact' are cleared
+        Vendor.Find();
+        Vendor.TestField("Primary Contact No.", '');
+        Vendor.TestField(Contact, '');
+    end;
+
+    [Test]
+    procedure ContactUpdateBusinessRelationNoneEmpty()
+    var
+        Contact: Record Contact;
+        Customer: Record Customer;
+        BusinessRelation: Record "Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
+        ContactList: TestPage "Contact List";
+    begin
+        // [SCENARIO 431320] "Business Relation" on Contact List should be updated if initial value = None, but Business Relation exists
+        Initialize();
+
+        // [GIVEN] Customer with Contact "C" and contact business relation.
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        ChangeBusinessRelationCodeForCustomers(BusinessRelation.Code);
+        LibrarySales.CreateCustomer(Customer);
+
+        Customer.SetRange("No.", Customer."No.");
+        RunCreateContsFromCustomersReport(Customer);
+
+        FindContactBusinessRelation(
+            ContactBusinessRelation, BusinessRelation.Code, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
+        Contact.Get(ContactBusinessRelation."Contact No.");
+
+        // [GIVEN] Contact "C" has "Contact Business Relation" = Bank Account (setting wrong business relation which should not be changed)
+        Contact."Contact Business Relation" := Contact."Contact Business Relation"::"Bank Account";
+        Contact.Modify();
+        Commit();
+
+        // [WHEN] Open Contact List
+        ContactList.OpenView();
+        ContactList.Filter.SetFilter("No.", Contact."No.");
+
+        // [THEN] "Business Relation" for Contact "C" = Bank Account
+        ContactList."Business Relation".AssertEquals(Contact."Contact Business Relation"::"Bank Account");
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";

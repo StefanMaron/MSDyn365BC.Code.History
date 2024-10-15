@@ -223,7 +223,7 @@ codeunit 86 "Sales-Quote to Order"
             TempOpportunityEntry."Calcd. Current Value (LCY)" := TempOpportunityEntry.GetSalesDocValue(SalesHeader);
             TempOpportunityEntry."Cancel Old To Do" := true;
             TempOpportunityEntry."Wizard Step" := 1;
-            OnBeforeTempOpportunityEntryInsert(TempOpportunityEntry);
+            OnBeforeTempOpportunityEntryInsert(TempOpportunityEntry, SalesHeader);
             TempOpportunityEntry.Insert();
             TempOpportunityEntry.SetRange("Action Taken", TempOpportunityEntry."Action Taken"::Won);
 
@@ -399,7 +399,7 @@ codeunit 86 "Sales-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTempOpportunityEntryInsert(var TempOpportunityEntry: Record "Opportunity Entry" temporary)
+    local procedure OnBeforeTempOpportunityEntryInsert(var TempOpportunityEntry: Record "Opportunity Entry" temporary; var SalesHeader: Record "Sales Header")
     begin
     end;
 

@@ -146,7 +146,7 @@ codeunit 5815 "Undo Sales Shipment Line"
 
                 OnBeforeSalesShptLineModify(SalesShptLine);
                 Modify;
-                OnAfterSalesShptLineModify(SalesShptLine);
+                OnAfterSalesShptLineModify(SalesShptLine, DocLineNo);
 
                 UndoFinalizePostATO(SalesShptLine);
             until Next() = 0;
@@ -602,7 +602,7 @@ codeunit 5815 "Undo Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSalesShptLineModify(var SalesShptLine: Record "Sales Shipment Line")
+    local procedure OnAfterSalesShptLineModify(var SalesShptLine: Record "Sales Shipment Line"; DocLineNo: Integer)
     begin
     end;
 

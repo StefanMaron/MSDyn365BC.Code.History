@@ -367,10 +367,16 @@ codeunit 99000842 "Service Line-Reserve"
           DATABASE::"Service Line", ServLine."Document Type".AsInteger(), ServLine."Document No.", ServLine."Line No.");
     end;
 
-    procedure TransServLineToItemJnlLine(var ServLine: Record "Service Line"; var ItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal; var CheckApplFromItemEntry: Boolean): Decimal
+    procedure TransServLineToItemJnlLine(var ServLine: Record "Service Line"; var ItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal; var CheckApplFromItemEntry: Boolean) Result: Decimal
     var
         OldReservEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransServLineToItemJnlLine(ServLine, ItemJnlLine, TransferQty, CheckApplFromItemEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not FindReservEntry(ServLine, OldReservEntry) then
             exit(TransferQty);
 
@@ -684,6 +690,11 @@ codeunit 99000842 "Service Line-Reserve"
         if ReservSummEntry."Entry No." = 110 then
             UpdateStatistics(
                 CalcReservEntry, ReservSummEntry, AvailabilityDate, Positive, TotalQuantity);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransServLineToItemJnlLine(var ServLine: Record "Service Line"; var ItemJnlLine: Record "Item Journal Line"; TransferQty: Decimal; var CheckApplFromItemEntry: Boolean; var Result: Decimal; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

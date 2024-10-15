@@ -68,7 +68,7 @@
             CheckDates(GenJnlLine);
             ValidateSalesPersonPurchaserCode(GenJnlLine);
 
-            TestField("Document No.", ErrorInfo.Create());
+            TestDocumentNo(GenJnlLine);
 
             if ("Account Type" in
                 ["Account Type"::Customer,
@@ -192,6 +192,18 @@
 
         if LogErrorMode then
             ErrorMessageMgt.GetErrors(TempErrorMessage);
+    end;
+
+    local procedure TestDocumentNo(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestDocumentNo(GenJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJournalLine.TestField("Document No.", ErrorInfo.Create());
     end;
 
     procedure GetErrors(var NewTempErrorMessage: Record "Error Message" temporary)
@@ -759,10 +771,12 @@
             TableID[5] := DATABASE::Campaign;
             No[5] := "Campaign No.";
 
-            OnCheckDimensionsOnAfterAssignDimTableIDs(GenJnlLine, TableID, No);
+            CheckDone := false;
+            OnCheckDimensionsOnAfterAssignDimTableIDs(GenJnlLine, TableID, No, CheckDone);
 
-            if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                ThrowGenJnlLineError(GenJnlLine, Text012, DimMgt.GetDimValuePostingErr);
+            if not CheckDone then
+                if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
+                    ThrowGenJnlLineError(GenJnlLine, Text012, DimMgt.GetDimValuePostingErr);
         end;
     end;
 
@@ -1080,13 +1094,18 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckPostingDateInFiscalYear(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnCheckDimensionsOnAfterAssignDimTableIDs(var GenJournalLine: Record "Gen. Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    local procedure OnCheckDimensionsOnAfterAssignDimTableIDs(var GenJournalLine: Record "Gen. Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var CheckDone: Boolean)
     begin
     end;
 

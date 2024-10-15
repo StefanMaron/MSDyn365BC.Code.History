@@ -287,6 +287,8 @@ codeunit 99000832 "Sales Line-Reserve"
         if ItemJnlLine."Invoiced Quantity" <> 0 then
             CreateReservEntry.SetUseQtyToInvoice(true);
 
+
+        OnTransferSalesLineToItemJnlLineOnBeforeInitRecordSet(OldReservEntry);
         if ReservEngineMgt.InitRecordSet(OldReservEntry) then begin
             repeat
                 IsHandled := false;
@@ -437,7 +439,13 @@ codeunit 99000832 "Sales Line-Reserve"
     var
         TrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCallItemTracking(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         TrackingSpecification.InitFromSalesLine(SalesLine);
         if ((SalesLine."Document Type" = SalesLine."Document Type"::Invoice) and
             (SalesLine."Shipment No." <> '')) or
@@ -489,7 +497,7 @@ codeunit 99000832 "Sales Line-Reserve"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeRetrieveInvoiceSpecification(SalesLine, OK, IsHandled);
+        OnBeforeRetrieveInvoiceSpecification(SalesLine, OK, IsHandled, TempInvoicingSpecification);
         if IsHandled then
             exit;
 
@@ -543,7 +551,14 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     procedure DeleteInvoiceSpecFromHeader(var SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteInvoiceSpecFromHeader(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemTrackingMgt.DeleteInvoiceSpecFromHeader(
           DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
     end;
@@ -1100,8 +1115,8 @@ codeunit 99000832 "Sales Line-Reserve"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeRetrieveInvoiceSpecification(var SalesLine: Record "Sales Line"; var OK: Boolean; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeRetrieveInvoiceSpecification(var SalesLine: Record "Sales Line"; var OK: Boolean; var IsHandled: Boolean; var TempInvoicingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 
@@ -1156,6 +1171,11 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnTransferSalesLineToItemJnlLineOnBeforeInitRecordSet(var OldReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTransferSalesLineToItemJnlLineOnBeforeOldReservEntryTest(SalesLine: Record "Sales Line"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line");
     begin
     end;
@@ -1181,7 +1201,17 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCallItemTracking(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateReservation(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteInvoiceSpecFromHeader(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

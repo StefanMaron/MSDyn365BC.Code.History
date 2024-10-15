@@ -204,6 +204,8 @@
             else
                 ContinuePosting(GenJnlLine);
 
+            OnCodeOnAfterStartOrContinuePosting(GenJnlLine, LastDocType, LastDocNo, LastDate, NextEntryNo);
+
             if "Account No." <> '' then begin
                 if ("Bal. Account No." <> '') and
                    (not "System-Created Entry") and
@@ -213,7 +215,7 @@
                      "Account Type"::"Fixed Asset"])
                 then begin
                     CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJnlLine);
-                    OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing);
+                    OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo);
                     Balancing := true;
                 end;
 
@@ -222,7 +224,7 @@
 
             if "Bal. Account No." <> '' then begin
                 CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJnlLine);
-                OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing);
+                OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo);
                 PostGenJnlLine(GenJnlLine, not Balancing);
             end;
 
@@ -1464,6 +1466,7 @@
                                     CheckLedgEntry2."Bank Account Ledger Entry No." := BankAccLedgEntry."Entry No.";
                                     CheckLedgEntry2."Check Date" := "Document Date";
                                     CheckLedgEntry2."Posting Date" := "Posting Date";
+                                    OnPostBankAccOnBeforeCheckLedgEntry2Modify(CheckLedgEntry, BankAccLedgEntry);
                                     CheckLedgEntry2.Modify();
                                 until CheckLedgEntry.Next() = 0;
                         end;
@@ -3247,7 +3250,14 @@
     end;
 
     local procedure InsertDtldCustLedgEntry(GenJnlLine: Record "Gen. Journal Line"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; Offset: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertDtldCustLedgEntryProcedure(GenJnlLine, DtldCVLedgEntryBuf, DtldCustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if GenJnlLine."Prepmt. Diff." then
             exit;
 
@@ -3274,7 +3284,14 @@
     end;
 
     local procedure InsertDtldVendLedgEntry(GenJnlLine: Record "Gen. Journal Line"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; Offset: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertDtldVendLedgEntryProcedure(GenJnlLine, DtldCVLedgEntryBuf, DtldVendLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if GenJnlLine."Prepmt. Diff." then
             exit;
 
@@ -8670,6 +8687,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterStartOrContinuePosting(var GenJournalLine: Record "Gen. Journal Line"; LastDocType: Enum "Gen. Journal Document Type"; LastDocNo: Code[20]; LastDate: Date; var NextEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeContinuePosting(var GenJournalLine: Record "Gen. Journal Line"; var GLRegister: Record "G/L Register"; var NextEntryNo: Integer; var NextTransactionNo: Integer)
     begin
     end;
@@ -8875,12 +8897,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertDtldCustLedgEntryProcedure(GenJnlLine: Record "Gen. Journal Line"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertDtldCustLedgEntryUnapply(var NewDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; GenJournalLine: Record "Gen. Journal Line"; OldDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertDtldVendLedgEntry(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; GenJournalLine: Record "Gen. Journal Line"; DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertDtldVendLedgEntryProcedure(GenJnlLine: Record "Gen. Journal Line"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -9522,7 +9554,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnCodeOnAfterRunExhangeAccGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean)
+    local procedure OnCodeOnAfterRunExhangeAccGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var NextEntryNo: Integer)
     begin
     end;
 
@@ -9638,6 +9670,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostBankAccOnBeforeBankAccLedgEntryInsert(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line"; BankAccount: Record "Bank Account"; var TempGLEntryBuf: Record "G/L Entry" temporary; var NextTransactionNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostBankAccOnBeforeCheckLedgEntry2Modify(var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccLedgEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 
@@ -9939,7 +9976,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnUnapplyVendLedgEntryOnAfterPostUnapply(var GenJournalLine: Record "Gen. Journal Line"; var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry")
     begin
     end;

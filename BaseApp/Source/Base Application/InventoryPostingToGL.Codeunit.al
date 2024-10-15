@@ -838,6 +838,7 @@
     var
         i: Integer;
         ValueEntry2: Record "Value Entry";
+        ShouldInsertTempGLItemLedgRelation: Boolean;
     begin
         with GlobalInvtPostBuf do begin
             if not CalledFromTestReport then
@@ -862,8 +863,9 @@
                     "Entry No." := GlobalInvtPostBufEntryNo;
                     Insert;
                 end;
-
-                if not (RunOnlyCheck or CalledFromTestReport) then begin
+                ShouldInsertTempGLItemLedgRelation := not (RunOnlyCheck or CalledFromTestReport);
+                OnUpdateGlobalInvtPostBufOnAfterCalcShouldInsertTempGLItemLedgRelation(TempGLItemLedgRelation, GlobalInvtPostBuf, ValueEntryNo, RunOnlyCheck, CalledFromTestReport, ShouldInsertTempGLItemLedgRelation);
+                if ShouldInsertTempGLItemLedgRelation then begin
                     TempGLItemLedgRelation.Init();
                     TempGLItemLedgRelation."G/L Entry No." := "Entry No.";
                     TempGLItemLedgRelation."Value Entry No." := ValueEntryNo;
@@ -1632,6 +1634,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateGlobalInvtPostBufOnBeforeModify(var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; TempInvtPostBuf: Record "Invt. Posting Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateGlobalInvtPostBufOnAfterCalcShouldInsertTempGLItemLedgRelation(var TempGLItemLedgerRelation: Record "G/L - Item Ledger Relation" temporary; TempInvtPostingBuffer: Record "Invt. Posting Buffer" temporary; ValueEntryNo: Integer; RunOnlyCheck: Boolean; CalledFromTestReport: Boolean; var ShouldInsertTempGLItemLedgRelation: Boolean)
     begin
     end;
 

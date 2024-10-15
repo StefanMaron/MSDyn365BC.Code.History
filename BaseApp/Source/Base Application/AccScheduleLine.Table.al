@@ -478,6 +478,8 @@ table 85 "Acc. Schedule Line"
 
         if ParenthesesLevel < 0 then
             Error(Text005);
+
+        OnAfterCheckFormula(Formula);
     end;
 
     procedure GetCaptionClass(AnalysisViewDimType: Integer) Result: Text[250]
@@ -589,6 +591,8 @@ table 85 "Acc. Schedule Line"
             AnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
             AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
         end;
+
+        OnAfterGetAccSchedSetup(AnalysisView, AccSchedName);
     end;
 
     procedure LookupTotaling()
@@ -674,7 +678,17 @@ table 85 "Acc. Schedule Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckFormula(var Formula: Code[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterLookupTotaling(var AccScheduleLine: Record "Acc. Schedule Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAccSchedSetup(var AnalysisView: Record "Analysis View"; AccScheduleName: Record "Acc. Schedule Name")
     begin
     end;
 
