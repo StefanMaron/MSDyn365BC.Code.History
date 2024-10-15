@@ -33,7 +33,7 @@ report 10480 "Electronic Carta Porte MX"
             column(CompanyInformation_SATTaxRegime; CompanyInformation."SAT Tax Regime Classification" + ' - ' + SATTaxRegimeClassification)
             {
             }
-            column(SCTPermissionNumber; FixedAssetVehicle."SCT Permission Number")
+            column(SCTPermissionNumber; FixedAssetVehicle."SCT Permission No.")
             {
             }
             column(TransferRFCNo; TransferRFCNoLbl)

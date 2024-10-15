@@ -709,6 +709,10 @@
         {
             Caption = 'Applies-to Ext. Doc. No.';
         }
+        field(175; "Invoice Received Date"; Date)
+        {
+
+        }
         field(288; "Recipient Bank Account"; Code[20])
         {
             Caption = 'Recipient Bank Account';
@@ -1227,7 +1231,6 @@
 
     procedure InsertFromGenJournalLine(GenJournalLine: Record "Gen. Journal Line"; GLRegNo: Integer; FirstLine: Boolean)
     var
-        RecordLinkManagement: Codeunit "Record Link Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1243,7 +1246,8 @@
             Indentation := 1;
         Insert();
 
-        RecordLinkManagement.CopyLinks(GenJournalLine, Rec);
+        Rec.CopyLinks(GenJournalLine);
+
         OnAfterInsertFromGenJournalLine(GenJournalLine);
     end;
 

@@ -7,6 +7,7 @@ page 9301 "Sales Invoice List"
     Editable = false;
     PageType = List;
     QueryCategory = 'Sales Invoice List';
+    RefreshOnActivate = true;
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = CONST(Invoice));
     UsageCategory = Lists;

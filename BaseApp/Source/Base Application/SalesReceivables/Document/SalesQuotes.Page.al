@@ -8,6 +8,7 @@ page 9300 "Sales Quotes"
     Editable = false;
     PageType = List;
     QueryCategory = 'Sales Quotes';
+    RefreshOnActivate = true;
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = CONST(Quote));
     UsageCategory = Lists;

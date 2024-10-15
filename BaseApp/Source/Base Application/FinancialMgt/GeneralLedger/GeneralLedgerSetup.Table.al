@@ -942,6 +942,10 @@
             Caption = 'USD Currency Code';
             TableRelation = Currency;
         }
+        field(10124; "Cancel on Time Expiration"; Boolean)
+        {
+            Caption = 'Cancel on Time Expiration';
+        }
     }
 
     keys

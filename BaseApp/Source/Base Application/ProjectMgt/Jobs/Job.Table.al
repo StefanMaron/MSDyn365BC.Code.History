@@ -803,7 +803,16 @@ table 167 Job
             var
                 Customer: Record Customer;
                 LookupStateManager: Codeunit "Lookup State Manager";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateSellToCustomerName(Rec, Customer, IsHandled);
+                if IsHandled then begin
+                    if LookupStateManager.IsRecordSaved() then
+                        LookupStateManager.ClearSavedRecord();
+                    exit;
+                end;
+
                 if LookupStateManager.IsRecordSaved() then begin
                     Customer := LookupStateManager.GetSavedRecord();
                     if Customer."No." <> '' then begin
@@ -2867,6 +2876,11 @@ table 167 Job
 
     [IntegrationEvent(false, false)]
     local procedure OnCurrencyUpdatePlanningLinesOnBeforeUpdateJobPlanningLine(var Job: Record Job; var JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSellToCustomerName(var Job: Record "Job"; var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 }

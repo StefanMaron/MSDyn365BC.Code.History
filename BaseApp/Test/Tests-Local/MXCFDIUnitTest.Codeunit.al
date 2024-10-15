@@ -22,7 +22,7 @@
         IsInitialized: Boolean;
         PACCodeDeleteError: Label 'You cannot delete the code %1 because it is used in the %2 window.';
         PACWebServiceDetailError: Label 'PAC Web Service Details count is incorrect.';
-        EDocAction: Option "Request Stamp",Send,Cancel;
+        EDocAction: Option "Request Stamp",Send,Cancel,"Cancel Request","Mark as Canceled";
         EDocStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error";
         EDocStatusError: Label 'You cannot choose the action %1 when the document status is %2.';
         ExpectedError: Label 'Error message was different than expected.';
@@ -242,6 +242,58 @@
         // [SCENARIO] Check if error comes when EdocStatus = Cancel Error  and EDocAction = Send
 
         TestEInvoiceMgmtforEdocStatus(EDocAction::Send, EDocStatus::"Cancel Error");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelActionsValidation();
+    var
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        DocStatus: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 466261] Check if error comes for EDocAction = CancelRequest, Cancel, MarkAsCanceled
+
+        // Cancel Request
+        asserterror EInvoiceMgt.EDocActionValidation(EDocAction::"Cancel Request", DocStatus::" ");
+        Assert.ExpectedError(StrSubstNo(EDocStatusError, EDocAction::"Cancel Request", DocStatus::" "));
+
+        asserterror EInvoiceMgt.EDocActionValidation(EDocAction::"Cancel Request", DocStatus::Canceled);
+        Assert.ExpectedError(StrSubstNo(EDocStatusError, EDocAction::"Cancel Request", DocStatus::Canceled));
+
+        asserterror EInvoiceMgt.EDocActionValidation(EDocAction::"Cancel Request", DocStatus::"Stamp Request Error");
+        Assert.ExpectedError(StrSubstNo(EDocStatusError, EDocAction::"Cancel Request", DocStatus::"Stamp Request Error"));
+
+        EInvoiceMgt.EDocActionValidation(EDocAction::"Cancel Request", DocStatus::"Cancel In Progress");
+        EInvoiceMgt.EDocActionValidation(EDocAction::"Cancel Request", DocStatus::"Cancel Error");
+
+        // Cancel
+        asserterror EInvoiceMgt.EDocActionValidation(EDocAction::Cancel, DocStatus::" ");
+        Assert.ExpectedError(StrSubstNo(EDocStatusError, EDocAction::Cancel, DocStatus::" "));
+
+        asserterror EInvoiceMgt.EDocActionValidation(EDocAction::Cancel, DocStatus::Canceled);
+        Assert.ExpectedError(StrSubstNo(EDocStatusError, EDocAction::Cancel, DocStatus::Canceled));
+
+        asserterror EInvoiceMgt.EDocActionValidation(EDocAction::Cancel, DocStatus::"Stamp Request Error");
+        Assert.ExpectedError(StrSubstNo(EDocStatusError, EDocAction::Cancel, DocStatus::"Stamp Request Error"));
+
+        asserterror EInvoiceMgt.EDocActionValidation(EDocAction::Cancel, DocStatus::"Cancel In Progress");
+        Assert.ExpectedError(StrSubstNo(EDocStatusError, EDocAction::Cancel, DocStatus::"Cancel In Progress"));
+
+        EInvoiceMgt.EDocActionValidation(EDocAction::Cancel, DocStatus::"Stamp Received");
+
+        // Mark As Canceled
+        asserterror EInvoiceMgt.EDocActionValidation(EDocAction::"Mark as Canceled", DocStatus::" ");
+        Assert.ExpectedError(StrSubstNo(EDocStatusError, EDocAction::"Mark as Canceled", DocStatus::" "));
+
+        asserterror EInvoiceMgt.EDocActionValidation(EDocAction::"Mark as Canceled", DocStatus::Canceled);
+        Assert.ExpectedError(StrSubstNo(EDocStatusError, EDocAction::"Mark as Canceled", DocStatus::Canceled));
+
+        asserterror EInvoiceMgt.EDocActionValidation(EDocAction::"Mark as Canceled", DocStatus::"Stamp Request Error");
+        Assert.ExpectedError(StrSubstNo(EDocStatusError, EDocAction::"Mark as Canceled", DocStatus::"Stamp Request Error"));
+
+        EInvoiceMgt.EDocActionValidation(EDocAction::"Mark as Canceled", DocStatus::"Cancel In Progress");
+        EInvoiceMgt.EDocActionValidation(EDocAction::"Mark as Canceled", DocStatus::"Cancel Error");
     end;
 
     [Test]
@@ -904,8 +956,8 @@
         Assert.IsTrue(SalesOrder."CFDI Export Code".Editable, '');
         Assert.IsTrue(SalesOrder.Control1310005.Enabled, ''); // Foreign Trade
         Assert.IsTrue(SalesOrder.Control1310005.Editable, ''); // Foreign Trade
-        Assert.IsTrue(SalesOrder."Transit-to Location".Enabled, '');
-        Assert.IsTrue(SalesOrder."Transit-to Location".Editable, '');
+        Assert.IsTrue(SalesOrder."SAT Address ID".Enabled, '');
+        Assert.IsTrue(SalesOrder."SAT Address ID".Editable, '');
         Assert.IsTrue(SalesOrder."SAT International Trade Term".Enabled, '');
         Assert.IsTrue(SalesOrder."SAT International Trade Term".Editable, '');
         Assert.IsTrue(SalesOrder."Exchange Rate USD".Enabled, '');
@@ -919,8 +971,8 @@
         Assert.IsTrue(SalesInvoice."CFDI Export Code".Editable, '');
         Assert.IsTrue(SalesInvoice.Control1310005.Enabled, ''); // Foreign Trade
         Assert.IsTrue(SalesInvoice.Control1310005.Editable, ''); // Foreign Trade
-        Assert.IsTrue(SalesInvoice."Transit-to Location".Enabled, '');
-        Assert.IsTrue(SalesInvoice."Transit-to Location".Editable, '');
+        Assert.IsTrue(SalesInvoice."SAT Address ID".Enabled, '');
+        Assert.IsTrue(SalesInvoice."SAT Address ID".Editable, '');
         Assert.IsTrue(SalesInvoice."SAT International Trade Term".Enabled, '');
         Assert.IsTrue(SalesInvoice."SAT International Trade Term".Editable, '');
         Assert.IsTrue(SalesInvoice."Exchange Rate USD".Enabled, '');
@@ -936,8 +988,8 @@
         Assert.IsTrue(SalesCreditMemo."CFDI Export Code".Editable, '');
         Assert.IsTrue(SalesCreditMemo.Control1310005.Enabled, ''); // Foreign Trade
         Assert.IsTrue(SalesCreditMemo.Control1310005.Editable, ''); // Foreign Trade
-        Assert.IsTrue(SalesCreditMemo."Transit-to Location".Enabled, '');
-        Assert.IsTrue(SalesCreditMemo."Transit-to Location".Editable, '');
+        Assert.IsTrue(SalesCreditMemo."SAT Address ID".Enabled, '');
+        Assert.IsTrue(SalesCreditMemo."SAT Address ID".Editable, '');
         Assert.IsTrue(SalesCreditMemo."SAT International Trade Term".Enabled, '');
         Assert.IsTrue(SalesCreditMemo."SAT International Trade Term".Editable, '');
         Assert.IsTrue(SalesCreditMemo."Exchange Rate USD".Enabled, '');
@@ -951,7 +1003,7 @@
         Assert.IsFalse(PostedSalesInvoice."CFDI Relation".Editable, '');
         Assert.IsTrue(PostedSalesInvoice."CFDI Export Code".Enabled, '');
         Assert.IsTrue(PostedSalesInvoice.Control1310005.Enabled, ''); // Foreign Trade
-        Assert.IsTrue(PostedSalesInvoice."Transit-to Location".Enabled, '');
+        Assert.IsTrue(PostedSalesInvoice."SAT Address ID".Enabled, '');
         Assert.IsTrue(PostedSalesInvoice."SAT International Trade Term".Enabled, '');
         Assert.IsTrue(PostedSalesInvoice."Exchange Rate USD".Enabled, '');
         PostedSalesInvoice.Close;
@@ -963,7 +1015,7 @@
         Assert.IsFalse(PostedSalesCreditMemo."CFDI Relation".Editable, '');
         Assert.IsTrue(PostedSalesCreditMemo."CFDI Export Code".Enabled, '');
         Assert.IsTrue(PostedSalesCreditMemo."Foreign Trade".Enabled, '');
-        Assert.IsTrue(PostedSalesCreditMemo."Transit-to Location".Enabled, '');
+        Assert.IsTrue(PostedSalesCreditMemo."SAT Address ID".Enabled, '');
         Assert.IsTrue(PostedSalesCreditMemo."SAT International Trade Term".Enabled, '');
         Assert.IsTrue(PostedSalesCreditMemo."Exchange Rate USD".Enabled, '');
         PostedSalesCreditMemo.Close;
@@ -2220,8 +2272,8 @@
         UpdateGLSetupPACEnvironment(true);
 
         FixedAssetCard.OpenEdit();
-        Assert.IsTrue(FixedAssetCard."SCT Permission Number".Enabled, '');
-        Assert.IsTrue(FixedAssetCard."SCT Permission Number".Editable, '');
+        Assert.IsTrue(FixedAssetCard."SCT Permission No.".Enabled, '');
+        Assert.IsTrue(FixedAssetCard."SCT Permission No.".Editable, '');
         Assert.IsTrue(FixedAssetCard."SCT Permission Type".Enabled, '');
         Assert.IsTrue(FixedAssetCard."SCT Permission Type".Editable, '');
         FixedAssetCard.Close();

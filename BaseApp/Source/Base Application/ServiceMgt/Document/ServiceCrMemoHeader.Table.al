@@ -821,6 +821,16 @@
             Caption = 'Error Description';
             Editable = false;
         }
+        field(10037; "Date/Time Stamp Received"; DateTime)
+        {
+            Caption = 'Date/Time Stamp Received';
+            Editable = false;
+        }
+        field(10038; "Date/Time Cancel Sent"; DateTime)
+        {
+            Caption = 'Date/Time Cancel Sent';
+            Editable = false;
+        }
         field(10040; "PAC Web Service Name"; Text[50])
         {
             Caption = 'PAC Web Service Name';
@@ -985,7 +995,7 @@
         OnBeforePrintRecords(Rec, ShowRequestForm, IsHandled);
         if IsHandled then
             exit;
-            
+
         EInvoiceMgt.EDocPrintValidation("Electronic Document Status", "No.");
         DocumentSendingProfile.TrySendToPrinter(
           DummyReportSelections.Usage::"SM.Credit Memo".AsInteger(), Rec, FieldNo("Bill-to Customer No."), ShowRequestForm);

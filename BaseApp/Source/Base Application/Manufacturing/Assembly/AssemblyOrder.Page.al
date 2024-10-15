@@ -480,7 +480,13 @@ page 900 "Assembly Order"
                     var
                         ATOLink: Record "Assemble-to-Order Link";
                         WhseShptLine: Record "Warehouse Shipment Line";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeAsmToOrderWhseShptLine(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         TestField("Assemble to Order", true);
                         ATOLink.Get("Document Type", "No.");
                         WhseShptLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Assemble to Order");
@@ -1014,6 +1020,11 @@ page 900 "Assembly Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteRecord(var AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAsmToOrderWhseShptLine(var AssemblyHeader: Record "Assembly Header"; var IsHandled: Boolean)
     begin
     end;
 }

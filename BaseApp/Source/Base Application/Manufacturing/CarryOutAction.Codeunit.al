@@ -712,6 +712,7 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderLine."Scrap %" := ReqLine."Scrap %";
         ProdOrderLine."Production BOM No." := ReqLine."Production BOM No.";
         ProdOrderLine."Inventory Posting Group" := Item."Inventory Posting Group";
+        OnInsertProdOrderLineOnBeforeValidateUnitCost(ReqLine, ProdOrder, ProdOrderLine, Item);
         ProdOrderLine.Validate("Unit Cost", ReqLine."Unit Cost");
         ProdOrderLine."Routing No." := ReqLine."Routing No.";
         ProdOrderLine."Starting Time" := ReqLine."Starting Time";
@@ -1281,6 +1282,7 @@ codeunit 99000813 "Carry Out Action"
                 OnAfterTransferPlanningComp(PlanningComponent, ProdOrderComp2);
                 ProdOrderComp2.Insert();
                 CopyProdBOMComments(ProdOrderComp2);
+                OnTransferBOMOnAfterCopyProdBOMComments(PlanningComponent, ProdOrderComp2);
                 ReservePlanningComponent.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComp2, 0, true);
                 if ProdOrderComp2.Status in [ProdOrderComp2.Status::"Firm Planned", ProdOrderComp2.Status::Released] then
                     ProdOrderComp2.AutoReserve();
@@ -2028,6 +2030,16 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintMultiplePurchaseDocs(var TempPurchaseHeader: Record "Purchase Header" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferBOMOnAfterCopyProdBOMComments(var PlanningComponent: Record "Planning Component"; var ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertProdOrderLineOnBeforeValidateUnitCost(var RequisitionLine: Record "Requisition Line"; ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; Item: Record Item)
     begin
     end;
 }

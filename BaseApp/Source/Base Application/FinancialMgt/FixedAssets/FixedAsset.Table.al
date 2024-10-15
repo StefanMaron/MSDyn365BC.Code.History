@@ -294,6 +294,18 @@
         field(10007; "SCT Permission Number"; Code[20])
         {
             Caption = 'SCT Permission Number';
+            ObsoleteReason = 'Replaced by field SCT Permission No.';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif            
+        }
+        field(10008; "SCT Permission No."; Text[50])
+        {
+            Caption = 'SCT Permission No.';
         }
         field(27000; "SAT Classification Code"; Code[10])
         {

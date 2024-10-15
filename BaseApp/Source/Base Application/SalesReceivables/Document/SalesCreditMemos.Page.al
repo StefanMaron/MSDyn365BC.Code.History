@@ -8,6 +8,7 @@ page 9302 "Sales Credit Memos"
     Editable = false;
     PageType = List;
     QueryCategory = 'Sales Credit Memos';
+    RefreshOnActivate = true;
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = CONST("Credit Memo"));
     UsageCategory = Lists;
