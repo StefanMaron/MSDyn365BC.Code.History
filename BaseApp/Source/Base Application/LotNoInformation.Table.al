@@ -141,5 +141,21 @@ table 6505 "Lot No. Information"
         LotNoInfoForm.SetTableView(LotNoInfoNew);
         LotNoInfoForm.Run();
     end;
+
+    procedure ShowCard(LotNo: Code[50]; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    var
+        LotNoInfoNew: Record "Lot No. Information";
+        LotNoInfoForm: Page "Lot No. Information Card";
+    begin
+        Clear(LotNoInfoForm);
+        LotNoInfoForm.InitWhse(WhseItemTrackingLine);
+
+        LotNoInfoNew.SetRange("Item No.", WhseItemTrackingLine."Item No.");
+        LotNoInfoNew.SetRange("Variant Code", WhseItemTrackingLine."Variant Code");
+        LotNoInfoNew.SetRange("Lot No.", LotNo);
+
+        LotNoInfoForm.SetTableView(LotNoInfoNew);
+        LotNoInfoForm.Run();
+    end;
 }
 

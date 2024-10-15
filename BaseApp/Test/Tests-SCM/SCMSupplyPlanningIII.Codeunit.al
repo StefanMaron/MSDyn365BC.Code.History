@@ -49,6 +49,7 @@
         Direction: Option Outbound,Inbound;
         MustSetLocationErr: Label 'You must set a location filter.';
         VersionsWillBeClosedMsg: Label 'All versions attached to the BOM will be closed. Close BOM?';
+        CannotPurchaseItemMsg: Label 'You cannot purchase item';
 
     [Test]
     [HandlerFunctions('MessageHandler,PlanningErrorLogPageHandler')]
@@ -2887,6 +2888,53 @@
             CreateDateTime(ShipmentDate - 1, 210000T), CreateDateTime(ShipmentDate - 1, 230000T));
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure UnplannedPurchaseLineDoesNotAffectFollowingPlanning()
+    var
+        BlockedItem: Record Item;
+        Item: Record Item;
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Blocked]
+        // [SCENARIO 434325] If a planning line is not carried out due to the blocked item, this must not affect following planning lines.
+        Initialize();
+
+        // [GIVEN] Item "A" set up for blocked purchasing.
+        LibraryInventory.CreateItem(BlockedItem);
+        BlockedItem.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        BlockedItem.Validate("Purchasing Blocked", true);
+        BlockedItem.Modify(true);
+
+        // [GIVEN] Item "B" with vendor "V".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+
+        // [GIVEN] Create two lines in planning worksheet - one per items "A" and "B".
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+        CreateRequisitionLineForNewPurchase(RequisitionLine, RequisitionWkshName, BlockedItem."No.");
+        CreateRequisitionLineForNewPurchase(RequisitionLine, RequisitionWkshName, Item."No.");
+
+        // [WHEN] Carry out action messages.
+        LibraryVariableStorage.Enqueue(CannotPurchaseItemMsg);
+        RequisitionLine.SetFilter("No.", '%1|%2', BlockedItem."No.", Item."No.");
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [THEN] Purchase order for item "B" has been created.
+        // [THEN] "Buy-from Vendor No." = "V" on the header and the line.
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Item."Vendor No.");
+        PurchaseHeader.FindFirst();
+        PurchaseLine.SetRange("No.", Item."No.");
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        PurchaseLine.TestField("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         UntrackedPlanningElement: Record "Untracked Planning Element";
@@ -3611,6 +3659,17 @@
     begin
         CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Template Type"::"Req.");
         LibraryPlanning.GetSpecialOrder(RequisitionLine, ItemNo);
+    end;
+
+    local procedure CreateRequisitionLineForNewPurchase(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name"; ItemNo: Code[20])
+    begin
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", ItemNo);
+        RequisitionLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        RequisitionLine.Validate("Action Message", RequisitionLine."Action Message"::New);
+        RequisitionLine.Validate("Accept Action Message", true);
+        RequisitionLine.Modify(true);
     end;
 
     local procedure CreatePurchaseOrder(ItemNo: Code[20]; Quantity: Decimal)

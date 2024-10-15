@@ -436,6 +436,32 @@ codeunit 134301 "Workflow Notification Test"
 
     [Test]
     [HandlerFunctions('MessageHandler')]
+    procedure TestOverdueApprovalsGenerateNotificationEntryNotTooQuick()
+    var
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        WorkflowStepInstance: Record "Workflow Step Instance";
+        SalesApprovalEntry: Record "Approval Entry";
+        NotificationManagement: Codeunit "Notification Management";
+    begin
+        // [FEATURE] [Approval] [Overdue]
+        // [SCENARIO] Send a Notification Email for Overdue Approval Entries with different "Sent Time" 
+        Initialize();
+
+        // [GIVEN] 2 Approval Entris for the same document
+        CreateOverdueApprovalEntry(SalesApprovalEntry, DATABASE::"Sales Header", Today - 10);
+        SalesApprovalEntry."Entry No." += 1;
+        SalesApprovalEntry.Insert();
+        SetupArgumentForNotifications(WorkflowStepInstance, WorkflowStepArgument);
+
+        // [WHEN] CreateOverdueNotifications function is invoked.
+        NotificationManagement.CreateOverdueNotifications(WorkflowStepArgument);
+
+        // [THEN] OverdueApprovalEntries are created and "Sent Time" is different
+        VerifySentTimeInOverdueLogEntry(SalesApprovalEntry);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure TestNotDueApprovalsDoesNotGenerateNotificationEntry()
     var
@@ -3240,6 +3266,26 @@ codeunit 134301 "Workflow Notification Test"
         OverdueApprovalEntry.TestField("Due Date", ApprovalEntry."Due Date");
         OverdueApprovalEntry.TestField("Approval Type", ApprovalEntry."Approval Type");
         OverdueApprovalEntry.TestField("Limit Type", ApprovalEntry."Limit Type");
+    end;
+
+    local procedure VerifySentTimeInOverdueLogEntry(ApprovalEntry: Record "Approval Entry")
+    var
+        OverdueApprovalEntry: Record "Overdue Approval Entry";
+        SentTime: Time;
+        Ms: Duration;
+    begin
+        OverdueApprovalEntry.SetRange("Table ID", ApprovalEntry."Table ID");
+        OverdueApprovalEntry.SetRange("Document Type", ApprovalEntry."Document Type");
+        OverdueApprovalEntry.SetRange("Document No.", ApprovalEntry."Document No.");
+        OverdueApprovalEntry.SetRange("Sequence No.", ApprovalEntry."Sequence No.");
+        if OverdueApprovalEntry.FindSet() then
+            repeat
+                if SentTime > 0T then begin
+                    Ms := OverdueApprovalEntry."Sent Time" - SentTime;
+                    Assert.IsTrue(Ms > 0, Format(Ms) + ' is less 1 ms');
+                end;
+                SentTime := OverdueApprovalEntry."Sent Time";
+            until OverdueApprovalEntry.Next() = 0;
     end;
 
     local procedure VerifyDelegatedApprovalEntry(ApprovalEntry: Record "Approval Entry"; NewApproverUserSetup: Record "User Setup")

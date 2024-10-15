@@ -305,68 +305,6 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
-    procedure T018_ChangeStartingDateWithMultipleLines()
-    var
-        PriceListHeader: Record "Price List Header";
-        PriceListLine: Record "Price List Line";
-    begin
-        // [SCENARIO 426808] Update of "Starting Date" on the price list copies both dates to all lines.
-        Initialize();
-        // [GIVEN] Price List with 2 lines, where "Starting Date" is '010220', "Ending Date" is '020320', "Allow Updating Defaults" is 'No'
-        CreatePriceList(PriceListHeader, PriceListLine);
-        PriceListHeader.TestField("Allow Updating Defaults", false);
-        // [GIVEN] Price list lines are in 'Active' and 'Inactive' status (a mock to see Status change on the lines)
-        PriceListLine.Status := "Price Status"::Active;
-        PriceListLine."Ending Date" := PriceListLine."Ending Date" + 10;
-        PriceListLine.Modify();
-        PriceListLine."Line No." += 1;
-        PriceListLine.Status := "Price Status"::Inactive;
-        PriceListLine."Ending Date" := PriceListLine."Ending Date" - 5;
-        PriceListLine.Insert();
-
-        // [WHEN] Set "Starting Date" as '0D'
-        PriceListHeader.Validate("Starting Date", 0D);
-
-        // [THEN] both Price List Lines, got both "Starting Date", "Ending Date" from the header, Status is 'Draft'
-        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
-        PriceListLine.SetRange("Starting Date", PriceListHeader."Starting Date");
-        PriceListLine.SetRange("Ending Date", PriceListHeader."Ending Date");
-        PriceListLine.SetRange(Status, "Price Status"::Draft);
-        Assert.RecordCount(PriceListLine, 2);
-    end;
-
-    [Test]
-    procedure T019_ChangeEndingDateWithMultipleLines()
-    var
-        PriceListHeader: Record "Price List Header";
-        PriceListLine: Record "Price List Line";
-    begin
-        // [SCENARIO 426808] Update of "Ending Date" on the price list copies both dates to all lines.
-        Initialize();
-        // [GIVEN] Price List with 2 lines, where "Starting Date" is '010220', "Ending Date" is '020320', "Allow Updating Defaults" is 'No'
-        CreatePriceList(PriceListHeader, PriceListLine);
-        PriceListHeader.TestField("Allow Updating Defaults", false);
-        // [GIVEN] Price list lines are in 'Active' and 'Inactive' status (a mock to see Status change on the lines)
-        PriceListLine.Status := "Price Status"::Active;
-        PriceListLine."Starting Date" := PriceListLine."Starting Date" - 10;
-        PriceListLine.Modify();
-        PriceListLine."Line No." += 1;
-        PriceListLine.Status := "Price Status"::Inactive;
-        PriceListLine."Starting Date" := PriceListLine."Starting Date" + 5;
-        PriceListLine.Insert();
-
-        // [WHEN] Set "Ending Date" as 030320
-        PriceListHeader.Validate("Ending Date", PriceListHeader."Ending Date" + 1);
-
-        // [THEN] both Price List Lines, got both "Starting Date", "Ending Date" from the header, Status is 'Draft'
-        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
-        PriceListLine.SetRange("Starting Date", PriceListHeader."Starting Date");
-        PriceListLine.SetRange("Ending Date", PriceListHeader."Ending Date");
-        PriceListLine.SetRange(Status, "Price Status"::Draft);
-        Assert.RecordCount(PriceListLine, 2);
-    end;
-
-    [Test]
     procedure T020_ValidateStartingDateAfterEndingDate()
     var
         PriceListHeader: Record "Price List Header";
@@ -399,44 +337,65 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
-    procedure T022_ValidateStartingDateForCampaign()
+    procedure T022_ChangeStartingDateWithMultipleLines()
     var
         PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
     begin
-        // [FEATURE] [Campaign]
+        // [SCENARIO 426808] Update of "Starting Date" on the price list copies both dates to all lines.
         Initialize();
-        // [GIVEN] Price List Header, where "Source Type" is 'Campaign', "Ending Date" is '310120'
-        PriceListHeader.Init();
-        PriceListHeader."Source Type" := PriceListHeader."Source Type"::Campaign;
-        PriceListHeader."Ending Date" := WorkDate();
-        // [WHEN] Set "Starting Date" as '010120'
-        asserterror PriceListHeader.Validate("Starting Date", WorkDate() + 1);
+        // [GIVEN] Price List with 2 lines, where "Starting Date" is '010220', "Ending Date" is '020320', "Allow Updating Defaults" is 'No'
+        CreatePriceList(PriceListHeader, PriceListLine);
+        PriceListHeader.TestField("Allow Updating Defaults", false);
+        // [GIVEN] Price list lines are in 'Active' and 'Inactive' status (a mock to see Status change on the lines)
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine."Ending Date" := PriceListLine."Ending Date" + 10;
+        PriceListLine.Modify();
+        PriceListLine."Line No." += 1;
+        PriceListLine.Status := "Price Status"::Inactive;
+        PriceListLine."Ending Date" := PriceListLine."Ending Date" - 5;
+        PriceListLine.Insert();
 
-        // [THEN] Error message: '... you can only change Starting Date and Ending Date from the Campaign Card.'
-        Assert.ExpectedError(CampaignDateErr);
+        // [WHEN] Set "Starting Date" as '0D'
+        PriceListHeader.Validate("Starting Date", 0D);
+
+        // [THEN] both Price List Lines, got both "Starting Date", "Ending Date" from the header, Status is 'Draft'
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        PriceListLine.SetRange("Starting Date", PriceListHeader."Starting Date");
+        PriceListLine.SetRange("Ending Date", PriceListHeader."Ending Date");
+        PriceListLine.SetRange(Status, "Price Status"::Draft);
+        Assert.RecordCount(PriceListLine, 2);
     end;
 
     [Test]
-    procedure T023_ValidateCampaignNoSetsDates()
+    procedure T023_ChangeEndingDateWithMultipleLines()
     var
-        Campaign: Record Campaign;
         PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
     begin
-        // [FEATURE] [Campaign]
+        // [SCENARIO 426808] Update of "Ending Date" on the price list copies both dates to all lines.
         Initialize();
-        // [GIVEN] Campaign 'C', where "Starttin Date" is '010120', "Ending Date" is '310120'
-        LibraryMarketing.CreateCampaign(Campaign);
-        Campaign.Validate("Starting Date", WorkDate());
-        Campaign.Validate("Ending Date", WorkDate() + 10);
-        Campaign.Modify();
-        // [GIVEN] Price List Line, where "Source Type" is 'Campaign', "Starting Date" and "Ending Date" are <blank>
-        PriceListHeader.Validate("Source Type", PriceListHeader."Source Type"::Campaign);
+        // [GIVEN] Price List with 2 lines, where "Starting Date" is '010220', "Ending Date" is '020320', "Allow Updating Defaults" is 'No'
+        CreatePriceList(PriceListHeader, PriceListLine);
+        PriceListHeader.TestField("Allow Updating Defaults", false);
+        // [GIVEN] Price list lines are in 'Active' and 'Inactive' status (a mock to see Status change on the lines)
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine."Starting Date" := PriceListLine."Starting Date" - 10;
+        PriceListLine.Modify();
+        PriceListLine."Line No." += 1;
+        PriceListLine.Status := "Price Status"::Inactive;
+        PriceListLine."Starting Date" := PriceListLine."Starting Date" + 5;
+        PriceListLine.Insert();
 
-        // [WHEN] Set "Source No." as 'C'
-        PriceListHeader.Validate("Source No.", Campaign."No.");
+        // [WHEN] Set "Ending Date" as 030320
+        PriceListHeader.Validate("Ending Date", PriceListHeader."Ending Date" + 1);
 
-        // [THEN] Price List Header, where "Starting Date" is '010120', "Ending Date" is '310120'
-        VerifyDates(PriceListHeader, Campaign."Starting Date", Campaign."Ending Date");
+        // [THEN] both Price List Lines, got both "Starting Date", "Ending Date" from the header, Status is 'Draft'
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        PriceListLine.SetRange("Starting Date", PriceListHeader."Starting Date");
+        PriceListLine.SetRange("Ending Date", PriceListHeader."Ending Date");
+        PriceListLine.SetRange(Status, "Price Status"::Draft);
+        Assert.RecordCount(PriceListLine, 2);
     end;
 
     [Test]
@@ -1347,6 +1306,231 @@ codeunit 134118 "Price List Header UT"
     end;
 
     [Test]
+    procedure T080_ValidateStartingDateForCampaign()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [FEATURE] [Campaign]
+        Initialize();
+        // [GIVEN] Price List Header, where "Source Type" is 'Campaign', "Ending Date" is '310120'
+        PriceListHeader.Init();
+        PriceListHeader."Source Type" := PriceListHeader."Source Type"::Campaign;
+        PriceListHeader."Ending Date" := WorkDate();
+        // [WHEN] Set "Starting Date" as '010120'
+        asserterror PriceListHeader.Validate("Starting Date", WorkDate() + 1);
+
+        // [THEN] Error message: '... you can only change Starting Date and Ending Date from the Campaign Card.'
+        Assert.ExpectedError(CampaignDateErr);
+    end;
+
+    [Test]
+    procedure T081_ValidateCampaignNoSetsDates()
+    var
+        Campaign: Record Campaign;
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [FEATURE] [Campaign]
+        Initialize();
+        // [GIVEN] Campaign 'C', where "Starting Date" is '010120', "Ending Date" is '310120'
+        LibraryMarketing.CreateCampaign(Campaign);
+        Campaign.Validate("Starting Date", WorkDate());
+        Campaign.Validate("Ending Date", WorkDate() + 10);
+        Campaign.Modify();
+        // [GIVEN] Price List Line, where "Source Type" is 'Campaign', "Starting Date" and "Ending Date" are <blank>
+        PriceListHeader.Validate("Source Type", PriceListHeader."Source Type"::Campaign);
+
+        // [WHEN] Set "Source No." as 'C'
+        PriceListHeader.Validate("Source No.", Campaign."No.");
+
+        // [THEN] Price List Header, where "Starting Date" is '010120', "Ending Date" is '310120'
+        VerifyDates(PriceListHeader, Campaign."Starting Date", Campaign."Ending Date");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure T082_ValidateStartingDateOnCampaignCardActivePriceConfirmed()
+    var
+        Campaign: Record Campaign;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        NewDate: Date;
+    begin
+        // [FEATURE] [Campaign]
+        // [SCEANRIO 436511] "Starting Date" can be changed on the Campaign if confirmed price list update..
+        Initialize();
+        // [GIVEN] Campaign 'C', where "Starting Date" is '010120', "Ending Date" is '310120'
+        LibraryMarketing.CreateCampaign(Campaign);
+        Campaign.Validate("Starting Date", WorkDate());
+        Campaign.Validate("Ending Date", WorkDate() + 10);
+        Campaign.Modify();
+        NewDate := WorkDate() + 5;
+        // [GIVEN] Editing active prices is off
+        LibraryPriceCalculation.DisallowEditingActiveSalesPrice();
+        // [GIVEN] Active Price List Header with one line, where "Source Type" is 'Campaign', "Source No." set as 'C'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::Campaign, Campaign."No.");
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, PriceListHeader."Source Type"::Campaign, Campaign."No.",
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+        LibraryVariableStorage.Enqueue(true); // to confirm Status update
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+        PriceListHeader.Modify(true);
+        // [GIVEN] Price List Header, gets "Starting Date" is '010120', "Ending Date" is '310120' from Campaign
+        VerifyDates(PriceListHeader, Campaign."Starting Date", Campaign."Ending Date");
+        VerifyDates(PriceListLine, Campaign."Starting Date", Campaign."Ending Date");
+
+        // [WHEN] Change "Ending Date" on campaign card to '010220', confirming price list update.
+        LibraryVariableStorage.Enqueue(true); // to confirm Price lists update
+        Campaign.Validate("Starting Date", NewDate);
+
+        // [THEN] Price List Header is Active and Line, gets "Ending Date" as '010220'
+        VerifyDates(PriceListHeader, NewDate, Campaign."Ending Date");
+        PriceListHeader.TestField(Status, "Price Status"::Active);
+        VerifyDates(PriceListLine, NewDate, Campaign."Ending Date");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure T083_ValidateStartingDateOnCampaignCardActivePriceNotConfirmed()
+    var
+        Campaign: Record Campaign;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        NewDate: Date;
+    begin
+        // [FEATURE] [Campaign]
+        // [SCEANRIO 436511] "Starting Date" will not be changed on the Campaign if not confirmed price list update.
+        Initialize();
+        // [GIVEN] Campaign 'C', where "Starting Date" is '010120', "Ending Date" is '310120'
+        LibraryMarketing.CreateCampaign(Campaign);
+        Campaign.Validate("Starting Date", WorkDate());
+        Campaign.Validate("Ending Date", WorkDate() + 10);
+        Campaign.Modify();
+        NewDate := WorkDate() + 5;
+        // [GIVEN] Editing active prices is off
+        LibraryPriceCalculation.DisallowEditingActiveSalesPrice();
+        // [GIVEN] Active Price List Header with one line, where "Source Type" is 'Campaign', "Source No." set as 'C'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::Campaign, Campaign."No.");
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, PriceListHeader."Source Type"::Campaign, Campaign."No.",
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+        LibraryVariableStorage.Enqueue(true); // to confirm Status update
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+        PriceListHeader.Modify(true);
+        Commit();
+        // [GIVEN] Price List Header, gets "Starting Date" is '010120', "Ending Date" is '310120' from Campaign
+        VerifyDates(PriceListHeader, Campaign."Starting Date", Campaign."Ending Date");
+        VerifyDates(PriceListLine, Campaign."Starting Date", Campaign."Ending Date");
+
+        // [WHEN] Change "Starting Date" on campaign card to '010220', not confirming price list update.
+        LibraryVariableStorage.Enqueue(false); // to not confirm Price lists update
+        asserterror Campaign.Validate("Starting Date", NewDate);
+
+        // [THEN] Price List Header is Active and Line, gets "Ending Date" as '310120'
+        VerifyDates(PriceListHeader, WorkDate(), WorkDate() + 10);
+        PriceListHeader.TestField(Status, "Price Status"::Active);
+        VerifyDates(PriceListLine, WorkDate(), WorkDate() + 10);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure T084_ValidateEndingDateOnCampaignCardActivePriceEditingAllowed()
+    var
+        Campaign: Record Campaign;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        NewDate: Date;
+    begin
+        // [FEATURE] [Campaign]
+        // [SCEANRIO 436511] "Ending Date" can be changed on the Campaign that have a related price list.
+        Initialize();
+        // [GIVEN] Campaign 'C', where "Starting Date" is '010120', "Ending Date" is '310120'
+        LibraryMarketing.CreateCampaign(Campaign);
+        Campaign.Validate("Starting Date", WorkDate());
+        Campaign.Validate("Ending Date", WorkDate() + 10);
+        NewDate := WorkDate() + 11;
+        Campaign.Modify();
+        // [GIVEN] Editing active prices is on
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Active Price List Header 'A' with one line, where "Source Type" is 'Campaign', "Source No." set as 'C'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader[1], PriceListHeader[1]."Price Type"::Sale,
+            PriceListHeader[1]."Source Type"::Campaign, Campaign."No.");
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader[1].Code, "Price Source Type"::Campaign, Campaign."No.",
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+        LibraryVariableStorage.Enqueue(true); // to confirm Status update
+        PriceListHeader[1].Validate(Status, "Price Status"::Active);
+        PriceListHeader[1].Modify(true);
+        // [GIVEN] Inactive Price List Header 'B', where "Source Type" is 'Campaign', "Source No." set as 'C'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader[2], PriceListHeader[2]."Price Type"::Sale,
+            PriceListHeader[2]."Source Type"::Campaign, Campaign."No.");
+        PriceListHeader[2].Validate(Status, "Price Status"::Inactive);
+        PriceListHeader[2].Modify(true);
+
+        // [GIVEN] Price List Header, gets "Starting Date" is '010120', "Ending Date" is '310120' from Campaign
+        VerifyDates(PriceListHeader[1], Campaign."Starting Date", Campaign."Ending Date");
+        VerifyDates(PriceListHeader[2], Campaign."Starting Date", Campaign."Ending Date");
+        VerifyDates(PriceListLine, Campaign."Starting Date", Campaign."Ending Date");
+
+        // [WHEN] Change "Ending Date" on campaign card to '010220'
+        Campaign.Validate("Ending Date", NewDate);
+
+        // [THEN] Price List Header 'A' and Line, gets "Ending Date" as '010220'
+        VerifyDates(PriceListHeader[1], Campaign."Starting Date", NewDate);
+        VerifyDates(PriceListLine, Campaign."Starting Date", NewDate);
+        // [THEN] The inactive price list 'B' also gets "Ending Date" as '010220'.
+        VerifyDates(PriceListHeader[2], WorkDate(), NewDate);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure T085_ValidateEndingDateOnCampaignCardDraftPrice()
+    var
+        Campaign: Record Campaign;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        NewDate: Date;
+    begin
+        // [FEATURE] [Campaign]
+        // [SCEANRIO 436511] "Ending Date" can be changed on the Campaign that have a draft price list.
+        Initialize();
+        // [GIVEN] Campaign 'C', where "Starting Date" is '010120', "Ending Date" is '310120'
+        LibraryMarketing.CreateCampaign(Campaign);
+        Campaign.Validate("Starting Date", WorkDate());
+        Campaign.Validate("Ending Date", WorkDate() + 10);
+        NewDate := WorkDate() + 11;
+        Campaign.Modify();
+        // [GIVEN] Editing active prices is on
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] Active Price List Header with one line, where "Source Type" is 'Campaign', "Source No." set as 'C'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, PriceListHeader."Price Type"::Sale,
+            PriceListHeader."Source Type"::Campaign, Campaign."No.");
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, PriceListHeader."Source Type"::Campaign, Campaign."No.",
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+        PriceListHeader.Validate(Status, "Price Status"::Draft);
+        PriceListHeader.Modify(true);
+        // [GIVEN] Price List Header, gets "Starting Date" is '010120', "Ending Date" is '310120' from Campaign
+        VerifyDates(PriceListHeader, Campaign."Starting Date", Campaign."Ending Date");
+        VerifyDates(PriceListLine, Campaign."Starting Date", Campaign."Ending Date");
+
+        // [WHEN] Change "Ending Date" on campaign card to '010220'
+        Campaign.Validate("Ending Date", NewDate);
+
+        // [THEN] Price List Header and Line, gets "Ending Date" as '010220'
+        VerifyDates(PriceListHeader, Campaign."Starting Date", NewDate);
+        VerifyDates(PriceListLine, Campaign."Starting Date", NewDate);
+    end;
+
+    [Test]
     procedure T090_ActivePriceListHasDraflLinesIfAllowedEditing()
     var
         PriceListHeader: Record "Price List Header";
@@ -2212,8 +2396,17 @@ codeunit 134118 "Price List Header UT"
 
     local procedure VerifyDates(PriceListHeader: Record "Price List Header"; StartingDate: Date; EndingDate: Date)
     begin
+        if PriceListHeader.Code <> '' then
+            PriceListHeader.Find();
         PriceListHeader.TestField("Starting Date", StartingDate);
         PriceListHeader.TestField("Ending Date", EndingDate);
+    end;
+
+    local procedure VerifyDates(PriceListLine: Record "Price List Line"; StartingDate: Date; EndingDate: Date)
+    begin
+        PriceListLine.Find();
+        PriceListLine.TestField("Starting Date", StartingDate);
+        PriceListLine.TestField("Ending Date", EndingDate);
     end;
 
     local procedure VerifyPricesDeleted(SourceType: Enum "Price Source Type"; ParentSourceNo: Code[20]; DeletedSourceNo: Code[20]; SourceNo: Code[20])
@@ -2265,6 +2458,12 @@ codeunit 134118 "Price List Header UT"
     begin
         CustomerLookup.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
         CustomerLookup.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ConfirmHandler]
