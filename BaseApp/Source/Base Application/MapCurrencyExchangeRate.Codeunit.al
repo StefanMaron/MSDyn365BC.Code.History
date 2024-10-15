@@ -96,6 +96,18 @@ codeunit 1280 "Map Currency Exchange Rate"
         then
             exit(false);
 
+        exit(InsertOrModifyRecordRef(RecordRef, DefinitionDataExchField));
+    end;
+
+    local procedure InsertOrModifyRecordRef(var RecordRef: RecordRef; DefinitionDataExchField: Record "Data Exch. Field") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertOrModifyRecordRef(RecordRef, DefinitionDataExchField, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not RecordRef.Insert(true) then
             exit(RecordRef.Modify(true));
         exit(true);
@@ -253,6 +265,11 @@ codeunit 1280 "Map Currency Exchange Rate"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMapCurrencyExchangeRates(DataExch: Record "Data Exch."; var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertOrModifyRecordRef(var RecordRef: RecordRef; DefinitionDataExchField: Record "Data Exch. Field"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -7,7 +7,12 @@ codeunit 104045 "Upgrade Cortana Intelligence"
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+
         UpgradeCashFlowCortanaIntelligenceFields();
         UpgradeCortanaIntelligenceUsageTable();
     end;

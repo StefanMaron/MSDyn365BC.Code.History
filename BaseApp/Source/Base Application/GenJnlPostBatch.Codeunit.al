@@ -288,6 +288,8 @@
 
             if not SuppressCommit then
                 Commit();
+
+            OnProcessLinesOnBeforeClearPostingCodeunits(GenJnlLine, SuppressCommit);
             Clear(GenJnlCheckLine);
             Clear(GenJnlPostLine);
             ClearMarks;
@@ -1119,7 +1121,14 @@
     end;
 
     local procedure UpdateCurrencyBalanceForRecurringLine(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateCurrencyBalanceForRecurringLine(GenJnlLine, CurrencyBalance, LastCurrencyCode, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do begin
             if "Recurring Method" <> "Recurring Method"::" " then
                 CalcFields("Allocated Amt. (LCY)");
@@ -1430,7 +1439,7 @@
             until GenJnlLine.Next() = 0;
     end;
 
-    local procedure PostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CurrentICPartner: Code[20]; ICTransactionNo: Integer): Boolean
+    local procedure PostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CurrentICPartner: Code[20]; ICTransactionNo: Integer) Result: Boolean
     var
         IsPosted: Boolean;
         SavedPostingDate: Date;
@@ -1444,6 +1453,7 @@
                 "IC Partner Code" := CurrentICPartner;
             UpdateDialog(RefPostingState::"Posting Lines", LineCount, NoOfRecords);
             MakeRecurringTexts(GenJournalLine);
+            OnPostGenJournalLineOnBeforeCheckDocumentNo(GenJournalLine, GLRegNo);
             CheckDocumentNo(GenJournalLine);
             GenJnlLine5.Copy(GenJournalLine);
             PrepareGenJnlLineAddCurr(GenJnlLine5);
@@ -1463,6 +1473,7 @@
                 SavedPostingDate := "Posting Date";
                 "Posting Date" := CalcReversePostingDate(GenJournalLine);
                 "Document Date" := "Posting Date";
+                "Due Date" := "Posting Date";
                 MultiplyAmounts(GenJournalLine, -1);
                 TempGenJnlLine4 := GenJournalLine;
                 TempGenJnlLine4."Reversing Entry" := true;
@@ -1470,10 +1481,12 @@
                 NoOfReversingRecords := NoOfReversingRecords + 1;
                 "Posting Date" := SavedPostingDate;
                 "Document Date" := "Posting Date";
+                "Due Date" := "Posting Date";
             end;
             PostAllocations(GenJournalLine, false);
         end;
-        exit(true);
+        Result := true;
+        OnAfterPostGenJournalLine(GenJournalLine, Result);
     end;
 
     local procedure CheckLine(var GenJnlLine: Record "Gen. Journal Line"; var PostingAfterCurrentFiscalYearConfirmed: Boolean)
@@ -1826,6 +1839,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterProcessLines(var TempGenJournalLine: Record "Gen. Journal Line" temporary)
     begin
     end;
@@ -2013,6 +2031,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnProcessLinesOnBeforeClearPostingCodeunits(var GenJournalLine: Record "Gen. Journal Line"; SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterIsNonZeroAmount(GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean)
     begin
     end;
@@ -2043,7 +2066,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCurrencyBalanceForRecurringLine(var GenJnlLine: Record "Gen. Journal Line"; CurrencyBalance: Decimal; LastCurrencyCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateAndDeleteLinesOnBeforeModifyRecurringLine(var GenJnlLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostGenJournalLineOnBeforeCheckDocumentNo(var GenJnlLine: Record "Gen. Journal Line"; GLRegNo: Integer)
     begin
     end;
 

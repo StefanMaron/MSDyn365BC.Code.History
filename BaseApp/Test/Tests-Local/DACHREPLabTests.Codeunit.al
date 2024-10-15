@@ -17,7 +17,7 @@ codeunit 142500 "DACH REP Lab Tests"
         LibraryERM: Codeunit "Library - ERM";
 
     [Test]
-    [HandlerFunctions('GLVATReconciliationReportHandler')]
+    [HandlerFunctions('GLVATReconciliationReportHandler,ConfirmHandlerTrue')]
     [Scope('OnPrem')]
     procedure ReportGLVATReconciliationTranslated()
     var
@@ -84,6 +84,13 @@ codeunit 142500 "DACH REP Lab Tests"
         GLVATReconciliation.PeriodSelection.SetValue(PeriodSelection);
         GLVATReconciliation.Selection.SetValue(EntrySelection);
         GLVATReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

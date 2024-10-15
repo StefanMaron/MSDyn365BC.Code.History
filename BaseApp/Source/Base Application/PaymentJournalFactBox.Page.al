@@ -250,6 +250,7 @@ page 35517 "Payment Journal FactBox"
         ExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
         IsAppliedToOneEntry: Boolean;
+        IsHandled: Boolean;
         CurrOeRemainAmountFC: Decimal;
         CurrPmtDiscount: Decimal;
         CurrPaymDiscDeductAmount: Decimal;
@@ -271,7 +272,6 @@ page 35517 "Payment Journal FactBox"
         PaymentTerms := '';
 
         VendLedgEntry.Reset();
-        VendLedgEntry.SetCurrentKey("Document No.");
         Vend.Init();
 
         case true of
@@ -285,6 +285,11 @@ page 35517 "Payment Journal FactBox"
             else
                 exit;
         end;
+
+        IsHandled := false;
+        OnUpdateInfoBoxOnAfterSetVendLedgEntryFilters(Rec, VendLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         if not VendLedgEntry.FindSet then
             exit;
@@ -368,6 +373,11 @@ page 35517 "Payment Journal FactBox"
             AcceptedPaymentTol += CurrAcceptedPaymentTol;
             RemainAfterPayment += CurrRemainAfterPayment;
         until VendLedgEntry.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateInfoBoxOnAfterSetVendLedgEntryFilters(var GenJournalLine : Record "Gen. Journal Line"; var VendorLedgerEntry : Record "Vendor Ledger Entry"; var IsHandled : Boolean)
+    begin
     end;
 }
 

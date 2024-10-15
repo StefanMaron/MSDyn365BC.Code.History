@@ -197,23 +197,23 @@ table 1670 "Option Lookup Buffer"
         FieldRef := RecRef.Field(FieldNo);
         for OptionIndex := 0 to (FieldRef.EnumValueCount() - 1) do begin
             FieldRef.Value(FieldRef.GetEnumValueOrdinal(OptionIndex + 1));
-            if IncludeOption(LookupType, OptionIndex) then begin
+            if IncludeOption(LookupType, FieldRef.Value(), RecRef) then begin
                 FieldRefRelation := RecRef.Field(RelationFieldNo);
                 RelatedTableNo := FieldRefRelation.Relation();
                 if RelatedTableNo = 0 then
-                    CreateNew(OptionIndex, FormatOption(FieldRef), LookupType)
+                    CreateNew(FieldRef.Value(), FormatOption(FieldRef), LookupType)
                 else begin
                     RelatedRecRef.Open(RelatedTableNo);
                     RelatedRecRef.SetPermissionFilter();
                     if RelatedRecRef.ReadPermission then
-                        CreateNew(OptionIndex, FormatOption(FieldRef), LookupType);
+                        CreateNew(FieldRef.Value(), FormatOption(FieldRef), LookupType);
                     RelatedRecRef.Close();
                 end;
             end;
         end;
     end;
 
-    local procedure IncludeOption(LookupType: Enum "Option Lookup Type"; OptionType: Integer): Boolean
+    local procedure IncludeOption(LookupType: Enum "Option Lookup Type"; OptionType: Integer; RecRef: RecordRef): Boolean
     var
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
@@ -224,7 +224,7 @@ table 1670 "Option Lookup Buffer"
     begin
         Result := false;
         IsHandled := false;
-        OnBeforeIncludeOption(Rec, LookupType.AsInteger(), OptionType, IsHandled, Result);
+        OnBeforeIncludeOption(Rec, LookupType.AsInteger(), OptionType, IsHandled, Result, RecRef);
         if IsHandled then
             Exit(Result);
 
@@ -275,7 +275,7 @@ table 1670 "Option Lookup Buffer"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIncludeOption(OptionLookupBuffer: Record "Option Lookup Buffer"; LookupType: Option; Option: Integer; var Handled: Boolean; var Result: Boolean)
+    local procedure OnBeforeIncludeOption(OptionLookupBuffer: Record "Option Lookup Buffer"; LookupType: Option; Option: Integer; var Handled: Boolean; var Result: Boolean; RecRef: RecordRef)
     begin
     end;
 

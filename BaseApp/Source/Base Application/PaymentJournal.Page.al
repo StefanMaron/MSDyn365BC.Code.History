@@ -608,7 +608,7 @@ page 256 "Payment Journal"
                     group(Control1900545401)
                     {
                         Caption = 'Balance';
-                        field(Balance; Balance + "Balance (LCY)" - xRec."Balance (LCY)")
+                        field(Balance; Balance)
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;
@@ -621,7 +621,7 @@ page 256 "Payment Journal"
                     group("Total Balance")
                     {
                         Caption = 'Total Balance';
-                        field(TotalBalance; TotalBalance + "Balance (LCY)" - xRec."Balance (LCY)")
+                        field(TotalBalance; TotalBalance)
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;

@@ -259,6 +259,8 @@ table 5902 "Service Line"
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
 
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
+                OnValidateQuantityOnAfterCalcQuantityBase(Rec, xRec);
+
                 if "Document Type" <> "Document Type"::"Credit Memo" then begin
                     if (Quantity * "Quantity Shipped" < 0) or
                        ((Abs(Quantity) < Abs("Quantity Shipped")) and ("Shipment No." = ''))
@@ -1590,7 +1592,14 @@ table 5902 "Service Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Quantity (Base)" < 0 then
                     FieldError("Quantity (Base)", Text029);
 
@@ -1613,7 +1622,14 @@ table 5902 "Service Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToInvoiceBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Qty. to Invoice (Base)" < 0 then
                     FieldError("Qty. to Invoice (Base)", Text029);
 
@@ -1627,7 +1643,14 @@ table 5902 "Service Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToShipBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Qty. to Ship (Base)" < 0 then
                     FieldError("Qty. to Ship (Base)", Text029);
 
@@ -2079,7 +2102,14 @@ table 5902 "Service Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQtyToConsumeBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if LineRequiresShipmentOrReceipt then
                     exit;
                 if "Qty. to Consume (Base)" < 0 then
@@ -3605,7 +3635,7 @@ table 5902 "Service Line"
         "Tax Group Code" := GLAcc."Tax Group Code";
         "Allow Invoice Disc." := false;
 
-        OnAfterAssignGLAccountValues(Rec, GLAcc);
+        OnAfterAssignGLAccountValues(Rec, GLAcc, ServHeader);
     end;
 
     local procedure CopyFromItem()
@@ -5447,9 +5477,17 @@ table 5902 "Service Line"
     local procedure UpdateDimSetupByDefaultDim(SourceID: Integer; SourceNo: Code[20]; var TempDimSetEntry: Record "Dimension Set Entry" temporary; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var LastAddedTableID: Integer)
     var
         DefaultDim: Record "Default Dimension";
+        SourceCodeSetup: Record "Source Code Setup";
+        DefaultDimensionPriority: Record "Default Dimension Priority";
         TableAdded: Boolean;
     begin
         if SourceNo = '' then
+            exit;
+
+        SourceCodeSetup.Get();
+        DefaultDimensionPriority.SetRange("Source Code", SourceCodeSetup."Service Management");
+        DefaultDimensionPriority.SetRange("Table ID", SourceID);
+        if DefaultDimensionPriority.IsEmpty() then
             exit;
 
         DefaultDim.SetRange("Table ID", SourceID);
@@ -5529,7 +5567,7 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignGLAccountValues(var ServiceLine: Record "Service Line"; GLAccount: Record "G/L Account")
+    local procedure OnAfterAssignGLAccountValues(var ServiceLine: Record "Service Line"; GLAccount: Record "G/L Account"; ServiceHeader: Record "Service Header")
     begin
     end;
 
@@ -5816,6 +5854,26 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityBase(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToConsumeBase(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToInvoiceBase(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQtyToShipBase(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnAfterCalcLineTotals(var VATAmountLine: Record "VAT Amount Line"; ServHeader: Record "Service Header"; ServiceLine: Record "Service Line"; Currency: Record Currency; QtyType: Option General,Invoicing,Shipping; var TotalVATAmount: Decimal)
     begin
     end;
@@ -5867,6 +5925,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnAssignItemVariant(var ServiceLine: Record "Service Line"; ItemVariant: Record "Item Variant")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnAfterCalcQuantityBase(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line")
     begin
     end;
 

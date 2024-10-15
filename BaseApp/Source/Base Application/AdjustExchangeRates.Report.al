@@ -931,14 +931,17 @@
     var
         LicPerm: Record "License Permission";
     begin
-        UpdateAnalysisView.UpdateAll(0, true);
-
-        if TotalCustomersAdjusted +
-           TotalVendorsAdjusted + TotalBankAccountsAdjusted + TotalGLAccountsAdjusted + AdjVATEntriesCounter < 1
-        then
-            Message(NothingToAdjustMsg)
-        else
-            Message(RatesAdjustedMsg);
+        if GenJnlPostLine.IsGLEntryInconsistent() then
+            GenJnlPostLine.ShowInconsistentEntries()
+        else begin    
+            UpdateAnalysisView.UpdateAll(0, true);
+            if TotalCustomersAdjusted +
+               TotalVendorsAdjusted + TotalBankAccountsAdjusted + TotalGLAccountsAdjusted + AdjVATEntriesCounter < 1
+            then
+                Message(NothingToAdjustMsg)
+            else
+                Message(RatesAdjustedMsg);
+        end;
 
         if (LicPerm.Get(5, 3010536) and (LicPerm."Read Permission" = 1)) or
            (CopyStr(SerialNumber, 7, 3) = '000')

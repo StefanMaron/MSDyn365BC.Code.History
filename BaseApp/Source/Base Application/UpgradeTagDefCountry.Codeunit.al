@@ -8,9 +8,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
     local procedure RegisterPerDatabaseTags(var PerDatabaseUpgradeTags: List of [Code[250]])
     begin
-#if not CLEAN19
         PerDatabaseUpgradeTags.Add(GetDataOutOfGeoAppTagCh());
-#endif
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerCompanyUpgradeTags', '', false, false)]
@@ -19,9 +17,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
         PerCompanyUpgradeTags.Add(GetReportSelectionForGLVATReconciliationTag);
         PerCompanyUpgradeTags.Add(GetPhysInvntOrdersUpgradeTag);
         PerCompanyUpgradeTags.Add(GetCleanupPhysOrders());
-#if not CLEAN19
         PerCompanyUpgradeTags.Add(GetCheckPartnerVATIDTag());
-#endif
     end;
 
     procedure GetPhysInvntOrdersUpgradeTag(): Code[250]
@@ -44,11 +40,10 @@ codeunit 9997 "Upgrade Tag Def - Country"
     begin
         exit('MS-392540-CheckPartnerVATID-20210317');
     end;
-
-    [Obsolete('Function will be removed', '19.0')]
+#endif
     procedure GetDataOutOfGeoAppTagCh(): Code[250]
     begin
         exit('MS-390169-DataOutOfGeoAppTagCh-20210525');
     end;
-#endif
+
 }

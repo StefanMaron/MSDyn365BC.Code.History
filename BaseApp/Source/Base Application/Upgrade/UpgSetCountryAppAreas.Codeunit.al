@@ -7,9 +7,14 @@ codeunit 104010 "UPG Set Country App Areas"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
-        SetCountryAppAreas;
-        MoveGLBankAccountNoToGLAccountNo;
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+
+        SetCountryAppAreas();
+        MoveGLBankAccountNoToGLAccountNo();
     end;
 
     local procedure SetCountryAppAreas()

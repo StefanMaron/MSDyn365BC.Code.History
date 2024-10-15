@@ -1,4 +1,4 @@
-codeunit 1240 "Read Data Exch. from File"
+﻿codeunit 1240 "Read Data Exch. from File"
 {
     TableNo = "Data Exch.";
 
@@ -25,6 +25,7 @@ codeunit 1240 "Read Data Exch. from File"
             if DataExchMapping."Mapping Codeunit" = CODEUNIT::"SEPA CAMT 054 Bank Rec. Lines" then
                 XMLSplitPaymentPerInvoices(TempBlob);
 
+        OnRunOnBeforeGetTable(TempBlob, Rec);
         RecordRef.GetTable(Rec);
         TempBlob.ToRecordRef(RecordRef, FieldNo("File Content"));
         RecordRef.SetTable(Rec);
@@ -227,6 +228,11 @@ codeunit 1240 "Read Data Exch. from File"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFileImport(var TempBlob: Codeunit "Temp Blob"; var FileName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeGetTable(var TempBlob: Codeunit "Temp Blob"; DataExch: Record "Data Exch.")
     begin
     end;
 }

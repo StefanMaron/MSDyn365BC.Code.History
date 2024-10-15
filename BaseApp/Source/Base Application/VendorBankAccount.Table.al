@@ -95,10 +95,20 @@ table 288 "Vendor Bank Account"
         field(13; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+
+            trigger OnValidate()
+            begin
+                OnValidateBankAccount(Rec, 'Bank Branch No.');
+            end;
         }
         field(14; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+
+            trigger OnValidate()
+            begin
+                OnValidateBankAccount(Rec, 'Bank Account No.');
+            end;
         }
         field(15; "Transit No."; Text[20])
         {
@@ -393,6 +403,9 @@ table 288 "Vendor Bank Account"
     end;
 
     procedure GetBankAccountNo(): Text
+    var
+        Handled: Boolean;
+        ResultBankAccountNo: Text;
     begin
         if ("ESR Account No." <> '') and ("Payment Form" in ["Payment Form"::ESR, "Payment Form"::"ESR+"]) then
             exit(DelChr("ESR Account No.", '=', '-'));
@@ -402,6 +415,10 @@ table 288 "Vendor Bank Account"
 
         if ("Clearing No." <> '') and ("Payment Form" = "Payment Form"::"Bank Payment Domestic") then
             exit("Clearing No.");
+	    
+        OnGetBankAccount(Handled, Rec, ResultBankAccountNo);
+
+        if Handled then exit(ResultBankAccountNo);
 
         if IBAN <> '' then
             exit(DelChr(IBAN, '=<>'));
@@ -487,6 +504,16 @@ table 288 "Vendor Bank Account"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeLookupName(xVendorBankAccount: Record "Vendor Bank Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; FieldToValidate: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBankAccount(var Handled: Boolean; VendorBankAccount: Record "Vendor Bank Account"; var ResultBankAccountNo: Text)
     begin
     end;
 }
