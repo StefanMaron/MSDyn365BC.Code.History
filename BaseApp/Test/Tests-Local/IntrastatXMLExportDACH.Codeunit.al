@@ -531,7 +531,9 @@ codeunit 142086 "Intrastat XML Export DACH"
         // [THEN] "quantityInSU" = 1
         LibraryXPathXMLReader.InitializeWithText(XMLDocument.OuterXml, '');
         VerifyXMLItemWithSUQty('/INSTAT/Envelope/Declaration/', IntrastatJnlLine, 0);
-        LibraryXPathXMLReader.VerifyNodeAbsence('/INSTAT/Envelope/Declaration/Item/countryOfOriginCode');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+            '/INSTAT/Envelope/Declaration/Item/countryOfOriginCode',
+            IntrastatExportMgtDACH.GetOriginCountryCode(IntrastatJnlLine."Country/Region of Origin Code"));
     end;
 
     [Test]
@@ -614,7 +616,12 @@ codeunit 142086 "Intrastat XML Export DACH"
         LibraryXPathXMLReader.VerifyNodeCountByXPath('/INSTAT/Envelope/Declaration/Item/quantityInSU', 1);
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
           '/INSTAT/Envelope/Declaration/Item/quantityInSU', FormatDecimal(IntrastatJnlLine[2].Quantity), 0);
-        LibraryXPathXMLReader.VerifyNodeAbsence('/INSTAT/Envelope/Declaration/Item/countryOfOriginCode');
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
+            '/INSTAT/Envelope/Declaration/Item/countryOfOriginCode',
+            IntrastatExportMgtDACH.GetOriginCountryCode(IntrastatJnlLine[1]."Country/Region of Origin Code"), 0);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
+            '/INSTAT/Envelope/Declaration/Item/countryOfOriginCode',
+            IntrastatExportMgtDACH.GetOriginCountryCode(IntrastatJnlLine[2]."Country/Region of Origin Code"), 1);
     end;
 
     [Test]
@@ -652,8 +659,9 @@ codeunit 142086 "Intrastat XML Export DACH"
         // [THEN] Item2: no "countryOfOriginCode" node, "quantityInSU" = 2
         LibraryXPathXMLReader.InitializeWithText(XMLDocument.OuterXml, '');
         VerifyXMLItemWithOriginCountry('/INSTAT/Envelope/Declaration/', IntrastatJnlLine[1], 0);
+        VerifyXMLItem('/INSTAT/Envelope/Declaration/', IntrastatJnlLine[1], 0);
         VerifyXMLItem('/INSTAT/Envelope/Declaration/', IntrastatJnlLine[2], 1);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/INSTAT/Envelope/Declaration/Item/countryOfOriginCode', 1);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('/INSTAT/Envelope/Declaration/Item/countryOfOriginCode', 2);
         LibraryXPathXMLReader.VerifyNodeCountByXPath('/INSTAT/Envelope/Declaration/Item/quantityInSU', 1);
         LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
           '/INSTAT/Envelope/Declaration/Item/quantityInSU', FormatDecimal(IntrastatJnlLine[2].Quantity), 0);
