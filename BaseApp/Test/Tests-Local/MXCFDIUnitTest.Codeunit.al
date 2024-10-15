@@ -1040,23 +1040,24 @@ codeunit 144000 "MX CFDI Unit Test"
         SalesInvoiceLine: Record "Sales Invoice Line";
         TempDocumentHeader: Record "Document Header" temporary;
         TempDocumentLine: Record "Document Line" temporary;
-        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT]
-        // [SCENARIO 325332] Run CreateAbstractDocument function of "E-Invoice Mgt." codeunit for Sales Invoice Header with long values in fields "Bill-to Name" etc.
+        // [SCENARIO 325332] Run CreateTempDocument function of "E-Invoice Mgt." codeunit for Sales Invoice Header with long values in fields "Bill-to Name" etc.
         Initialize;
 
         // [GIVEN] Sales Invoice Header, fields "Bill-to Name/Address/Contact", "Sell-to Customer Name/Address/Contact" contain values with maximum field length.
         // [GIVEN] Sales Invoice Line, field "Description" contains value with maximum field length.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
         MockSalesInvHeader(SalesInvoiceHeader, LibrarySales.CreateCustomerNo);
         UpdateDocumentTextFieldsValuesToMaxLength(SalesInvoiceHeader);
-        MockSalesInvLine(SalesInvoiceLine, SalesInvoiceHeader);
+        MockSalesInvLine(SalesInvoiceLine, SalesInvoiceHeader, VATPostingSetup);
         UpdateDocumentLineTextFieldsValuesToMaxLength(SalesInvoiceLine);
         SalesInvoiceHeader.Get(SalesInvoiceHeader."No.");
         SalesInvoiceLine.Get(SalesInvoiceLine."Document No.", SalesInvoiceLine."Line No.");
 
-        // [WHEN] Run CreateAbstractDocument function of "E-Invoice Mgt." codeunit for Sales Invoice Header.
-        EInvoiceMgt.CreateAbstractDocument(SalesInvoiceHeader, TempDocumentHeader, TempDocumentLine, false);
+        // [WHEN] Run CreateTempDocument function of "E-Invoice Mgt." codeunit for Sales Invoice Header.
+        RunCreateTempDocument(SalesInvoiceHeader, TempDocumentHeader, TempDocumentLine);
 
         // [THEN] Fields values of Sales Invoice Header are copied to corresponding fields of Document Header.
         // [THEN] "Description" field value of Sales Invoice Line is copied to "Description" field of Document Line.
@@ -1072,23 +1073,24 @@ codeunit 144000 "MX CFDI Unit Test"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         TempDocumentHeader: Record "Document Header" temporary;
         TempDocumentLine: Record "Document Line" temporary;
-        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT]
-        // [SCENARIO 325332] Run CreateAbstractDocument function of "E-Invoice Mgt." codeunit for Sales Credit Memo Header with long values in fields "Bill-to Name" etc.
+        // [SCENARIO 325332] Run CreateTempDocument function of "E-Invoice Mgt." codeunit for Sales Credit Memo Header with long values in fields "Bill-to Name" etc.
         Initialize;
 
         // [GIVEN] Sales Credit Memo Header, fields "Bill-to Name/Address/Contact", "Sell-to Customer Name/Address/Contact" contain values with maximum field length.
         // [GIVEN] Sales Credit Memo Line, field "Description" contains value with maximum field length.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
         MockSalesCrMemoHeader(SalesCrMemoHeader, LibrarySales.CreateCustomerNo, '');
         UpdateDocumentTextFieldsValuesToMaxLength(SalesCrMemoHeader);
-        MockSalesCrMemoLine(SalesCrMemoLine, SalesCrMemoHeader);
+        MockSalesCrMemoLine(SalesCrMemoLine, SalesCrMemoHeader, VATPostingSetup);
         UpdateDocumentLineTextFieldsValuesToMaxLength(SalesCrMemoLine);
         SalesCrMemoHeader.Get(SalesCrMemoHeader."No.");
         SalesCrMemoLine.Get(SalesCrMemoLine."Document No.", SalesCrMemoLine."Line No.");
 
-        // [WHEN] Run CreateAbstractDocument function of "E-Invoice Mgt." codeunit for Sales Credit Memo Header.
-        EInvoiceMgt.CreateAbstractDocument(SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, false);
+        // [WHEN] Run CreateTempDocument function of "E-Invoice Mgt." codeunit for Sales Credit Memo Header.
+        RunCreateTempDocument(SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine);
 
         // [THEN] Fields values of Sales Credit Memo Header are copied to corresponding fields of Document Header.
         // [THEN] "Description" field value of Sales Credit Memo Line is copied to "Description" field of Document Line.
@@ -1104,23 +1106,24 @@ codeunit 144000 "MX CFDI Unit Test"
         ServiceInvoiceLine: Record "Service Invoice Line";
         TempDocumentHeader: Record "Document Header" temporary;
         TempDocumentLine: Record "Document Line" temporary;
-        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT]
-        // [SCENARIO 325332] Run CreateAbstractDocument function of "E-Invoice Mgt." codeunit for Service Invoice Header with long values in fields "Bill-to Name" etc.
+        // [SCENARIO 325332] Run CreateTempDocument function of "E-Invoice Mgt." codeunit for Service Invoice Header with long values in fields "Bill-to Name" etc.
         Initialize;
 
         // [GIVEN] Service Invoice Header, fields "Bill-to Name/Address/Contact", "Name/Address/Contact Name" contain values with maximum field length.
         // [GIVEN] Service Invoice Line, field "Description" contains value with maximum field length.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
         MockServiceInvHeader(ServiceInvoiceHeader, LibrarySales.CreateCustomerNo);
         UpdateDocumentTextFieldsValuesToMaxLength(ServiceInvoiceHeader);
-        MockServiceInvLine(ServiceInvoiceLine, ServiceInvoiceHeader);
+        MockServiceInvLine(ServiceInvoiceLine, ServiceInvoiceHeader, VATPostingSetup);
         UpdateDocumentLineTextFieldsValuesToMaxLength(ServiceInvoiceLine);
         ServiceInvoiceHeader.Get(ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.Get(ServiceInvoiceLine."Document No.", ServiceInvoiceLine."Line No.");
 
-        // [WHEN] Run CreateAbstractDocument function of "E-Invoice Mgt." codeunit for Service Invoice Header.
-        EInvoiceMgt.CreateAbstractDocument(ServiceInvoiceHeader, TempDocumentHeader, TempDocumentLine, false);
+        // [WHEN] Run CreateTempDocument function of "E-Invoice Mgt." codeunit for Service Invoice Header.
+        RunCreateTempDocument(ServiceInvoiceHeader, TempDocumentHeader, TempDocumentLine);
 
         // [THEN] Fields values of Service Invoice Header are copied to corresponding fields of Document Header.
         // [THEN] "Description" field value of Service Invoice Line is copied to "Description" field of Document Line.
@@ -1136,23 +1139,24 @@ codeunit 144000 "MX CFDI Unit Test"
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
         TempDocumentHeader: Record "Document Header" temporary;
         TempDocumentLine: Record "Document Line" temporary;
-        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [FEATURE] [UT]
-        // [SCENARIO 325332] Run CreateAbstractDocument function of "E-Invoice Mgt." codeunit for Service Credit Memo Header with long values in fields "Bill-to Name" etc.
+        // [SCENARIO 325332] Run CreateTempDocument function of "E-Invoice Mgt." codeunit for Service Credit Memo Header with long values in fields "Bill-to Name" etc.
         Initialize;
 
         // [GIVEN] Service Credit Memo Header, fields "Bill-to Name/Address/Contact", "Sell-to Customer Name/Address/Contact" contain values with maximum field length.
         // [GIVEN] Service Credit Memo Line, field "Description" contains value with maximum field length.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
         MockServiceCrMemoHeader(ServiceCrMemoHeader, LibrarySales.CreateCustomerNo, '');
         UpdateDocumentTextFieldsValuesToMaxLength(ServiceCrMemoHeader);
-        MockServiceCrMemoLine(ServiceCrMemoLine, ServiceCrMemoHeader);
+        MockServiceCrMemoLine(ServiceCrMemoLine, ServiceCrMemoHeader, VATPostingSetup);
         UpdateDocumentLineTextFieldsValuesToMaxLength(ServiceCrMemoLine);
         ServiceCrMemoHeader.Get(ServiceCrMemoHeader."No.");
         ServiceCrMemoLine.Get(ServiceCrMemoLine."Document No.", ServiceCrMemoLine."Line No.");
 
-        // [WHEN] Run CreateAbstractDocument function of "E-Invoice Mgt." codeunit for Service Credit Memo Header.
-        EInvoiceMgt.CreateAbstractDocument(ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, false);
+        // [WHEN] Run CreateTempDocument function of "E-Invoice Mgt." codeunit for Service Credit Memo Header.
+        RunCreateTempDocument(ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine);
 
         // [THEN] Fields values of Service Credit Memo Header are copied to corresponding fields of Document Header.
         // [THEN] "Description" field value of Service Credit Memo Line is copied to "Description" field of Document Line.
@@ -1675,27 +1679,31 @@ codeunit 144000 "MX CFDI Unit Test"
         CustLedgerEntry.Insert();
     end;
 
-    local procedure MockSalesInvLine(var SalesInvoiceLine: Record "Sales Invoice Line"; SalesInvoiceHeader: Record "Sales Invoice Header")
+    local procedure MockSalesInvLine(var SalesInvoiceLine: Record "Sales Invoice Line"; SalesInvoiceHeader: Record "Sales Invoice Header"; VATPostingSetup: Record "VAT Posting Setup")
     begin
         SalesInvoiceLine.Init();
         SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";
         SalesInvoiceLine."Line No." := LibraryUtility.GetNewRecNo(SalesInvoiceLine, SalesInvoiceLine.FieldNo("Line No."));
         SalesInvoiceLine.Type := SalesInvoiceLine.Type::Item;
         SalesInvoiceLine."No." := LibraryInventory.CreateItemNo;
+        SalesInvoiceLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        SalesInvoiceLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         SalesInvoiceLine.Insert();
     end;
 
-    local procedure MockSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    local procedure MockSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header"; VATPostingSetup: Record "VAT Posting Setup")
     begin
         SalesCrMemoLine.Init();
         SalesCrMemoLine."Document No." := SalesCrMemoHeader."No.";
         SalesCrMemoLine."Line No." := LibraryUtility.GetNewRecNo(SalesCrMemoLine, SalesCrMemoLine.FieldNo("Line No."));
         SalesCrMemoLine.Type := SalesCrMemoLine.Type::Item;
         SalesCrMemoLine."No." := LibraryInventory.CreateItemNo;
+        SalesCrMemoLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        SalesCrMemoLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         SalesCrMemoLine.Insert();
     end;
 
-    local procedure MockServiceInvLine(var ServiceInvoiceLine: Record "Service Invoice Line"; ServiceInvoiceHeader: Record "Service Invoice Header")
+    local procedure MockServiceInvLine(var ServiceInvoiceLine: Record "Service Invoice Line"; ServiceInvoiceHeader: Record "Service Invoice Header"; VATPostingSetup: Record "VAT Posting Setup")
     begin
         ServiceInvoiceLine.Init();
         ServiceInvoiceLine."Document No." := ServiceInvoiceHeader."No.";
@@ -1704,10 +1712,12 @@ codeunit 144000 "MX CFDI Unit Test"
         ServiceInvoiceLine."No." := LibraryInventory.CreateItemNo;
         ServiceInvoiceLine.Amount := LibraryRandom.RandDecInRange(100, 200, 2);
         ServiceInvoiceLine."Amount Including VAT" := LibraryRandom.RandDecInRange(100, 200, 2);
+        ServiceInvoiceLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        ServiceInvoiceLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         ServiceInvoiceLine.Insert();
     end;
 
-    local procedure MockServiceCrMemoLine(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    local procedure MockServiceCrMemoLine(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; ServiceCrMemoHeader: Record "Service Cr.Memo Header"; VATPostingSetup: Record "VAT Posting Setup")
     begin
         ServiceCrMemoLine.Init();
         ServiceCrMemoLine."Document No." := ServiceCrMemoHeader."No.";
@@ -1716,7 +1726,24 @@ codeunit 144000 "MX CFDI Unit Test"
         ServiceCrMemoLine."No." := LibraryInventory.CreateItemNo;
         ServiceCrMemoLine.Amount := LibraryRandom.RandDecInRange(100, 200, 2);
         ServiceCrMemoLine."Amount Including VAT" := LibraryRandom.RandDecInRange(100, 200, 2);
+        ServiceCrMemoLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        ServiceCrMemoLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         ServiceCrMemoLine.Insert();
+    end;
+
+    local procedure RunCreateTempDocument(DocumentHeaderVariant: Variant; var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary)
+    var
+        TempDocumentLineRetention: Record "Document Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        SubTotal: Decimal;
+        TotalTax: Decimal;
+        TotalRetention: Decimal;
+        TotalDiscount: Decimal;
+    begin
+        EInvoiceMgt.CreateTempDocument(
+          DocumentHeaderVariant, TempDocumentHeader, TempDocumentLine, TempDocumentLineRetention, TempVATAmountLine,
+          SubTotal, TotalTax, TotalRetention, TotalDiscount, false);
     end;
 
     local procedure UpdateCompanyInfo()
@@ -1793,7 +1820,7 @@ codeunit 144000 "MX CFDI Unit Test"
     begin
         DataTypeManagement.GetRecordRef(CustomerDocumentLineVariant, CustDocLineRecRef);
         Field.SetRange(TableNo, DATABASE::"Document Line");
-        Field.SetFilter("No.", '<>%1&<>%2', 3, 4); // except key fields
+        Field.SetFilter("No.", '<>%1&<>%2&<>%3&<>%4', 3, 4, 89, 90); // except key fields
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();
         repeat

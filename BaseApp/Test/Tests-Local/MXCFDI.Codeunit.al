@@ -2834,9 +2834,10 @@ codeunit 144001 "MX CFDI"
         // [THEN] and attributes 'Importe' = 10, 'TipoFactor' = 'Tasa', 'Impuesto' = '003', 'Base' = 100.
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
         SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine."Amount Including VAT" := SalesInvoiceLine.Amount * (1 + SalesInvoiceLine."VAT %" / 100);
         VerifyVATAmountLines(
-          OriginalStr, SalesInvoiceHeader.Amount, SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount,
-          SalesInvoiceLine."VAT %", '003', 2, 0, 0);
+          OriginalStr, SalesInvoiceLine.Amount, SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount,
+          SalesInvoiceLine."VAT %", '003', 0, 0);
 
         // [THEN] Total VAT Amount is exported as attribute 'cfdi:Impuestos/TotalImpuestosTrasladados' = 10
         // [THEN] XML Document has node 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' with total VAT line
@@ -2888,7 +2889,7 @@ codeunit 144001 "MX CFDI"
         // [THEN] XML Document has node 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' with VAT data for the line
         // [THEN] and attributes 'Importe' = 0, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 100.
         VerifyVATAmountLines(
-          OriginalStr, SalesInvoiceHeader.Amount, 0, 0, '002', 2, 0, 0);
+          OriginalStr, SalesInvoiceHeader.Amount, 0, 0, '002', 0, 0);
 
         // [THEN] Total VAT Amount is exported as attribute 'cfdi:Impuestos/TotalImpuestosTrasladados' = 10
         // [THEN] XML Document has node 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' with total VAT line
@@ -3036,7 +3037,7 @@ codeunit 144001 "MX CFDI"
         SalesInvoiceLine.FindFirst();
         VerifyVATAmountLines(
           OriginalStr, SalesInvoiceLine.Amount, SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount,
-          SalesInvoiceLine."VAT %", '003', 2, 0, 0);
+          SalesInvoiceLine."VAT %", '003', 0, 0);
         VerifyVATTotalLine(
           OriginalStr,
           SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount, SalesInvoiceLine."VAT %",
@@ -3044,7 +3045,7 @@ codeunit 144001 "MX CFDI"
         SalesInvoiceLine.FindLast;
         VerifyVATAmountLines(
           OriginalStr, SalesInvoiceLine.Amount, SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount,
-          SalesInvoiceLine."VAT %", '003', 2, 1, 1);
+          SalesInvoiceLine."VAT %", '003', 1, 1);
         VerifyVATTotalLine(
           OriginalStr,
           SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount, SalesInvoiceLine."VAT %",
@@ -3111,9 +3112,11 @@ codeunit 144001 "MX CFDI"
 
         // [THEN] XML header has 'Total' = 5589, 'Descuento' = 140, 'SubTotal' = 5000 (4860 + 140)
         Currency.InitRoundingPrecision();
-        UnitPrice := Round(SalesLine."Unit Price" * 100 / (100 + SalesLine."VAT %"), Currency."Unit-Amount Rounding Precision");
-        LineDiscExclVAT :=
-          Round(SalesLineDisc.Quantity * UnitPrice * SalesLineDisc."Line Discount %" / 100, Currency."Amount Rounding Precision");
+        UnitPrice := SalesLine."Unit Price" * 100 / (100 + SalesLine."VAT %");
+        SalesLine."Amount Including VAT" := SalesLine.Amount * (1 + SalesLine."VAT %" / 100);
+        SalesLineDisc."Amount Including VAT" := SalesLineDisc.Amount * (1 + SalesLineDisc."VAT %" / 100);
+        LineDiscExclVAT := 
+          Round(SalesLineDisc."Line Discount Amount" / (1 + SalesLineDisc."VAT %" / 100),Currency."Amount Rounding Precision");
         VerifyRootNodeTotals(
           OriginalStr,
           SalesInvoiceHeader."Amount Including VAT", UnitPrice * (SalesLine.Quantity + SalesLineDisc.Quantity),
@@ -3191,9 +3194,11 @@ codeunit 144001 "MX CFDI"
 
         // [THEN] XML header has 'Total' = 5589, 'Descuento' = 140, 'SubTotal' = 5000 (4860 + 140)
         Currency.InitRoundingPrecision();
-        UnitPrice :=
-          Round(ServiceLine."Unit Price" * 100 / (100 + ServiceLine."VAT %"), Currency."Unit-Amount Rounding Precision");
-        LineDiscExclVAT := Round(ServiceLineDisc."Line Discount Amount" * 100 / (100 + ServiceLineDisc."VAT %"));
+        UnitPrice := ServiceLine."Unit Price" * 100 / (100 + ServiceLine."VAT %");
+        ServiceLine."Amount Including VAT" := ServiceLine.Amount * (1 + ServiceLine."VAT %" / 100);
+        ServiceLineDisc."Amount Including VAT" := ServiceLineDisc.Amount * (1 + ServiceLineDisc."VAT %" / 100);
+        LineDiscExclVAT := 
+          Round(ServiceLineDisc."Line Discount Amount" / (1 + ServiceLineDisc."VAT %" / 100),Currency."Amount Rounding Precision");
         VerifyRootNodeTotals(
           OriginalStr,
           ServiceInvoiceHeader."Amount Including VAT", UnitPrice * (ServiceLine.Quantity + ServiceLineDisc.Quantity),
@@ -3612,7 +3617,7 @@ codeunit 144001 "MX CFDI"
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
         LibraryXPathXMLReader.VerityAttributeFromRootNode('Moneda', 'MXN');
-        VerifyVATAmountLines(OriginalStr, 30838.9, 4934.224, 16, '002', 5, 0, 0);
+        VerifyVATAmountLines(OriginalStr, 30838.9, 4934.224, 16, '002', 0, 0);
     end;
 
     [Test]
@@ -3667,7 +3672,7 @@ codeunit 144001 "MX CFDI"
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
         LibraryXPathXMLReader.VerityAttributeFromRootNode('Moneda', Customer."Currency Code");
-        VerifyVATAmountLines(OriginalStr, 30838.9, 4934.224, 16, '002', 5, 1, 0);
+        VerifyVATAmountLines(OriginalStr, 30838.9, 4934.224, 16, '002', 1, 0);
     end;
 
     [Test]
@@ -3722,7 +3727,7 @@ codeunit 144001 "MX CFDI"
         // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion'
         // [THEN] has attributes 'Importe' = 100, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 1000.
         VerifyVATAmountLines(
-          OriginalStr, SalesLine."Amount Including VAT", 0, 0, '002', 2, 0, 0);
+          OriginalStr, SalesLine."Amount Including VAT", 0, 0, '002', 0, 0);
         VerifyRetentionAmountLine(
           OriginalStr,
           SalesLine."Amount Including VAT", SalesLineRetention."Amount Including VAT", SalesLineRetention."Retention VAT %", '002', 39, 0);
@@ -3789,7 +3794,7 @@ codeunit 144001 "MX CFDI"
         // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion'
         // [THEN] has attributes 'Importe' = 100, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 1000.
         VerifyVATAmountLines(
-          OriginalStr, SalesLine."Amount Including VAT", 0, 0, '002', 2, 0, 0);
+          OriginalStr, SalesLine."Amount Including VAT", 0, 0, '002', 0, 0);
         VerifyRetentionAmountLine(
           OriginalStr,
           SalesLine."Amount Including VAT", SalesLineRetention."Amount Including VAT", SalesLineRetention."Retention VAT %", '002', 39, 0);
@@ -3863,7 +3868,7 @@ codeunit 144001 "MX CFDI"
         // [THEN] has attributes 'Importe' = 8319.948, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 78000.
         VerifyVATAmountLines(
           OriginalStr,
-          SalesLine.Amount, SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."VAT %", '002', 2, 0, 0);
+          SalesLine.Amount, SalesLine."Amount Including VAT" - SalesLine.Amount, SalesLine."VAT %", '002', 0, 0);
         VerifyRetentionAmountLine(
           OriginalStr,
           SalesLine.Amount, SalesLineRetention1.Amount, SalesLineRetention1."Retention VAT %", '001', 39, 0);
@@ -5137,25 +5142,35 @@ codeunit 144001 "MX CFDI"
     var
         TempDocumentHeader: Record "Document Header" temporary;
         TempDocumentLine: Record "Document Line" temporary;
+        TempDocumentLineRetention: Record "Document Line" temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         EInvoiceMgt: Codeunit "E-Invoice Mgt.";
+        SubTotal: Decimal;
+        TotalTax: Decimal;
+        TotalRetention: Decimal;
+        TotalDiscount: Decimal;
     begin
         case TableNo of
             DATABASE::"Sales Invoice Header":
                 begin
                     SalesInvoiceHeader.SetRange("No.", DocumentNo);
                     SalesInvoiceHeader.FindLast;
-                    EInvoiceMgt.CreateAbstractDocument(SalesInvoiceHeader, TempDocumentHeader, TempDocumentLine, false);
+                    EInvoiceMgt.CreateTempDocument(
+                        SalesInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempDocumentLineRetention, TempVATAmountLine,
+                        SubTotal, TotalTax, TotalRetention, TotalDiscount, false);
                     EInvoiceMgt.CreateOriginalStr33WithUUID(TempDocumentHeader, TempDocumentLine, '', 0, 0, false, TempBlob, '');
                 end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
                     SalesCrMemoHeader.SetRange("No.", DocumentNo);
                     SalesCrMemoHeader.FindLast;
-                    EInvoiceMgt.CreateAbstractDocument(SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, false);
+                    EInvoiceMgt.CreateTempDocument(
+                        SalesCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempDocumentLineRetention, TempVATAmountLine,
+                        SubTotal, TotalTax, TotalRetention, TotalDiscount, false);
                     EInvoiceMgt.CreateOriginalStr33WithUUID(
                       TempDocumentHeader, TempDocumentLine, '', 0, 0, true, TempBlob, LibraryUtility.GenerateGUID);
                 end;
@@ -5163,14 +5178,18 @@ codeunit 144001 "MX CFDI"
                 begin
                     ServiceInvoiceHeader.SetRange("No.", DocumentNo);
                     ServiceInvoiceHeader.FindLast;
-                    EInvoiceMgt.CreateAbstractDocument(ServiceInvoiceHeader, TempDocumentHeader, TempDocumentLine, false);
+                    EInvoiceMgt.CreateTempDocument(
+                        ServiceInvoiceHeader, TempDocumentHeader, TempDocumentLine, TempDocumentLineRetention, TempVATAmountLine,
+                        SubTotal, TotalTax, TotalRetention, TotalDiscount, false);
                     EInvoiceMgt.CreateOriginalStr33WithUUID(TempDocumentHeader, TempDocumentLine, '', 0, 0, false, TempBlob, '');
                 end;
             DATABASE::"Service Cr.Memo Header":
                 begin
                     ServiceCrMemoHeader.SetRange("No.", DocumentNo);
                     ServiceCrMemoHeader.FindLast;
-                    EInvoiceMgt.CreateAbstractDocument(ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, false);
+                    EInvoiceMgt.CreateTempDocument(
+                        ServiceCrMemoHeader, TempDocumentHeader, TempDocumentLine, TempDocumentLineRetention, TempVATAmountLine,
+                        SubTotal, TotalTax, TotalRetention, TotalDiscount, false);
                     EInvoiceMgt.CreateOriginalStr33WithUUID(
                       TempDocumentHeader, TempDocumentLine, '', 0, 0, true, TempBlob, LibraryUtility.GenerateGUID);
                 end;
@@ -5426,13 +5445,13 @@ codeunit 144001 "MX CFDI"
           StrSubstNo(IncorrectOriginalStrValueErr, 'Descuento', OriginalStr));
     end;
 
-    local procedure VerifyVATAmountLines(OriginalStr: Text; Amount: Decimal; VATAmount: Decimal; VATPct: Decimal; Impuesto: Text; Decimals: Integer; Offset: Integer; index: Integer)
+    local procedure VerifyVATAmountLines(OriginalStr: Text; Amount: Decimal; VATAmount: Decimal; VATPct: Decimal; Impuesto: Text; Offset: Integer; index: Integer)
     begin
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
-          'Importe', FormatDecimal(VATAmount, Decimals), index);
+          'Importe', FormatDecimal(VATAmount, 6), index);
         Assert.AreEqual(
-          FormatDecimal(VATAmount, Decimals), SelectStr(34 + index * 13 + Offset, OriginalStr),
+          FormatDecimal(VATAmount, 6), SelectStr(34 + index * 13 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'Importe', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
@@ -5458,9 +5477,9 @@ codeunit 144001 "MX CFDI"
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
-          'Base', FormatDecimal(Amount, 2), index);
+          'Base', FormatDecimal(Amount, 6), index);
         Assert.AreEqual(
-          FormatDecimal(Amount, 2), SelectStr(30 + index * 13 + Offset, OriginalStr),
+          FormatDecimal(Amount, 6), SelectStr(30 + index * 13 + Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'Base', OriginalStr));
     end;
 
@@ -5480,9 +5499,9 @@ codeunit 144001 "MX CFDI"
 
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
-          'Base', FormatDecimal(Amount, 2));
+          'Base', FormatDecimal(Amount, 6));
         Assert.AreEqual(
-          FormatDecimal(Amount, 2), SelectStr(30, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Base', OriginalStr));
+          FormatDecimal(Amount, 6), SelectStr(30, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Base', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeAbsence(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
@@ -5497,9 +5516,9 @@ codeunit 144001 "MX CFDI"
     begin
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion',
-          'Importe', FormatDecimalRange(VATAmount, 2, 6), index);
+          'Importe', FormatDecimal(VATAmount, 6), index);
         Assert.AreEqual(
-          FormatDecimalRange(VATAmount, 2, 6), SelectStr(Offset, OriginalStr),
+          FormatDecimal(VATAmount, 6), SelectStr(Offset, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'Importe', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
@@ -5525,9 +5544,9 @@ codeunit 144001 "MX CFDI"
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Retenciones/cfdi:Retencion',
-          'Base', FormatDecimal(Amount, 2), index);
+          'Base', FormatDecimal(Amount, 6), index);
         Assert.AreEqual(
-          FormatDecimal(Amount, 2), SelectStr(Offset - 4, OriginalStr),
+          FormatDecimal(Amount, 6), SelectStr(Offset - 4, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'Base', OriginalStr));
     end;
 
@@ -5592,16 +5611,16 @@ codeunit 144001 "MX CFDI"
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Conceptos/cfdi:Concepto', 'Descuento', FormatDecimal(DiscountAmount, 2), Index);
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Conceptos/cfdi:Concepto', 'Importe', FormatDecimal(LineAmount, 2), Index);
+          'cfdi:Conceptos/cfdi:Concepto', 'Importe', FormatDecimal(LineAmount, 6), Index);
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
-          'cfdi:Conceptos/cfdi:Concepto', 'ValorUnitario', FormatDecimal(UnitPrice, 2), Index);
+          'cfdi:Conceptos/cfdi:Concepto', 'ValorUnitario', FormatDecimal(UnitPrice, 6), Index);
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
-          'Importe', FormatDecimal(VATAmount, 2), Index);
+          'Importe', FormatDecimal(VATAmount, 6), Index);
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado',
-          'Base', FormatDecimal(VATBase, 2), Index);
+          'Base', FormatDecimal(VATBase, 6), Index);
     end;
 
     local procedure VerifyPDFFile()
