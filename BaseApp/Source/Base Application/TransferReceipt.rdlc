@@ -534,6 +534,7 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="TransRcpLineDesc">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>

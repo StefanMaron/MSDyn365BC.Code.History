@@ -2131,6 +2131,129 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('CreatePaymentWithPostingModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateAndPostPaymentAndRefundForInvoiceAndCreeditMemoViaCreatePaymentPage()
+    var
+        Vendor: array[2] of Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        BankAccount: Record "Bank Account";
+        PaymentJournal: TestPage "Payment Journal";
+        IndexDoc: Integer;
+        IndexVendor: Integer;
+        CountPerVendor: Integer;
+    begin
+        // [FEATURE] [Create Payment] [Applicaition] [Invoice] [Payment] [Credit Memo] [Refund]
+        // [SCENARIO 351229] Stan can create and post payments and refunds for several vendors and several invoices and credit memos.
+        Initialize();
+
+        GenJournalLine.DeleteAll();
+        CountPerVendor := 2;
+
+        for IndexVendor := 1 to ArrayLen(Vendor) do begin
+            LibraryPurchase.CreateVendor(Vendor[IndexVendor]);
+            for IndexDoc := 1 to CountPerVendor do begin
+                LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor[IndexVendor]."No.");
+                LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+                CreatePurchaseCreditMemoForVendorNo(PurchaseHeader, Vendor[IndexVendor]."No.");
+                LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+            end;
+        end;
+
+        LibraryERM.FindBankAccount(BankAccount);
+
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(WorkDate());
+
+        PaymentJournal.Trap();
+
+        VendorLedgerEntry.SetFilter("Vendor No.", '%1|%2', Vendor[1]."No.", Vendor[2]."No.");
+        InvokeCreatePayment(VendorLedgerEntry);
+
+        for IndexVendor := 1 to ArrayLen(Vendor) do begin
+            PaymentJournal."Account No.".AssertEquals(Vendor[IndexVendor]."No.");
+            PaymentJournal."Document Type".AssertEquals(GenJournalLine."Document Type"::Payment);
+            PaymentJournal.Next();
+            PaymentJournal."Account No.".AssertEquals(Vendor[IndexVendor]."No.");
+            PaymentJournal."Document Type".AssertEquals(GenJournalLine."Document Type"::Refund);
+            PaymentJournal.Next();
+        end;
+        PaymentJournal.Close();
+
+        for IndexVendor := 1 to ArrayLen(Vendor) do begin
+            GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+            GenJournalLine.SetRange("Account No.", Vendor[IndexVendor]."No.");
+            GenJournalLine.FindSet();
+            GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Payment);
+            GenJournalLine.Next();
+            GenJournalLine.TestField("Document Type", GenJournalLine."Document Type"::Refund);
+        end;
+        GenJournalLine.SetRange("Account No.");
+        Assert.RecordCount(GenJournalLine, 4);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        VendorLedgerEntry.SetRange(Open, false);
+        Assert.RecordCount(VendorLedgerEntry, 6 * ArrayLen(Vendor)); // (2(Invoice) + 1(Payment) + 2(Credit Memo) + 1(Refund)) * 2(No. of Vendors) = 6 * 2 = 12
+
+        VerifyAppliedVendorLedgerEntries(
+          Vendor[1], VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::Payment, 2);
+        VerifyAppliedVendorLedgerEntries(
+          Vendor[2], VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::Payment, 2);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,PickReportModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SuggestPaymentNewSavedReportOption()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        ObjectOptions: Record "Object Options";
+        ReportSettings: TestPage "Report Settings";
+        ParameterName: Text[50];
+    begin
+        // [FEATURE] [Object Options]
+        // [SCENARIO 357515] Create new saved report option for Suggest Vendor Payment Report
+        Initialize;
+
+        // [GIVEN] Report option is saved for the report 'Suggest Vendor Payment' for selected General Journal
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo);
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
+        LibraryVariableStorage.Enqueue(false);
+        ParameterName := LibraryUtility.GenerateGUID;
+
+        // request page is opened again when new object option is created
+        LibraryVariableStorage.Enqueue(ParameterName);
+        LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo);
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
+        LibraryVariableStorage.Enqueue(false);
+        Commit;
+
+        SuggestVendorPaymentFromJournalBatch(GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
+        ObjectOptions.SetRange("Object Type", ObjectOptions."Object Type"::Report);
+        ObjectOptions.SetRange("Object ID", REPORT::"Suggest Vendor Payments");
+        Assert.RecordIsNotEmpty(ObjectOptions);
+
+        // [GIVEN] 'Report Settings' page is opened
+        ReportSettings.OpenEdit;
+
+        // [WHEN] Invoke 'New' on the 'Report settings' page for the 'Suggest Vendor Payment' report
+        ReportSettings.NewSettings.Invoke;
+
+        // [THEN] New saved report option is created
+        ObjectOptions.SetRange("Parameter Name", ParameterName);
+        Assert.RecordIsNotEmpty(ObjectOptions);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
@@ -2539,11 +2662,22 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     begin
         NoSeries.Get(LibraryERM.CreateNoSeriesCode);
         NoSeriesLine.SetRange("Series Code", NoSeries.Code);
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         NoSeriesLine."Starting No." := StartingNo;
         NoSeriesLine."Ending No." := EndingNo;
         NoSeriesLine."Increment-by No." := IncrementByNo;
-        NoSeriesLine.Modify;
+        NoSeriesLine.Modify();
+    end;
+
+    procedure CreatePurchaseCreditMemoForVendorNo(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(10, 100, 2));
+        PurchaseLine.Modify(true);
     end;
 
     local procedure GetOnHold(): Code[3]
@@ -2839,6 +2973,21 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         exit(DefaultDimension."Dimension Value Code");
     end;
 
+    local procedure InvokeCreatePayment(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJnlManagement: Codeunit GenJnlManagement;
+        CreatePayment: Page "Create Payment";
+    begin
+        // Simulate invocation of "Create Payment" action button on "Vendor Ledger Entries" page
+        if CreatePayment.RunModal = ACTION::OK then begin
+            CreatePayment.MakeGenJnlLines(VendorLedgerEntry);
+            GenJournalBatch.Get(CreatePayment.GetTemplateName, CreatePayment.GetBatchNumber());
+            GenJnlManagement.TemplateSelectionFromBatch(GenJournalBatch);
+        end;
+        Clear(CreatePayment);
+    end;
+
     local procedure CopyTempGenJournalLine(GenJournalLine: Record "Gen. Journal Line"; var GenJournalLine2: Record "Gen. Journal Line")
     begin
         FindGeneralJournalLines(GenJournalLine);
@@ -3107,6 +3256,35 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         VendorLedgerEntry.Next;
         VendorLedgerEntry.CalcFields("Remaining Amount");
         VendorLedgerEntry.TestField("Remaining Amount", 0);
+    end;
+
+    local procedure VerifyAppliedVendorLedgerEntries(Vendor: Record Vendor; ApplyingDocumentType: Option; AppliedDocumentType: Option; ApplyingDocCount: Integer)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntryApplied: Record "Vendor Ledger Entry";
+        ApplyingAmount: Decimal;
+    begin
+        // Verify 1 Payment to 2 Invoices full application
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.SetRange("Document Type", ApplyingDocumentType);
+
+        Assert.RecordCount(VendorLedgerEntry, ApplyingDocCount);
+
+        VendorLedgerEntry.FindSet();
+        repeat
+            VendorLedgerEntry.CalcFields(Amount);
+            VendorLedgerEntry.TestField(Amount);
+            ApplyingAmount += VendorLedgerEntry.Amount;
+        until VendorLedgerEntry.Next() = 0;
+
+        VendorLedgerEntryApplied.Copy(VendorLedgerEntry);
+        VendorLedgerEntryApplied.SetRange("Document Type", AppliedDocumentType);
+
+        Assert.RecordCount(VendorLedgerEntryApplied, 1);
+
+        VendorLedgerEntryApplied.FindFirst();
+        VendorLedgerEntryApplied.CalcFields(Amount);
+        VendorLedgerEntryApplied.TestField(Amount, -ApplyingAmount);
     end;
 
     local procedure SaveGeneralTemplates(var GenJournalTemplate: Record "Gen. Journal Template"; var ToGenJournalTemplate: Record "Gen. Journal Template")
@@ -3391,6 +3569,15 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         CreatePayment."Bank Account".SetValue(LibraryVariableStorage.DequeueText());
         CreatePayment."Posting Date".SetValue(LibraryVariableStorage.DequeueDate());
         CreatePayment.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PickReportModalPageHandler(var PickReport: TestPage "Pick Report")
+    begin
+        PickReport.Name.SetValue(LibraryVariableStorage.DequeueText);
+        PickReport."Report ID".SetValue(REPORT::"Suggest Vendor Payments");
+        PickReport.OK.Invoke;
     end;
 }
 
