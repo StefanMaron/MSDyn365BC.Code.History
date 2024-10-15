@@ -17,11 +17,13 @@ codeunit 134372 "ERM Order Invoicing"
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryTimeSheet: Codeunit "Library - Time Sheet";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         WrongInvoiceNoErr: Label 'Incorrect invoice No. returned';
         WrongReturnOrderNoErr: Label 'Return Order No. in the posted document is incorrect.';
+        PostedServiceShipmentLineErr: Label 'No. in Posted Service Shipment Line must be visible.';
 
     [Test]
     [HandlerFunctions('GetReturnReceiptLinesPageHandler')]
@@ -708,6 +710,50 @@ codeunit 134372 "ERM Order Invoicing"
 
         // [THEN] 3 invoices are received: "SI001", "SI002", "SI003"
         VerifyServiceInvoices(InvoiceNos, TempServiceInvoiceHeader);
+    end;
+
+    [Test]
+    procedure PostServiceShipmentAndCheckServiceShipmentLineNoVisible()
+    var
+        UserSetup: Record "User Setup";
+        ResponsibilityCenter: Record "Responsibility Center";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        PostedServiceShipmentLines: TestPage "Posted Service Shipment Lines";
+        GLAccountNo: Code[20];
+    begin
+        // [SCENARIO 534726] Users with Responsibility Center Filter on User Setup Can View Service Shipment Lines on Posted Shipments for their Responsibility Center.
+        Initialize();
+
+        // [GIVEN] Create Responsibility Center
+        LibraryService.CreateResponsibilityCenter(ResponsibilityCenter);
+
+        // [GIVEN] Create User Setup for current User.
+        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
+
+        // [GIVEN] Validate Service Resp Center Filter.
+        UserSetup.Validate("Service Resp. Ctr. Filter", ResponsibilityCenter.Code);
+        UserSetup.Modify(true);
+
+        // [GIVEN] Create a Service Header.
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Create GL Account With Sales Setup.
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
+
+        // [GIVEN] Create a Service Line and Validate Quantity.
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", GLAccountNo);
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(5));
+        ServiceLine.Modify(true);
+
+        // [GIVEN] Post Service Order to Sales Shipment.
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // [THEN] No. in Posted Service Shipment Lines must be visible.
+        PostedServiceShipmentLines.OpenEdit();
+        PostedServiceShipmentLines.Filter.SetFilter("Document No.", ServiceHeader."Last Shipping No.");
+        PostedServiceShipmentLines.Filter.SetFilter("No.", GLAccountNo);
+        Assert.IsTrue(PostedServiceShipmentLines."No.".Visible(), PostedServiceShipmentLineErr);
     end;
 
     local procedure Initialize()

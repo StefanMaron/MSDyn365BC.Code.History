@@ -335,6 +335,160 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
         Assert.ExpectedError('The file could not be imported because a blank Workflow Code tag was found in the file.');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    [Scope('OnPrem')]
+    procedure ExportImportWorkflowWithSendingNotification1()
+    var
+        Workflow: Record Workflow;
+        WorkflowStep: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        // [SCENARIO][Bug 525946] Test that when exporting a workflow: 
+        // If "Notify Sender" set as true and "Notification Entry Type" is not default value, they should also be exported to the xml.
+        // When import the workflow, all the configurations should be imported correctly.
+        // Otherwise when user import, they will be incorrect.
+
+        // [GIVEN] Create a Workflow
+        Initialize();
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode());
+        // [GIVEN] Find the step that creates approval requests
+        LibraryWorkflow.FindWorkflowStepForCreateApprovalRequests(WorkflowStep, Workflow.Code);
+        WorkflowStep.Get(Workflow.Code, WorkflowStep.ID);
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        // [GIVEN] Set the "Notify Sender" of the found step to true
+        WorkflowStepArgument.Validate("Notify Sender", true);
+        // [GIVEN] Set the "Notification Entry Type" of the found step to "Approval"
+        WorkflowStepArgument.Validate("Notification Entry Type", WorkflowStepArgument."Notification Entry Type"::Approval);
+        // [GIVEN] Set the "Link Target Page" of the found step to "Customer List"
+        WorkflowStepArgument.Validate("Link Target Page", Page::"Customer List");
+        // [GIVEN] Set the "Custom Link" of a test link
+        WorkflowStepArgument.Validate("Custom Link", 'https://www.example.com');
+        WorkflowStepArgument.Modify();
+
+        // [GIVEN] Workflow exported and deleted from database
+        Workflow.SetRecFilter();
+        Workflow.ExportToBlob(TempBlob);
+        Workflow.Delete(true);
+
+        // [WHEN] Workflow imported to database
+        Workflow.ImportFromBlob(TempBlob);
+
+        // [THEN] Workflow contains all the setup from the exported workflow
+        LibraryWorkflow.FindWorkflowStepForCreateApprovalRequests(WorkflowStep, Workflow.Code);
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        WorkflowStepArgument.TestField("Notify Sender", true);
+        WorkflowStepArgument.TestField("Notification Entry Type", WorkflowStepArgument."Notification Entry Type"::Approval);
+        WorkflowStepArgument.TestField("Link Target Page", Page::"Customer List");
+        WorkflowStepArgument.TestField("Custom Link", 'https://www.example.com');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    [Scope('OnPrem')]
+    procedure ExportImportWorkflowWithSendingNotification2()
+    var
+        Workflow: Record Workflow;
+        WorkflowStep: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        UserSetup: Record "User Setup";
+        TempBlob: Codeunit "Temp Blob";
+        UserIDLbl: Label 'User01';
+    begin
+        // [SCENARIO][Bug 525946] Test that when exporting a workflow:
+        // If "Notify Sender" set as false, "Recipient User ID" is set and "Notification Entry Type" is not default value, they should also be exported to the xml. 
+        // When import the workflow, all the configurations should be imported correctly.
+        // Otherwise when user import, they will be incorrect.
+
+        // [GIVEN] Create a Workflow and a user setup
+        Initialize();
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode());
+        LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserIDLbl, '');
+
+        // [GIVEN] Find the step that creates approval requests
+        LibraryWorkflow.FindWorkflowStepForCreateApprovalRequests(WorkflowStep, Workflow.Code);
+        WorkflowStep.Get(Workflow.Code, WorkflowStep.ID);
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        // [GIVEN] Set the "Notify Sender" of the found step to false
+        WorkflowStepArgument.Validate("Notify Sender", false);
+        // [GIVEN] Set the "Notification User ID" of the found step to "User01"
+        WorkflowStepArgument.Validate("Notification User ID", UserIDLbl);
+        // [GIVEN] Set the "Notification Entry Type" of the found step to "Approval"
+        WorkflowStepArgument.Validate("Notification Entry Type", WorkflowStepArgument."Notification Entry Type"::Approval);
+        // [GIVEN] Set the "Link Target Page" of the found step to "Customer List"
+        WorkflowStepArgument.Validate("Link Target Page", Page::"Customer List");
+        // [GIVEN] Set the "Custom Link" of a test link
+        WorkflowStepArgument.Validate("Custom Link", 'https://www.example.com');
+        WorkflowStepArgument.Modify();
+
+        // [GIVEN] Workflow exported and deleted from database
+        Workflow.SetRecFilter();
+        Workflow.ExportToBlob(TempBlob);
+        Workflow.Delete(true);
+
+        // [WHEN] Workflow imported to database
+        Workflow.ImportFromBlob(TempBlob);
+
+        // [THEN] Workflow contains all the setup from the exported workflow
+        LibraryWorkflow.FindWorkflowStepForCreateApprovalRequests(WorkflowStep, Workflow.Code);
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        WorkflowStepArgument.TestField("Notify Sender", false);
+        WorkflowStepArgument.TestField("Notification User ID", UserIDLbl);
+        WorkflowStepArgument.TestField("Notification Entry Type", WorkflowStepArgument."Notification Entry Type"::Approval);
+        WorkflowStepArgument.TestField("Link Target Page", Page::"Customer List");
+        WorkflowStepArgument.TestField("Custom Link", 'https://www.example.com');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    [Scope('OnPrem')]
+    procedure ImportWorkflowWithNotificationUserID()
+    var
+        Workflow: Record Workflow;
+        WorkflowStep: Record "Workflow Step";
+        WorkflowStepArgument: Record "Workflow Step Argument";
+        UserSetup: Record "User Setup";
+        TempBlob: Codeunit "Temp Blob";
+        InvalidUserIDLbl: Label 'InvalidUserID';
+    begin
+        // [SCENARIO][Bug 525946] Test that when exporting a workflow:
+        // If "Notify Sender" set as false, "Recipient User ID" is set with a valid value for company A, they should also be exported to the xml. 
+        // But when import the workflow, if the "Recipient User ID" is not found in the User Setup for company B, it should be empty.
+        // Otherwise when user import, they will be incorrect.
+
+        // [GIVEN] Create a Workflow and the User Setup. But the User Setup will be removed after the workflow is exported. 
+        Initialize();
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseBlanketOrderApprovalWorkflowCode());
+        LibraryDocumentApprovals.CreateUserSetup(UserSetup, InvalidUserIDLbl, '');
+
+        // [GIVEN] Find the step that creates approval requests
+        LibraryWorkflow.FindWorkflowStepForCreateApprovalRequests(WorkflowStep, Workflow.Code);
+        WorkflowStep.Get(Workflow.Code, WorkflowStep.ID);
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        // [GIVEN] Set the "Notify Sender" of the found step to false
+        WorkflowStepArgument.Validate("Notify Sender", false);
+        // [GIVEN] Set the "Notification User ID" of the found step to "Invalid"
+        WorkflowStepArgument."Notification User ID" := InvalidUserIDLbl;
+        WorkflowStepArgument.Modify();
+
+        // [GIVEN] Workflow exported and deleted from database
+        Workflow.SetRecFilter();
+        Workflow.ExportToBlob(TempBlob);
+        Workflow.Delete(true);
+        // [GIVEN] User Setup deleted.
+        UserSetup.Delete(true);
+
+        // [WHEN] Workflow imported to database
+        Workflow.ImportFromBlob(TempBlob);
+
+        // [THEN] Workflow contains all the setup from the exported workflow
+        LibraryWorkflow.FindWorkflowStepForCreateApprovalRequests(WorkflowStep, Workflow.Code);
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        WorkflowStepArgument.TestField("Notify Sender", false);
+        WorkflowStepArgument.TestField("Notification User ID", '');
+    end;
+
     local procedure VerifyWorkflows(var Workflow: Record Workflow; var TempBlob: Codeunit "Temp Blob")
     var
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";

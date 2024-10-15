@@ -2013,8 +2013,19 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     local procedure SynchFromIntegrationTable(IntegrationTableMapping: Record "Integration Table Mapping"; CRMID: Guid)
+    var
+        CRMRecordRef: RecordRef;
+        CRMFieldRef: FieldRef;
+        CRMTableView: Text;
     begin
-        IntegrationTableMapping.SetIntegrationTableFilter(GetTableViewForGuid(IntegrationTableMapping."Integration Table ID", IntegrationTableMapping."Integration Table UID Fld. No.", CRMID));
+        CRMRecordRef.Open(IntegrationTableMapping."Integration Table ID");
+        CRMRecordRef.SetView(IntegrationTableMapping.GetIntegrationTableFilter());
+        CRMFieldRef := CRMRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
+        CRMFieldRef.SetRange(CRMID);
+        CRMTableView := CRMRecordRef.GetView();
+        CRMRecordRef.Close();
+
+        IntegrationTableMapping.SetIntegrationTableFilter(CRMTableView);
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
         AddIntegrationTableMapping(IntegrationTableMapping);
         Commit();

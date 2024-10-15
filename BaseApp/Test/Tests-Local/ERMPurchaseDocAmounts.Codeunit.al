@@ -15,6 +15,8 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryJournals: Codeunit "Library - Journals";
         TotalAmountErr: Label 'Total amount (%1) is not equal to total of lines (%2)';
         LibraryRandom: Codeunit "Library - Random";
         ValueMustNotEqualMsg: Label 'Value must not be equal';
@@ -23,6 +25,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibraryCosting: Codeunit "Library - Costing";
         IsInitialized: Boolean;
+        RecipientBankErr: Label 'Recipant Bank Account must be %1 in %2.', Comment = '%1 = Recipant Bank %2=Table Name';
 
     [Test]
     [Scope('OnPrem')]
@@ -280,6 +283,75 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     begin
         // [SCENARIO 369152] Correct Purchase Invoice with Inventory item from card page when "Check Doc. Total Amounts" is unabled
         CorrectInvoiceFromCardPage(Item.Type::Inventory);
+    end;
+
+    [Test]
+    procedure RecipientBankAccountRetrivedFromVendorNotFromVendorLedgerEntryWhileApplied()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        VendorBankAccount: array[2] of Record "Vendor Bank Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        AppliestoDoc: Code[20];
+    begin
+        // [SCINARIO 523612] The Recipient Bank Account is always retrieved from the Vendor Card and not from the one specified in the posted Purchase Invoice if you try to apply invoices in the Payment Journal.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create two Vendor Bank Accounts for the Vendor.
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount[1], Vendor."No.");
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount[2], Vendor."No.");
+
+        // [GIVEN] Validate Preferred Bank Account with one Vendor Bank Account Code.
+        Vendor.Validate("Preferred Bank Account Code", VendorBankAccount[1].Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Create a Purchase Header of Document Type Order for the Vendor.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+
+        // [GIVEN] Create Vat Posting Setup for the Venodr.
+        CreateVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group", LibraryRandom.RandInt(9));
+
+        // [GIVEN] Update Vendor Bank Account Code with different Vendor Bank Account than Preferred Bank Account Code.
+        PurchaseHeader.Validate(PurchaseHeader."Bank Account Code", VendorBankAccount[2].Code);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create Purchase Line of Type Item.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(3));
+
+        // [GIVEN] Validate Direct Unit Cost, Vat Product Posting Group.
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Purchase Order and get the Posted Purchase Document No.
+        AppliestoDoc := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create Journal Line and Validate Applies-to Doc No. with the Posted Purchase Document No.
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor,
+            '',
+             0);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliestoDoc);
+        GenJournalLine.Modify(true);
+
+        // [THEN] Verify if the Recipient Bank Account in Payment Journal matches with Venodr Ledger Entry.
+        VendorLedgerEntry.SetRange("Document No.", AppliestoDoc);
+        VendorLedgerEntry.FindFirst();
+        Assert.AreEqual(
+            GenJournalLine."Recipient Bank Account",
+            VendorLedgerEntry."Recipient Bank Account",
+            StrSubstNo(
+                RecipientBankErr,
+                VendorLedgerEntry."Recipient Bank Account",
+                GenJournalLine.TableCaption()));
     end;
 
     local procedure Initialize()
@@ -566,6 +638,22 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
             Validate("Check Doc. Total Amounts", false);
             Modify(true);
         end;
+    end;
+
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATPercent: Decimal)
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.Validate("VAT %", VATPercent);
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID());
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
     end;
 
     [ConfirmHandler]

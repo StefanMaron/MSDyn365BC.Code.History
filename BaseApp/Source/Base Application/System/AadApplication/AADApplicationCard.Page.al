@@ -90,6 +90,13 @@ page 9861 "AAD Application Card"
                         Caption = 'User Name';
                         ToolTip = 'Specifies the user name assigned to the app. This field is automatically filled in with the value of the Description field once the app is enabled. The user name, like the user ID, is used to indicate sessions and operations that are run by the app..';
                     }
+                    field("User Telemetry Id"; TelemetryUserId)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Editable = false;
+                        Caption = 'User Telemetry ID';
+                        ToolTip = 'Specifies a telemetry ID assigned to the app which can be used for troubleshooting purposes.';
+                    }
                 }
                 field(ShowEnableWarning; ShowEnableWarning)
                 {
@@ -191,6 +198,7 @@ page 9861 "AAD Application Card"
         EnabledWarningTok: Label 'You must set the State field to Disabled before you can make changes to this app.';
         DisableEnableQst: Label 'Do you want to disable this app?';
         UserName: Text;
+        TelemetryUserId: Guid;
         ShowEnableWarning: Text;
         IsVEApp: Boolean;
         SetUserPermissionEnabled: Boolean;
@@ -221,6 +229,7 @@ page 9861 "AAD Application Card"
     local procedure UpdateControl()
     var
         User: Record User;
+        UserProperty: Record "User Property";
     begin
         SetUserPermissionEnabled := true;
         if IsNullGuid(Rec."User ID") then
@@ -229,9 +238,13 @@ page 9861 "AAD Application Card"
         ShowEnableWarning := '';
         if CurrPage.Editable and (Rec.State = Rec.State::Enabled) then
             ShowEnableWarning := EnabledWarningTok;
-        UserName := '';
-        if User.Get(Rec."User Id") then
-            UserName := USer."User Name";
+        Clear(UserName);
+        Clear(TelemetryUserId);
+        if User.Get(Rec."User Id") then begin
+            UserName := User."User Name";
+            if UserProperty.Get(User."User Security ID") then
+                TelemetryUserId := UserProperty."Telemetry User ID"
+        end;
     end;
 
     local procedure DrilldownCode()

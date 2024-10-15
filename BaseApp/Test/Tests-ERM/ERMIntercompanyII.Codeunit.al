@@ -4480,6 +4480,53 @@ codeunit 134152 "ERM Intercompany II"
         SalesHeader.TestField("Currency Code", '');
     end;
 
+    [Test]
+    procedure PostSalesInvoiceWithInvoiceDiscount()
+    var
+        ReceivedPurchaseHeader: Record "Purchase Header";
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxPurchaseHeader: Record "IC Inbox Purchase Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemNo: Code[20];
+        SalesInvoiceNo: Code[20];
+        VendorNo: Code[20];
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 502491] Invoice discount amount on created IC purchase invoice is transferred from sales invoice
+        Initialize();
+
+        // [GIVEN] Create VAT posting setup, customer, vendor, item for IC flow
+        // [GIVEN] VAT posting setup "X", VAT bus. posting group = "XX", VAT prod. posting group = "XY", VAT  = 0
+        // [GIVEN] Vendor "X", IC partner code = "Z", VAT bus. posting group = "XX"
+        // [GIVEN] Customer "Y", IC partner code = "Z", VAT bus. posting group = "XX"
+        // [GIVEN] Item "X", VAT prod. posting group = "XY"
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
+        VendorNo := CreateICVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        CustomerNo := CreateICCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+        ItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Add permissions
+        LibraryLowerPermissions.SetIntercompanyPostingsEdit();
+        LibraryLowerPermissions.AddSalesDocsPost();
+        LibraryLowerPermissions.AddO365Setup();
+        LibraryLowerPermissions.AddPurchDocsPost();
+
+        // [GIVEN] Create sales invoice 1, invoice discount amount = 100, item = "X"
+        // [GIVEN] Post sales invoice 1
+        SalesInvoiceNo := CreateAndPostSalesInvoiceWithDiscount(CustomerNo, ItemNo);
+
+        // [GIVEN] Send sales invoice 1 to intercompany process
+        SendICSalesInvoice(ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, SalesInvoiceNo, GetICPartnerFromVendor(VendorNo));
+
+        // [WHEN] Accept purchase invoice 1 in partner company
+        ReceiveICPurchaseInvoice(ReceivedPurchaseHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, SalesInvoiceNo, VendorNo);
+
+        // [THEN] Purchase invoice 1 has the same invoice discount amount as sales invoice 1 in partner company
+        VerifyInvoiceDiscountOnPurchaseLine(ReceivedPurchaseHeader, SalesInvoiceNo, ItemNo);
+    end;
+
     local procedure Initialize()
     var
         ICSetup: Record "IC Setup";
@@ -6833,6 +6880,47 @@ codeunit 134152 "ERM Intercompany II"
             "Line No." := LibraryUtility.GetNewRecNo(ICInboxSalesLine, FieldNo("Line No."));
             Insert();
         end;
+    end;
+
+    local procedure CreateAndPostSalesInvoiceWithDiscount(CustomerNo: Code[20]; ItemNo: Code[20]): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
+    begin
+        LibrarySales.CreateSalesHeader(
+                  SalesHeader, SalesHeader."Document Type"::Invoice,
+                  CustomerNo);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
+        SalesLine.Modify(true);
+        SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(SalesLine."Unit Price" / 2, SalesHeader);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure VerifyInvoiceDiscountOnPurchaseLine(ReceivedPurchaseHeader: Record "Purchase Header"; SalesInvoiceNo: Code[20]; ItemNo: Code[20])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        SalesInvoiceHeader.SetAutoCalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
+        SalesInvoiceHeader.Get(SalesInvoiceNo);
+
+        PurchaseLine := FindPurchaseLine(ReceivedPurchaseHeader, ItemNo);
+
+        PurchaseLine.TestField(Amount, SalesInvoiceHeader.Amount);
+        PurchaseLine.TestField("Amount Including VAT", SalesInvoiceHeader."Amount Including VAT");
+        PurchaseLine.TestField("Inv. Discount Amount", SalesInvoiceHeader."Invoice Discount Amount");
+    end;
+
+    local procedure FindPurchaseLine(PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]) PurchaseLine: Record "Purchase Line"
+    begin
+        PurchaseLine.SetLoadFields(Amount, "Amount Including VAT", "Inv. Discount Amount");
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", ItemNo);
+        PurchaseLine.FindFirst();
     end;
 }
 

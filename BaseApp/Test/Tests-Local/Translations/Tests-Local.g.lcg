@@ -77,6 +77,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Bank Giro Journal - NamedType AmountToApplyIsChangedQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 757409969 - NamedType 1818966875" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Applies to ID must not be same after 10000 lines.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Bank Giro Journal - NamedType AppliesToIdErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 757409969 - NamedType 2644071515" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>
@@ -507,6 +516,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM MISC - NamedType EntryExitPointErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1956804364 - NamedType 4127967452" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Recipant Bank Account must be %1 in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Recipant Bank %2=Table Name]D;]A;(LookupHint=Codeunit ERM Purchase Doc. Amounts - NamedType RecipientBankErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1956804364 - NamedType 2146008245" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

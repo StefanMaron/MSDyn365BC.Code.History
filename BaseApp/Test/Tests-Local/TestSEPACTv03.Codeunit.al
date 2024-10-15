@@ -727,7 +727,7 @@ codeunit 144101 "Test SEPA CT v03"
 
         // [THEN] Exported XML contains "CtrlSum" = "1000.10"
         PaymentHistory.Find();
-        XMLReadHelper.Initialize(PaymentHistory."File on Disk", 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.08');
+        XMLReadHelper.Initialize(PaymentHistory."File on Disk", 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02');
         XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrDrctDbtInitn/ns:GrpHdr/ns:CtrlSum', '1000.10');
     end;
 
@@ -2284,7 +2284,7 @@ codeunit 144101 "Test SEPA CT v03"
 
     local procedure GetSEPACTNameSpace(): Text
     begin
-        exit('urn:iso:std:iso:20022:tech:xsd:pain.001.001.09');
+        exit('urn:iso:std:iso:20022:tech:xsd:pain.001.001.03');
     end;
 
     local procedure SetAccountHolderName(PaymentHistory: Record "Payment History"; AccountHolderName: Text)
@@ -2447,7 +2447,7 @@ codeunit 144101 "Test SEPA CT v03"
 
         // intentionally commented out, since XSD schema must be saved on local hard disk
         // XMLReadHelper.ValidateXMLFileAgainstXSD(ExportFileName,
-        // 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09',FORMAT(XSDSchemaPathTxt));
+        // 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03',FORMAT(XSDSchemaPathTxt));
 
         NameSpace := GetSEPACTNameSpace();
         XMLReadHelper.Initialize(ExportFileName, NameSpace);
@@ -2492,7 +2492,7 @@ codeunit 144101 "Test SEPA CT v03"
 
         // intentionally commented out, since XSD schema must be saved on local hard disk
         // XMLReadHelper.ValidateXMLFileAgainstXSD(ExportFileName,
-        // 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.09',FORMAT(XSDSchemaPathTxt));
+        // 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03',FORMAT(XSDSchemaPathTxt));
 
         NameSpace := GetSEPACTNameSpace();
         XMLReadHelper.Initialize(ExportFileName, NameSpace);
@@ -2630,9 +2630,9 @@ codeunit 144101 "Test SEPA CT v03"
         // Grouping: NORM-Date1;NORM-Date2;HIGH-Date1
         XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'NORM', 2);
         XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'HIGH', 1);
-        XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:ReqdExctnDt/ns:Dt', Format(Today, 0, 9), 1);
+        XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:ReqdExctnDt', Format(Today, 0, 9), 1);
         XMLReadHelper.VerifyNodeCountWithValueByXPath(
-          '//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:ReqdExctnDt/ns:Dt', Format(Today + 1, 0, 9), 2);
+          '//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:ReqdExctnDt', Format(Today + 1, 0, 9), 2);
     end;
 
     local procedure VerifyStandardEuroXML(VendorBankAccount: Record "Vendor Bank Account"; FileName: Text; TotalAmount: Decimal; BankAccCurrency: Code[10])

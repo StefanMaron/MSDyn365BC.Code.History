@@ -36,28 +36,6 @@ page 5839 "Modify Marketing Text"
                     StyleExpr = false;
                 }
             }
-
-            grid(CopilotActionGrid)
-            {
-                group(CopilotLink)
-                {
-                    Visible = CanCopilotSuggest;
-                    InstructionalText = 'Get help writing engaging texts based on the item''s attributes';
-                    ShowCaption = false;
-                    field(CopilotPrompt; DraftWithCopilotTxt)
-                    {
-                        Visible = false;
-                        Editable = false;
-                        ShowCaption = false;
-                        ApplicationArea = All;
-
-                        trigger OnDrillDown()
-                        begin
-                            SuggestWithCopilot();
-                        end;
-                    }
-                }
-            }
         }
     }
     actions
@@ -68,7 +46,7 @@ page 5839 "Modify Marketing Text"
             {
                 ApplicationArea = All;
                 Caption = 'Suggest marketing text';
-                Tooltip = 'Let Copilot create a new draft.';
+                Tooltip = 'Get help writing engaging texts based on the item''s attributes';
                 Visible = CanCopilotSuggest;
                 trigger OnAction()
                 begin
@@ -114,7 +92,6 @@ page 5839 "Modify Marketing Text"
         CanCopilotSuggest: Boolean;
         HasLoaded: Boolean;
         ConfirmTxt: Label 'If you generate a new text and keep it, the current text is replaced. Do you want to continue?';
-        DraftWithCopilotTxt: Label 'Draft with Copilot';
 
     local procedure SuggestWithCopilot()
     var

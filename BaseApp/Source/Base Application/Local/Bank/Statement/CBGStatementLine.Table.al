@@ -1612,12 +1612,11 @@ table 11401 "CBG Statement Line"
                     CBGStatementln.SetFilter("Applies-to ID", '<>%1', '');
                     if CBGStatementln.FindLast() then
                         ID := IncStr(CBGStatementln."Applies-to ID")
-                    else begin
-                        if StrLen(CBGStatement."Document No.") > MaxStrLen(ID) - 5 then
-                            ID := DelStr(CBGStatement."Document No.", 4, StrLen(CBGStatement."Document No.") - (MaxStrLen(ID) - 5)) + '-0001'
+                    else
+                        if StrLen(CBGStatement."Document No.") > MaxStrLen(ID) - 10 then
+                            ID := DelStr(CBGStatement."Document No.", 4, StrLen(CBGStatement."Document No.") - (MaxStrLen(ID) - 10)) + '-000000001'
                         else
-                            ID := CBGStatement."Document No." + '-0001'
-                    end;
+                            ID := CBGStatement."Document No." + '-000000001';
                 end;
             CBGStatement.Type::Cash:
                 ID := "Document No.";
