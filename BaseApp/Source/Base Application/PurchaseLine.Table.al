@@ -3959,6 +3959,7 @@
         "Expected Receipt Date" := PurchHeader."Expected Receipt Date";
         "Shortcut Dimension 1 Code" := PurchHeader."Shortcut Dimension 1 Code";
         "Shortcut Dimension 2 Code" := PurchHeader."Shortcut Dimension 2 Code";
+        "Dimension Set ID" := PurchHeader."Dimension Set ID";
 #if not CLEAN20        
         IsHandled := false;
         OnBeforeUpdateLocationCode(Rec, IsHandled);
@@ -4532,6 +4533,7 @@
 
     local procedure UpdateDirectUnitCostByField(CalledByFieldNo: Integer)
     var
+        BlanketOrderPurchaseLine: Record "Purchase Line";
         IsHandled: Boolean;
         PriceCalculation: Interface "Price Calculation";
     begin
@@ -4559,14 +4561,19 @@
                     GetPurchHeader();
                     IsHandled := false;
                     OnUpdateDirectUnitCostOnBeforeFindPrice(PurchHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled, xRec);
-                    if not IsHandled then begin
-                        GetPriceCalculationHandler(PurchHeader, PriceCalculation);
-                        if not ("Copied From Posted Doc." and IsCreditDocType()) then begin
-                            PriceCalculation.ApplyPrice(CalledByFieldNo);
-                            PriceCalculation.ApplyDiscount();
+                    if not IsHandled then
+                        if not BlanketOrderIsRelated(BlanketOrderPurchaseLine) then begin
+                            GetPriceCalculationHandler(PurchHeader, PriceCalculation);
+                            if not ("Copied From Posted Doc." and IsCreditDocType()) then begin
+                                PriceCalculation.ApplyPrice(CalledByFieldNo);
+                                PriceCalculation.ApplyDiscount();
+                            end;
+                            GetLineWithCalculatedPrice(PriceCalculation);
+                        end else begin
+                            Validate("Direct Unit Cost", BlanketOrderPurchaseLine."Direct Unit Cost");
+                            Validate("Line Discount %", BlanketOrderPurchaseLine."Line Discount %");
                         end;
-                        GetLineWithCalculatedPrice(PriceCalculation);
-                    end;
+                    
                     Validate("Direct Unit Cost");
                 end;
         end;
@@ -4578,6 +4585,14 @@
 
         ClearFieldCausedPriceCalculation();
         OnAfterUpdateDirectUnitCost(Rec, xRec, CalledByFieldNo, CurrFieldNo);
+    end;
+
+    local procedure BlanketOrderIsRelated(var BlanketOrderPurchaseLine: Record "Purchase Line"): Boolean
+    begin
+        if "Blanket Order Line No." = 0 then exit;
+        BlanketOrderPurchaseLine.SetLoadFields("Direct Unit Cost", "Line Discount %");
+        if BlanketOrderPurchaseLine.Get("Document Type"::"Blanket Order", "Blanket Order No.", "Blanket Order Line No.") then
+            exit(true);
     end;
 
     local procedure GetLineWithCalculatedPrice(var PriceCalculation: Interface "Price Calculation")
@@ -8153,8 +8168,23 @@
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
+        if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then exit;
         InitDefaultDimensionSources(DefaultDimSource, FieldNo);
         CreateDim(DefaultDimSource);
+    end;
+
+    local procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
+    begin
+        case true of
+            FieldNo = Rec.FieldNo("No."):
+                TableValuePair.Add(DimMgt.PurchLineTypeToTableID(Type), Rec."No.");
+            FieldNo = Rec.FieldNo("Responsibility Center"):
+                TableValuePair.Add(Database::"Responsibility Center", Rec."Responsibility Center");
+            FieldNo = Rec.FieldNo("Job No."):
+                TableValuePair.Add(Database::Job, Rec."Job No.");
+            FieldNo = Rec.FieldNo("Location Code"):
+                TableValuePair.Add(Database::Location, Rec."Location Code");
+        end;
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
