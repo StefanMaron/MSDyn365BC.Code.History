@@ -630,6 +630,11 @@ table 79 "Company Information"
         {
             Caption = 'BUR Number';
         }
+        field(11502; "Swiss QRBill IBAN"; Code[50])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11511 Swiss QR-Bill Company Info';
+        }
     }
 
     keys

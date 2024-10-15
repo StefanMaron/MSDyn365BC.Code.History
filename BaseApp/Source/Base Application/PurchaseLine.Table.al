@@ -430,6 +430,7 @@ table 39 "Purchase Line"
                                 // looking for an item with exact description
                                 Item.SetRange(Description, Description);
                                 if Item.FindFirst() then begin
+                                    CurrFieldNo := FieldNo("No.");
                                     Validate("No.", Item."No.");
                                     exit;
                                 end;
@@ -437,6 +438,7 @@ table 39 "Purchase Line"
                                 // looking for an item with similar description
                                 Item.SetFilter(Description, '''@' + ConvertStr(Description, '''', '?') + '''');
                                 if Item.FindFirst then begin
+                                    CurrFieldNo := FieldNo("No.");
                                     Validate("No.", Item."No.");
                                     exit;
                                 end;
@@ -446,8 +448,10 @@ table 39 "Purchase Line"
                                 case ReturnValue of
                                     '', "No.":
                                         Description := xRec.Description;
-                                    else
-                                        Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                                    else begin
+                                            CurrFieldNo := FieldNo("No.");
+                                            Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                                        end;
                                 end;
                         end;
                     else begin
@@ -897,6 +901,9 @@ table 39 "Purchase Line"
             trigger OnValidate()
             begin
                 TestStatusOpen;
+                if ("VAT Calculation Type" = "VAT Calculation Type"::"Full VAT") and "Allow Invoice Disc." then
+                    Error(CannotAllowInvDiscountErr, FieldCaption("Allow Invoice Disc."));
+
                 if "Allow Invoice Disc." <> xRec."Allow Invoice Disc." then begin
                     if not "Allow Invoice Disc." then begin
                         "Inv. Discount Amount" := 0;
@@ -1355,6 +1362,8 @@ table 39 "Purchase Line"
                 GetPurchHeader;
                 "VAT %" := VATPostingSetup."VAT %";
                 "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+                if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
+                    Validate("Allow Invoice Disc.", false);
                 "VAT Identifier" := VATPostingSetup."VAT Identifier";
 
                 IsHandled := false;
@@ -3479,6 +3488,7 @@ table 39 "Purchase Line"
         CannotChangePrepaidServiceChargeErr: Label 'You cannot change the line because it will affect service charges that are already invoiced as part of a prepayment.';
         LineInvoiceDiscountAmountResetTok: Label 'The value in the Inv. Discount Amount field in %1 has been cleared.', Comment = '%1 - Record ID';
         BlockedItemNotificationMsg: Label 'Item %1 is blocked, but it is allowed on this type of document.', Comment = '%1 is Item No.';
+        CannotAllowInvDiscountErr: Label 'The value of the %1 field is not valid when the VAT Calculation Type field is set to "Full VAT".', Comment = '%1 is the name of not valid field';
 
     procedure InitOutstanding()
     begin
@@ -4130,6 +4140,7 @@ table 39 "Purchase Line"
                         begin
                             Amount := 0;
                             "VAT Base Amount" := 0;
+                            "Amount Including VAT" := ROUND(CalcLineAmount(), Currency."Amount Rounding Precision");
                         end;
                     "VAT Calculation Type"::"Sales Tax":
                         begin
@@ -5192,7 +5203,7 @@ table 39 "Purchase Line"
         if IsHandled then
             exit;
 
-        if Type = Type::Item then
+        if IsInventoriableItem() then
             case true of
                 ("Document Type" in ["Document Type"::Quote, "Document Type"::Order]) and (Quantity >= 0):
                     if Location.RequireReceive("Location Code") then
@@ -5650,10 +5661,12 @@ table 39 "Purchase Line"
 
         if "Prepmt Amt to Deduct" = 0 then
             LineAmount := Round(QtyToHandle * "Direct Unit Cost", Currency."Amount Rounding Precision")
-        else begin
-            LineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
-            LineAmount := Round(QtyToHandle * LineAmount / Quantity, Currency."Amount Rounding Precision");
-        end;
+        else
+            if Quantity <> 0 then begin
+                LineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
+                LineAmount := Round(QtyToHandle * LineAmount / Quantity, Currency."Amount Rounding Precision");
+            end else
+                LineAmount := 0;
 
         if QtyToHandle <> Quantity then
             LineDiscAmount := Round(LineAmount * "Line Discount %" / 100, Currency."Amount Rounding Precision")
@@ -5677,7 +5690,7 @@ table 39 "Purchase Line"
         else
             DocType := DocType::Invoice;
 
-        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) then
+        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and ("Inv. Discount Amount" = 0) then
             if PurchasePostPrepayments.PrepmtAmount(Rec, DocType) <= 0 then
                 exit("Prepmt Amt to Deduct");
         exit(GetLineAmountToHandle(QtyToHandle));
@@ -6526,6 +6539,19 @@ table 39 "Purchase Line"
     end;
 
     local procedure UpdatePrepmtAmounts()
+    begin
+        if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
+            "Prepayment VAT Difference" := 0;
+            if not PrePaymentLineAmountEntered then
+                "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
+            PrePaymentLineAmountEntered := false;
+        end;
+
+        if not IsTemporary() then
+            CheckPrepmtAmounts();
+    end;
+
+    local procedure CheckPrepmtAmounts()
     var
         RemLineAmountToInvoice: Decimal;
     begin
@@ -6536,15 +6562,11 @@ table 39 "Purchase Line"
                 FieldError("Direct Unit Cost", StrSubstNo(Text043, FieldCaption("Prepayment %")));
         end;
         if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
-            "Prepayment VAT Difference" := 0;
-            if not PrePaymentLineAmountEntered then
-                "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
             if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
                 if IsServiceCharge() then
                     Error(CannotChangePrepaidServiceChargeErr);
                 FieldError("Prepmt. Line Amount", StrSubstNo(Text037, "Prepmt. Amt. Inv."));
             end;
-            PrePaymentLineAmountEntered := false;
             if "Prepmt. Line Amount" <> 0 then begin
                 RemLineAmountToInvoice :=
                   Round("Line Amount" * (Quantity - "Quantity Invoiced") / Quantity, Currency."Amount Rounding Precision");

@@ -553,8 +553,8 @@ xmlport 1000 "SEPA CT pain.001.001.03"
 
                                 trigger OnBeforePassVariable()
                                 begin
-                                    if (not SwissExport) or (RemittanceText2 = '') then
-                                        currXMLport.Skip;
+                                    if (not SwissExport) or (RemittanceText2 = '') or (rmtstrdref <> '') then
+                                        currXMLport.Skip();
                                 end;
                             }
                             textelement(Strd)
@@ -565,6 +565,18 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                     {
                                         XmlName = 'Ref';
                                     }
+                                }
+
+                                textelement(AddtlRmtInf)
+                                {
+                                    MinOccurs = Zero;
+
+                                    trigger OnBeforePassVariable()
+                                    begin
+                                        if (not SwissExport) or (RemittanceText2 = '') or (rmtstrdref = '') then
+                                            currXMLport.Skip();
+                                        AddtlRmtInf := RemittanceText2;
+                                    end;
                                 }
 
                                 trigger OnBeforePassVariable()
@@ -587,7 +599,7 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                 if not SwissExport then
                                     RemittanceText1 := CopyStr(
                                         StrSubstNo('%1; %2', RemittanceText1, RemittanceText2), 1, 140);
-                                UpdateRemittanceInfo(PaymentExportData."Swiss Payment Type");
+                                UpdateRemittanceInfo(PaymentExportData);
 
                                 if (RemittanceText1 = '') and (RemittanceText2 = '') and (RmtStrdRef = '') then
                                     currXMLport.Skip;
@@ -690,20 +702,22 @@ xmlport 1000 "SEPA CT pain.001.001.03"
           CopyStr(
             StrSubstNo('%1/%2', PaymentExportData."Message ID", PaymentGroupNo),
             1, MaxStrLen(PaymentExportDataGroup."Payment Information ID"));
-        PaymentExportDataGroup.Insert;
+        PaymentExportDataGroup.Insert();
     end;
 
-    local procedure UpdateRemittanceInfo(PaymentType: Option)
-    var
-        PaymentExportData: Record "Payment Export Data";
+    local procedure UpdateRemittanceInfo(PaymentExportData: Record "Payment Export Data")
     begin
         RmtStrdRef := '';
         if SwissExport then begin
-            if PaymentType = PaymentExportData."Swiss Payment Type"::"1" then begin
-                RmtStrdRef := RemittanceText1;
-                RemittanceText2 := '';
-            end;
+            RmtStrdRef := RemittanceText1;
             RemittanceText1 := '';
+            if PaymentExportData."Swiss Payment Type" = PaymentExportData."Swiss Payment Type"::"1" then
+                remittancetext2 := ''
+            else
+                if PaymentExportData."Payment Reference" = '' then
+                    rmtstrdref := ''
+                else
+                    rmtstrdref := PaymentExportData."Payment Reference";
         end;
     end;
 }

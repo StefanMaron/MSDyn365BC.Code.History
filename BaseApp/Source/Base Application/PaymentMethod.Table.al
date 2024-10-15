@@ -126,6 +126,11 @@ table 289 "Payment Method"
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
             ObsoleteTag = '15.0';
         }
+        field(11500; "Swiss QRBill Layout"; Code[20])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11512 Swiss QR-Bill Payment Method';
+        }
     }
 
     keys

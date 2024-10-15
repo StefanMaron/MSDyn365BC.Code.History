@@ -322,6 +322,87 @@ table 130 "Incoming Document"
         {
             Caption = 'Processed';
         }
+        field(11530; "Swiss QRBill"; Boolean)
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11531; "Swiss QRBill Vendor Address 1"; Text[100])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11532; "Swiss QRBill Vendor Address 2"; Text[100])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11533; "Swiss QRBill Vendor Post Code"; Code[20])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11534; "Swiss QRBill Vendor City"; Text[100])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11535; "Swiss QRBill Vendor Country"; Code[10])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11536; "Swiss QRBill Debitor Name"; Text[100])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11537; "Swiss QRBill Debitor Address1"; Text[100])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11538; "Swiss QRBill Debitor Address2"; Text[100])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11539; "Swiss QRBill Debitor PostCode"; Code[20])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11540; "Swiss QRBill Debitor City"; Text[100])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11541; "Swiss QRBill Debitor Country"; Code[10])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11542; "Swiss QRBill Reference Type"; Option)
+        {
+            OptionMembers = "Without Reference","Creditor Reference (ISO 11649)","QR Reference";
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11543; "Swiss QRBill Reference No."; Code[50])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11544; "Swiss QRBill Unstr. Message"; Text[140])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
+        field(11545; "Swiss QRBill Bill Info"; Text[140])
+        {
+            ObsoleteState = Removed;
+            ObsoleteReason = 'moved to Swiss QR-Bill extension tabext 11510 Swiss QR-Bill Incoming Doc';
+        }
     }
 
     keys
@@ -593,14 +674,22 @@ table 130 "Incoming Document"
         GenJnlLine: Record "Gen. Journal Line";
         LastGenJnlLine: Record "Gen. Journal Line";
         LineNo: Integer;
+        JournalTemplate: Code[10];
+        JournalBatch: Code[10];
+        IsHandled: Boolean;
     begin
         if "Document Type" <> "Document Type"::Journal then
             TestIfAlreadyExists;
         TestReadyForProcessing;
-        IncomingDocumentsSetup.TestField("General Journal Template Name");
-        IncomingDocumentsSetup.TestField("General Journal Batch Name");
-        GenJnlLine.SetRange("Journal Template Name", IncomingDocumentsSetup."General Journal Template Name");
-        GenJnlLine.SetRange("Journal Batch Name", IncomingDocumentsSetup."General Journal Batch Name");
+        OnBeforeGetJournalTemplateAndBatch(JournalTemplate, JournalBatch, IsHandled);
+        if not IsHandled then begin
+            IncomingDocumentsSetup.TestField("General Journal Template Name");
+            IncomingDocumentsSetup.TestField("General Journal Batch Name");
+            JournalTemplate := IncomingDocumentsSetup."General Journal Template Name";
+            JournalBatch := IncomingDocumentsSetup."General Journal Batch Name";
+        end;
+        GenJnlLine.SetRange("Journal Template Name", JournalTemplate);
+        GenJnlLine.SetRange("Journal Batch Name", JournalBatch);
         GenJnlLine.SetRange("Incoming Document Entry No.", "Entry No.");
         if not GenJnlLine.IsEmpty then
             exit; // instead; go to the document
@@ -612,9 +701,9 @@ table 130 "Incoming Document"
         if GenJnlLine.FindLast then;
         LastGenJnlLine := GenJnlLine;
         LineNo := GenJnlLine."Line No." + 10000;
-        GenJnlLine.Init;
-        GenJnlLine."Journal Template Name" := IncomingDocumentsSetup."General Journal Template Name";
-        GenJnlLine."Journal Batch Name" := IncomingDocumentsSetup."General Journal Batch Name";
+        GenJnlLine.Init();
+        GenJnlLine."Journal Template Name" := JournalTemplate;
+        GenJnlLine."Journal Batch Name" := JournalBatch;
         GenJnlLine."Line No." := LineNo;
         GenJnlLine.SetUpNewLine(LastGenJnlLine, 0, true);
         GenJnlLine."Incoming Document Entry No." := "Entry No.";
@@ -747,15 +836,14 @@ table 130 "Incoming Document"
         exit("Entry No.");
     end;
 
-    procedure CreateIncomingDocument(PictureInStream: InStream; FileName: Text)
+    procedure CreateIncomingDocument(PictureInStream: InStream; Description: Text)
     var
         IncomingDocument: Record "Incoming Document";
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
-        FileManagement: Codeunit "File Management";
     begin
         IncomingDocument.CopyFilters(Rec);
-        CreateIncomingDocument(FileManagement.GetFileNameWithoutExtension(FileName), '');
-        AddAttachmentFromStream(IncomingDocumentAttachment, FileName, FileManagement.GetExtension(FileName), PictureInStream);
+        CreateIncomingDocument(Description, '');
+        AddAttachmentFromStream(IncomingDocumentAttachment, Description, '', PictureInStream);
         CopyFilters(IncomingDocument);
     end;
 
@@ -1991,6 +2079,11 @@ table 130 "Incoming Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDataExchangePath(DataExchLineDef: Record "Data Exch. Line Def"; FieldNumber: Integer; var DataExchangePath: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetJournalTemplateAndBatch(var JournalTemplate: Code[10]; var JournalBatch: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

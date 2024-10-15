@@ -68,6 +68,8 @@
                         QuantityOnAfterValidate();
                         UpdateTypeText();
                         DeltaUpdateTotals();
+
+                        CurrPage.Update();
                     end;
                 }
                 field(Position; Position)
@@ -707,6 +709,8 @@
 
                     trigger OnAssistEdit()
                     begin
+                        CurrPage.SaveRecord();
+                        Commit();
                         ShowDeferralSchedule;
                     end;
                 }

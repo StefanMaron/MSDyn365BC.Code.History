@@ -337,8 +337,9 @@ codeunit 1255 "Match Bank Payments"
             OnFindMatchingEntryOnBeforeDocumentMatching(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer, IsHandled);
             if not IsHandled then
                 if AccountType <> TempBankStatementMatchingBuffer."Account Type"::"Bank Account" then
-                    DocumentMatching(BankPmtApplRule, BankAccReconciliationLine,
-                    TempLedgerEntryMatchingBuffer."Document No.", TempLedgerEntryMatchingBuffer."External Document No.")
+                    DocumentMatching(
+                        BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer."Document No.",
+                        TempLedgerEntryMatchingBuffer."External Document No.", TempLedgerEntryMatchingBuffer."Payment Reference")
                 else
                     DocumentMatchingForBankLedgerEntry(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer);
 
@@ -767,11 +768,16 @@ codeunit 1255 "Match Bank Payments"
             BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::Partially;
     end;
 
-    local procedure DocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DocNo: Code[20]; ExtDocNo: Code[35])
+    local procedure DocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DocNo: Code[20]; ExtDocNo: Code[35]; PaymentReference: Code[50])
     var
         SearchText: Text;
     begin
         BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No;
+
+        if (PaymentReference <> '') and (BankAccReconciliationLine."Payment Reference No." = PaymentReference) then begin
+            BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes;
+            exit;
+        end;
 
         if CHMgt.IsESRFormat(BankAccReconciliationLine."ESR Reference No.") then begin
             if StrLen(DocNo) < GetMatchLengthTreshold then
@@ -981,7 +987,7 @@ codeunit 1255 "Match Bank Payments"
         CustomerBankAccount.SetRange("Customer No.", CustomerNo);
         if CustomerBankAccount.FindSet then
             repeat
-                if BankAccountNoWithoutSpecialChars(CustomerBankAccount.GetBankAccountNo) = ValueFromBankStatement then
+                if StrPos(ValueFromBankStatement, BankAccountNoWithoutSpecialChars(CustomerBankAccount.GetBankAccountNo)) <> 0 then
                     exit(true);
             until CustomerBankAccount.Next = 0;
 
@@ -999,7 +1005,7 @@ codeunit 1255 "Match Bank Payments"
         VendorBankAccount.SetRange("Vendor No.", VendorNo);
         if VendorBankAccount.FindSet then
             repeat
-                if BankAccountNoWithoutSpecialChars(VendorBankAccount.GetBankAccountNo) = ValueFromBankStatement then
+                if StrPos(ValueFromBankStatement, BankAccountNoWithoutSpecialChars(VendorBankAccount.GetBankAccountNo)) <> 0 then
                     exit(true);
             until VendorBankAccount.Next = 0;
 

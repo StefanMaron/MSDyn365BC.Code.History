@@ -316,9 +316,11 @@ table 38 "Purchase Header"
             var
                 Contact: Record Contact;
             begin
+                Contact.FilterGroup(2);
                 LookupContact("Pay-to Vendor No.", "Pay-to Contact No.", Contact);
                 if PAGE.RunModal(0, Contact) = ACTION::LookupOK then
                     Validate("Pay-to Contact No.", Contact."No.");
+                Contact.FilterGroup(0);
             end;
 
             trigger OnValidate()
@@ -691,6 +693,8 @@ table 38 "Purchase Header"
                                     VatFactor := 1;
                                 if not "Prices Including VAT" then
                                     VatFactor := 1 / VatFactor;
+                                if PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Full VAT" then
+                                    VatFactor := 1;
                                 PurchLine."Direct Unit Cost" :=
                                   Round(PurchLine."Direct Unit Cost" * VatFactor, Currency."Unit-Amount Rounding Precision");
                                 PurchLine."Line Discount Amount" :=
@@ -700,10 +704,13 @@ table 38 "Purchase Header"
                                 LineInvDiscAmt := InvDiscRounding + PurchLine."Inv. Discount Amount" * VatFactor;
                                 PurchLine."Inv. Discount Amount" := Round(LineInvDiscAmt, Currency."Amount Rounding Precision");
                                 InvDiscRounding := LineInvDiscAmt - PurchLine."Inv. Discount Amount";
-                                if "Prices Including VAT" then
-                                    PurchLine."Line Amount" := PurchLine."Amount Including VAT" + PurchLine."Inv. Discount Amount"
+                                if PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Full VAT" then
+                                    PurchLine."Line Amount" := PurchLine."Amount Including VAT"
                                 else
-                                    PurchLine."Line Amount" := PurchLine.Amount + PurchLine."Inv. Discount Amount";
+                                    if "Prices Including VAT" then
+                                        PurchLine."Line Amount" := PurchLine."Amount Including VAT" + PurchLine."Inv. Discount Amount"
+                                    else
+                                        PurchLine."Line Amount" := PurchLine.Amount + PurchLine."Inv. Discount Amount";
                             end;
                             OnValidatePricesIncludingVATOnBeforePurchLineModify(PurchHeader, PurchLine, Currency, RecalculatePrice);
                             PurchLine.Modify;
@@ -1154,9 +1161,11 @@ table 38 "Purchase Header"
                 if "Buy-from Vendor No." = '' then
                     exit;
 
+                Contact.FilterGroup(2);
                 LookupContact("Buy-from Vendor No.", "Buy-from Contact No.", Contact);
                 if PAGE.RunModal(0, Contact) = ACTION::LookupOK then
                     Validate("Buy-from Contact No.", Contact."No.");
+                Contact.FilterGroup(0);
             end;
 
             trigger OnValidate()
@@ -2331,6 +2340,7 @@ table 38 "Purchase Header"
 
     trigger OnDelete()
     var
+        PurchCommentLine: Record "Purch. Comment Line";
         PostPurchDelete: Codeunit "PostPurch-Delete";
         ArchiveManagement: Codeunit ArchiveManagement;
         ShowPostedDocsToPrint: Boolean;
@@ -2436,7 +2446,6 @@ table 38 "Purchase Header"
         PaymentMethod: Record "Payment Method";
         CurrExchRate: Record "Currency Exchange Rate";
         PurchHeader: Record "Purchase Header";
-        PurchCommentLine: Record "Purch. Comment Line";
         Cust: Record Customer;
         CompanyInfo: Record "Company Information";
         PostCode: Record "Post Code";
@@ -2800,22 +2809,23 @@ table 38 "Purchase Header"
         TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary;
         TempInteger: Record "Integer" temporary;
         SalesHeader: Record "Sales Header";
+        TempPurchCommentLine: Record "Purch. Comment Line" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ConfirmManagement: Codeunit "Confirm Management";
         ExtendedTextAdded: Boolean;
         ConfirmText: Text;
         IsHandled: Boolean;
     begin
-        if not PurchLinesExist then
+        if not PurchLinesExist() then
             exit;
 
         IsHandled := false;
         OnRecreatePurchLinesOnBeforeConfirm(Rec, xRec, ChangedFieldName, HideValidationDialog, Confirmed, IsHandled);
         if not IsHandled then
-            if GetHideValidationDialog then
+            if GetHideValidationDialog() then
                 Confirmed := true
             else begin
-                if HasItemChargeAssignment then
+                if HasItemChargeAssignment() then
                     ConfirmText := ResetItemChargeAssignMsg
                 else
                     ConfirmText := RecreatePurchLinesMsg;
@@ -2823,9 +2833,9 @@ table 38 "Purchase Header"
             end;
 
         if Confirmed then begin
-            PurchLine.LockTable;
-            ItemChargeAssgntPurch.LockTable;
-            Modify;
+            PurchLine.LockTable();
+            ItemChargeAssgntPurch.LockTable();
+            Modify();
             OnBeforeRecreatePurchLines(Rec);
 
             PurchLine.Reset;
@@ -2859,8 +2869,10 @@ table 38 "Purchase Header"
                         PurchLine.Modify;
                     end;
                     OnRecreatePurchLinesOnBeforeTempPurchLineInsert(TempPurchLine, PurchLine);
-                    TempPurchLine.Insert;
-                until PurchLine.Next = 0;
+                    TempPurchLine.Insert();
+                until PurchLine.Next() = 0;
+
+                StorePurchCommentLineToTemp(TempPurchCommentLine);
 
                 TransferItemChargeAssgntPurchToTemp(ItemChargeAssgntPurch, TempItemChargeAssgntPurch);
 
@@ -2917,6 +2929,8 @@ table 38 "Purchase Header"
                     OnRecreatePurchLineOnAfterProcessAttachedToLineNo(TempPurchLine, PurchLine);
                 until TempPurchLine.Next = 0;
 
+                RestorePurchCommentLineFromTemp(TempPurchCommentLine);
+
                 RecreateItemChargeAssgntPurch(TempItemChargeAssgntPurch, TempPurchLine, TempInteger);
 
                 TempPurchLine.SetRange(Type);
@@ -2925,6 +2939,32 @@ table 38 "Purchase Header"
             end;
         end else
             Rec := xRec;
+    end;
+
+    local procedure StorePurchCommentLineToTemp(var TempPurchCommentLine: Record "Purch. Comment Line" temporary)
+    var
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        PurchCommentLine.SetRange("Document Type", "Document Type");
+        PurchCommentLine.SetRange("No.", "No.");
+        if PurchCommentLine.FindSet() then
+            repeat
+                TempPurchCommentLine := PurchCommentLine;
+                TempPurchCommentLine.Insert();
+            until PurchCommentLine.Next() = 0;
+    end;
+
+    local procedure RestorePurchCommentLineFromTemp(var TempPurchCommentLine: Record "Purch. Comment Line" temporary)
+    var
+        PurchCommentLine: Record "Purch. Comment Line";
+    begin
+        TempPurchCommentLine.SetRange("Document Type", "Document Type");
+        TempPurchCommentLine.SetRange("No.", "No.");
+        if TempPurchCommentLine.FindSet() then
+            repeat
+                PurchCommentLine := TempPurchCommentLine;
+                PurchCommentLine.Insert();
+            until TempPurchCommentLine.Next() = 0;
     end;
 
     local procedure RecreatePurchLinesFillItemChargeAssignment(PurchLine: Record "Purchase Line"; var TempPurchLine: Record "Purchase Line" temporary; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
@@ -4552,15 +4592,23 @@ table 38 "Purchase Header"
 
     local procedure SetDefaultPurchaser()
     var
+        UserSetupPurchaserCode: Code[20];
+    begin
+        UserSetupPurchaserCode := GetUserSetupPurchaserCode;
+        if UserSetupPurchaserCode <> '' then
+            if SalespersonPurchaser.Get(UserSetupPurchaserCode) then
+                if not SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+                    Validate("Purchaser Code", UserSetupPurchaserCode);
+    end;
+
+    local procedure GetUserSetupPurchaserCode(): Code[20]
+    var
         UserSetup: Record "User Setup";
     begin
         if not UserSetup.Get(UserId) then
             exit;
 
-        if UserSetup."Salespers./Purch. Code" <> '' then
-            if SalespersonPurchaser.Get(UserSetup."Salespers./Purch. Code") then
-                if not SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
-                    Validate("Purchaser Code", UserSetup."Salespers./Purch. Code");
+        exit(UserSetup."Salespers./Purch. Code");
     end;
 
     procedure OnAfterValidateBuyFromVendorNo(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header")
@@ -4928,15 +4976,20 @@ table 38 "Purchase Header"
     end;
 
     local procedure SetPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20])
+    var
+        UserSetupPurchaserCode: Code[20];
     begin
+        UserSetupPurchaserCode := GetUserSetupPurchaserCode;
         if PurchaserCodeToCheck <> '' then begin
             if SalespersonPurchaser.Get(PurchaserCodeToCheck) then
-                if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
-                    PurchaserCodeToAssign := ''
-                else
+                if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then begin
+                    if UserSetupPurchaserCode = '' then
+                        PurchaserCodeToAssign := ''
+                end else
                     PurchaserCodeToAssign := PurchaserCodeToCheck;
         end else
-            PurchaserCodeToAssign := '';
+            if UserSetupPurchaserCode = '' then
+                PurchaserCodeToAssign := '';
     end;
 
     procedure ValidatePurchaserOnPurchHeader(PurchaseHeader2: Record "Purchase Header"; IsTransaction: Boolean; IsPostAction: Boolean)

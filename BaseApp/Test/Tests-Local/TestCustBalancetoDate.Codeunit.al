@@ -347,17 +347,18 @@ codeunit 144032 "Test Cust Balance to Date"
     end;
 
     [Test]
+    [HandlerFunctions('CustBalanceToDateRequestPageHandlerSaveAsExcel')]
     [Scope('OnPrem')]
     procedure SalesInvoicesAndAppliedPaymentsOneTransaction()
     var
         Customer: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
         Amount: array[6] of Decimal;
+        InvoiceNo: array[2] of Code[20];
     begin
         // [FEATURE] [Excel] [Application]
-
         // [SCENARIO 380055] Customer with sales invoices and applied payments when "SR Cust. - Balance to Date" Report is run
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with application Method "Apply to Oldest"
         LibrarySales.CreateCustomer(Customer);
@@ -366,38 +367,56 @@ codeunit 144032 "Test Cust Balance to Date"
 
         // [GIVEN] Sales Invoice "I1" with amount 200
         // [GIVEN] Sales Invoice "I2" with amount 300
-        // [GIVEN] Payment "P1" with amount -450
-        // [GIVEN] Payment "P2" with amount -50
-        Amount[1] := LibraryRandom.RandDec(1000, 2);
+        // [GIVEN] Payment "P1" with amount -150
+        // [GIVEN] Payment "P2" with amount -250
+        Amount[1] := LibraryRandom.RandDecInRange(100, 200, 2); // Invoice 1
+        Amount[2] := LibraryRandom.RandDecInRange(200, 300, 2); // Invoice 2
+        Amount[3] := -Round(Amount[1] / 3, 2); // Payment 1
+        Amount[4] := -Round(Amount[2] / 3, 2); // Payment 2
+
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.", Amount[1]);
-        Amount[2] := LibraryRandom.RandDec(1000, 2);
-        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Amount[2]);
-        Amount[3] := -LibraryRandom.RandDecInRange(Round(Amount[1], 1), 1000, 2);
+        InvoiceNo[1] := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment, Amount[3]);
-        Amount[4] := -Amount[1] - Amount[2] - Amount[3];
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo[1]);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice, Amount[2]);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        InvoiceNo[2] := GenJournalLine."Document No.";
 
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment, Amount[4]);
-
-        // [GIVEN] Payments and Invoices applied and posted
-        SetAppliesToID(GenJournalLine);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo[2]);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [WHEN] Report "SR Cust. - Balance to Date" run filtered on "C1" customer and saved as excel
         Customer.SetRecFilter;
         LibraryReportValidation.SetFileName(Customer."No.");
-        REPORT.SaveAsExcel(REPORT::"SR Cust. - Balance to Date", LibraryReportValidation.GetFileName, Customer);
+        LibraryVariableStorage.Enqueue(true);
+        REPORT.RunModal(REPORT::"SR Cust. - Balance to Date", true, false, Customer);
 
         // [THEN] "I1" fully applied. No Output for "I1"
-        // [THEN] 1st line: "I2".Amount = 300
-        // [THEN] 2nd line: "P1". Amount applied to "I2" = -250
-        // [THEN] 3rd line: "I2".Remaining Amont = 50
-        // [THEN] 4th line: "P2".Amount = -50
-        LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(14, 17, Format(Amount[2]));
-        LibraryReportValidation.VerifyCellValue(15, 17, Format(Amount[3] + Amount[1]));
-        LibraryReportValidation.VerifyCellValue(16, 17, Format(Amount[2] + Amount[3] + Amount[1]));
-        LibraryReportValidation.VerifyCellValue(17, 17, Format(Amount[4]));
+        // [THEN] 1st line: "I1".Amount = 200
+        // [THEN] 2nd line: "P1". Amount applied to "I1" = -150
+        // [THEN] 3rd line: "I1".Remaining Amont = 50
+        // [THEN] 4th line: "I2".Amount = 300
+        // [THEN] 5th line: "P2". Amount applied to "I2" = -250
+        // [THEN] 6th line: "I2".Remaining Amont = 50
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValue(14, 17, Format(Amount[1]));
+        LibraryReportValidation.VerifyCellValue(15, 17, Format(Amount[3]));
+        LibraryReportValidation.VerifyCellValue(16, 17, Format(Amount[1] + Amount[3]));
+        LibraryReportValidation.VerifyCellValue(17, 17, Format(Amount[2]));
+        LibraryReportValidation.VerifyCellValue(18, 17, Format(Amount[4]));
+        LibraryReportValidation.VerifyCellValue(19, 17, Format(Amount[2] + Amount[4]));
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -595,12 +614,6 @@ codeunit 144032 "Test Cust Balance to Date"
           GenJournalLine."Bal. Account Type", GenJournalLine."Bal. Account No.", Amount);
         GenJournalLine.Validate("Posting Date", WorkDate);
         GenJournalLine.Modify(true);
-    end;
-
-    local procedure SetAppliesToID(var GenJournalLine: Record "Gen. Journal Line")
-    begin
-        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.ModifyAll("Applies-to ID", UserId);
     end;
 
     local procedure ApplyAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Type: Option; AppliedDocNo: Code[20])

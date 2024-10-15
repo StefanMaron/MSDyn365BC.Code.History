@@ -192,6 +192,8 @@ codeunit 2 "Company-Initialize"
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
         SwissSEPACTCodeTxt: Label 'SEPACT SWISS', Comment = 'No need to translate - but can be translated at will.';
         SwissSEPACTNameTxt: Label 'Swiss SEPA Credit Transfer';
+        SwissSEPADDCodeTxt: Label 'SEPADD SWISS', Comment = 'No need to translate - but can be translated at will.';
+        SwissSEPADDNameTxt: Label 'Swiss SEPA Direct Debit';
 
     procedure InitSetupTables()
     var
@@ -511,6 +513,8 @@ codeunit 2 "Company-Initialize"
               CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02", CODEUNIT::"SEPA DD-Check Line");
             InsertBankExportImportSetup(SwissSEPACTCodeTxt, SwissSEPACTNameTxt, BankExportImportSetup.Direction::Export,
               CODEUNIT::"Swiss SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.03", CODEUNIT::"SEPA CT-Check Line");
+            InsertBankExportImportSetup(SwissSEPADDCodeTxt, SwissSEPADDNameTxt, BankExportImportSetup.Direction::Export,
+              CODEUNIT::"Swiss SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02.ch03", CODEUNIT::"SEPA DD-Check Line");
         end;
     end;
 
