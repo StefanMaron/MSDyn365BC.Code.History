@@ -24,9 +24,11 @@ codeunit 136100 "Service Contract"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         DistributionType: Option Even,Profit,Line;
         isInitialized: Boolean;
         ConfirmType: Option Create,Sign,Invoice;
+        QuantityErr: Label 'Quantity are not equal.';
 
     [Test]
     [HandlerFunctions('ContractAmountDistribution,ConfirmDialog,SelectTemplate')]
@@ -744,6 +746,92 @@ codeunit 136100 "Service Contract"
         WorkDate := CurrentWorkDate;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmDialogHandler,SelectTemplate,MessageHandler,GetServiceShipmentLinesHandler')]
+    [Scope('OnPrem')]
+    procedure PostServiceInvoiceWithGenerateVATSplitLines()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ServiceHeader2: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceItem: Record "Service Item";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractType: Enum "Service Contract Type";
+        SignServContractDoc: Codeunit SignServContractDoc;
+        ServiceContractLine: Record "Service Contract Line";
+        GLAccount: Record "G/L Account";
+        VatPostingSetup: Record "Vat Posting Setup";
+        ServiceInvoice: TestPage "Service Invoice";
+        ServiceInvoiceNo: Code[20];
+    begin
+        // [SCENARIO 472035] "Contract No. must have a value in Service Line" error when posting Service Invoice if one of the lines has been created by Generate Split VAT Lines in Italian version
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup 
+        CreateVATPostingSetup(VatPostingSetup);
+
+        // [GIVEN] Create Reverse VAT Posting Setup
+        CreateReverseVATPostingSetup(VatPostingSetup."VAT Bus. Posting Group", VatPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Create Service Contract
+        CreateServiceContractWithAccGroup(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract);
+
+        // [GIVEN] Modify Service Contract with default values
+        ModifyServiceContractHeader(ServiceContractHeader);
+
+        // [GIVEN] Sign Service Contract
+        SignServContractDoc.SignContract(ServiceContractHeader);
+
+        // [GIVEN] Create Service Order with new Customer
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceContractHeader."Customer No.");
+
+        // [GIVEN] Update Contract No. and "VAT Bus. Posting Group" on Service Order
+        ServiceHeader.Validate("Contract No.", ServiceContractHeader."Contract No.");
+        ServiceHeader.Validate("VAT Bus. Posting Group", VatPostingSetup."VAT Bus. Posting Group");
+        ServiceHeader.Modify();
+
+        // [GIVEN] Update "VAT Bus. Posting Group" on Customer
+        Customer.Get(ServiceHeader."Customer No.");
+        Customer.Validate("VAT Bus. Posting Group", VatPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify();
+
+        // [GIVEN] Create Service Item Line
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+
+        // [GIVEN] Create Service Line of G/L Account
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", GLAccount."No.");
+
+        // [GIVEN] Update Quantity and "Unit Price" on Service Line
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        ServiceLine.Modify(true);
+
+        // [WHEN] Post the Shipment 
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // [GIVEN] Create Service Invoice 
+        LibraryService.CreateServiceHeader(ServiceHeader2, ServiceHeader2."Document Type"::Invoice, ServiceContractHeader."Customer No.");
+
+        // [GIVEN] Add Service line by "Get Shipment Lines" and add second line from "Generate Split VAT Lines" 
+        LibraryVariableStorage.Enqueue(GLAccount."No.");
+        OpenServiceInvoicePage(ServiceHeader2."No.");
+
+        // [GIVEN] Find the Service line  created in Service Invoice
+        FindServiceLine(ServiceLine, ServiceHeader2."Document Type", ServiceHeader2."No.", ServiceHeader2."Bill-to Customer No.");
+
+        // [WHEN] Post the service invoice without any error
+        LibraryService.PostServiceOrder(ServiceHeader2, true, false, true);
+
+        // [GIVEN] Get the Posted Service Invoice No.
+        ServiceInvoiceNo := GetServiceInvoiceNo(ServiceHeader2."No.");
+
+        // [VERIFY] Verify the Service Invoice is posted successfully and quantity has correct value on Posted Service Invoice Line.
+        VerifyServiceInvoiceLine(ServiceInvoiceNo, ServiceLine."Line No.", ServiceLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1364,6 +1452,104 @@ codeunit 136100 "Service Contract"
         end;
     end;
 
+    local procedure VerifyServiceInvoiceLine(DocumentNo: Code[20]; LineNo: Integer; Quantity: Decimal)
+    var
+        ServiceInvoiceLine: Record "Service Invoice Line";
+    begin
+        ServiceInvoiceLine.SetRange("Document No.", DocumentNo);
+        ServiceInvoiceLine.SetRange("Line No.", LineNo);
+        ServiceInvoiceLine.FindFirst();
+
+        Assert.AreEqual(Quantity, ServiceInvoiceLine.Quantity, QuantityErr);
+    end;
+
+    local procedure GetServiceInvoiceNo(ServiceHeaderNo: Code[20]): Code[20]
+    var
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+    begin
+        ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeaderNo);
+        ServiceInvoiceHeader.FindFirst();
+        exit(ServiceInvoiceHeader."No.");
+    end;
+
+    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; BilltoCustomerNo: Code[20])
+    begin
+        ServiceLine.SetRange("Document Type", DocumentType);
+        ServiceLine.SetFilter("Document No.", DocumentNo);
+        ServiceLine.SetFilter("Bill-to Customer No.", BilltoCustomerNo);  // Do not include lines having only Description.
+        ServiceLine.FindFirst();
+    end;
+
+    local procedure OpenServiceInvoicePage(No: Code[20])
+    var
+        ServiceInvoice: TestPage "Service Invoice";
+    begin
+        ServiceInvoice.OpenEdit;
+        ServiceInvoice.FILTER.SetFilter("No.", No);
+        ServiceInvoice.ServLines.GetShipmentLines.Invoke;
+        ServiceInvoice.GenerateSplitVATLines.Invoke();
+        ServiceInvoice.OK().Invoke();
+    end;
+
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(10, 50));
+        VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateReverseVATPostingSetup(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, '', VATProdPostingGroup);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Full VAT");
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Reversed VAT Bus. Post. Group", VATBusPostingGroup);
+        VATPostingSetup.Validate("Reversed VAT Prod. Post. Group", VATProdPostingGroup);
+        VATPostingSetup.Modify();
+    end;
+
+    local procedure CreateServiceContractWithAccGroup(var ServiceContractHeader: Record "Service Contract Header"; ServiceContractType: Enum "Service Contract Type")
+    var
+        ServiceContractAccountGroup: Record "Service Contract Account Group";
+        Customer: Record Customer;
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceItem: Record "Service Item";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.FindContractAccountGroup(ServiceContractAccountGroup);
+        ServiceContractAccountGroup.Validate("Non-Prepaid Contract Acc.", LibraryERM.CreateGLAccountWithSalesSetup);
+        ServiceContractAccountGroup.Modify(true);
+        LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractType, Customer."No.");
+        ServiceContractHeader.Validate("Serv. Contract Acc. Gr. Code", ServiceContractAccountGroup.Code);
+        ServiceContractHeader.Modify(true);
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
+
+        // Use Random to update values in Line Value and Line Cost fields.
+        ServiceContractLine.Validate("Line Value", LibraryRandom.RandInt(200));
+        ServiceContractLine.Validate("Line Cost", LibraryRandom.RandInt(200));
+        ServiceContractLine.Modify(true);
+    end;
+
+    local procedure ModifyServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+        ServiceContractHeader.CalcFields("Calcd. Annual Amount");
+        ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
+        ServiceContractHeader.Validate("Price Update Period", ServiceContractHeader."Service Period");
+        ServiceContractHeader.Modify(true);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ContractTemplateHandler(var ServiceContractTemplateList: Page "Service Contract Template List"; var Response: Action)
@@ -1418,6 +1604,19 @@ codeunit 136100 "Service Contract"
     begin
         // Message verification can not be done language independant.
         // Verification should be done based on outcome of the action
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetServiceShipmentLinesHandler(var GetServiceShipmentLines: TestPage "Get Service Shipment Lines")
+    var
+        ServiceShipmentLine: Record "Service Shipment Line";
+        GLAccountNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(GLAccountNo);
+        GetServiceShipmentLines.FILTER.SetFilter(Type, Format(ServiceShipmentLine.Type::"G/L Account"));
+        GetServiceShipmentLines.FILTER.SetFilter("No.", GLAccountNo);
+        GetServiceShipmentLines.OK.Invoke;
     end;
 }
 

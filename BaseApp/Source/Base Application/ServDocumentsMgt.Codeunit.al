@@ -1508,7 +1508,8 @@
                     // Service Charge line should not be tested.
                     if (Type <> Type::" ") and not "System-Created Entry" then begin
                         if ServDocType = DATABASE::"Service Contract Header" then
-                            TestField("Contract No.");
+                            if not "Automatically Generated" then
+                                TestField("Contract No.");
                         if ServDocType = DATABASE::"Service Header" then
                             TestField("Shipment No.");
                     end;
