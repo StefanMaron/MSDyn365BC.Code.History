@@ -126,6 +126,7 @@ codeunit 367 CheckManagement
                     GenJnlLine2.UpdateSource;
                     OnBeforeVoidCheckGenJnlLine2Modify(GenJnlLine2, GenJnlLine);
                     GenJnlLine2.Modify();
+                    OnVoidCheckOnAfterGenJnlLine2Modify(GenJnlLine2, GenJnlLine);
                 end;
             until GenJnlLine2.Next() = 0;
 
@@ -183,7 +184,7 @@ codeunit 367 CheckManagement
         GenJnlLine2."Shortcut Dimension 2 Code" := BankAccLedgEntry2."Global Dimension 2 Code";
         GenJnlLine2."Dimension Set ID" := BankAccLedgEntry2."Dimension Set ID";
         GenJnlLine2."Allow Zero-Amount Posting" := true;
-        OnFinancialVoidCheckOnBeforePostVoidCheckLine(GenJnlLine2);
+        OnFinancialVoidCheckOnBeforePostVoidCheckLine(GenJnlLine2, CheckLedgEntry);
         GenJnlPostLine.RunWithCheck(GenJnlLine2);
         OnFinancialVoidCheckOnAfterPostVoidCheckLine(GenJnlLine2, GenJnlPostLine);
 
@@ -220,6 +221,7 @@ codeunit 367 CheckManagement
           StrSubstNo(VoidingCheckMsg, CheckLedgEntry."Check No."));
         GenJnlLine2.Validate("Currency Code", BankAcc."Currency Code");
         GenJnlLine2."Allow Zero-Amount Posting" := true;
+        OnFinancialVoidCheckOnBeforeCheckBalAccountType(GenJnlLine2, CheckLedgEntry, BankAccLedgEntry3);
         case CheckLedgEntry."Bal. Account Type" of
             CheckLedgEntry."Bal. Account Type"::"G/L Account":
                 FinancialVoidPostGLAccount(GenJnlLine2, BankAccLedgEntry2, CheckLedgEntry, BalanceAmountLCY);
@@ -294,6 +296,7 @@ codeunit 367 CheckManagement
                     SetFilter("Entry No.", '<>%1', BankAccLedgEntry2."Entry No.");
                     if FindSet then
                         repeat
+                            OnFinancialVoidCheckOnBeforePostBankAccount(GenJnlLine2, BankAccLedgEntry3);
                             GenJnlLine2.Validate(Amount, -Amount);
                             BalanceAmountLCY := BalanceAmountLCY + GenJnlLine2."Amount (LCY)";
                             GenJnlLine2."Shortcut Dimension 1 Code" := "Global Dimension 1 Code";
@@ -312,6 +315,7 @@ codeunit 367 CheckManagement
                     SetRange("Posting Date", BankAccLedgEntry2."Posting Date");
                     if FindSet then
                         repeat
+                            OnFinancialVoidCheckOnBeforePostFixedAsset(GenJnlLine2, FALedgEntry);
                             GenJnlLine2.Validate(Amount, -Amount);
                             BalanceAmountLCY := BalanceAmountLCY + GenJnlLine2."Amount (LCY)";
                             GenJnlLine2."Shortcut Dimension 1 Code" := "Global Dimension 1 Code";
@@ -391,6 +395,7 @@ codeunit 367 CheckManagement
             SetRange("G/L Account No.", CheckLedgEntry."Bal. Account No.");
             if FindSet then
                 repeat
+                    OnFinancialVoidPostGLAccountOnBeforeGLEntryLoop(GLEntry, CheckLedgEntry);
                     GenJnlLine.Validate("Account No.", "G/L Account No.");
                     GenJnlLine.Description := StrSubstNo(VoidingCheckMsg, CheckLedgEntry."Check No.");
                     GenJnlLine.Validate(Amount, -Amount - "VAT Amount");
@@ -601,7 +606,13 @@ codeunit 367 CheckManagement
     var
         RelatedCheckLedgerEntry: Record "Check Ledger Entry";
         RelatedCheckLedgerEntry2: Record "Check Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMarkCheckEntriesVoid(OriginalCheckLedgerEntry, VoidDate, IsHandled);
+        if IsHandled then
+            exit;
+
         with RelatedCheckLedgerEntry do begin
             Reset;
             SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
@@ -738,6 +749,7 @@ codeunit 367 CheckManagement
                     WhichProcess::Transmit:
                         CheckLedgEntry3."Entry Status" := CheckLedgEntry3."Entry Status"::Transmitted;
                 end;
+                OnProcessElectronicPaymentOnBeforeCheckLedgEntry3Modify(CheckLedgEntry3, WhichProcess);
                 CheckLedgEntry3.Modify();
             until CheckLedgEntry2.Next() = 0;
 
@@ -840,7 +852,7 @@ codeunit 367 CheckManagement
         GenJnlLine2."Shortcut Dimension 1 Code" := BankAccLedgEntry2."Global Dimension 1 Code";
         GenJnlLine2."Shortcut Dimension 2 Code" := BankAccLedgEntry2."Global Dimension 2 Code";
         GenJnlLine2."Dimension Set ID" := BankAccLedgEntry2."Dimension Set ID";
-        OnPostRoundingAmountOnBeforeGenJnlPostLine(GenJnlLine2, CheckLedgEntry);
+        OnPostRoundingAmountOnBeforeGenJnlPostLine(GenJnlLine2, CheckLedgEntry, BankAccLedgEntry2);
         GenJnlPostLine.RunWithCheck(GenJnlLine2);
         OnPostRoundingAmountOnAfterGenJnlPostLine(GenJnlLine2, CheckLedgEntry, GenJnlPostLine);
     end;
@@ -916,6 +928,11 @@ codeunit 367 CheckManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeMarkCheckEntriesVoid(var OriginalCheckLedgerEntry: Record "Check Ledger Entry"; VoidDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFinancialVoidCheck(var CheckLedgerEntry: Record "Check Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
@@ -926,7 +943,27 @@ codeunit 367 CheckManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnVoidCheckOnAfterGenJnlLine2Modify(var GenJournalLine2: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnBeforePostCust(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var BalanceAmountLCY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinancialVoidCheckOnBeforeCheckBalAccountType(var GenJournalLine: Record "Gen. Journal Line"; var CheckLedgerEntry: Record "Check Ledger Entry"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinancialVoidCheckOnBeforePostBankAccount(var GenJournalLine: Record "Gen. Journal Line"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinancialVoidCheckOnBeforePostFixedAsset(var GenJournalLine: Record "Gen. Journal Line"; var FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 
@@ -951,7 +988,7 @@ codeunit 367 CheckManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFinancialVoidCheckOnBeforePostVoidCheckLine(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnFinancialVoidCheckOnBeforePostVoidCheckLine(var GenJournalLine: Record "Gen. Journal Line"; var CheckLedgEntry: Record "Check Ledger Entry")
     begin
     end;
 
@@ -966,12 +1003,22 @@ codeunit 367 CheckManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFinancialVoidPostGLAccountOnBeforeGLEntryLoop(var GLEntry: Record "G/L Entry"; var CheckLedgerEntry: Record "Check Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostRoundingAmountOnAfterGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; CheckLedgerEntry: Record "Check Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostRoundingAmountOnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; CheckLedgerEntry: Record "Check Ledger Entry")
+    local procedure OnProcessElectronicPaymentOnBeforeCheckLedgEntry3Modify(var CheckLedgerEntry: Record "Check Ledger Entry"; var WhichProcess: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostRoundingAmountOnBeforeGenJnlPostLine(var GenJournalLine: Record "Gen. Journal Line"; CheckLedgerEntry: Record "Check Ledger Entry"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 

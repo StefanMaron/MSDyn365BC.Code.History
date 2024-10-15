@@ -1759,6 +1759,7 @@ codeunit 28070 TaxInvoiceManagement
         PurchSetup.Get();
         SalesSetup.Get();
         LastTaxInvoice := '';
+        Commit();
         TaxInvBuffer.Reset();
         TaxInvBuffer.SetRange(Type, TaxInvBuffer.Type::"Purchase Invoice");
         if TaxInvBuffer.Find('-') then

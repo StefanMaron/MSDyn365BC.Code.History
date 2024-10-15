@@ -1,4 +1,4 @@
-page 256 "Payment Journal"
+﻿page 256 "Payment Journal"
 {
     AdditionalSearchTerms = 'print check,payment file export,electronic payment';
     ApplicationArea = Basic, Suite;
@@ -1639,6 +1639,8 @@ page 256 "Payment Journal"
         EventFilter := WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode;
         EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::"Gen. Journal Line", EventFilter);
         SetJobQueueVisibility();
+
+        OnAfterOnAfterGetRecord(Rec, GenJnlManagement, AccName, BalAccName);
     end;
 
     trigger OnAfterGetRecord()
@@ -1678,6 +1680,8 @@ page 256 "Payment Journal"
         EnableApplyEntriesAction;
         SetUpNewLine(xRec, Balance, BelowxRec);
         Clear(ShortcutDimCode);
+
+        OnAfterOnNewRecord(Rec, xRec, GenJnlManagement, AccName, AccName);
     end;
 
     trigger OnOpenPage()
@@ -1687,6 +1691,8 @@ page 256 "Payment Journal"
         EnvironmentInfo: Codeunit "Environment Information";
         JnlSelected: Boolean;
     begin
+        OnBeforeOnOpenPage(Rec);
+
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         IsSaaS := EnvironmentInfo.IsSaaS;
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
@@ -1707,6 +1713,8 @@ page 256 "Payment Journal"
             Error('');
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch;
+
+        OnAfterOnOpenPage(CurrentJnlBatchName);
     end;
 
     var
@@ -1793,14 +1801,18 @@ page 256 "Payment Journal"
                         CODEUNIT.Run(BankExportImportSetup."Check Export Codeunit", Rec);
     end;
 
-    local procedure UpdateBalance()
+    procedure UpdateBalance()
     begin
+        OnBeforeUpdateBalance();
+
         GenJnlManagement.CalcBalance(
           Rec, xRec, Balance, TotalBalance, ShowBalance, ShowTotalBalance);
         BalanceVisible := ShowBalance;
         TotalBalanceVisible := ShowTotalBalance;
         if ShowTotalBalance then
             NumberOfRecords := Count();
+
+        OnAfterUpdateBalance(TotalBalanceVisible);
     end;
 
     local procedure EnableApplyEntriesAction()
@@ -1912,8 +1924,38 @@ page 256 "Payment Journal"
         JobQueuesUsed := GeneralLedgerSetup.JobQueueActive;
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlManagement: Codeunit GenJnlManagement; var AccName: Text[100]; var BalAccName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnOpenPage(var CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnNewRecord(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var GenJnlManagement: Codeunit GenJnlManagement; var AccName: Text[100]; var BalAccName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateBalance(var TotalBalanceVisible: Boolean);
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateBalance()
     begin
     end;
 }

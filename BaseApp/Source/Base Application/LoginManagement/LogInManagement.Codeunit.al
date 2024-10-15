@@ -136,6 +136,7 @@ codeunit 40 LogInManagement
             if UserSetup.Get(UserId) then begin
                 UserSetupFound := true;
                 RegisterTime := UserSetup."Register Time";
+                OnLogInEndOnAfterGetUserSetupRegisterTime(UserSetup);
             end;
             if not UserSetupFound then
                 if GetGLSetup then
@@ -297,6 +298,11 @@ codeunit 40 LogInManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCompanyClose()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogInEndOnAfterGetUserSetupRegisterTime(var UserSetup: Record "User Setup")
     begin
     end;
 

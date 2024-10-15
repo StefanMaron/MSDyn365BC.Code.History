@@ -184,6 +184,9 @@ table 5051 "Contact Alt. Address"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", "Company Name", Address, City, "Post Code")
+        {
+        }
     }
 
     trigger OnDelete()

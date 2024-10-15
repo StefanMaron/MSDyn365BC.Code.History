@@ -601,8 +601,15 @@
         BlockedEmplForJnrlPostingErr: Label 'You cannot post this document because employee %1 is blocked due to privacy.', Comment = '%1 = employee no.';
         EmployeeLinkedToResourceErr: Label 'You cannot link multiple employees to the same resource. Employee %1 is already linked to that resource.', Comment = '%1 = employee no.';
 
-    procedure AssistEdit(): Boolean
+    procedure AssistEdit() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssistEdit(Rec, xRec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         HumanResSetup.Get();
         HumanResSetup.TestField("Employee Nos.");
         if NoSeriesMgt.SelectSeries(HumanResSetup."Employee Nos.", xRec."No. Series", "No. Series") then begin
@@ -708,6 +715,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var Employee: Record Employee; var xEmployee: Record Employee; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssistEdit(var Employee: Record Employee; xEmployee: Record Employee; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

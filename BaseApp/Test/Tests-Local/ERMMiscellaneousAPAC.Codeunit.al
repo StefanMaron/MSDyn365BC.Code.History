@@ -10,7 +10,9 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
     var
         Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -392,6 +394,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure PmtReconJnlGLAccWithVATSetup()
     var
@@ -400,6 +403,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
         DummyVATEntry: Record "VAT Entry";
+        AmountToApply: Decimal;
     begin
         // [FEATURE] [Reconciliation] [VAT]
         // [SCENARIO 374756] VAT Entry is created after posting Payment Reconciliation Journal with GLAccount with VAT Posting Setup
@@ -410,10 +414,13 @@ codeunit 141008 "ERM - Miscellaneous APAC"
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 20));
 
         // [GIVEN] Payment Reconciliation Journal with GLAccount "A"
+        AmountToApply := LibraryRandom.RandDecInRange(1000, 2000, 2);
         CreateBankAccReconLineWithGLAcc(
           BankAccReconciliation, BankAccReconciliationLine,
-          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
-        CreatePaymentApplication(BankAccReconciliationLine);
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase), AmountToApply);
+        CreatePaymentApplication(BankAccReconciliationLine, AmountToApply);
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation,
+                                         BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
 
         // [WHEN] Post Reconciliation Journal
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
@@ -986,6 +993,8 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     end;
 
     local procedure Initialize()
+    var
+        LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryVariableStorage.Clear;
         DeleteObjectOptionsIfNeeded;
@@ -995,11 +1004,25 @@ codeunit 141008 "ERM - Miscellaneous APAC"
             exit;
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        IsInitialized := true;
+
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM - Miscellaneous APAC");
+        LibraryApplicationArea.EnableFoundationSetup;
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM - Miscellaneous APAC");
+
+        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateLocalPostingSetup;
+        LibraryVariableStorage.Clear;
+
+        isInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM - Miscellaneous APAC");
         Commit();
     end;
 
-    local procedure CreateBankAccReconLineWithGLAcc(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; GLAccountNo: Code[20])
+    local procedure CreateBankAccReconLineWithGLAcc(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; GLAccountNo: Code[20]; StmtAmount: Decimal)
     var
         BankAccount: Record "Bank Account";
     begin
@@ -1011,12 +1034,12 @@ codeunit 141008 "ERM - Miscellaneous APAC"
             Validate("Transaction Date", WorkDate);
             Validate("Account Type", "Account Type"::"G/L Account");
             Validate("Account No.", GLAccountNo);
-            Validate("Statement Amount", LibraryRandom.RandDecInRange(1000, 2000, 2));
+            Validate("Statement Amount", StmtAmount);
             Modify;
         end;
     end;
 
-    local procedure CreatePaymentApplication(var BankAccReconLine: Record "Bank Acc. Reconciliation Line")
+    local procedure CreatePaymentApplication(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; AmountToApply: Decimal)
     var
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
@@ -1028,11 +1051,11 @@ codeunit 141008 "ERM - Miscellaneous APAC"
             "Statement Line No." := BankAccReconLine."Statement Line No.";
             "Account Type" := BankAccReconLine."Account Type";
             "Account No." := BankAccReconLine."Account No.";
-            "Applied Amount" := BankAccReconLine."Statement Amount";
+            "Applied Amount" := AmountToApply;
             Insert;
         end;
 
-        BankAccReconLine."Applied Amount" := BankAccReconLine."Statement Amount";
+        BankAccReconLine.Validate("Applied Amount", AmountToApply);
         BankAccReconLine.Modify();
     end;
 
@@ -1553,6 +1576,19 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         GSTPurchaseEntry."Entry No." := 1000;
         GSTPurchaseEntry."GST Base" := 0;
         GSTPurchaseEntry.Insert();
+    end;
+
+    local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
+    begin
+        BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
+        BankAccRecon.Modify();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
+    begin
+        PostPmtsAndRecBankAcc.OK.Invoke();
     end;
 
     [ModalPageHandler]

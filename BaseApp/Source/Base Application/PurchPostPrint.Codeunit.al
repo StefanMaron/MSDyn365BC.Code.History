@@ -1,4 +1,4 @@
-codeunit 92 "Purch.-Post + Print"
+﻿codeunit 92 "Purch.-Post + Print"
 {
     TableNo = "Purchase Header";
 
@@ -62,10 +62,16 @@ codeunit 92 "Purch.-Post + Print"
         Codeunit.Run(Codeunit::"Purch.-Post", PurchHeader);
     end;
 
-    local procedure ConfirmPost(var PurchHeader: Record "Purchase Header"; DefaultOption: Integer): Boolean
+    local procedure ConfirmPost(var PurchHeader: Record "Purchase Header"; DefaultOption: Integer) Result: Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmPostProcedure(PurchHeader, DefaultOption, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchHeader do begin
             case "Document Type" of
                 "Document Type"::Order:
@@ -241,6 +247,11 @@ codeunit 92 "Purch.-Post + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmPost(var PurchaseHeader: Record "Purchase Header"; var HideDialog: Boolean; var IsHandled: Boolean; var DefaultOption: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmPostProcedure(var PurchHeader: Record "Purchase Header"; var DefaultOption: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
