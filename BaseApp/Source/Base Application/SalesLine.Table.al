@@ -83,6 +83,8 @@
                           xRec.GetDeferralAmount(), xRec."Posting Date", '', xRec."Currency Code", true);
                 end;
                 AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
+
+                OnValidateTypeOnBeforeInitRec(Rec, xRec, CurrFieldNo);
                 TempSalesLine := Rec;
                 Init();
                 SystemId := TempSalesLine.SystemId;
@@ -767,7 +769,13 @@
             trigger OnValidate()
             var
                 Item: Record Item;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateUnitCostLCY(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if (CurrFieldNo = FieldNo("Unit Cost (LCY)")) and
                    ("Unit Cost (LCY)" <> xRec."Unit Cost (LCY)")
                 then
@@ -1229,11 +1237,17 @@
             Editable = true;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 TestField("Document Type", "Document Type"::Order);
                 TestField(Type, Type::Item);
                 TestField("Quantity Shipped", 0);
-                TestField("Job No.", '');
+
+                IsHandled := false;
+                OnValidateDropShipmentOnBeforeTestJobNo(Rec, IsHandled);
+                if not IsHandled then
+                    TestField("Job No.", '');
                 TestField("Qty. to Asm. to Order (Base)", 0);
 
                 if "Drop Shipment" then
@@ -1611,14 +1625,14 @@
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateLineAmount(Rec, xRec, CurrFieldNo, IsHandled);
+                OnBeforeValidateLineAmount(Rec, xRec, CurrFieldNo, IsHandled, Currency);
                 if IsHandled then
                     exit;
 
                 TestField(Type);
                 TestField(Quantity);
                 IsHandled := false;
-                OnValidateLineAmountOnbeforeTestUnitPrice(Rec, IsHandled);
+                OnValidateLineAmountOnbeforeTestUnitPrice(Rec, IsHandled, CurrFieldNo);
                 if not IsHandled then
                     TestField("Unit Price");
 
@@ -3744,11 +3758,16 @@
     end;
 
     local procedure CopyFromGLAccount()
+    var
+        IsHandled: Boolean;
     begin
         GLAcc.Get("No.");
-        GLAcc.CheckGLAcc;
-        if not "System-Created Entry" then
-            GLAcc.TestField("Direct Posting", true);
+        GLAcc.CheckGLAcc();
+        IsHandled := false;
+        OnCopyFromGLAccountOnBeforeTestDirectPosting(Rec, GLAcc, SalesHeader, IsHandled);
+        if not IsHandled then
+            if not "System-Created Entry" then
+                GLAcc.TestField("Direct Posting", true);
         Description := GLAcc.Name;
         "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
         "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
@@ -4070,7 +4089,10 @@
         QtyReservedBase := "Reserved Qty. (Base)";
         QtyToReserve := "Outstanding Quantity";
         QtyToReserveBase := "Outstanding Qty. (Base)";
-        exit("Qty. per Unit of Measure");
+
+        Result := "Qty. per Unit of Measure";
+
+        OnAfterGetReservationQty(Rec, QtyToReserve, QtyToReserveBase, Result);
     end;
 
     procedure GetSourceCaption(): Text
@@ -4086,6 +4108,8 @@
             ReservEntry."Item No." := '';
         ReservEntry."Expected Receipt Date" := "Shipment Date";
         ReservEntry."Shipment Date" := "Shipment Date";
+
+        OnAfterSetReservationEntry(ReservEntry, Rec);
     end;
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
@@ -5107,7 +5131,6 @@
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
         CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
 
-
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         GetSalesHeader();
@@ -5118,7 +5141,7 @@
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         ATOLink.UpdateAsmDimFromSalesLine(Rec);
 
-        OnAfterCreateDim(Rec, CurrFieldNo);
+        OnAfterCreateDim(Rec, CurrFieldNo, xRec);
     end;
 #endif
 
@@ -5149,7 +5172,7 @@
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         ATOLink.UpdateAsmDimFromSalesLine(Rec);
 
-        OnAfterCreateDim(Rec, CurrFieldNo);
+        OnAfterCreateDim(Rec, CurrFieldNo, xRec);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -7078,11 +7101,13 @@
     procedure UpdateICPartner()
     var
         ICPartner: Record "IC Partner";
+        ShouldUpdateICPartner: Boolean;
     begin
-        if SalesHeader."Send IC Document" and
-           (SalesHeader."IC Direction" = SalesHeader."IC Direction"::Outgoing) and
-           (SalesHeader."Bill-to IC Partner Code" <> '')
-        then
+        ShouldUpdateICPartner :=
+            SalesHeader."Send IC Document" and (SalesHeader."IC Direction" = SalesHeader."IC Direction"::Outgoing) and
+            (SalesHeader."Bill-to IC Partner Code" <> '');
+        OnBeforeUpdateICPartner(SalesHeader, Rec, ShouldUpdateICPartner);
+        if ShouldUpdateICPartner then
             case Type of
                 Type::" ", Type::"Charge (Item)":
                     begin
@@ -7127,6 +7152,7 @@
                         "IC Partner Reference" := Resource."IC Partner Purch. G/L Acc. No.";
                     end;
             end;
+
         OnAfterUpdateICPartner(Rec, SalesHeader);
     end;
 
@@ -7164,7 +7190,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckShipmentRelation(IsHandled, Rec);
+        OnBeforeCheckShipmentRelation(IsHandled, Rec, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -8878,7 +8904,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateLineAmount(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeValidateLineAmount(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean; Currency: Record Currency)
     begin
     end;
 
@@ -9088,7 +9114,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDim(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer);
+    local procedure OnAfterCreateDim(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer; xSalesLine: Record "Sales Line");
     begin
     end;
 
@@ -9578,7 +9604,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLineAmountOnbeforeTestUnitPrice(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnValidateLineAmountOnbeforeTestUnitPrice(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -9708,7 +9734,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckShipmentRelation(var IsHandled: Boolean; var SalesLine: Record "Sales Line")
+    local procedure OnBeforeCheckShipmentRelation(var IsHandled: Boolean; var SalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -9789,6 +9815,41 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateLocationCodeOnAfterCheckAssocPurchOrder(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromGLAccountOnBeforeTestDirectPosting(var SalesLine: Record "Sales Line"; var GLAccount: Record "G/L Account"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateTypeOnBeforeInitRec(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationEntry(var ReservEntry: Record "Reservation Entry"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDropShipmentOnBeforeTestJobNo(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetReservationQty(var SalesLine: Record "Sales Line"; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateUnitCostLCY(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateICPartner(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var ShouldUpdateICPartner: Boolean)
     begin
     end;
 
