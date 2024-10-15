@@ -305,6 +305,7 @@
             CustLedgEntry.Modify();
             OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry(NewCustLedgEntry, CustLedgEntry, GenJnlPostLine);
             Insert;
+            OnReverseCustLedgEntryOnAfterInsertCustLedgEntry(NewCustLedgEntry, CustLedgEntry, GenJnlPostLine);
 
             if NextDtldCustLedgEntryEntryNo = 0 then begin
                 DtldCustLedgEntry.FindLast;
@@ -992,6 +993,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnReverseCustLedgEntryOnAfterDtldCustLedgEntrySetFilters(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; NextDtldCustLedgEntryEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseCustLedgEntryOnAfterInsertCustLedgEntry(var NewCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

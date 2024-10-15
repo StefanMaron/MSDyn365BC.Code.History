@@ -103,7 +103,6 @@
 
         SetAppliedEntryToAdjustFromBuf('');
         FinalizeAdjmt();
-        UpdateCostPlus();
         UpdateJobItemCost();
 
         OnAfterMakeMultiLevelAdjmt(TempItem, IsOnlineAdjmt, PostToGL, FilterItem);
@@ -176,6 +175,7 @@
     local procedure MakeSingleLevelAdjmt(var TheItem: Record Item; var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary)
     var
         IsFirstTime: Boolean;
+        xUnitCost: Decimal;
     begin
         LevelNo[1] := LevelNo[1] + 1;
 
@@ -192,6 +192,7 @@
                 repeat
                     Item := TheItem;
                     GetItem("No.");
+                    xUnitCost := Item."Unit Cost";
                     UpDateWindow(WindowAdjmtLevel, "No.", WindowAdjust, WindowFWLevel, WindowEntry, 0);
                     CollectAvgCostAdjmtEntryPointToUpdate(TempAvgCostAdjmtEntryPoint, TheItem."No.");
                     IsFirstTime := not AppliedEntryToAdjustBufExists(TheItem."No.");
@@ -204,6 +205,8 @@
                     AdjustItemAvgCost();
                     PostAdjmtBuf(TempAvgCostAdjmtEntryPoint);
                     UpdateItemUnitCost(TempAvgCostAdjmtEntryPoint, IsFirstTime);
+                    if xUnitCost <> Item."Unit Cost" then
+                        ItemCostMgt.UpdateCostPlusPrices(Item."No.");
                     OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(TheItem, TempAvgCostAdjmtEntryPoint, LevelExceeded, IsOnlineAdjmt);
                 until (TheItem.Next() = 0) or LevelExceeded;
     end;
@@ -2422,53 +2425,6 @@
             exit(FindSet);
         end;
     end;
-
-    [Scope('OnPrem')]
-    procedure UpdateCostPlus()
-    var
-        PriceListLine: Record "Price List Line";
-    begin
-#if not CLEAN19
-        if UpdateOldCostPlus() then
-            exit;
-#endif
-        PriceListLine.Reset();
-        PriceListLine.SetRange(Status, "Price Status"::Draft, "Price Status"::Active);
-        PriceListLine.SetRange("Asset Type", "Price Asset Type"::Item);
-        PriceListLine.SetFilter("Cost-plus %", '>%1', 0);
-        if PriceListLine.FindSet() then
-            repeat
-                if PriceListLine.Status = "Price Status"::Active then begin
-                    PriceListLine.Status := "Price Status"::Draft;
-                    PriceListLine.Modify();
-                end;
-                PriceListLine.Validate("Cost-plus %");
-                PriceListLine.Status := "Price Status"::Active;
-                PriceListLine.Modify(true);
-            until PriceListLine.Next() = 0;
-    end;
-
-#if not CLEAN19
-    local procedure UpdateOldCostPlus(): Boolean;
-    var
-        SalesPrice: Record "Sales Price";
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-    begin
-        if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
-            exit(false);
-
-        SalesPrice.Reset();
-        with SalesPrice do begin
-            SetFilter("Cost-plus %", '>%1', 0);
-            if FindSet then
-                repeat
-                    Validate("Cost-plus %");
-                    Modify;
-                until Next() = 0;
-        end;
-        exit(true);
-    end;
-#endif
 
     local procedure ResetAvgBuffers(var OutbndValueEntry: Record "Value Entry"; var ExcludedValueEntry: Record "Value Entry")
     begin

@@ -1,4 +1,4 @@
-codeunit 367 CheckManagement
+﻿codeunit 367 CheckManagement
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm,
@@ -184,7 +184,7 @@ codeunit 367 CheckManagement
         GenJnlLine2."Shortcut Dimension 2 Code" := BankAccLedgEntry2."Global Dimension 2 Code";
         GenJnlLine2."Dimension Set ID" := BankAccLedgEntry2."Dimension Set ID";
         GenJnlLine2."Allow Zero-Amount Posting" := true;
-        OnFinancialVoidCheckOnBeforePostVoidCheckLine(GenJnlLine2, CheckLedgEntry);
+        OnFinancialVoidCheckOnBeforePostVoidCheckLine(GenJnlLine2, CheckLedgEntry, BankAccLedgEntry2);
         GenJnlPostLine.RunWithCheck(GenJnlLine2);
         OnFinancialVoidCheckOnAfterPostVoidCheckLine(GenJnlLine2, GenJnlPostLine);
 
@@ -988,7 +988,7 @@ codeunit 367 CheckManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFinancialVoidCheckOnBeforePostVoidCheckLine(var GenJournalLine: Record "Gen. Journal Line"; var CheckLedgEntry: Record "Check Ledger Entry")
+    local procedure OnFinancialVoidCheckOnBeforePostVoidCheckLine(var GenJournalLine: Record "Gen. Journal Line"; var CheckLedgEntry: Record "Check Ledger Entry"; var BankAccLedgEntry2: Record "Bank Account Ledger Entry")
     begin
     end;
 

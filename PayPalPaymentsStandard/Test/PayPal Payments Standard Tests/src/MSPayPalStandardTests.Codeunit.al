@@ -1592,7 +1592,7 @@ codeunit 139500 "MS - PayPal Standard Tests"
     [Scope('OnPrem')]
     procedure ConsentConfirmYes(var CustConsentConfirmation: TestPage "Cust. Consent Confirmation")
     begin
-        CustConsentConfirmation.Yes().Invoke();
+        CustConsentConfirmation.Accept.Invoke();
     end;
 
     local procedure BindActiveDirectoryMockEvents();
