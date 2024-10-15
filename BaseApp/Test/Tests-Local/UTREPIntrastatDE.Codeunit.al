@@ -17,7 +17,6 @@ codeunit 142039 "UT REP Intrastat DE"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryERM: Codeunit "Library - ERM";
-        LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         IntrastatJnlTemplateName: Code[10];
@@ -27,7 +26,6 @@ codeunit 142039 "UT REP Intrastat DE"
         SumTotalWeight: Label 'SumTotalWeight';
         IsInitialized: Boolean;
         SumTotalWeightRoundedTxt: Label 'SumTotalWeightRounded';
-        QuantityErr: Label 'Quantity value in created file is wrong.';
 
     [Test]
     [HandlerFunctions('IntrastatItemListReportHandler')]
@@ -548,7 +546,7 @@ codeunit 142039 "UT REP Intrastat DE"
     begin
         // [FEATURE] [Checklist DE]
         // [SCENARIO 361991] Intrastat - Checklist DE exported when called from Journal with multiple batches
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Template with Batches "X" and "Y". Intrastat Journal Line in Batch "Y".
         CreateItemWithTariffNumber(Item);
@@ -561,227 +559,6 @@ codeunit 142039 "UT REP Intrastat DE"
 
         // [THEN] Intrastat - Checklist DE successfully exported
         LibraryUtility.CheckFileNotEmpty(LibraryReportValidation.GetFileName);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure IntrastatDiskTaxAuthDENoErrorOnZeroTotalWeightInReceiptLine()
-    var
-        Item: Record Item;
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileName: Text;
-        ZipFileName: Text;
-    begin
-        // [FEATURE] [Intrastat - Disk Tax Auth DE]
-        // [SCENARIO 255063] Export "Intrastat - Disk Tax Auth DE" when Intrastat Journal Line has "Total Weight" = 0 and Type = Recepit
-        Initialize;
-        UpdateCompanyInformation;
-
-        // [GIVEN] Intrastat Journal Line with Type = Receipt
-        CreateItemWithTariffNumber(Item);
-        CreateIntrastatJournalLine(Item, IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-
-        // [GIVEN] "Total Weight" for this line = 0
-        IntrastatJnlLine."Total Weight" := 0;
-        IntrastatJnlLine.Modify();
-
-        // [WHEN] Intrastat - Disk Tax Auth DE report run
-        ZipFileName := RunDiskTaxAuthDEReport(IntrastatJnlLine);
-
-        // [THEN] File is created and Total Weight = "0" in created file
-        FileName := GetReceiptFileName();
-        VerifyDiskTaxAuthDEReportTotalWeight('0', ZipFileName, FileName);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure IntrastatDiskTaxAuthDENoErrorOnZeroTotalWeightInShipmentLine()
-    var
-        Item: Record Item;
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileName: Text;
-        ZipFileName: Text;
-    begin
-        // [FEATURE] [Intrastat - Disk Tax Auth DE]
-        // [SCENARIO 283245] Export "Intrastat - Disk Tax Auth DE" when Intrastat Journal Line has "Total Weight" = 0 and Type = Shipment
-        Initialize;
-        UpdateCompanyInformation;
-
-        // [GIVEN] Intrastat Journal Line with Type = Shipment
-        CreateItemWithTariffNumber(Item);
-        CreateIntrastatJournalLine(Item, IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
-
-        // [GIVEN] "Total Weight" for this line = 0
-        IntrastatJnlLine.Validate("Total Weight", 0);
-        IntrastatJnlLine.Modify();
-
-        // [WHEN] Intrastat - Disk Tax Auth DE report run
-        ZipFileName := RunDiskTaxAuthDEReport(IntrastatJnlLine);
-
-        // [THEN] File is created and Total Weight = "0" in created file
-        FileName := GetShipmentFileName();
-        VerifyDiskTaxAuthDEReportTotalWeight('0', ZipFileName, FileName);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure IntrastatDiskTaxAuthDENoQuantityIfNotSupplementaryUnitsInReceiptLine()
-    var
-        Item: Record Item;
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileName: Text;
-        ZipFileName: Text;
-    begin
-        // [FEATURE] [Intrastat - Disk Tax Auth DE]
-        // [SCENARIO 224092] Report "Intrastat - Disk Tax Auth DE" writes no Quantity if "Supplementary Units" = FALSE in intrastat journal line with type Receipt
-        Initialize;
-
-        // [GIVEN] Intrastat Journal Line with non-zero Quantity "Q", "Supplementary Units" = FALSE and Type = Receipt
-        UpdateCompanyInformation;
-        CreateItemWithTariffNumber(Item);
-        CreateIntrastatJournalLineWithQuantity(Item, IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, LibraryRandom.RandInt(10), false);
-
-        // [WHEN] Intrastat - Disk Tax Auth DE report run
-        ZipFileName := RunDiskTaxAuthDEReport(IntrastatJnlLine);
-
-        // [THEN] Quantity is empty in created file
-        FileName := GetReceiptFileName();
-        VerifyDiskTaxAuthDEReportQuantity('', ZipFileName, FileName);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure IntrastatDiskTaxAuthDEQuantityIfSupplementaryUnitsInReceiptLine()
-    var
-        Item: Record Item;
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Quantity: Integer;
-        FileName: Text;
-        ZipFileName: Text;
-    begin
-        // [FEATURE] [Intrastat - Disk Tax Auth DE]
-        // [SCENARIO 224092] Report "Intrastat - Disk Tax Auth DE" writes Quantity if "Supplementary Units" = TRUE in intrastat journal line with type Receipt
-        Initialize;
-
-        // [GIVEN] Intrastat Journal Line with non-zero Quantity "Q", "Supplementary Units" = TRUE and Type = Receipt
-        UpdateCompanyInformation;
-        CreateItemWithTariffNumber(Item);
-        Quantity := LibraryRandom.RandInt(100);
-        CreateIntrastatJournalLineWithQuantity(Item, IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, Quantity, true);
-
-        // [WHEN] Intrastat - Disk Tax Auth DE report run
-        ZipFileName := RunDiskTaxAuthDEReport(IntrastatJnlLine);
-
-        // [THEN] Quantity = "Q" in created file
-        FileName := GetReceiptFileName();
-        VerifyDiskTaxAuthDEReportQuantity(Format(Quantity), ZipFileName, FileName);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure IntrastatDiskTaxAuthDENoQuantityIfNotSupplementaryUnitsInShipmentLine()
-    var
-        Item: Record Item;
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileName: Text;
-        ZipFileName: Text;
-    begin
-        // [FEATURE] [Intrastat - Disk Tax Auth DE]
-        // [SCENARIO 224092] Report "Intrastat - Disk Tax Auth DE" writes no Quantity if "Supplementary Units" = FALSE in intrastat journal line with type Shipment
-        Initialize;
-
-        // [GIVEN] Intrastat Journal Line with non-zero Quantity "Q", "Supplementary Units" = FALSE and Type = Shipment
-        UpdateCompanyInformation;
-        CreateItemWithTariffNumber(Item);
-        CreateIntrastatJournalLineWithQuantity(Item, IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, LibraryRandom.RandInt(10), false);
-
-        // [WHEN] Intrastat - Disk Tax Auth DE report run
-        ZipFileName := RunDiskTaxAuthDEReport(IntrastatJnlLine);
-
-        // [THEN] Quantity is empty in created file
-        FileName := GetShipmentFileName();
-        VerifyDiskTaxAuthDEReportQuantity('', ZipFileName, FileName);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure IntrastatDiskTaxAuthDEQuantityIfSupplementaryUnitsInShipmentLine()
-    var
-        Item: Record Item;
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        Quantity: Integer;
-        FileName: Text;
-        ZipFileName: Text;
-    begin
-        // [FEATURE] [Intrastat - Disk Tax Auth DE]
-        // [SCENARIO 224092] Report "Intrastat - Disk Tax Auth DE" writes Quantity if "Supplementary Units" = TRUE in intrastat journal line with type Shipment
-        Initialize;
-
-        // [GIVEN] Intrastat Journal Line with non-zero Quantity "Q", "Supplementary Units" = TRUE and Type = Shipment
-        UpdateCompanyInformation;
-        CreateItemWithTariffNumber(Item);
-        Quantity := LibraryRandom.RandInt(100);
-        CreateIntrastatJournalLineWithQuantity(Item, IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, Quantity, true);
-
-        // [WHEN] Intrastat - Disk Tax Auth DE report run
-        ZipFileName := RunDiskTaxAuthDEReport(IntrastatJnlLine);
-
-        // [THEN] Quantity = "Q" in created file
-        FileName := GetShipmentFileName();
-        VerifyDiskTaxAuthDEReportQuantity(Format(Quantity), ZipFileName, FileName);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure IntrastatDiskTaxAuthDEManualStatisticalValueInReceiptLine()
-    var
-        Item: Record Item;
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        TempBlob: Codeunit "Temp Blob";
-        ExtractedFileOutStream: OutStream;
-        ExtractedFileInStream: InStream;
-        FileName: Text;
-        ZipFileName: Text;
-        LineTxt: Text;
-        StatValueTxt: Text;
-        DummyFileLength: Integer;
-    begin
-        // [FEATURE] [Intrastat - Disk Tax Auth DE]
-        // [SCENARIO 331036] Export "Intrastat - Disk Tax Auth DE" when Intrastat Journal Line has Amount = 0 and Statistical value updated manually
-        Initialize;
-        UpdateCompanyInformation;
-
-        // [GIVEN] Intrastat Journal Line with Amount = 0, Statistical Value = 100, no item specified
-        CreateItemWithTariffNumber(Item);
-        CreateIntrastatJournalLine(Item, IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-        IntrastatJnlLine."Item No." := '';
-        IntrastatJnlLine.Amount := 0;
-        IntrastatJnlLine."Statistical Value" := LibraryRandom.RandIntInRange(100, 200);
-        IntrastatJnlLine.Modify();
-
-        // [WHEN] Intrastat - Disk Tax Auth DE report run
-        ZipFileName := RunDiskTaxAuthDEReport(IntrastatJnlLine);
-
-        // [THEN] File is created with Amount = 0, Statistical Value = 100
-        FileName := GetReceiptFileName();
-        TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFileName, FileName, ExtractedFileOutStream, DummyFileLength);
-        TempBlob.CreateInStream(ExtractedFileInStream, TEXTENCODING::UTF8);
-
-        LineTxt := LibraryTextFileValidation.ReadLineFromStream(ExtractedFileInStream, 1);
-        StatValueTxt := Format(IntrastatJnlLine."Statistical Value");
-        StatValueTxt := PadStr('', 11 - StrLen(StatValueTxt)) + StatValueTxt;
-        Assert.AreEqual(
-          StatValueTxt, CopyStr(LineTxt, 106, 11), IntrastatJnlLine.FieldCaption("Statistical Value"));
-        Assert.AreEqual(
-          PadStr('', 10) + '0', CopyStr(LineTxt, 95, 11), IntrastatJnlLine.FieldCaption(Amount));
     end;
 
     [Test]
@@ -898,8 +675,8 @@ codeunit 142039 "UT REP Intrastat DE"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -918,7 +695,7 @@ codeunit 142039 "UT REP Intrastat DE"
     begin
         TariffNumber.SetRange("No.", TariffNo);
         IntrastatItemList.SetTableView(TariffNumber);
-        IntrastatItemList.Run;  // Invokes IntrastatItemListReportHandler.
+        IntrastatItemList.Run();  // Invokes IntrastatItemListReportHandler.
     end;
 
     local procedure RunIntrastatFormDEReport(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option)
@@ -927,24 +704,7 @@ codeunit 142039 "UT REP Intrastat DE"
     begin
         IntrastatJnlLine.SetRange(Type, Type);
         IntrastatFormDE.SetTableView(IntrastatJnlLine);
-        IntrastatFormDE.Run;  // Invokes IntrastatFormDERequestPageHandler.
-    end;
-
-    local procedure RunDiskTaxAuthDEReport(IntrastatJnlLine: Record "Intrastat Jnl. Line"): Text
-    var
-        IntrastatDiskTaxAuthDE: Report "Intrastat - Disk Tax Auth DE";
-        FileMgt: Codeunit "File Management";
-        ZipFileName: Text;
-    begin
-        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
-        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
-        IntrastatJnlLine.SetRange("Line No.", IntrastatJnlLine."Line No.");
-        ZipFileName := FileMgt.ServerTempFileName('zip');
-        IntrastatDiskTaxAuthDE.InitializeRequest(ZipFileName);
-        IntrastatDiskTaxAuthDE.SetTableView(IntrastatJnlLine);
-        IntrastatDiskTaxAuthDE.UseRequestPage(false);
-        IntrastatDiskTaxAuthDE.RunModal;
-        exit(ZipFileName);
+        IntrastatFormDE.Run();  // Invokes IntrastatFormDERequestPageHandler.
     end;
 
     local procedure CreateItemWithTariffNumber(var Item: Record Item)
@@ -1019,14 +779,6 @@ codeunit 142039 "UT REP Intrastat DE"
         IntrastatJnlLine.Modify();
     end;
 
-    local procedure CreateIntrastatJournalLineWithQuantity(var Item: Record Item; var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option; Quantity: Integer; SupplementaryUnits: Boolean)
-    begin
-        CreateIntrastatJournalLine(Item, IntrastatJnlLine, Type);
-        IntrastatJnlLine.Quantity := Quantity;
-        IntrastatJnlLine."Supplementary Units" := SupplementaryUnits;
-        IntrastatJnlLine.Modify();
-    end;
-
     local procedure CreateIntrastatJournalLineWithTotalWeight(var Item: Record Item; var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option; TotalWeight: Decimal)
     begin
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlTemplateName, IntrastatJnlBatchName);
@@ -1064,22 +816,6 @@ codeunit 142039 "UT REP Intrastat DE"
         LibraryVariableStorage.Enqueue(JournalBatchName);
     end;
 
-    local procedure GetReceiptFileName(): Text
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        CompanyInformation.Get();
-        exit(CompanyInformation."Purch. Authorized No." + '.ASC');
-    end;
-
-    local procedure GetShipmentFileName(): Text
-    var
-        CompanyInformation: Record "Company Information";
-    begin
-        CompanyInformation.Get();
-        exit(CompanyInformation."Sales Authorized No." + '.ASC');
-    end;
-
     local procedure UpdateGeneralLedgerSetup()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -1087,27 +823,6 @@ codeunit 142039 "UT REP Intrastat DE"
         GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := GeneralLedgerSetup."LCY Code";
         GeneralLedgerSetup.Modify();
-    end;
-
-    local procedure UpdateCompanyInformation()
-    var
-        CompanyInformation: Record "Company Information";
-        IntrastatSetup: Record "Intrastat Setup";
-    begin
-        with CompanyInformation do begin
-            Get;
-            "Registration No." := LibraryUtility.GenerateGUID;
-            "Sales Authorized No." := 'SALES';
-            "Purch. Authorized No." := 'PURCHASE';
-            Area := LibraryUtility.GenerateGUID;
-            "Agency No." := LibraryUtility.GenerateGUID;
-            "Company No." := LibraryUtility.GenerateGUID;
-            Modify;
-        end;
-
-        LibraryERM.SetIntrastatContact(
-          IntrastatSetup."Intrastat Contact Type"::Contact,
-          LibraryERM.CreateIntrastatContact(IntrastatSetup."Intrastat Contact Type"::Contact));
     end;
 
     local procedure UpdateReceiptsShipmentsOnIntrastatSetup(ReportReceipts: Boolean; ReportShipments: Boolean)
@@ -1130,36 +845,6 @@ codeunit 142039 "UT REP Intrastat DE"
     begin
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('HeaderText', HeaderText);
-    end;
-
-    local procedure VerifyDiskTaxAuthDEReportQuantity(Quantity: Text; ZipFilePath: Text; FileName: Text)
-    var
-        TempBlob: Codeunit "Temp Blob";
-        ExtractedFileOutStream: OutStream;
-        ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
-        FileLine: Text;
-    begin
-        TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream, DummyFileLength);
-        TempBlob.CreateInStream(ExtractedFileInStream, TEXTENCODING::UTF8);
-        FileLine := LibraryTextFileValidation.ReadLineFromStream(ExtractedFileInStream, 1);
-        Assert.AreEqual(PadStr('', 11 - StrLen(Quantity)) + Quantity, CopyStr(FileLine, 82, 11), QuantityErr);
-    end;
-
-    local procedure VerifyDiskTaxAuthDEReportTotalWeight(TotalWeight: Text; ZipFilePath: Text; FileName: Text)
-    var
-        TempBlob: Codeunit "Temp Blob";
-        ExtractedFileOutStream: OutStream;
-        ExtractedFileInStream: InStream;
-        DummyFileLength: Integer;
-        FileLine: Text;
-    begin
-        TempBlob.CreateOutStream(ExtractedFileOutStream);
-        ExtractEntryFromZipFile(ZipFilePath, FileName, ExtractedFileOutStream, DummyFileLength);
-        TempBlob.CreateInStream(ExtractedFileInStream, TEXTENCODING::UTF8);
-        FileLine := LibraryTextFileValidation.ReadLineFromStream(ExtractedFileInStream, 1);
-        Assert.AreEqual(PadStr('', 11 - StrLen(TotalWeight)) + TotalWeight, CopyStr(FileLine, 71, 11), 'Total Weight is wrong in the file');
     end;
 
     [RequestPageHandler]

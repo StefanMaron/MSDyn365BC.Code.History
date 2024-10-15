@@ -1014,6 +1014,56 @@ codeunit 137011 "SCM Revaluation-II"
         ItemJournalLine.TestField("Inventory Value (Calculated)", UnitCost * Qty);
     end;
 
+    [Test]
+    procedure PartialRevaluationWithConsiderationOfUnitCostPrecisionError()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [FEATURE] [Rounding] [Unit of Measure]
+        // [SCENARIO 416071] Consider unit cost rounding when posting revaluation of an item entry.
+        Initialize();
+
+        // [GIVEN] Item with base unit of measure "PCS" and alternate UoM "BOX" = 1,000,000 PCS.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 1000000);
+
+        // [GIVEN] Create and post item journal line, quantity = 1 "BOX", amount = 663.
+        // [GIVEN] A unit cost is thus equal to 0.000663 and rounded to 0.00066.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", '', '', 1);
+        ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::Purchase);
+        ItemJournalLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        ItemJournalLine.Validate(Amount, 663);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Note the posted item entry "X" has cost amount = 663.
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindLast();
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", 663);
+
+        // [GIVEN] Run the cost adjustment prior to revaluation.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Create a revaluation journal line, select the item entry "X" and the new inventory value = 0.
+        CreateRevaluationJournal(ItemJournalLine);
+        ItemJournalLine.Validate("Item No.", Item."No.");
+        ItemJournalLine.Validate("Applies-to Entry", ItemLedgerEntry."Entry No.");
+        ItemJournalLine.Validate("Inventory Value (Revalued)", 0);
+        ItemJournalLine.Modify(true);
+
+        // [WHEN] Post the revaluation journal.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [THEN] The item entry "X" has cost amount = 0.
+        ItemLedgerEntry.Find();
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

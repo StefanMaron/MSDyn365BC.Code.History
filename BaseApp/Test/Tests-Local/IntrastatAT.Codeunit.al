@@ -525,6 +525,89 @@ codeunit 144061 "Intrastat AT"
         Assert.AreEqual(1.679, IntraJnlManagement.RoundTotalWeight(1.6789), '');
     end;
 
+    [Test]
+    procedure IntrastatExport2022()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        FileTempBlob: Codeunit "Temp Blob";
+    begin
+        // [FEATURE] [Intrastat] [Export]
+        // [SCENARIO 420178] Intrastat journal basic file export in format of 2022
+        Initialize();
+        IntrastatJnlLine.DeleteAll();
+
+        // [GIVEN] Intrastat journal line
+        PrepareIntrastatJnlLine(IntrastatJnlLine);
+
+        // [WHEN] Export Intrastat journal to file using format 2022
+        RunIntrastatExport2022(FileTempBlob, IntrastatJnlLine);
+
+        // [THEN] Basic fields are exported in format of 2022
+        VerifyIntrastatExportedFile2022(FileTempBlob, IntrastatJnlLine);
+    end;
+
+    [Test]
+    procedure SuggestLinesAmountRounding()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Suggest Lines] [Rounding]
+        // [SCENARIO 421109] Intrastat journal Suggest Lines Amount rounding
+        Initialize();
+        IntrastatJnlLine.DeleteAll();
+
+        // [GIVEN] Posted EU Intrastat sales invoice with total Amount = 123.456
+        DocumentNo := LibraryUtility.GenerateGUID();
+        MockItemLedgerEntryWithValueEntry(DocumentNo, 123.456);
+
+        // [WHEN] Suggest Lines
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        LibraryERM.CreateIntrastatJnlLine(
+            IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
+
+        // [THEN] Suggested line has "Amount" = 123.456, "Statistical Value" = 123.456
+        IntrastatJnlLine.SetRange("Document No.", DocumentNo);
+        IntrastatJnlLine.FindFirst();
+        IntrastatJnlLine.TestField(Amount, 123.456);
+        IntrastatJnlLine.TestField("Statistical Value", 123.456);
+    end;
+
+    [Test]
+    procedure JournalLinePageDecimals()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        IntrastatJournal: TestPage "Intrastat Journal";
+        DecimalValue: Decimal;
+    begin
+        // [FEATURE] [UI] [Rounding]
+        // [SCENARIO 421109] Intrastat journal page decimals rounding
+        Initialize();
+
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        LibraryERM.CreateIntrastatJnlLine(
+            IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        DecimalValue := 123.456;
+        IntrastatJnlLine.Quantity := DecimalValue;
+        IntrastatJnlLine."Net Weight" := DecimalValue;
+        IntrastatJnlLine."Total Weight" := DecimalValue;
+        IntrastatJnlLine.Amount := DecimalValue;
+        IntrastatJnlLine."Statistical Value" := DecimalValue;
+        IntrastatJnlLine.Modify();
+
+        IntrastatJournal.OpenEdit();
+        IntrastatJournal.GotoRecord(IntrastatJnlLine);
+        Assert.AreEqual(Format(123.46), IntrastatJournal.Quantity.Value, 'Quantity');
+        Assert.AreEqual(Format(DecimalValue), IntrastatJournal."Net Weight".Value, 'Net Weight');
+        Assert.AreEqual(Format(123.46), IntrastatJournal."Total Weight".Value, 'Total Weight');
+        Assert.AreEqual(Format(123.46), IntrastatJournal.Amount.Value, 'Amount');
+        Assert.AreEqual(Format(123.46), IntrastatJournal."Statistical Value".Value, 'Statistical Value');
+        IntrastatJournal.Close();
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -549,7 +632,57 @@ codeunit 144061 "Intrastat AT"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Intrastat AT");
     end;
 
-    local procedure CreateAndPostSalesDoc(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure PrepareIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
+        LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
+        IntrastatJnlLine."Tariff No." := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(9, 0), 1, 9);
+        IntrastatJnlLine."Item Description" :=
+            CopyStr(
+                LibraryUtility.GenerateRandomText(MaxStrLen(IntrastatJnlLine."Item Description")),
+                1, MaxStrLen(IntrastatJnlLine."Item Description"));
+        IntrastatJnlLine."Country/Region Code" := CreateCountryRegionWithIntrastatCode();
+        IntrastatJnlLine."Country/Region of Origin Code" := CreateCountryRegionWithIntrastatCode();
+        IntrastatJnlLine."Partner VAT ID" :=
+            CopyStr(LibraryUtility.GenerateRandomAlphabeticText(12, 0), 1, MaxStrLen(IntrastatJnlLine."Partner VAT ID"));
+        IntrastatJnlLine."Transaction Type" := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(2, 0), 1, 2);
+        IntrastatJnlLine."Transport Method" := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(1, 0), 1, 1);
+        IntrastatJnlLine."Total Weight" := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        IntrastatJnlLine.Quantity := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        IntrastatJnlLine.Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        IntrastatJnlLine."Statistical Value" := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        IntrastatJnlLine.Modify();
+    end;
+
+    local procedure MockItemLedgerEntryWithValueEntry(DocumentNo: Code[20]; SalesAmountActual: Decimal)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+        ItemLedgerEntry."Entry Type" := ItemLedgerEntry."Entry Type"::Sale;
+        ItemLedgerEntry."Country/Region Code" := GetCountryRegionCode();
+        ItemLedgerEntry."Posting Date" := WorkDate();
+        ItemLedgerEntry."Document No." := DocumentNo;
+        ItemLedgerEntry.Insert();
+
+        MockValueEntry(ItemLedgerEntry, SalesAmountActual);
+    end;
+
+    local procedure MockValueEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; SalesAmountActual: Decimal)
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry."Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, ValueEntry.FieldNo("Entry No."));
+        ValueEntry."Item Ledger Entry No." := ItemLedgerEntry."Entry No.";
+        ValueEntry."Sales Amount (Actual)" := SalesAmountActual;
+        ValueEntry.Insert();
+    end;
+
+    local procedure CreateAndPostSalesDoc(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20];
+                                                            ItemNo: Code[20];
+                                                            Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -559,7 +692,9 @@ codeunit 144061 "Intrastat AT"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchDoc(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndPostPurchDoc(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20];
+                                                            ItemNo: Code[20];
+                                                            Quantity: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -574,11 +709,11 @@ codeunit 144061 "Intrastat AT"
         CountryRegion: Record "Country/Region";
         CountryRegionCode: Code[10];
     begin
-        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion.Code := LibraryUtility.GenerateRandomCodeWithLength(CountryRegion.FieldNo(Code), Database::"Country/Region", 2);
         CountryRegionCode := DelStr(CountryRegion.Code, 1, StrLen(CountryRegion.Code) - 2);
         CountryRegion.Validate("Intrastat Code", CountryRegionCode);
         CountryRegion.Validate("EU Country/Region Code", CountryRegionCode);
-        CountryRegion.Modify(true);
+        CountryRegion.Insert(true);
         exit(CountryRegion.Code);
     end;
 
@@ -697,8 +832,13 @@ codeunit 144061 "Intrastat AT"
     end;
 
     local procedure FindOrCreateIntrastatTransactionType(): Code[10]
+    var
+        TransactionType: Record "Transaction Type";
     begin
-        exit(LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Transaction Type"));
+        TransactionType.Code := Format(LibraryRandom.RandIntInRange(1, 9));
+        if not TransactionType.Get(TransactionType.Code) then
+            TransactionType.Insert();
+        exit(TransactionType.Code);
     end;
 
     local procedure FindOrCreateIntrastatTransportMethod(): Code[10]
@@ -721,6 +861,18 @@ codeunit 144061 "Intrastat AT"
           IntrastatJnlBatch."Statistics Period" + FileExtenstionTxt;
         FilenamePurchase := Filepath + '\' + CopyStr(CompanyInfo."Purch. Authorized No.", 1, 4) +
           IntrastatJnlBatch."Statistics Period" + FileExtenstionTxt;
+    end;
+
+    local procedure GetCountryRegionCode(): Code[10]
+    var
+        CountryRegion: Record "Country/Region";
+        CompanyInformation: Record "Company Information";
+    begin
+        CompanyInformation.Get();
+        CountryRegion.SetFilter(Code, '<>%1', CompanyInformation."Country/Region Code");
+        CountryRegion.SetFilter("Intrastat Code", '<>''''');
+        CountryRegion.FindFirst();
+        exit(CountryRegion.Code);
     end;
 
     local procedure PrepareIntrastatBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
@@ -793,6 +945,30 @@ codeunit 144061 "Intrastat AT"
         IntrastatDiskTaxAuthAT.Run;
     end;
 
+    local procedure RunIntrastatExport2022(var FileTempBlob: Codeunit "Temp Blob"; IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
+        FileOutStream: OutStream;
+        ExportFormat: Enum "Intrastat Export Format";
+    begin
+        FileTempBlob.CreateOutStream(FileOutStream);
+        IntrastatJnlLine.SetRecFilter();
+        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, ExportFormat::"2022");
+        IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
+        IntrastatMakeDiskTaxAuth.UseRequestPage(false);
+        IntrastatMakeDiskTaxAuth.Run();
+    end;
+
+    local procedure RunGetItemEntries(IntrastatJnlLine: Record "Intrastat Jnl. Line"; StartDate: Date; EndDate: Date)
+    var
+        GetItemLedgerEntries: Report "Get Item Ledger Entries";
+    begin
+        GetItemLedgerEntries.InitializeRequest(StartDate, EndDate, 0);
+        GetItemLedgerEntries.SetIntrastatJnlLine(IntrastatJnlLine);
+        GetItemLedgerEntries.UseRequestPage(false);
+        GetItemLedgerEntries.Run();
+    end;
+
     local procedure SetCompanyInfoFields()
     var
         CompanyInfo: Record "Company Information";
@@ -832,6 +1008,24 @@ codeunit 144061 "Intrastat AT"
     begin
         Assert.IsTrue(StrLen(Text) <= Length, StrSubstNo(CannotDisplayWithInvalidLengthErr, Text, Length));
         exit(PadStr('', Length - StrLen(Text), '0') + Text);
+    end;
+
+    local procedure ExtractZip(var ZipFileTempBlob: Codeunit "Temp Blob"; FileBlob: Codeunit "Temp Blob")
+    var
+        DataCompression: Codeunit "Data Compression";
+        FileInStream: InStream;
+        FileOutStream: OutStream;
+        FilesList: List of [Text];
+        FileLength: Integer;
+        FileName: Text;
+    begin
+        ZipFileTempBlob.CreateInStream(FileInStream);
+        DataCompression.OpenZipArchive(FileInStream, false);
+        DataCompression.GetEntryList(FilesList);
+        FilesList.Get(1, FileName);
+        FileBlob.CreateOutStream(FileOutStream);
+        DataCompression.ExtractEntry(FileName, FileOutStream, FileLength);
+        DataCompression.CloseZipArchive();
     end;
 
     local procedure VerifyCNT19Section(FileName: Text; Quantity: Text[1])
@@ -954,6 +1148,49 @@ codeunit 144061 "Intrastat AT"
         SearchString :=
           Format(DelStr(CountryRegionCode, 1, StrLen(CountryRegionCode) - 2)) + KGMStringTxt + DecimalZeroFormat(TotalNetWeight, 12);
         VerifyStringInstancesInFile(FilenameSales, SearchString, 1);
+    end;
+
+    local procedure VerifyIntrastatExportedFile2022(var ZipFileTempBlob: Codeunit "Temp Blob"; IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        CountryRegion: Record "Country/Region";
+        FileBlob: Codeunit "Temp Blob";
+        FileInStream: InStream;
+        Line: Text;
+        Values: List of [Text];
+        sep: Char;
+        dec: Decimal;
+    begin
+        ExtractZip(ZipFileTempBlob, FileBlob);
+        FileBlob.CreateInStream(FileInStream);
+        FileInStream.ReadText(Line);
+        sep := 9; // TAB
+        Values := Line.Split(sep);
+        Assert.AreEqual(10, Values.Count(), '');
+
+        Values.Get(1, Line);
+        Assert.AreEqual(Format(IntrastatJnlLine."Tariff No.", 8), Line, 'Tariff No');
+        Values.Get(2, Line);
+        Assert.AreEqual(IntrastatJnlLine."Item Description", Line, 'Item Description');
+        Values.Get(3, Line);
+        Assert.AreEqual(IntrastatJnlLine."Country/Region Code", Line, 'Country/Region Code');
+        Values.Get(4, Line);
+        Assert.AreEqual(IntrastatJnlLine."Country/Region of Origin Code", Line, 'Country/Region of Origin Code');
+        Values.Get(5, Line);
+        Assert.AreEqual(IntrastatJnlLine."Transaction Type", Line, 'Transaction Type');
+        Values.Get(6, Line);
+        dec := IntrastatJnlLine."Total Weight";
+        Assert.AreEqual(TextZeroFormat(Format(dec, 0, '<Integer><Decimals,4><Comma,,>'), 14), Line, 'Total Weight');
+        Values.Get(7, Line);
+        dec := IntrastatJnlLine.Quantity;
+        Assert.AreEqual(TextZeroFormat(Format(dec, 0, '<Integer><Decimals,4><Comma,,>'), 14), Line, 'Quantity');
+        Values.Get(8, Line);
+        dec := IntrastatJnlLine.Amount;
+        Assert.AreEqual(TextZeroFormat(Format(dec, 0, '<Integer><Decimals,3><Comma,,>'), 13), Line, 'Amount');
+        Values.Get(9, Line);
+        dec := IntrastatJnlLine."Statistical Value";
+        Assert.AreEqual(TextZeroFormat(Format(dec, 0, '<Integer><Decimals,3><Comma,,>'), 13), Line, 'Statistical Value');
+        Values.Get(10, Line);
+        Assert.AreEqual(IntrastatJnlLine."Partner VAT ID", Line, 'Partner VAT ID');
     end;
 
     [RequestPageHandler]

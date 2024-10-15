@@ -9,55 +9,26 @@ report 11014 "Intrastat - Disk Tax Auth DE"
         {
             DataItemTableView = SORTING("Journal Template Name", Name);
             RequestFilterFields = "Journal Template Name", Name;
-            dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
+            dataitem(IntrastatJnlLine; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", Area, "Transaction Specification", "Country/Region of Origin Code");
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method", Area, "Transaction Specification", "Country/Region of Origin Code", "Partner VAT ID");
 
                 trigger OnAfterGetRecord()
                 begin
-                    if IsBlankedLine("Intrastat Jnl. Line") then
+                    if IsBlankedLine(IntrastatJnlLine) then
                         CurrReport.Skip();
 
-#if CLEAN19
-                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Disk Tax Auth DE", true);
-#else
-                    if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Disk Tax Auth DE", true)
-                    else begin
-                        TestField("Tariff No.");
-                        TestField("Country/Region Code");
-                        TestField("Transaction Type");
-                        if CompanyInfo."Check Transport Method" then
-                            TestField("Transport Method");
-                        TestField(Area);
-                        if CompanyInfo."Check Transaction Specific." then
-                            TestField("Transaction Specification");
-                        if Type = Type::Receipt then
-                            TestField("Country/Region of Origin Code")
-                        else begin
-                            if CompanyInfo."Check for Partner VAT ID" then
-                                TestField("Partner VAT ID");
-                            if CompanyInfo."Check for Country of Origin" then
-                                TestField("Country/Region of Origin Code");
-                        end;
-                        if "Supplementary Units" then
-                            TestField(Quantity);
-                    end;
-#endif
-                    CompoundField :=
-                      Format("Country/Region Code", 10) + Format(DelChr("Tariff No."), 10) +
-                      Format("Transaction Type", 10) + Format("Transport Method", 10) +
-                      Format(Area, 10) + Format("Transaction Specification", 10) + Format("Country/Region of Origin Code", 10) +
-                      Format("Partner VAT ID", MaxStrLen("Partner VAT ID"));
+                    CheckLine(IntrastatJnlLine);
 
-                    if (TempType <> Type) or (StrLen(TempCompoundField) = 0) then begin
-                        TempType := Type;
-                        TempCompoundField := CompoundField;
+                    CompoundField := GetCompound(IntrastatJnlLine);
+                    if (PrevType <> Type) or (StrLen(PrevCompoundField) = 0) then begin
+                        PrevType := Type;
+                        PrevCompoundField := CompoundField;
                         IntraReferenceNo := CopyStr(IntraReferenceNo, 1, 4) + '000001';
                     end else
-                        if TempCompoundField <> CompoundField then begin
-                            TempCompoundField := CompoundField;
+                        if PrevCompoundField <> CompoundField then begin
+                            PrevCompoundField := CompoundField;
                             if CopyStr(IntraReferenceNo, 8, 3) = '999' then
                                 IntraReferenceNo := IncStr(CopyStr(IntraReferenceNo, 1, 7)) + '001'
                             else
@@ -77,28 +48,25 @@ report 11014 "Intrastat - Disk Tax Auth DE"
 
                 trigger OnPostDataItem()
                 begin
+#if not CLEAN20
                     if (FormatType = FormatType::XML) and (ShipmentExists or ReceiptExists) then
                         IntrastatExportMgtDACH.WriteXMLHeader(
                           XMLDocument, RootXMLNode, TestSubmission, "Intrastat Jnl. Batch".GetStatisticsStartDate());
-                end;
-
-                trigger OnPreDataItem()
-                begin
-                    "Intrastat Jnl. Line".Reset();
-                    "Intrastat Jnl. Line".SetCurrentKey("Journal Template Name", "Journal Batch Name", Type, "Country/Region Code", "Tariff No.",
-                      "Transaction Type", "Transport Method", Area, "Transaction Specification",
-                      "Country/Region of Origin Code");
-                    "Intrastat Jnl. Line".CopyFilters(IntrastatJnlLine4);
+#else
+                    if ShipmentExists or ReceiptExists then
+                        IntrastatExportMgtDACH.WriteXMLHeader(
+                            XMLDocument, RootXMLNode, TestSubmission, "Intrastat Jnl. Batch".GetStatisticsStartDate());
+#endif
                 end;
             }
-            dataitem(IntrastatJnlLine2; "Intrastat Jnl. Line")
+            dataitem(ReceiptIntrastatJnlLine; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", Type, "Internal Ref. No.") WHERE(Type = CONST(Receipt));
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", Type, "Internal Ref. No.") where(Type = const(Receipt));
 
                 trigger OnAfterGetRecord()
                 begin
-                    if IsBlankedLine(IntrastatJnlLine2) then
+                    if IsBlankedLine(ReceiptIntrastatJnlLine) then
                         CurrReport.Skip();
 
                     if (ItemIntrastatJnlLine."Internal Ref. No." <> '') and
@@ -108,8 +76,8 @@ report 11014 "Intrastat - Disk Tax Auth DE"
                         ItemIntrastatJnlLine.Init();
                     end;
 
-                    AddIntrastatJnlLine(ItemIntrastatJnlLine, IntrastatJnlLine2);
-                    AddIntrastatJnlLine(DeclarationIntrastatJnlLine, IntrastatJnlLine2);
+                    AddIntrastatJnlLine(ItemIntrastatJnlLine, ReceiptIntrastatJnlLine);
+                    AddIntrastatJnlLine(DeclarationIntrastatJnlLine, ReceiptIntrastatJnlLine);
                 end;
 
                 trigger OnPostDataItem()
@@ -120,12 +88,16 @@ report 11014 "Intrastat - Disk Tax Auth DE"
                     if ItemIntrastatJnlLine."Internal Ref. No." <> '' then
                         WriteReceiptFile();
 
+#if not CLEAN20
                     case FormatType of
                         FormatType::ASCII:
                             IntrastatExportMgtDACH.SaveAndCloseFile(ASCIIFileBodyText, XMLDocument, ServerFileReceipts, FormatType);
                         FormatType::XML:
                             IntrastatExportMgtDACH.WriteXMLDeclarationTotals(DeclarationXMLNode, DeclarationIntrastatJnlLine);
                     end;
+#else
+                    IntrastatExportMgtDACH.WriteXMLDeclarationTotals(DeclarationXMLNode, DeclarationIntrastatJnlLine);
+#endif
                 end;
 
                 trigger OnPreDataItem()
@@ -135,20 +107,25 @@ report 11014 "Intrastat - Disk Tax Auth DE"
 
                     ItemIntrastatJnlLine.Init();
                     DeclarationIntrastatJnlLine.Init();
+#if not CLEAN20
                     ASCIIFileBodyText := '';
                     if FormatType = FormatType::XML then
                         IntrastatExportMgtDACH.WriteXMLDeclaration(
                           RootXMLNode, DeclarationXMLNode, Type::Receipt, "Intrastat Jnl. Batch"."Currency Identifier");
+#else
+                    IntrastatExportMgtDACH.WriteXMLDeclaration(
+                        RootXMLNode, DeclarationXMLNode, Type::Receipt, "Intrastat Jnl. Batch"."Currency Identifier");
+#endif
                 end;
             }
-            dataitem(IntrastatJnlLine5; "Intrastat Jnl. Line")
+            dataitem(ShipmentIntrastatJnlLine; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", Type, "Internal Ref. No.") WHERE(Type = CONST(Shipment));
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting("Journal Template Name", "Journal Batch Name", Type, "Internal Ref. No.") where(Type = const(Shipment));
 
                 trigger OnAfterGetRecord()
                 begin
-                    if IsBlankedLine(IntrastatJnlLine5) then
+                    if IsBlankedLine(ShipmentIntrastatJnlLine) then
                         CurrReport.Skip();
 
                     if (ItemIntrastatJnlLine."Internal Ref. No." <> '') and
@@ -158,8 +135,8 @@ report 11014 "Intrastat - Disk Tax Auth DE"
                         ItemIntrastatJnlLine.Init();
                     end;
 
-                    AddIntrastatJnlLine(ItemIntrastatJnlLine, IntrastatJnlLine5);
-                    AddIntrastatJnlLine(DeclarationIntrastatJnlLine, IntrastatJnlLine5);
+                    AddIntrastatJnlLine(ItemIntrastatJnlLine, ShipmentIntrastatJnlLine);
+                    AddIntrastatJnlLine(DeclarationIntrastatJnlLine, ShipmentIntrastatJnlLine);
                 end;
 
                 trigger OnPostDataItem()
@@ -170,12 +147,16 @@ report 11014 "Intrastat - Disk Tax Auth DE"
                     if ItemIntrastatJnlLine."Internal Ref. No." <> '' then
                         WriteShipmentFile();
 
+#if not CLEAN20
                     case FormatType of
                         FormatType::ASCII:
                             IntrastatExportMgtDACH.SaveAndCloseFile(ASCIIFileBodyText, XMLDocument, ServerFileShipments, FormatType);
                         FormatType::XML:
                             IntrastatExportMgtDACH.WriteXMLDeclarationTotals(DeclarationXMLNode, DeclarationIntrastatJnlLine);
                     end;
+#else
+                    IntrastatExportMgtDACH.WriteXMLDeclarationTotals(DeclarationXMLNode, DeclarationIntrastatJnlLine);
+#endif
                 end;
 
                 trigger OnPreDataItem()
@@ -185,10 +166,15 @@ report 11014 "Intrastat - Disk Tax Auth DE"
 
                     ItemIntrastatJnlLine.Init();
                     DeclarationIntrastatJnlLine.Init();
+#if not CLEAN20
                     ASCIIFileBodyText := '';
                     if FormatType = FormatType::XML then
                         IntrastatExportMgtDACH.WriteXMLDeclaration(
                           RootXMLNode, DeclarationXMLNode, Type::Shipment, "Intrastat Jnl. Batch"."Currency Identifier");
+#else
+                    IntrastatExportMgtDACH.WriteXMLDeclaration(
+                        RootXMLNode, DeclarationXMLNode, Type::Shipment, "Intrastat Jnl. Batch"."Currency Identifier");
+#endif
                 end;
             }
 
@@ -202,8 +188,8 @@ report 11014 "Intrastat - Disk Tax Auth DE"
 
             trigger OnPreDataItem()
             begin
-                IntrastatJnlLine4.CopyFilter("Journal Template Name", "Journal Template Name");
-                IntrastatJnlLine4.CopyFilter("Journal Batch Name", Name);
+                SetFilter("Journal Template Name", IntrastatJnlLine.GetFilter("Journal Template Name"));
+                SetFilter(Name, IntrastatJnlLine.GetFilter("Journal Batch Name"));
             end;
         }
     }
@@ -214,18 +200,24 @@ report 11014 "Intrastat - Disk Tax Auth DE"
 
         layout
         {
-            area(content)
+            area(Content)
             {
                 group(Options)
                 {
                     Caption = 'Options';
+#if not CLEAN20
                     field("Format Type"; FormatType)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Export Format Type';
                         OptionCaption = 'ASCII,XML';
                         ToolTip = 'Specifies the export file format type.';
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Remove legacy ASCII functionality';
+                        ObsoleteTag = '20.0';
                     }
+#endif
                     field("Test Submission"; TestSubmission)
                     {
                         ApplicationArea = Basic, Suite;
@@ -241,22 +233,8 @@ report 11014 "Intrastat - Disk Tax Auth DE"
         }
 
         trigger OnOpenPage()
-        var
-            IntrastatSetup: Record "Intrastat Setup";
         begin
-            if not IntrastatSetup.Get then
-                exit;
-
-            if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
-                exit;
-
-            if IntrastatSetup."Report Receipts" then
-                "Intrastat Jnl. Line".SetRange(Type, "Intrastat Jnl. Line".Type::Receipt)
-            else
-                if IntrastatSetup."Report Shipments" then
-                    "Intrastat Jnl. Line".SetRange(Type, "Intrastat Jnl. Line".Type::Shipment)
-                else
-                    Error(NoValuesErr);
+            FilterSourceLinesByIntrastatSetupExportTypes();
         end;
     }
 
@@ -264,78 +242,178 @@ report 11014 "Intrastat - Disk Tax Auth DE"
     {
     }
 
+    trigger OnPreReport()
+    begin
+        IntrastatFileWriter.Initialize(true, false, 0);
+        IntrastatExportMgtDACH.Initialize(CurrentDateTime());
+#if not CLEAN19
+        CompanyInfo.Get();
+        if IntrastatSetup.Get() then;
+#endif
+
+#if not CLEAN20
+        FormatType := FormatType::XML;
+#endif
+    end;
+
     trigger OnPostReport()
+    var
+        FileOutStream: OutStream;
     begin
         if not ShipmentExists and not ReceiptExists then
             exit;
 
-        if FormatType = FormatType::XML then
+#if not CLEAN20
+        if (ZipArchiveName <> '') then begin
             IntrastatExportMgtDACH.SaveAndCloseFile(ASCIIFileBodyText, XMLDocument, ServerFileShipments, FormatType);
-
-        IntrastatExportMgtDACH.DownloadFile(
-          ZipArchiveName, ServerFileReceipts, ServerFileShipments, FormatType, "Intrastat Jnl. Batch"."Statistics Period");
-
-        if not TestSubmission then begin
-            "Intrastat Jnl. Batch".Reported := true;
-            "Intrastat Jnl. Batch".Modify();
+            IntrastatExportMgtDACH.DownloadFile(
+                ZipArchiveName, ServerFileReceipts, ServerFileShipments, FormatType, "Intrastat Jnl. Batch"."Statistics Period");
+        end else begin
+            IntrastatFileWriter.InitializeNextFile(IntrastatExportMgtDACH.GetXMLFileName());
+            IntrastatFileWriter.GetCurrFileOutStream(FileOutStream);
+            XMLDocument.Save(FileOutStream);
+            IntrastatFileWriter.AddCurrFileToResultFile();
+            IntrastatFileWriter.CloseAndDownloadResultFile();
         end;
-    end;
-
-    trigger OnPreReport()
-    begin
-        IntrastatJnlLine4.CopyFilters("Intrastat Jnl. Line");
-        IntrastatExportMgtDACH.Initialize(CurrentDateTime());
-        CompanyInfo.Get();
-#if not CLEAN19
-        if IntrastatSetup.Get() then;
+#else
+        IntrastatFileWriter.InitializeNextFile(IntrastatExportMgtDACH.GetXMLFileName());
+        IntrastatFileWriter.GetCurrFileOutStream(FileOutStream);
+        XMLDocument.Save(FileOutStream);
+        IntrastatFileWriter.AddCurrFileToResultFile();
+        IntrastatFileWriter.CloseAndDownloadResultFile();
 #endif
+
+        if not TestSubmission then
+            SetBatchIsExported("Intrastat Jnl. Batch");
     end;
 
     var
-        IntrastatJnlLine4: Record "Intrastat Jnl. Line";
         ItemIntrastatJnlLine: Record "Intrastat Jnl. Line";
         DeclarationIntrastatJnlLine: Record "Intrastat Jnl. Line";
-        CompanyInfo: Record "Company Information";
 #if not CLEAN19
+        CompanyInfo: Record "Company Information";
         IntrastatSetup: Record "Intrastat Setup";
 #endif
         IntraJnlManagement: Codeunit IntraJnlManagement;
         IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
+        IntrastatFileWriter: Codeunit "Intrastat File Writer";
         XMLDocument: DotNet XmlDocument;
         RootXMLNode: DotNet XmlNode;
         DeclarationXMLNode: DotNet XmlNode;
-        CompoundField: Text[120];
-        TempCompoundField: Text[120];
+        CompoundField: Text;
+        PrevCompoundField: Text;
         IntraReferenceNo: Text[10];
-        ASCIIFileBodyText: Text;
-        ServerFileShipments: Text;
-        ServerFileReceipts: Text;
-        ZipArchiveName: Text;
-        TempType: Integer;
-        FormatType: Option ASCII,XML;
-        ShipmentExists: Boolean;
+        PrevType: Integer;
         ReceiptExists: Boolean;
+        ShipmentExists: Boolean;
+#if not CLEAN20
+        FormatType: Option ASCII,XML;
+        ServerFileShipments: Text;
+        ZipArchiveName: Text;
+        ASCIIFileBodyText: Text;
+        ServerFileReceipts: Text;
+#endif
         TestSubmission: Boolean;
-        NoValuesErr: Label 'You must select the Report Receipts and Report Shipments check boxes on the Intrastat Setup page.';
+
+    local procedure FilterSourceLinesByIntrastatSetupExportTypes()
+    begin
+        if not IntrastatSetup.Get() then
+            exit;
+
+        if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
+            exit;
+
+        if IntrastatSetup."Report Receipts" then
+            IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Receipt)
+        else
+            if IntrastatSetup."Report Shipments" then
+                IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Shipment)
+    end;
+
+    local procedure CheckLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+#if CLEAN19
+        IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Disk Tax Auth DE", true);
+#else
+        if IntrastatSetup."Use Advanced Checklist" then
+            IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Disk Tax Auth DE", true)
+        else begin
+            IntrastatJnlLine.TestField("Tariff No.");
+            IntrastatJnlLine.TestField("Country/Region Code");
+            IntrastatJnlLine.TestField("Transaction Type");
+            if CompanyInfo."Check Transport Method" then
+                IntrastatJnlLine.TestField("Transport Method");
+            IntrastatJnlLine.TestField(Area);
+            if CompanyInfo."Check Transaction Specific." then
+                IntrastatJnlLine.TestField("Transaction Specification");
+            if IntrastatJnlLine.Type = IntrastatJnlLine.Type::Receipt then
+                IntrastatJnlLine.TestField("Country/Region of Origin Code")
+            else begin
+                if CompanyInfo."Check for Partner VAT ID" then
+                    IntrastatJnlLine.TestField("Partner VAT ID");
+                if CompanyInfo."Check for Country of Origin" then
+                    IntrastatJnlLine.TestField("Country/Region of Origin Code");
+            end;
+            if IntrastatJnlLine."Supplementary Units" then
+                IntrastatJnlLine.TestField(Quantity);
+        end;
+#endif
+    end;
 
     [Scope('OnPrem')]
     procedure WriteReceiptFile()
     begin
+#if not CLEAN20
         if FormatType = FormatType::ASCII then
             IntrastatExportMgtDACH.WriteASCII(
               ASCIIFileBodyText, ItemIntrastatJnlLine, "Intrastat Jnl. Batch"."Currency Identifier", '11', '', ' ', '  ', '')
         else
             IntrastatExportMgtDACH.WriteXMLItem(ItemIntrastatJnlLine, DeclarationXMLNode);
+#else
+        IntrastatExportMgtDACH.WriteXMLItem(ItemIntrastatJnlLine, DeclarationXMLNode);
+#endif
+    end;
+
+    local procedure IsBlankedLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"): Boolean
+    begin
+        exit(
+            (IntrastatJnlLine."Tariff No." = '') and
+            (IntrastatJnlLine."Country/Region Code" = '') and
+            (IntrastatJnlLine."Transaction Type" = '') and
+            (IntrastatJnlLine."Transport Method" = '') and
+            (IntrastatJnlLine.Area = '') and
+            (IntrastatJnlLine."Transaction Specification" = '') and
+            (IntrastatJnlLine."Total Weight" = 0));
+    end;
+
+    local procedure GetCompound(var IntrastatJnlLine: Record "Intrastat Jnl. Line"): Text
+    begin
+        exit(
+            Format(IntrastatJnlLine."Country/Region Code", 10) + Format(DelChr(IntrastatJnlLine."Tariff No."), 20) +
+            Format(IntrastatJnlLine."Transaction Type", 10) + Format(IntrastatJnlLine."Transport Method", 10) +
+            Format(IntrastatJnlLine.Area, 10) + Format(IntrastatJnlLine."Transaction Specification", 10) +
+            Format(IntrastatJnlLine."Partner VAT ID", 50) + Format(IntrastatJnlLine."Country/Region of Origin Code", 10));
+    end;
+
+
+    local procedure SetBatchIsExported(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
+    begin
+        IntrastatJnlBatch.Validate(Reported, true);
+        IntrastatJnlBatch.Modify(true);
     end;
 
     [Scope('OnPrem')]
     procedure WriteShipmentFile()
     begin
+#if not CLEAN20
         if FormatType = FormatType::ASCII then
             IntrastatExportMgtDACH.WriteASCII(
               ASCIIFileBodyText, ItemIntrastatJnlLine, "Intrastat Jnl. Batch"."Currency Identifier", '22', ' ', '', '', '  ')
         else
             IntrastatExportMgtDACH.WriteXMLItem(ItemIntrastatJnlLine, DeclarationXMLNode);
+#else
+        IntrastatExportMgtDACH.WriteXMLItem(ItemIntrastatJnlLine, DeclarationXMLNode);
+#endif
     end;
 
     local procedure AddIntrastatJnlLine(var TargetIntrastatJnlLine: Record "Intrastat Jnl. Line"; SourceIntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -363,23 +441,18 @@ report 11014 "Intrastat - Disk Tax Auth DE"
         end;
     end;
 
-    local procedure IsBlankedLine(IntrastatJnlLine: Record "Intrastat Jnl. Line"): Boolean
-    begin
-        with IntrastatJnlLine do
-            exit(
-              ("Tariff No." = '') and
-              ("Country/Region Code" = '') and
-              ("Transaction Type" = '') and
-              ("Transport Method" = '') and
-              (Area = '') and
-              ("Transaction Specification" = '') and
-              ("Total Weight" = 0));
-    end;
-
+#if not CLEAN20
+    [Obsolete('Replaced by new InitializeRequest(OutStream)', '20.0')]
     [Scope('OnPrem')]
     procedure InitializeRequest(NewZipArchiveName: Text)
     begin
         ZipArchiveName := NewZipArchiveName;
+    end;
+#endif
+
+    procedure InitializeRequest(var newResultFileOutStream: OutStream)
+    begin
+        IntrastatFileWriter.SetResultFileOutStream(newResultFileOutStream);
     end;
 }
 
