@@ -406,6 +406,7 @@ table 7504 "Item Attribute Value Selection"
         ItemAttribute: Record "Item Attribute";
         ValDecimal: Decimal;
         ValDate: Date;
+        ValInteger: Integer;
     begin
         if not FindAttributeValue(ItemAttributeValue) then begin
             ItemAttributeValue."Attribute ID" := "Attribute ID";
@@ -421,6 +422,11 @@ table 7504 "Item Attribute Value Selection"
                         begin
                             Evaluate(ValDate, Value);
                             ItemAttributeValue.Validate(Value, Format(ValDate));
+                        end;
+                    ItemAttribute.Type::Integer:
+                        begin
+                            Evaluate(ValInteger, Value);
+                            ItemAttributeValue.Validate(Value, Format(ValInteger));
                         end;
                     else
                         ItemAttributeValue.Value := Value;

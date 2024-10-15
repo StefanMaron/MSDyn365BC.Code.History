@@ -30,6 +30,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         SalesBlockedGLAccountErr: Label 'You cannot correct this posted sales invoice because G/L Account %1 is blocked.';
         PurchaseBlockedGLAccountErr: Label 'You cannot correct this posted purchase invoice because G/L Account %1 is blocked.';
         WMSLocationCancelCorrectErr: Label 'You cannot cancel or correct this posted sales invoice because Warehouse Receive is required';
+        NoShouldNotBeBlankErr: Label 'No. should not be blank.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1840,6 +1841,78 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         Assert.ExpectedError(WMSLocationCancelCorrectErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPurchaseInvoicewhenItemIsNonInventoriableType()
+    var
+        VatPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [SCENARIO 492364] When tried to correct a posted purchase invoice, system showed "Direct Cost Applied Account must have a value".
+        Initialize();
+
+        // [GIVEN] Create VAT Posting Setup.
+        CreateVATPostingSetup(VatPostingSetup);
+
+        // [GIVEN] Create General Posting Setup.
+        CreateGeneralPostingSetup(GeneralPostingSetup, VatPostingSetup);
+
+        // [GIVEN] Create Item & Vendor.
+        CreateItemAndVendor(Item, Vendor, GeneralPostingSetup, VatPostingSetup);
+
+        // [GIVEN] Create Purchase Order.
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, Vendor);
+
+        // [GIVEN] Post Purchase Order.
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] Run "Correct" action for posted invoice.
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, false);
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+
+        PurchCrMemoHdr.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
+        PurchCrMemoHdr.FindFirst();
+
+        // [VERIFY] Direct cost Applied Account is not involved when it's service or non-inventory.
+        Assert.AreNotEqual('', PurchCrMemoHdr."No.", NoShouldNotBeBlankErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPurchaseInvoicewhenItemIsNonInventoriableTypeWithLocation()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [SCENARIO 492810] Error when trying to Correct Posted Purchase Invoice for a Non-Inventory Type item:  "Warehouse Shipment is required for Line No. 
+        Initialize();
+
+        // [GIVEN] Create Purchase Order with Item Type Service and Non Inventory.
+        CreatePurchaseOrderWithItemTypeServiceAndNonInventory(PurchaseHeader);
+
+        // [GIVEN] Post Purchase Order.
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+
+        // [WHEN] Run "Correct" action for posted invoice.
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, false);
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+
+        PurchCrMemoHdr.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
+        PurchCrMemoHdr.FindFirst();
+
+        // [VERIFY] Warehouse Shipment is not required when Item Type service or non-inventory & Location have "Directed Put-away and Pick".
+        Assert.AreNotEqual('', PurchCrMemoHdr."No.", NoShouldNotBeBlankErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
@@ -2308,6 +2381,84 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         asserterror SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         Assert.ExpectedError('The Sales Header does not exist.');
+    end;
+
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VatPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VatPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; VatPostingSetup: Record "VAT Posting Setup")
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        GLAccNo: Code[20];
+    begin
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+        GenProductPostingGroup.Validate("Def. VAT Prod. Posting Group", VatPostingSetup."VAT Prod. Posting Group");
+        GenProductPostingGroup.Modify(true);
+        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
+        GLAccNo := LibraryERM.CreateGLAccountNoWithDirectPosting();
+        GeneralPostingSetup.Validate("Purch. Account", GLAccNo);
+        GeneralPostingSetup.Validate("Purch. Credit Memo Account", GLAccNo);
+        GeneralPostingSetup.Validate("Purch. Line Disc. Account", GLAccNo);
+        GeneralPostingSetup.Validate("Purch. Inv. Disc. Account", GLAccNo);
+        GeneralPostingSetup.Validate("COGS Account", GLAccNo);
+        GeneralPostingSetup.Validate("COGS Account (Interim)", GLAccNo);
+        GeneralPostingSetup.Validate("Inventory Adjmt. Account", GLAccNo);
+        GeneralPostingSetup.Validate("Invt. Accrual Acc. (Interim)", GLAccNo);
+        GeneralPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateItemAndVendor(var Item: Record Item; var Vendor: Record Vendor; GeneralPostingSetup: Record "General Posting Setup"; VatPostingSetup: Record "VAT Posting Setup")
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Type, Item.Type::Service);
+        Item.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        Item.Modify(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        Vendor.Validate("VAT Bus. Posting Group", VatPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Item: Record Item; Vendor: Record Vendor)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(1, 10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrderWithItemTypeServiceAndNonInventory(var PurchaseHeader: Record "Purchase Header")
+    var
+        Item: array[2] of Record Item;
+        PurchaseLine: array[2] of Record "Purchase Line";
+        Location: Record Location;
+        i: Integer;
+    begin
+        LibraryInventory.CreateServiceTypeItem(Item[1]);
+        LibraryInventory.CreateNonInventoryTypeItem(Item[2]);
+        LibraryWarehouse.CreateFullWMSLocation(Location, LibraryRandom.RandInt(5));
+        LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, LibraryPurchase.CreateVendorNo(), Location.Code);
+        
+        for i := 1 to ArrayLen(Item) do
+            LibraryPurchase.CreatePurchaseLineWithUnitCost(
+                PurchaseLine[i],
+                PurchaseHeader,
+                Item[i]."No.",
+                LibraryRandom.RandInt(100),
+                LibraryRandom.RandInt(10));
     end;
 
     [ModalPageHandler]

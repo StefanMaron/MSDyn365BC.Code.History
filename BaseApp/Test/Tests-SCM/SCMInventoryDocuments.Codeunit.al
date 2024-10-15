@@ -33,6 +33,7 @@ codeunit 137140 "SCM Inventory Documents"
         UnitOfMeasureCodeErr: Label 'Unit of Measure Code are not equal';
         UnitCostErr: Label 'Unit Cost are not equal';
         DimensionErr: Label 'Expected dimension should be %1.', Comment = '%1=Value';
+        SourceCodeErr: Label 'Source Code should not be blank in %1.', Comment = '%1=TableCaption()';
 
     [Test]
     [Scope('OnPrem')]
@@ -1381,6 +1382,67 @@ codeunit 137140 "SCM Inventory Documents"
         Assert.AreEqual('', InvtShipment.ShipmentLines."Shortcut Dimension 1 Code".Value, StrSubstNo(DimensionErr, ''));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifySourceCodeOnInvDocLineWhenInventoryDocumentWithDefaultDimensionPriority()
+    var
+        SourceCode: Record "Source Code";
+        DimensionValue: Record "Dimension Value";
+        DimensionValue2: Record "Dimension Value";
+        Location: Record Location;
+        Item: Record Item;
+        DefaultDimension: Record "Default Dimension";
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+    begin
+        // [SCENARIO 491906] Inventory documents - source code is not added to the document which results in wrong dimension.
+        Initialize();
+
+        // [GIVEN] Create Source Code.
+        LibraryERM.CreateSourceCode(SourceCode);
+        OpenSourceCodeSetupPage(SourceCode);
+
+        // [GIVEN] Create Dimension Value for Global Dimension 1
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+        LibraryDimension.CreateDimensionValue(DimensionValue2, LibraryERM.GetGlobalDimensionCode(1));
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Location with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Default Dimension for Location.
+        LibraryDimension.CreateDefaultDimension(
+            DefaultDimension, Database::Location, Location.Code, DimensionValue."Dimension Code", DimensionValue.Code);
+
+        // [GIVEN] Create Default Dimension for Item.
+        LibraryDimension.CreateDefaultDimension(
+            DefaultDimension, Database::Item, Item."No.", DimensionValue2."Dimension Code", DimensionValue2.Code);
+
+        // [GIVEN] Set Dimension Priority.
+        SetupDimensionPriority(SourceCode.Code, LibraryRandom.RandIntInRange(1, 5), LibraryRandom.RandIntInRange(6, 10));
+
+        // [GIVEN] Create Inventory Document Header.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+
+        // [GIVEN] Create Inventory Document Line.
+        LibraryInventory.CreateInvtDocumentLine(
+            InvtDocumentHeader, InvtDocumentLine, Item."No.", Item."Unit Cost", LibraryRandom.RandInt(10));
+
+        // [VERIFY] Verify: Source Code exists on the Invt Document Line Table.
+        Assert.AreEqual(SourceCode.Code, InvtDocumentLine."Source Code", StrSubstNo(SourceCodeErr, InvtDocumentLine.TableCaption()));
+
+        // [THEN] Post the document.
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [VERIFY] Verify: Source Code was not blank in Invt. Receipt Line Table.
+        VerifySourceCodeNotBlankInInvtReceiptLine(InvtDocumentHeader, SourceCode);
+
+        // [VERIFY] Verify: Source Code was not blank in Value Entry Table.
+        VerifySourceCodeNotBlankInValueEntry(InvtDocumentHeader, SourceCode);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1604,6 +1666,58 @@ codeunit 137140 "SCM Inventory Documents"
             FindFirst();
             TestField(Quantity, ExpectedQty);
         end;
+    end;
+
+    local procedure OpenSourceCodeSetupPage(SourceCode: Record "Source Code")
+    var
+        SourceCodeSetupPage: TestPage "Source Code Setup";
+    begin
+        SourceCodeSetupPage.OpenEdit();
+        SourceCodeSetupPage."Invt. Receipt".SetValue(SourceCode.Code);
+        SourceCodeSetupPage.Close();
+    end;
+
+    local procedure SetupDimensionPriority(SourceCode: Code[10]; ItemPriority: Integer; LocationPriority: Integer)
+    var
+        DefaultDimensionPriority: Record "Default Dimension Priority";
+    begin
+        DefaultDimensionPriority.SetRange("Source Code", SourceCode);
+        DefaultDimensionPriority.DeleteAll();
+
+        DefaultDimensionPriority.Validate("Source Code", SourceCode);
+        CreateDefaultDimPriority(DefaultDimensionPriority, Database::Item, ItemPriority);
+        CreateDefaultDimPriority(DefaultDimensionPriority, Database::Location, LocationPriority);
+    end;
+
+    local procedure CreateDefaultDimPriority(var DefaultDimPriority: Record "Default Dimension Priority"; TableID: Integer; Priority: Integer)
+    begin
+        if (TableID = 0) or (Priority = 0) then
+            exit;
+
+        DefaultDimPriority.Validate("Table ID", TableID);
+        DefaultDimPriority.Validate(Priority, Priority);
+        DefaultDimPriority.Insert(true);
+    end;
+
+    local procedure VerifySourceCodeNotBlankInInvtReceiptLine(InvtDocumentHeader: Record "Invt. Document Header"; SourceCode: Record "Source Code")
+    var
+        InvtReceiptLine: Record "Invt. Receipt Line";
+    begin
+        InvtReceiptLine.SetRange("Receipt No.", InvtDocumentHeader."No.");
+        InvtReceiptLine.FindFirst();
+        Assert.AreEqual(SourceCode.Code, InvtReceiptLine."Source Code", StrSubstNo(SourceCodeErr, InvtReceiptLine.TableCaption()));
+    end;
+
+    local procedure VerifySourceCodeNotBlankInValueEntry(InvtDocumentHeader: Record "Invt. Document Header"; SourceCode: Record "Source Code")
+    var
+        ValueEntry: Record "Value Entry";
+        InvtReceiptHeader: Record "Invt. Receipt Header";
+    begin
+        InvtReceiptHeader.SetRange("Receipt No.", InvtDocumentHeader."No.");
+        InvtReceiptHeader.FindFirst();
+        ValueEntry.SetRange("Document No.", InvtReceiptHeader."No.");
+        ValueEntry.FindFirst();
+        Assert.AreEqual(SourceCode.Code, ValueEntry."Source Code", StrSubstNo(SourceCodeErr, ValueEntry.TableCaption()));
     end;
 
     [ModalPageHandler]

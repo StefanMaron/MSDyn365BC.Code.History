@@ -1,7 +1,7 @@
 page 99000863 "Planning Routing"
 {
     Caption = 'Planning Routing';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DataCaptionFields = "Worksheet Batch Name", "Worksheet Line No.";
     PageType = List;
     SourceTable = "Planning Routing Line";
