@@ -110,11 +110,6 @@ page 5786 "Source Document Filter Card"
                             EnableControls();
                         end;
                     }
-                    field("Service Orders"; Rec."Service Orders")
-                    {
-                        ApplicationArea = Warehouse;
-                        ToolTip = 'Specifies that service lines with a Released to Ship status are retrieved by the function that gets source documents for warehouse shipment.';
-                    }
                     field("Purchase Return Orders"; Rec."Purchase Return Orders")
                     {
                         ApplicationArea = Warehouse;
@@ -263,7 +258,7 @@ page 5786 "Source Document Filter Card"
     begin
         InitializeControls();
 
-        DataCaption := CurrPage.Caption;
+        DataCaption := CurrPage.Caption();
         Rec.FilterGroup := 2;
         if Rec.GetFilter(Type) <> '' then
             DataCaption := DataCaption + ' - ' + Rec.GetFilter(Type);
@@ -276,7 +271,7 @@ page 5786 "Source Document Filter Card"
     protected var
         WhseShptHeader: Record "Warehouse Shipment Header";
         WhseReceiptHeader: Record "Warehouse Receipt Header";
-        DataCaption: Text[250];
+        DataCaption: Text;
         RequestType: Option Receive,Ship;
         SalesOrdersEnable: Boolean;
         PurchaseReturnOrdersEnable: Boolean;

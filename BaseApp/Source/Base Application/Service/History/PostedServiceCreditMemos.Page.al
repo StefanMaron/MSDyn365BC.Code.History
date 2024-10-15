@@ -204,10 +204,23 @@ page 5971 "Posted Service Credit Memos"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Cr.Memo Header"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Cr.Memo Header"),
                               "No." = field("No.");
             }
@@ -234,6 +247,7 @@ page 5971 "Posted Service Credit Memos"
                 Image = CreditMemo;
                 action(Statistics)
                 {
+                    ApplicationArea = Service;
                     Caption = 'Statistics';
                     Image = Statistics;
                     ShortCutKey = 'F7';
@@ -241,11 +255,10 @@ page 5971 "Posted Service Credit Memos"
 
                     trigger OnAction()
                     begin
+#if not CLEAN25
                         OnBeforeCalculateSalesTaxStatistics(Rec);
-                        if Rec."Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Service Credit Memo Statistics", Rec, Rec."No.")
-                        else
-                            PAGE.RunModal(PAGE::"Service Credit Memo Stats.", Rec, Rec."No.");
+#endif
+                        Rec.OpenStatistics();
                     end;
                 }
                 action("Co&mments")
@@ -280,12 +293,11 @@ page 5971 "Posted Service Credit Memos"
                     begin
                         CurrPage.SetSelectionFilter(ServiceCrMemoHeader);
                         ProgressWindow.Open(ProcessingInvoiceMsg);
-                        if ServiceCrMemoHeader.FindSet() then begin
+                        if ServiceCrMemoHeader.FindSet() then
                             repeat
                                 ServiceCrMemoHeader.RequestStampEDocument();
                                 ProgressWindow.Update(1, ServiceCrMemoHeader."No.");
                             until ServiceCrMemoHeader.Next() = 0;
-                        end;
                         ProgressWindow.Close();
                     end;
                 }
@@ -324,12 +336,11 @@ page 5971 "Posted Service Credit Memos"
                     begin
                         CurrPage.SetSelectionFilter(ServiceCrMemoHeader);
                         ProgressWindow.Open(ProcessingInvoiceMsg);
-                        if ServiceCrMemoHeader.FindSet() then begin
+                        if ServiceCrMemoHeader.FindSet() then
                             repeat
                                 ServiceCrMemoHeader.CancelEDocument();
                                 ProgressWindow.Update(1, ServiceCrMemoHeader."No.");
                             until ServiceCrMemoHeader.Next() = 0;
-                        end;
                         ProgressWindow.Close();
                     end;
                 }
@@ -487,9 +498,12 @@ page 5971 "Posted Service Credit Memos"
         DocExchStatusVisible: Boolean;
         ProcessingInvoiceMsg: Label 'Processing record #1#######', Comment = '%1 = Record no';
 
+#if not CLEAN25
+    [Obsolete('Moved to procedure OpenStatistics in table ServiceCrMemoHeader','25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
     end;
+#endif
 }
 

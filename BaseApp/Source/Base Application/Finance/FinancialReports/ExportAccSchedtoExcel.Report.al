@@ -199,9 +199,11 @@ report 29 "Export Acc. Sched. to Excel"
         DoUpdateExistingWorksheet: Boolean;
         TestMode: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Analyzing Data...\\';
         Text001: Label 'Filters';
         Text002: Label 'Update Workbook';
+#pragma warning restore AA0074
         ExcelFileExtensionTok: Label '.xlsx', Locked = true;
 
     procedure SetOptions(var AccSchedLine2: Record "Acc. Schedule Line"; ColumnLayoutName2: Code[10]; UseAmtsInAddCurr2: Boolean)

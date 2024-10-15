@@ -14,7 +14,6 @@ page 5972 "Posted Service Credit Memo"
 {
     Caption = 'Posted Service Credit Memo';
     DeleteAllowed = false;
-    Editable = false;
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Document;
@@ -403,6 +402,12 @@ page 5972 "Posted Service Credit Memo"
                         Editable = false;
                         ToolTip = 'Specifies the country/region in the customer''s address.';
                     }
+                    field("Ship-to Phone"; Rec."Ship-to Phone")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                    }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = Service;
@@ -585,10 +590,23 @@ page 5972 "Posted Service Credit Memo"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Cr.Memo Header"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Cr.Memo Header"),
                               "No." = field("No.");
             }
@@ -629,11 +647,10 @@ page 5972 "Posted Service Credit Memo"
 
                     trigger OnAction()
                     begin
+#if not CLEAN25
                         OnBeforeCalculateSalesTaxStatistics(Rec);
-                        if Rec."Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Service Credit Memo Statistics", Rec, Rec."No.")
-                        else
-                            PAGE.RunModal(PAGE::"Service Credit Memo Stats.", Rec, Rec."No.");
+#endif
+                        Rec.OpenStatistics();
                     end;
                 }
                 action("Co&mments")
@@ -944,9 +961,12 @@ page 5972 "Posted Service Credit Memo"
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
+#if not CLEAN25
+    [Obsolete('Moved to procedure OpenStatistics in table ServiceCrMemoHeader', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
     end;
+#endif
 }
 

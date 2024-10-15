@@ -158,7 +158,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
                       CustomLayoutReporting.GetOptionValueFromRequestPageForReport(ReportSelections."Report ID", 'BankAccount."No."');
                     OptionCode := CopyStr(OptionText, 1, 20);
                     Evaluate(BankAccountNo, OptionCode);
-                    if GenJournalLineRecRef.FindFirst() then begin
+                    if GenJournalLineRecRef.FindFirst() then
                         repeat
                             GenJournalLineRecRef.SetTable(GenJournalLine);
                             if GenJournalLine."Account Type" = GenJournalLine."Account Type"::"Bank Account" then
@@ -174,7 +174,6 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
                                 UpdateApplication(GenJournalLine);
                             end;
                         until GenJournalLineRecRef.Next() = 0;
-                    end;
                 end;
             until ReportSelections.Next() = 0;
     end;
@@ -296,7 +295,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
         OptionCode: Code[20];
     begin
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"V.Remittance");
-        if ReportSelections.Find('-') then begin
+        if ReportSelections.Find('-') then
             repeat
                 if CustomLayoutReporting.HasRequestParameterData(ReportSelections."Report ID") then begin
                     // Get the same options from the user-selected options for this export report run
@@ -306,7 +305,7 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
                     OptionCode := CopyStr(OptionText, 1, 20);
                     Evaluate(BankAccountNo, OptionCode);
 
-                    if GenJournalLineRecRef.FindFirst() then begin
+                    if GenJournalLineRecRef.FindFirst() then
                         repeat
                             GenJournalLineRecRef.SetTable(GenJournalLine);
                             if GenJournalLine."Account Type" = GenJournalLine."Account Type"::"Bank Account" then
@@ -317,10 +316,8 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
                             if ProcessLine(GenJournalLine) and (BankAccountNo = GenJournalLineBankAccount) then
                                 UpdateDocNoForGenLedgLine(GenJournalLine, BankAccountNo);
                         until GenJournalLineRecRef.Next() = 0;
-                    end;
                 end;
             until ReportSelections.Next() = 0;
-        end;
     end;
 
     local procedure UpdateDocNoForGenLedgLine(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20])
@@ -435,17 +432,15 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        if GenJournalLineRecRef.FindFirst() then begin
+        if GenJournalLineRecRef.FindFirst() then
             repeat
                 GenJournalLineRecRef.SetTable(GenJournalLine);
-
                 if ProcessLine(GenJournalLine) then begin
                     GenJournalLine."Document No." := '';
                     GenJournalLine.Modify();
                     OnClearDocNoPreviewOnAfterGenJournalLineModify(GenJournalLine);
                 end;
             until GenJournalLineRecRef.Next() = 0;
-        end;
     end;
 
     [IntegrationEvent(false, false)]

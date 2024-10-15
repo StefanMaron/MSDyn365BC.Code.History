@@ -4,7 +4,7 @@
   "publisher": "Microsoft",
   "brief": "Easily report IRS 1099 forms.",
   "description": "This app provides functionality that enables an easy overview and reporting of the 1099 forms to IRS.",
-  "version": "24.5.23489.23968",
+  "version": "25.0.23364.24652",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://learn.microsoft.com/en-us/dynamics365/business-central/finance-how-setup-use-service-declaration",
@@ -13,7 +13,7 @@
   "contextSensitiveHelpUrl": "https://go.microsoft.com/fwlink/?linkid=2204541",
   "dependencies": [],
   "screenshots": [],
-  "platform": "24.0.0.0",
+  "platform": "25.0.0.0",
   "internalsVisibleTo": [
     {
       "id": "dff12793-4e1c-4f3c-b7d3-331552c4cf5c",
@@ -35,6 +35,6 @@
     "allowDownloadingSource": true,
     "includeSourceInSymbolFile": true
   },
-  "application": "24.5.0.0",
+  "application": "25.0.0.0",
   "target": "Cloud"
 }

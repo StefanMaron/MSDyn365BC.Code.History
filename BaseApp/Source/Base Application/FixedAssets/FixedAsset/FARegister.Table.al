@@ -31,12 +31,12 @@ table 5617 "FA Register"
         field(4; "Creation Date"; Date)
         {
             Caption = 'Creation Date';
-#if not CLEAN24
+#if not CLEAN35
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '26.0';
+            ObsoleteTag = '37.0';
 #endif
             ObsoleteReason = 'Use the system audit field "System Created at" instead.';
         }
@@ -80,12 +80,12 @@ table 5617 "FA Register"
         field(13; "Creation Time"; Time)
         {
             Caption = 'Creation Time';
-#if not CLEAN24
+#if not CLEAN35
             ObsoleteState = Pending;
             ObsoleteTag = '24.0';
 #else
             ObsoleteState = Removed;
-            ObsoleteTag = '26.0';
+            ObsoleteTag = '37.0';
 #endif
             ObsoleteReason = 'Use the system audit field "System Created at" instead.';
         }

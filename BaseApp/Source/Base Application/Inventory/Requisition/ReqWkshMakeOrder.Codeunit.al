@@ -20,7 +20,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 codeunit 333 "Req. Wksh.-Make Order"
 {
@@ -43,16 +42,20 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Worksheet Name                     #1##########\\';
         Text001: Label 'Checking worksheet lines           #2######\';
         Text002: Label 'Creating purchase orders           #3######\';
         Text003: Label 'Creating purchase lines            #4######\';
         Text004: Label 'Updating worksheet lines           #5######';
         Text005: Label 'Deleting worksheet lines           #5######';
+#pragma warning restore AA0470
         Text006: Label '%1 on sales order %2 is already associated with purchase order %3.', Comment = '%1 = number of item, %2 = number of document, %3 = number of purchase order';
         Text007: Label '<Month Text>', Locked = true;
         Text008: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5', Comment = '%1 = table caption, %2 = worksheet template name, %3 = journal batch name, %4 = number of line, %5 = error of dimension combination';
         Text009: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5', Comment = '%1 = table caption, %2 = worksheet template name, %3 = journal batch name, %4 = number of line, %5 = error of dimension posting value';
+#pragma warning restore AA0074
         ReservEntry: Record "Reservation Entry";
         PurchSetup: Record "Purchases & Payables Setup";
         ReqTemplate: Record "Req. Wksh. Template";
@@ -92,8 +95,10 @@ codeunit 333 "Req. Wksh.-Make Order"
         CounterFailed: Integer;
         PrevPurchCode: Code[10];
         PrevShipToCode: Code[10];
+#pragma warning disable AA0074
         Text010: Label 'must match %1 on Sales Order %2, Line %3', Comment = '%1 = field caption, %2 = number of document, %3 = number of line';
-        PrevChangedDocOrderType: Option;
+#pragma warning restore AA0074
+        PrevChangedDocOrderType: Enum "Requisition Ref. Order Type";
         PrevChangedDocOrderNo: Code[20];
         PrevLocationCode: Code[10];
         NameAddressDetails: Text;
@@ -875,6 +880,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                 PurchOrderHeader."Ship-to Contact" := SalesHeader."Ship-to Contact";
                 PurchOrderHeader."Ship-to County" := SalesHeader."Ship-to County";
                 PurchOrderHeader."Ship-to Country/Region Code" := SalesHeader."Ship-to Country/Region Code";
+                PurchOrderHeader."Ship-to Phone No." := SalesHeader."Ship-to Phone No.";
             end;
         if SpecialOrder then
             if Vendor.Get(PurchOrderHeader."Buy-from Vendor No.") then
@@ -1049,12 +1055,11 @@ codeunit 333 "Req. Wksh.-Make Order"
     var
         ProdOrderComp: Record "Prod. Order Component";
         SalesLine: Record "Sales Line";
-        ServLine: Record "Service Line";
         JobPlanningLine: Record "Job Planning Line";
         AsmLine: Record "Assembly Line";
+        TrackingSpecification: Record "Tracking Specification";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
-        ServLineReserve: Codeunit "Service Line-Reserve";
         JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         AsmLineReserve: Codeunit "Assembly Line-Reserve";
         ReservQty: Decimal;
@@ -1074,31 +1079,34 @@ codeunit 333 "Req. Wksh.-Make Order"
                 begin
                     ProdOrderComp.Get(
                       ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.", ReqLine."Demand Ref. No.");
-                    ProdOrderCompReserve.BindToPurchase(ProdOrderComp, PurchLine, ReservQty, ReservQtyBase);
+                    TrackingSpecification.InitTrackingSpecification(
+                        Database::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", '', 0, PurchLine."Line No.",
+                        PurchLine."Variant Code", PurchLine."Location Code", PurchLine."Qty. per Unit of Measure");
+                    ProdOrderCompReserve.BindToTracking(
+                        ProdOrderComp, TrackingSpecification, PurchLine.Description, PurchLine."Expected Receipt Date", ReservQty, ReservQtyBase);
                 end;
             Database::"Sales Line":
                 begin
                     SalesLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
-                    SalesLineReserve.BindToPurchase(SalesLine, PurchLine, ReservQty, ReservQtyBase);
+                    TrackingSpecification.InitTrackingSpecification(
+                        Database::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", '', 0, PurchLine."Line No.",
+                        PurchLine."Variant Code", PurchLine."Location Code", PurchLine."Qty. per Unit of Measure");
+                    SalesLineReserve.BindToTracking(
+                        SalesLine, TrackingSpecification, PurchLine.Description, PurchLine."Expected Receipt Date", ReservQty, ReservQtyBase);
                     if SalesLine.Reserve = SalesLine.Reserve::Never then begin
                         SalesLine.Reserve := SalesLine.Reserve::Optional;
                         SalesLine.Modify();
-                    end;
-                end;
-            Database::"Service Line":
-                begin
-                    ServLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
-                    ServLineReserve.BindToPurchase(ServLine, PurchLine, ReservQty, ReservQtyBase);
-                    if ServLine.Reserve = ServLine.Reserve::Never then begin
-                        ServLine.Reserve := ServLine.Reserve::Optional;
-                        ServLine.Modify();
                     end;
                 end;
             Database::"Job Planning Line":
                 begin
                     JobPlanningLine.SetRange("Job Contract Entry No.", ReqLine."Demand Line No.");
                     JobPlanningLine.FindFirst();
-                    JobPlanningLineReserve.BindToPurchase(JobPlanningLine, PurchLine, ReservQty, ReservQtyBase);
+                    TrackingSpecification.InitTrackingSpecification(
+                        DATABASE::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", '', 0, PurchLine."Line No.",
+                        PurchLine."Variant Code", PurchLine."Location Code", PurchLine."Qty. per Unit of Measure");
+                    JobPlanningLineReserve.BindToTracking(
+                        JobPlanningLine, TrackingSpecification, PurchLine.Description, PurchLine."Expected Receipt Date", ReservQty, ReservQtyBase);
                     if JobPlanningLine.Reserve = JobPlanningLine.Reserve::Never then begin
                         JobPlanningLine.Reserve := JobPlanningLine.Reserve::Optional;
                         JobPlanningLine.Modify();
@@ -1107,12 +1115,18 @@ codeunit 333 "Req. Wksh.-Make Order"
             Database::"Assembly Line":
                 begin
                     AsmLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
-                    AsmLineReserve.BindToPurchase(AsmLine, PurchLine, ReservQty, ReservQtyBase);
+                    TrackingSpecification.InitTrackingSpecification(
+                        Database::"Purchase Line", PurchLine."Document Type".AsInteger(), PurchLine."Document No.", '', 0, PurchLine."Line No.",
+                        PurchLine."Variant Code", PurchLine."Location Code", PurchLine."Qty. per Unit of Measure");
+                    AsmLineReserve.BindToTracking(
+                        AsmLine, TrackingSpecification, PurchLine.Description, PurchLine."Expected Receipt Date", ReservQty, ReservQtyBase);
                     if AsmLine.Reserve = AsmLine.Reserve::Never then begin
                         AsmLine.Reserve := AsmLine.Reserve::Optional;
                         AsmLine.Modify();
                     end;
                 end;
+            else
+                OnReserveBindingOrderToPurch(ReqLine, PurchLine, ReservQty, ReservQtyBase);
         end;
         PurchLine.Modify();
 
@@ -1176,7 +1190,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         end;
     end;
 
-    local procedure PrintChangedDocument(OrderType: Option; var OrderNo: Code[20])
+    local procedure PrintChangedDocument(OrderType: Enum "Requisition Ref. Order Type"; var OrderNo: Code[20])
     var
         DummyReqLine: Record "Requisition Line";
         TransferHeader: Record "Transfer Header";
@@ -1466,6 +1480,9 @@ codeunit 333 "Req. Wksh.-Make Order"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
+        if RequisitionLine.Reserve then  //if reserve not set job link
+            exit;
+
         if (RequisitionLine."Planning Line Origin" = RequisitionLine."Planning Line Origin"::"Order Planning") and
            (RequisitionLine."Demand Type" = Database::"Job Planning Line")
         then begin
@@ -1845,6 +1862,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckLocation(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReserveBindingOrderToPurch(var RequisitionLine: Record "Requisition Line"; var PurchaseLine: Record "Purchase Line"; ReservQty: Decimal; ReservQtyBase: Decimal)
     begin
     end;
 }

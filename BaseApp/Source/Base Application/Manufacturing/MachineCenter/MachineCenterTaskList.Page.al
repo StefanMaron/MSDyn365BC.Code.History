@@ -252,14 +252,16 @@ page 99000916 "Machine Center Task List"
                     trigger OnAction()
                     var
                         ProdOrderLine: Record "Prod. Order Line";
-                        TrackingForm: Page "Order Tracking";
+                        OrderTracking: Page "Order Tracking";
                     begin
                         ProdOrderLine.SetRange(Status, Rec.Status);
                         ProdOrderLine.SetRange("Prod. Order No.", Rec."Prod. Order No.");
                         ProdOrderLine.SetRange("Routing No.", Rec."Routing No.");
                         if ProdOrderLine.FindFirst() then begin
-                            TrackingForm.SetProdOrderLine(ProdOrderLine);
-                            TrackingForm.RunModal();
+                            OrderTracking.SetVariantRec(
+                                ProdOrderLine, ProdOrderLine."Item No.", ProdOrderLine."Remaining Qty. (Base)",
+                                ProdOrderLine."Starting Date", ProdOrderLine."Ending Date");
+                            OrderTracking.RunModal();
                         end;
                     end;
                 }

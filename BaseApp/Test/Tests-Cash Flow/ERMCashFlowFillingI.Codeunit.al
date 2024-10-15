@@ -2153,32 +2153,26 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
     local procedure CreateCashFlowForecastDefaultWithManualPmtDates(var CashFlowForecast: Record "Cash Flow Forecast"; ManualPaymentsFrom: Date; ManualPaymentsTo: Date)
     begin
-        with CashFlowForecast do begin
-            CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-            "Manual Payments From" := ManualPaymentsFrom;
-            "Manual Payments To" := ManualPaymentsTo;
-            Modify();
-        end;
+        CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
+        CashFlowForecast."Manual Payments From" := ManualPaymentsFrom;
+        CashFlowForecast."Manual Payments To" := ManualPaymentsTo;
+        CashFlowForecast.Modify();
     end;
 
     local procedure CreateManualRevenueWithStartingDate(var CFManualRevenue: Record "Cash Flow Manual Revenue"; StartingDate: Date)
     begin
-        with CFManualRevenue do begin
-            CFHelper.CreateManualRevenue(CFManualRevenue);
-            Evaluate("Recurring Frequency", '');
-            "Starting Date" := StartingDate;
-            Modify();
-        end;
+        CFHelper.CreateManualRevenue(CFManualRevenue);
+        Evaluate(CFManualRevenue."Recurring Frequency", '');
+        CFManualRevenue."Starting Date" := StartingDate;
+        CFManualRevenue.Modify();
     end;
 
     local procedure CreateManualExpenseWithStartingDate(var CFManualExpense: Record "Cash Flow Manual Expense"; StartingDate: Date)
     begin
-        with CFManualExpense do begin
-            CFHelper.CreateManualPayment(CFManualExpense);
-            Evaluate("Recurring Frequency", '');
-            "Starting Date" := StartingDate;
-            Modify();
-        end;
+        CFHelper.CreateManualPayment(CFManualExpense);
+        Evaluate(CFManualExpense."Recurring Frequency", '');
+        CFManualExpense."Starting Date" := StartingDate;
+        CFManualExpense.Modify();
     end;
 
     local procedure CreateDefDimForRecord(var DimensionValue: Record "Dimension Value"; TableID: Integer; "Code": Code[20])
@@ -2366,14 +2360,18 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
-        if DateField = DateFieldOption::DueDate then begin
-            CFHelper.UpdateDueDateOnCustomerLedgerEntry(CustLedgerEntry);
-            ExpectedDate := CustLedgerEntry."Due Date";
-        end else begin
-            if DateField = DateFieldOption::DiscountDate then begin
-                CFHelper.UpdatePmtDiscountDateOnCustomerLedgerEntry(CustLedgerEntry);
-                ExpectedDate := CustLedgerEntry."Pmt. Discount Date";
-            end else
+        case DateField of
+            DateFieldOption::DueDate:
+                begin
+                    CFHelper.UpdateDueDateOnCustomerLedgerEntry(CustLedgerEntry);
+                    ExpectedDate := CustLedgerEntry."Due Date";
+                end;
+            DateFieldOption::DiscountDate:
+                begin
+                    CFHelper.UpdatePmtDiscountDateOnCustomerLedgerEntry(CustLedgerEntry);
+                    ExpectedDate := CustLedgerEntry."Pmt. Discount Date";
+                end;
+            else
                 Error(UnsupportedDateField, DateField);
         end;
     end;
@@ -2383,14 +2381,18 @@ codeunit 134551 "ERM Cash Flow Filling I"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
-        if DateField = DateFieldOption::DueDate then begin
-            CFHelper.UpdateDueDateOnVendorLedgerEntry(VendorLedgerEntry);
-            ExpectedDate := VendorLedgerEntry."Due Date";
-        end else begin
-            if DateField = DateFieldOption::DiscountDate then begin
-                CFHelper.UpdatePmtDiscountDateOnVendorLedgerEntry(VendorLedgerEntry);
-                ExpectedDate := VendorLedgerEntry."Pmt. Discount Date";
-            end else
+        case DateField of
+            DateFieldOption::DueDate:
+                begin
+                    CFHelper.UpdateDueDateOnVendorLedgerEntry(VendorLedgerEntry);
+                    ExpectedDate := VendorLedgerEntry."Due Date";
+                end;
+            DateFieldOption::DiscountDate:
+                begin
+                    CFHelper.UpdatePmtDiscountDateOnVendorLedgerEntry(VendorLedgerEntry);
+                    ExpectedDate := VendorLedgerEntry."Pmt. Discount Date";
+                end;
+            else
                 Error(UnsupportedDateField, DateField);
         end;
     end;

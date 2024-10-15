@@ -33,10 +33,10 @@ using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Manufacturing.Forecast;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Pricing.Worksheet;
 #endif
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.RoleCenters;
 #endif
 using Microsoft.Sales.Analysis;
@@ -640,7 +640,7 @@ page 8907 "Sales & Marketing Manager RC"
                     Caption = 'Item Attributes';
                     RunObject = page "Item Attributes";
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action("Sales Price Worksheet")
                 {
                     ApplicationArea = Suite;
@@ -753,7 +753,7 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'List Price Sheet';
-#if not CLEAN23
+#if not CLEAN25
                         RunPageView = where("Object Type" = const(Report), "Object ID" = const(10148)); // "List Price Sheet"
                         RunObject = Page "Role Center Page Dispatcher";
 #else
@@ -784,7 +784,7 @@ page 8907 "Sales & Marketing Manager RC"
                     action("Sales Promotion")
                     {
                         Caption = 'Sales Promotion';
-#if not CLEAN23
+#if not CLEAN25
                         RunPageView = where("Object Type" = const(Report), "Object ID" = const(10159)); // "Sales Promotion"
                         RunObject = Page "Role Center Page Dispatcher";
 #else

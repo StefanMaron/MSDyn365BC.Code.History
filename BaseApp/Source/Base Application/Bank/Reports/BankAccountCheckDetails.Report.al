@@ -198,7 +198,11 @@ report 1406 "Bank Account - Check Details"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Period: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PrintOnlyOnePerPage: Boolean;
         BankAccFilter: Text;
         BankAccDateFilter: Text;

@@ -67,6 +67,7 @@ table 6214 "Sustainability Jnl. Line"
                     SustainabilityAccount.Get("Account No.");
                     SustainabilityAccount.CheckAccountReadyForPosting();
                     SustainabilityAccount.TestField("Direct Posting", true);
+
                     Validate("Account Category", SustainabilityAccount.Category);
                     Validate("Account Subcategory", SustainabilityAccount.Subcategory);
 
@@ -77,14 +78,13 @@ table 6214 "Sustainability Jnl. Line"
                     "Account Name" := SustainabilityAccount.Name;
                 end;
 
-                GetDefaultDimensionsFromAccount();
+                CreateDimFromDefaultDim(FieldNo("Account No."));
             end;
         }
         field(8; "Account Name"; Text[100])
         {
             Caption = 'Account Name';
-            FieldClass = FlowField;
-            CalcFormula = lookup("Sustainability Account".Name where("No." = field("Account No.")));
+            DataClassification = CustomerContent;
         }
         field(9; "Account Category"; Code[20])
         {
@@ -101,7 +101,6 @@ table 6214 "Sustainability Jnl. Line"
         field(10; "Account Subcategory"; Code[20])
         {
             Caption = 'Account Subcategory';
-            Editable = false;
             TableRelation = "Sustain. Account Subcategory".Code where("Category Code" = field("Account Category"));
         }
         field(11; Description; Text[100])
@@ -336,15 +335,25 @@ table 6214 "Sustainability Jnl. Line"
         OnAfterSetupNewLine(Rec, SustainabilityJnlBatch, PreviousLine);
     end;
 
-    local procedure GetDefaultDimensionsFromAccount()
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Sustainability Account", "Account No.", FieldNo = Rec.FieldNo("Account No."));
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
+    end;
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
-
-        DimMgt.AddDimSource(DefaultDimSource, Database::"Sustainability Account", "Account No.", true);
-        Validate("Dimension Set ID", DimMgt.GetRecDefaultDimID(Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0));
+        "Dimension Set ID" := DimMgt.GetRecDefaultDimID(Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
 
     internal procedure ShowDimensions() IsChanged: Boolean
@@ -360,7 +369,13 @@ table 6214 "Sustainability Jnl. Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var SustainabilityJnlLine: Record "Sustainability Jnl. Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewLine(var SustainabilityJnlLine: Record "Sustainability Jnl. Line"; SustainabilityJnlBatch: Record "Sustainability Jnl. Batch"; PreviousSustainabilityJnlLine: Record "Sustainability Jnl. Line")
     begin
     end;
+
 }

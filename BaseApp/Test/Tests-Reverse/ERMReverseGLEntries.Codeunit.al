@@ -24,7 +24,6 @@ codeunit 134131 "ERM Reverse GL Entries"
         LibraryHumanResource: Codeunit "Library - Human Resource";
         IsInitialized: Boolean;
         OutOfBalanceError: Label 'You cannot reverse the transaction because it is out of balance.';
-        ReversalErrorFromLedger: Label 'Blocked must be equal to ''No''  in G/L Account: No.=%1. Current value is ''Yes''.';
         ReversalErrorForInvoice: Label 'You can only reverse entries that were posted from a journal.';
         ErrorsMustMatch: Label 'Errors must match.';
         ReversalErrorForPeriod: Label 'You cannot reverse %1 No. %2 because the posting date is not within the allowed posting period.';
@@ -954,13 +953,14 @@ codeunit 134131 "ERM Reverse GL Entries"
     local procedure ReverseAccountAndVerifyMsg(GLAccountNo: Code[20]; DocumentNo: Code[20])
     var
         ReversalEntry: Record "Reversal Entry";
+        GLAcc: Record "G/L Account";
     begin
         // Exercise: Reverse Posted Entry from G/L Entry.
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseTransaction(GetGLEntryTransactionNo(DocumentNo, GLAccountNo));
 
         // Verify: Verify Blocked Error Message.
-        Assert.AreEqual(StrSubstNo(ReversalErrorFromLedger, GLAccountNo), GetLastErrorText, ErrorsMustMatch);
+        Assert.ExpectedTestFieldError(GLAcc.FieldCaption(Blocked), Format(false));
     end;
 
     local procedure ReversePurchEntrySetup(var PurchAccount: Code[20]) DocumentNo: Code[20]
@@ -1234,7 +1234,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         DateComprRetainFields."Retain Job No." := false;
         DateComprRetainFields."Retain Business Unit Code" := false;
         DateComprRetainFields."Retain Quantity" := false;
-        DateComprRetainFields."Retain Journal Template Name" := false;	
+        DateComprRetainFields."Retain Journal Template Name" := false;
         DateCompressGeneralLedger.InitializeRequest(
           WorkDate(), WorkDate(), DateComprRegister."Period Length"::Day, '', DateComprRetainFields, InsertDimSelectionBuffer(), false);
         DateCompressGeneralLedger.UseRequestPage(false);
@@ -1424,17 +1424,13 @@ codeunit 134131 "ERM Reverse GL Entries"
         VATEntry: Record "VAT Entry";
         GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            SetRange(Reversed, true);
-            FindFirst();
-        end;
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange(Reversed, true);
-            FindFirst();
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.SetRange(Reversed, true);
+        GLEntry.FindFirst();
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange(Reversed, true);
+        VATEntry.FindFirst();
         Assert.IsTrue(
           GLEntryVATEntryLink.Get(GLEntry."Entry No.", VATEntry."Entry No."), GLEntryVATEntryLinkErr);
     end;

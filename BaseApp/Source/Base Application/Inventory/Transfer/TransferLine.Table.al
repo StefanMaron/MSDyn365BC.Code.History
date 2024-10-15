@@ -1067,17 +1067,27 @@ table 5741 "Transfer Line"
         UOMMgt: Codeunit "Unit of Measure Management";
         Reservation: Page Reservation;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot rename a %1.';
         Text002: Label 'must not be less than %1';
         Text003: Label 'Warehouse %1 is required for %2 = %3.';
+#pragma warning restore AA0470
         Text004: Label '\The entered information may be disregarded by warehouse operations.';
+#pragma warning disable AA0470
         Text005: Label 'You cannot ship more than %1 units.';
+#pragma warning restore AA0470
         Text006: Label 'All items have been shipped.';
+#pragma warning disable AA0470
         Text008: Label 'You cannot receive more than %1 units.';
+#pragma warning restore AA0470
         Text009: Label 'No items are currently in transit.';
         Text011: Label 'Outbound,Inbound';
+#pragma warning disable AA0470
         Text012: Label 'You have changed one or more dimensions on the %1, which is already shipped. When you post the line with the changed dimension to General Ledger, amounts on the Inventory Interim account will be out of balance when reported per dimension.\\Do you want to keep the changed dimension?';
+#pragma warning restore AA0470
         Text013: Label 'Cancelled.';
+#pragma warning restore AA0074
         CannotAutoReserveErr: Label 'Quantity %1 in line %2 cannot be reserved automatically.', Comment = '%1 - quantity, %2 - line number';
         MustUseTrackingErr: Label 'You must use the %1 page to specify the %2, if you use item tracking.', Comment = '%1 = Form Name, %2 = Value to Enter';
         LedgEntryWillBeOpenedMsg: Label 'When posting the Applied to Ledger Entry %1 will be opened first.', Comment = '%1 = Entry No.';
@@ -1087,6 +1097,9 @@ table 5741 "Transfer Line"
     protected var
         StatusCheckSuspended, TrackingBlocked : Boolean;
 
+    /// <summary>
+    /// Initializes outstanding quantity and base quantity for the current transfer line.
+    /// </summary>
     procedure InitOutstandingQty()
     begin
         "Outstanding Quantity" := Quantity - "Quantity Shipped";
@@ -1096,6 +1109,9 @@ table 5741 "Transfer Line"
         OnAfterInitOutstandingQty(Rec, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Initializes quantity to ship fields for the current transfer line.
+    /// </summary>
     procedure InitQtyToShip()
     begin
         "Qty. to Ship" := "Outstanding Quantity";
@@ -1104,6 +1120,9 @@ table 5741 "Transfer Line"
         OnAfterInitQtyToShip(Rec, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Initializes quantity to receive based on in transit location for the current transfer line.
+    /// </summary>
     procedure InitQtyToReceive()
     begin
         if "In-Transit Code" <> '' then begin
@@ -1118,6 +1137,10 @@ table 5741 "Transfer Line"
         OnAfterInitQtyToReceive(Rec, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Calculates the quantity in transit based on in transit location for the current transfer line.
+    /// Verifies whether the transfer line is completely received by checking if the Quantity is not zero and if it is equal to the "Quantity Received".
+    /// </summary>
     procedure InitQtyInTransit()
     begin
         if "In-Transit Code" <> '' then begin
@@ -1146,6 +1169,9 @@ table 5741 "Transfer Line"
             "Transfer-from Code", "Transfer-to Code", "Shipping Agent Code", "Shipping Agent Service Code");
     end;
 
+    /// <summary>
+    /// Resets the posted quantities for the current transfer line.
+    /// </summary>
     procedure ResetPostedQty()
     begin
         "Quantity Shipped" := 0;
@@ -1158,6 +1184,9 @@ table 5741 "Transfer Line"
         OnAfterResetPostedQty(Rec);
     end;
 
+    /// <summary>
+    /// Retrieves the transfer header information and assigns it to the corresponding fields in the current transfer line.
+    /// </summary>
     procedure GetTransHeaderExternal()
     begin
         GetTransHeader();
@@ -1230,12 +1259,21 @@ table 5741 "Transfer Line"
         exit(CopyStr(ReturnValue, 1, MaxStrLen("Item No.")));
     end;
 
+    /// <summary>
+    /// Sets the block status for dynamic tracking of the transfer line.
+    /// </summary>
+    /// <param name="SetBlock">Specifies whether to block dynamic tracking.</param>
+    /// <remarks>Global parameter 'TrackingBlocked' is used to prevent date conflict check.</remarks>
     procedure BlockDynamicTracking(SetBlock: Boolean)
     begin
         TrackingBlocked := SetBlock;
         TransferLineReserve.Block(SetBlock);
     end;
 
+    /// <summary>
+    /// Opens a page that shows the dimensions of the current transfer line.
+    /// </summary>
+    ///<remarks>In case transfer line is partially shipped, confirmation dialog will appear.</remarks>
     procedure ShowDimensions()
     begin
         "Dimension Set ID" :=
@@ -1246,6 +1284,10 @@ table 5741 "Transfer Line"
         OnAfterShowDimensions(Rec, xRec);
     end;
 
+    /// <summary>
+    /// Generates a new dimension set id from provided default dimensions for the current transfer line.
+    /// </summary>
+    /// <param name="DefaultDimSource">Provided list of default dimensions.</param>
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -1287,6 +1329,12 @@ table 5741 "Transfer Line"
         UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Receive", "Qty. to Receive (Base)", "Quantity Received", "Qty. Received (Base)");
     end;
 
+    /// <summary>
+    /// Triggers validation of shortcut dimension values.
+    /// </summary>
+    /// <param name="FieldNumber">Indicates the number of a field which is invoked by the method.</param>
+    /// <param name="ShortcutDimCode">Specified value of the shortcut dimension.</param>
+    ///<remarks>In case transfer line is partially shipped, confirmation dialog will appear.</remarks>
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -1297,17 +1345,29 @@ table 5741 "Transfer Line"
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
+    /// <summary>
+    /// Displays a shortcut dimension list for the user to choose from.
+    /// </summary>
+    /// <param name="FieldNumber">Dimension shortcut ordinal number.</param>
+    /// <param name="ShortcutDimCode">Selected shortcut dimension code.</param>
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
         Rec.ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
     end;
 
+    /// <summary>
+    /// Retrieves a shortcut dimension list for the current transfer line.
+    /// </summary>
+    /// <param name="ShortcutDimCode">Array to hold the dimension information.</param>
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
         DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
     end;
 
+    /// <summary>
+    /// Runs an item list page for the user to select multiple items for transfer.
+    /// </summary>
     procedure SelectMultipleItems()
     var
         ItemListPage: Page "Item List";
@@ -1322,6 +1382,10 @@ table 5741 "Transfer Line"
         OnAfterSelectMultipleItems(Rec);
     end;
 
+    /// <summary>
+    /// Adds items to the transfer line based on the specified selection filter.
+    /// </summary>
+    /// <param name="SelectionFilter">The filter to apply when selecting items.</param>
     procedure AddItems(SelectionFilter: Text)
     var
         SelectedItem: Record Item;
@@ -1345,6 +1409,11 @@ table 5741 "Transfer Line"
             until SelectedItem.Next() = 0;
     end;
 
+    /// <summary>
+    /// Creates a new transfer line and validates item no based on provided 'ItemNo'.
+    /// </summary>
+    /// <param name="TransferLine">The transfer line record.</param>
+    /// <param name="ItemNo">The item number.</param>
     procedure AddItem(var TransferLine: Record "Transfer Line"; ItemNo: Code[20])
     begin
         TransferLine.Init();
@@ -1355,6 +1424,10 @@ table 5741 "Transfer Line"
         OnAfterAddItem(TransferLine);
     end;
 
+    /// <summary>
+    /// Initializes a new transfer line based on the current record.
+    /// </summary>
+    /// <param name="NewTransferLine">The new transfer line record.</param>
     procedure InitNewLine(var NewTransferLine: Record "Transfer Line")
     var
         TransferLine: Record "Transfer Line";
@@ -1368,6 +1441,10 @@ table 5741 "Transfer Line"
             NewTransferLine."Line No." := 0;
     end;
 
+    /// <summary>
+    /// Checks if an item is available for transfer.
+    /// </summary>
+    /// <param name="CalledByFieldNo">The field number that triggered the check.</param>
     procedure CheckItemAvailable(CalledByFieldNo: Integer)
     var
         ItemCheckAvail: Codeunit "Item-Check Avail.";
@@ -1405,6 +1482,9 @@ table 5741 "Transfer Line"
                 Error(Text006);
     end;
 
+    /// <summary>
+    /// Checks if the entire quantity on the line is shipped in case of direct Transfer.
+    /// </summary>
     procedure CheckDirectTransferQtyToShip()
     var
         InventorySetup: Record "Inventory Setup";
@@ -1423,6 +1503,11 @@ table 5741 "Transfer Line"
         end;
     end;
 
+    /// <summary>
+    /// Opens the item tracking lines for the specified transfer direction.
+    /// </summary>
+    /// <param name="Direction">The transfer direction.</param>
+    /// <remarks>Transfer direction can be either outbound or inbound.</remarks>
     procedure OpenItemTrackingLines(Direction: Enum "Transfer Direction")
     var
         IsHandled: Boolean;
@@ -1438,6 +1523,12 @@ table 5741 "Transfer Line"
         TransferLineReserve.CallItemTracking(Rec, Direction);
     end;
 
+    /// <summary>
+    /// Opens the item tracking lines for the specified transfer direction.
+    /// </summary>
+    /// <param name="Direction">The transfer direction.</param>
+    /// <remarks>Transfer direction can be either outbound or inbound.
+    /// Item tracking page will be run in direct transfer mode.</remarks>
     procedure OpenItemTrackingLinesWithReclass(Direction: Enum "Transfer Direction")
     begin
         TestField("Item No.");
@@ -1446,6 +1537,9 @@ table 5741 "Transfer Line"
         TransferLineReserve.CallItemTracking(Rec, Direction, true);
     end;
 
+    /// <summary>
+    /// Test whether the status of a transfer document is set to 'Open'.
+    /// </summary>
     procedure TestStatusOpen()
     var
         IsHandled: Boolean;
@@ -1465,11 +1559,18 @@ table 5741 "Transfer Line"
         OnAfterTestStatusOpen(Rec, TransHeader);
     end;
 
+    /// <summary>
+    /// Sets the status check suspension flag.
+    /// </summary>
+    /// <param name="Suspend">A boolean value indicating whether to suspend the status check.</param>
     procedure SuspendStatusCheck(Suspend: Boolean)
     begin
         StatusCheckSuspended := Suspend;
     end;
 
+    /// <summary>
+    /// Displays the reservation for the transfer line.
+    /// </summary>
     procedure ShowReservation()
     var
         OptionNumber: Integer;
@@ -1491,6 +1592,9 @@ table 5741 "Transfer Line"
         OnAfterShowReservation(Rec);
     end;
 
+    /// <summary>
+    /// Updates "Qty. to Ship" and "Qty. to Receive" fields of current transfer line based on location setup.
+    /// </summary>
     procedure UpdateWithWarehouseShipReceive()
     var
         IsHandled: Boolean;
@@ -1517,6 +1621,11 @@ table 5741 "Transfer Line"
         OnAfterUpdateWithWarehouseShipReceive(Rec, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Renames the item number in the transfer line table.
+    /// </summary>
+    /// <param name="OldNo">The old item number.</param>
+    /// <param name="NewNo">The new item number.</param>
     procedure RenameNo(OldNo: Code[20]; NewNo: Code[20])
     begin
         Reset();
@@ -1525,6 +1634,13 @@ table 5741 "Transfer Line"
             ModifyAll("Item No.", NewNo, true);
     end;
 
+    /// <summary>
+    /// Checks warehouse requirements for a transfer line.
+    /// It determines whether a dialog should be displayed to the user based on the location setup and receive flag.
+    /// In case a dialog needs to be displayed, an appropriate message or error is presented.
+    /// </summary>
+    /// <param name="Location">The location record for the transfer line.</param>
+    /// <param name="Receive">A boolean flag indicating whether the transfer line is for receiving or not.</param>
     procedure CheckWarehouse(Location: Record Location; Receive: Boolean)
     var
         ShowDialog: Option " ",Message,Error;
@@ -1630,6 +1746,12 @@ table 5741 "Transfer Line"
             "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
+    /// <summary>
+    /// Calculates remaining quantity and remaining base quantity according to specified direction for the current transfer line.
+    /// </summary>
+    /// <param name="RemainingQty">The remaining quantity.</param>
+    /// <param name="RemainingQtyBase">The remaining base quantity.</param>
+    /// <param name="Direction">Direction of the transfer (0 for outbound, 1 for inbound).</param>
     procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal; Direction: Integer)
     begin
         case Direction of
@@ -1648,6 +1770,15 @@ table 5741 "Transfer Line"
         end;
     end;
 
+    /// <summary>
+    /// Retrieves reservation quantities for the current transfer line.
+    /// </summary>
+    /// <param name="QtyReserved">The quantity reserved.</param>
+    /// <param name="QtyReservedBase">The quantity reserved in base units.</param>
+    /// <param name="QtyToReserve">The quantity to be reserved.</param>
+    /// <param name="QtyToReserveBase">The quantity to be reserved in base units.</param>
+    /// <param name="Direction">Direction of the transfer (0 for outbound, 1 for inbound).</param>
+    /// <returns>The quantity per unit of measure.</returns>
     procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal; Direction: Integer) Result: Decimal
     var
         IsHandled: Boolean;
@@ -1673,11 +1804,20 @@ table 5741 "Transfer Line"
         exit("Qty. per Unit of Measure");
     end;
 
+    /// <summary>
+    /// Combines values of "Document No.", "Line No." and "Item No." fields of the current transfer line.
+    /// </summary>
+    /// <returns>Returns source transfer line information.</returns>
     procedure GetSourceCaption(): Text
     begin
         exit(StrSubstNo('%1 %2 %3', "Document No.", "Line No.", "Item No."));
     end;
 
+    /// <summary>
+    /// Sets the reservation entry for the current transfer line based on specified direction.
+    /// </summary>
+    /// <param name="ReservEntry">The reservation entry record to set.</param>
+    /// <param name="Direction">The transfer direction.</param>
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     begin
         ReservEntry.SetSource(
@@ -1700,6 +1840,11 @@ table 5741 "Transfer Line"
         end;
     end;
 
+    /// <summary>
+    /// Sets filters for the specified reservation entry based on the transfer direction.
+    /// </summary>
+    /// <param name="ReservEntry">The reservation entry record to set the filters for.</param>
+    /// <param name="Direction">The transfer direction.</param>
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     begin
         ReservEntry.SetSourceFilter(DATABASE::"Transfer Line", Direction.AsInteger(), "Document No.", "Line No.", false);
@@ -1708,6 +1853,12 @@ table 5741 "Transfer Line"
         OnAfterSetReservationFilters(ReservEntry, Rec);
     end;
 
+    /// <summary>
+    /// Checks if a reservation entry exists for the transfer line.
+    /// </summary>
+    /// <returns>
+    /// Returns true in case reservation entry exists, otherwise false.
+    /// </returns>
     procedure ReservEntryExist(): Boolean
     var
         ReservEntry: Record "Reservation Entry";
@@ -1718,6 +1869,13 @@ table 5741 "Transfer Line"
         exit(not ReservEntry.IsEmpty);
     end;
 
+    /// <summary>
+    /// Checks if the current transfer line is inbound.
+    /// </summary>
+    /// <returns>
+    /// Returns true if the quantity (base) is less than 0, indicating an inbound transfer line.
+    /// Returns false otherwise.
+    /// </returns>
     procedure IsInbound(): Boolean
     begin
         exit("Quantity (Base)" < 0);
@@ -1731,6 +1889,12 @@ table 5741 "Transfer Line"
             WhseIntegrationMgt.CheckIfBinDedicatedOnSrcDoc("Transfer-from Code", "Transfer-from Bin Code", IssueWarning);
     end;
 
+    /// <summary>
+    /// Filters the lines with the provided item for planning.
+    /// </summary>
+    /// <param name="Item">Provided item record.</param>
+    /// <param name="IsReceipt">Specifies whether transfer line is a receipt or not.</param>
+    /// <param name="IsSupplyForPlanning">Specifies whether it is supply for planning or not.</param>
     procedure FilterLinesWithItemToPlan(var Item: Record Item; IsReceipt: Boolean; IsSupplyForPlanning: Boolean)
     begin
         Reset();
@@ -1753,18 +1917,37 @@ table 5741 "Transfer Line"
         OnAfterFilterLinesWithItemToPlan(Item, IsReceipt, IsSupplyForPlanning, Rec);
     end;
 
+    /// <summary>
+    /// Finds the lines with the provided item to plan.
+    /// </summary>
+    /// <param name="Item">Provided item record.</param>
+    /// <param name="IsReceipt">Specifies whether the transfer line is a receipt.</param>
+    /// <param name="IsSupplyForPlanning">Specifies whether the item is supply for planning.</param>
+    /// <returns>True in case the lines with the item to plan are found, otherwise false.</returns>
     procedure FindLinesWithItemToPlan(var Item: Record Item; IsReceipt: Boolean; IsSupplyForPlanning: Boolean): Boolean
     begin
         FilterLinesWithItemToPlan(Item, IsReceipt, IsSupplyForPlanning);
         exit(Find('-'));
     end;
 
+    /// <summary>
+    /// Checks if there are any lines with the provided item that need to be planned.
+    /// </summary>
+    /// <param name="Item">Provided item record.</param>
+    /// <param name="IsReceipt">Specifies whether the transfer line is a receipt or not.</param>
+    /// <returns>True if there are lines with the item that need to be planned, otherwise false.</returns>
     procedure LinesWithItemToPlanExist(var Item: Record Item; IsReceipt: Boolean): Boolean
     begin
         FilterLinesWithItemToPlan(Item, IsReceipt, false);
         exit(not IsEmpty);
     end;
 
+    /// <summary>
+    /// Filters the inbound transfer lines based on provided reservation entry and availability date filter.
+    /// </summary>
+    /// <param name="ReservationEntry">Provided reservation entry record.</param>
+    /// <param name="AvailabilityFilter">The availability date filter.</param>
+    /// <param name="Positive">A boolean value indicating whether to filter for positive or negative outstanding quantities.</param>
     procedure FilterInboundLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
     begin
         Reset();
@@ -1781,6 +1964,12 @@ table 5741 "Transfer Line"
         OnAfterFilterInboundLinesForReservation(Rec, ReservationEntry, AvailabilityFilter, Positive);
     end;
 
+    /// <summary>
+    /// Filters the outbound transfer lines based on provided reservation entry and availability date filter.
+    /// </summary>
+    /// <param name="ReservationEntry">Provided reservation entry record.</param>
+    /// <param name="AvailabilityFilter">The availability date filter.</param>
+    /// <param name="Positive">A boolean value indicating whether to filter for positive or negative outstanding quantities.</param>
     procedure FilterOutboundLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
     begin
         Reset();
@@ -1797,24 +1986,31 @@ table 5741 "Transfer Line"
         OnAfterFilterOutboundLinesForReservation(Rec, ReservationEntry, AvailabilityFilter, Positive);
     end;
 
+    /// <summary>
+    /// Verifies if the item line dimensions have been changed and confirms the change if necessary.
+    /// </summary>
     procedure VerifyItemLineDim()
     begin
         if IsShippedDimChanged() then
             ConfirmShippedDimChange();
     end;
 
+    /// <summary>
+    /// Automatically creates reservations for the item quantity of provided transfer lines.
+    /// </summary>
+    /// <param name="TransLine">Provided transfer line records.</param>
     procedure ReserveFromInventory(var TransLine: Record "Transfer Line")
     var
         ReservMgt: Codeunit "Reservation Management";
         SourceRecRef: RecordRef;
         AutoReserved: Boolean;
     begin
+        TransLine.SetAutoCalcFields("Reserved Quantity Outbnd.", "Reserved Qty. Outbnd. (Base)");
         if TransLine.FindSet() then
             repeat
                 SourceRecRef.GetTable(TransLine);
                 ReservMgt.SetReservSource(SourceRecRef);
                 TransLine.TestField("Shipment Date");
-                TransLine.CalcFields("Reserved Qty. Outbnd. (Base)");
                 ReservMgt.AutoReserveToShip(
                   AutoReserved, '', TransLine."Shipment Date",
                   TransLine."Qty. to Ship" - TransLine."Reserved Quantity Outbnd.",
@@ -1824,6 +2020,10 @@ table 5741 "Transfer Line"
             until TransLine.Next() = 0;
     end;
 
+    /// <summary>
+    /// Determines if the dimensions of already shipped transfer line have been changed.
+    /// </summary>
+    /// <returns>True if the dimensions are changed, otherwise false.</returns>
     procedure IsShippedDimChanged() Result: Boolean
     begin
         Result := ("Dimension Set ID" <> xRec."Dimension Set ID") and (("Quantity Shipped" <> 0) or ("Qty. Shipped (Base)" <> 0));
@@ -1831,6 +2031,10 @@ table 5741 "Transfer Line"
         OnAfterIsShippedDimChanged(Rec, Result);
     end;
 
+    /// <summary>
+    /// Confirms the change of dimensions for an already shipped transfer line.
+    /// </summary>
+    /// <returns>Returns true if the change is confirmed, otherwise false.</returns>
     procedure ConfirmShippedDimChange(): Boolean
     begin
         if not Confirm(Text012, false, TableCaption) then
@@ -1860,6 +2064,9 @@ table 5741 "Transfer Line"
         GetTransferHeader();
     end;
 
+    /// <summary>
+    /// Retrieves the transfer header record based on document number of the current transfer line.
+    /// </summary>
     procedure GetTransferHeader(): Record "Transfer Header"
     begin
         if "Document No." <> TransHeader."No." then
@@ -1868,6 +2075,9 @@ table 5741 "Transfer Line"
         exit(TransHeader);
     end;
 
+    /// <summary>
+    /// Checks for date conflicts in the transfer line in case global parameter 'TrackingBlocked' is set to false.
+    /// </summary>
     procedure DateConflictCheck()
     begin
         if not TrackingBlocked then
@@ -1888,6 +2098,11 @@ table 5741 "Transfer Line"
         exit(not TransferLine.IsEmpty);
     end;
 
+    /// <summary>
+    /// Returns the Row ID for the specified transfer direction.
+    /// </summary>
+    /// <param name="Direction">Provided transfer direction.</param>
+    /// <returns>The Row ID as a text value.</returns>
     procedure RowID1(Direction: Enum "Transfer Direction"): Text[250]
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
@@ -1919,6 +2134,9 @@ table 5741 "Transfer Line"
         OnAfterSetItemLedgerEntryFilters(ItemLedgEntry, Rec);
     end;
 
+    /// <summary>
+    /// Creates a dimension based on default dimension source.
+    /// </summary>
     procedure CreateDimFromDefaultDim()
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
@@ -1934,6 +2152,13 @@ table 5741 "Transfer Line"
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Checks if qunatity on the current transfer line meets the reserved from stock setting.
+    /// </summary>
+    /// <param name="QtyToPost">The quantity to post from current transfer line.</param>
+    /// <param name="ReservedFromStock">The reservation from stock option.</param>
+    /// <returns>True if the transfer line meets the reserved from stock setting, otherwise false.</returns>
+    /// <remarks>Reserve from stock options are: None, Partial, Full and Partial, Full.</remarks>
     procedure CheckIfTransferLineMeetsReservedFromStockSetting(QtyToPost: Decimal; ReservedFromStock: Enum "Reservation From Stock") Result: Boolean
     var
         QtyReservedFromStock: Decimal;
@@ -1959,6 +2184,11 @@ table 5741 "Transfer Line"
         exit(Result);
     end;
 
+    /// <summary>
+    /// Displays reservation entries for the current transfer line.
+    /// </summary>
+    /// <param name="Modal">Specifies whether the page reservation entries should be run in a modal mode or not.</param>
+    /// <param name="Direction">Specifies the direction of the transfer.</param>
     procedure ShowReservationEntries(Modal: Boolean; Direction: Enum "Transfer Direction")
     var
         ReservationEntry: Record "Reservation Entry";

@@ -273,6 +273,10 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Document Default Line Type';
         }
+        field(51; "Default G/L Account Quantity"; Boolean)
+        {
+            Caption = 'Default G/L Account Quantity';
+        }
         field(52; "Archive Quotes"; Option)
         {
             Caption = 'Archive Quotes';
@@ -567,7 +571,9 @@ table 312 "Purchases & Payables Setup"
     }
 
     var
+#pragma warning disable AA0074
         Text001: Label 'Job Queue Priority must be zero or positive.';
+#pragma warning restore AA0074
         RecordHasBeenRead: Boolean;
 
     procedure GetRecordOnce()

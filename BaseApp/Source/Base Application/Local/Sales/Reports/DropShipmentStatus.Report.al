@@ -405,12 +405,11 @@ report 10051 "Drop Shipment Status"
                             VendOrdQty := QFormat(PurchaseLine.Quantity);
                     end else
                         VendOrdQty := Text002;
-                end else begin
-                    if "Quantity Invoiced" < Quantity then begin
-                        StatusLine1 := Text005;
-                    end else
+                end else
+                    if "Quantity Invoiced" < Quantity then
+                        StatusLine1 := Text005
+                    else
                         StatusLine1 := Text006;
-                end;
                 if (StatusLine1 = '') and (StatusLine2 <> '') then
                     if StatusLine2 = PendingVendConfirm then begin
                         StatusLine1 := Text007;   // stretch out to more

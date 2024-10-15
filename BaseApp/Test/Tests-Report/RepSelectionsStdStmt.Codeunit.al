@@ -2776,19 +2776,17 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
     local procedure InsertCustomReportSelectionCustomer(var CustomReportSelection: Record "Custom Report Selection"; CustomerNo: Code[20]; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; SendToAddress: Text[200]; ReportUsage: Enum "Report Selection Usage")
     begin
-        with CustomReportSelection do begin
-            Init();
-            Validate("Source Type", DATABASE::Customer);
-            Validate("Source No.", CustomerNo);
-            Validate(Usage, ReportUsage);
-            Validate(Sequence, Count + 1);
-            Validate("Report ID", ReportID);
-            Validate("Use for Email Attachment", UseForEmailAttachment);
-            Validate("Use for Email Body", UseForEmailBody);
-            Validate("Email Body Layout Code", EmailBodyLayoutCode);
-            Validate("Send To Email", SendToAddress);
-            Insert(true);
-        end;
+        CustomReportSelection.Init();
+        CustomReportSelection.Validate("Source Type", DATABASE::Customer);
+        CustomReportSelection.Validate("Source No.", CustomerNo);
+        CustomReportSelection.Validate(Usage, ReportUsage);
+        CustomReportSelection.Validate(Sequence, CustomReportSelection.Count + 1);
+        CustomReportSelection.Validate("Report ID", ReportID);
+        CustomReportSelection.Validate("Use for Email Attachment", UseForEmailAttachment);
+        CustomReportSelection.Validate("Use for Email Body", UseForEmailBody);
+        CustomReportSelection.Validate("Email Body Layout Code", EmailBodyLayoutCode);
+        CustomReportSelection.Validate("Send To Email", SendToAddress);
+        CustomReportSelection.Insert(true);
     end;
 
     local procedure InsertReportSelections(var ReportSelections: Record "Report Selections"; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; ReportUsage: Enum "Report Selection Usage")
@@ -2799,16 +2797,14 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         if not ReportSelections.IsEmpty() then
             exit;
 
-        with ReportSelections do begin
-            Init();
-            Validate(Usage, ReportUsage);
-            Validate(Sequence, '1');
-            Validate("Report ID", ReportID);
-            Validate("Use for Email Attachment", UseForEmailAttachment);
-            Validate("Use for Email Body", UseForEmailBody);
-            Validate("Email Body Layout Code", EmailBodyLayoutCode);
-            Insert(true);
-        end;
+        ReportSelections.Init();
+        ReportSelections.Validate(Usage, ReportUsage);
+        ReportSelections.Validate(Sequence, '1');
+        ReportSelections.Validate("Report ID", ReportID);
+        ReportSelections.Validate("Use for Email Attachment", UseForEmailAttachment);
+        ReportSelections.Validate("Use for Email Body", UseForEmailBody);
+        ReportSelections.Validate("Email Body Layout Code", EmailBodyLayoutCode);
+        ReportSelections.Insert(true);
     end;
 
     local procedure PrepareCustomerWithEntries(var Customer: Record Customer; EmailAddress: Text; ReportId: Integer)

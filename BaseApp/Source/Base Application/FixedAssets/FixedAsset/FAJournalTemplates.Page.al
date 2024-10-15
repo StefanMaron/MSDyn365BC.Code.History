@@ -10,6 +10,8 @@ page 5630 "FA Journal Templates"
     PageType = List;
     SourceTable = "FA Journal Template";
     UsageCategory = Administration;
+    AboutTitle = 'About FA Journal Template';
+    AboutText = 'With the **FA Journal Template**, you can create new templates, review created templates, define the no. series and batches this will be used in different journals of fixed assets transactions.';
 
     layout
     {

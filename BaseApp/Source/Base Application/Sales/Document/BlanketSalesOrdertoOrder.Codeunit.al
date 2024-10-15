@@ -18,19 +18,19 @@ codeunit 87 "Blanket Sales Order to Order"
     trigger OnRun()
     var
         Cust: Record Customer;
+        BlanketOrderSalesLine: Record "Sales Line";
+        SalesLineOrder: Record "Sales Line";
+        SalesLine: Record "Sales Line";
         TempSalesLine: Record "Sales Line" temporary;
         SalesCommentLine: Record "Sales Comment Line";
-        ATOLink: Record "Assemble-to-Order Link";
-        PrepmtMgt: Codeunit "Prepayment Mgt.";
         RecordLinkManagement: Codeunit "Record Link Management";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
-        SalesLineReserve: Codeunit "Sales Line-Reserve";
+        CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
         Reservation: Page Reservation;
+        NextLineNo: Integer;
         ShouldRedistributeInvoiceAmount: Boolean;
         CreditLimitExceeded: Boolean;
-        IsHandled: Boolean;
         SuppressCommit: Boolean;
-        ProcessLine: Boolean;
     begin
         OnBeforeRun(Rec, HideValidationDialog, SuppressCommit);
 
@@ -49,7 +49,7 @@ codeunit 87 "Blanket Sales Order to Order"
 
         SalesSetup.Get();
 
-        CheckAvailability(Rec);
+        CheckAvailability(Rec, SalesLine);
 
         OnRunOnAfterCheckAvailability(SalesLine, BlanketOrderSalesLine);
 
@@ -59,94 +59,10 @@ codeunit 87 "Blanket Sales Order to Order"
         BlanketOrderSalesLine.SetRange("Document Type", Rec."Document Type");
         BlanketOrderSalesLine.SetRange("Document No.", Rec."No.");
         OnRunOnAfterBlanketOrderSalesLineSetFilters(BlanketOrderSalesLine);
-        if BlanketOrderSalesLine.FindSet() then begin
-            TempSalesLine.DeleteAll();
-            repeat
-                OnBeforeHandlingBlanketOrderSalesLine(BlanketOrderSalesLine);
-                ProcessLine := (BlanketOrderSalesLine.Type = BlanketOrderSalesLine.Type::" ") or (BlanketOrderSalesLine."Qty. to Ship" <> 0);
-                OnBeforeProcessBlanketOrderSalesLine(BlanketOrderSalesLine, ProcessLine);
-                if ProcessLine then begin
-                    SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
-                    SalesLine.SetRange("Blanket Order No.", BlanketOrderSalesLine."Document No.");
-                    SalesLine.SetRange("Blanket Order Line No.", BlanketOrderSalesLine."Line No.");
-                    OnRunOnAfterSalesLineSetFilters(SalesLine);
-                    QuantityOnOrders := 0;
-                    if SalesLine.FindSet() then
-                        repeat
-                            if (SalesLine."Document Type" = SalesLine."Document Type"::"Return Order") or
-                               ((SalesLine."Document Type" = SalesLine."Document Type"::"Credit Memo") and
-                                (SalesLine."Return Receipt No." = ''))
-                            then
-                                QuantityOnOrders := QuantityOnOrders - SalesLine."Outstanding Qty. (Base)"
-                            else
-                                if (SalesLine."Document Type" = SalesLine."Document Type"::Order) or
-                                   ((SalesLine."Document Type" = SalesLine."Document Type"::Invoice) and
-                                    (SalesLine."Shipment No." = ''))
-                                then
-                                    QuantityOnOrders := QuantityOnOrders + SalesLine."Outstanding Qty. (Base)";
-                        until SalesLine.Next() = 0;
+        NextLineNo := 0;
+        CreateSalesOrderLines(Rec, BlanketOrderSalesLine, SalesOrderHeader, SalesLineOrder, NextLineNo);
 
-                    CheckBlanketOrderLineQuantity();
-
-                    SalesOrderLine := BlanketOrderSalesLine;
-                    OnRunOnBeforeResetQuantityFields(BlanketOrderSalesLine, SalesOrderLine);
-                    ResetQuantityFields(SalesOrderLine);
-                    SalesOrderLine."Document Type" := SalesOrderHeader."Document Type";
-                    SalesOrderLine."Document No." := SalesOrderHeader."No.";
-                    SalesOrderLine."Blanket Order No." := Rec."No.";
-                    SalesOrderLine."Blanket Order Line No." := BlanketOrderSalesLine."Line No.";
-                    if (SalesOrderLine."No." <> '') and (SalesOrderLine.Type <> SalesOrderLine.Type::" ") then begin
-                        SalesOrderLine.Amount := 0;
-                        SalesOrderLine."Amount Including VAT" := 0;
-                        SalesOrderLineValidateQuantity(SalesOrderLine, BlanketOrderSalesLine);
-                        SalesOrderLine.Validate("Shipment Date", BlanketOrderSalesLine."Shipment Date");
-                        OnRunOnAfterSalesOrderLineValidateShipmentDate(BlanketOrderSalesLine, SalesOrderLine);
-                        SalesOrderLine.Validate("Unit Price", BlanketOrderSalesLine."Unit Price");
-                        SalesOrderLine."Allow Invoice Disc." := BlanketOrderSalesLine."Allow Invoice Disc.";
-                        SalesOrderLine."Allow Line Disc." := BlanketOrderSalesLine."Allow Line Disc.";
-                        SalesOrderLine.Validate("Line Discount %", BlanketOrderSalesLine."Line Discount %");
-                        if (SalesOrderLine.Quantity <> 0) and (BlanketOrderSalesLine."Inv. Discount Amount" <> 0) then
-                            SalesOrderLine.Validate(
-                                "Inv. Discount Amount",
-                                round(BlanketOrderSalesLine."Inv. Discount Amount" * (BlanketOrderSalesLine."Qty. to Ship" / BlanketOrderSalesLine.Quantity)));
-                        OnRunOnBeforeSalesLineReserveTransferSaleLineToSalesLine(BlanketOrderSalesLine, SalesOrderLine);
-                        SalesLineReserve.TransferSaleLineToSalesLine(
-                          BlanketOrderSalesLine, SalesOrderLine, BlanketOrderSalesLine."Qty. to Ship (Base)");
-                    end;
-
-                    if Cust."Prepayment %" <> 0 then
-                        SalesOrderLine."Prepayment %" := Cust."Prepayment %";
-                    PrepmtMgt.SetSalesPrepaymentPct(SalesOrderLine, SalesOrderHeader."Posting Date");
-                    SalesOrderLine.Validate("Prepayment %");
-
-                    SalesOrderLine."Shortcut Dimension 1 Code" := BlanketOrderSalesLine."Shortcut Dimension 1 Code";
-                    SalesOrderLine."Shortcut Dimension 2 Code" := BlanketOrderSalesLine."Shortcut Dimension 2 Code";
-                    SalesOrderLine."Dimension Set ID" := BlanketOrderSalesLine."Dimension Set ID";
-                    if ATOLink.AsmExistsForSalesLine(BlanketOrderSalesLine) then begin
-                        SalesOrderLine."Qty. to Assemble to Order" := SalesOrderLine.Quantity;
-                        SalesOrderLine."Qty. to Asm. to Order (Base)" := SalesOrderLine."Quantity (Base)";
-                    end;
-                    SalesOrderLine.DefaultDeferralCode();
-                    if IsSalesOrderLineToBeInserted(SalesOrderLine) then begin
-                        OnBeforeInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, BlanketOrderSalesLine, Rec);
-                        SalesOrderLine.Insert();
-                        OnAfterInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, BlanketOrderSalesLine, Rec);
-                    end;
-
-                    if ATOLink.AsmExistsForSalesLine(BlanketOrderSalesLine) then
-                        ATOLink.MakeAsmOrderLinkedToSalesOrderLine(BlanketOrderSalesLine, SalesOrderLine);
-
-                    IsHandled := false;
-                    OnRunOnBeforeValidateBlanketOrderSalesLineQtytoShip(BlanketOrderSalesLine, SalesOrderLine, SalesOrderHeader, Rec, IsHandled);
-                    if not IsHandled then
-                        if BlanketOrderSalesLine."Qty. to Ship" <> 0 then begin
-                            BlanketOrderSalesLine.Validate("Qty. to Ship", 0);
-                            BlanketOrderSalesLine.Modify();
-                            AutoReserve(SalesOrderLine, TempSalesLine);
-                        end;
-                end;
-            until BlanketOrderSalesLine.Next() = 0;
-        end;
+        ReserveSalesOrderLines(SalesOrderHeader, SalesLineOrder, TempSalesLine);
 
         OnAfterInsertAllSalesOrderLines(Rec, SalesOrderHeader);
 
@@ -154,7 +70,7 @@ codeunit 87 "Blanket Sales Order to Order"
             SalesOrderHeader."Posting Date" := 0D;
             SalesOrderHeader.Modify();
         end;
-        SalesOrderLine.CalcSalesTaxLines(SalesOrderHeader, SalesOrderLine);
+        SalesLineOrder.CalcSalesTaxLines(SalesOrderHeader, SalesLineOrder);
 
         if SalesSetup."Copy Comments Blanket to Order" then begin
             SalesCommentLine.CopyComments(
@@ -182,30 +98,140 @@ codeunit 87 "Blanket Sales Order to Order"
                         Rec.Find();
                     until TempSalesLine.Next() = 0;
 
-        Clear(CustCheckCreditLimit);
-        Clear(ItemCheckAvail);
-
         OnAfterRun(Rec, SalesOrderHeader);
     end;
 
     var
-        BlanketOrderSalesLine: Record "Sales Line";
-        SalesLine: Record "Sales Line";
         SalesOrderHeader: Record "Sales Header";
-        SalesOrderLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
-        CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
-        ItemCheckAvail: Codeunit "Item-Check Avail.";
         UOMMgt: Codeunit "Unit of Measure Management";
-        QuantityOnOrders: Decimal;
         HideValidationDialog: Boolean;
 
         QuantityCheckErr: Label '%1 of %2 %3 in %4 %5 cannot be more than %6.\%7\%8 - %9 = %6.', Comment = '%1: FIELDCAPTION("Qty. to Ship (Base)"); %2: Field(Type); %3: Field(No.); %4: FIELDCAPTION("Line No."); %5: Field(Line No.); %6: Decimal Qty Difference; %7: Text001; %8: Field(Outstanding Qty. (Base)); %9: Decimal Quantity On Orders';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 - Unposted %1 = Possible %2';
+#pragma warning restore AA0470
         Text002: Label 'There is nothing to create.';
         Text003: Label 'Full automatic reservation was not possible.\Reserve items manually?';
+#pragma warning restore AA0074
 
-    local procedure SalesOrderLineValidateQuantity(var SalesOrderLine: Record "Sales Line"; BlanketOrderSalesLine: Record "Sales Line")
+    procedure CreateSalesOrderLines(var SalesHeaderBlanketOrder: Record "Sales Header"; var SalesLineBlanketOrder: Record "Sales Line";
+                                    var SalesHeaderOrder: Record "Sales Header"; var SalesLineOrder: Record "Sales Line"; var NextLineNo: Integer)
+    var
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        ATOLink: Record "Assemble-to-Order Link";
+        PrepmtMgt: Codeunit "Prepayment Mgt.";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
+        QuantityOnOrders: Decimal;
+        IsHandled: Boolean;
+        ProcessLine: Boolean;
+    begin
+        if not SalesLineBlanketOrder.FindSet() then
+            exit;
+
+        repeat
+            OnBeforeHandlingBlanketOrderSalesLine(SalesLineBlanketOrder);
+            ProcessLine := (SalesLineBlanketOrder.Type = SalesLineBlanketOrder.Type::" ") or (SalesLineBlanketOrder."Qty. to Ship" <> 0);
+            OnBeforeProcessBlanketOrderSalesLine(SalesLineBlanketOrder, ProcessLine);
+            if ProcessLine then begin
+                SalesLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
+                SalesLine.SetRange("Blanket Order No.", SalesLineBlanketOrder."Document No.");
+                SalesLine.SetRange("Blanket Order Line No.", SalesLineBlanketOrder."Line No.");
+                OnRunOnAfterSalesLineSetFilters(SalesLine);
+                QuantityOnOrders := 0;
+                if SalesLine.FindSet() then
+                    repeat
+                        if (SalesLine."Document Type" = SalesLine."Document Type"::"Return Order") or
+                           ((SalesLine."Document Type" = SalesLine."Document Type"::"Credit Memo") and
+                            (SalesLine."Return Receipt No." = ''))
+                        then
+                            QuantityOnOrders := QuantityOnOrders - SalesLine."Outstanding Qty. (Base)"
+                        else
+                            if (SalesLine."Document Type" = SalesLine."Document Type"::Order) or
+                               ((SalesLine."Document Type" = SalesLine."Document Type"::Invoice) and
+                                (SalesLine."Shipment No." = ''))
+                            then
+                                QuantityOnOrders := QuantityOnOrders + SalesLine."Outstanding Qty. (Base)";
+                    until SalesLine.Next() = 0;
+
+                CheckBlanketOrderLineQuantity(SalesLineBlanketOrder, QuantityOnOrders);
+
+                SalesLineOrder := SalesLineBlanketOrder;
+                OnRunOnBeforeResetQuantityFields(SalesLineBlanketOrder, SalesLineOrder);
+                ResetQuantityFields(SalesLineOrder);
+                SalesLineOrder."Document Type" := SalesHeaderOrder."Document Type";
+                SalesLineOrder."Document No." := SalesHeaderOrder."No.";
+                NextLineNo += 10000;
+                SalesLineOrder."Line No." := NextLineNo;
+                SalesLineOrder."Blanket Order No." := SalesHeaderBlanketOrder."No.";
+                SalesLineOrder."Blanket Order Line No." := SalesLineBlanketOrder."Line No.";
+                if (SalesLineOrder."No." <> '') and (SalesLineOrder.Type <> SalesLineOrder.Type::" ") then begin
+                    SalesLineOrder.Amount := 0;
+                    SalesLineOrder."Amount Including VAT" := 0;
+                    SalesOrderLineValidateQuantity(SalesLineOrder, SalesLineBlanketOrder);
+                    SalesLineOrder.Validate("Shipment Date", SalesLineBlanketOrder."Shipment Date");
+                    OnRunOnAfterSalesOrderLineValidateShipmentDate(SalesLineBlanketOrder, SalesLineOrder);
+                    SalesLineOrder.Validate("Unit Price", SalesLineBlanketOrder."Unit Price");
+                    SalesLineOrder."Allow Invoice Disc." := SalesLineBlanketOrder."Allow Invoice Disc.";
+                    SalesLineOrder."Allow Line Disc." := SalesLineBlanketOrder."Allow Line Disc.";
+                    SalesLineOrder.Validate("Line Discount %", SalesLineBlanketOrder."Line Discount %");
+                    if (SalesLineOrder.Quantity <> 0) and (SalesLineBlanketOrder."Inv. Discount Amount" <> 0) then
+                        SalesLineOrder.Validate(
+                            "Inv. Discount Amount",
+                            round(SalesLineBlanketOrder."Inv. Discount Amount" * (SalesLineBlanketOrder."Qty. to Ship" / SalesLineBlanketOrder.Quantity)));
+                    OnRunOnBeforeSalesLineReserveTransferSaleLineToSalesLine(SalesLineBlanketOrder, SalesLineOrder);
+                    SalesLineReserve.TransferSaleLineToSalesLine(
+                      SalesLineBlanketOrder, SalesLineOrder, SalesLineBlanketOrder."Qty. to Ship (Base)");
+                end;
+
+                Customer.Get(SalesHeaderBlanketOrder."Sell-to Customer No.");
+                if Customer."Prepayment %" <> 0 then
+                    SalesLineOrder."Prepayment %" := Customer."Prepayment %";
+                PrepmtMgt.SetSalesPrepaymentPct(SalesLineOrder, SalesHeaderOrder."Posting Date");
+                SalesLineOrder.Validate("Prepayment %");
+
+                SalesLineOrder."Shortcut Dimension 1 Code" := SalesLineBlanketOrder."Shortcut Dimension 1 Code";
+                SalesLineOrder."Shortcut Dimension 2 Code" := SalesLineBlanketOrder."Shortcut Dimension 2 Code";
+                SalesLineOrder."Dimension Set ID" := SalesLineBlanketOrder."Dimension Set ID";
+                if ATOLink.AsmExistsForSalesLine(SalesLineBlanketOrder) then begin
+                    SalesLineOrder."Qty. to Assemble to Order" := SalesLineOrder.Quantity;
+                    SalesLineOrder."Qty. to Asm. to Order (Base)" := SalesLineOrder."Quantity (Base)";
+                end;
+                SalesLineOrder.DefaultDeferralCode();
+                if IsSalesOrderLineToBeInserted(SalesLineOrder) then begin
+                    OnBeforeInsertSalesOrderLine(SalesLineOrder, SalesHeaderOrder, SalesLineBlanketOrder, SalesHeaderBlanketOrder);
+                    SalesLineOrder.Insert();
+                    OnAfterInsertSalesOrderLine(SalesLineOrder, SalesHeaderOrder, SalesLineBlanketOrder, SalesHeaderBlanketOrder);
+                end;
+
+                if ATOLink.AsmExistsForSalesLine(SalesLineBlanketOrder) then
+                    ATOLink.MakeAsmOrderLinkedToSalesOrderLine(SalesLineBlanketOrder, SalesLineOrder);
+
+                IsHandled := false;
+                OnRunOnBeforeValidateBlanketOrderSalesLineQtytoShip(SalesLineBlanketOrder, SalesLineOrder, SalesHeaderOrder, SalesHeaderBlanketOrder, IsHandled);
+                if not IsHandled then
+                    if SalesLineBlanketOrder."Qty. to Ship" <> 0 then begin
+                        SalesLineBlanketOrder.Validate("Qty. to Ship", 0);
+                        SalesLineBlanketOrder.Modify();
+                    end;
+            end;
+        until SalesLineBlanketOrder.Next() = 0;
+    end;
+
+    procedure ReserveSalesOrderLines(SalesHeaderOrder: Record "Sales Header"; var SalesLineOrder: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
+    begin
+        TempSalesLine.DeleteAll();
+        SalesLineOrder.SetRange("Document Type", SalesHeaderOrder."Document Type");
+        SalesLineOrder.SetRange("Document No.", SalesHeaderOrder."No.");
+        if SalesLineOrder.FindSet() then
+            repeat
+                AutoReserve(SalesLineOrder, TempSalesLine);
+            until SalesLineOrder.Next() = 0;
+    end;
+
+    local procedure SalesOrderLineValidateQuantity(var SalesOrderLine: Record "Sales Line"; var BlanketOrderSalesLine: Record "Sales Line")
     var
         IsHandled: Boolean;
     begin
@@ -229,36 +255,37 @@ codeunit 87 "Blanket Sales Order to Order"
         Customer.CheckBlockedCustOnDocs(Customer, SalesHeader."Document Type"::Order, true, false);
     end;
 
-    local procedure CheckBlanketOrderLineQuantity()
+    local procedure CheckBlanketOrderLineQuantity(SalesLineBlanketOrder: Record "Sales Line"; QuantityOnOrders: Decimal)
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckBlanketOrderLineQuantity(BlanketOrderSalesLine, QuantityOnOrders, IsHandled);
+        OnBeforeCheckBlanketOrderLineQuantity(SalesLineBlanketOrder, QuantityOnOrders, IsHandled);
         if IsHandled then
             exit;
 
-        if (Abs(BlanketOrderSalesLine."Qty. to Ship (Base)" + QuantityOnOrders +
-              BlanketOrderSalesLine."Qty. Shipped (Base)") >
-            Abs(BlanketOrderSalesLine."Quantity (Base)")) or
-           (BlanketOrderSalesLine."Quantity (Base)" * BlanketOrderSalesLine."Outstanding Qty. (Base)" < 0)
+        if (Abs(SalesLineBlanketOrder."Qty. to Ship (Base)" + QuantityOnOrders +
+              SalesLineBlanketOrder."Qty. Shipped (Base)") >
+            Abs(SalesLineBlanketOrder."Quantity (Base)")) or
+           (SalesLineBlanketOrder."Quantity (Base)" * SalesLineBlanketOrder."Outstanding Qty. (Base)" < 0)
         then
             Error(
               QuantityCheckErr,
-              BlanketOrderSalesLine.FieldCaption("Qty. to Ship (Base)"),
-              BlanketOrderSalesLine.Type, BlanketOrderSalesLine."No.",
-              BlanketOrderSalesLine.FieldCaption("Line No."), BlanketOrderSalesLine."Line No.",
-              BlanketOrderSalesLine."Outstanding Qty. (Base)" - QuantityOnOrders,
+              SalesLineBlanketOrder.FieldCaption("Qty. to Ship (Base)"),
+              SalesLineBlanketOrder.Type, SalesLineBlanketOrder."No.",
+              SalesLineBlanketOrder.FieldCaption("Line No."), SalesLineBlanketOrder."Line No.",
+              SalesLineBlanketOrder."Outstanding Qty. (Base)" - QuantityOnOrders,
               StrSubstNo(
                 Text001,
-                BlanketOrderSalesLine.FieldCaption("Outstanding Qty. (Base)"),
-                BlanketOrderSalesLine.FieldCaption("Qty. to Ship (Base)")),
-              BlanketOrderSalesLine."Outstanding Qty. (Base)", QuantityOnOrders);
+                SalesLineBlanketOrder.FieldCaption("Outstanding Qty. (Base)"),
+                SalesLineBlanketOrder.FieldCaption("Qty. to Ship (Base)")),
+              SalesLineBlanketOrder."Outstanding Qty. (Base)", QuantityOnOrders);
     end;
 
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal) CreditLimitExceeded: Boolean
     var
         StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+        CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -277,7 +304,6 @@ codeunit 87 "Blanket Sales Order to Order"
         SalesOrderHeader.Status := SalesOrderHeader.Status::Open;
         SalesOrderHeader."No." := '';
 
-        SalesOrderLine.LockTable();
         OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
         StandardCodesMgt.SetSkipRecurringLines(true);
         SalesOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
@@ -305,25 +331,30 @@ codeunit 87 "Blanket Sales Order to Order"
         SalesOrderHeader.Modify();
     end;
 
-    local procedure ResetQuantityFields(var TempSalesLine: Record "Sales Line")
+    local procedure ResetQuantityFields(var SalesLine: Record "Sales Line")
     begin
-        TempSalesLine.Quantity := 0;
-        TempSalesLine."Quantity (Base)" := 0;
-        TempSalesLine."Qty. Shipped Not Invoiced" := 0;
-        TempSalesLine."Quantity Shipped" := 0;
-        TempSalesLine."Quantity Invoiced" := 0;
-        TempSalesLine."Qty. Shipped Not Invd. (Base)" := 0;
-        TempSalesLine."Qty. Shipped (Base)" := 0;
-        TempSalesLine."Qty. Invoiced (Base)" := 0;
-        TempSalesLine."Outstanding Quantity" := 0;
-        TempSalesLine."Outstanding Qty. (Base)" := 0;
+        SalesLine.Quantity := 0;
+        SalesLine."Quantity (Base)" := 0;
+        SalesLine."Qty. Shipped Not Invoiced" := 0;
+        SalesLine."Quantity Shipped" := 0;
+        SalesLine."Quantity Invoiced" := 0;
+        SalesLine."Qty. Shipped Not Invd. (Base)" := 0;
+        SalesLine."Qty. Shipped (Base)" := 0;
+        SalesLine."Qty. Invoiced (Base)" := 0;
+        SalesLine."Outstanding Quantity" := 0;
+        SalesLine."Outstanding Qty. (Base)" := 0;
 
-        OnAfterResetQuantityFields(TempSalesLine);
+        OnAfterResetQuantityFields(SalesLine);
     end;
 
     procedure GetSalesOrderHeader(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader := SalesOrderHeader;
+    end;
+
+    procedure SetSalesOrderHeader(var SalesHeader: Record "Sales Header")
+    begin
+        SalesOrderHeader := SalesHeader;
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -357,9 +388,10 @@ codeunit 87 "Blanket Sales Order to Order"
         end;
     end;
 
-    local procedure CheckAvailability(BlanketOrderSalesHeader: Record "Sales Header")
+    local procedure CheckAvailability(BlanketOrderSalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
         ATOLink: Record "Assemble-to-Order Link";
+        BlanketOrderSalesLine: Record "Sales Line";
         IsHandled: Boolean;
         ShouldCheckSalesLineItemAvailability: Boolean;
     begin
@@ -393,13 +425,14 @@ codeunit 87 "Blanket Sales Order to Order"
                     ShouldCheckSalesLineItemAvailability := not HideValidationDialog;
                     OnCheckAvailabilityOnAfterCalcShouldCheckSalesLineItemAvailability(BlanketOrderSalesHeader, SalesLine, ShouldCheckSalesLineItemAvailability);
                     if ShouldCheckSalesLineItemAvailability then
-                        CheckSalesLineItemAvailability(BlanketOrderSalesHeader);
+                        CheckSalesLineItemAvailability(BlanketOrderSalesHeader, SalesLine);
                 end;
             until BlanketOrderSalesLine.Next() = 0;
     end;
 
-    local procedure CheckSalesLineItemAvailability(BlanketOrderSalesHeader: Record "Sales Header")
+    local procedure CheckSalesLineItemAvailability(BlanketOrderSalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
         IsHandled: Boolean;
     begin
         IsHandled := false;

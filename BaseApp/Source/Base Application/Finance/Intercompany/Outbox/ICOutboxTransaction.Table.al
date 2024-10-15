@@ -81,15 +81,9 @@ table 414 "IC Outbox Transaction"
         field(12; "IC Partner G/L Acc. No."; Code[20])
         {
             Caption = 'IC Partner G/L Acc. No.';
-#if not CLEAN22
-            ObsoleteReason = 'This field will be replaced by IC Account No.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteReason = 'Replaced by IC Account No.';
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
         }
         field(13; "Source Line No."; Integer)
         {
@@ -214,7 +208,11 @@ table 414 "IC Outbox Transaction"
         ICOutboxTransaction2: Record "IC Outbox Transaction";
         ConfirmManagement: Codeunit "Confirm Management";
         IsHandled: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Transaction No. %2 is a copy of Transaction No. %1, which has already been set to Send to IC Partner.\Do you also want to send Transaction No. %2?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TransactionAlreadyExistsInOutboxHandledQst: Label '%1 %2 has already been sent to intercompany partner %3. Resending it will create a duplicate %1 for them. Do you want to send it again?', Comment = '%1 - Document Type, %2 - Document No, %3 - IC parthner code';
         SalesInvoicePreviouslySentAsOrderMsg: Label 'A sales order for this invoice has already been sent to intercompany partner %1. Resending it can lead to duplicate information. Do you want to send it?', Comment = '%1 - Intercompany Partner Code';
     begin
@@ -239,9 +237,6 @@ table 414 "IC Outbox Transaction"
         ICOutboxTransaction2.SetRange("Document Type", "Document Type");
         ICOutboxTransaction2.SetRange("Document No.", "Document No.");
         ICOutboxTransaction2.SetFilter("Transaction No.", '<>%1', "Transaction No.");
-#if not CLEAN22
-        ICOutboxTransaction2.SetRange("IC Partner G/L Acc. No.", "IC Partner G/L Acc. No.");
-#endif
         ICOutboxTransaction2.SetRange("IC Account Type", "IC Account Type");
         ICOutboxTransaction2.SetRange("IC Account No.", "IC Account No.");
         ICOutboxTransaction2.SetRange("Source Line No.", "Source Line No.");

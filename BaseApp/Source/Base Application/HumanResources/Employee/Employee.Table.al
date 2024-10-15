@@ -292,8 +292,11 @@ table 5200 Employee
             TableRelation = Resource where(Type = const(Person));
 
             trigger OnValidate()
+            var
+                [SecurityFiltering(SecurityFilter::Ignored)]
+                Resource: Record Resource;
             begin
-                if ("Resource No." <> '') and Res.WritePermission then begin
+                if ("Resource No." <> '') and Resource.WritePermission then begin
                     CheckIfAnEmployeeIsLinkedToTheResource("Resource No.");
                     EmployeeResUpdate.ResUpdate(Rec);
                 end;
@@ -629,6 +632,7 @@ table 5200 Employee
 
     trigger OnModify()
     var
+        Resource: Record Resource;
         IsHandled: Boolean;
     begin
         "Last Modified Date Time" := CurrentDateTime;
@@ -637,7 +641,7 @@ table 5200 Employee
         IsHandled := false;
         OnModifyOnBeforeEmployeeResourceUpdate(Rec, xRec, IsHandled);
         if not IsHandled then
-            if Res.ReadPermission then
+            if Resource.ReadPermission() then
                 EmployeeResUpdate.HumanResToRes(xRec, Rec);
 
         IsHandled := false;
@@ -658,7 +662,6 @@ table 5200 Employee
 
     var
         HumanResSetup: Record "Human Resources Setup";
-        Res: Record Resource;
         PostCode: Record "Post Code";
         AlternativeAddr: Record "Alternative Address";
         EmployeeQualification: Record "Employee Qualification";

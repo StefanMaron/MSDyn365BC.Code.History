@@ -20,7 +20,6 @@ codeunit 134384 "ERM Document Posting Error"
         IsInitialized: Boolean;
         SalesOrderPostingErr: Label 'The total amount for the invoice must be 0 or greater.';
         PurchaseInvoicePostingErr: Label 'Amount must be negative';
-        StatusErr: Label 'Status must be equal to ''Open''  in %1: Document Type=%2, No.=%3. Current value is ''Released''.', Comment = '.';
 
     [Test]
     [Scope('OnPrem')]
@@ -765,14 +764,12 @@ codeunit 134384 "ERM Document Posting Error"
 
     local procedure VerifyReleaseSalesDocument(SalesHeader: Record "Sales Header")
     begin
-        Assert.ExpectedError(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesHeader."Document Type", SalesHeader."No."));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption(Status), Format(SalesHeader.Status::Open));
     end;
 
     local procedure VerifyReleasePurchDocument(PurchaseHeader: Record "Purchase Header")
     begin
-        Assert.ExpectedError(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseHeader."Document Type", PurchaseHeader."No."));
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Open));
     end;
 
     local procedure VerifyVATEntryAmountByVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup"; ExpectedBase: Decimal; ExpectedAmount: Decimal)

@@ -450,12 +450,11 @@ report 10098 "Projected Cash Payments"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if Currency.ReadPermission then begin
+                    if Currency.ReadPermission then
                         if Number = 1 then
                             TempCurrency.Find('-')
                         else
                             TempCurrency.Next();
-                    end;
                     VendTotalLabel := 'Total for ' + Vendor.TableCaption + ' ' + Vendor."No." + ' (';
                     if PrintAmountsInLocal and (Vendor."Currency Code" <> '') then
                         VendTotalLabel := VendTotalLabel + Vendor."Currency Code"

@@ -209,7 +209,9 @@ page 5099 Tasks
         FilterTeam: Code[250];
         FilterCampaign: Code[250];
         FilterContact: Code[250];
+#pragma warning disable AA0074
         Text001: Label 'No. of Tasks,Contact No.';
+#pragma warning restore AA0074
         ColumnDateFilters: array[32] of Text[50];
         MatrixColumnCaptions: array[32] of Text[1024];
         ColumnSet: Text[1024];

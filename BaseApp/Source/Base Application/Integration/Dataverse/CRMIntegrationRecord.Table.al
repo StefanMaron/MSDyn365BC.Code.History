@@ -26,7 +26,7 @@ table 5331 "CRM Integration Record"
             begin
                 Clear("Last Synch. CRM Job ID");
                 "Last Synch. CRM Modified On" := 0DT;
-                "Last Synch. CRM Result" := 0;
+                "Last Synch. CRM Result" := "Last Synch. CRM Result"::" ";
                 Skipped := false;
             end;
         }
@@ -38,7 +38,7 @@ table 5331 "CRM Integration Record"
             begin
                 Clear("Last Synch. Job ID");
                 "Last Synch. Modified On" := 0DT;
-                "Last Synch. Result" := 0;
+                "Last Synch. Result" := "Last Synch. Result"::" ";
                 Skipped := false;
             end;
         }
@@ -61,18 +61,20 @@ table 5331 "CRM Integration Record"
                 CheckTableID();
             end;
         }
+#pragma warning disable AS0044
         field(7; "Last Synch. Result"; Option)
         {
             Caption = 'Last Synch. Result';
-            OptionCaption = ',Success,Failure';
-            OptionMembers = ,Success,Failure;
+            OptionCaption = ' ,Success,Failure';
+            OptionMembers = " ",Success,Failure;
         }
         field(8; "Last Synch. CRM Result"; Option)
         {
             Caption = 'Last Synch. CRM Result';
-            OptionCaption = ',Success,Failure';
-            OptionMembers = ,Success,Failure;
+            OptionCaption = ' ,Success,Failure';
+            OptionMembers = " ",Success,Failure;
         }
+#pragma warning restore AS0044
         field(9; "Last Synch. Job ID"; Guid)
         {
             Caption = 'Last Synch. Job ID';
@@ -180,7 +182,9 @@ table 5331 "CRM Integration Record"
     var
         CRMProductName: Codeunit "CRM Product Name";
 
+#pragma warning disable AA0470
         IntegrationRecordNotFoundErr: Label 'The integration record for entity %1 was not found.';
+#pragma warning restore AA0470
         CRMIdAlreadyMappedErr: Label 'Cannot couple %1 to this %3 record, because the %3 record is already coupled to %2.', Comment = '%1 ID of the record, %2 ID of the already mapped record, %3 = Dataverse service name';
         RecordRefAlreadyMappedErr: Label 'Cannot couple %1 to this %3 record, because the %3 record is already coupled to %2.', Comment = '%1 ID of the record, %2 ID of the already mapped record, %3 = table caption';
         RecordIdAlreadyMappedErr: Label 'Cannot couple the %2 record to %1, because %1 is already coupled to another %2 record.', Comment = '%1 ID from the record, %2 ID of the already mapped record';
@@ -381,18 +385,6 @@ table 5331 "CRM Integration Record"
     begin
         exit(FindByCRMID(GetCRMIdFromRecRef(CRMRecordRef)));
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by IsIntegrationIdCoupled(IntegrationID: Guid; TableId: Integer)', '22.0')]
-    procedure IsIntegrationIdCoupled(IntegrationID: Guid): Boolean
-    var
-        CRMIntegrationRecord: Record "CRM Integration Record";
-    begin
-        CRMIntegrationRecord.SetCurrentKey("Integration ID", "Table ID");
-        CRMIntegrationRecord.SetFilter("Integration ID", IntegrationID);
-        exit(CRMIntegrationRecord.IsEmpty());
-    end;
-#endif
 
     procedure IsIntegrationIdCoupled(IntegrationID: Guid; TableId: Integer): Boolean
     var

@@ -72,14 +72,18 @@ codeunit 134299 "Test Partner Integration Event"
         OnBeforePostItemJnlLineTxt: Label 'OnBeforePostItemJnlLine';
         OnAfterPostItemJnlLineTxt: Label 'OnAfterPostItemJnlLine';
         OnAfterNavigateFindRecordsTxt: Label 'OnAfterNavigateFindRecords';
+#if not CLEAN25
         OnAfterNavigateShowRecordsTxt: Label 'OnAfterNavigateShowRecords';
+#endif
         OnAfterCheckMandatoryFieldsTxt: Label 'OnAfterCheckMandatoryFields';
         OnAfterUpdatePostingNosTxt: Label 'OnAfterUpdatePostingNos';
         OnAfterSalesInvLineInsertTxt: Label 'OnAfterSalesInvLineInsert';
         OnAfterSalesCrMemoLineInsertTxt: Label 'OnAfterSalesCrMemoLineInsert';
         OnAfterPurchInvLineInsertTxt: Label 'OnAfterPurchInvLineInsert';
         OnAfterPurchCrMemoLineInsertTxt: Label 'OnAfterPurchCrMemoLineInsert';
+#if not CLEAN23
         OnBeforePostBalancingEntryTxt: Label 'OnBeforePostBalancingEntry';
+#endif
         OnBeforePostCustomerEntryTxt: Label 'OnBeforePostCustomerEntry';
         OnBeforePostVendorEntryTxt: Label 'OnBeforePostVendorEntry';
         OnBeforePostInvPostBufferTxt: Label 'OnBeforePostInvPostBuffer';
@@ -163,16 +167,14 @@ codeunit 134299 "Test Partner Integration Event"
         InactiveEventsCounter: Integer;
     begin
         // [SCENARIO] All existing event subscribtions should be Active, meaning all Publisher-Subscriber signatures are matched
-        with EventSubscription do begin
-            SetRange(Active, false);
-            InactiveEventsCounter := Count;
-            if FindSet() then
-                repeat
-                    InactiveSubscribers += StrSubstNo(' %1.%2', "Subscriber Codeunit ID", "Subscriber Function");
-                until Next() = 0;
-            if InactiveEventsCounter > 0 then
-                Error(InactiveEventSuscriptionErr, InactiveEventsCounter, InactiveSubscribers);
-        end;
+        EventSubscription.SetRange(Active, false);
+        InactiveEventsCounter := EventSubscription.Count;
+        if EventSubscription.FindSet() then
+            repeat
+                InactiveSubscribers += StrSubstNo(' %1.%2', EventSubscription."Subscriber Codeunit ID", EventSubscription."Subscriber Function");
+            until EventSubscription.Next() = 0;
+        if InactiveEventsCounter > 0 then
+            Error(InactiveEventSuscriptionErr, InactiveEventsCounter, InactiveSubscribers);
     end;
 
     [Test]
@@ -184,16 +186,14 @@ codeunit 134299 "Test Partner Integration Event"
         ErrorEventsCounter: Integer;
     begin
         // [SCENARIO] All existing event subscribtions should have a blank "Error Information"
-        with EventSubscription do begin
-            SetFilter("Error Information", '<>%1', '');
-            ErrorEventsCounter := Count;
-            if FindSet() then
-                repeat
-                    SubscribersWithError += StrSubstNo(' %1.%2="%3"', "Subscriber Codeunit ID", "Subscriber Function", "Error Information");
-                until Next() = 0;
-            if ErrorEventsCounter > 0 then
-                Error(ErrorEventSuscriptionErr, ErrorEventsCounter, SubscribersWithError);
-        end;
+        EventSubscription.SetFilter("Error Information", '<>%1', '');
+        ErrorEventsCounter := EventSubscription.Count;
+        if EventSubscription.FindSet() then
+            repeat
+                SubscribersWithError += StrSubstNo(' %1.%2="%3"', EventSubscription."Subscriber Codeunit ID", EventSubscription."Subscriber Function", EventSubscription."Error Information");
+            until EventSubscription.Next() = 0;
+        if ErrorEventsCounter > 0 then
+            Error(ErrorEventSuscriptionErr, ErrorEventsCounter, SubscribersWithError);
     end;
 
     [Test]
@@ -949,7 +949,9 @@ codeunit 134299 "Test Partner Integration Event"
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
 
         // Verify G/L posting events
+#if not CLEAN23
         VerifyDataTypeBuffer(OnBeforePostBalancingEntryTxt);
+#endif
         VerifyDataTypeBuffer(OnBeforePostCustomerEntryTxt);
         VerifyDataTypeBuffer(OnBeforePostInvPostBufferTxt);
     end;
@@ -1244,7 +1246,9 @@ codeunit 134299 "Test Partner Integration Event"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify G/L posting events
+#if not CLEAN23
         VerifyDataTypeBuffer(OnBeforePostBalancingEntryTxt);
+#endif
         VerifyDataTypeBuffer(OnBeforePostVendorEntryTxt);
         VerifyDataTypeBuffer(OnBeforePostInvPostBufferTxt);
     end;
@@ -1763,6 +1767,7 @@ codeunit 134299 "Test Partner Integration Event"
         VerifyDataTypeBuffer(OnAfterNavigateFindRecordsTxt);
     end;
 
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure TestOnAfterNavigateShowRecords()
@@ -1793,6 +1798,7 @@ codeunit 134299 "Test Partner Integration Event"
         // Verify
         VerifyDataTypeBuffer(OnAfterNavigateShowRecordsTxt);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -2522,15 +2528,17 @@ codeunit 134299 "Test Partner Integration Event"
     begin
         // Ensure there is one known entry so we can invoke Show and handle the page
         DocumentEntry.DeleteAll();
-        InsertIntoDocEntry(DocumentEntry, DATABASE::"G/L Entry", 'G/L Entry', 1);
+        DocumentEntry.InsertIntoDocEntry(DATABASE::"G/L Entry", 'G/L Entry', 1);
         InsertDataTypeBuffer(OnAfterNavigateFindRecordsTxt);
     end;
 
+#if not CLEAN25
     [EventSubscriber(ObjectType::Page, Page::"Navigate", 'OnAfterNavigateShowRecords', '', false, false)]
     local procedure OnAfterNavigateShowRecords(TableID: Integer; DocNoFilter: Text; PostingDateFilter: Text; ItemTrackingSearch: Boolean)
     begin
         InsertDataTypeBuffer(OnAfterNavigateShowRecordsTxt);
     end;
+#endif
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterInitRecord', '', false, false)]
     local procedure OnAfterSalesHeaderInitRecord(var SalesHeader: Record "Sales Header")
@@ -2971,17 +2979,6 @@ codeunit 134299 "Test Partner Integration Event"
         PurchRcptLine.SetRecFilter();
         UndoPurchaseReceiptLine.SetHideDialog(true);
         UndoPurchaseReceiptLine.Run(PurchRcptLine);
-    end;
-
-    local procedure InsertIntoDocEntry(var DocumentEntry: Record "Document Entry"; DocTableID: Integer; DocTableName: Text; DocNoOfRecords: Integer)
-    begin
-        DocumentEntry.Init();
-        DocumentEntry."Entry No." := DocumentEntry."Entry No." + 1;
-        DocumentEntry."Table ID" := DocTableID;
-        DocumentEntry."Document Type" := DocumentEntry."Document Type"::" ";
-        DocumentEntry."Table Name" := CopyStr(DocTableName, 1, MaxStrLen(DocumentEntry."Table Name"));
-        DocumentEntry."No. of Records" := DocNoOfRecords;
-        DocumentEntry.Insert();
     end;
 }
 

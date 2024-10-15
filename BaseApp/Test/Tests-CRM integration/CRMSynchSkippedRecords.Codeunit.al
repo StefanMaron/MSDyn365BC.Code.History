@@ -1622,6 +1622,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
+        ClientSecret: Text;
     begin
         LibraryApplicationArea.EnableFoundationSetup();
         LibraryVariableStorage.Clear();
@@ -1631,7 +1632,8 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);

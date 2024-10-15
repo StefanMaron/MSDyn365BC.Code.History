@@ -464,12 +464,11 @@ report 212 "Sales Prepmt. Document Test"
                                 end else
                                     AddError(StrSubstNo(Text007, GLAcc.TableCaption(), GenPostingSetup."Sales Prepayments Account"));
 
-                            if ErrorCounter = CurrentErrorCount then begin
+                            if ErrorCounter = CurrentErrorCount then
                                 if SalesPostPrepmt.PrepmtAmount("Sales Line", DocumentType, "Sales Header"."Prepmt. Include Tax") <> 0 then begin
                                     SalesPostPrepmt.FillInvLineBuffer("Sales Header", "Sales Line", TempPrepmtInvLineBuf2);
                                     TempPrepmtInvLineBuf.InsertInvLineBuffer(TempPrepmtInvLineBuf2);
                                 end;
-                            end;
                         end;
                     }
 
@@ -968,8 +967,12 @@ report 212 "Sales Prepmt. Document Test"
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         DimMgt: Codeunit DimensionManagement;
         SalesHeaderFilter: Text;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 must be Order.';
         Text001: Label 'Sales Document: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SellToAddr: array[8] of Text[100];
         BillToAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
@@ -977,26 +980,38 @@ report 212 "Sales Prepmt. Document Test"
         TotalText: Text[50];
         TotalExclVATText: Text[50];
         TotalInclVATText: Text[50];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Total %1';
         Text003: Label 'Total %1 Excl. VAT';
         Text004: Label 'Total %1 Incl. VAT';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DimText: Text[120];
         ErrorText: array[99] of Text[250];
         DocumentType: Option Invoice,"Credit Memo",Statistic;
         VATAmount: Decimal;
         VATBaseAmount: Decimal;
         ErrorCounter: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label '%1 must be specified.';
         Text006: Label '%1 %2 %3 does not exist.';
         Text007: Label '%1 %2 does not exist.';
         Text008: Label '%1 must not be %2 for %3 %4.';
         Text009: Label '%1 must not be a closing date.';
         Text010: Label '%1 is not within your allowed range of posting dates.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ShowDim: Boolean;
         Continue: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text012: Label '%1 must be entered.';
+#pragma warning restore AA0470
         Text013: Label 'Prepayment Invoice';
         Text014: Label 'Prepayment Credit Memo';
+#pragma warning restore AA0074
         SumPrepaymInvLineBufferAmount: Decimal;
         Sales_Prepayment_Document___TestCaptionLbl: Label 'Sales Prepayment Document - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';

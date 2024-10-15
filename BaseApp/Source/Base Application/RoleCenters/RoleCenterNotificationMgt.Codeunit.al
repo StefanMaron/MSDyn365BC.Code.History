@@ -730,10 +730,13 @@ codeunit 1430 "Role Center Notification Mgt."
               GetChangeToPremiumExpNotificationId(), ChangeToPremiumExpNotificationNameTok, ChangeToPremiumExpNotificationDescTok, false);
     end;
 
+#if not CLEAN25
+    [Obsolete('The procedure is not used and will be obsoleted', '25.0')]
     procedure CompanyNotSelectedMessage(): Text
     begin
         exit('');
     end;
+#endif
 
     procedure TrialNotificationMessage(): Text
     begin

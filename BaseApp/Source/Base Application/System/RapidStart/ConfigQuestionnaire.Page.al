@@ -185,10 +185,12 @@ page 8610 "Config. Questionnaire"
     var
         QuestionnaireMgt: Codeunit "Questionnaire Management";
 
+#pragma warning disable AA0074
         Text000: Label 'The questionnaire has been successfully exported.';
         Text001: Label 'The questionnaire has been successfully imported.';
         Text003: Label 'The export of the questionnaire has been canceled.';
         Text004: Label 'The questionnaire has been updated.';
         Text005: Label 'Answers have been applied.';
+#pragma warning restore AA0074
 }
 

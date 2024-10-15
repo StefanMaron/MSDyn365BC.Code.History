@@ -302,6 +302,8 @@ table 9 "Country/Region"
                     CreateAddressFormatLine(Code, 3, CompanyInformation.FieldNo(County), LineNo);
                 end;
         end;
+        CreateAddressFormat(Rec.Code, 7, CompanyInformation.FieldNo("Country/Region Code"));
+        
         if LineNo <> 0 then begin
             CustomAddressFormat.Get(Code, LineNo);
             CustomAddressFormat.BuildAddressFormat();

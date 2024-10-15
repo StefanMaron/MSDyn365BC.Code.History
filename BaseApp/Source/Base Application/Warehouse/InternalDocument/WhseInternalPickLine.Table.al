@@ -375,13 +375,21 @@ table 7334 "Whse. Internal Pick Line"
         ItemUnitofMeasure: Record "Item Unit of Measure";
         WhseInternalPickHeader: Record "Whse. Internal Pick Header";
         UOMMgt: Codeunit "Unit of Measure Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'must not be less than %1 units';
         Text002: Label '%1 = %2 is less than the %3 = %4.\Do you really want to delete the %5?';
+#pragma warning restore AA0470
         Text003: Label 'Cancelled.';
+#pragma warning disable AA0470
         Text004: Label 'must not be the %1 of the %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         LastLineNo: Integer;
+#pragma warning disable AA0074
         Text005: Label 'Nothing to handle.';
+#pragma warning restore AA0074
 
     protected var
         HideValidationDialog: Boolean;

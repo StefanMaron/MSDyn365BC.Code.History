@@ -150,11 +150,6 @@ page 300 "Ship-to Address"
                     Importance = Additional;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                 }
-                field("Service Zone Code"; Rec."Service Zone Code")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the code for the service zone in which the ship-to address is located.';
-                }
                 field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;

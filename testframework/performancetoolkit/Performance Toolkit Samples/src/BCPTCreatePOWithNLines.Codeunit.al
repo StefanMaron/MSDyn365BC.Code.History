@@ -13,7 +13,7 @@ codeunit 149103 "BCPT Create PO with N Lines" implements "BCPT Test Param. Provi
 
     trigger OnRun();
     begin
-        if not IsInitialized or true then begin
+        if not IsInitialized then begin
             InitTest();
             IsInitialized := true;
         end;
@@ -32,6 +32,7 @@ codeunit 149103 "BCPT Create PO with N Lines" implements "BCPT Test Param. Provi
     var
         PurchaseSetup: Record "Purchases & Payables Setup";
         NoSeriesLine: Record "No. Series Line";
+        RecordModified: Boolean;
     begin
         PurchaseSetup.Get();
         PurchaseSetup.TestField("Order Nos.");
@@ -42,9 +43,12 @@ codeunit 149103 "BCPT Create PO with N Lines" implements "BCPT Test Param. Provi
                 NoSeriesLine."Ending No." := '';
                 NoSeriesLine.Validate(Implementation, Enum::"No. Series Implementation"::Sequence);
                 NoSeriesLine.Modify(true);
+                RecordModified := true;
             end;
         until NoSeriesLine.Next() = 0;
-        commit();
+
+        if RecordModified then
+            Commit();
 
         if Evaluate(NoOfLinesToCreate, GlobalBCPTTestContext.GetParameter(NoOfLinesParamLbl)) then;
     end;

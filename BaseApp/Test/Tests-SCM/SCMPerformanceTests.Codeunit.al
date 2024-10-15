@@ -396,7 +396,6 @@ codeunit 137380 "SCM Performance Tests"
         TempAvailCalcOverview: Record "Availability Calc. Overview" temporary;
         CalcAvailabilityOverview: Codeunit "Calc. Availability Overview";
         NoOfHits: Integer;
-        DemandType: Option " ",Sales,Production,Job,Service,Assembly;
     begin
         // [FEATURE] [Demand Overview]
         // [SCENARIO 215433] Page 5830 "Demand Overview" should check item entries only for items included in the demand scope
@@ -411,7 +410,7 @@ codeunit 137380 "SCM Performance Tests"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
-        CalcAvailabilityOverview.SetParam(DemandType::Sales, SalesHeader."No.");
+        CalcAvailabilityOverview.SetParameters("Demand Order Source Type"::"Sales Demand", SalesHeader."No.");
 
         // [WHEN] Run "Demand Overview"
         CodeCoverageMgt.StartApplicationCoverage();
@@ -1230,14 +1229,12 @@ codeunit 137380 "SCM Performance Tests"
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
-        with Item do begin
-            Get(CreateTrackedItem('', LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(true, false)));
-            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
-            Validate("Manufacturing Policy", "Manufacturing Policy"::"Make-to-Order");
-            Modify(true);
+        Item.Get(CreateTrackedItem('', LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(true, false)));
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
+        Item.Modify(true);
 
-            LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, Item, ComponentItem, 1, '');
-        end;
+        LibraryPatterns.MAKEProductionBOM(ProductionBOMHeader, Item, ComponentItem, 1, '');
     end;
 
     local procedure CreateTrackedItem(LotNos: Code[20]; SerialNos: Code[20]; ItemTrackingCode: Code[10]): Code[20]
@@ -1297,12 +1294,10 @@ codeunit 137380 "SCM Performance Tests"
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order"; ItemNo: Code[20])
     begin
-        with ProdOrderLine do begin
-            SetRange(Status, ProductionOrder.Status);
-            SetRange("Prod. Order No.", ProductionOrder."No.");
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-        end;
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
@@ -1317,17 +1312,15 @@ codeunit 137380 "SCM Performance Tests"
         CodeCoverage: Record "Code Coverage";
     begin
         CodeCoverageMgt.Refresh();
-        with CodeCoverage do begin
-            SetRange("Line Type", "Line Type"::Code);
-            SetRange("Object Type", ObjectType);
-            SetRange("Object ID", ObjectID);
-            SetFilter("No. of Hits", '>%1', 0);
-            SetFilter(Line, '@*' + CodeLine + '*');
-            if FindSet() then
-                repeat
-                    NoOfHits += "No. of Hits";
-                until Next() = 0;
-        end;
+        CodeCoverage.SetRange("Line Type", CodeCoverage."Line Type"::Code);
+        CodeCoverage.SetRange("Object Type", ObjectType);
+        CodeCoverage.SetRange("Object ID", ObjectID);
+        CodeCoverage.SetFilter("No. of Hits", '>%1', 0);
+        CodeCoverage.SetFilter(Line, '@*' + CodeLine + '*');
+        if CodeCoverage.FindSet() then
+            repeat
+                NoOfHits += CodeCoverage."No. of Hits";
+            until CodeCoverage.Next() = 0;
     end;
 
     local procedure GetPurchaseReceiptLines(PurchaseOrderNo: Code[20]; VendorNo: Code[20])
@@ -1572,17 +1565,15 @@ codeunit 137380 "SCM Performance Tests"
     var
         Bin: Record Bin;
     begin
-        with Bin do begin
-            SetCurrentKey("Location Code", "Warehouse Class Code", "Bin Ranking");
-            SetRange("Location Code", LocationCode);
-            SetRange("Bin Type Code", LibraryWarehouse.SelectBinType(false, false, true, true));
-            SetRange("Cross-Dock Bin", false);
-            FindLast();
+        Bin.SetCurrentKey("Location Code", "Warehouse Class Code", "Bin Ranking");
+        Bin.SetRange("Location Code", LocationCode);
+        Bin.SetRange("Bin Type Code", LibraryWarehouse.SelectBinType(false, false, true, true));
+        Bin.SetRange("Cross-Dock Bin", false);
+        Bin.FindLast();
 
-            Validate("Maximum Cubage", LibraryRandom.RandInt(100));
-            Validate("Maximum Weight", LibraryRandom.RandInt(100));
-            Modify(true);
-        end;
+        Bin.Validate("Maximum Cubage", LibraryRandom.RandInt(100));
+        Bin.Validate("Maximum Weight", LibraryRandom.RandInt(100));
+        Bin.Modify(true);
     end;
 
     local procedure UpdateRoutingStatus(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")

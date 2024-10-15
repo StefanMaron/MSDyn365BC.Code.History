@@ -244,11 +244,15 @@ report 5688 "Cancel FA Ledger Entries"
         UseNewPostingDate: Boolean;
         NewPostingDate: Date;
 
+#pragma warning disable AA0074
         Text000: Label 'The Starting Date is later than the Ending Date.';
+#pragma warning disable AA0470
         Text001: Label 'Canceling fixed asset    #1##########';
+#pragma warning restore AA0470
         Text002: Label 'You must specify New Posting Date.';
         Text003: Label 'You must not specify New Posting Date.';
         Text004: Label 'You must not specify a closing date.';
+#pragma warning restore AA0074
 
     protected var
         FALedgEntry: Record "FA Ledger Entry";

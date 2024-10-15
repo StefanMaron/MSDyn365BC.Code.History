@@ -18,7 +18,6 @@ using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
-using Microsoft.Service.Pricing;
 
 codeunit 7006 "Price Helper - V16"
 {
@@ -145,7 +144,7 @@ codeunit 7006 "Price Helper - V16"
         OnAfterDeletePrices(SourceType, SourceNo, ParentSourceNo);
     end;
 
-    local procedure DeletePriceLines(AssetType: Enum "Price Asset Type"; AssetNo: Code[20]; VariantCode: Code[10])
+    procedure DeletePriceLines(AssetType: Enum "Price Asset Type"; AssetNo: Code[20]; VariantCode: Code[10])
     var
         PriceListLine: Record "Price List Line";
         PriceWorksheetLine: Record "Price Worksheet Line";
@@ -173,7 +172,7 @@ codeunit 7006 "Price Helper - V16"
         exit(PriceSource.IsParentSourceAllowed());
     end;
 
-    local procedure RenameAssetInPrices(AssetType: Enum "Price Asset Type"; xAssetNo: Code[20]; AssetNo: Code[20])
+    procedure RenameAssetInPrices(AssetType: Enum "Price Asset Type"; xAssetNo: Code[20]; AssetNo: Code[20])
     var
         PriceListLine: Record "Price List Line";
         PriceWorksheetLine: Record "Price Worksheet Line";
@@ -562,18 +561,6 @@ codeunit 7006 "Price Helper - V16"
             DeletePriceLines(AssetType::"Resource Group", Rec."No.", '');
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Service Cost", 'OnAfterDeleteEvent', '', false, false)]
-    local procedure AfterDeleteServiceCost(var Rec: Record "Service Cost"; RunTrigger: Boolean);
-    var
-        AssetType: Enum "Price Asset Type";
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        if RunTrigger then
-            DeletePriceLines(AssetType::"Service Cost", Rec.Code, '');
-    end;
-
     [EventSubscriber(ObjectType::Table, Database::Campaign, 'OnAfterValidateEvent', 'Starting Date', false, false)]
     local procedure AfterModifyStartingDateCampaign(var Rec: Record Campaign; var xRec: Record Campaign; CurrFieldNo: Integer);
     begin
@@ -722,18 +709,6 @@ codeunit 7006 "Price Helper - V16"
 
         if RunTrigger then
             RenameAssetInPrices(AssetType::"Resource Group", xRec."No.", Rec."No.");
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Cost", 'OnAfterRenameEvent', '', false, false)]
-    local procedure AfterRenameServiceCost(var Rec: Record "Service Cost"; var xRec: Record "Service Cost"; RunTrigger: Boolean);
-    var
-        AssetType: Enum "Price Asset Type";
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        if RunTrigger then
-            RenameAssetInPrices(AssetType::"Service Cost", xRec.Code, Rec.Code);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnAfterRenameEvent', '', false, false)]

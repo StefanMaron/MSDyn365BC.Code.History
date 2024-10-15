@@ -27,7 +27,7 @@ page 27010 "Mexican CFDI Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT FinalStepVisible;
+                Visible = TopBannerVisible and not FinalStepVisible;
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
                 {
                     ApplicationArea = Basic, Suite;
@@ -39,7 +39,7 @@ page 27010 "Mexican CFDI Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND FinalStepVisible;
+                Visible = TopBannerVisible and FinalStepVisible;
                 field("MediaResourcesDone.""Media Reference"""; MediaResourcesDone."Media Reference")
                 {
                     ApplicationArea = Basic, Suite;
@@ -207,13 +207,13 @@ page 27010 "Mexican CFDI Wizard"
                     {
                         InstructionalText = 'You still have Country Codes that have not had their SAT Country Codes set.';
                         ShowCaption = false;
-                        Visible = FinalStepVisible AND NOT AllCountriesMapped;
+                        Visible = FinalStepVisible and not AllCountriesMapped;
                     }
                     group(Control1020016)
                     {
                         InstructionalText = 'You still have Units of Measure that have not had their SAT Unit of Measure Codes set.';
                         ShowCaption = false;
-                        Visible = FinalStepVisible AND NOT AllUofMsMapped;
+                        Visible = FinalStepVisible and not AllUofMsMapped;
                     }
                     group(Control1020011)
                     {

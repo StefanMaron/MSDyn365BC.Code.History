@@ -207,7 +207,6 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         ERMSalesPurchaseTax: Codeunit "ERM Sales/Purchase Tax";
         isInitialized: Boolean;
         AmountErr: Label '%1 must be %2 in %3.';
-        DescriptionErr: Label 'Description must have a value in %1: Document Type=%2';
         TaxAmountMsg: Label '%1 must not be editable.';
         TaxAmountErr: Label 'Tax Amount is not correct in Test Report';
         TaxAmountNotEqualTotalErr: Label 'Tax Amount is not equal to Total in Test Report';
@@ -1355,7 +1354,7 @@ codeunit 142050 "ERM Sales/Purchase Tax"
         asserterror LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // Verify: Verify Error will appear while posting Service Document Without Description.
-        Assert.ExpectedError(StrSubstNo(DescriptionErr, ServiceLine.TableCaption(), ServiceHeader."Document Type"));
+        Assert.ExpectedTestFieldError(ServiceLine.FieldCaption(Description), '');
     end;
 
     [Test]
@@ -3490,24 +3489,20 @@ codeunit 142050 "ERM Sales/Purchase Tax"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            CalcSums(Amount);
-            exit(Amount);
-        end;
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.CalcSums(Amount);
+        exit(VATEntry.Amount);
     end;
 
     local procedure GetVATEntryRemainingUnrealAmount(DocumentNo: Code[20]): Decimal
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            exit("Remaining Unrealized Amount");
-        end;
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        exit(VATEntry."Remaining Unrealized Amount");
     end;
 
     local procedure ModifyInventorySetup()

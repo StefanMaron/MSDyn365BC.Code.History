@@ -32,7 +32,7 @@ codeunit 104154 "Upgrade - Sales Tax"
         UpgradeTag: Codeunit "Upgrade Tag";
         Positive: Boolean;
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetSalesTaxDiffPositiveFieldUpgradeTag()) THEN
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetSalesTaxDiffPositiveFieldUpgradeTag()) then
             exit;
 
         if SalesTaxAmountDifference.FindSet(true) then

@@ -524,12 +524,13 @@ codeunit 5336 "Integration Record Synch."
     begin
         CurrValue := GetTextValue(DestinationFieldRef);
         IsModified := (CurrValue <> Format(NewValue)) or not ParameterOnlyModified;
-        if DestinationFieldRef.Type <> FieldType::Blob then
-            DestinationFieldRef.Value := NewValue
+        if DestinationFieldRef.Type = FieldType::Blob then
+            SetTextValue(DestinationFieldRef, Format(NewValue))
         else
-            SetTextValue(DestinationFieldRef, Format(NewValue));
-        if IsModified and ValidateDestinationField then
-            DestinationFieldRef.Validate();
+            if IsModified and ValidateDestinationField then
+                DestinationFieldRef.Validate(NewValue)
+            else
+                DestinationFieldRef.Value := NewValue;
         exit(IsModified);
     end;
 

@@ -15,7 +15,7 @@ page 36628 "Sales Order Invoice List"
     InsertAllowed = false;
     PageType = List;
     SourceTable = "Sales Header";
-    SourceTableView = where("Document Type" = CONST(Order));
+    SourceTableView = where("Document Type" = const(Order));
     UsageCategory = Lists;
 
     layout

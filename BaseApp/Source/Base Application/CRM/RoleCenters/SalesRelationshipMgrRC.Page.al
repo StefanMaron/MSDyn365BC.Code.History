@@ -12,7 +12,7 @@ using Microsoft.Foundation.Navigate;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Attribute;
-#if CLEAN23
+#if CLEAN25
 using Microsoft.Pricing.Worksheet;
 #endif
 using Microsoft.Purchases.Vendor;
@@ -51,6 +51,10 @@ page 9026 "Sales & Relationship Mgr. RC"
                 ApplicationArea = RelationshipMgmt;
             }
             part(Control56; "User Tasks Activities")
+            {
+                ApplicationArea = RelationshipMgmt;
+            }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
             {
                 ApplicationArea = RelationshipMgmt;
             }
@@ -630,7 +634,7 @@ page 9026 "Sales & Relationship Mgr. RC"
             group("Sales Prices")
             {
                 Caption = 'Sales Prices';
-#if not CLEAN23
+#if not CLEAN25
                 action("Sales Price &Worksheet")
                 {
                     AccessByPermission = TableData "Sales Price Worksheet" = IMD;

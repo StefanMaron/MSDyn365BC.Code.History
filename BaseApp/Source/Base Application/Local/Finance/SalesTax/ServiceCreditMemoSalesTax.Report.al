@@ -443,8 +443,8 @@ report 10473 "Service Credit Memo-Sales Tax"
                     "Ship-to Name" := Text009;
                 end;
 
-                FormatAddress.ServiceCrMemoBillTo(BillToAddress, "Service Cr.Memo Header");
-                FormatAddress.ServiceCrMemoShipTo(ShipToAddress, ShipToAddress, "Service Cr.Memo Header");
+                ServiceFormatAddress.ServiceCrMemoBillTo(BillToAddress, "Service Cr.Memo Header");
+                ServiceFormatAddress.ServiceCrMemoShipTo(ShipToAddress, ShipToAddress, "Service Cr.Memo Header");
 
                 Clear(BreakdownTitle);
                 Clear(BreakdownLabel);
@@ -484,12 +484,11 @@ report 10473 "Service Credit Memo-Sales Tax"
                                (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
                             then begin
                                 BrkIdx := BrkIdx + 1;
-                                if BrkIdx > 1 then begin
+                                if BrkIdx > 1 then
                                     if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
                                         BreakdownTitle := Text006
                                     else
                                         BreakdownTitle := Text003;
-                                end;
                                 if BrkIdx > ArrayLen(BreakdownAmt) then begin
                                     BrkIdx := BrkIdx - 1;
                                     BreakdownLabel[BrkIdx] := Text004;
@@ -601,6 +600,7 @@ report 10473 "Service Credit Memo-Sales Tax"
         OnLineNumber: Integer;
         ServiceCrMemoPrinted: Codeunit "Service Cr. Memo-Printed";
         FormatAddress: Codeunit "Format Address";
+        ServiceFormatAddress: Codeunit "Service Format Address";
         SalesTaxCalc: Codeunit "Sales Tax Calculate";
         Text000: Label 'COPY';
         TaxRegNo: Text[30];

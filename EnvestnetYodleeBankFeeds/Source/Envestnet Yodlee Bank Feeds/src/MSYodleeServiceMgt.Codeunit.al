@@ -2199,16 +2199,8 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         GLBDisableRethrowException := NewSetting;
     end;
 
-#if not CLEAN22
-#pragma warning disable AA0207
-    [Obsolete('The procedure will be made local.', '22.0')]
-    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
-    procedure HandleVANRegisterServiceConnection(var ServiceConnection: Record 1400)
-#pragma warning restore AA0207
-#else
     [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     local procedure HandleVANRegisterServiceConnection(var ServiceConnection: Record 1400)
-#endif
     var
         MSYodleeBankServiceSetup: Record "MS - Yodlee Bank Service Setup";
         RecRef: RecordRef;

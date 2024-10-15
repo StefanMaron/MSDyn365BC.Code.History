@@ -119,7 +119,7 @@ table 1224 "Data Exch. Mapping"
 
     var
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
-        RecordNameFormatTok: Label '%1 to %2', Comment = '%1=a code in the table,%2=table caption of Data Exch Def. Code';
+        RecordNameFormatTok: Label '%1 to %2', Comment = '%1 = a code in the table, %2 = table caption of Data Exch Def. Code';
         RenameErr: Label 'You cannot rename the record if one or more field mapping lines exist.';
 
     procedure InsertRec(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; TableId: Integer; NewName: Text[250]; MappingCodeunit: Integer; DataExchNoFieldId: Integer; DataExchLineFieldId: Integer)

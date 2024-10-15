@@ -92,14 +92,6 @@ page 6630 "Sales Return Order"
                         exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
-                field("VAT Registration No."; Rec."VAT Registration No.")
-                {
-                    ApplicationArea = VAT;
-                    Editable = false;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
-                    Visible = false;
-                }
                 group("Sell-to")
                 {
                     Caption = 'Sell-to';
@@ -386,6 +378,25 @@ page 6630 "Sales Return Order"
                         PricesIncludingVATOnAfterValid();
                     end;
                 }
+                field("VAT Country/Region Code"; Rec."VAT Country/Region Code")
+                {
+                    ApplicationArea = VAT;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the country or region code for the VAT.';
+                }
+                field("VAT Registration No."; Rec."VAT Registration No.")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                }
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the general business posting group that the sales document is linked to. The general business posting group is used to link the sales document to the appropriate general ledger account.';
+                }
                 field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -580,6 +591,12 @@ page 6630 "Sales Return Order"
                             IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                         end;
                     }
+                    field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                    {
+                        ApplicationArea = SalesReturnOrder;
+                        Caption = 'Phone No.';
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                    }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {
                         ApplicationArea = SalesReturnOrder;
@@ -759,10 +776,24 @@ page 6630 "Sales Return Order"
                 SubPageLink = "No." = field("No."),
                               "Document Type" = field("Document Type");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Sales Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Sales Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -1105,6 +1136,7 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Re&lease';
+                    Enabled = Rec.Status <> Rec.Status::Released;
                     Image = ReleaseDoc;
                     ShortCutKey = 'Ctrl+F9';
                     ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';

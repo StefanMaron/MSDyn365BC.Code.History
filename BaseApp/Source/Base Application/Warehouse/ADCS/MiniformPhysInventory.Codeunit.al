@@ -39,15 +39,21 @@ codeunit 7713 "Miniform Phys.-Inventory"
         Remark: Text[250];
         WhseEmpId: Text[250];
         LocationFilter: Text[250];
+#pragma warning disable AA0074
         Text000: Label 'Function not Found.';
+#pragma warning disable AA0470
         Text004: Label 'Invalid %1.';
+#pragma warning restore AA0470
         Text006: Label 'No input Node found.';
         Text007: Label 'Record not found.';
         Text008: Label 'End of Document.';
+#pragma warning restore AA0074
         CurrentCode: Text[250];
         StackCode: Text[250];
         ActiveInputField: Integer;
+#pragma warning disable AA0074
         Text012: Label 'No Lines available.';
+#pragma warning restore AA0074
 
     local procedure ProcessInput()
     var

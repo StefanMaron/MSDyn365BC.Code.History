@@ -21,7 +21,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Pricing;
 using Microsoft.Utilities;
 
 table 7001 "Price List Line"
@@ -525,9 +524,7 @@ table 7001 "Price List Line"
             else
             if ("Asset Type" = const("Resource Group")) "Resource Group"
             else
-            if ("Asset Type" = const("Item Discount Group")) "Item Discount Group"
-            else
-            if ("Asset Type" = const("Service Cost")) "Service Cost";
+            if ("Asset Type" = const("Item Discount Group")) "Item Discount Group";
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -825,7 +822,7 @@ table 7001 "Price List Line"
 
         CopyFromAssetType();
 
-#if not CLEAN23
+#if not CLEAN25
         OnAfterCopyFromPriceAsset(PriceAsset, Rec);
 #endif
         OnAfterCopyFromForPriceAsset(PriceAsset, Rec);
@@ -1158,7 +1155,7 @@ table 7001 "Price List Line"
         end;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('typo, use OnAfterCopyFromForPriceAsset instead', '23.0')]
     [IntegrationEvent(true, false)]
     local procedure OnAfterCopyFromPriceAsset(PriceAsset: Record "Price Asset"; var riceListLine: Record "Price List Line")

@@ -20,8 +20,6 @@ using Microsoft.Sales.Analysis;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
 using System.Automation;
 using System.Reflection;
 using System.Security.AccessControl;
@@ -171,10 +169,6 @@ codeunit 700 "Page Management"
                 exit(GetSalesHeaderPageID(RecRef));
             Database::"Purchase Header":
                 exit(GetPurchaseHeaderPageID(RecRef));
-            Database::"Service Header":
-                exit(GetServiceHeaderPageID(RecRef));
-            Database::"Service Contract Header":
-                exit(GetServiceContractHeaderPageID(RecRef));
             Database::"Gen. Journal Batch":
                 exit(GetGenJournalBatchPageID(RecRef));
             Database::"Gen. Journal Line":
@@ -282,39 +276,6 @@ codeunit 700 "Page Management"
                 Result := PAGE::"Purchase Return Order";
         end;
         OnAfterGetPurchaseHeaderPageID(RecRef, PurchaseHeader, Result);
-    end;
-
-    local procedure GetServiceHeaderPageID(RecRef: RecordRef) Result: Integer
-    var
-        ServiceHeader: Record "Service Header";
-    begin
-        RecRef.SetTable(ServiceHeader);
-        case ServiceHeader."Document Type" of
-            ServiceHeader."Document Type"::Quote:
-                Result := PAGE::"Service Quote";
-            ServiceHeader."Document Type"::Order:
-                Result := PAGE::"Service Order";
-            ServiceHeader."Document Type"::Invoice:
-                Result := PAGE::"Service Invoice";
-            ServiceHeader."Document Type"::"Credit Memo":
-                Result := PAGE::"Service Credit Memo";
-        end;
-        OnAfterGetServiceHeaderPageID(RecRef, ServiceHeader, Result);
-    end;
-
-    local procedure GetServiceContractHeaderPageID(RecRef: RecordRef): Integer
-    var
-        ServiceContractHeader: Record "Service Contract Header";
-    begin
-        RecRef.SetTable(ServiceContractHeader);
-        case ServiceContractHeader."Contract Type" of
-            ServiceContractHeader."Contract Type"::Contract:
-                exit(PAGE::"Service Contract");
-            ServiceContractHeader."Contract Type"::Quote:
-                exit(PAGE::"Service Contract Quote");
-            ServiceContractHeader."Contract Type"::Template:
-                exit(PAGE::"Service Contract Template");
-        end;
     end;
 
     local procedure GetGenJournalBatchPageID(RecRef: RecordRef): Integer
@@ -550,10 +511,18 @@ codeunit 700 "Page Management"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnAfterGetServiceHeaderPageID(RecRef: RecordRef; ServiceHeader: Record Microsoft.Service.Document."Service Header"; var Result: Integer)
+    begin
+        OnAfterGetServiceHeaderPageID(RecRef, ServiceHeader, Result);
+    end;
+
+    [Obsolete('Replaced by same procedure in codeunit Serv. Page Management', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetServiceHeaderPageID(RecRef: RecordRef; ServiceHeader: Record "Service Header"; var Result: Integer)
+    local procedure OnAfterGetServiceHeaderPageID(RecRef: RecordRef; ServiceHeader: Record Microsoft.Service.Document."Service Header"; var Result: Integer)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDefaultLookupPageID(TableID: Integer; var PageID: Integer)

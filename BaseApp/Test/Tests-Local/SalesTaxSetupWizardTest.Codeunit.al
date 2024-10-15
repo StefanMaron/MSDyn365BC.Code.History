@@ -816,33 +816,36 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         PAGE.Run(PAGE::"Sales Tax Setup Wizard", TempSalesTaxSetupWizard);
 
         // Transfer fields from record to page
-        with SalesTaxSetupWizard do begin
-            ActionNextStep.Invoke(); // To tax group created page
-            Back.Invoke();
-            ActionNextStep.Invoke();
+        SalesTaxSetupWizard.ActionNextStep.Invoke();
+        // To tax group created page
+        SalesTaxSetupWizard.Back.Invoke();
+        SalesTaxSetupWizard.ActionNextStep.Invoke();
 
-            ActionNextStep.Invoke(); // To tax account page
-            "Tax Account (Sales)".SetValue(TempSalesTaxSetupWizard."Tax Account (Sales)");
-            "Tax Account (Purchases)".SetValue(TempSalesTaxSetupWizard."Tax Account (Purchases)");
+        SalesTaxSetupWizard.ActionNextStep.Invoke();
+        // To tax account page
+        SalesTaxSetupWizard."Tax Account (Sales)".SetValue(TempSalesTaxSetupWizard."Tax Account (Sales)");
+        SalesTaxSetupWizard."Tax Account (Purchases)".SetValue(TempSalesTaxSetupWizard."Tax Account (Purchases)");
 
-            ActionNextStep.Invoke(); // To tax rate page
-            City.SetValue(TempSalesTaxSetupWizard.City);
-            "City Rate".SetValue(TempSalesTaxSetupWizard."City Rate");
+        SalesTaxSetupWizard.ActionNextStep.Invoke();
+        // To tax rate page
+        SalesTaxSetupWizard.City.SetValue(TempSalesTaxSetupWizard.City);
+        SalesTaxSetupWizard."City Rate".SetValue(TempSalesTaxSetupWizard."City Rate");
 
-            County.SetValue(TempSalesTaxSetupWizard.County);
-            "County Rate".SetValue(TempSalesTaxSetupWizard."County Rate");
+        SalesTaxSetupWizard.County.SetValue(TempSalesTaxSetupWizard.County);
+        SalesTaxSetupWizard."County Rate".SetValue(TempSalesTaxSetupWizard."County Rate");
 
-            State.SetValue(TempSalesTaxSetupWizard.State);
-            "State Rate".SetValue(TempSalesTaxSetupWizard."State Rate");
+        SalesTaxSetupWizard.State.SetValue(TempSalesTaxSetupWizard.State);
+        SalesTaxSetupWizard."State Rate".SetValue(TempSalesTaxSetupWizard."State Rate");
 
-            ActionNextStep.Invoke(); // To tax area code page
-            if "Tax Area Code".Value = '' then
-                "Tax Area Code".SetValue(TempSalesTaxSetupWizard."Tax Area Code");
+        SalesTaxSetupWizard.ActionNextStep.Invoke();
+        // To tax area code page
+        if SalesTaxSetupWizard."Tax Area Code".Value = '' then
+            SalesTaxSetupWizard."Tax Area Code".SetValue(TempSalesTaxSetupWizard."Tax Area Code");
 
-            ActionNextStep.Invoke(); // To finish page
-            Back.Invoke();
-            ActionNextStep.Invoke();
-        end;
+        SalesTaxSetupWizard.ActionNextStep.Invoke();
+        // To finish page
+        SalesTaxSetupWizard.Back.Invoke();
+        SalesTaxSetupWizard.ActionNextStep.Invoke();
     end;
 
     local procedure Initialize(var GLAccount: Record "G/L Account")

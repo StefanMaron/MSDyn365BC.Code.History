@@ -223,13 +223,17 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Warehouse handling is required for Transfer order = %1, %2 = %3.', Comment = '1%=TransLine2."Document No."; 2%=TransLine2.FIELDCAPTION("Line No."); 3%=TransLine2."Line No.");';
         Text003: Label 'Posting transfer lines     #2######';
         Text004: Label 'Transfer Order %1';
         Text005: Label 'The combination of dimensions used in transfer order %1 is blocked. %2.';
         Text006: Label 'The combination of dimensions used in transfer order %1, line no. %2 is blocked. %3.';
         Text007: Label 'The dimensions that are used in transfer order %1, line no. %2 are not valid. %3.';
+#pragma warning restore AA0470
         Text008: Label 'Base Qty. to Receive must be 0.';
+#pragma warning restore AA0074
         InvtSetup: Record "Inventory Setup";
         TransRcptHeader: Record "Transfer Receipt Header";
         TransRcptLine: Record "Transfer Receipt Line";
@@ -750,7 +754,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     begin
         if AutoCostPosting then begin
             GLEntry.LockTable();
-            if GLEntry.FindLast() then;
+            GLEntry.GetLastEntryNo();
         end;
     end;
 

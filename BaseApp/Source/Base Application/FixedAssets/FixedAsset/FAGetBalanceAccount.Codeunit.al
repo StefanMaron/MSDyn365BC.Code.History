@@ -13,7 +13,9 @@ codeunit 5603 "FA Get Balance Account"
     var
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to insert a line for the balancing account that is related to the selected lines?';
+#pragma warning restore AA0074
 
     procedure InsertAcc(var GenJnlLine: Record "Gen. Journal Line")
     begin

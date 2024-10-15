@@ -272,10 +272,22 @@ page 27 "Vendor List"
                 ApplicationArea = Basic, Suite;
                 Visible = false;
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::Vendor), "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::Vendor), "No." = field("No.");
             }
             part(VendorDetailsFactBox; "Vendor Details FactBox")
@@ -532,7 +544,7 @@ page 27 "Vendor List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -553,7 +565,7 @@ page 27 "Vendor List"
                     end;
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -741,7 +753,7 @@ page 27 "Vendor List"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Entries';
                     Image = ItemTrackingLedger;
-                    ToolTip = 'View serial or lot numbers that are assigned to items.';
+                    ToolTip = 'View serial, lot or package numbers that are assigned to items.';
 
                     trigger OnAction()
                     var
@@ -1489,7 +1501,7 @@ page 27 "Vendor List"
                 actionref(DiscountLines_Promoted; DiscountLines)
                 {
                 }
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Prices_Promoted; Prices)
                 {
                     ObsoleteState = Pending;
@@ -1497,7 +1509,7 @@ page 27 "Vendor List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Line Discounts_Promoted"; "Line Discounts")
                 {
                     ObsoleteState = Pending;

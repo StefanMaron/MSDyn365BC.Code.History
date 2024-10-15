@@ -48,11 +48,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
-using Microsoft.Service.Item;
-using Microsoft.Service.Maintenance;
-using Microsoft.Service.Resources;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
@@ -74,9 +69,7 @@ table 27 Item
     DataCaptionFields = "No.", Description;
     DrillDownPageID = "Item List";
     LookupPageID = "Item Lookup";
-    Permissions = TableData "Service Item" = rm,
-                  TableData "Service Item Component" = rm,
-                  TableData "Bin Content" = d,
+    Permissions = TableData "Bin Content" = d,
                   TableData "Planning Assignment" = d;
     DataClassification = CustomerContent;
 
@@ -85,6 +78,7 @@ table 27 Item
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -117,6 +111,7 @@ table 27 Item
         field(3; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -141,6 +136,7 @@ table 27 Item
         field(5; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            OptimizeForTextSearch = true;
         }
         field(6; "Assembly BOM"; Boolean)
         {
@@ -219,7 +215,7 @@ table 27 Item
                 OnValidateTypeOnBeforeCheckExistsItemLedgerEntry(Rec, xRec, CurrFieldNo, IsHandled);
                 if not IsHandled then
                     if ExistsItemLedgerEntry() then
-                        Error(CannotChangeFieldErr, FieldCaption(Type), TableCaption(), "No.", ItemLedgEntryTableCaptionTxt);
+                        Error(CannotChangeItemWithExistingDocumentLinesErr, FieldCaption(Type), TableCaption(), "No.", ItemLedgEntryTableCaptionTxt);
                 TestNoWhseEntriesExist(FieldCaption(Type));
                 CheckJournalsAndWorksheets(FieldNo(Type));
                 CheckDocuments(FieldNo(Type));
@@ -457,6 +453,7 @@ table 27 Item
         field(32; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
+            OptimizeForTextSearch = true;
         }
         field(33; "Lead Time Calculation"; DateFormula)
         {
@@ -619,6 +616,7 @@ table 27 Item
         field(56; "Block Reason"; Text[250])
         {
             Caption = 'Block Reason';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -1502,9 +1500,14 @@ table 27 Item
         }
         field(5421; "Scheduled Need (Qty.)"; Decimal)
         {
-            ObsoleteState = Pending;
             ObsoleteReason = 'Use the field ''Qty. on Component Lines'' instead';
+#if CLEAN25
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Pending;
             ObsoleteTag = '18.0';
+#endif
             CalcFormula = sum("Prod. Order Component"."Remaining Qty. (Base)" where(Status = filter(Planned .. Released),
                                                                                      "Item No." = field("No."),
                                                                                      "Variant Code" = field("Variant Filter"),
@@ -1837,63 +1840,6 @@ table 27 Item
         {
             Caption = 'Excluded from Cost Adjustment';
             DataClassification = CustomerContent;
-        }
-        field(5900; "Service Item Group"; Code[10])
-        {
-            Caption = 'Service Item Group';
-            TableRelation = "Service Item Group".Code;
-
-            trigger OnValidate()
-            var
-                ResSkill: Record "Resource Skill";
-            begin
-                if xRec."Service Item Group" <> "Service Item Group" then begin
-                    if not ResSkillMgt.ChangeResSkillRelationWithGroup(
-                         ResSkill.Type::Item,
-                         "No.",
-                         ResSkill.Type::"Service Item Group",
-                         "Service Item Group",
-                         xRec."Service Item Group")
-                    then
-                        "Service Item Group" := xRec."Service Item Group";
-                end else
-                    ResSkillMgt.RevalidateResSkillRelation(
-                      ResSkill.Type::Item,
-                      "No.",
-                      ResSkill.Type::"Service Item Group",
-                      "Service Item Group")
-            end;
-        }
-        field(5901; "Qty. on Service Order"; Decimal)
-        {
-            CalcFormula = sum("Service Line"."Outstanding Qty. (Base)" where("Document Type" = const(Order),
-                                                                              Type = const(Item),
-                                                                              "No." = field("No."),
-                                                                              "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"),
-                                                                              "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                              "Location Code" = field("Location Filter"),
-                                                                              "Variant Code" = field("Variant Filter"),
-                                                                              "Needed by Date" = field("Date Filter"),
-                                                                              "Unit of Measure Code" = field("Unit of Measure Filter")));
-            Caption = 'Qty. on Service Order';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
-        }
-        field(5902; "Res. Qty. on Service Orders"; Decimal)
-        {
-            AccessByPermission = TableData "Service Header" = R;
-            CalcFormula = - sum("Reservation Entry"."Quantity (Base)" where("Item No." = field("No."),
-                                                                            "Source Type" = const(5902),
-                                                                            "Source Subtype" = const("1"),
-                                                                            "Reservation Status" = const(Reservation),
-                                                                            "Location Code" = field("Location Filter"),
-                                                                            "Variant Code" = field("Variant Filter"),
-                                                                            "Shipment Date" = field("Date Filter")));
-            Caption = 'Res. Qty. on Service Orders';
-            DecimalPlaces = 0 : 5;
-            Editable = false;
-            FieldClass = FlowField;
         }
         field(6500; "Item Tracking Code"; Code[10])
         {
@@ -2718,9 +2664,6 @@ table 27 Item
         key(Key11; "Common Item No.")
         {
         }
-        key(Key12; "Service Item Group")
-        {
-        }
         key(Key13; "Cost is Adjusted", "Allow Online Adjustment")
         {
             IncludedFields = "Excluded from Cost Adjustment";
@@ -2810,15 +2753,15 @@ table 27 Item
                     NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", InventorySetup."Item Nos.", 0D, "No.");
                 end;
 #else
-			if NoSeries.AreRelated(InventorySetup."Item Nos.", xRec."No. Series") then
-				"No. Series" := xRec."No. Series"
-			else
-				"No. Series" := InventorySetup."Item Nos.";
+                if NoSeries.AreRelated(InventorySetup."Item Nos.", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series"
+                else
+                    "No. Series" := InventorySetup."Item Nos.";
                 "No." := NoSeries.GetNextNo("No. Series");
                 Item.ReadIsolation(IsolationLevel::ReadUncommitted);
                 Item.SetLoadFields("No.");
                 while Item.Get("No.") do
-                   "No." := NoSeries.GetNextNo("No. Series");
+                    "No." := NoSeries.GetNextNo("No. Series");
 #endif
                 "Costing Method" := InventorySetup."Default Costing Method";
             end;
@@ -2872,34 +2815,45 @@ table 27 Item
     end;
 
     var
-        Text000: Label 'You cannot delete %1 %2 because there is at least one outstanding Purchase %3 that includes this item.';
-        CannotDeleteItemIfSalesDocExistErr: Label 'You cannot delete %1 %2 because there is at least one outstanding Sales %3 that includes this item.', Comment = '1: Type, 2 Item No. and 3 : Type of document Order,Invoice';
-        Text002: Label 'You cannot delete %1 %2 because there are one or more outstanding production orders that include this item.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'Do you want to change %1?';
-        Text004: Label 'You cannot delete %1 %2 because there are one or more certified Production BOM that include this item.';
-        CannotDeleteItemIfProdBOMVersionExistsErr: Label 'You cannot delete %1 %2 because there are one or more certified production BOM version that include this item.', Comment = '%1 - Tablecaption, %2 - No.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'Prices including VAT cannot be calculated when %1 is %2.';
         Text007: Label 'You cannot change %1 because there are one or more ledger entries for this item.';
         Text008: Label 'You cannot change %1 because there is at least one outstanding Purchase %2 that include this item.';
-        Text014: Label 'You cannot delete %1 %2 because there are one or more production order component lines that include this item with a remaining quantity that is not 0.';
-        Text016: Label 'You cannot delete %1 %2 because there are one or more outstanding transfer orders that include this item.';
-        Text017: Label 'You cannot delete %1 %2 because there is at least one outstanding Service %3 that includes this item.';
         Text018: Label '%1 must be %2 in %3 %4 when %5 is %6.';
         Text019: Label 'You cannot change %1 because there are one or more open ledger entries for this item.';
+#pragma warning restore AA0470
         Text020: Label 'There may be orders and open ledger entries for the item. ';
+#pragma warning disable AA0470
         Text021: Label 'If you change %1 it may affect new orders and entries.\\';
         Text022: Label 'Do you want to change %1?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GLSetup: Record "General Ledger Setup";
         InventorySetup: Record "Inventory Setup";
-        Text023: Label 'You cannot delete %1 %2 because there is at least one %3 that includes this item.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        CannotChangeItemWithExistingDocumentLinesErr: Label 'You cannot change the %1 field on %2 %3 because at least one %4 exists for this item.', Comment = '%1 = Field Caption, %2 = Item Table Name, %3 = Item No., %4 = Table Name';
+        CannotDeleteItemWithExistingDocumentLinesErr: Label 'You cannot delete %1 %2 because there is at least one %3 that includes this item.';
         Text024: Label 'If you change %1 it may affect existing production orders.\';
         Text025: Label '%1 must be an integer because %2 %3 is set up to use %4.';
         Text026: Label '%1 cannot be changed because the %2 has work in process (WIP). Changing the value may offset the WIP account.';
         Text7380: Label 'If you change the %1, the %2 and %3 are calculated.\Do you still want to change the %1?', Comment = 'If you change the Phys Invt Counting Period Code, the Next Counting Start Date and Next Counting End Date are calculated.\Do you still want to change the Phys Invt Counting Period Code?';
+#pragma warning restore AA0470
         Text7381: Label 'Cancelled.';
         Text99000000: Label 'The change will not affect existing entries.\';
+#pragma warning restore AA0074
         CommentLine: Record "Comment Line";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text99000001: Label 'If you want to generate %1 for existing entries, you must run a regenerative planning.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ItemVendor: Record "Item Vendor";
         ItemReference: Record "Item Reference";
         SalesPrepmtPct: Record "Sales Prepayment %";
@@ -2912,40 +2866,37 @@ table 27 Item
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         ItemJnlLine: Record "Item Journal Line";
         ProdOrderLine: Record "Prod. Order Line";
-        ProdOrderComp: Record "Prod. Order Component";
         PlanningAssignment: Record "Planning Assignment";
         StockkeepingUnit: Record "Stockkeeping Unit";
-        ServInvLine: Record "Service Line";
         ItemSub: Record "Item Substitution";
-        TransLine: Record "Transfer Line";
         Vend: Record Vendor;
         NonstockItem: Record "Nonstock Item";
-        ProdBOMHeader: Record "Production BOM Header";
-        ProdBOMLine: Record "Production BOM Line";
         ItemIdent: Record "Item Identifier";
         RequisitionLine: Record "Requisition Line";
         ItemBudgetEntry: Record "Item Budget Entry";
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
         ItemAnalysisBudgViewEntry: Record "Item Analysis View Budg. Entry";
-        TroubleshSetup: Record "Troubleshooting Setup";
-        ServiceContractLine: Record "Service Contract Line";
         InventoryPostingGroup: Record "Inventory Posting Group";
         NoSeries: Codeunit "No. Series";
         MoveEntries: Codeunit MoveEntries;
         DimMgt: Codeunit DimensionManagement;
         CatalogItemMgt: Codeunit "Catalog Item Management";
         ItemCostMgt: Codeunit ItemCostManagement;
-        ResSkillMgt: Codeunit "Resource Skill Mgt.";
         CalendarMgt: Codeunit "Calendar Management";
         LeadTimeMgt: Codeunit "Lead-Time Management";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         HasInvtSetup: Boolean;
         GLSetupRead: Boolean;
+#pragma warning disable AA0074
         Text027: Label 'must be greater than 0.', Comment = 'starts with "Rounding Precision"';
+#pragma warning disable AA0470
         Text028: Label 'You cannot perform this action because entries for item %1 are unapplied in %2 by user %3.';
-        CannotChangeFieldErr: Label 'You cannot change the %1 field on %2 %3 because at least one %4 exists for this item.', Comment = '%1 = Field Caption, %2 = Item Table Name, %3 = Item No., %4 = Table Name';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         BaseUnitOfMeasureQtyMustBeOneErr: Label 'The quantity per base unit of measure must be 1. %1 is set up with %2 per unit of measure.\\You can change this setup in the Item Units of Measure window.', Comment = '%1 Name of Unit of measure (e.g. BOX, PCS, KG...), %2 Qty. of %1 per base unit of measure ';
+#pragma warning disable AA0470
         OpenDocumentTrackingErr: Label 'You cannot change "Item Tracking Code" because there is at least one open document that includes this item with specified tracking: Source Type = %1, Document No. = %2.';
+#pragma warning restore AA0470
         SelectItemErr: Label 'You must select an existing item.';
         CreateNewItemTxt: Label 'Create a new item card for %1.', Comment = '%1 is the name to be used to create the customer. ';
         ItemNotRegisteredTxt: Label 'This item is not registered. To continue, choose one of the following options:';
@@ -3031,12 +2982,6 @@ table 27 Item
         BOMComp.SetRange("Parent Item No.", "No.");
         BOMComp.DeleteAll();
 
-        TroubleshSetup.Reset();
-        TroubleshSetup.SetRange(Type, TroubleshSetup.Type::Item);
-        TroubleshSetup.SetRange("No.", "No.");
-        TroubleshSetup.DeleteAll();
-
-        ResSkillMgt.DeleteItemResSkills("No.");
         DimMgt.DeleteDefaultDim(DATABASE::Item, "No.");
 
         ItemIdent.Reset();
@@ -3370,9 +3315,9 @@ table 27 Item
         ItemJnlLine.SetRange("Item No.", "No.");
         if not ItemJnlLine.IsEmpty() then begin
             if CurrentFieldNo = 0 then
-                Error(Text023, TableCaption(), "No.", ItemJnlLine.TableCaption());
+                Error(CannotDeleteItemWithExistingDocumentLinesErr, TableCaption(), "No.", ItemJnlLine.TableCaption());
             if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", ItemJnlLine.TableCaption());
+                Error(CannotChangeItemWithExistingDocumentLinesErr, CheckFieldCaption, TableCaption(), "No.", ItemJnlLine.TableCaption());
         end;
     end;
 
@@ -3394,7 +3339,7 @@ table 27 Item
         StandardCostWorksheet.SetRange("No.", "No.");
         if not StandardCostWorksheet.IsEmpty() then
             if CurrentFieldNo = 0 then
-                Error(Text023, TableCaption(), "No.", StandardCostWorksheet.TableCaption());
+                Error(CannotDeleteItemWithExistingDocumentLinesErr, TableCaption(), "No.", StandardCostWorksheet.TableCaption());
     end;
 
     local procedure CheckReqLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
@@ -3414,288 +3359,153 @@ table 27 Item
         RequisitionLine.SetRange("No.", "No.");
         if not RequisitionLine.IsEmpty() then begin
             if CurrentFieldNo = 0 then
-                Error(Text023, TableCaption(), "No.", RequisitionLine.TableCaption());
+                Error(CannotDeleteItemWithExistingDocumentLinesErr, TableCaption(), "No.", RequisitionLine.TableCaption());
             if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", RequisitionLine.TableCaption());
+                Error(CannotChangeItemWithExistingDocumentLinesErr, CheckFieldCaption, TableCaption(), "No.", RequisitionLine.TableCaption());
         end;
     end;
 
     procedure CheckDocuments(CurrentFieldNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
         if "No." = '' then
             exit;
 
-        CheckBOM(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckPurchLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckSalesLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckProdOrderLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckProdOrderCompLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckPlanningCompLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckTransLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckServLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckProdBOMLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckServContractLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckAsmHeader(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckAsmLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
-        CheckJobPlanningLine(CurrentFieldNo, FieldNo(Type), FieldCaption(Type));
+        IsHandled := false;
+        OnBeforeCheckDocuments(Rec, CurrentFieldNo, IsHandled);
+        if IsHandled then
+            exit;
 
         OnAfterCheckDocuments(Rec, xRec, CurrentFieldNo);
     end;
 
+    procedure GetCannotChangeItemWithExistingDocumentLinesErr(): Text
+    begin
+        exit(CannotChangeItemWithExistingDocumentLinesErr);
+    end;
+
+    procedure GetCannotDeleteItemWithExistingDocumentLinesErr(): Text
+    begin
+        exit(CannotDeleteItemWithExistingDocumentLinesErr);
+    end;
+
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckBOMComponents() in codeunit CheckBOMComponent', '25.0')]
     procedure CheckBOM(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        IsHandled: Boolean;
+        CheckBOMComponent: Codeunit "Check BOM Component";
     begin
-        IsHandled := false;
-        OnBeforeCheckBOM(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-        BOMComp.Reset();
-        BOMComp.SetCurrentKey(Type, "No.");
-        BOMComp.SetRange(Type, BOMComp.Type::Item);
-        BOMComp.SetRange("No.", "No.");
-        if not BOMComp.IsEmpty() then begin
-            if CurrentFieldNo = 0 then
-                Error(Text023, TableCaption(), "No.", BOMComp.TableCaption());
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", BOMComp.TableCaption());
-        end;
+        CheckBOMComponent.CheckBOMComponents(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckPurchLine() in codeunit CheckPurchDocumentLine', '25.0')]
     procedure CheckPurchLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        PurchaseLine: Record "Purchase Line";
-        IsHandled: Boolean;
+        CheckPurchDocumentLine: Codeunit "Check Purchase Document Line";
     begin
-        IsHandled := false;
-        OnBeforeCheckPurchLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-        PurchaseLine.SetCurrentKey(Type, "No.");
-        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-        PurchaseLine.SetRange("No.", "No.");
-        OnCheckPurchLineOnAfterPurchLineSetFilters(Rec, PurchaseLine, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
-        PurchaseLine.SetLoadFields("Document Type");
-        if PurchaseLine.FindFirst() then begin
-            if CurrentFieldNo = 0 then
-                Error(Text000, TableCaption(), "No.", PurchaseLine."Document Type");
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", PurchaseLine.TableCaption());
-        end;
+        CheckPurchDocumentLine.CheckPurchaseLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckSalesLine() in codeunit CheckSalesDocumentLine', '25.0')]
     procedure CheckSalesLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        SalesLine: Record "Sales Line";
-        IsHandled: Boolean;
+        CheckSalesDocumentLine: Codeunit "Check Sales Document Line";
     begin
-        IsHandled := false;
-        OnBeforeCheckSalesLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-        SalesLine.SetCurrentKey(Type, "No.");
-        SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.SetRange("No.", "No.");
-        SalesLine.SetLoadFields("Document Type");
-        if SalesLine.FindFirst() then begin
-            if CurrentFieldNo = 0 then
-                Error(CannotDeleteItemIfSalesDocExistErr, TableCaption(), "No.", SalesLine."Document Type");
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", SalesLine.TableCaption());
-        end;
+        CheckSalesDocumentLine.CheckSalesLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckProdOrderLine() in codeunit CheckProdOrderDocument', '25.0')]
     procedure CheckProdOrderLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        IsHandled: Boolean;
+        CheckProdOrderDocument: Codeunit "Check Prod. Order Document";
     begin
-        IsHandled := false;
-        OnBeforeCheckProdOrderLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-        if ProdOrderExist() then begin
-            if CurrentFieldNo = 0 then
-                Error(Text002, TableCaption(), "No.");
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", ProdOrderLine.TableCaption());
-        end;
+        CheckProdOrderDocument.CheckProdOrderLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckProdOrderComponent() in codeunit CheckProdOrderDocument', '25.0')]
     procedure CheckProdOrderCompLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        IsHandled: Boolean;
+        CheckProdOrderDocument: Codeunit "Check Prod. Order Document";
     begin
-        IsHandled := false;
-        OnBeforeCheckProdOrderCompLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-        ProdOrderComp.SetCurrentKey(Status, "Item No.");
-        ProdOrderComp.SetFilter(Status, '..%1', ProdOrderComp.Status::Released);
-        ProdOrderComp.SetRange("Item No.", "No.");
-        if not ProdOrderComp.IsEmpty() then begin
-            if CurrentFieldNo = 0 then
-                Error(Text014, TableCaption(), "No.");
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", ProdOrderComp.TableCaption());
-        end;
+        CheckProdOrderDocument.CheckProdOrderLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckPlanningCompLine() in codeunit CheckPlanningComponent', '25.0')]
     procedure CheckPlanningCompLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        PlanningComponent: Record "Planning Component";
-        IsHandled: Boolean;
+        CheckPlanningComponent: Codeunit "Check Planning Component";
     begin
-        IsHandled := false;
-        OnBeforeCheckPlanningCompLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-        PlanningComponent.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Due Date", "Planning Line Origin");
-        PlanningComponent.SetRange("Item No.", "No.");
-        if not PlanningComponent.IsEmpty() then begin
-            if CurrentFieldNo = 0 then
-                Error(Text023, TableCaption(), "No.", PlanningComponent.TableCaption());
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", PlanningComponent.TableCaption());
-        end;
+        CheckPlanningComponent.CheckPlanningComponents(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
+#endif
 
     procedure CheckTransLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        IsHandled: Boolean;
+        CheckTransferDocument: Codeunit "Check Transfer Document";
     begin
-        IsHandled := false;
-        OnBeforeCheckTransLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-        TransLine.SetCurrentKey("Item No.");
-        TransLine.SetRange("Item No.", "No.");
-        if not TransLine.IsEmpty() then begin
-            if CurrentFieldNo = 0 then
-                Error(Text016, TableCaption(), "No.");
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", TransLine.TableCaption());
-        end;
+        CheckTransferDocument.CheckTransferLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckServiceLine() in codeunit CheckServiceDocument', '25.0')]
     procedure CheckServLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        IsHandled: Boolean;
+        CheckServiceDocument: Codeunit Microsoft.Service.Document."Check Service Document";
     begin
-        IsHandled := false;
-        OnBeforeCheckServLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-        ServInvLine.Reset();
-        ServInvLine.SetCurrentKey(Type, "No.");
-        ServInvLine.SetRange(Type, ServInvLine.Type::Item);
-        ServInvLine.SetRange("No.", "No.");
-        if not ServInvLine.IsEmpty() then begin
-            if CurrentFieldNo = 0 then
-                Error(Text017, TableCaption(), "No.", ServInvLine."Document Type");
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", ServInvLine.TableCaption());
-        end;
+        CheckServiceDocument.CheckServiceLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckProdBOMLine() in codeunit CheckProdOrderDocument', '25.0')]
     procedure CheckProdBOMLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        ProductionBOMVersion: Record "Production BOM Version";
-        IsHandled: Boolean;
+        CheckProdOrderDocument: Codeunit "Check Prod. Order Document";
     begin
-        IsHandled := false;
-        OnBeforeCheckProdBOMLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-        ProdBOMLine.Reset();
-        ProdBOMLine.SetCurrentKey(Type, "No.");
-        ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
-        ProdBOMLine.SetRange("No.", "No.");
-        if ProdBOMLine.Find('-') then begin
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", ProdBOMLine.TableCaption());
-            if CurrentFieldNo = 0 then
-                repeat
-                    if ProdBOMHeader.Get(ProdBOMLine."Production BOM No.") and
-                       (ProdBOMHeader.Status = ProdBOMHeader.Status::Certified)
-                    then
-                        Error(Text004, TableCaption(), "No.");
-                    if ProductionBOMVersion.Get(ProdBOMLine."Production BOM No.", ProdBOMLine."Version Code") and
-                       (ProductionBOMVersion.Status = ProductionBOMVersion.Status::Certified)
-                    then
-                        Error(CannotDeleteItemIfProdBOMVersionExistsErr, TableCaption(), "No.");
-                until ProdBOMLine.Next() = 0;
-        end;
+        CheckProdOrderDocument.CheckProdBOMLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckServiceContractLine() in codeunit CheckServiceDocument', '25.0')]
     procedure CheckServContractLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        IsHandled: Boolean;
+        CheckServiceDocument: Codeunit Microsoft.Service.Document."Check Service Document";
     begin
-        IsHandled := false;
-        OnBeforeCheckServContractLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-        ServiceContractLine.Reset();
-        ServiceContractLine.SetRange("Item No.", "No.");
-        if not ServiceContractLine.IsEmpty() then begin
-            if CurrentFieldNo = 0 then
-                Error(Text023, TableCaption(), "No.", ServiceContractLine.TableCaption());
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", ServiceContractLine.TableCaption());
-        end;
+        CheckServiceDocument.CheckServiceContractLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckAssemblyHeader() in codeunit CheckAssemblyDocument', '25.0')]
     procedure CheckAsmHeader(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        AssemblyHeader: Record "Assembly Header";
-        IsHandled: Boolean;
+        CheckAssemblyDocument: Codeunit "Check Assembly Document";
     begin
-        IsHandled := false;
-        OnBeforeCheckAsmHeader(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-        AssemblyHeader.SetCurrentKey("Document Type", "Item No.");
-        AssemblyHeader.SetRange("Item No.", "No.");
-        if not AssemblyHeader.IsEmpty() then begin
-            if CurrentFieldNo = 0 then
-                Error(Text023, TableCaption(), "No.", AssemblyHeader.TableCaption());
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", AssemblyHeader.TableCaption());
-        end;
+        CheckAssemblyDocument.CheckAssemblyHeaders(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
+#endif
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckAssemblyLine() in codeunit CheckAssemblyDocument', '25.0')]
     procedure CheckAsmLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        AssemblyLine: Record "Assembly Line";
-        IsHandled: Boolean;
+        CheckAssemblyDocument: Codeunit "Check Assembly Document";
     begin
-        IsHandled := false;
-        OnBeforeCheckAsmLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-
-        AssemblyLine.SetCurrentKey(Type, "No.");
-        AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        AssemblyLine.SetRange("No.", "No.");
-        if not AssemblyLine.IsEmpty() then begin
-            if CurrentFieldNo = 0 then
-                Error(Text023, TableCaption(), "No.", AssemblyLine.TableCaption());
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", AssemblyLine.TableCaption());
-        end;
+        CheckAssemblyDocument.CheckAssemblyLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
+#endif
 
     procedure CheckUpdateFieldsForNonInventoriableItem()
     var
@@ -3743,27 +3553,15 @@ table 27 Item
         end;
     end;
 
+#if not CLEAN25
+    [Obsolete('Replaced by procedure CheckJobPlanningLines() in codeunit CheckJobPlanningLine', '25.0')]
     procedure CheckJobPlanningLine(CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     var
-        JobPlanningLine: Record "Job Planning Line";
-        IsHandled: Boolean;
-
+        CheckJobPlanningLine: Codeunit "Check Job Planning Line";
     begin
-        IsHandled := false;
-        OnBeforeCheckJobPlanningLine(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
-        if IsHandled then
-            exit;
-
-        JobPlanningLine.SetCurrentKey(Type, "No.");
-        JobPlanningLine.SetRange(Type, JobPlanningLine.Type::Item);
-        JobPlanningLine.SetRange("No.", "No.");
-        if not JobPlanningLine.IsEmpty() then begin
-            if CurrentFieldNo = 0 then
-                Error(Text023, TableCaption(), "No.", JobPlanningLine.TableCaption());
-            if CurrentFieldNo = CheckFieldNo then
-                Error(CannotChangeFieldErr, CheckFieldCaption, TableCaption(), "No.", JobPlanningLine.TableCaption());
-        end;
+        CheckJobPlanningLine.CheckJobPlanningLines(Rec, CurrentFieldNo, CheckFieldNo, CheckFieldCaption);
     end;
+#endif
 
     procedure CalcVAT(): Decimal
     begin
@@ -3838,8 +3636,6 @@ table 27 Item
         SalesLine: Record "Sales Line";
         FindRecordMgt: Codeunit "Find Record Management";
         ItemNo: Code[20];
-        ItemWithoutQuote: Text;
-        ItemFilterContains: Text;
         FoundRecordCount: Integer;
     begin
         ReturnValue := CopyStr(ItemText, 1, MaxStrLen(ReturnValue));
@@ -3849,11 +3645,13 @@ table 27 Item
         FoundRecordCount :=
             FindRecordMgt.FindRecordByDescriptionAndView(ReturnValue, SalesLine.Type::Item.AsInteger(), ItemText, View);
 
-        if FoundRecordCount = 1 then
+        if FoundRecordCount = 1 then begin
+            ReturnValue := DelChr(ReturnValue, '<>', '''');
             exit(true);
+        end;
 
-        ReturnValue := CopyStr(ItemText, 1, MaxStrLen(ReturnValue));
         if FoundRecordCount = 0 then begin
+            ReturnValue := CopyStr(ItemText, 1, MaxStrLen(ReturnValue));
             if not DefaultCreate then
                 exit(false);
 
@@ -3882,13 +3680,9 @@ table 27 Item
             Error(SelectItemErr);
 
         if FoundRecordCount > 0 then begin
-            ItemWithoutQuote := ConvertStr(ItemText, '''', '?');
-            ItemFilterContains := '''@*' + ItemWithoutQuote + '*''';
-            Item.FilterGroup(-1);
-            Item.SetFilter("No.", ItemFilterContains);
-            Item.SetFilter(Description, ItemFilterContains);
-            Item.SetFilter("Base Unit of Measure", ItemFilterContains);
-            OnTryGetItemNoOpenCardOnAfterSetItemFilters(Item, ItemFilterContains);
+            Item.FilterGroup(-1); //to be used in PickItem
+            Item.SetFilter("No.", ReturnValue);
+            OnTryGetItemNoOpenCardOnAfterSetItemFilters(Item, ReturnValue);
         end;
 
         if ShowItemCard then
@@ -3902,6 +3696,8 @@ table 27 Item
             ReturnValue := ItemNo;
             exit(true);
         end;
+
+        ReturnValue := ItemText;
 
         if not DefaultCreate then
             exit(false);
@@ -4010,12 +3806,11 @@ table 27 Item
                 exit(true);
             end
         end else
-            if "Replenishment System" = "Replenishment System"::Assembly then begin
+            if "Replenishment System" = "Replenishment System"::Assembly then
                 if "Assembly Policy" <> "Assembly Policy"::"Assemble-to-Order" then begin
                     Validate("Replenishment System", "Replenishment System"::Purchase);
                     exit(true);
-                end
-            end
+                end;
     end;
 
     procedure UpdateUnitOfMeasureId()
@@ -4473,69 +4268,178 @@ table 27 Item
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPurchLine(Item: Record Item; CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    local procedure OnBeforeCheckDocuments(Item: Record Item; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckPurchLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckPurchLine(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Replace by same event in codeunit CheckPurchDocumentLine', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPurchLine(Item: Record Item; CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckSalesLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckSalesLine(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Replace by same event in codeunit CheckSalesDocumentLine', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSalesLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckServLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckServLine(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit CheckServiceDocument', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckServLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckServContractLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckServContractLine(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit CheckServiceDocument', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckServContractLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckProdOrderLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckProdOrderLine(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit CheckProdOrderDocument', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckProdOrderLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckProdOrderCompLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckProdOrderCompLine(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit CheckProdOrderDocument', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckProdOrderCompLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckBOM(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckBOM(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit CheckBOMComponent', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBOM(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckProdBOMLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckProdBOMLine(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit CheckProdOrderDocument', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckProdBOMLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckPlanningCompLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckPlanningCompLine(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit CheckPlanningComponent', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPlanningCompLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckJobPlanningLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckJobPlanningLine(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit CheckJobPlanningLine', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckJobPlanningLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckAsmHeader(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckAsmHeader(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit CheckAssemblyDocument', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAsmHeader(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckAsmLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckAsmLine(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit CheckAssemblyDocument', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAsmLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCheckTransLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
+    begin
+        OnBeforeCheckTransLine(Item, CurrentFieldNo, CheckFieldNo, CheckFieldCaption, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit CheckTransferDocument', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTransLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReqLine(Item: Record Item; CurrentFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text; var IsHandled: Boolean)
@@ -4547,10 +4451,18 @@ table 27 Item
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnCheckPurchLineOnAfterPurchLineSetFilters(Item: Record Item; var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
+    begin
+        OnCheckPurchLineOnAfterPurchLineSetFilters(Item, PurchaseLine, CurrFieldNo, CheckFieldNo, CheckFieldCaption);
+    end;
+
+    [Obsolete('Moved to codeunit CheckPurchaseDocument', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCheckPurchLineOnAfterPurchLineSetFilters(Item: Record Item; var PurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; CheckFieldNo: Integer; CheckFieldCaption: Text)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsVariantMandatory(ItemNo: Code[20]; var IsHandled: Boolean; var Result: Boolean);

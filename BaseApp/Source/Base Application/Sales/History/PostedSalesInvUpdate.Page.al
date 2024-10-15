@@ -40,6 +40,30 @@ page 1355 "Posted Sales Inv. - Update"
                     ToolTip = 'Specifies the posting date for the document.';
                 }
             }
+            group(Shipping)
+            {
+                Caption = 'Shipping';
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Agent';
+                    Editable = true;
+                    ToolTip = 'Specifies which shipping agent is used to transport the items on the sales document to the customer.';
+                }
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Agent Service';
+                    Editable = true;
+                    ToolTip = 'Specifies which shipping agent service is used to transport the items on the sales document to the customer.';
+                }
+                field("Package Tracking No."; Rec."Package Tracking No.")
+                {
+                    ApplicationArea = Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the shipping agent''s package number.';
+                }
+            }
             group("Invoice Details")
             {
                 Caption = 'Invoice Details';
@@ -143,7 +167,11 @@ page 1355 "Posted Sales Inv. - Update"
           (Rec."Fiscal Invoice Number PAC" <> xSalesInvoiceHeader."Fiscal Invoice Number PAC") or
           (Rec."Posting Description" <> xSalesInvoiceHeader."Posting Description") or
           (Rec."Promised Pay Date" <> xSalesInvoiceHeader."Promised Pay Date") or
-          (Rec."Dispute Status" <> xSalesInvoiceHeader."Dispute Status");
+          (Rec."Dispute Status" <> xSalesInvoiceHeader."Dispute Status") or
+          (Rec."Shipping Agent Code" <> xSalesInvoiceHeader."Shipping Agent Code") or
+          (Rec."Shipping Agent Service Code" <> xSalesInvoiceHeader."Shipping Agent Service Code") or
+          (Rec."Package Tracking No." <> xSalesInvoiceHeader."Package Tracking No.") or
+          (Rec."Due Date" <> xSalesInvoiceHeader."Due Date");
 
         OnAfterRecordChanged(Rec, xSalesInvoiceHeader, IsChanged);
     end;

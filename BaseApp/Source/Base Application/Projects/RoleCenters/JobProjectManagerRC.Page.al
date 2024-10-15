@@ -60,6 +60,10 @@ page 9015 "Job Project Manager RC"
             {
                 ApplicationArea = Suite;
             }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part(ApprovalsActivities; "Approvals Activities")
             {
                 ApplicationArea = Jobs;

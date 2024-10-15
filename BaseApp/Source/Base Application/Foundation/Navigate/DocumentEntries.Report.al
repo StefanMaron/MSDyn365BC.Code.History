@@ -21,8 +21,6 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.History;
-using Microsoft.Service.Ledger;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Ledger;
 using System.Utilities;
@@ -78,142 +76,6 @@ report 35 "Document Entries"
             }
             column(DocEntryTableNameCaption; Text008)
             {
-            }
-            dataitem("Service Ledger Entry"; "Service Ledger Entry")
-            {
-                DataItemTableView = sorting("Document No.", "Posting Date");
-                column(PostDate_ServiceLedgEntry; Format("Posting Date"))
-                {
-                }
-                column(DocNo_ServLedgEntry; "Document No.")
-                {
-                    IncludeCaption = false;
-                }
-                column(Dec_ServLedgEntry; Description)
-                {
-                }
-                column(AmtLCY_ServLedgEntry; "Amount (LCY)")
-                {
-                    IncludeCaption = false;
-                }
-                column(EntryNo_ServLedgEntry; "Entry No.")
-                {
-                    IncludeCaption = false;
-                }
-                column(ServCntrtNo_ServLedgEntry; "Service Contract No.")
-                {
-                }
-                column(DocNo_ServLedgEntryCaption; FieldCaption("Document No."))
-                {
-                }
-                column(EntryNo_ServLedgEntryCaption; FieldCaption("Entry No."))
-                {
-                }
-                column(ServContractNo_ServLedgEntryCaption; FieldCaption("Service Contract No."))
-                {
-                }
-                column(AmtLCY_ServLedgEntryCaption; FieldCaption("Amount (LCY)"))
-                {
-                }
-                column(Decription_ServLedgEntryCaption; FieldCaption(Description))
-                {
-                }
-                column(ServLedgEntryPostingDateCaption; Text009)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    if TempDocumentEntry."Table ID" <> DATABASE::"Service Ledger Entry" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("Document No.", "Posting Date");
-                    SetFilter("Document No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                end;
-            }
-            dataitem("Warranty Ledger Entry"; "Warranty Ledger Entry")
-            {
-                DataItemTableView = sorting("Document No.", "Posting Date");
-                column(EntryNo_WarrantyLedgEntry; "Entry No.")
-                {
-                    IncludeCaption = false;
-                }
-                column(PostingDt_WarrantyLedgEntry; Format("Posting Date"))
-                {
-                }
-                column(DocNo_WarrantyLedgEntry; "Document No.")
-                {
-                    IncludeCaption = false;
-                }
-                column(Description_WarrantyLedgEntry; Description)
-                {
-                    IncludeCaption = false;
-                }
-                column(Amt_WarrantyLedgEntry; Amount)
-                {
-                    IncludeCaption = false;
-                }
-                column(EntryNo_WarrantyLedgEntryCaption; FieldCaption("Entry No."))
-                {
-                }
-                column(Amt_WarrantyLedgEntryCaption; FieldCaption(Amount))
-                {
-                }
-                column(Description_WarrantyLedgEntryCaption; FieldCaption(Description))
-                {
-                }
-                column(DocNo_WarrantyLedgEntryCaption; FieldCaption("Document No."))
-                {
-                }
-                column(WarrantyLedgEntryPostingDateCaption; Text010)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    if TempDocumentEntry."Table ID" <> DATABASE::"Warranty Ledger Entry" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("Document No.", "Posting Date");
-                    SetFilter("Document No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                end;
-            }
-            dataitem("Service Shipment Header"; "Service Shipment Header")
-            {
-                DataItemTableView = sorting("No.");
-                column(CurrencyCaption; CurrencyCaption)
-                {
-                }
-                column(PostDate_ServShipmentHdr; Format("Posting Date"))
-                {
-                }
-                column(No_ServShipmentHeader; "No.")
-                {
-                }
-                column(No_ServShipmentHdrCaption; FieldCaption("No."))
-                {
-                }
-                column(Desc_ServShptHeader; Description)
-                {
-                }
-                column(CurrencyCode_ServShptHeader; "Currency Code")
-                {
-                }
-                column(ServShptHeaderPostDateCaption; Text011)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    if TempDocumentEntry."Table ID" <> DATABASE::"Service Shipment Header" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("No.");
-                    SetFilter("No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                end;
             }
             dataitem("Sales Shipment Header"; "Sales Shipment Header")
             {
@@ -323,13 +185,12 @@ report 35 "Document Entries"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if PrintAmountsInLCY then begin
+                    if PrintAmountsInLCY then
                         if "Currency Code" <> '' then begin
                             Amount := CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code", Amount, "Currency Factor");
                             "Amount Including VAT" := CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code",
                                 "Amount Including VAT", "Currency Factor");
                         end;
-                    end;
                 end;
 
                 trigger OnPreDataItem()
@@ -450,13 +311,12 @@ report 35 "Document Entries"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if PrintAmountsInLCY then begin
+                    if PrintAmountsInLCY then
                         if "Currency Code" <> '' then begin
                             Amount := CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code", Amount, "Currency Factor");
                             "Amount Including VAT" := CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code",
                                 "Amount Including VAT", "Currency Factor");
                         end;
-                    end;
                 end;
 
                 trigger OnPreDataItem()
@@ -527,7 +387,7 @@ report 35 "Document Entries"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if PrintAmountsInLCY then begin
+                    if PrintAmountsInLCY then
                         if "Currency Code" <> '' then begin
                             "Remaining Amount" := CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code",
                                 "Remaining Amount", CurrExchRate.ExchangeRate("Posting Date", "Currency Code"));
@@ -538,7 +398,6 @@ report 35 "Document Entries"
                             "VAT Amount" := CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code",
                                 "VAT Amount", CurrExchRate.ExchangeRate("Posting Date", "Currency Code"));
                         end;
-                    end;
                 end;
 
                 trigger OnPreDataItem()
@@ -677,12 +536,11 @@ report 35 "Document Entries"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if PrintAmountsInLCY then begin
+                    if PrintAmountsInLCY then
                         if "Currency Code" <> '' then
                             "Total Deposit Amount" :=
                               CurrExchRate.ExchangeAmtFCYToLCY(
                                 "Posting Date", "Currency Code", "Total Deposit Amount", "Currency Factor");
-                    end;
                 end;
 
                 trigger OnPreDataItem()
@@ -803,13 +661,12 @@ report 35 "Document Entries"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if PrintAmountsInLCY then begin
+                    if PrintAmountsInLCY then
                         if "Currency Code" <> '' then begin
                             Amount := CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code", Amount, "Currency Factor");
                             "Amount Including VAT" := CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code",
                                 "Amount Including VAT", "Currency Factor");
                         end;
-                    end;
                 end;
 
                 trigger OnPreDataItem()
@@ -930,13 +787,12 @@ report 35 "Document Entries"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if PrintAmountsInLCY then begin
+                    if PrintAmountsInLCY then
                         if "Currency Code" <> '' then begin
                             Amount := CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code", Amount, "Currency Factor");
                             "Amount Including VAT" := CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code",
                                 "Amount Including VAT", "Currency Factor");
                         end;
-                    end;
                 end;
 
                 trigger OnPreDataItem()
@@ -1317,7 +1173,7 @@ report 35 "Document Entries"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if PrintAmountsInLCY then begin
+                    if PrintAmountsInLCY then
                         if "Currency Code" <> '' then begin
                             if PostedDepositHeader."No." <> "Deposit No." then
                                 PostedDepositHeader.Get("Deposit No.");
@@ -1325,7 +1181,6 @@ report 35 "Document Entries"
                               CurrExchRate.ExchangeAmtFCYToLCY(
                                 "Posting Date", "Currency Code", Amount, PostedDepositHeader."Currency Factor");
                         end;
-                    end;
                 end;
 
                 trigger OnPreDataItem()
@@ -2467,11 +2322,14 @@ report 35 "Document Entries"
     var
         CurrExchRate: Record "Currency Exchange Rate";
         PostedDepositHeader: Record "Posted Deposit Header";
+#pragma warning disable AA0074
         Text001: Label 'Document No. : ';
         Text002: Label 'Posting Date : ';
+#pragma warning restore AA0074
         PrintAmountsInLCY: Boolean;
-        CurrencyCaption: Text[30];
+#pragma warning disable AA0074
         Text003: Label 'Currency Code';
+#pragma warning restore AA0074
         CurrencyCaptionRBC: Text[30];
         NavigateDeposit: Boolean;
         Text004: Label 'Document Entries';
@@ -2479,9 +2337,6 @@ report 35 "Document Entries"
         Text006: Label 'Navigate Filters';
         Text007: Label 'No. of Records';
         Text008: Label 'Table Name';
-        Text009: Label 'Posting Date';
-        Text010: Label 'Posting Date';
-        Text011: Label 'Posting Date';
         Text012: Label 'Posting Date';
         Text013: Label 'Posting Date';
         Text014: Label 'Posting Date';
@@ -2521,6 +2376,7 @@ report 35 "Document Entries"
 
     protected var
         TempDocumentEntry: Record "Document Entry" temporary;
+        CurrencyCaption: Text[30];
         DocNoFilter: Text;
         PostingDateFilter: Text;
 

@@ -29,7 +29,9 @@ codeunit 1200 "Import Bank Statement"
     end;
 
     var
+#pragma warning disable AA0470
         ProgressMsg: Label 'Preparing line number #1#######';
+#pragma warning restore AA0470
         ProgressWindow: Dialog;
 
     local procedure Parse(DataExchLineDef: Record "Data Exch. Line Def"; EntryNo: Integer; XMLNode: DotNet XmlNode; ParentPath: Text; NodeId: Text[250]; var LastGivenLineNo: Integer; CurrentLineNo: Integer)

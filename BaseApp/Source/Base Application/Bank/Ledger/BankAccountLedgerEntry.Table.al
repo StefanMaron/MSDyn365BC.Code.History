@@ -167,7 +167,6 @@ table 271 "Bank Account Ledger Entry"
         {
             Caption = 'Statement No.';
             TableRelation = "Bank Acc. Reconciliation Line"."Statement No." where("Bank Account No." = field("Bank Account No."));
-            ValidateTableRelation = false;
         }
         field(57; "Statement Line No."; Integer)
         {
@@ -328,14 +327,7 @@ table 271 "Bank Account Ledger Entry"
             Enabled = false;
             SumIndexFields = Amount, "Amount (LCY)", "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)";
         }
-        key(Key8; "Bank Account No.", "Posting Date", "Statement Status")
-        {
-        }
-        key(Key9; "External Document No.", "Posting Date")
-        {
-            Enabled = false;
-        }
-        key(key10; "Statement No.", "Statement Line No.")
+        key(key8; "Statement No.", "Statement Line No.")
         {
         }
     }

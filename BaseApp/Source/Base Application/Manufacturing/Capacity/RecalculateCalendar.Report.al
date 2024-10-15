@@ -64,8 +64,12 @@ report 99001047 "Recalculate Calendar"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Recalculating Schedule for\\';
+#pragma warning disable AA0470
         Text001: Label 'For #3###### ';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CalendarEntry2: Record "Calendar Entry";
         Window: Dialog;
 

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -384,11 +384,15 @@ report 10008 "Consolidated Trial Balance (4)"
         UseAddRptCurr: Boolean;
         PageGroupNo: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Please enter the starting date for the consolidation period.';
         Text001: Label 'Please enter the ending date for the consolidation period.';
+#pragma warning disable AA0470
         Text002: Label 'Consolidated Trial Balance for %1';
         Text003: Label '(amounts are in %1)';
-        Text004: Label 'A maximum of %1 consolidating companies can be included in this report.  Set a filter on the %2 tab.';
+        Text004: Label 'A maximum of %1 consolidating companies can be included in this report. Set a filter on the %2 tab.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Amounts_are_in_whole_1000sCaptionLbl: Label 'Amounts are in whole 1000s';
         PADSTR_____G_L_Account__Indentation___2___G_L_Account__NameCaptionLbl: Label 'Name';

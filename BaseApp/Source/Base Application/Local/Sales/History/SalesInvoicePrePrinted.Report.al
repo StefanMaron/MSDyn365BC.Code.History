@@ -429,7 +429,7 @@ report 10070 "Sales Invoice (Pre-Printed)"
                 FormatDocumentFields("Sales Invoice Header");
 
                 if LogInteraction then
-                    if not CurrReport.Preview then begin
+                    if not CurrReport.Preview then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
@@ -438,7 +438,6 @@ report 10070 "Sales Invoice (Pre-Printed)"
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                               "Campaign No.", "Posting Description", '');
-                    end;
 
                 Clear(BreakdownTitle);
                 Clear(BreakdownLabel);
@@ -478,12 +477,11 @@ report 10070 "Sales Invoice (Pre-Printed)"
                                (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
                             then begin
                                 BrkIdx := BrkIdx + 1;
-                                if BrkIdx > 1 then begin
+                                if BrkIdx > 1 then
                                     if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
                                         BreakdownTitle := Text006
                                     else
                                         BreakdownTitle := Text003;
-                                end;
                                 if BrkIdx > ArrayLen(BreakdownAmt) then begin
                                     BrkIdx := BrkIdx - 1;
                                     BreakdownLabel[BrkIdx] := Text004;

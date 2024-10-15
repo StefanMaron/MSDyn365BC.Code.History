@@ -62,23 +62,33 @@ codeunit 442 "Sales-Post Prepayments"
         SuppressCommit: Boolean;
         PreviewMode: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Posting Prepayment Lines   #2######\';
         Text003: Label '%1 %2 -> Invoice %3';
         Text004: Label 'Posting sales and VAT      #3######\';
         Text005: Label 'Posting to customers       #4######\';
         Text006: Label 'Posting to bal. account    #5######';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PostingDateNotAllowedErr: Label '%1 is not within your range of allowed posting dates.', Comment = '%1 - Posting Date field caption';
         SpecifyInvNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted sales prepayment invoices.';
         SpecifyCrNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted sales prepayment credit memos.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text011: Label '%1 %2 -> Credit Memo %3';
         Text012: Label 'Prepayment %1, %2 %3.';
         Text013: Label 'It is not possible to assign a prepayment amount of %1 to the sales lines.';
+#pragma warning restore AA0470
         Text014: Label 'VAT Amount';
+#pragma warning disable AA0470
         Text015: Label '%1% VAT';
         Text016: Label 'The new prepayment amount must be between %1 and %2.';
         Text017: Label 'At least one line must have %1 > 0 to distribute prepayment amount.';
         Text018: Label 'must be positive when %1 is not 0';
+#pragma warning restore AA0470
         Text019: Label 'Invoice,Credit Memo';
+#pragma warning restore AA0074
         PrepaymentSalesTok: Label 'Prepayment Sales', Locked = true;
         UpdateTok: Label '%1 %2', Locked = true;
 

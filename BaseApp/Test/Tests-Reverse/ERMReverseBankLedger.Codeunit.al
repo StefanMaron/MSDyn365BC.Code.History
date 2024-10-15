@@ -23,15 +23,15 @@
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ReverseErr: Label 'You cannot reverse Bank Account Ledger Entry No. %1 because the entry is closed.', Locked = true;
-        BlockedErr: Label 'Blocked must be equal to ''%1''  in %2: No.=%3. Current value is ''%4''.', Locked = true;
         CheckLedgerEntryErr: Label 'You cannot reverse %1 No. %2 because the entry has a related check ledger entry.', Locked = true;
         VoidCheckErr: Label 'You cannot reverse %1 No. %2 because the entry has a related check ledger entry.', Locked = true;
         ReconciliationErr: Label 'You cannot reverse %1 No. %2 because the entry is included in a bank account reconciliation line. The bank reconciliation has not yet been posted.', Locked = true;
         CompressErr: Label 'The transaction cannot be reversed, because the %1 has been compressed.', Locked = true;
         VerifyErr: Label 'Error must match.', Locked = true;
-        CheckPrintedErr: Label '%1 must be equal to', Locked = true;
         isInitialized: Boolean;
+#if not CLEAN23
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
+#endif
         VoidType: Option "Unapply and void check","Void check only";
 
     [Test]
@@ -47,19 +47,15 @@
 
         // Setup: Create General Journal Line With Bank Account and Post it and Modify Bank Account for Blocked.
         Initialize();
-        with GenJournalLine do begin
-            CreateAndPostGenJournalLine(
-              GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
-              "Bank Payment Type"::" ", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
-            BlockBankAccount("Bal. Account No.");
-
-            // Exercise: Reverse Modify Bank Account.
-            ReverseBankAccountLedgerEntry(BankAccountLedgerEntry, "Document No.");
-        end;
+        CreateAndPostGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+          GenJournalLine."Bank Payment Type"::" ", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
+        BlockBankAccount(GenJournalLine."Bal. Account No.");
+        // Exercise: Reverse Modify Bank Account.
+        ReverseBankAccountLedgerEntry(BankAccountLedgerEntry, GenJournalLine."Document No.");
         // Verify: Verify Reversal Process for Blocked Bank Account Ledger Entry.
-        Assert.AreEqual(
-          StrSubstNo(BlockedErr, false, BankAccount.TableCaption(), BankAccountLedgerEntry."Bank Account No.", true),
-          GetLastErrorText, VerifyErr);
+
+        Assert.ExpectedTestFieldError(BankAccount.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -74,14 +70,11 @@
 
         // Setup: Create General Journal Line With Bank Account with Manual Check and Post it.
         Initialize();
-        with GenJournalLine do begin
-            CreateAndPostGenJournalLine(
-              GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
-              "Bank Payment Type"::"Manual Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
-
-            // Exercise: Reverse Bank Account Ledger Entry.
-            ReverseBankAccountLedgerEntry(BankAccountLedgerEntry, "Document No.");
-        end;
+        CreateAndPostGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+          GenJournalLine."Bank Payment Type"::"Manual Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
+        // Exercise: Reverse Bank Account Ledger Entry.
+        ReverseBankAccountLedgerEntry(BankAccountLedgerEntry, GenJournalLine."Document No.");
         // Verify: Verify Reversing Error.
         Assert.AreEqual(
           StrSubstNo(CheckLedgerEntryErr, BankAccountLedgerEntry.TableCaption(), BankAccountLedgerEntry."Entry No."),
@@ -100,16 +93,13 @@
 
         // Setup: Create General Journal Line Post it With Bank Account and Run Void Check.
         Initialize();
-        with GenJournalLine do begin
-            CreateAndPostGenJournalLine(
-              GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
-              "Bank Payment Type"::"Manual Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
+        CreateAndPostGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+          GenJournalLine."Bank Payment Type"::"Manual Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
 
-            VoidCheck("Bal. Account No.", "Document No.", VoidType::"Void check only");
-
-            // Exercise: Reverse Bank Account Ledger Entry.
-            ReverseBankAccountLedgerEntry(BankAccountLedgerEntry, "Document No.");
-        end;
+        VoidCheck(GenJournalLine."Bal. Account No.", GenJournalLine."Document No.", VoidType::"Void check only");
+        // Exercise: Reverse Bank Account Ledger Entry.
+        ReverseBankAccountLedgerEntry(BankAccountLedgerEntry, GenJournalLine."Document No.");
         // Verify: Verify Reversing Error on Bank Account Ledger Entry.
         Assert.AreEqual(
           StrSubstNo(VoidCheckErr, BankAccountLedgerEntry.TableCaption(), BankAccountLedgerEntry."Entry No."),
@@ -117,7 +107,11 @@
     end;
 
     [Test]
+#if not CLEAN23
     [HandlerFunctions('ConfirmHandler,StatisticsMessageHandler')]
+#else
+    [HandlerFunctions('ConfirmHandler')]
+#endif
     [Scope('OnPrem')]
     procedure ReverseAdjustExchangeRate()
     var
@@ -130,19 +124,17 @@
 
         // Setup: Create General Journal Line With Customer and with Currency and Post it and Modify, Run Adjust Exchange Rate Batch Job.
         Initialize();
-        with GenJournalLine do begin
-            CreateAndPostGenJournalLine(
-              GenJournalLine, "Document Type"::" ", "Account Type"::Customer, LibrarySales.CreateCustomerNo(),
-              "Bank Payment Type"::" ", CreateCurrency(), CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
-            ModifyCurrencyAndExchangeRate("Currency Code");
+        CreateAndPostGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJournalLine."Bank Payment Type"::" ", CreateCurrency(), CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
+        ModifyCurrencyAndExchangeRate(GenJournalLine."Currency Code");
 #if not CLEAN23
-            LibraryERM.RunAdjustExchangeRatesSimple("Currency Code", WorkDate(), WorkDate());
+        LibraryERM.RunAdjustExchangeRatesSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 #else
-            LibraryERM.RunExchRateAdjustmentSimple("Currency Code", WorkDate(), WorkDate());
+        LibraryERM.RunExchRateAdjustmentSimple(GenJournalLine."Currency Code", WorkDate(), WorkDate());
 #endif
-            // Exercise: Reverse Customer Ledger Entry.
-            EntryNo := ReverseCustomerLedgerEntry("Document No.");
-        end;
+        // Exercise: Reverse Customer Ledger Entry.
+        EntryNo := ReverseCustomerLedgerEntry(GenJournalLine."Document No.");
         // Verify: Verify Reversing Error for Customer Ledger Entry After Updation of Currency.
         Assert.AreEqual(
           ReversalEntry.ReversalErrorForChangedEntry(CustLedgerEntry.TableCaption(), EntryNo),
@@ -162,15 +154,12 @@
 
         // Setup: Create General Journal Line With Customer and Post it and Create, Suggest Bank Reconciliation.
         Initialize();
-        with GenJournalLine do begin
-            CreateAndPostGenJournalLine(
-              GenJournalLine, "Document Type"::" ", "Account Type"::Customer, LibrarySales.CreateCustomerNo(),
-              "Bank Payment Type"::" ", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
-            CreateAndSuggestBankReconcltn(BankAccReconciliation, "Bal. Account No.", "Posting Date");
-
-            // Exercise: Reverse Bank Account Ledger Entry.
-            ReverseBankAccountLedgerEntry(BankAccountLedgerEntry, "Document No.");
-        end;
+        CreateAndPostGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJournalLine."Bank Payment Type"::" ", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
+        CreateAndSuggestBankReconcltn(BankAccReconciliation, GenJournalLine."Bal. Account No.", GenJournalLine."Posting Date");
+        // Exercise: Reverse Bank Account Ledger Entry.
+        ReverseBankAccountLedgerEntry(BankAccountLedgerEntry, GenJournalLine."Document No.");
         // Verify: Verify Reversing Error for Bank Account Ledger Entry After creating Bank Reconciliation.
         Assert.AreEqual(
           StrSubstNo(ReconciliationErr, BankAccountLedgerEntry.TableCaption(), BankAccountLedgerEntry."Entry No."),
@@ -190,18 +179,15 @@
 
         // Setup: Create General Journal Line With Customer and Post it.
         Initialize();
-        with GenJournalLine do begin
-            CreateAndPostGenJournalLine(
-              GenJournalLine, "Document Type"::" ", "Account Type"::Customer, LibrarySales.CreateCustomerNo(),
-              "Bank Payment Type"::" ", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
+        CreateAndPostGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJournalLine."Bank Payment Type"::" ", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
 
-            CreateAndSuggestBankReconcltn(BankAccReconciliation, "Bal. Account No.", "Posting Date");
-            ModifyBankReconcltn(BankAccReconciliation);
-            LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
-
-            // Exercise: Create and Suggest Bank Reconciliation, Modify and Post it.
-            ReverseBankAccountLedgerEntry(BankAccountLedgerEntry, "Document No.");
-        end;
+        CreateAndSuggestBankReconcltn(BankAccReconciliation, GenJournalLine."Bal. Account No.", GenJournalLine."Posting Date");
+        ModifyBankReconcltn(BankAccReconciliation);
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+        // Exercise: Create and Suggest Bank Reconciliation, Modify and Post it.
+        ReverseBankAccountLedgerEntry(BankAccountLedgerEntry, GenJournalLine."Document No.");
         // Verify: Verify Reversing Error for Bank Account Ledger Entry After Modify and Post Bank Reconciliation.
         Assert.AreEqual(StrSubstNo(ReverseErr, BankAccountLedgerEntry."Entry No."), GetLastErrorText, VerifyErr);
     end;
@@ -314,18 +300,14 @@
     begin
         // Setup: Create and Post General Journal line with non-empty Document type.
         Initialize();
-        with GenJournalLine do begin
-            CreateAndPostGenJournalLine(
-              GenJournalLine, "Document Type"::Refund, "Account Type"::Customer, LibrarySales.CreateCustomerNo(),
-              "Bank Payment Type"::"Manual Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
-
-            // Exercise: Void the created the check ledger entry.
-            VoidCheck("Bal. Account No.", "Document No.", VoidType::"Void check only");
-
-            // Verify: Verify that Document type is not empty in the bank account ledger entry.
-            VerifyRefundBankAccLedgerEntry("Bal. Account No.", "Posting Date", "Document No.", -Amount, GetGenJnlSourceCode());
-            VerifyRefundBankAccLedgerEntry("Bal. Account No.", WorkDate(), "Document No.", Amount, GetFinVoidedSourceCode());
-        end;
+        CreateAndPostGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Refund, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJournalLine."Bank Payment Type"::"Manual Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
+        // Exercise: Void the created the check ledger entry.
+        VoidCheck(GenJournalLine."Bal. Account No.", GenJournalLine."Document No.", VoidType::"Void check only");
+        // Verify: Verify that Document type is not empty in the bank account ledger entry.
+        VerifyRefundBankAccLedgerEntry(GenJournalLine."Bal. Account No.", GenJournalLine."Posting Date", GenJournalLine."Document No.", -GenJournalLine.Amount, GetGenJnlSourceCode());
+        VerifyRefundBankAccLedgerEntry(GenJournalLine."Bal. Account No.", WorkDate(), GenJournalLine."Document No.", GenJournalLine.Amount, GetFinVoidedSourceCode());
     end;
 
     [Test]
@@ -345,17 +327,13 @@
     begin
         // Setup: Create and Post General Journal line with bank Payment Type Manual Check.
         Initialize();
-        with GenJournalLine do begin
-            CreateAndPostGenJournalLine(
-              GenJournalLine, "Document Type"::" ", AccountType, AccountNo,
-              "Bank Payment Type"::"Manual Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
-
-            // Exercise: Void the created the check ledger entry.
-            VoidCheck("Bal. Account No.", "Document No.", VoidType::"Void check only");
-
-            // Verify: Verify that system correctly voided the check ledger entry.
-            VerifyCheckLedgerEntry("Bal. Account No.", "Document No.", Amount);
-        end;
+        CreateAndPostGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::" ", AccountType, AccountNo,
+          GenJournalLine."Bank Payment Type"::"Manual Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
+        // Exercise: Void the created the check ledger entry.
+        VoidCheck(GenJournalLine."Bal. Account No.", GenJournalLine."Document No.", VoidType::"Void check only");
+        // Verify: Verify that system correctly voided the check ledger entry.
+        VerifyCheckLedgerEntry(GenJournalLine."Bal. Account No.", GenJournalLine."Document No.", GenJournalLine.Amount);
     end;
 
     [Test]
@@ -371,18 +349,14 @@
 
         // Setup: Create and apply the general journal line for vendor and then post it.
         Initialize();
-        with GenJournalLine do begin
-            DocumentNo := ApplyGenJournalLineForBankPaymentType(GenJournalLine, "Account Type"::Vendor, LibraryPurchase.CreateVendorNo());
-
-            // Exercise: Void and unapply the check ledger entry.
-            VoidCheck("Bal. Account No.", "Document No.", VoidType::"Unapply and void check");
-
-            // Verify: Verify that system correctly voided the check ledger entry and unappy the vendor ledger entry.
-            VerifyCheckLedgerEntry("Bal. Account No.", "Document No.", Amount);
-            LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Document Type", DocumentNo);
-            VendorLedgerEntry.CalcFields("Remaining Amount");
-            VendorLedgerEntry.TestField("Remaining Amount", -Amount);
-        end;
+        DocumentNo := ApplyGenJournalLineForBankPaymentType(GenJournalLine, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo());
+        // Exercise: Void and unapply the check ledger entry.
+        VoidCheck(GenJournalLine."Bal. Account No.", GenJournalLine."Document No.", VoidType::"Unapply and void check");
+        // Verify: Verify that system correctly voided the check ledger entry and unappy the vendor ledger entry.
+        VerifyCheckLedgerEntry(GenJournalLine."Bal. Account No.", GenJournalLine."Document No.", GenJournalLine.Amount);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Document Type", DocumentNo);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.TestField("Remaining Amount", -GenJournalLine.Amount);
     end;
 
     [Test]
@@ -398,18 +372,14 @@
 
         // Setup: Create and apply the general journal line for customer and then post it.
         Initialize();
-        with GenJournalLine do begin
-            DocumentNo := ApplyGenJournalLineForBankPaymentType(GenJournalLine, "Account Type"::Customer, LibrarySales.CreateCustomerNo());
-
-            // Exercise: Void and unapply the check ledger entry.
-            VoidCheck("Bal. Account No.", "Document No.", VoidType::"Unapply and void check");
-
-            // Verify: Verify that system correctly voided the check ledger entry and unappy the customer ledger entry.
-            VerifyCheckLedgerEntry("Bal. Account No.", "Document No.", Amount);
-            LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, "Document Type", DocumentNo);
-            CustLedgerEntry.CalcFields("Remaining Amount");
-            CustLedgerEntry.TestField("Remaining Amount", -Amount);
-        end;
+        DocumentNo := ApplyGenJournalLineForBankPaymentType(GenJournalLine, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo());
+        // Exercise: Void and unapply the check ledger entry.
+        VoidCheck(GenJournalLine."Bal. Account No.", GenJournalLine."Document No.", VoidType::"Unapply and void check");
+        // Verify: Verify that system correctly voided the check ledger entry and unappy the customer ledger entry.
+        VerifyCheckLedgerEntry(GenJournalLine."Bal. Account No.", GenJournalLine."Document No.", GenJournalLine.Amount);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type", DocumentNo);
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        CustLedgerEntry.TestField("Remaining Amount", -GenJournalLine.Amount);
     end;
 
     [Test]
@@ -423,17 +393,13 @@
 
         // Setup: Create General Journal line with Bank Payment Type Computer check.
         Initialize();
-        with GenJournalLine do begin
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
-              "Bank Payment Type"::"Computer Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
-
-            // Exercise: Void thec check which has not been printed and posted.
-            asserterror CheckManagement.VoidCheck(GenJournalLine);
-
-            // Verify: Verify that system throws the error while performing void check.
-            Assert.ExpectedError(StrSubstNo(CheckPrintedErr, FieldCaption("Check Printed")));
-        end;
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+          GenJournalLine."Bank Payment Type"::"Computer Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
+        // Exercise: Void thec check which has not been printed and posted.
+        asserterror CheckManagement.VoidCheck(GenJournalLine);
+        // Verify: Verify that system throws the error while performing void check.
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Check Printed"), '');
     end;
 
     [Test]
@@ -447,12 +413,10 @@
         // Test that system correctly apply and unapply the Bank Account ledger entries for Vendor.
         // Setup: Post Payment Journal for Vendor
         Initialize();
-        with GenJournalLine do begin
-            CreateAndPostGenJournalLine(
-              GenJournalLine, "Document Type"::Payment, "Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
-              "Bank Payment Type"::"Manual Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
-            CreateAndSuggestBankReconcltn(BankAccReconciliation, "Bal. Account No.", "Posting Date");
-        end;
+        CreateAndPostGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          GenJournalLine."Bank Payment Type"::"Manual Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
+        CreateAndSuggestBankReconcltn(BankAccReconciliation, GenJournalLine."Bal. Account No.", GenJournalLine."Posting Date");
         // Exercise: Apply entries by invoking Match Manually
         BankAccReconciliationPage.OpenEdit();
         BankAccReconciliationPage.FILTER.SetFilter("Bank Account No.", GenJournalLine."Bal. Account No.");
@@ -478,12 +442,10 @@
         // Test that system correctly apply and unapply the Check ledger entries for Vendor.
         // Setup: Post Payment Journal for Vendor and modify Bank Account Reconciliation Line with type "Check Ledger Entry".
         Initialize();
-        with GenJournalLine do begin
-            CreateAndPostGenJournalLine(
-              GenJournalLine, "Document Type"::Payment, "Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
-              "Bank Payment Type"::"Manual Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
-            CreateAndSuggestBankReconcltn(BankAccReconciliation, "Bal. Account No.", "Posting Date");
-        end;
+        CreateAndPostGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          GenJournalLine."Bank Payment Type"::"Manual Check", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
+        CreateAndSuggestBankReconcltn(BankAccReconciliation, GenJournalLine."Bal. Account No.", GenJournalLine."Posting Date");
         // Exercise: Open Apply Entries from Bank Acc. Reconciliation Page.
         BankAccReconciliationPage.OpenEdit();
         BankAccReconciliationPage.FILTER.SetFilter("Bank Account No.", GenJournalLine."Bal. Account No.");
@@ -667,16 +629,13 @@
         BankAccReconciliation.DeleteAll();
         // [SCENARIO 227412] Reversed Bank Account Ledger Entries are not visible on Bank Reconciliation
         Initialize();
-
         // [GIVEN] Gen Journal Line with Document No = "X" for Bank Account is posted and reversed
-        with GenJournalLine do begin
-            CreateGenJournalLine(
-              GenJournalLine, "Document Type"::" ", "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
-              "Bank Payment Type"::" ", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
-            Validate("Posting Date", LibraryRandom.RandDateFrom(GetLastCompressDateOfBankAccLegdEntry(), 10));
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        CreateGenJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
+          GenJournalLine."Bank Payment Type"::" ", '', CreateBankAccount(), LibraryRandom.RandDec(100, 2), '');
+        GenJournalLine.Validate("Posting Date", LibraryRandom.RandDateFrom(GetLastCompressDateOfBankAccLegdEntry(), 10));
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
         BankAccountLedgerEntry.SetRange("Bank Account No.", GenJournalLine."Bal. Account No.");
         BankAccountLedgerEntry.FindFirst();
         ReverseBankAccountLedgerEntryNoErr(BankAccountLedgerEntry, GenJournalLine."Document No.");
@@ -901,17 +860,15 @@
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo,
-              "Bal. Account Type"::"Bank Account", BalAccountNo, LineAmount);
-            Validate("Posting Date", LibraryFiscalYear.GetFirstPostingDate(true));
-            // Get Posting Date for Closed Financial Year.
-            Validate("Bank Payment Type", BankPaymentType);
-            Validate("Currency Code", CurrencyCode);
-            Validate("Applies-to Doc. No.", AppliesToDocNo);
-            Modify(true);
-        end;
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo,
+          GenJournalLine."Bal. Account Type"::"Bank Account", BalAccountNo, LineAmount);
+        GenJournalLine.Validate("Posting Date", LibraryFiscalYear.GetFirstPostingDate(true));
+        // Get Posting Date for Closed Financial Year.
+        GenJournalLine.Validate("Bank Payment Type", BankPaymentType);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
@@ -936,12 +893,10 @@
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            Validate("Last Statement No.", Format(LibraryRandom.RandInt(10)));
-            Validate("Last Check No.", Format(LibraryRandom.RandInt(10)));
-            Modify(true);
-            exit("No.");
-        end;
+        BankAccount.Validate("Last Statement No.", Format(LibraryRandom.RandInt(10)));
+        BankAccount.Validate("Last Check No.", Format(LibraryRandom.RandInt(10)));
+        BankAccount.Modify(true);
+        exit(BankAccount."No.");
     end;
 
     local procedure CreateAndSuggestBankReconcltn(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20]; StatementDate: Date)
@@ -1028,13 +983,11 @@
 
     local procedure FindBankAccountLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with BankAccountLedgerEntry do begin
-            SetRange("Bank Account No.", BankAccountNo);
-            SetRange("Posting Date", PostingDate);
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetRange("Posting Date", PostingDate);
+        BankAccountLedgerEntry.SetRange("Document Type", DocumentType);
+        BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
+        BankAccountLedgerEntry.FindFirst();
     end;
 
     local procedure FindBankCheckLedgerEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountNo: Code[20]; DocumentNo: Code[20])
@@ -1218,33 +1171,27 @@
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
-        with BankAccountLedgerEntry do begin
-            FindBankAccountLedgerEntry(BankAccountLedgerEntry, BankAccountNo, PostingDate, "Document Type"::Payment, DocumentNo);
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedSourceCode, "Source Code", FieldCaption("Source Code"));
-        end;
+        FindBankAccountLedgerEntry(BankAccountLedgerEntry, BankAccountNo, PostingDate, BankAccountLedgerEntry."Document Type"::Payment, DocumentNo);
+        Assert.AreEqual(ExpectedAmount, BankAccountLedgerEntry.Amount, BankAccountLedgerEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedSourceCode, BankAccountLedgerEntry."Source Code", BankAccountLedgerEntry.FieldCaption("Source Code"));
     end;
 
     local procedure VerifyRefundBankAccLedgerEntry(BankAccountNo: Code[20]; PostingDate: Date; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedSourceCode: Code[10])
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
-        with BankAccountLedgerEntry do begin
-            FindBankAccountLedgerEntry(BankAccountLedgerEntry, BankAccountNo, PostingDate, "Document Type"::Refund, DocumentNo);
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedSourceCode, "Source Code", FieldCaption("Source Code"));
-        end;
+        FindBankAccountLedgerEntry(BankAccountLedgerEntry, BankAccountNo, PostingDate, BankAccountLedgerEntry."Document Type"::Refund, DocumentNo);
+        Assert.AreEqual(ExpectedAmount, BankAccountLedgerEntry.Amount, BankAccountLedgerEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedSourceCode, BankAccountLedgerEntry."Source Code", BankAccountLedgerEntry.FieldCaption("Source Code"));
     end;
 
     local procedure VerifyBankAccLedgerEntry(BankAccountNo: Code[20]; PostingDate: Date; DocumentNo: Code[20]; ExpectedAmount: Decimal; ExpectedSourceCode: Code[10])
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
-        with BankAccountLedgerEntry do begin
-            FindBankAccountLedgerEntry(BankAccountLedgerEntry, BankAccountNo, PostingDate, "Document Type"::" ", DocumentNo);
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedSourceCode, "Source Code", FieldCaption("Source Code"));
-        end;
+        FindBankAccountLedgerEntry(BankAccountLedgerEntry, BankAccountNo, PostingDate, BankAccountLedgerEntry."Document Type"::" ", DocumentNo);
+        Assert.AreEqual(ExpectedAmount, BankAccountLedgerEntry.Amount, BankAccountLedgerEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedSourceCode, BankAccountLedgerEntry."Source Code", BankAccountLedgerEntry.FieldCaption("Source Code"));
     end;
 
     local procedure VerifyCheckLedgerEntry(BankAccountNo: Code[20]; DocumentNo: Code[20]; ExpectedAmount: Decimal)
@@ -1252,25 +1199,21 @@
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
         FindBankCheckLedgerEntry(CheckLedgerEntry, BankAccountNo, DocumentNo);
-        with CheckLedgerEntry do begin
-            TestField(Amount, ExpectedAmount);
-            TestField("Entry Status", "Entry Status"::"Financially Voided");
-            TestField("Original Entry Status", "Original Entry Status"::Posted);
-        end;
+        CheckLedgerEntry.TestField(Amount, ExpectedAmount);
+        CheckLedgerEntry.TestField("Entry Status", CheckLedgerEntry."Entry Status"::"Financially Voided");
+        CheckLedgerEntry.TestField("Original Entry Status", CheckLedgerEntry."Original Entry Status"::Posted);
     end;
 
     local procedure VerifyVoidedVendorLedgerEntries(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ExpectedCount: Integer)
     var
         DummyVendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with DummyVendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Posting Date", WorkDate());
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Source Code", GetFinVoidedSourceCode());
-            Assert.RecordCount(DummyVendorLedgerEntry, ExpectedCount);
-        end;
+        DummyVendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        DummyVendorLedgerEntry.SetRange("Posting Date", WorkDate());
+        DummyVendorLedgerEntry.SetRange("Document Type", DocumentType);
+        DummyVendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        DummyVendorLedgerEntry.SetRange("Source Code", GetFinVoidedSourceCode());
+        Assert.RecordCount(DummyVendorLedgerEntry, ExpectedCount);
     end;
 
     [ModalPageHandler]
@@ -1293,6 +1236,7 @@
     procedure MessageHandler(Message: Text[1024])
     begin
     end;
+#if not CLEAN23
 
     [MessageHandler]
     [Scope('OnPrem')]
@@ -1300,6 +1244,7 @@
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

@@ -140,7 +140,9 @@ report 7391 "Whse. Get Bin Content"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalTemplate: Record "Item Journal Template";
         UOMMgt: Codeunit "Unit of Measure Management";
+#pragma warning disable AA0074
         Text001: Label 'Report must be initialized.';
+#pragma warning restore AA0074
         DirectedWhseLocationErr: Label 'You cannot use %1 %2 because it is set up with %3.\Adjustments to this location must therefore be made in a Warehouse Item Journal.', Comment = '%1: Location Table Caption, %2: Location Code, %3: Location Field Caption';
 
     protected var
@@ -404,10 +406,9 @@ report 7391 "Whse. Get Bin Content"
                             DestinationType2::WhseInternalPutawayHeader:
                                 WhseInternalPutawayLine.SetItemTrackingLines(WarehouseEntry, TrackedQtyToEmptyBase);
                             DestinationType2::ItemJournalLine:
-                                TempTrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
+                                ItemJnlLineReserve.InitFromItemJnlLine(TempTrackingSpecification, ItemJournalLine);
                             DestinationType2::TransferHeader:
-                                TempTrackingSpecification.InitFromTransLine(
-                                  TransferLine, TransferLine."Shipment Date", Direction::Outbound);
+                                TransferLineReserve.InitFromTransLine(TempTrackingSpecification, TransferLine, TransferLine."Shipment Date", Direction::Outbound);
                             DestinationType2::InternalMovementHeader:
                                 InternalMovementLine.SetItemTrackingLines(WarehouseEntry, TrackedQtyToEmptyBase);
                             else

@@ -332,7 +332,7 @@ codeunit 6153 "API Webhook Notification Mgt."
                     if (EqPos > 1) and (EqPos < 12) then begin
                         FieldNoTxt := CopyStr(RemainingTableFilters, 1, EqPos - 1);
                         if Evaluate(FieldNo, FieldNoTxt) then
-                            if FieldNo <= ToRecRef.FieldCount() then begin
+                            if FromRecRef.FieldExist(FieldNo) then begin
                                 FromFieldRef := FromRecRef.Field(FieldNo);
                                 CopyFieldValue(FromFieldRef, ToRecRef);
                             end;
@@ -357,13 +357,19 @@ codeunit 6153 "API Webhook Notification Mgt."
     var
         APIWebhookNotification: Record "API Webhook Notification";
         APIWebhookNotificationAggr: Record "API Webhook Notification Aggr";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        APIWebhookSubscription2: Record "API Webhook Subscription";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        APIWebhookNotification2: Record "API Webhook Notification";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        APIWebhookNotificationAggr2: Record "API Webhook Notification Aggr";
     begin
         Session.LogMessage('00006ZQ', StrSubstNo(DeleteSubscriptionMsg, APIWebhookSubscription.SystemId,
             DateTimeToString(APIWebhookSubscription."Expiration Date Time"), APIWebhookSubscription."Source Table Id"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
-        if (not APIWebhookSubscription.WritePermission()) or
-           (not APIWebhookNotification.WritePermission()) or
-           (not APIWebhookNotificationAggr.WritePermission()) then begin
+        if (not APIWebhookSubscription2.WritePermission()) or
+           (not APIWebhookNotification2.WritePermission()) or
+           (not APIWebhookNotificationAggr2.WritePermission()) then begin
             Session.LogMessage('0000DY1', NoPermissionsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit;
         end;
@@ -429,10 +435,12 @@ codeunit 6153 "API Webhook Notification Mgt."
     var
         TotalAPIWebhookNotification: Record "API Webhook Notification";
         APIWebhookNotification: Record "API Webhook Notification";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        APIWebhookNotification2: Record "API Webhook Notification";
         APIWebhookNotificationSend: Codeunit "API Webhook Notification Send";
         FieldValue: Text;
     begin
-        if not APIWebhookNotification.WritePermission() then begin
+        if not APIWebhookNotification2.WritePermission() then begin
             Session.LogMessage('0000DY2', NoPermissionsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
             exit(false);
         end;
@@ -676,11 +684,13 @@ codeunit 6153 "API Webhook Notification Mgt."
     internal procedure CanScheduleJob(): Boolean
     var
         JobQueueEntry: Record "Job Queue Entry";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        JobQueueEntry2: Record "Job Queue Entry";
         User: Record User;
         Handled: Boolean;
         CanCreateTask: Boolean;
     begin
-        if not (JobQueueEntry.WritePermission() and JobQueueEntry.ReadPermission()) then
+        if not (JobQueueEntry2.WritePermission() and JobQueueEntry.ReadPermission()) then
             exit(false);
         if not (JobQueueEntry.HasRequiredPermissions()) then
             exit(false);

@@ -341,21 +341,19 @@ codeunit 139301 "Assisted Company Setup Tests"
 
         MyCompanyName := GetRandomCompanyName();
 
-        with AssistedCompanySetupWizard do begin
-            ActionNext.Invoke(); // Start the wizard
-            ActionBack.Invoke(); // Welcome page
-            ActionNext.Invoke(); // Company's Address Information page
-            Name.SetValue(MyCompanyName);
-            ActionNext.Invoke(); // Contact Information page
-            if BankStatementProviderExist then
-                ActionNext.Invoke(); // Online Bank Account Linking page
-            ActionNext.Invoke(); // Bank Account Information page
-            ActionNext.Invoke(); // Costing Method
-            ActionNext.Invoke(); // That's it page
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Start the wizard
+        AssistedCompanySetupWizard.ActionBack.Invoke(); // Welcome page
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Company's Address Information page
+        AssistedCompanySetupWizard.Name.SetValue(MyCompanyName);
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Contact Information page
+        if BankStatementProviderExist then
+            AssistedCompanySetupWizard.ActionNext.Invoke(); // Online Bank Account Linking page
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Bank Account Information page
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Costing Method
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // That's it page
 
-            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
-            ActionFinish.Invoke();
-        end;
+        Assert.IsFalse(AssistedCompanySetupWizard.ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
+        AssistedCompanySetupWizard.ActionFinish.Invoke();
 
         // [THEN] Company Display Name equals Company Name
         Assert.AreEqual(MyCompanyName, CompanyProperty.DisplayName(), 'Company Display Name should be equal to name set in wizard');
@@ -399,20 +397,18 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.Trap();
         PAGE.Run(PAGE::"Assisted Company Setup Wizard");
 
-        with AssistedCompanySetupWizard do begin
-            ActionNext.Invoke(); // Company's Address Information page
-            ActionNext.Invoke(); // Contact Information page
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Company's Address Information page
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Contact Information page
 
-            // [WHEN] We set the phone number with an incorrect value
-            // [THEN] There is an error
-            asserterror "Phone No.".SetValue('incorrect phone number :-(');
-            Assert.ExpectedError(InvalidPhoneNumberErr);
+        // [WHEN] We set the phone number with an incorrect value
+        // [THEN] There is an error
+        asserterror AssistedCompanySetupWizard."Phone No.".SetValue('incorrect phone number :-(');
+        Assert.ExpectedError(InvalidPhoneNumberErr);
 
-            // [WHEN] We set the phone number with a correct value
-            "Phone No.".SetValue('+45 (123)-456-789');
+        // [WHEN] We set the phone number with a correct value
+        AssistedCompanySetupWizard."Phone No.".SetValue('+45 (123)-456-789');
 
-            // [THEN] There is no error
-        end;
+        // [THEN] There is no error
     end;
 
     [Test]
@@ -432,20 +428,18 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.Trap();
         PAGE.Run(PAGE::"Assisted Company Setup Wizard");
 
-        with AssistedCompanySetupWizard do begin
-            ActionNext.Invoke(); // Company's Address Information page
-            ActionNext.Invoke(); // Contact Information page
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Company's Address Information page
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Contact Information page
 
-            // [WHEN] We set the phone number with an incorrect value
-            // [THEN] There is an error
-            asserterror "Home Page".SetValue('this is not an url');
-            Assert.ExpectedError(InvalidUriErr);
+        // [WHEN] We set the phone number with an incorrect value
+        // [THEN] There is an error
+        asserterror AssistedCompanySetupWizard."Home Page".SetValue('this is not an url');
+        Assert.ExpectedError(InvalidUriErr);
 
-            // [WHEN] We set the phone number with a correct value
-            "Home Page".SetValue('www.microsoft.com');
+        // [WHEN] We set the phone number with a correct value
+        AssistedCompanySetupWizard."Home Page".SetValue('www.microsoft.com');
 
-            // [THEN] There is no error
-        end;
+        // [THEN] There is no error
     end;
 
     [Test]
@@ -688,18 +682,16 @@ codeunit 139301 "Assisted Company Setup Tests"
         AssistedCompanySetupWizard.Trap();
         PAGE.Run(PAGE::"Assisted Company Setup Wizard");
 
-        with AssistedCompanySetupWizard do begin
-            ActionNext.Invoke(); // Start the wizard
-            ActionBack.Invoke(); // Welcome page
-            ActionNext.Invoke(); // Company's Address Information page
-            ActionNext.Invoke(); // Contact Information page
-            if BankStatementProviderExist then
-                ActionNext.Invoke(); // Online Bank Account Linking page
-            ActionNext.Invoke(); // Bank Account Information page
-            ActionNext.Invoke(); // Costing Method
-            ActionNext.Invoke(); // That's it page
-            Assert.IsFalse(ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
-        end;
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Start the wizard
+        AssistedCompanySetupWizard.ActionBack.Invoke(); // Welcome page
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Company's Address Information page
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Contact Information page
+        if BankStatementProviderExist then
+            AssistedCompanySetupWizard.ActionNext.Invoke(); // Online Bank Account Linking page
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Bank Account Information page
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // Costing Method
+        AssistedCompanySetupWizard.ActionNext.Invoke(); // That's it page
+        Assert.IsFalse(AssistedCompanySetupWizard.ActionNext.Enabled(), 'Next should not be enabled at the end of the wizard');
     end;
 
     local procedure GetBankAccountPostingGroup(BankAccNo: Code[20]): Code[20]

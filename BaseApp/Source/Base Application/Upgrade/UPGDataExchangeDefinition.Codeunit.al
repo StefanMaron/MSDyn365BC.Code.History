@@ -19,8 +19,8 @@ codeunit 104152 "UPG. Data Exchange Definition"
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
 
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetDataExchDefinitionTypeTag()) THEN
-            EXIT;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetDataExchDefinitionTypeTag()) then
+            exit;
 
         DataExchDef.SetRange(Type, 5); // EFT Payment Export
         if DataExchDef.FindSet() then

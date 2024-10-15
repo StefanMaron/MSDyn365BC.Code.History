@@ -155,7 +155,6 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         Assert.AreEqual(NewDueDate, CustLedgerEntry."Due Date", DueDateMustBeUpdatedTxt);
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure VerifyUpdateonPostedInvoiceForANonWitheListedField()
     var
@@ -2107,6 +2106,8 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
           DummySalesInvoiceEntityAggregate.FieldNo("Ship-to County"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceEntityAggregate.FieldNo("Ship-to Country/Region Code"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
+        AddFieldToBuffer(
+          DummySalesInvoiceEntityAggregate.FieldNo("Ship-to Phone No."), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(DummySalesInvoiceEntityAggregate.FieldNo("Document Date"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceEntityAggregate.FieldNo("Cust. Ledger Entry No."), DATABASE::"Sales Invoice Entity Aggregate", TempField);
@@ -2320,16 +2321,14 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
     begin
-        with SalesInvoiceEntityAggregate do begin
-            if (TableNumber = DATABASE::"Sales Invoice Entity Aggregate") and
-               (FieldNumber in [FieldNo("Invoice Discount Calculation"), FieldNo("Invoice Discount Value")])
-            then
-                exit(true);
-            if (TableNumber = DATABASE::"Sales Invoice Header") and
-               (FieldNumber in [FieldNo(IsTest)])
-            then
-                exit(true)
-        end;
+        if (TableNumber = DATABASE::"Sales Invoice Entity Aggregate") and
+           (FieldNumber in [SalesInvoiceEntityAggregate.FieldNo("Invoice Discount Calculation"), SalesInvoiceEntityAggregate.FieldNo("Invoice Discount Value")])
+        then
+            exit(true);
+        if (TableNumber = DATABASE::"Sales Invoice Header") and
+           (FieldNumber in [SalesInvoiceEntityAggregate.FieldNo(IsTest)])
+        then
+            exit(true)
     end;
 
     [SendNotificationHandler]

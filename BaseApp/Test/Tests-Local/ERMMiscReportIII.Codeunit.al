@@ -1207,13 +1207,11 @@ codeunit 142062 "ERM Misc. Report III"
 
         REPORT.Run(REPORT::"Purchase Order", true, false, PurchaseHeader);
 
-        with LibraryVariableStorage do begin
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Basic'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Basic'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Basic'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Basic'));
-            AssertEmpty();
-        end;
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Basic'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Basic'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Basic'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Basic'));
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear Down
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -1235,13 +1233,11 @@ codeunit 142062 "ERM Misc. Report III"
 
         REPORT.Run(REPORT::"Purchase Order", true, false, PurchaseHeader);
 
-        with LibraryVariableStorage do begin
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Foundation'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Foundation'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Foundation'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Foundation'));
-            AssertEmpty();
-        end;
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Foundation'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Foundation'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Foundation'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Foundation'));
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear Down
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -1263,13 +1259,11 @@ codeunit 142062 "ERM Misc. Report III"
 
         REPORT.Run(REPORT::"Purchase Order (Pre-Printed)", true, false, PurchaseHeader);
 
-        with LibraryVariableStorage do begin
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Basic'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Basic'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Basic'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Basic'));
-            AssertEmpty();
-        end;
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Basic'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Basic'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Basic'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Basic'));
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear Down
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -1291,13 +1285,11 @@ codeunit 142062 "ERM Misc. Report III"
 
         REPORT.Run(REPORT::"Purchase Order (Pre-Printed)", true, false, PurchaseHeader);
 
-        with LibraryVariableStorage do begin
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Foundation'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Foundation'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Foundation'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Foundation'));
-            AssertEmpty();
-        end;
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Foundation'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Foundation'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Foundation'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Foundation'));
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear Down
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -1345,13 +1337,11 @@ codeunit 142062 "ERM Misc. Report III"
 
         REPORT.Run(REPORT::"Return Order Confirm", true, false, PurchaseHeader);
 
-        with LibraryVariableStorage do begin
-            Assert.AreEqual(TestFieldNotFoundErr, DequeueText(), '');
-            Assert.AreEqual(TestFieldNotFoundErr, DequeueText(), '');
-            Assert.AreEqual(TestFieldNotFoundErr, DequeueText(), '');
-            Assert.AreEqual(TestFieldNotFoundErr, DequeueText(), '');
-            AssertEmpty();
-        end;
+        Assert.AreEqual(TestFieldNotFoundErr, LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual(TestFieldNotFoundErr, LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual(TestFieldNotFoundErr, LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual(TestFieldNotFoundErr, LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear Down
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -1373,12 +1363,10 @@ codeunit 142062 "ERM Misc. Report III"
 
         REPORT.Run(REPORT::"Purchase Blanket Order", true, false, PurchaseHeader);
 
-        with LibraryVariableStorage do begin
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Foundation'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Foundation'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Foundation'));
-            AssertEmpty();
-        end;
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Foundation'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Foundation'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Foundation'));
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear Down
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -1400,12 +1388,10 @@ codeunit 142062 "ERM Misc. Report III"
 
         REPORT.Run(REPORT::"Purchase Blanket Order", true, false, PurchaseHeader);
 
-        with LibraryVariableStorage do begin
-            Assert.AreEqual(TestFieldNotFoundErr, DequeueText(), '');
-            Assert.AreEqual(TestFieldNotFoundErr, DequeueText(), '');
-            Assert.AreEqual(TestFieldNotFoundErr, DequeueText(), '');
-            AssertEmpty();
-        end;
+        Assert.AreEqual(TestFieldNotFoundErr, LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual(TestFieldNotFoundErr, LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual(TestFieldNotFoundErr, LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear Down
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -1427,11 +1413,9 @@ codeunit 142062 "ERM Misc. Report III"
 
         REPORT.Run(REPORT::"Service Credit Memo-Sales Tax", true, false, ServiceCrMemoHeader);
 
-        with LibraryVariableStorage do begin
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Service'));
-            Assert.IsTrue(DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, DequeueText(), 'Service'));
-            AssertEmpty();
-        end;
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Service'));
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), StrSubstNo(FieldMustBeVisibleInAreaErr, LibraryVariableStorage.DequeueText(), 'Service'));
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear Down
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -1453,11 +1437,9 @@ codeunit 142062 "ERM Misc. Report III"
 
         REPORT.Run(REPORT::"Service Credit Memo-Sales Tax", true, false, ServiceCrMemoHeader);
 
-        with LibraryVariableStorage do begin
-            Assert.AreEqual(TestFieldNotFoundErr, DequeueText(), '');
-            Assert.AreEqual(TestFieldNotFoundErr, DequeueText(), '');
-            AssertEmpty();
-        end;
+        Assert.AreEqual(TestFieldNotFoundErr, LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual(TestFieldNotFoundErr, LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear Down
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -2079,18 +2061,16 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryERM.CreateGLAccount(GLAccount);
         GenJournalTemplate.Get(LibraryJournals.SelectGenJournalTemplate(GenJnlTemplateType, Page));
         LibraryJournals.SelectGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        with GenJournalLine do begin
-            for i := 1 to GenJnlLinesCount do
-                LibraryJournals.CreateGenJournalLine2(
-                  GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, DocumentType,
-                  AccountType, AccountNo, "Account Type"::"G/L Account", GLAccount."No.", PurchaseAmount);
-            // Test MAX length = 35 (TFS ID: 305391)
-            "External Document No." := CopyStr(LibraryUtility.GenerateRandomXMLText(35), 1);
-            Modify();
+        for i := 1 to GenJnlLinesCount do
+            LibraryJournals.CreateGenJournalLine2(
+              GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, DocumentType,
+              AccountType, AccountNo, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", PurchaseAmount);
+        // Test MAX length = 35 (TFS ID: 305391)
+        GenJournalLine."External Document No." := CopyStr(LibraryUtility.GenerateRandomXMLText(35), 1);
+        GenJournalLine.Modify();
 
-            SetRange("Account No.", AccountNo);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        GenJournalLine.SetRange("Account No.", AccountNo);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure CreateAndPostMultipleGenJnlLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenJournalLineAmount: Decimal; var TotalAmount: array[4] of Decimal): Decimal
@@ -2174,12 +2154,12 @@ codeunit 142062 "ERM Misc. Report III"
         SelectItemJournalBatch(ItemJournalBatch);
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::Purchase,
-          ItemNo, Quantity);  // Using Random values for Quantity.
-        with ItemJournalLine do begin
-            Validate("Unit Amount", LibraryRandom.RandDec(1000, 2));  // Using Random values for Unit Amount.
-            Validate("Location Code", LocationCode);
-            Modify(true);
-        end;
+          ItemNo, Quantity);
+        // Using Random values for Quantity.
+        ItemJournalLine.Validate("Unit Amount", LibraryRandom.RandDec(1000, 2));
+        // Using Random values for Unit Amount.
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
@@ -2494,19 +2474,17 @@ codeunit 142062 "ERM Misc. Report III"
         PurchaseAmt: Integer;
     begin
         PurchaseAmt := Sign * LibraryRandom.RandInt(10);
-        with GenJournalLine do begin
-            // [GIVEN] Payment Gen. Jnl Line with Payment amount larger than sum of posted Purchases
-            PaymentAmt := LibraryRandom.RandIntInRange(Sign * (MaxEntries + 1) * PurchaseAmt, Sign * (MaxEntries + 9) * PurchaseAmt);
-            CreateGenJournalLineWithBankAccount(
-              GenJournalLine, "Document Type"::Payment, AccountType,
-              AccountNo, PaymentAmt, "Bank Payment Type"::"Computer Check");
-            Validate("Applies-to ID", UserId);
-            Modify(true);
-            // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
-            CreateAndPostGenJournalLines(
-              GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
-              "Document Type"::Invoice, AccountType, AccountNo, MaxEntries, PurchaseAmt);
-        end;
+        // [GIVEN] Payment Gen. Jnl Line with Payment amount larger than sum of posted Purchases
+        PaymentAmt := LibraryRandom.RandIntInRange(Sign * (MaxEntries + 1) * PurchaseAmt, Sign * (MaxEntries + 9) * PurchaseAmt);
+        CreateGenJournalLineWithBankAccount(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType,
+          AccountNo, PaymentAmt, GenJournalLine."Bank Payment Type"::"Computer Check");
+        GenJournalLine.Validate("Applies-to ID", UserId);
+        GenJournalLine.Modify(true);
+        // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
+        CreateAndPostGenJournalLines(
+          GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
+          GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, MaxEntries, PurchaseAmt);
     end;
 
     local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")

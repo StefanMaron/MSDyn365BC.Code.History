@@ -358,22 +358,25 @@ page 561 "CrossIntercomp. Partner Setup"
         CurrentCompanyName := CompanyName();
     end;
 
-    [NonDebuggable]
     local procedure SaveConfigurationToTemporaryPartner(var TempICPartner: Record "IC Partner" temporary)
     var
         ICPartnerChangeMonitor: Codeunit "IC Partner Change Monitor";
+        CompanyId, Auth2ClientId : SecretText;
     begin
         ICPartnerChangeMonitor.CheckHasPermissionsToChangeSensitiveFields();
         TempICPartner.Reset();
         TempICPartner.DeleteAll();
         TempICPartner.Init();
 
+        CompanyId := Format(PartnerSaaSCompanyId);
+        Auth2ClientId := Format(OAuth2ClientID);
+
         TempICPartner.Code := Rec.Code;
         TempICPartner.Name := PartnerSaaSCompanyName;
         TempICPartner."Inbox Details" := PartnerSaaSCompanyName;
         TempICPartner."Connection Url Key" := TempICPartner.SetSecret(TempICPartner."Connection Url Key", PartnerSaaSConnectionUrl);
-        TempICPartner."Company Id Key" := TempICPartner.SetSecret(TempICPartner."Company Id Key", PartnerSaaSCompanyId);
-        TempICPartner."Client Id Key" := TempICPartner.SetSecret(TempICPartner."Client Id Key", OAuth2ClientID);
+        TempICPartner."Company Id Key" := TempICPartner.SetSecret(TempICPartner."Company Id Key", CompanyId);
+        TempICPartner."Client Id Key" := TempICPartner.SetSecret(TempICPartner."Client Id Key", Auth2ClientId);
         TempICPartner."Client Secret Key" := TempICPartner.SetSecret(TempICPartner."Client Secret Key", OAuth2ClientSecret);
         TempICPartner."Token Endpoint Key" := TempICPartner.SetSecret(TempICPartner."Token Endpoint Key", OAuth2TokenEndpoint);
         TempICPartner."Redirect Url Key" := TempICPartner.SetSecret(TempICPartner."Redirect Url Key", OAuth2RedirectUrl);
@@ -455,7 +458,6 @@ page 561 "CrossIntercomp. Partner Setup"
         FinishEnabled := true;
     end;
 
-    [NonDebuggable]
     procedure CheckIfSaaSConnectionDetailsAreFilled(): Boolean
     var
         PartnerConnectionDetailsAreFilled: Boolean;

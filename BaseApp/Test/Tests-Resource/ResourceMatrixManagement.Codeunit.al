@@ -1050,29 +1050,25 @@ codeunit 136404 "Resource Matrix Management"
     var
         ResCapacityEntry: Record "Res. Capacity Entry";
     begin
-        with ResCapacityEntry do begin
-            FindLast();
-            "Entry No." += 1;
-            "Resource No." := ResourceNo;
-            Capacity := NewCapacity;
-            Date := WorkDate();
-            Insert();
-        end;
+        ResCapacityEntry.FindLast();
+        ResCapacityEntry."Entry No." += 1;
+        ResCapacityEntry."Resource No." := ResourceNo;
+        ResCapacityEntry.Capacity := NewCapacity;
+        ResCapacityEntry.Date := WorkDate();
+        ResCapacityEntry.Insert();
     end;
 
     local procedure MockAssemblyLine(ResourceNo: Code[20]; NewQuantity: Decimal)
     var
         AssemblyLine: Record "Assembly Line";
     begin
-        with AssemblyLine do begin
-            "Document Type" := "Document Type"::Order;
-            "Document No." := LibraryUtility.GenerateGUID();
-            Type := Type::Resource;
-            "No." := ResourceNo;
-            "Remaining Quantity (Base)" := NewQuantity;
-            "Due Date" := WorkDate();
-            Insert();
-        end;
+        AssemblyLine."Document Type" := AssemblyLine."Document Type"::Order;
+        AssemblyLine."Document No." := LibraryUtility.GenerateGUID();
+        AssemblyLine.Type := AssemblyLine.Type::Resource;
+        AssemblyLine."No." := ResourceNo;
+        AssemblyLine."Remaining Quantity (Base)" := NewQuantity;
+        AssemblyLine."Due Date" := WorkDate();
+        AssemblyLine.Insert();
     end;
 
     local procedure GetCauseOfAbsenceCode(): Code[10]
@@ -1081,14 +1077,12 @@ codeunit 136404 "Resource Matrix Management"
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
         LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
-        with CauseOfAbsence do begin
-            if "Unit of Measure Code" = '' then begin
-                HumanResourceUnitOfMeasure.FindFirst();
-                Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
-                Modify(true);
-            end;
-            exit(Code);
+        if CauseOfAbsence."Unit of Measure Code" = '' then begin
+            HumanResourceUnitOfMeasure.FindFirst();
+            CauseOfAbsence.Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
+            CauseOfAbsence.Modify(true);
         end;
+        exit(CauseOfAbsence.Code);
     end;
 
     local procedure ModifyWorkHourTemplate(var WorkHourTemplate: Record "Work-Hour Template"; Capacity: Decimal)

@@ -25,7 +25,6 @@ codeunit 142053 "ERM Sales/Purchase Document"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         EditableErr: Label '%1 should not be editable.';
-        SalesCommentLineErr: Label 'The Sales Comment Line does not exist. Identification fields and value';
         PackageTrackingNoErr: Label 'No row found where Field ''PackageTrackingNoText''';
         PackageTrackingNoTextCapTxt: Label 'PackageTrackingNoText';
         SalesLineErr: Label 'There is no Sales Line within the filter.';
@@ -34,7 +33,6 @@ codeunit 142053 "ERM Sales/Purchase Document"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         QuantityNotSufficientErr: Label 'Quantity (Base) is not sufficient to complete this action. The quantity in the bin is 0. %1 units are not available in Bin Content Location Code=''%2'',Bin Code=''%3'',Item No.=''%4'',Variant Code='''',Unit of Measure Code=''BOX''.';
         isInitialized: Boolean;
-        GenProdPostingGroupErr: Label 'Gen. Prod. Posting Group must have a value in Item Charge: No.=%1. It cannot be zero or empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1248,7 +1246,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
 
         // [THEN] Post fails on checking "Gen. Prod. Posting Group" on Item Charge Purchase Line
         Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo(GenProdPostingGroupErr, ItemCharge."No."));
+        Assert.ExpectedTestFieldError(ItemCharge.FieldCaption("Gen. Prod. Posting Group"), '');
     end;
 
     [Test]
@@ -1285,7 +1283,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
 
         // [THEN] Post fails on checking "Gen. Prod. Posting Group" on Item Charge Purchase Line
         Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo(GenProdPostingGroupErr, ItemCharge."No."));
+        Assert.ExpectedTestFieldError(ItemCharge.FieldCaption("Gen. Prod. Posting Group"), '');
     end;
 
     [Test]
@@ -2191,7 +2189,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         Commit();
 
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
-        Assert.ExpectedError(StrSubstNo('%1 must be equal to ''''', SalesHeader.FieldCaption("On Hold")));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption("On Hold"), '''');
 
         // Have to reset the Posting No. as that does not get rolled back
         SalesHeader."Shipping No." := '';
@@ -2372,20 +2370,18 @@ codeunit 142053 "ERM Sales/Purchase Document"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
     begin
-        with LibraryInventory do begin
-            SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-            SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-            CreateItemJournalLine(
-              ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
-            ItemJournalLine.Validate("Location Code", LocationCode);
-            ItemJournalLine.Validate("Bin Code", BinCode);
-            if EntryType = ItemJournalLine."Entry Type"::Transfer then begin
-                ItemJournalLine.Validate("New Location Code", NewLocationCode);
-                ItemJournalLine.Validate("New Bin Code", NewBinCode);
-            end;
-            ItemJournalLine.Modify(true);
-            PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("Bin Code", BinCode);
+        if EntryType = ItemJournalLine."Entry Type"::Transfer then begin
+            ItemJournalLine.Validate("New Location Code", NewLocationCode);
+            ItemJournalLine.Validate("New Bin Code", NewBinCode);
         end;
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
     local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Invoice: Boolean; Quantity: Decimal; ReturnQtyToShip: Decimal): Code[20]
@@ -3070,33 +3066,27 @@ codeunit 142053 "ERM Sales/Purchase Document"
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            Get(CustomerNo);
-            Validate("Gen. Bus. Posting Group", NewGenBusPostingGroupCode);
-            Modify(true);
-        end;
+        Customer.Get(CustomerNo);
+        Customer.Validate("Gen. Bus. Posting Group", NewGenBusPostingGroupCode);
+        Customer.Modify(true);
     end;
 
     local procedure UpdateVendorGenBusPostingGroup(VendorNo: Code[20]; NewGenBusPostingGroupCode: Code[20])
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            Get(VendorNo);
-            Validate("Gen. Bus. Posting Group", NewGenBusPostingGroupCode);
-            Modify(true);
-        end;
+        Vendor.Get(VendorNo);
+        Vendor.Validate("Gen. Bus. Posting Group", NewGenBusPostingGroupCode);
+        Vendor.Modify(true);
     end;
 
     local procedure UpdateGLAccGenProdPostingGroup(GLAccountNo: Code[20]; NewGenProdPostingGroupCode: Code[20])
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLAccount do begin
-            Get(GLAccountNo);
-            Validate("Gen. Prod. Posting Group", NewGenProdPostingGroupCode);
-            Modify(true);
-        end;
+        GLAccount.Get(GLAccountNo);
+        GLAccount.Validate("Gen. Prod. Posting Group", NewGenProdPostingGroupCode);
+        GLAccount.Modify(true);
     end;
 
     local procedure VerifyErrorOnSalesCommentLine(DocumentType: Enum "Sales Comment Document Type"; DocumentNo: Code[20]; LineNo: Integer)
@@ -3104,7 +3094,7 @@ codeunit 142053 "ERM Sales/Purchase Document"
         SalesCommentLine: Record "Sales Comment Line";
     begin
         asserterror SalesCommentLine.Get(DocumentType, DocumentNo, 0, LineNo);  // Value 0 required for Document Line No.
-        Assert.ExpectedError(StrSubstNo(SalesCommentLineErr));
+        Assert.ExpectedErrorCannotFind(Database::"Sales Comment Line");
     end;
 
     [Scope('OnPrem')]
@@ -3190,12 +3180,10 @@ codeunit 142053 "ERM Sales/Purchase Document"
     var
         ICOutboxJnlLine: Record "IC Outbox Jnl. Line";
     begin
-        with ICOutboxJnlLine do begin
-            SetRange("Account Type", "Account Type"::"IC Partner");
-            SetRange("Account No.", ICPartnerCode);
-            FindFirst();
-            TestField(Amount, TaxAmount);
-        end;
+        ICOutboxJnlLine.SetRange("Account Type", ICOutboxJnlLine."Account Type"::"IC Partner");
+        ICOutboxJnlLine.SetRange("Account No.", ICPartnerCode);
+        ICOutboxJnlLine.FindFirst();
+        ICOutboxJnlLine.TestField(Amount, TaxAmount);
     end;
 
     local procedure VerifySalesCommentLine(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LineNo: Integer; Comment: Text[80])
@@ -3210,12 +3198,10 @@ codeunit 142053 "ERM Sales/Purchase Document"
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        with SalesCrMemoLine do begin
-            SetRange(Type, Type::"G/L Account");
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            TestField("No.", ExpectedNo);
-        end;
+        SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::"G/L Account");
+        SalesCrMemoLine.SetRange("Document No.", DocumentNo);
+        SalesCrMemoLine.FindFirst();
+        SalesCrMemoLine.TestField("No.", ExpectedNo);
     end;
 
     [Scope('OnPrem')]
@@ -3235,12 +3221,10 @@ codeunit 142053 "ERM Sales/Purchase Document"
     var
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
-        with PurchCrMemoLine do begin
-            SetRange(Type, Type::"G/L Account");
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            TestField("No.", ExpectedNo);
-        end;
+        PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::"G/L Account");
+        PurchCrMemoLine.SetRange("Document No.", DocumentNo);
+        PurchCrMemoLine.FindFirst();
+        PurchCrMemoLine.TestField("No.", ExpectedNo);
     end;
 
     [ConfirmHandler]

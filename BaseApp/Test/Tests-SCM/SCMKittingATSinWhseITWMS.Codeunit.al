@@ -29,7 +29,6 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         IsInitialized: Boolean;
         MSG_PICK_ACT_CREATED: Label 'Pick activity no.';
         MSG_NOTHING_TO_HANDLE: Label 'Nothing to handle.';
-        MSG_STATUS_MUST_BE_RELEASED: Label 'Status must be equal to ''Released''';
         MSG_QTY_OUTST: Label 'You cannot handle more than the outstanding';
         MSG_SER_NO_MUST: Label 'Serial No. must have a value';
         MSG_LOT_NO_MUST: Label 'Lot No. must have a value';
@@ -355,10 +354,9 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         TempAssemblyLine.FindSet();
 
         repeat
-            if TempAssemblyLine."No." = NotEnoughItemNo then begin
-                VerifyRegWhsePickLine(RegdWhseActivityHdr, TempAssemblyLine, ActionType, BinCode,
-                  NotEnoughQty);
-            end else begin
+            if TempAssemblyLine."No." = NotEnoughItemNo then
+                VerifyRegWhsePickLine(RegdWhseActivityHdr, TempAssemblyLine, ActionType, BinCode, NotEnoughQty)
+            else begin
                 Location.Get(TempAssemblyLine."Location Code");
                 if Location."Require Shipment" then begin
                     Item.Get(TempAssemblyLine."No.");
@@ -578,9 +576,8 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         AssemblyHeader.SetRange("No.", AssemblyHeaderNo);
         AssemblyHeader.FindFirst();
 
-        if AssemblyHeader."Assembled Quantity" >
-           0
-        then begin // assuming that previous posting has created picks for the full remaining qty.
+        if AssemblyHeader."Assembled Quantity" > 0 then begin
+            // assuming that previous posting has created picks for the full remaining qty.
             Commit(); // to save state before expected error
             asserterror LibraryAssembly.CreateWhsePick(AssemblyHeader, UserId, 0, false, false, false);
             Assert.IsTrue(StrPos(GetLastErrorText, MSG_NOTHING_TO_HANDLE) > 0, '');
@@ -778,12 +775,11 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
 
         PrepareOrderPosting(AssemblyHeader, 100);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, true, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, true, false, '-');
-        end;
 
         CreateAndRegisterWhseActivity(AssemblyHeader."No.", WhseActivity, AssignITOnWhseAct, true, ExpectedErrorMessage);
     end;
@@ -795,7 +791,6 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         TempAssemblyLine2: Record "Assembly Line" temporary;
         WhseActivityLine: Record "Warehouse Activity Line";
         WhseActivityHeader: Record "Warehouse Activity Header";
-        ReleaseAssemblyDoc: Codeunit "Release Assembly Document";
         AssemblyHeaderNo: Code[20];
         HeaderQtyFactor: Decimal;
     begin
@@ -813,7 +808,7 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         else
             PurchaseComponentsToBin(AssemblyHeader, 0, Location, LocationTakeBinCode);
 
-        ReleaseAssemblyDoc.Reopen(AssemblyHeader);
+        LibraryAssembly.ReopenAO(AssemblyHeader);
 
         AssemblyLine.Reset();
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
@@ -946,40 +941,9 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
     local procedure CreateAssemblyOrder(Location: Record Location; Qty: Integer; var AssemblyHeader: Record "Assembly Header")
     begin
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, KitItem."No.", Location.Code, Qty, '');
-
-        CreateAssemblyLine(AssemblyHeader, CompItem."No.", LibraryRandom.RandIntInRange(2, 4), false, false);
-    end;
-
-    local procedure CreateAssemblyLine(var AssemblyHeader: Record "Assembly Header"; ItemNo: Code[20]; Quantity: Integer; AssignBinCode: Boolean; AssignIT: Boolean)
-    var
-        AssemblyLine: Record "Assembly Line";
-        AssemblyOrderPage: TestPage "Assembly Order";
-    begin
-        LibraryKitting.AddLine(AssemblyHeader, "BOM Component Type"::Item, ItemNo,
-          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, ItemNo, true),
-          Quantity, 1, '');
-
-        if AssignBinCode then begin
-            AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
-            AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-            AssemblyLine.SetRange("No.", ItemNo);
-            AssemblyLine.FindLast();
-
-            AssemblyLine.Validate("Bin Code", LocationAdditionalBinCode);
-            AssemblyLine.Validate("Quantity to Consume", Quantity);
-            AssemblyLine.Modify();
-        end;
-
-        if AssignIT then begin
-            AssemblyOrderPage.OpenEdit();
-            AssemblyOrderPage.FILTER.SetFilter("No.", AssemblyHeader."No.");
-
-            AssemblyOrderPage.Lines.Last();
-
-            PrepareHandleSelectEntries(false);
-            AssemblyOrderPage.Lines."Item Tracking Lines".Invoke();
-            AssemblyOrderPage.OK().Invoke();
-        end;
+        LibraryKitting.AddLine(
+            AssemblyHeader, "BOM Component Type"::Item, CompItem."No.",
+            LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, CompItem."No.", true), LibraryRandom.RandIntInRange(2, 4), 1, '');
     end;
 
     [Normal]
@@ -1003,8 +967,6 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
     end;
 
     local procedure CreateItemTrackingCode(var ItemTrackingCode: Record "Item Tracking Code"; Lot: Boolean; Serial: Boolean)
-    var
-        LibraryUtility: Codeunit "Library - Utility";
     begin
         if not ItemTrackingCode.Get(Serial) then begin
             ItemTrackingCode.Init();
@@ -1051,7 +1013,7 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
             PurchaseLine.Validate("Bin Code", BinCode);
         PurchaseLine.Modify(true);
 
-        AssignITToPurchLine(PurchaseHeader, PurchaseLine);
+        AssignITToPurchLine(PurchaseLine);
     end;
 
     [Normal]
@@ -1095,21 +1057,19 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         WhseActivityLine: Record "Warehouse Activity Line";
         Item: Record Item;
     begin
-        with WhseActivityLine do begin
-            SetRange("Activity Type", WhseActivityHeader.Type);
-            SetRange("No.", WhseActivityHeader."No.");
-            SetRange("Serial No.", '');
-            SetRange("Lot No.", '');
-            SetFilter("Qty. to Handle", '<>%1', 0);
-            if FindSet() then
-                repeat
-                    Item.Get("Item No.");
-                    if Item."Item Tracking Code" <> '' then begin
-                        Validate("Qty. to Handle", 0);
-                        Modify(true);
-                    end;
-                until Next() = 0;
-        end;
+        WhseActivityLine.SetRange("Activity Type", WhseActivityHeader.Type);
+        WhseActivityLine.SetRange("No.", WhseActivityHeader."No.");
+        WhseActivityLine.SetRange("Serial No.", '');
+        WhseActivityLine.SetRange("Lot No.", '');
+        WhseActivityLine.SetFilter("Qty. to Handle", '<>%1', 0);
+        if WhseActivityLine.FindSet() then
+            repeat
+                Item.Get(WhseActivityLine."Item No.");
+                if Item."Item Tracking Code" <> '' then begin
+                    WhseActivityLine.Validate("Qty. to Handle", 0);
+                    WhseActivityLine.Modify(true);
+                end;
+            until WhseActivityLine.Next() = 0;
     end;
 
     [Normal]
@@ -1229,12 +1189,11 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
 
         PrepareOrderPosting(AssemblyHeader, HeaderQtyFactor);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, false, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, false, false, '-');
-        end;
 
         // Create Whse Activity
         case WhseActivity of
@@ -1311,12 +1270,11 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
 
         PrepareOrderPosting(AssemblyHeader, HeaderQtyFactor);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, false, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, false, false, '-');
-        end;
 
         case WhseActivity of
             WhseActivityType::WhsePick:
@@ -1340,7 +1298,6 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
     local procedure AssignItemTrackingCode(var Item: Record Item; LotTracked: Boolean; SerialTracked: Boolean)
     var
         ItemTrackingCode: Record "Item Tracking Code";
-        LibraryUtility: Codeunit "Library - Utility";
     begin
         CreateItemTrackingCode(ItemTrackingCode, LotTracked, SerialTracked);
 
@@ -1367,12 +1324,11 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
 
         PrepareOrderPosting(AssemblyHeader, HeaderQtyFactor);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, ITPartial, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, ITPartial, false, '-');
-        end;
 
         CreateAndRegisterWhseActivity(AssemblyHeader."No.", WhseActivity, AssignITOnWhseAct, ITPartial, '');
 
@@ -1440,13 +1396,11 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
     begin
         case GLB_ITPageHandler of
             GLB_ITPageHandler::AssignITSpec, GLB_ITPageHandler::AssignITSpecPartial:
-                begin
-                    if PAR_ITPage_AssignSerial then
-                        HNDL_ITPage_AssignSerial(ItemTrackingLinesPage)
-                    else
-                        if PAR_ITPage_AssignLot then
-                            HNDL_ITPage_AssignLot(ItemTrackingLinesPage);
-                end;
+                if PAR_ITPage_AssignSerial then
+                    HNDL_ITPage_AssignSerial(ItemTrackingLinesPage)
+                else
+                    if PAR_ITPage_AssignLot then
+                        HNDL_ITPage_AssignLot(ItemTrackingLinesPage);
             GLB_ITPageHandler::SelectITSpec:
                 HNDL_ITPage_SelectEntries(ItemTrackingLinesPage);
             GLB_ITPageHandler::PutManuallyITSpec:
@@ -1556,9 +1510,8 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
           PadStr('Unexpected message ' + Format(MsgCount) + ': ' + Message + '; Expected: ' + MSG_PICK_ACT_CREATED, 1024));
     end;
 
-    local procedure AssignITToPurchLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    local procedure AssignITToPurchLine(PurchaseLine: Record "Purchase Line")
     var
-        PurchaseOrderPage: TestPage "Purchase Order";
         ITType: Option;
     begin
         GetItemIT(PurchaseLine."No.", ITType);
@@ -1566,54 +1519,38 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         if ITType = Tracking::Untracked then
             exit;
 
-        PurchaseOrderPage.OpenEdit();
-        PurchaseOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
-
-        PurchaseOrderPage.PurchLines.Last();
-
         PrepareHandleAssignPartial(ITType, PurchaseLine.Quantity);
-        PurchaseOrderPage.PurchLines."Item Tracking Lines".Invoke();
-
-        PurchaseOrderPage.OK().Invoke();
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure AssignITToAssemblyLines(var AssemblyHeader: Record "Assembly Header"; ITPartial: Boolean; SelectEntries: Boolean; FindDir: Code[10])
     var
         AssemblyLine: Record "Assembly Line";
-        AssemblyOrderPage: TestPage "Assembly Order";
     begin
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
         AssemblyLine.FindSet();
-
-        AssemblyOrderPage.OpenEdit();
-        AssemblyOrderPage.FILTER.SetFilter("No.", AssemblyHeader."No.");
-
         repeat
-            AssignITToAsmLine(AssemblyLine."No.", AssemblyLine."Quantity to Consume", ITPartial, SelectEntries, AssemblyOrderPage, FindDir);
+            AssignITToAsmLine(AssemblyLine, ITPartial, SelectEntries, FindDir);
         until AssemblyLine.Next() = 0;
-
-        AssemblyOrderPage.OK().Invoke();
     end;
 
-    local procedure AssignITToAsmLine(ItemNo: Code[20]; Quantity: Decimal; ITPartial: Boolean; SelectEntries: Boolean; AssemblyOrderPage: TestPage "Assembly Order"; FindDir: Code[10])
+    local procedure AssignITToAsmLine(AssemblyLine: Record "Assembly Line"; ITPartial: Boolean; SelectEntries: Boolean; FindDir: Code[10])
     var
         ITType: Option;
     begin
-        GetItemIT(ItemNo, ITType);
+        GetItemIT(AssemblyLine."No.", ITType);
 
         if ITType = Tracking::Untracked then
             exit;
 
-        AssemblyOrderPage.Lines.FILTER.SetFilter("No.", ItemNo);
-
         if SelectEntries then
             PrepareHandleSelectEntries(ITPartial)
         else
-            PrepareHandlePutManually(ItemNo, ITType, ITPartial, Quantity, FindDir);
+            PrepareHandlePutManually(AssemblyLine."No.", ITType, ITPartial, AssemblyLine."Quantity to Consume", FindDir);
 
-        AssemblyOrderPage.Lines."Item Tracking Lines".Invoke();
+        AssemblyLine.OpenItemTrackingLines();
     end;
 
     [Normal]
@@ -1755,12 +1692,11 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
 
         PrepareOrderPosting(AssemblyHeader, HeaderQtyFactor);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, ITPartial, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, ITPartial, false, '-');
-        end;
 
         CreateAndRegisterWhseActivity(AssemblyHeader."No.", WhseActivity, AssignITOnWhseAct, ITPartial, ExpectedErrorMessageReg);
 
@@ -1902,8 +1838,7 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         LibraryAssembly.PrepareOrderPosting(AssemblyHeader, TempAssemblyLine, HeaderQtyFactor, PartialPostFactor, true, WorkDate2);
 
         asserterror LibraryAssembly.CreateWhsePick(AssemblyHeader, UserId, 0, false, false, false);
-        Assert.IsTrue(StrPos(GetLastErrorText, MSG_STATUS_MUST_BE_RELEASED) > 0,
-          'Actual:' + GetLastErrorText + 'Expected:' + MSG_STATUS_MUST_BE_RELEASED);
+        Assert.ExpectedTestFieldError(AssemblyHeader.FieldCaption(Status), Format(AssemblyHeader.Status::Released));
         ClearLastError();
 
         LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
@@ -2116,11 +2051,12 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         TempAssemblyLine2: Record "Assembly Line" temporary;
         AssemblyHeader2: Record "Assembly Header";
         AssemblyHeader: Record "Assembly Header";
-        ReleaseAssemblyDoc: Codeunit "Release Assembly Document";
+        AssemblyItem: Record Item;
+        BOMComponent: Record "BOM Component";
         NoOfItems: Integer;
         HeaderQtyFactor: Decimal;
         PartialPostFactor: Decimal;
-        AssemblyItemNo: Code[20];
+        I: Integer;
     begin
         // TC-WMS
         // Test checks that whse pick created for one assembly order can be reused for another
@@ -2131,7 +2067,14 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         PartialPostFactor := 100;
 
         NoOfItems := LibraryRandom.RandIntInRange(3, 5);
-        LibraryAssembly.CreateAssemblyOrder(AssemblyHeader, WorkDate2, LocationWMS.Code, NoOfItems);
+        LibraryInventory.CreateItem(AssemblyItem);
+
+        for I := 1 to NoOfItems do
+            LibraryAssembly.CreateAssemblyListComponent(
+                Enum::"BOM Component Type"::Item, LibraryInventory.CreateItemNo(), AssemblyItem."No.", '', BOMComponent."Resource Usage Type"::Direct,
+                LibraryRandom.RandIntInRange(1, 10), true);
+
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, AssemblyItem."No.", LocationWMS.Code, LibraryRandom.RandIntInRange(10, 20), '');
 
         LibraryAssembly.AddCompInventoryToBin(AssemblyHeader, WorkDate2, LibraryRandom.RandIntInRange(3, 9),
           AssemblyHeader."Location Code", LocationTakeBinCode);
@@ -2142,19 +2085,18 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
 
         CreateWhsePickAndVerify(AssemblyHeader."No.", TempAssemblyLine, 1, '', 0, 0);
 
-        ReleaseAssemblyDoc.Reopen(AssemblyHeader);
+        LibraryAssembly.ReopenAO(AssemblyHeader);
 
         HeaderQtyFactor := 10;
         PartialPostFactor := 10;
         AssemblyHeader.Validate("Quantity to Assemble", AssemblyHeader."Quantity to Assemble" * HeaderQtyFactor / 100);
-        AssemblyItemNo := AssemblyHeader."Item No.";
 
         // Post asssembly order
         PostAssemblyHeader(AssemblyHeader."No.", '');
 
         // Create another assembly order
         LibraryAssembly.CreateAssemblyHeader(
-          AssemblyHeader2, WorkDate2, AssemblyItemNo, LocationWMS.Code, Round(AssemblyHeader.Quantity * (100 - HeaderQtyFactor) / 100, 1, '<'),
+          AssemblyHeader2, WorkDate2, AssemblyItem."No.", LocationWMS.Code, Round(AssemblyHeader.Quantity * (100 - HeaderQtyFactor) / 100, 1, '<'),
           '');
         LibraryAssembly.PrepareOrderPosting(AssemblyHeader2, TempAssemblyLine2, 100, 100, true, WorkDate2);
 

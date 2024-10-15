@@ -86,6 +86,10 @@ page 9003 "Acc. Receivables Adm. RC"
             {
                 ApplicationArea = Suite;
             }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part(Control1907692008; "My Customers")
             {
                 ApplicationArea = Basic, Suite;
@@ -194,46 +198,68 @@ page 9003 "Acc. Receivables Adm. RC"
             separator(Action20)
             {
             }
+#if not CLEAN25
             action("Customer &Document Nos.")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Customer &Document Nos.';
+                Caption = 'The action will be deleted.';
                 Image = "Report";
-                RunObject = Report "Customer Document Nos.";
-                ToolTip = 'View a list of customer ledger entries, sorted by document type and number. The report includes the document type, document number, posting date and source code of the entry, the name and number of the customer, and so on. A warning appears when there is a gap in the number series or when the documents were not posted in document-number order.';
+                RunObject = Report "Customer Register";
+                ToolTip = 'The action will be deleted.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The related report doesn''t exist anymore.';
+                ObsoleteTag = '25.0';
             }
             action("Sales &Invoice Nos.")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Sales &Invoice Nos.';
+                Caption = 'The action will be deleted.';
                 Image = "Report";
-                RunObject = Report "Sales Invoice Nos.";
-                ToolTip = 'View or edit number series for sales invoices.';
+                RunObject = Report "Sales - Shipment";
+                ToolTip = 'The action will be deleted.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The related report doesn''t exist anymore.';
+                ObsoleteTag = '25.0';
             }
             action("Sa&les Credit Memo Nos.")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Sa&les Credit Memo Nos.';
+                Caption = 'The action will be deleted.';
                 Image = "Report";
-                RunObject = Report "Sales Credit Memo Nos.";
-                ToolTip = 'View or edit number series for sales credit memos.';
+                RunObject = Report "Standard Sales - Credit Memo";
+                ToolTip = 'The action will be deleted.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The related report doesn''t exist anymore.';
+                ObsoleteTag = '25.0';
             }
             action("Re&minder Nos.")
             {
                 ApplicationArea = Suite;
-                Caption = 'Re&minder Nos.';
+                Caption = 'The action will be deleted.';
                 Image = "Report";
-                RunObject = Report "Reminder Nos.";
-                ToolTip = 'View or set up number series for reminders.';
+                RunObject = Report Reminder;
+                ToolTip = 'The action will be deleted.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The related report doesn''t exist anymore.';
+                ObsoleteTag = '25.0';
             }
             action("Finance Cha&rge Memo Nos.")
             {
                 ApplicationArea = Suite;
-                Caption = 'Finance Cha&rge Memo Nos.';
+                Caption = 'The action will be deleted.';
                 Image = "Report";
-                RunObject = Report "Finance Charge Memo Nos.";
-                ToolTip = 'View or edit number series for finance charge memos.';
+                RunObject = Report "Finance Charge Memo";
+                ToolTip = 'The action will be deleted.';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The related report doesn''t exist anymore.';
+                ObsoleteTag = '25.0';
             }
+#endif            
             action("Cash Applied")
             {
                 Caption = 'Cash Applied';

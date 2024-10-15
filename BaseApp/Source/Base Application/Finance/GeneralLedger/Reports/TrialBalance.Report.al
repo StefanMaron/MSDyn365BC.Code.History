@@ -266,7 +266,7 @@ report 10022 "Trial Balance"
                 /* Format the numbers (if any) */
                 if NumbersToPrint() then begin
                     /* format the individual numbers, first numerically */
-                    for i := 1 to 12 do begin
+                    for i := 1 to 12 do
                         if RoundTo = RoundTo::Dollars then
                             WorkAmount[i] := Round(WorkAmount[i], 1)
                         else
@@ -277,7 +277,6 @@ report 10022 "Trial Balance"
                                     WorkAmount[i] := Round(WorkAmount[i] / 1000, 1);
                             end else                                     // to nearest penny
                                 WorkAmount[i] := Round(WorkAmount[i], 0.01);
-                    end;
                     /* now format the strings */
                     for i := 1 to 12 do begin
                         PrintAmount[i] := Format(WorkAmount[i]);
@@ -554,12 +553,11 @@ report 10022 "Trial Balance"
         /* Period Headings */
         if ColumnFlags[7] then begin                              // YTD
             PeriodText := 'As of ' + Format(ToDate, 0, 4);
-            if ColumnFlags[9] then begin
+            if ColumnFlags[9] then
                 if Show = Show::Budget then                           // Budget
                     PeriodText := 'Actual vs Budget a' + DelStr(PeriodText, 1, 1)
                 else                                                  // Prior YTD
                     PeriodText := PeriodText + ' and ' + Format(Date2DMY(PriorToDate, 3));
-            end;
         end else
             if ColumnFlags[9] then begin
                 if Show = Show::Budget then                             // Budget
@@ -654,6 +652,7 @@ report 10022 "Trial Balance"
         PointSize: Integer;
         j: Integer;
         i: Integer;
+#pragma warning disable AA0074
         Text000: Label 'You must select at least one Report Column.';
         Text001: Label 'If you want more than 6 Report Columns you must round to Dollars or Thousands.';
         Text002: Label 'You may select a maximum of 8 Report Columns.';
@@ -679,6 +678,7 @@ report 10022 "Trial Balance"
         Text109: Label 'Sub-Title';
         Text110: Label 'Amounts are in';
         Text111: Label 'our Functional Currency';
+#pragma warning restore AA0074
         ExcelAmtFormat: Text[30];
         PageGroupNo: Integer;
         TrialBalanceCaptionLbl: Label 'Trial Balance';
@@ -812,7 +812,7 @@ report 10022 "Trial Balance"
                   PadStr('', "G/L Account".Indentation * 2) + "G/L Account".Name, false, '', false, false, false, '', ExcelBuf."Cell Type"::Text);
             end;
             if NumbersToPrint() then
-                for i := 1 to NumColumns() do begin
+                for i := 1 to NumColumns() do
                     if StrPos(PrintAmount[i], '%') <> 0 then begin
                         // fix for exporting % values
                         Evaluate(Percentage, DelChr(PrintAmount[i], '=', '%'));
@@ -820,7 +820,6 @@ report 10022 "Trial Balance"
                         ExcelBuf.AddColumn(Percentage, false, '', false, false, false, ExcelAmtFormat + '%', ExcelBuf."Cell Type"::Number)
                     end else
                         ExcelBuf.AddColumn(PrintAmount[i], false, '', false, false, false, ExcelAmtFormat, ExcelBuf."Cell Type"::Number);
-                end;
         end;
     end;
 

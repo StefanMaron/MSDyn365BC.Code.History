@@ -201,7 +201,7 @@ page 10038 "Sales Order Stats."
                     Importance = Additional;
                     ToolTip = 'Specifies the adjusted cost of the sales order based on the total adjusted cost, total sales, and unit cost.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(0);
                     end;
@@ -440,7 +440,7 @@ page 10038 "Sales Order Stats."
                     Importance = Additional;
                     ToolTip = 'Specifies the adjusted cost of the sales order based on the total adjusted cost, total sales, and unit cost.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(1);
                     end;
@@ -1153,10 +1153,10 @@ page 10038 "Sales Order Stats."
 
         for i := 1 to MaxIndexNo do begin
             if (i = 1) or not PartialInvoicing then
-                if IndexNo[i] = 1 then begin
+                if IndexNo[i] = 1 then
                     TempSalesTaxLine1.SetInvoiceDiscountAmount(
-                      TotalSalesLine[IndexNo[i]]."Inv. Discount Amount", TotalSalesLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
-                end else
+                      TotalSalesLine[IndexNo[i]]."Inv. Discount Amount", TotalSalesLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %")
+                else
                     TempSalesTaxLine2.SetInvoiceDiscountAmount(
                       TotalSalesLine[IndexNo[i]]."Inv. Discount Amount", TotalSalesLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
 

@@ -29,7 +29,6 @@ codeunit 137082 "SCM Manufacturing - Routings"
         isInitialized: Boolean;
         CannotDeleteWorkMachineCenterErr: Label 'You cannot delete %1 %2 because there is at least one %3 associated with it.';
         WorkMachineCenterNotExistErr: Label 'Operation no. %1 uses %2 no. %3 that no longer exists.', Comment = '%1 - Routing Line Operation No.; %2 - Work Center or Machine Center table caption; %3 - Work or Machine Center No.';
-        BlockedMustBeNoErr: Label 'Blocked must be equal to ''No''  in %1: No.=%2';
         ActionMustBeDisabledErr: Label 'Action must be disabled';
         ActionMustBeEnabledErr: Label 'Action must be enabled';
 
@@ -244,7 +243,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     var
         WorkCenter: Record "Work Center";
         RoutingHeader: Record "Routing Header";
-        RoutingLine: Array[5] of Record "Routing Line";
+        RoutingLine: array[5] of Record "Routing Line";
         i: Integer;
     begin
         // [FEATURE] [Parallel Routing]
@@ -302,7 +301,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     var
         WorkCenter: Record "Work Center";
         RoutingHeader: Record "Routing Header";
-        RoutingLine: Array[5] of Record "Routing Line";
+        RoutingLine: array[5] of Record "Routing Line";
         i: Integer;
     begin
         // [FEATURE] [Parallel Routing]
@@ -360,7 +359,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
     var
         WorkCenter: Record "Work Center";
         RoutingHeader: Record "Routing Header";
-        RoutingLine: Array[7] of Record "Routing Line";
+        RoutingLine: array[7] of Record "Routing Line";
         i: Integer;
     begin
         // [FEATURE] [Parallel Routing]
@@ -1178,8 +1177,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         asserterror ChangeRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
 
         // [THEN] Routing was not certified. Error "Blocked must be equal to 'No' in Work Center WC" was thrown.
-        Assert.ExpectedError(StrSubstNo(BlockedMustBeNoErr, WorkCenter.TableCaption(), WorkCenter."No."));
-        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedTestFieldError(WorkCenter.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1236,8 +1234,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         asserterror ChangeRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
 
         // [THEN] Routing was not certified. Error "Blocked must be equal to 'No' in Machine Center MC" was thrown.
-        Assert.ExpectedError(StrSubstNo(BlockedMustBeNoErr, MachineCenter.TableCaption(), MachineCenter."No."));
-        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedTestFieldError(MachineCenter.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1657,7 +1654,9 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [GIVEN] Create and refresh Released Production Order with due date current_year-05-11
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, "Production Order Status"::Released, ProductionOrder."Source Type"::Item, ItemNo, 1);
         ProductionOrder.Validate("Due Date", DMY2Date(11, 5, Date2DMY(WorkDate(), 3)));
-        ProductionOrder."Ending Date" := LeadTimeMgt.PlannedEndingDate(ProductionOrder."Source No.", ProductionOrder."Location Code", '', ProductionOrder."Due Date", '', 2);
+        ProductionOrder."Ending Date" :=
+            LeadTimeMgt.GetPlannedEndingDate(
+                ProductionOrder."Source No.", ProductionOrder."Location Code", '', ProductionOrder."Due Date", '', "Requisition Ref. Order Type"::"Prod. Order");
         ProductionOrder."Starting Date" := ProductionOrder."Ending Date";
         ProductionOrder."Starting Date-Time" := CreateDateTime(ProductionOrder."Starting Date", ProductionOrder."Starting Time");
         ProductionOrder."Ending Date-Time" := CreateDateTime(ProductionOrder."Ending Date", ProductionOrder."Ending Time");
@@ -1856,7 +1855,9 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [GIVEN] Create and refresh Released Production Order with due date current_year-05-11
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, "Production Order Status"::Released, ProductionOrder."Source Type"::Item, ItemNo, 1);
         ProductionOrder.Validate("Due Date", DMY2Date(11, 5, Date2DMY(WorkDate(), 3)));
-        ProductionOrder."Ending Date" := LeadTimeMgt.PlannedEndingDate(ProductionOrder."Source No.", ProductionOrder."Location Code", '', ProductionOrder."Due Date", '', 2);
+        ProductionOrder."Ending Date" :=
+            LeadTimeMgt.GetPlannedEndingDate(
+                ProductionOrder."Source No.", ProductionOrder."Location Code", '', ProductionOrder."Due Date", '', "Requisition Ref. Order Type"::"Prod. Order");
         ProductionOrder."Starting Date" := ProductionOrder."Ending Date";
         ProductionOrder."Starting Date-Time" := CreateDateTime(ProductionOrder."Starting Date", ProductionOrder."Starting Time");
         ProductionOrder."Ending Date-Time" := CreateDateTime(ProductionOrder."Ending Date", ProductionOrder."Ending Time");
@@ -1958,7 +1959,9 @@ codeunit 137082 "SCM Manufacturing - Routings"
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, "Production Order Status"::Released, ProductionOrder."Source Type"::Item, ItemNo, 1);
         //ProductionOrder.Validate("Due Date", DMY2Date(11, 5, Date2DMY(WorkDate(), 3)));
         ProductionOrder.Validate("Due Date", WorkDate());
-        ProductionOrder."Ending Date" := LeadTimeMgt.PlannedEndingDate(ProductionOrder."Source No.", ProductionOrder."Location Code", '', ProductionOrder."Due Date", '', 2);
+        ProductionOrder."Ending Date" :=
+            LeadTimeMgt.GetPlannedEndingDate(
+                ProductionOrder."Source No.", ProductionOrder."Location Code", '', ProductionOrder."Due Date", '', "Requisition Ref. Order Type"::"Prod. Order");
         ProductionOrder."Starting Date" := ProductionOrder."Ending Date";
         ProductionOrder."Starting Date-Time" := CreateDateTime(ProductionOrder."Starting Date", ProductionOrder."Starting Time");
         ProductionOrder."Ending Date-Time" := CreateDateTime(ProductionOrder."Ending Date", ProductionOrder."Ending Time");
@@ -2099,17 +2102,15 @@ codeunit 137082 "SCM Manufacturing - Routings"
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
     begin
         CodeCoverageMgt.Refresh();
-        with CodeCoverage do begin
-            SetRange("Line Type", "Line Type"::Code);
-            SetRange("Object Type", ObjectType);
-            SetRange("Object ID", ObjectID);
-            SetFilter("No. of Hits", '>%1', 0);
-            SetFilter(Line, '@*' + CodeLine + '*');
-            if FindSet() then
-                repeat
-                    NoOfHits += "No. of Hits";
-                until Next() = 0;
-        end;
+        CodeCoverage.SetRange("Line Type", CodeCoverage."Line Type"::Code);
+        CodeCoverage.SetRange("Object Type", ObjectType);
+        CodeCoverage.SetRange("Object ID", ObjectID);
+        CodeCoverage.SetFilter("No. of Hits", '>%1', 0);
+        CodeCoverage.SetFilter(Line, '@*' + CodeLine + '*');
+        if CodeCoverage.FindSet() then
+            repeat
+                NoOfHits += CodeCoverage."No. of Hits";
+            until CodeCoverage.Next() = 0;
     end;
 
     local procedure MockRoutingHeader(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")

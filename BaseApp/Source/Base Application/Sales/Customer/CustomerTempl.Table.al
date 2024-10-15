@@ -24,7 +24,6 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Pricing;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.Setup;
 using System.Globalization;
 using Microsoft.eServices.EDocument;
 
@@ -454,11 +453,6 @@ table 1381 "Customer Templ."
         {
             Caption = 'Shipping Agent Service Code';
             TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
-        }
-        field(5900; "Service Zone Code"; Code[10])
-        {
-            Caption = 'Service Zone Code';
-            TableRelation = "Service Zone";
         }
         field(7001; "Allow Line Disc."; Boolean)
         {

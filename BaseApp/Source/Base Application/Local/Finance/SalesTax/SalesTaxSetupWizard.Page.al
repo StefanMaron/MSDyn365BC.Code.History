@@ -30,7 +30,7 @@ page 10807 "Sales Tax Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT (Step = Step::Done);
+                Visible = TopBannerVisible and not (Step = Step::Done);
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
                 {
                     ApplicationArea = SalesTax;
@@ -42,7 +42,7 @@ page 10807 "Sales Tax Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND (Step = Step::Done);
+                Visible = TopBannerVisible and (Step = Step::Done);
                 field("MediaResourcesDone.""Media Reference"""; MediaResourcesDone."Media Reference")
                 {
                     ApplicationArea = SalesTax;

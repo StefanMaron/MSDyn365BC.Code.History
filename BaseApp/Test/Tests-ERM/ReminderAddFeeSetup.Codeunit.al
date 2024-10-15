@@ -332,18 +332,16 @@ codeunit 134998 "Reminder - Add. Fee Setup"
 
         RangeAmount2 := LibraryRandom.RandDec(99, 2);
 
-        with AdditionalFeeSetup2 do begin
-            Init();
-            "Charge Per Line" := AdditionalFeeSetup1."Charge Per Line";
-            "Reminder Terms Code" := AdditionalFeeSetup1."Reminder Terms Code";
-            "Reminder Level No." := AdditionalFeeSetup1."Reminder Level No.";
-            "Currency Code" := AdditionalFeeSetup1."Currency Code";
-            "Threshold Remaining Amount" := RangeAmount2;
-            "Max. Additional Fee Amount" := 100 * RemainingAmount;
-            "Additional Fee Amount" := LibraryRandom.RandDec(100, 2);
-            "Additional Fee %" := LibraryRandom.RandDec(99, 2);
-            Insert(true);
-        end;
+        AdditionalFeeSetup2.Init();
+        AdditionalFeeSetup2."Charge Per Line" := AdditionalFeeSetup1."Charge Per Line";
+        AdditionalFeeSetup2."Reminder Terms Code" := AdditionalFeeSetup1."Reminder Terms Code";
+        AdditionalFeeSetup2."Reminder Level No." := AdditionalFeeSetup1."Reminder Level No.";
+        AdditionalFeeSetup2."Currency Code" := AdditionalFeeSetup1."Currency Code";
+        AdditionalFeeSetup2."Threshold Remaining Amount" := RangeAmount2;
+        AdditionalFeeSetup2."Max. Additional Fee Amount" := 100 * RemainingAmount;
+        AdditionalFeeSetup2."Additional Fee Amount" := LibraryRandom.RandDec(100, 2);
+        AdditionalFeeSetup2."Additional Fee %" := LibraryRandom.RandDec(99, 2);
+        AdditionalFeeSetup2.Insert(true);
 
         AdditionalFeeSetup.SetRange("Reminder Terms Code", AdditionalFeeSetup1."Reminder Terms Code");
         AdditionalFeeSetup.FindFirst();
@@ -729,18 +727,16 @@ codeunit 134998 "Reminder - Add. Fee Setup"
 
         RangeAmount2 := LibraryRandom.RandDec(99, 2);
 
-        with AdditionalFeeSetup2 do begin
-            Init();
-            "Charge Per Line" := AdditionalFeeSetup1."Charge Per Line";
-            "Reminder Terms Code" := AdditionalFeeSetup1."Reminder Terms Code";
-            "Reminder Level No." := AdditionalFeeSetup1."Reminder Level No.";
-            "Currency Code" := AdditionalFeeSetup1."Currency Code";
-            "Threshold Remaining Amount" := RangeAmount2;
-            "Max. Additional Fee Amount" := 100 * RemainingAmount;
-            "Additional Fee Amount" := LibraryRandom.RandDec(100, 2);
-            "Additional Fee %" := LibraryRandom.RandDec(99, 2);
-            Insert(true);
-        end;
+        AdditionalFeeSetup2.Init();
+        AdditionalFeeSetup2."Charge Per Line" := AdditionalFeeSetup1."Charge Per Line";
+        AdditionalFeeSetup2."Reminder Terms Code" := AdditionalFeeSetup1."Reminder Terms Code";
+        AdditionalFeeSetup2."Reminder Level No." := AdditionalFeeSetup1."Reminder Level No.";
+        AdditionalFeeSetup2."Currency Code" := AdditionalFeeSetup1."Currency Code";
+        AdditionalFeeSetup2."Threshold Remaining Amount" := RangeAmount2;
+        AdditionalFeeSetup2."Max. Additional Fee Amount" := 100 * RemainingAmount;
+        AdditionalFeeSetup2."Additional Fee Amount" := LibraryRandom.RandDec(100, 2);
+        AdditionalFeeSetup2."Additional Fee %" := LibraryRandom.RandDec(99, 2);
+        AdditionalFeeSetup2.Insert(true);
 
         AdditionalFeeSetup.SetRange("Reminder Terms Code", AdditionalFeeSetup1."Reminder Terms Code");
         AdditionalFeeSetup.FindFirst();
@@ -1164,47 +1160,41 @@ codeunit 134998 "Reminder - Add. Fee Setup"
     begin
         ReminderTermsCode := CreateReminderTerms(true, true);
         CreateReminderLevel(ReminderLevel, ReminderTermsCode, CalcType);
-        with AdditionalFeeSetup do begin
-            Init();
-            "Reminder Terms Code" := ReminderTermsCode;
-            "Charge Per Line" := ChargePerLine;
-            "Reminder Level No." := ReminderLevel."No.";
-            "Currency Code" := CurrencyCode;
-            "Threshold Remaining Amount" := ThresholdRemAmount;
-            "Additional Fee Amount" := LibraryRandom.RandDec(100, 2);
-            "Additional Fee %" := LibraryRandom.RandDec(10, 2);
-            "Min. Additional Fee Amount" := "Additional Fee Amount" - 1;
-            "Max. Additional Fee Amount" := "Additional Fee Amount" + LibraryRandom.RandDec(1000, 2);
-            Insert(true);
-        end;
+        AdditionalFeeSetup.Init();
+        AdditionalFeeSetup."Reminder Terms Code" := ReminderTermsCode;
+        AdditionalFeeSetup."Charge Per Line" := ChargePerLine;
+        AdditionalFeeSetup."Reminder Level No." := ReminderLevel."No.";
+        AdditionalFeeSetup."Currency Code" := CurrencyCode;
+        AdditionalFeeSetup."Threshold Remaining Amount" := ThresholdRemAmount;
+        AdditionalFeeSetup."Additional Fee Amount" := LibraryRandom.RandDec(100, 2);
+        AdditionalFeeSetup."Additional Fee %" := LibraryRandom.RandDec(10, 2);
+        AdditionalFeeSetup."Min. Additional Fee Amount" := AdditionalFeeSetup."Additional Fee Amount" - 1;
+        AdditionalFeeSetup."Max. Additional Fee Amount" := AdditionalFeeSetup."Additional Fee Amount" + LibraryRandom.RandDec(1000, 2);
+        AdditionalFeeSetup.Insert(true);
     end;
 
     local procedure CreateCurrencyForReminderLevel(var ReminderLevel: Record "Reminder Level"; CurrencyCode: Code[10]; AdditionalFee: Decimal; AdditionalFeePerLine: Decimal)
     var
         CurrencyForReminderLevel: Record "Currency for Reminder Level";
     begin
-        with CurrencyForReminderLevel do begin
-            Init();
-            "Reminder Terms Code" := ReminderLevel."Reminder Terms Code";
-            "No." := ReminderLevel."No.";
-            "Currency Code" := CurrencyCode;
-            "Additional Fee" := AdditionalFee;
-            "Add. Fee per Line" := AdditionalFeePerLine;
-            Insert(true);
-        end;
+        CurrencyForReminderLevel.Init();
+        CurrencyForReminderLevel."Reminder Terms Code" := ReminderLevel."Reminder Terms Code";
+        CurrencyForReminderLevel."No." := ReminderLevel."No.";
+        CurrencyForReminderLevel."Currency Code" := CurrencyCode;
+        CurrencyForReminderLevel."Additional Fee" := AdditionalFee;
+        CurrencyForReminderLevel."Add. Fee per Line" := AdditionalFeePerLine;
+        CurrencyForReminderLevel.Insert(true);
     end;
 
     local procedure CreateReminderTerms(PostAddFee: Boolean; PostAddFeePerLine: Boolean): Code[10]
     var
         ReminderTerms: Record "Reminder Terms";
     begin
-        with ReminderTerms do begin
-            Init();
-            Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Reminder Terms");
-            "Post Additional Fee" := PostAddFee;
-            "Post Add. Fee per Line" := PostAddFeePerLine;
-            Insert(true);
-        end;
+        ReminderTerms.Init();
+        ReminderTerms.Code := LibraryUtility.GenerateRandomCode(ReminderTerms.FieldNo(Code), DATABASE::"Reminder Terms");
+        ReminderTerms."Post Additional Fee" := PostAddFee;
+        ReminderTerms."Post Add. Fee per Line" := PostAddFeePerLine;
+        ReminderTerms.Insert(true);
         exit(ReminderTerms.Code)
     end;
 
@@ -1268,13 +1258,11 @@ codeunit 134998 "Reminder - Add. Fee Setup"
 
     local procedure SetUpAdditionalFeePropertiesUT(var AdditionalFeeSetup: Record "Additional Fee Setup"; MinAddFeeAmount: Decimal; MaxAddFeeAmount: Decimal; AddFeeAmount: Decimal; AddFeePerc: Decimal)
     begin
-        with AdditionalFeeSetup do begin
-            "Min. Additional Fee Amount" := MinAddFeeAmount;
-            "Max. Additional Fee Amount" := MaxAddFeeAmount;
-            "Additional Fee Amount" := AddFeeAmount;
-            "Additional Fee %" := AddFeePerc;
-            Modify(true);
-        end;
+        AdditionalFeeSetup."Min. Additional Fee Amount" := MinAddFeeAmount;
+        AdditionalFeeSetup."Max. Additional Fee Amount" := MaxAddFeeAmount;
+        AdditionalFeeSetup."Additional Fee Amount" := AddFeeAmount;
+        AdditionalFeeSetup."Additional Fee %" := AddFeePerc;
+        AdditionalFeeSetup.Modify(true);
     end;
 
     local procedure OpenReminderLevelsPage(var ReminderLevels: TestPage "Reminder Levels"; "Code": Code[10]; No: Integer)

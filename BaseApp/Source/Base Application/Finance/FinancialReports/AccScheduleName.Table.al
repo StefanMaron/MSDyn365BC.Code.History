@@ -28,13 +28,8 @@ table 84 "Acc. Schedule Name"
             Caption = 'Default Column Layout';
             TableRelation = "Column Layout Name";
             ObsoleteReason = 'Use now the Column Group property in the table Financial Report';
-#if not CLEAN22
-            ObsoleteTag = '22.0';
-            ObsoleteState = Pending;
-#else
             ObsoleteTag = '25.0';
             ObsoleteState = Removed;
-#endif
         }
         field(4; "Analysis View Name"; Code[10])
         {
@@ -311,29 +306,5 @@ table 84 "Acc. Schedule Name"
             AccScheduleExists := AccScheduleName.Get(Name);
         end;
     end;
-
-#if not CLEAN22
-    [Obsolete('AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.', '22.0')]
-    procedure Print()
-    var
-        AccountSchedule: Report "Account Schedule";
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforePrint(Rec, IsHandled);
-        if IsHandled then
-            exit;
-
-        AccountSchedule.SetAccSchedName(Name);
-        AccountSchedule.SetColumnLayoutName("Default Column Layout");
-        AccountSchedule.Run();
-    end;
-
-    [Obsolete('AccScheduleName is no longer printable directly as they are only row definitions, print instead the related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable, and use the triggers on the report.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePrint(var AccScheduleName: Record "Acc. Schedule Name"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 }
 

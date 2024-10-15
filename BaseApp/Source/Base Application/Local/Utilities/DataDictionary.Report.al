@@ -730,10 +730,9 @@ report 10315 "Data Dictionary"
         DataDictionary: Record "Data Dictionary Info";
     begin
         FilePtr.Close();
-        if DeleteData then begin
+        if DeleteData then
             if DataDictionary.FindFirst() then
                 DataDictionary.DeleteAll();
-        end;
     end;
 
     trigger OnPreReport()
@@ -1290,9 +1289,9 @@ report 10315 "Data Dictionary"
         do begin
             InputText := DelChr(InputText, '<', ' ');
 
-            if StrLen(InputText) > MaxStrLen(DataDictionary.Value) then begin
+            if StrLen(InputText) > MaxStrLen(DataDictionary.Value) then
                 MultipleLines(InputText, DataDictionary, FilterValue, true)
-            end else
+            else
                 DataDictionary.Value := CopyStr(InputText, 1, MaxStrLen(DataDictionary.Value));
 
             DataDictionary.Insert();
@@ -1390,9 +1389,9 @@ report 10315 "Data Dictionary"
 
         KeyText := GetInfo(InputText, Pos1, Pos2 - 1);
 
-        if Pos2 > MaxStrLen(InDataDictionary.Value) then begin
-            MultipleLines(KeyText, InDataDictionary, EndOfSubValue, false);
-        end else
+        if Pos2 > MaxStrLen(InDataDictionary.Value) then
+            MultipleLines(KeyText, InDataDictionary, EndOfSubValue, false)
+        else
             InDataDictionary.Value := CopyStr(KeyText, 1, MaxStrLen(InDataDictionary.Value));
 
         InDataDictionary.Insert();

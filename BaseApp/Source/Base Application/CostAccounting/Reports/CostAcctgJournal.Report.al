@@ -205,18 +205,24 @@ report 1128 "Cost Acctg. Journal"
         Errorline: array[20] of Text[80];
         Lineno: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Posting date is not defined.';
         Text001: Label 'Document no. is not defined.';
         Text002: Label 'Define cost type or balance cost type.';
         Text003: Label 'Cost type is blocked.';
+#pragma warning disable AA0470
         Text004: Label 'Cost type must not be line type %1.';
+#pragma warning restore AA0470
         Text005: Label 'Cost center or cost object must be defined.';
         Text006: Label 'Cost center and cost object cannot be both defined concurrently.';
         Text007: Label 'Balance cost type is blocked.';
+#pragma warning disable AA0470
         Text008: Label 'Balance cost type must have line type %1.';
+#pragma warning restore AA0470
         Text009: Label 'Balance cost center or cost object must be defined.';
         Text010: Label 'Balance cost center and cost object cannot be both defined concurrently.';
         Text011: Label 'Filter: ';
+#pragma warning restore AA0074
         CAJournalCaptionLbl: Label 'Cost Accounting Journal';
         BalCTCaptionLbl: Label 'Balance CT';
         COCaptionLbl: Label 'CO';

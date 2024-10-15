@@ -39,7 +39,7 @@ using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
 using Microsoft.Purchases.Remittance;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -121,7 +121,7 @@ permissionset 9783 "D365 SALES DOC, EDIT"
                   tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Record Buffer" = Rimd,
                   tabledata "Remit Address" = RIMD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
 #endif
@@ -139,15 +139,15 @@ permissionset 9783 "D365 SALES DOC, EDIT"
                   tabledata "Sales Invoice Line" = Rimd,
                   tabledata "Sales Line" = RIMD,
                   tabledata "Sales Line Archive" = RIMD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Line Discount" = RIMD,
 #endif
                   tabledata "Sales Planning Line" = Rimd,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Price" = RIMD,
 #endif
                   tabledata "Sales Price Access" = RIMD,
-#if not CLEAN23
+#if not CLEAN25
                   tabledata "Sales Price Worksheet" = RIMD,
 #endif
                   tabledata "Sales Shipment Header" = RimD,

@@ -430,6 +430,8 @@ report 1005 "Job Journal - Test"
         ShowDim: Boolean;
         Continue: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 cannot be filtered when you post recurring journals.';
         Text001: Label '%1 must be specified.';
         Text002: Label 'Project %1 does not exist.';
@@ -437,14 +439,24 @@ report 1005 "Job Journal - Test"
         Text004: Label '%1 %2 %3 does not exist.';
         Text005: Label 'Resource %1 does not exist.';
         Text006: Label '%1 must be %2 for resource %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         MustBeForErr: Label '%1 must be %2 for %3 %4.', Comment = '%1 = field caption, %2 = value, %3 = table caption, %4 = field caption';
         DoesNotExistErr: Label '%2 %1 does not exist.', Comment = '%1 = Entity No., %2 - Table Caption';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text009: Label '%1 must not be a closing date.';
+#pragma warning restore AA0470
         Text010: Label 'The lines are not listed according to posting date because they were not entered in that order.';
+#pragma warning disable AA0470
         Text011: Label '%1 is not within your allowed range of posting dates.';
+#pragma warning restore AA0470
         Text012: Label 'There is a gap in the number series.';
+#pragma warning disable AA0470
         Text013: Label '%1 cannot be specified.';
         Text015: Label '%1 %2 does not exist.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Job_Journal_Batch___Journal_Template_Name_CaptionLbl: Label 'Journal Template';
         Job_Journal_Batch__NameCaptionLbl: Label 'Journal Batch';
         Job_Journal___TestCaptionLbl: Label 'Project Journal - Test';

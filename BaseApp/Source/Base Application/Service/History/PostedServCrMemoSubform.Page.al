@@ -269,7 +269,7 @@ page 5973 "Posted Serv. Cr. Memo Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Entries';
                     Image = ItemTrackingLedger;
-                    ToolTip = 'View serial or lot numbers that are assigned to items.';
+                    ToolTip = 'View serial, lot or package numbers that are assigned to items.';
 
                     trigger OnAction()
                     begin

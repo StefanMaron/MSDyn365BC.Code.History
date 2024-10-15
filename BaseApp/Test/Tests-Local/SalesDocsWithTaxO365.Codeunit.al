@@ -316,12 +316,10 @@ codeunit 144022 "Sales Docs With Tax O365"
     var
         Location: Record Location;
     begin
-        with Location do begin
-            LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-            Validate("Tax Area Code", TaxAreaCode);
-            Modify(true);
-            exit(Code);
-        end;
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Tax Area Code", TaxAreaCode);
+        Location.Modify(true);
+        exit(Location.Code);
     end;
 
     local procedure CreateItem(): Code[20]
@@ -440,19 +438,17 @@ codeunit 144022 "Sales Docs With Tax O365"
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
-        with TaxJurisdiction do begin
-            LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
-            Validate("Tax Account (Sales)", GLAccountTaxCode);
-            Validate("Tax Account (Purchases)", GLAccountTaxCode);
-            Validate("Reverse Charge (Purchases)", GLAccountTaxCode);
-            Validate("Report-to Jurisdiction", '');
-            if Foreign then
-                Validate("Country/Region", "Country/Region"::CA)
-            else
-                Validate("Country/Region", "Country/Region"::US);
-            Modify(true);
-            exit(Code);
-        end;
+        LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
+        TaxJurisdiction.Validate("Tax Account (Sales)", GLAccountTaxCode);
+        TaxJurisdiction.Validate("Tax Account (Purchases)", GLAccountTaxCode);
+        TaxJurisdiction.Validate("Reverse Charge (Purchases)", GLAccountTaxCode);
+        TaxJurisdiction.Validate("Report-to Jurisdiction", '');
+        if Foreign then
+            TaxJurisdiction.Validate("Country/Region", TaxJurisdiction."Country/Region"::CA)
+        else
+            TaxJurisdiction.Validate("Country/Region", TaxJurisdiction."Country/Region"::US);
+        TaxJurisdiction.Modify(true);
+        exit(TaxJurisdiction.Code);
     end;
 
     local procedure CreateTaxAreaGroupDetail(var TaxGroupCode: Code[20]; TaxJurisdictionCode: Code[10]; SetupDate: Date; Foreign: Boolean; TaxBelowMaximum: Decimal): Code[20]
@@ -462,24 +458,20 @@ codeunit 144022 "Sales Docs With Tax O365"
         TaxDetail: Record "Tax Detail";
         TaxAreaLine: Record "Tax Area Line";
     begin
-        with TaxArea1 do begin
-            LibraryERM.CreateTaxArea(TaxArea1);
-            if Foreign then
-                Validate("Country/Region", "Country/Region"::CA)
-            else
-                Validate("Country/Region", "Country/Region"::US);
-            Modify(true);
-            LibraryERM.CreateTaxAreaLine(TaxAreaLine, Code, TaxJurisdictionCode);
-        end;
+        LibraryERM.CreateTaxArea(TaxArea1);
+        if Foreign then
+            TaxArea1.Validate("Country/Region", TaxArea1."Country/Region"::CA)
+        else
+            TaxArea1.Validate("Country/Region", TaxArea1."Country/Region"::US);
+        TaxArea1.Modify(true);
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea1.Code, TaxJurisdictionCode);
 
         LibraryERM.CreateTaxGroup(TaxGroup);
         TaxGroupCode := TaxGroup.Code;
 
-        with TaxDetail do begin
-            LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, "Tax Type"::"Sales and Use Tax", SetupDate);
-            Validate("Tax Below Maximum", TaxBelowMaximum);
-            Modify(true);
-        end;
+        LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", SetupDate);
+        TaxDetail.Validate("Tax Below Maximum", TaxBelowMaximum);
+        TaxDetail.Modify(true);
 
         exit(TaxArea1.Code);
     end;
@@ -488,44 +480,38 @@ codeunit 144022 "Sales Docs With Tax O365"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        with CurrencyExchangeRate do begin
-            LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
-            Validate("Exchange Rate Amount", ExchangeRateValue);
-            Validate("Adjustment Exch. Rate Amount", ExchangeRateValue);
-            Validate("Relational Exch. Rate Amount", RelationalExchangeRate);
-            Validate("Relational Adjmt Exch Rate Amt", RelationalExchangeRate);
-            Modify(true);
-        end;
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", ExchangeRateValue);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", ExchangeRateValue);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchangeRate);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalExchangeRate);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreateCustomerWithTaxSettings(CurrencyCode: Code[10]; LocationCode: Code[10]; TaxAreaCode: Code[20]): Code[20]
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            CreateCustomer(Customer);
-            Get("No.");
-            Validate("Tax Liable", true);
-            Validate("Tax Area Code", TaxAreaCode);
-            Validate("Location Code", LocationCode);
-            Validate("Currency Code", CurrencyCode);
-            Modify(true);
-            exit("No.");
-        end;
+        CreateCustomer(Customer);
+        Customer.Get(Customer."No.");
+        Customer.Validate("Tax Liable", true);
+        Customer.Validate("Tax Area Code", TaxAreaCode);
+        Customer.Validate("Location Code", LocationCode);
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure SetCurrencyGLAccounts(CurrencyCode: Code[10]; GLAccountRealized: Code[20]; GLAccountResidual: Code[20])
     var
         Currency: Record Currency;
     begin
-        with Currency do begin
-            Get(CurrencyCode);
-            Validate("Realized Gains Acc.", GLAccountRealized);
-            Validate("Realized Losses Acc.", GLAccountRealized);
-            Validate("Residual Gains Account", GLAccountResidual);
-            Validate("Residual Losses Account", GLAccountResidual);
-            Modify(true);
-        end;
+        Currency.Get(CurrencyCode);
+        Currency.Validate("Realized Gains Acc.", GLAccountRealized);
+        Currency.Validate("Realized Losses Acc.", GLAccountRealized);
+        Currency.Validate("Residual Gains Account", GLAccountResidual);
+        Currency.Validate("Residual Losses Account", GLAccountResidual);
+        Currency.Modify(true);
     end;
 
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentNo: Code[20])
@@ -539,14 +525,12 @@ codeunit 144022 "Sales Docs With Tax O365"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange(Adjustment, true);
-            if FindSet() then
-                repeat
-                    CostAmountActual += "Cost Amount (Actual)";
-                until Next() = 0;
-        end;
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.SetRange(Adjustment, true);
+        if ValueEntry.FindSet() then
+            repeat
+                CostAmountActual += ValueEntry."Cost Amount (Actual)";
+            until ValueEntry.Next() = 0;
         exit(CostAmountActual);
     end;
 
@@ -665,28 +649,26 @@ codeunit 144022 "Sales Docs With Tax O365"
         GLEntry: Record "G/L Entry";
         PurchaseHeader: Record "Purchase Header";
     begin
-        with GLEntry do begin
-            SetRange("Document Type", PurchaseHeader."Document Type"::Order.AsInteger());
-            SetRange("Document No.", DocNo);
+        GLEntry.SetRange("Document Type", PurchaseHeader."Document Type"::Order.AsInteger());
+        GLEntry.SetRange("Document No.", DocNo);
 
-            Assert.IsTrue(
-              CalcSums(
-                "Additional-Currency Amount",
-                "Add.-Currency Debit Amount",
-                "Add.-Currency Credit Amount"),
-              CalcSumErr);
-            Assert.AreEqual(
-              0,
-              "Additional-Currency Amount",
-              StrSubstNo(FieldValueErr, FieldCaption("Additional-Currency Amount"), 0));
-            Assert.AreEqual(
-              0,
-              "Add.-Currency Debit Amount" - "Add.-Currency Credit Amount",
-              StrSubstNo(
-                FieldDifferenceErr,
-                FieldCaption("Add.-Currency Debit Amount"),
-                FieldCaption("Add.-Currency Credit Amount")));
-        end;
+        Assert.IsTrue(
+          GLEntry.CalcSums(
+            "Additional-Currency Amount",
+            "Add.-Currency Debit Amount",
+            "Add.-Currency Credit Amount"),
+          CalcSumErr);
+        Assert.AreEqual(
+          0,
+          GLEntry."Additional-Currency Amount",
+          StrSubstNo(FieldValueErr, GLEntry.FieldCaption("Additional-Currency Amount"), 0));
+        Assert.AreEqual(
+          0,
+          GLEntry."Add.-Currency Debit Amount" - GLEntry."Add.-Currency Credit Amount",
+          StrSubstNo(
+            FieldDifferenceErr,
+            GLEntry.FieldCaption("Add.-Currency Debit Amount"),
+            GLEntry.FieldCaption("Add.-Currency Credit Amount")));
     end;
 
     [RequestPageHandler]
@@ -714,11 +696,9 @@ codeunit 144022 "Sales Docs With Tax O365"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with GeneralLedgerSetup do begin
-            Get();
-            "Additional Reporting Currency" := AdditionalReportingCurrency;
-            Modify(true);
-        end;
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Additional Reporting Currency" := AdditionalReportingCurrency;
+        GeneralLedgerSetup.Modify(true);
     end;
 
     [MessageHandler]

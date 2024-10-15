@@ -60,7 +60,7 @@ codeunit 27000 "Export Accounts"
         GLAccount.SetFilter("SAT Account Code", '<>%1', '');
 
         CreateXMLHeader(TempXMLBuffer, CatalogoNodeTxt, CatalogoNamespaceTxt, Year, Month, '1.3');
-        if GLAccount.FindSet() then begin
+        if GLAccount.FindSet() then
             repeat
                 TempErrorMessage.LogIfEmpty(GLAccount, GLAccount.FieldNo(Name), TempErrorMessage."Message Type"::Error);
 
@@ -81,8 +81,8 @@ codeunit 27000 "Export Accounts"
                           StrSubstNo(GLAccountTypeErr, GLAccount."Debit/Credit", GLAccount.RecordId));
                 end;
                 TempXMLBuffer.GetParent();
-            until GLAccount.Next() = 0;
-        end else
+            until GLAccount.Next() = 0
+        else
             TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, NoSATAccountDefinedErr);
 
         if not TempErrorMessage.HasErrors(true) then
@@ -176,12 +176,11 @@ codeunit 27000 "Export Accounts"
                 TempXMLBuffer.AddAttribute('NumOrden', OrderNumber)
             else
                 TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, MissingOrderNumberErr);
-        end else begin
+        end else
             if ProcessNumber <> '' then
                 TempXMLBuffer.AddAttribute('NumTramite', ProcessNumber)
             else
                 TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, MissingOrderNumberErr);
-        end;
 
         GLEntry.SetCurrentKey("Transaction No.");
         GLEntry.SetRange("Posting Date", StartDate, EndDate);
@@ -229,14 +228,13 @@ codeunit 27000 "Export Accounts"
                 TempXMLBuffer.AddAttribute('NumOrden', OrderNumber)
             else
                 TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, MissingOrderNumberErr);
-        end else begin
+        end else
             if ProcessNumber <> '' then
                 TempXMLBuffer.AddAttribute('NumTramite', ProcessNumber)
             else
                 TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Error, MissingOrderNumberErr);
-        end;
 
-        if GLAccount.FindSet() then begin
+        if GLAccount.FindSet() then
             repeat
                 GLEntry.SetRange("G/L Account No.", GLAccount."No.");
                 GLEntry.SetRange("Posting Date", StartDate, EndDate);
@@ -270,7 +268,6 @@ codeunit 27000 "Export Accounts"
                     TempXMLBuffer.GetParent();
                 end;
             until GLAccount.Next() = 0;
-        end;
 
         if not TempErrorMessage.HasErrors(true) then
             SaveXMLToClient(TempXMLBuffer, Year, Month, 'XC');
@@ -350,7 +347,7 @@ codeunit 27000 "Export Accounts"
         if VendorLedgerEntry.FindSet() then
             repeat
                 VendorPostingGroup.Get(VendorLedgerEntry."Vendor Posting Group");
-                if VendorPostingGroup."Payables Account" = GLEntry."G/L Account No." then begin
+                if VendorPostingGroup."Payables Account" = GLEntry."G/L Account No." then
                     if VendorLedgerEntry."Document Type" in [VendorLedgerEntry."Document Type"::Payment,
                                                              VendorLedgerEntry."Document Type"::Refund]
                     then begin
@@ -361,7 +358,6 @@ codeunit 27000 "Export Accounts"
                             until AppliedVendorLedgerEntry.Next() = 0;
                     end else
                         CreateReceipt(TempXMLBuffer, VendorLedgerEntry, IsAuxiliary);
-                end;
             until VendorLedgerEntry.Next() = 0;
     end;
 
@@ -376,7 +372,7 @@ codeunit 27000 "Export Accounts"
         if CustLedgerEntry.FindSet() then
             repeat
                 CustomerPostingGroup.Get(CustLedgerEntry."Customer Posting Group");
-                if CustomerPostingGroup."Receivables Account" = GLEntry."G/L Account No." then begin
+                if CustomerPostingGroup."Receivables Account" = GLEntry."G/L Account No." then
                     if CustLedgerEntry."Document Type" in [CustLedgerEntry."Document Type"::Payment,
                                                            CustLedgerEntry."Document Type"::Refund]
                     then begin
@@ -387,7 +383,6 @@ codeunit 27000 "Export Accounts"
                             until AppliedCustLedgerEntry.Next() = 0;
                     end else
                         CreateReceipt(TempXMLBuffer, CustLedgerEntry, IsAuxiliary);
-                end;
             until CustLedgerEntry.Next() = 0;
     end;
 

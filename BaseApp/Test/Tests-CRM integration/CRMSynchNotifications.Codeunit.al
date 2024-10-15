@@ -570,7 +570,7 @@ codeunit 139185 "CRM Synch. Notifications"
         IntegrationSynchJobListPage.Close();
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -1743,12 +1743,14 @@ codeunit 139185 "CRM Synch. Notifications"
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CRMConnectionSetup."Unit Group Mapping Enabled" := false;
@@ -1798,28 +1800,24 @@ codeunit 139185 "CRM Synch. Notifications"
     var
         IntegrationSynchJob: Record "Integration Synch. Job";
     begin
-        with IntegrationSynchJob do begin
-            Get(JobID);
-            TestField(Modified, 1);
-            TestField(Failed, 0);
-            TestField("Integration Table Mapping Name", MappingName);
-            TestField("Synch. Direction", Direction);
-        end;
+        IntegrationSynchJob.Get(JobID);
+        IntegrationSynchJob.TestField(Modified, 1);
+        IntegrationSynchJob.TestField(Failed, 0);
+        IntegrationSynchJob.TestField("Integration Table Mapping Name", MappingName);
+        IntegrationSynchJob.TestField("Synch. Direction", Direction);
     end;
 
     local procedure VerifyUnchangedJob(Direction: Option; MappingName: Text)
     var
         IntegrationSynchJob: Record "Integration Synch. Job";
     begin
-        with IntegrationSynchJob do begin
-            SetCurrentKey("Start Date/Time", ID);
-            FindLast();
-            TestField(Failed, 0);
-            TestField(Modified, 0);
-            TestField(Unchanged, 1);
-            TestField("Integration Table Mapping Name", MappingName);
-            TestField("Synch. Direction", Direction);
-        end;
+        IntegrationSynchJob.SetCurrentKey("Start Date/Time", ID);
+        IntegrationSynchJob.FindLast();
+        IntegrationSynchJob.TestField(Failed, 0);
+        IntegrationSynchJob.TestField(Modified, 0);
+        IntegrationSynchJob.TestField(Unchanged, 1);
+        IntegrationSynchJob.TestField("Integration Table Mapping Name", MappingName);
+        IntegrationSynchJob.TestField("Synch. Direction", Direction);
     end;
 
     local procedure VerifyNoNotificationSent()
@@ -1838,57 +1836,49 @@ codeunit 139185 "CRM Synch. Notifications"
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        with CRMIntegrationRecord do begin
-            FindByRecordID(RecID);
-            TestField("Last Synch. Job ID");
-            TestField("Last Synch. Result", "Last Synch. CRM Result"::Success);
-            TestField("Last Synch. CRM Job ID", '{00000000-0000-0000-0000-000000000000}');
-            TestField("Last Synch. CRM Result", 0);
-            VerifyModifiedJob(
-              "Last Synch. Job ID", IntegrationTableMapping.Direction::FromIntegrationTable, IntegrationTableMapping.Name);
-        end;
+        CRMIntegrationRecord.FindByRecordID(RecID);
+        CRMIntegrationRecord.TestField("Last Synch. Job ID");
+        CRMIntegrationRecord.TestField("Last Synch. Result", CRMIntegrationRecord."Last Synch. CRM Result"::Success);
+        CRMIntegrationRecord.TestField("Last Synch. CRM Job ID", '{00000000-0000-0000-0000-000000000000}');
+        CRMIntegrationRecord.TestField("Last Synch. CRM Result", CRMIntegrationRecord."Last Synch. CRM Result"::" ");
+        VerifyModifiedJob(
+          CRMIntegrationRecord."Last Synch. Job ID", IntegrationTableMapping.Direction::FromIntegrationTable, IntegrationTableMapping.Name);
     end;
 
     local procedure VerifySuccessfulToCRMJob(RecID: RecordID; IntegrationTableMapping: Record "Integration Table Mapping")
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        with CRMIntegrationRecord do begin
-            FindByRecordID(RecID);
-            TestField("Last Synch. Job ID", '{00000000-0000-0000-0000-000000000000}');
-            TestField("Last Synch. Result", 0);
-            TestField("Last Synch. CRM Job ID");
-            TestField("Last Synch. CRM Result", "Last Synch. CRM Result"::Success);
-            VerifyModifiedJob(
-              "Last Synch. CRM Job ID", IntegrationTableMapping.Direction::ToIntegrationTable, IntegrationTableMapping.Name);
-        end;
+        CRMIntegrationRecord.FindByRecordID(RecID);
+        CRMIntegrationRecord.TestField("Last Synch. Job ID", '{00000000-0000-0000-0000-000000000000}');
+        CRMIntegrationRecord.TestField("Last Synch. Result", CRMIntegrationRecord."Last Synch. Result"::" ");
+        CRMIntegrationRecord.TestField("Last Synch. CRM Job ID");
+        CRMIntegrationRecord.TestField("Last Synch. CRM Result", CRMIntegrationRecord."Last Synch. CRM Result"::Success);
+        VerifyModifiedJob(
+          CRMIntegrationRecord."Last Synch. CRM Job ID", IntegrationTableMapping.Direction::ToIntegrationTable, IntegrationTableMapping.Name);
     end;
 
     local procedure VerifyUnchangedToCRMJob(RecID: RecordID; IntegrationTableMapping: Record "Integration Table Mapping"; Direction: Integer)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        with CRMIntegrationRecord do begin
-            FindByRecordID(RecID);
-            TestField("Last Synch. Job ID", '{00000000-0000-0000-0000-000000000000}');
-            TestField("Last Synch. Result", 0);
-            TestField("Last Synch. CRM Job ID", '{00000000-0000-0000-0000-000000000000}');
-            TestField("Last Synch. CRM Result", 0);
-            VerifyUnchangedJob(Direction, IntegrationTableMapping.Name);
-        end;
+        CRMIntegrationRecord.FindByRecordID(RecID);
+        CRMIntegrationRecord.TestField("Last Synch. Job ID", '{00000000-0000-0000-0000-000000000000}');
+        CRMIntegrationRecord.TestField("Last Synch. Result", CRMIntegrationRecord."Last Synch. Result"::" ");
+        CRMIntegrationRecord.TestField("Last Synch. CRM Job ID", '{00000000-0000-0000-0000-000000000000}');
+        CRMIntegrationRecord.TestField("Last Synch. CRM Result", CRMIntegrationRecord."Last Synch. Result"::" ");
+        VerifyUnchangedJob(Direction, IntegrationTableMapping.Name);
     end;
 
     local procedure VerifyLastSynchDataIsBlank(RecID: RecordID)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        with CRMIntegrationRecord do begin
-            FindByRecordID(RecID);
-            TestField("Last Synch. Job ID", '{00000000-0000-0000-0000-000000000000}');
-            TestField("Last Synch. Result", 0);
-            TestField("Last Synch. CRM Job ID", '{00000000-0000-0000-0000-000000000000}');
-            TestField("Last Synch. CRM Result", 0);
-        end;
+        CRMIntegrationRecord.FindByRecordID(RecID);
+        CRMIntegrationRecord.TestField("Last Synch. Job ID", '{00000000-0000-0000-0000-000000000000}');
+        CRMIntegrationRecord.TestField("Last Synch. Result", CRMIntegrationRecord."Last Synch. Result"::" ");
+        CRMIntegrationRecord.TestField("Last Synch. CRM Job ID", '{00000000-0000-0000-0000-000000000000}');
+        CRMIntegrationRecord.TestField("Last Synch. CRM Result", CRMIntegrationRecord."Last Synch. Result"::" ");
     end;
 
     local procedure ClearCustomerContactBusRel()

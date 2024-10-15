@@ -18,7 +18,6 @@ codeunit 132551 "Library - Setup Storage UT"
         TableBackupErr: Label 'Table %1 already added to backup', Comment = '%1 = Table Caption';
         TableRestoredErr: Label 'Setup table was restored';
         TableWasNotRestoredErr: Label 'Setup table was not restored';
-        UserSetupErr: Label 'The User Setup does not exist.';
         OnlyOneEntryAllowedErr: Label 'Setup table with only one entry is allowed';
         CompositePrimaryKeyErr: Label 'Composite primary key is not allowed';
         JobQueueCategoryCodeTok: Label '<Code>';
@@ -128,7 +127,7 @@ codeunit 132551 "Library - Setup Storage UT"
         // [WHEN] Try backup "T"
         asserterror LibrarySetupStorage.Save(DATABASE::"User Setup");
         // [THEN] Error "The T does not exists. Identification fields and values: <PK>=''." thrown
-        Assert.ExpectedError(UserSetupErr);
+        Assert.ExpectedErrorCannotFind(Database::"User Setup");
     end;
 
     local procedure Initialize()

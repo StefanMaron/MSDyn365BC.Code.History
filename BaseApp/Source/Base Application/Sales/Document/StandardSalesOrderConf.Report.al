@@ -266,6 +266,9 @@ report 1305 "Standard Sales - Order Conf."
             column(ShipToAddress8; ShipToAddr[8])
             {
             }
+            column(ShipToPhoneNo; Header."Ship-to Phone No.")
+            {
+            }
             column(PaymentTermsDescription; PaymentTerms.Description)
             {
             }
@@ -347,12 +350,20 @@ report 1305 "Standard Sales - Order Conf."
             column(VATRegistrationNo_Lbl; GetCustomerVATRegistrationNumberLbl())
             {
             }
-            column(GlobalLocationNumber; GetCustomerGlobalLocationNumber())
+#if not CLEAN25
+            column(GlobalLocationNumber; '')
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Not in use anymore.';
+                ObsoleteTag = '25.0';
             }
-            column(GlobalLocationNumber_Lbl; GetCustomerGlobalLocationNumberLbl())
+            column(GlobalLocationNumber_Lbl; '')
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Not in use anymore.';
+                ObsoleteTag = '25.0';
             }
+#endif
             column(SellToFaxNo; GetSellToCustomerFaxNo())
             {
             }
@@ -1097,6 +1108,13 @@ report 1305 "Standard Sales - Order Conf."
             LayoutFile = './Sales/Document/StandardSalesOrderConf.docx';
             Caption = 'Standard Sales Order Confirmation (Word)';
             Summary = 'Simple layout with most necessary fields.';
+        }
+        layout("StandardSalesOrderConfThemable.docx")
+        {
+            Type = Word;
+            LayoutFile = './Sales/Document/StandardSalesOrderConfThemable.docx';
+            Caption = 'Standard Sales Order Confirmation - themable Word layout';
+            Summary = 'Simple themable layout with most necessary fields.';
         }
         layout("StandardOrderConfirmationEmail.docx")
         {

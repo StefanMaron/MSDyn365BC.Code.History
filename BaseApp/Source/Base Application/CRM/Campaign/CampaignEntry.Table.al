@@ -126,8 +126,12 @@ table 5072 "Campaign Entry"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 %2 is marked %3.\Do you wish to remove the checkmark?';
         Text002: Label 'Do you wish to mark %1 %2 as %3?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CopyFromSegment(SegLine: Record "Segment Line")
     begin

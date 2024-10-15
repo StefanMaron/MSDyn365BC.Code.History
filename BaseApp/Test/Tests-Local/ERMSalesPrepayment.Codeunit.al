@@ -246,16 +246,14 @@ codeunit 141000 "ERM Sales Prepayment"
         VATProdPostingGroup: Code[20];
     begin
         VATProdPostingGroup := '';
-        with VATPostingSetup do begin
-            if Get(VATBusPostingGroup, VATProdPostingGroup) then
-                exit;
+        if VATPostingSetup.Get(VATBusPostingGroup, VATProdPostingGroup) then
+            exit;
 
-            Init();
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-            Validate("Sales VAT Account", CreateGLAccount('', ''));
-            Insert();
-        end;
+        VATPostingSetup.Init();
+        VATPostingSetup.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        VATPostingSetup.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        VATPostingSetup.Validate("Sales VAT Account", CreateGLAccount('', ''));
+        VATPostingSetup.Insert();
     end;
 
     local procedure FindCurrency(): Code[10]
@@ -273,38 +271,36 @@ codeunit 141000 "ERM Sales Prepayment"
         CustomerPostingGroup: Record "Customer Posting Group";
         GLAccount: Record "G/L Account";
     begin
-        with Customer do begin
-            LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateCustomer(Customer);
 
-            FindGenPostingSetup(GeneralPostingSetup);
-            Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        FindGenPostingSetup(GeneralPostingSetup);
+        Customer.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
 
-            CustomerPostingGroup.FindFirst();
-            Validate("Customer Posting Group", CustomerPostingGroup.Code);
-            LibraryERM.CreateGLAccount(GLAccount);
-            GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-            GLAccount.Validate("Tax Group Code", TaxGroup.Code);
-            GLAccount.Modify(true);
-            CustomerPostingGroup.Validate("Invoice Rounding Account", GLAccount."No.");
-            CustomerPostingGroup.Modify(true);
-            LibraryERM.CreateGLAccount(GLAccount);
-            GLAccount.Validate("Tax Group Code", TaxGroup.Code);
-            GLAccount.Modify(true);
-            GeneralPostingSetup.Validate("Sales Prepayments Account", GLAccount."No.");
-            GeneralPostingSetup.Modify(true);
+        CustomerPostingGroup.FindFirst();
+        Customer.Validate("Customer Posting Group", CustomerPostingGroup.Code);
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("Tax Group Code", TaxGroup.Code);
+        GLAccount.Modify(true);
+        CustomerPostingGroup.Validate("Invoice Rounding Account", GLAccount."No.");
+        CustomerPostingGroup.Modify(true);
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Tax Group Code", TaxGroup.Code);
+        GLAccount.Modify(true);
+        GeneralPostingSetup.Validate("Sales Prepayments Account", GLAccount."No.");
+        GeneralPostingSetup.Modify(true);
 
-            Validate("Tax Liable", true);
-            if ForNewTaxArea then
-                Validate("Tax Area Code", CreateTaxArea(TaxGroup))
-            else
-                Validate("Tax Area Code", SelectTaxArea(TaxGroup));
+        Customer.Validate("Tax Liable", true);
+        if ForNewTaxArea then
+            Customer.Validate("Tax Area Code", CreateTaxArea(TaxGroup))
+        else
+            Customer.Validate("Tax Area Code", SelectTaxArea(TaxGroup));
 
-            if CurrencyCode <> '' then
-                Validate("Currency Code", CurrencyCode);
+        if CurrencyCode <> '' then
+            Customer.Validate("Currency Code", CurrencyCode);
 
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateNewExchangeRate(CurrencyCode: Code[10])
@@ -316,15 +312,13 @@ codeunit 141000 "ERM Sales Prepayment"
         NewExchangeRateAmount := LibraryRandom.RandDecInRange(1, 100, 2);
         NewRelationalExchRateAmount := LibraryRandom.RandDecInRange(101, 200, 2);
 
-        with CurrencyExchangeRate do begin
-            if not Get(CurrencyCode, WorkDate()) then
-                LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
-            Validate("Exchange Rate Amount", NewExchangeRateAmount);
-            Validate("Adjustment Exch. Rate Amount", NewExchangeRateAmount);
-            Validate("Relational Exch. Rate Amount", NewRelationalExchRateAmount);
-            Validate("Relational Adjmt Exch Rate Amt", NewRelationalExchRateAmount);
-            Modify(true);
-        end;
+        if not CurrencyExchangeRate.Get(CurrencyCode, WorkDate()) then
+            LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", NewExchangeRateAmount);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", NewExchangeRateAmount);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", NewRelationalExchRateAmount);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", NewRelationalExchRateAmount);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure Initialize()

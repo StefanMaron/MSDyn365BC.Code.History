@@ -91,7 +91,7 @@ report 10110 "Vendor 1099 Information"
             }
             dataitem(VendorTotal; "Integer")
             {
-                DataItemTableView = sorting(Number) WHERE(Number = const(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(VendorNo; Vendor."No.")
                 {
                 }
@@ -294,10 +294,9 @@ report 10110 "Vendor 1099 Information"
             end;
         end;
 
-        for j := 1 to LastFormType do begin
+        for j := 1 to LastFormType do
             if FormTypes[j] = CopyStr(Code, 1, StrLen(FormTypes[j])) then
                 FormTypeTotal[j, 2] := FormTypeTotal[j, 2] + Amount;
-        end;
     end;
 }
 

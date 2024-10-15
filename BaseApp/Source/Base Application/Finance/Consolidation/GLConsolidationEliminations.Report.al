@@ -359,10 +359,14 @@ report 16 "G/L Consolidation Eliminations"
         FirstLine: Boolean;
         EliminationAmount: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter the starting date for the consolidation period.';
         Text001: Label 'Enter the ending date for the consolidation period.';
         Text002: Label 'Posted Eliminations';
+#pragma warning disable AA0470
         Text003: Label 'Period: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         GLConsolidationEliminationsCaptionLbl: Label 'G/L Consolidation Eliminations';
         PageCaptionLbl: Label 'Page';
         GLAcc2NoCaptionLbl: Label 'No.';

@@ -192,9 +192,11 @@ page 404 "Check Preview"
         CheckStatusText: Text[30];
         CheckAmount: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'Printed Check';
         Text001: Label 'Not Printed Check';
         Text002: Label 'Placeholder';
+#pragma warning restore AA0074
         CheckDateFormat: Option " ","MM DD YYYY","DD MM YYYY","YYYY MM DD";
         CheckLanguage: Integer;
         DateSeparator: Option " ","-",".","/";

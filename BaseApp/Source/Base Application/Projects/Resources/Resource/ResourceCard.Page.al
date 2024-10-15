@@ -13,11 +13,9 @@ using Microsoft.Projects.Project.Analysis;
 using Microsoft.Projects.Resources.Analysis;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Projects.Resources.Reports;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
-using Microsoft.Service.Analysis;
-using Microsoft.Service.Resources;
 using Microsoft.Utilities;
 
 page 76 "Resource Card"
@@ -260,10 +258,23 @@ page 76 "Resource Card"
                 ApplicationArea = Jobs;
                 SubPageLink = "No." = field("No.");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::Resource),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::Resource),
                               "No." = field("No.");
             }
@@ -272,8 +283,10 @@ page 76 "Resource Card"
                 ApplicationArea = Jobs;
                 SubPageLink = "No." = field("No."),
                               "Unit of Measure Filter" = field("Unit of Measure Filter"),
-                              "Chargeable Filter" = field("Chargeable Filter"),
-                              "Service Zone Filter" = field("Service Zone Filter");
+#if not CLEAN25
+                              "Service Zone Filter" = field("Service Zone Filter"),
+#endif
+                              "Chargeable Filter" = field("Chargeable Filter");
                 Visible = true;
             }
             systempart(Control1900383207; Links)
@@ -350,30 +363,15 @@ page 76 "Resource Card"
                     RunPageLink = "Resource No." = field("No.");
                     ToolTip = 'View or edit the units of measure that are set up for the resource.';
                 }
-                action("S&kills")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'S&kills';
-                    Image = Skills;
-                    RunObject = Page "Resource Skills";
-                    RunPageLink = Type = const(Resource),
-                                  "No." = field("No.");
-                    ToolTip = 'View the assignment of skills to the resource. You can use skill codes to allocate skilled resources to service items or items that need special skills for servicing.';
-                }
+#if not CLEAN25
                 separator(Action34)
                 {
                     Caption = '';
+                    ObsoleteReason = 'Not used.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
-                action("Resource L&ocations")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Resource L&ocations';
-                    Image = Resource;
-                    RunObject = Page "Resource Locations";
-                    RunPageLink = "Resource No." = field("No.");
-                    RunPageView = sorting("Resource No.");
-                    ToolTip = 'View where resources are located or assign resources to locations.';
-                }
+#endif
                 action("Co&mments")
                 {
                     ApplicationArea = Comments;
@@ -524,7 +522,7 @@ page 76 "Resource Card"
                 action(FSGoToProduct)
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Product';
+                    Caption = 'Bookable Resource';
                     Image = CoupledItem;
                     ToolTip = 'Open the coupled Dynamics 365 Field Service bookable resource.';
                     ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
@@ -662,7 +660,7 @@ page 76 "Resource Card"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN23
+#if not CLEAN25
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
@@ -747,15 +745,6 @@ page 76 "Resource Card"
                     RunPageLink = "Resource Filter" = field("No.");
                     ToolTip = 'View this project''s resource allocation.';
                 }
-                action("Resource Allocated per Service &Order")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Resource Allocated per Service &Order';
-                    Image = ViewServiceOrder;
-                    RunObject = Page "Res. Alloc. per Service Order";
-                    RunPageLink = "Resource Filter" = field("No.");
-                    ToolTip = 'View the service order allocations of the resource.';
-                }
                 action("Resource A&vailability")
                 {
                     ApplicationArea = Jobs;
@@ -766,20 +755,6 @@ page 76 "Resource Card"
                                   "Base Unit of Measure" = field("Base Unit of Measure"),
                                   "Chargeable Filter" = field("Chargeable Filter");
                     ToolTip = 'View a summary of resource capacities, the quantity of resource hours allocated to projects on order, the quantity allocated to service orders, the capacity assigned to projects on quote, and the resource availability.';
-                }
-            }
-            group(Service)
-            {
-                Caption = 'Service';
-                Image = ServiceZone;
-                action("Service &Zones")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Service &Zones';
-                    Image = ServiceZone;
-                    RunObject = Page "Resource Service Zones";
-                    RunPageLink = "Resource No." = field("No.");
-                    ToolTip = 'View the different service zones that you can assign to customers and resources. When you allocate a resource to a service task that is to be performed at the customer site, you can select a resource that is located in the same service zone as the customer.';
                 }
             }
             group(History)
@@ -894,13 +869,7 @@ page 76 "Resource Card"
                 actionref("Units of Measure_Promoted"; "Units of Measure")
                 {
                 }
-                actionref("S&kills_Promoted"; "S&kills")
-                {
-                }
-                actionref("Resource L&ocations_Promoted"; "Resource L&ocations")
-                {
-                }
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Costs_Promoted; Costs)
                 {
                     ObsoleteState = Pending;
@@ -908,7 +877,7 @@ page 76 "Resource Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Prices_Promoted; Prices)
                 {
                     ObsoleteState = Pending;
@@ -1081,4 +1050,5 @@ page 76 "Resource Card"
         NoFieldVisible := DocumentNoVisibility.ResourceNoIsVisible();
     end;
 }
+
 

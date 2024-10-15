@@ -16,7 +16,7 @@ report 10310 "Language List"
 
     dataset
     {
-        dataitem(Language; Language)
+        dataitem(LanguageDataItem; Language)
         {
             DataItemTableView = sorting(Code);
             RequestFilterFields = "Code";
@@ -32,7 +32,7 @@ report 10310 "Language List"
             column(USERID; UserId)
             {
             }
-            column(Language_TABLECAPTION__________LanguageFilter; Language.TableCaption + ': ' + LanguageFilter)
+            column(Language_TABLECAPTION__________LanguageFilter; LanguageDataItem.TableCaption + ': ' + LanguageFilter)
             {
             }
             column(LanguageFilter; LanguageFilter)
@@ -95,7 +95,7 @@ report 10310 "Language List"
     trigger OnPreReport()
     begin
         CompanyInformation.Get();
-        LanguageFilter := Language.GetFilters();
+        LanguageFilter := LanguageDataItem.GetFilters();
     end;
 
     var

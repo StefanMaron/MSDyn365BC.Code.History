@@ -260,7 +260,9 @@ report 7320 "Whse. Adjustment Bin"
         Location: Record Location;
         WhseEntry: Record "Warehouse Entry";
         WhseEntryFilter: Text;
+#pragma warning disable AA0074
         Text000: Label 'Total for ';
+#pragma warning restore AA0074
         Details: Boolean;
         ZeroQty: Boolean;
         CurrReportPageNoCaptionLbl: Label 'Page';

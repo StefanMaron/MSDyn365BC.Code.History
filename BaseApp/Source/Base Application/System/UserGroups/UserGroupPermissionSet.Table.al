@@ -7,13 +7,8 @@ table 9003 "User Group Permission Set"
     Caption = 'User Group Permission Set';
     DataPerCompany = false;
     ReplicateData = false;
-#if not CLEAN22
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#endif 
     ObsoleteReason = '[220_UserGroups] The user groups functionality is deprecated. Use security groups (Security Group codeunit) or permission sets directly instead. To learn more, go to https://go.microsoft.com/fwlink/?linkid=2245709.';
     DataClassification = CustomerContent;
 
@@ -70,42 +65,5 @@ table 9003 "User Group Permission Set"
             Clustered = true;
         }
     }
-
-#if not CLEAN22
-    fieldgroups
-    {
-    }
-
-    trigger OnDelete()
-    begin
-        MarkUserGroupAsCustomized("User Group Code");
-    end;
-
-    trigger OnInsert()
-    begin
-        MarkUserGroupAsCustomized("User Group Code");
-    end;
-
-    trigger OnModify()
-    begin
-        MarkUserGroupAsCustomized("User Group Code");
-    end;
-
-    trigger OnRename()
-    begin
-        MarkUserGroupAsCustomized("User Group Code");
-    end;
-
-    local procedure MarkUserGroupAsCustomized(UserGroupCode: Code[20])
-    var
-        UserGroup: Record "User Group";
-    begin
-        if not UserGroup.Get(UserGroupCode) then
-            exit;
-
-        UserGroup.Customized := true;
-        UserGroup.Modify();
-    end;
-#endif
 }
 

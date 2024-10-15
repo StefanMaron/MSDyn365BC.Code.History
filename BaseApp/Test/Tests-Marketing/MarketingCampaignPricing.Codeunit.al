@@ -14,18 +14,18 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryMarketing: Codeunit "Library - Marketing";
-#if not CLEAN23
+#if not CLEAN25
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
 #endif
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
-#if not CLEAN23
+#if not CLEAN25
         PriceDateChangeError: Label 'If Sales Type = Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
         DiscountDateChangeError: Label 'You can only change the Starting Date and Ending Date from the Campaign Card when Sales Type = Campaign';
 #endif
@@ -33,13 +33,13 @@ codeunit 136214 "Marketing Campaign Pricing"
         SalesPriceConfirmMessage: Label 'There are no Sales Prices or Sales Line Discounts currently linked to this %1. Do you still want to activate?';
         SalesPriceError: Label 'To activate the sales prices and/or line discounts, you must apply the relevant Segment Line(s) to the Campaign and place a check mark in the Campaign Target field on the Segment Line.';
         CampaignActivatedMessage: Label 'Campaign %1 is now activated.';
-#if not CLEAN23
+#if not CLEAN25
         ValueMustNotMatch: Label 'Value must not match.';
         ValueMustMatch: Label 'Value must match.';
         FeatureIsOnErr: Label 'This page is no longer available. It was used by a feature that has been replaced or removed.';
 #endif
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure CampaignSalesPriceDateChangeError()
@@ -189,7 +189,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         // Verify: Verification is done in MessageHandler.
     end;
 
-#if not CLEAN23
+#if not CLEAN25
 #pragma warning disable AS0072
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -585,7 +585,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibraryMarketing.RunAddContactsReport(LibraryVariableStorageVariant, false);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure ChangeDateOnSalesPricePage(CampaignNo: Code[20])
     var
         SalesPrices: TestPage "Sales Prices";
@@ -601,7 +601,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         SalesLineDiscounts: TestPage "Sales Line Discounts";
     begin
         SalesLineDiscounts.OpenEdit();
-        SalesLineDiscounts.FILTER.SetFilter("Sales Type", SalesLineDiscounts.SalesType.GetOption(4));  // Take Index 4 for Campaign option.
+        SalesLineDiscounts.FILTER.SetFilter("Sales Type", SalesLineDiscounts."Sales Type".GetOption(4));  // Take Index 4 for Campaign option.
         SalesLineDiscounts.FILTER.SetFilter("Sales Code", CampaignNo);
         SalesLineDiscounts."Starting Date".SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Use RandInt to change Date.
     end;
@@ -670,7 +670,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateSalesPriceForCampaign(var SalesPrice: Record "Sales Price")
     var
         Campaign: Record Campaign;
@@ -725,16 +725,14 @@ codeunit 136214 "Marketing Campaign Pricing"
         CustomerTemplate: Record "Customer Templ.";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with CustomerTemplate do begin
-            SetRange("Currency Code", '');
-            FindFirst();
-            if "VAT Bus. Posting Group" = '' then begin
-                LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-                Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-                Modify(true);
-            end;
-            exit(Code);
+        CustomerTemplate.SetRange("Currency Code", '');
+        CustomerTemplate.FindFirst();
+        if CustomerTemplate."VAT Bus. Posting Group" = '' then begin
+            LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+            CustomerTemplate.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+            CustomerTemplate.Modify(true);
         end;
+        exit(CustomerTemplate.Code);
     end;
 
     local procedure FindContactBusinessRelation(ContactNo: Code[20]): Code[20]
@@ -805,7 +803,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         SegmentHeader.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifySalesPriceWksht(SalesPrice: Record "Sales Price")
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -849,7 +847,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         Assert.IsTrue(StrPos(Message, ExpectedMessage) > 0, Message);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPricePageHandler(var GetSalesPrice: TestPage "Get Sales Price")

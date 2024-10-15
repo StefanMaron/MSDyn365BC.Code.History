@@ -40,9 +40,6 @@ using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
-#if not CLEAN24
-using Microsoft.Service.Contract;
-#endif
 using System.IO;
 using System.Utilities;
 using Microsoft.Finance.SalesTax;
@@ -55,10 +52,18 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Please enter a Document No.';
+#pragma warning disable AA0470
         Text001: Label '%1 %2 cannot be copied onto itself.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DeleteLinesQst: Label 'The existing lines for %1 %2 will be deleted.\\Do you want to continue?', Comment = '%1=Document type, e.g. Invoice. %2=Document No., e.g. 001';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text006: Label 'NOTE: A Payment Discount was Granted by %1 %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Currency: Record Currency;
         Item: Record Item;
         AsmHeader: Record "Assembly Header";
@@ -86,35 +91,57 @@ codeunit 6620 "Copy Document Mgt."
         IncludeHeader: Boolean;
         RecalculateLines: Boolean;
         MoveNegLines: Boolean;
+#pragma warning disable AA0074
         Text008: Label 'There are no negative sales lines to move.';
+#pragma warning disable AA0470
         Text009: Label 'NOTE: A Payment Discount was Received by %1 %2.';
+#pragma warning restore AA0470
         Text010: Label 'There are no negative purchase lines to move.';
+#pragma warning restore AA0074
         CreateToHeader: Boolean;
+#pragma warning disable AA0074
         Text011: Label 'Please enter a Vendor No.';
+#pragma warning restore AA0074
         HideDialog: Boolean;
+#pragma warning disable AA0074
         Text012: Label 'There are no sales lines to copy.';
         Text013: Label 'Shipment No.,Invoice No.,Return Receipt No.,Credit Memo No.';
         Text014: Label 'Receipt No.,Invoice No.,Return Shipment No.,Credit Memo No.';
+#pragma warning disable AA0470
         Text015: Label '%1 %2:';
+#pragma warning restore AA0470
         Text016: Label 'Inv. No. ,Shpt. No. ,Cr. Memo No. ,Rtrn. Rcpt. No. ';
         Text017: Label 'Inv. No. ,Rcpt. No. ,Cr. Memo No. ,Rtrn. Shpt. No. ';
+#pragma warning disable AA0470
         Text018: Label '%1 - %2:';
+#pragma warning restore AA0470
         Text019: Label 'Exact Cost Reversing Link has not been created for all copied document lines.';
         Text022: Label 'Copying document lines...\';
+#pragma warning disable AA0470
         Text023: Label 'Processing source lines      #1######\';
         Text024: Label 'Creating new lines           #2######';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ExactCostRevMandatory: Boolean;
         ApplyFully: Boolean;
         AskApply: Boolean;
         ReappDone: Boolean;
+#pragma warning disable AA0074
         Text025: Label 'For one or more return document lines, you chose to return the original quantity, which is already fully applied. Therefore, when you post the return document, the program will reapply relevant entries. Beware that this may change the cost of existing entries. To avoid this, you must delete the affected return document lines before posting.';
+#pragma warning restore AA0074
         SkippedLine: Boolean;
+#pragma warning disable AA0074
         Text029: Label 'One or more return document lines were not inserted or they contain only the remaining quantity of the original document line. This is because quantities on the posted document line are already fully or partially applied. If you want to reverse the full quantity, you must select Return Original Quantity before getting the posted document lines.';
         Text030: Label 'One or more return document lines were not copied. This is because quantities on the posted document line are already fully or partially applied, so the Exact Cost Reversing link could not be created.';
         Text031: Label 'Return document line contains only the original document line quantity, that is not already manually applied.';
+#pragma warning restore AA0074
         SomeAreFixed: Boolean;
         AsmHdrExistsForFromDocLine: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text032: Label 'The posted sales invoice %1 covers more than one shipment of linked assembly orders that potentially have different assembly components. Select Posted Shipment as document type, and then select a specific shipment of assembled items.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         FromDocOccurrenceNo: Integer;
         FromDocVersionNo: Integer;
         SkipCopyFromDescription: Boolean;
@@ -923,11 +950,11 @@ codeunit 6620 "Copy Document Mgt."
         else
             NextLineNo := 0;
 
-        if IncludeHeader then begin
+        if IncludeHeader then
             CopyPurchDocUpdateHeader(
                 FromDocType, FromDocNo, ToPurchHeader, FromPurchHeader,
                 FromPurchRcptHeader, FromPurchInvHeader, FromReturnShptHeader, FromPurchCrMemoHeader, FromPurchHeaderArchive, ReleaseDocument)
-        end else
+        else
             OnCopyPurchDocWithoutHeader(ToPurchHeader, FromDocType.AsInteger(), FromDocNo, FromDocOccurrenceNo, FromDocVersionNo, FromPurchInvHeader, FromPurchCrMemoHeader);
 
         LinesNotCopied := 0;
@@ -2048,12 +2075,11 @@ codeunit 6620 "Copy Document Mgt."
             end;
             ToPurchLine.Validate("Appl.-to Item Entry", FromPurchLine."Appl.-to Item Entry");
             if not CreateToHeader then
-                if ToPurchLine."Expected Receipt Date" = 0D then begin
+                if ToPurchLine."Expected Receipt Date" = 0D then
                     if ToPurchHeader."Expected Receipt Date" <> 0D then
                         ToPurchLine."Expected Receipt Date" := ToPurchHeader."Expected Receipt Date"
                     else
                         ToPurchLine."Expected Receipt Date" := WorkDate();
-                end;
         end;
 
     end;
@@ -2871,11 +2897,11 @@ codeunit 6620 "Copy Document Mgt."
 
 #if not CLEAN24
     [Obsolete('Replaced by same procedure in codeunit CopyServiceContractMgt.', '24.0')]
-    procedure CopyServContractLines(ToServContractHeader: Record "Service Contract Header"; FromDocType: Option; FromDocNo: Code[20]; var FromServContractLine: Record "Service Contract Line") AllLinesCopied: Boolean
+    procedure CopyServContractLines(ToServContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; FromDocType: Option; FromDocNo: Code[20]; var FromServContractLine: Record Microsoft.Service.Contract."Service Contract Line") AllLinesCopied: Boolean
     var
         CopyServiceContractMgt: Codeunit "Copy Service Contract Mgt.";
     begin
-        exit(CopyServiceContractMgt.CopyServiceContractLines(ToServContractHeader, "Service Contract Type From".FromInteger(FromDocType), FromDocNo, FromServContractLine));
+        exit(CopyServiceContractMgt.CopyServiceContractLines(ToServContractHeader, Microsoft.Service.Contract."Service Contract Type From".FromInteger(FromDocType), FromDocNo, FromServContractLine));
     end;
 #endif
 
@@ -2883,7 +2909,7 @@ codeunit 6620 "Copy Document Mgt."
     [Obsolete('Replaced by procedure GetServiceContractType() in codeunit CopyServiceContractMgt.', '24.0')]
     procedure ServContractHeaderDocType(DocType: Option): Integer
     var
-        ServContractHeader: Record "Service Contract Header";
+        ServContractHeader: Record Microsoft.Service.Contract."Service Contract Header";
         ServDocType: Option Quote,Contract;
     begin
         case DocType of
@@ -7962,6 +7988,7 @@ codeunit 6620 "Copy Document Mgt."
             ToPurchaseHeader."Ship-to Name" := FromPurchaseHeader."Ship-to Name";
             ToPurchaseHeader."Ship-to Name 2" := FromPurchaseHeader."Ship-to Name 2";
             ToPurchaseHeader."Ship-to Post Code" := FromPurchaseHeader."Ship-to Post Code";
+            ToPurchaseHeader."Ship-to Phone No." := FromPurchaseHeader."Ship-to Phone No.";
             ToPurchaseHeader."Ship-to Contact" := FromPurchaseHeader."Ship-to Contact";
             ToPurchaseHeader."Inbound Whse. Handling Time" := FromPurchaseHeader."Inbound Whse. Handling Time";
         end;
@@ -8018,6 +8045,11 @@ codeunit 6620 "Copy Document Mgt."
     begin
         if not ToSalesHeader.IsCreditDocType() then
             ToSalesHeader."Rcvd.-from Count./Region Code" := '';
+    end;
+
+    procedure SetCopyExtendedText(CopyExtendedText: Boolean)
+    begin
+        CopyExtText := CopyExtendedText;
     end;
 
     [IntegrationEvent(true, false)]
@@ -8221,11 +8253,6 @@ codeunit 6620 "Copy Document Mgt."
     begin
         if SkipOldInvoiceDesc and RcptOrShipLineExist then
             SkipCopyFromDescription := true;
-    end;
-
-    procedure SetCopyExtendedText(CopyExtendedText: Boolean)
-    begin
-        CopyExtText := CopyExtendedText;
     end;
 
     [IntegrationEvent(false, false)]
@@ -8703,14 +8730,14 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
 #if not CLEAN24
-    internal procedure RunOnAfterCopyServContractLines(ToServiceContractHeader: Record "Service Contract Header"; FromDocType: Option; FromDocNo: Code[20]; var FormServiceContractLine: Record "Service Contract Line")
+    internal procedure RunOnAfterCopyServContractLines(ToServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; FromDocType: Option; FromDocNo: Code[20]; var FormServiceContractLine: Record Microsoft.Service.Contract."Service Contract Line")
     begin
         OnAfterCopyServContractLines(ToServiceContractHeader, FromDocType, FromDocNo, FormServiceContractLine);
     end;
 
     [IntegrationEvent(false, false)]
     [Obsolete('Replaced by event OnGetServiceContractTypeCaseElse in codeunit Copy Service Contract Mgt.', '24.0')]
-    local procedure OnAfterCopyServContractLines(ToServiceContractHeader: Record "Service Contract Header"; FromDocType: Option; FromDocNo: Code[20]; var FormServiceContractLine: Record "Service Contract Line")
+    local procedure OnAfterCopyServContractLines(ToServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; FromDocType: Option; FromDocNo: Code[20]; var FormServiceContractLine: Record Microsoft.Service.Contract."Service Contract Line")
     begin
     end;
 #endif
@@ -8796,14 +8823,14 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
 #if not CLEAN24
-    internal procedure RunOnAfterProcessServContractLine(var ToServContractLine: Record "Service Contract Line"; FromServContractLine: Record "Service Contract Line")
+    internal procedure RunOnAfterProcessServContractLine(var ToServContractLine: Record Microsoft.Service.Contract."Service Contract Line"; FromServContractLine: Record Microsoft.Service.Contract."Service Contract Line")
     begin
         OnAfterProcessServContractLine(ToServContractLine, FromServContractLine);
     end;
 
     [IntegrationEvent(false, false)]
     [Obsolete('Replaced by event OnAfterProcessServiceContractLine in codeunit Copy Service Contract Mgt.', '24.0')]
-    local procedure OnAfterProcessServContractLine(var ToServContractLine: Record "Service Contract Line"; FromServContractLine: Record "Service Contract Line")
+    local procedure OnAfterProcessServContractLine(var ToServContractLine: Record Microsoft.Service.Contract."Service Contract Line"; FromServContractLine: Record Microsoft.Service.Contract."Service Contract Line")
     begin
     end;
 #endif
@@ -10535,3 +10562,4 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 }
+

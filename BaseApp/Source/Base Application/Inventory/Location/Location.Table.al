@@ -348,7 +348,6 @@ table 14 Location
                 WhseActivHeader: Record "Warehouse Activity Header";
                 WhseShptHeader: Record "Warehouse Shipment Header";
                 WhseRcptHeader: Record "Warehouse Receipt Header";
-                WhseIntegrationMgt: Codeunit "Whse. Integration Management";
                 Window: Dialog;
             begin
                 if "Bin Mandatory" and not xRec."Bin Mandatory" then begin
@@ -363,6 +362,7 @@ table 14 Location
                     "Pick Bin Policy" := "Pick Bin Policy"::"Default Bin";
                     "Put-away Bin Policy" := "Put-away Bin Policy"::"Default Bin";
                     OnValidateBinMandatoryOnAfterItemLedgEntrySetFilters(Rec);
+                    Window.Close();
                 end;
 
                 WhseActivHeader.SetRange("Location Code", Code);
@@ -402,7 +402,7 @@ table 14 Location
                     "From-Assembly Bin Code" := '';
                     Rec."To-Job Bin Code" := '';
                     Rec."Check Whse. Class" := false;
-                    WhseIntegrationMgt.CheckLocationOnManufBins(Rec);
+                    OnValidateBinMandatoryOnAfterCheckBins(Rec);
                 end;
             end;
         }
@@ -440,14 +440,13 @@ table 14 Location
                     Validate("Require Pick", true);
                     Validate("Use Cross-Docking", true);
                     "Default Bin Selection" := "Default Bin Selection"::" ";
-                    Clear(Rec."To-Job Bin Code");
                     Validate("Check Whse. Class", true);
                     "Pick Bin Policy" := "Pick Bin Policy"::"Bin Ranking";
                     "Put-away Bin Policy" := "Put-away Bin Policy"::"Put-away Template";
                     "Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
                     "Prod. Output Whse. Handling" := "Prod. Output Whse. Handling"::"No Warehouse Handling";
                     "Asm. Consump. Whse. Handling" := "Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
-                    "Job Consump. Whse. Handling" := "Job Consump. Whse. Handling"::"No Warehouse Handling";
+                    "Job Consump. Whse. Handling" := "Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
                 end else
                     Validate("Adjustment Bin Code", '');
 
@@ -529,10 +528,8 @@ table 14 Location
             var
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                WhseIntegrationMgt.CheckBinCode(Code,
-                  "Open Shop Floor Bin Code",
-                  FieldCaption("Open Shop Floor Bin Code"),
-                  DATABASE::Location, Code);
+                WhseIntegrationMgt.CheckBinCodeForLocation(
+                    Code, "Open Shop Floor Bin Code", FieldCaption("Open Shop Floor Bin Code"), Code);
             end;
         }
         field(7314; "To-Production Bin Code"; Code[20])
@@ -544,10 +541,8 @@ table 14 Location
             var
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                WhseIntegrationMgt.CheckBinCode(Code,
-                  "To-Production Bin Code",
-                  FieldCaption("To-Production Bin Code"),
-                  DATABASE::Location, Code);
+                WhseIntegrationMgt.CheckBinCodeForLocation(
+                    Code, "To-Production Bin Code", FieldCaption("To-Production Bin Code"), Code);
             end;
         }
         field(7315; "From-Production Bin Code"; Code[20])
@@ -559,10 +554,8 @@ table 14 Location
             var
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                WhseIntegrationMgt.CheckBinCode(Code,
-                  "From-Production Bin Code",
-                  FieldCaption("From-Production Bin Code"),
-                  DATABASE::Location, Code);
+                WhseIntegrationMgt.CheckBinCodeForLocation(
+                    Code, "From-Production Bin Code", FieldCaption("From-Production Bin Code"), Code);
             end;
         }
         field(7316; "Prod. Consump. Whse. Handling"; Enum "Prod. Consump. Whse. Handling")
@@ -653,10 +646,8 @@ table 14 Location
             var
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                WhseIntegrationMgt.CheckBinCode(Code,
-                  "To-Assembly Bin Code",
-                  FieldCaption("To-Assembly Bin Code"),
-                  DATABASE::Location, Code);
+                WhseIntegrationMgt.CheckBinCodeForLocation(
+                    Code, "To-Assembly Bin Code", FieldCaption("To-Assembly Bin Code"), Code);
             end;
         }
         field(7331; "From-Assembly Bin Code"; Code[20])
@@ -668,10 +659,8 @@ table 14 Location
             var
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                WhseIntegrationMgt.CheckBinCode(Code,
-                  "From-Assembly Bin Code",
-                  FieldCaption("From-Assembly Bin Code"),
-                  DATABASE::Location, Code);
+                WhseIntegrationMgt.CheckBinCodeForLocation(
+                    Code, "From-Assembly Bin Code", FieldCaption("From-Assembly Bin Code"), Code);
             end;
         }
         field(7332; "Asm.-to-Order Shpt. Bin Code"; Code[20])
@@ -683,10 +672,8 @@ table 14 Location
             var
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                WhseIntegrationMgt.CheckBinCode(Code,
-                  "Asm.-to-Order Shpt. Bin Code",
-                  FieldCaption("Asm.-to-Order Shpt. Bin Code"),
-                  DATABASE::Location, Code);
+                WhseIntegrationMgt.CheckBinCodeForLocation(
+                    Code, "Asm.-to-Order Shpt. Bin Code", FieldCaption("Asm.-to-Order Shpt. Bin Code"), Code);
             end;
         }
         field(7333; "To-Job Bin Code"; Code[20])
@@ -698,8 +685,8 @@ table 14 Location
             var
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                Rec.TestField("Directed Put-away and Pick", false); //Directed Put-away and pick is not supported for Jobs.
-                WhseIntegrationMgt.CheckBinCode(Rec.Code, Rec."To-Job Bin Code", CopyStr(Rec.FieldCaption(Rec."To-Job Bin Code"), 1, 30), DATABASE::Location, Rec.Code);
+                WhseIntegrationMgt.CheckBinCodeForLocation(
+                    Rec.Code, Rec."To-Job Bin Code", Rec.FieldCaption(Rec."To-Job Bin Code"), Rec.Code);
             end;
         }
         field(7334; "Asm. Consump. Whse. Handling"; Enum "Asm. Consump. Whse. Handling")
@@ -921,23 +908,31 @@ table 14 Location
         InvtSetup: Record "Inventory Setup";
         Location: Record Location;
         CustomizedCalendarChange: Record "Customized Calendar Change";
+        CalendarManagement: Codeunit "Calendar Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot delete the %1 %2, because they contain items.';
         Text001: Label 'You cannot delete the %1 %2, because one or more Warehouse Activity Lines exist for this %1.';
         Text002: Label '%1 must be Yes, because the bins contain items.';
+#pragma warning restore AA0470
         Text003: Label 'Cancelled.';
         Text004: Label 'The total quantity of items in the warehouse is 0, but the Adjustment Bin contains a negative quantity and other bins contain a positive quantity.\';
+#pragma warning disable AA0470
         Text005: Label 'Do you still want to delete this %1?';
         Text006: Label 'You cannot change the %1 until the inventory stored in %2 %3 is 0.';
         Text007: Label 'You have to delete all Adjustment Warehouse Journal Lines first before you can change the %1.';
         Text008: Label '%1 must be %2, because one or more %3 exist.';
         Text009: Label 'You cannot change %1 because there are one or more open ledger entries on this location.';
+#pragma warning restore AA0470
         Text010: Label 'Checking item ledger entries for open entries...';
+#pragma warning disable AA0470
         Text011: Label 'You cannot change the %1 to %2 until the inventory stored in this bin is 0.';
         Text013: Label 'You cannot delete %1 because there are one or more ledger entries on this location.';
         Text014: Label 'You cannot change %1 because one or more %2 exist.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InvtActivityExistsFieldValidationErr: Label 'You cannot change %1 because one or more inventory activities exist for this location.', Comment = '%1 = field caption';
         CannotDeleteLocSKUExistErr: Label 'You cannot delete %1 because one or more stockkeeping units exist at this location.', Comment = '%1: Field(Code)';
-        CalendarManagement: Codeunit "Calendar Management";
         UnspecifiedLocationLbl: Label '(Unspecified Location)';
 
     procedure RequireShipment(LocationCode: Code[10]): Boolean
@@ -1133,7 +1128,9 @@ table 14 Location
 
     procedure GetRequirementText(FieldNumber: Integer): Text[50]
     var
+#pragma warning disable AA0074
         Text000: Label 'Shipment,Receive,Pick,Put-Away';
+#pragma warning restore AA0074
     begin
         case FieldNumber of
             FieldNo("Require Shipment"):
@@ -1338,6 +1335,11 @@ table 14 Location
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsBinBWReceiveOrShip(Location: Record Location; BinCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBinMandatoryOnAfterCheckBins(Location: Record Location)
     begin
     end;
 }

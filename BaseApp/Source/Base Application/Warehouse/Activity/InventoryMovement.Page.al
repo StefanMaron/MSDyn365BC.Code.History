@@ -363,7 +363,9 @@ page 7382 "Inventory Movement"
     var
         WhseDocPrint: Codeunit "Warehouse Document-Print";
         WMSMgt: Codeunit "WMS Management";
+#pragma warning disable AA0074
         Text001: Label 'You cannot use this function if the lines already exist.';
+#pragma warning restore AA0074
 
     local procedure AutofillQtyToHandle()
     begin

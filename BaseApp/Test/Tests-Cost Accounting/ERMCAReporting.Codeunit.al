@@ -18,8 +18,6 @@ codeunit 134816 "ERM CA Reporting"
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         ClosedEntryError: Label 'A closed register cannot be reactivated.';
-        CostBudgetRegisterNotExisting: Label 'The Cost Budget Register does not exist.';
-        CostRegisterNotExisting: Label 'The Cost Register does not exist.';
         DeleteClosedEntryError: Label 'Register %1 can no longer be deleted because it is marked as closed.';
         EndingDateNotAtYearEnd: Label '%1 is not at year''s end.';
         EndingDateNotOlderThanOneYar: Label 'The selected year ending date %1 must be older than last year.';
@@ -260,7 +258,7 @@ codeunit 134816 "ERM CA Reporting"
         REPORT.Run(REPORT::"Delete Cost Budget Entries");
 
         // Verify
-        Assert.ExpectedError(CostBudgetRegisterNotExisting);
+        Assert.ExpectedErrorCannotFind(Database::"Cost Budget Register");
     end;
 
     [Test]
@@ -320,7 +318,7 @@ codeunit 134816 "ERM CA Reporting"
         REPORT.Run(REPORT::"Delete Cost Entries");
 
         // Verify
-        Assert.ExpectedError(CostRegisterNotExisting);
+        Assert.ExpectedErrorCannotFind(Database::"Cost Register");
     end;
 
     [Test]

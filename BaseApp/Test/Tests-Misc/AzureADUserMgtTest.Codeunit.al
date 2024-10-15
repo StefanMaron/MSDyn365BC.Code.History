@@ -26,9 +26,6 @@ codeunit 132907 AzureADUserMgtTest
         MockGraphQueryTestLibrary: Codeunit "MockGraphQuery Test Library";
         CompanyAdminRoleTemplateIdTok: Label '62e90394-69f5-4237-9190-012177145e10', Locked = true;
         DeviceUserCannotBeFirstUser: Label 'The device user cannot be the first user to log into the system.';
-#if not CLEAN22
-        ExpectedUserGroupAssignedTxt: Label 'Expected the user to have the ''%1'' user group assigned.', Comment = '%1 - user group code';
-#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -186,216 +183,6 @@ codeunit 132907 AzureADUserMgtTest
         TearDown();
     end;
 
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [CommitBehavior(CommitBehavior::Ignore)]
-    [Scope('OnPrem')]
-    procedure TestCreateNewUsersFromAzureADDoesNotRemoveValidUserGroups()
-    var
-        AzureADPlan: Codeunit "Azure AD Plan";
-        AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
-        UserAuthenticationId: Guid;
-        RainyCloudPlanId: Guid;
-        UserGroupCode: Code[20];
-    begin
-        // [SCENARIO] Bug 195582: Get Users from Office 365 can wipe out the User Groups
-        Initialize();
-        BindSubscription(AzureADUserMgtTestLibrary);
-
-        // [GIVEN] A user group in a plan exists
-        RainyCloudPlanId := AzureADPlanTestLibrary.CreatePlan('Rainy Cloud');
-        Assert.IsTrue(AzureADPlan.DoesPlanExist(RainyCloudPlanId), 'The plan does not exist');
-
-        UserGroupCode := 'Test User Group';
-        LibraryPermissions.CreateUserGroupInPlan(UserGroupCode, RainyCloudPlanId);
-
-        // [GIVEN] A user associated with the plan. The user only exists in Azure AD
-        MockGraphQueryTestLibrary.AddGraphUser(UserAuthenticationId, 'Test', 'User', 'testuser@microsoft.com');
-        MockGraphQueryTestLibrary.AddUserPlan(UserAuthenticationId, RainyCloudPlanId, '', 'Enabled');
-
-        // [GIVEN] CreateNewUsersFromAzureAD is invoked to create the user and assign the user group to it
-        AzureADUserManagement.CreateNewUsersFromAzureAD(); // first call - creates the user
-        AssertUserGroupHasOneMember(UserGroupCode, 'Prerequisite failed: Missing user group member.');
-
-        // [WHEN] CreateNewUsersFromAzureAD is invoked a second time
-        AzureADUserManagement.CreateNewUsersFromAzureAD(); // second call - should not delete the user's groups
-
-        // Rollback SaaS test
-        UnbindSubscription(AzureADUserMgtTestLibrary);
-        TearDown();
-
-        // [THEN] The user group is still assigned to the user
-        AssertUserGroupHasOneMember(UserGroupCode, 'Test failed: Missing user group member.');
-    end;
-
-    [Test]
-    [Obsolete('Not Used.', '22.0')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [CommitBehavior(CommitBehavior::Ignore)]
-    procedure TestUserGroupsAppendedOnUserSyncNoCustomPermissions()
-    var
-        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
-        FirstAzureADUserUpdateWizard: TestPage "Azure AD User Update Wizard";
-        SecondAzureADUserUpdateWizard: TestPage "Azure AD User Update Wizard";
-        GraphUser: DotNet UserInfo;
-        DummyGraphUser: DotNet UserInfo;
-        RainyCloudPlanId, ShinySunlightPlanId : Guid;
-        RainyCloudUserGroupCode: Label 'Rainy Cloud Group';
-        ShinySunlightUserGroupCode: Label 'Shiny Sunlight Group';
-    begin
-        Initialize();
-        BindSubscription(AzureADUserMgtTestLibrary);
-        BindSubscription(TestUserPermissionsSubs);
-        TestUserPermissionsSubs.SetCanManageUser(UserSecurityId());
-
-        // [GIVEN] A user group in a plan exists
-        RainyCloudPlanId := AzureADPlanTestLibrary.CreatePlan('Rainy Cloud');
-        LibraryPermissions.CreateUserGroupInPlan(RainyCloudUserGroupCode, RainyCloudPlanId);
-
-        // [GIVEN] A user in Azure AD with the test plan exists
-        MockGraphQueryTestLibrary.AddAndReturnGraphUser(GraphUser, CreateGuid(), 'John', 'Doe', 'john.doe@microsoft.com');
-        MockGraphQueryTestLibrary.AddUserPlan(GraphUser.ObjectId, RainyCloudPlanId, '', 'Enabled');
-
-        // [GIVEN] The user has been synced
-        FirstAzureADUserUpdateWizard.Trap();
-        Page.Run(Page::"Azure AD User Update Wizard");
-        FirstAzureADUserUpdateWizard.Next.Invoke();
-        FirstAzureADUserUpdateWizard.ApplyUpdates.Invoke();
-        FirstAzureADUserUpdateWizard.Close.Invoke();
-
-        // Verify that the user has the user group assigned
-        AssertUserGroupHasOneMember(RainyCloudUserGroupCode, StrSubstNo(ExpectedUserGroupAssignedTxt, RainyCloudUserGroupCode));
-
-        // [GIVEN] The user does not have custom permission sets assigned
-        // [WHEN] The user has a change in assigned plans
-        GraphUser.AssignedPlans := DummyGraphUser.UserInfo().AssignedPlans; // clear Azure AD plans
-        ShinySunlightPlanId := AzureADPlanTestLibrary.CreatePlan('Shiny Sunlight');
-        LibraryPermissions.CreateUserGroupInPlan(ShinySunlightUserGroupCode, ShinySunlightPlanId);
-        MockGraphQueryTestLibrary.AddUserPlan(GraphUser.ObjectId, ShinySunlightPlanId, '', 'Enabled');
-
-        // [WHEN] The sync wizard is run
-        SecondAzureADUserUpdateWizard.Trap();
-        Page.Run(Page::"Azure AD User Update Wizard");
-
-        // [THEN] The wizard can be completed normally
-        SecondAzureADUserUpdateWizard.Next.Invoke();
-        SecondAzureADUserUpdateWizard.ApplyUpdates.Invoke();
-        SecondAzureADUserUpdateWizard.Close.Invoke();
-
-        // [THEN] The user groups of the user are a union of user groups from both plans
-        AssertUserGroupHasOneMember(RainyCloudUserGroupCode, StrSubstNo(ExpectedUserGroupAssignedTxt, RainyCloudUserGroupCode));
-        AssertUserGroupHasOneMember(ShinySunlightUserGroupCode, StrSubstNo(ExpectedUserGroupAssignedTxt, ShinySunlightUserGroupCode));
-
-        UnbindSubscription(TestUserPermissionsSubs);
-        UnbindSubscription(AzureADUserMgtTestLibrary);
-        TearDown();
-    end;
-
-    [Test]
-    [Obsolete('Not Used.', '22.0')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [CommitBehavior(CommitBehavior::Ignore)]
-    procedure TestUserGroupsAppendedOnUserSyncWithCustomPermissions()
-    var
-        User: Record User;
-        AccessControl: Record "Access Control";
-        TestUserPermissionsSubs: Codeunit "Test User Permissions Subs.";
-        FirstAzureADUserUpdateWizard: TestPage "Azure AD User Update Wizard";
-        SecondAzureADUserUpdateWizard: TestPage "Azure AD User Update Wizard";
-        GraphUser: DotNet UserInfo;
-        DummyGraphUser: DotNet UserInfo;
-        RainyCloudPlanId, ShinySunlightPlanId : Guid;
-        RainyCloudUserGroupCode: Label 'Rainy Cloud Group';
-        ShinySunlightUserGroupCode: Label 'Shiny Sunlight Group';
-    begin
-        // Same scenario as in TestUserGroupsAppendedOnUserSyncNoCustomPermissions, but before
-        // the second round of syncing the user has been assigned a custom permission set.
-        Initialize();
-        BindSubscription(AzureADUserMgtTestLibrary);
-        BindSubscription(TestUserPermissionsSubs);
-        TestUserPermissionsSubs.SetCanManageUser(UserSecurityId());
-
-        // [GIVEN] A user group in a plan exists
-        RainyCloudPlanId := AzureADPlanTestLibrary.CreatePlan('Rainy Cloud');
-        LibraryPermissions.CreateUserGroupInPlan(RainyCloudUserGroupCode, RainyCloudPlanId);
-
-        // [GIVEN] A user in Azure AD with the test plan exists
-        MockGraphQueryTestLibrary.AddAndReturnGraphUser(GraphUser, CreateGuid(), 'John', 'Doe', 'john.doe@microsoft.com');
-        MockGraphQueryTestLibrary.AddUserPlan(GraphUser.ObjectId, RainyCloudPlanId, '', 'Enabled');
-
-        // [GIVEN] The user has been synced
-        FirstAzureADUserUpdateWizard.Trap();
-        Page.Run(Page::"Azure AD User Update Wizard");
-        FirstAzureADUserUpdateWizard.Next.Invoke();
-        FirstAzureADUserUpdateWizard.ApplyUpdates.Invoke();
-        FirstAzureADUserUpdateWizard.Close.Invoke();
-
-        // Verify that the user has the user group assigned
-        AssertUserGroupHasOneMember(RainyCloudUserGroupCode, StrSubstNo(ExpectedUserGroupAssignedTxt, RainyCloudUserGroupCode));
-
-        // [GIVEN] The user has a custom permission set assigned
-        User.SetRange("Authentication Email", 'john.doe@microsoft.com');
-        Assert.IsTrue(User.FindFirst(), 'Expected to find the user.');
-        AccessControl."User Security ID" := User."User Security ID";
-        AccessControl."Role ID" := 'CUSTOM';
-        AccessControl.Scope := AccessControl.Scope::Tenant;
-        AccessControl.Insert();
-
-        // [WHEN] The user has a change in assigned plans
-        GraphUser.AssignedPlans := DummyGraphUser.UserInfo().AssignedPlans; // clear Azure AD plans
-        ShinySunlightPlanId := AzureADPlanTestLibrary.CreatePlan('Shiny Sunlight');
-        LibraryPermissions.CreateUserGroupInPlan(ShinySunlightUserGroupCode, ShinySunlightPlanId);
-        MockGraphQueryTestLibrary.AddUserPlan(GraphUser.ObjectId, ShinySunlightPlanId, '', 'Enabled');
-
-        // [WHEN] The sync wizard is run
-        SecondAzureADUserUpdateWizard.Trap();
-        Page.Run(Page::"Azure AD User Update Wizard");
-
-        // [THEN] The wizard will prompt the user to select what should be done with the custom permissions
-        SecondAzureADUserUpdateWizard.Next.Invoke(); // Welcome banner
-        Assert.IsTrue(SecondAzureADUserUpdateWizard.ManagePermissionUpdates.Visible(), 'Expected the manage permissions button to be visible.'); // Note: for the user the button is called "Next"
-        SecondAzureADUserUpdateWizard.ManagePermissionUpdates.Invoke();
-
-        // [THEN] The list is shown with the records that need some decision to be taken (in this case, only one row)
-        // Verify the row:
-        SecondAzureADUserUpdateWizard.First();
-        Assert.AreEqual('JOHN DOE', SecondAzureADUserUpdateWizard.DisplayName.Value, 'Unexpected user display name.');
-        Assert.AreEqual('Rainy Cloud', SecondAzureADUserUpdateWizard.CurrentLicense.Value, 'Unexpected current value.');
-        Assert.AreEqual('Shiny Sunlight', SecondAzureADUserUpdateWizard.NewLicense.Value, 'Unexpected new value.');
-        Assert.AreEqual(Format(Enum::"Azure AD Permission Change Action"::Select), SecondAzureADUserUpdateWizard.PermissionAction.Value, 'Unexpected default permission change action.');
-
-        // [THEN] The 'Next' button is not enabled until all the rows with permission change action "Select" have been changed to either "Append" or "Keep current"
-        Assert.IsFalse(SecondAzureADUserUpdateWizard.DoneSelectingPermissions.Enabled(), 'Expected the Finish action to be invisible.');
-
-        // [WHEN] The permission change action is selected to be "Append"
-        SecondAzureADUserUpdateWizard.PermissionAction.SetValue(Enum::"Azure AD Permission Change Action"::Append);
-
-        // [THEN] The 'Next' button becomes visible
-        Assert.IsTrue(SecondAzureADUserUpdateWizard.DoneSelectingPermissions.Enabled(), 'Expected the Finish action to be visible.');
-
-        // [THEN] The user is able to successfully finish the wizard
-        SecondAzureADUserUpdateWizard.DoneSelectingPermissions.Invoke();
-        SecondAzureADUserUpdateWizard.ApplyUpdates.Invoke();
-        SecondAzureADUserUpdateWizard.Close.Invoke();
-
-        // [THEN] The user groups of the user are a union of user groups from both plans
-        AssertUserGroupHasOneMember(RainyCloudUserGroupCode, StrSubstNo(ExpectedUserGroupAssignedTxt, RainyCloudUserGroupCode));
-        AssertUserGroupHasOneMember(ShinySunlightUserGroupCode, StrSubstNo(ExpectedUserGroupAssignedTxt, ShinySunlightUserGroupCode));
-
-        UnbindSubscription(TestUserPermissionsSubs);
-        UnbindSubscription(AzureADUserMgtTestLibrary);
-        TearDown();
-    end;
-#pragma warning restore AS0072
-#endif
-
-#if not CLEAN22
-    // The following tests rely on user sync using the AzureADUserManagement.ArePermissionsCustomized in the wizard,
-    // so they should only be enabled when this function is used.
-#else
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [CommitBehavior(CommitBehavior::Ignore)]
@@ -555,69 +342,6 @@ codeunit 132907 AzureADUserMgtTest
         UnbindSubscription(AzureADUserMgtTestLibrary);
         TearDown();
     end;
-#endif
-
-#if not CLEAN22
-    [HandlerFunctions('MessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestCreateNewUsersFromAzureADWhenUserExists()
-    var
-        User: Record User;
-        UserGroupPlan: Record "User Group Plan";
-    begin
-        // [SCENARIO] Creating new users from the Azure Active Directory Graph
-        Initialize();
-        LibraryLowerPermissions.SetOutsideO365Scope();
-        LibraryLowerPermissions.SetSecurity();
-
-        // [GIVEN] A user with a plan that contains user groups
-        CreateUserWithPlanAndUserGroups(User, UserGroupPlan, 'Test User');
-
-        // [WHEN] CreateNewUsersFromAzureAD invoked
-        AzureADUserManagement.CreateNewUsersFromAzureAD();
-        LibraryLowerPermissions.SetO365BusFull();
-
-        // [THEN] The user is created
-        // [THEN] User gets the User Groups of the plan
-        ValidateUserGetsTheUserGroupsOfThePlan(User, UserGroupPlan);
-
-        // Rollback SaaS test
-        TearDown();
-    end;
-
-    [HandlerFunctions('MessageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestCreateMultipleNewUsersFromAzureADWhenUserExists()
-    var
-        Users: Array[200] of Record User;
-        UserGroupPlan: Record "User Group Plan";
-        i: Integer;
-    begin
-        // [SCENARIO] Creating new users from the Azure Active Directory Graph
-        Initialize();
-        LibraryLowerPermissions.SetOutsideO365Scope();
-        LibraryLowerPermissions.AddSecurity();
-
-        // [GIVEN] 200 users with a plan that contains user groups
-        for i := 1 to ArrayLen(Users) do begin
-            CreateUserWithPlanAndUserGroups(Users[i], UserGroupPlan, StrSubstNo('Test User%1', i));
-        end;
-
-        // [WHEN] CreateNewUsersFromAzureAD invoked
-        AzureADUserManagement.CreateNewUsersFromAzureAD();
-        LibraryLowerPermissions.SetO365BusFull();
-
-        // [THEN] All users are created
-        // [THEN] All users get the User Groups of the plan
-        for i := 1 to ArrayLen(Users) do begin
-            ValidateUserGetsTheUserGroupsOfThePlan(Users[i], UserGroupPlan);
-        end;
-        // Rollback SaaS test
-        TearDown();
-    end;
-#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -756,10 +480,9 @@ codeunit 132907 AzureADUserMgtTest
         UsersInPlan.SetRange(User_Security_ID, UserAuthenticationId);
 
         if UsersInPlan.Open() then
-            while UsersInPlan.Read() do begin
+            while UsersInPlan.Read() do
                 if UsersInPlan.Plan_ID = PlanId then
                     exit(true);
-            end;
     end;
 
     local procedure CreateUserWithSubscriptionPlan(var User: Record User; PlanID: Guid; PlanName: Text; PlanStatus: Text)
@@ -785,38 +508,6 @@ codeunit 132907 AzureADUserMgtTest
             MockGraphQueryTestLibrary.AddSubscribedSkuWithServicePlan(CreateGuid(), Plan.Plan_ID, Plan.Plan_Name);
     end;
 
-#if not CLEAN22
-    local procedure ValidateUserGetsTheUserGroupsOfThePlan(User: Record User; UserGroupPlan: Record "User Group Plan")
-    var
-        UserGroupMember: Record "User Group Member";
-    begin
-        UserGroupMember.SetRange("User Security ID", User."User Security ID");
-        UserGroupMember.FindSet();
-        UserGroupPlan.SetRange("Plan ID", UserGroupPlan."Plan ID");
-        UserGroupPlan.FindSet();
-
-        Assert.RecordCount(UserGroupMember, UserGroupPlan.Count);
-        repeat
-            Assert.AreEqual(UserGroupPlan."User Group Code", UserGroupMember."User Group Code", 'Only the enabled plan should be returned');
-            UserGroupMember.Next();
-        until UserGroupPlan.Next() = 0;
-    end;
-
-    local procedure CreateUserWithPlanAndUserGroups(var User: Record User; var UserGroupPlan: Record "User Group Plan"; UserName: Text)
-    var
-        Plan: Query Plan;
-    begin
-        LibraryPermissions.CreateAzureActiveDirectoryUser(User, UserName);
-        UserGroupPlan.FindFirst();
-
-        Plan.SetRange(Plan_ID, UserGroupPlan."Plan ID");
-        Plan.Open();
-        Plan.Read();
-
-        MockGraphQueryTestLibrary.AddGraphUser(GetUserAuthenticationId(User), User."User Name", '', '', Plan.Plan_ID, Plan.Plan_Name, 'Enabled');
-    end;
-#endif
-
     local procedure CreateUserWithPlan(var User: Record User; PlanID: Guid)
     var
         UsersCreateSuperUser: Codeunit "Users - Create Super User";
@@ -832,16 +523,6 @@ codeunit 132907 AzureADUserMgtTest
 
         MockGraphQueryTestLibrary.AddGraphUser(GetUserAuthenticationId(User), User."User Name", '', '', Plan.Plan_ID, Plan.Plan_Name, 'Enabled');
     end;
-
-#if not CLEAN22
-    local procedure AssertUserGroupHasOneMember(UserGroupCode: Code[20]; ErrorMessage: Text)
-    var
-        UserGroupMember: Record "User Group Member";
-    begin
-        UserGroupMember.SetRange("User Group Code", UserGroupCode);
-        Assert.AreEqual(1, UserGroupMember.Count, ErrorMessage);
-    end;
-#endif
 
     local procedure InsertUserProperty(UserSecurityId: Guid)
     var
@@ -861,14 +542,6 @@ codeunit 132907 AzureADUserMgtTest
         AccessControl.SetRange("Role ID", CopyStr(RoleId, 1, MaxStrLen(AccessControl."Role ID")));
         Assert.RecordIsNotEmpty(AccessControl);
     end;
-
-#if not CLEAN22
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(MessageText: Text)
-    begin
-    end;
-#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]

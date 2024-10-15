@@ -416,7 +416,7 @@ page 5803 "Revaluation Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::"Event")
                         end;
                     }
                     action(Period)
@@ -429,7 +429,7 @@ page 5803 "Revaluation Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::Period)
                         end;
                     }
                     action(Variant)
@@ -442,7 +442,7 @@ page 5803 "Revaluation Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::Variant)
                         end;
                     }
                     action(Location)
@@ -456,7 +456,7 @@ page 5803 "Revaluation Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::Location)
                         end;
                     }
                     action(Lot)
@@ -480,7 +480,7 @@ page 5803 "Revaluation Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::BOM)
                         end;
                     }
                 }
@@ -716,7 +716,11 @@ page 5803 "Revaluation Journal"
         ClientTypeManagement: Codeunit "Client Type Management";
         CurrentJnlBatchName: Code[10];
         ItemDescription: Text[100];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'To make sure that all items are adjusted before you start the revaluation, you should run the %1 batch job first.\Do you want to continue with the revaluation?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         IsSaaSExcelAddinEnabled: Boolean;
 
     protected var

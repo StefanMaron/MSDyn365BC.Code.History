@@ -49,9 +49,14 @@ table 10010 "IRS 1099 Form-Box"
         field(8000; Id; Guid)
         {
             Caption = 'Id';
-            ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+#if CLEAN25
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Pending;
             ObsoleteTag = '17.0';
+#endif
         }
     }
 

@@ -39,13 +39,13 @@ page 839 "Reminder View Attachment Text"
                     Caption = 'Inline Fee Description';
                     ToolTip = 'Specifies the description line that will appear in the attachment along side the fee.';
                 }
-                field("Beginning Line"; Rec."Beginning Line")
+                field("Beginning Line"; HasBeginningLine)
                 {
                     ApplicationArea = All;
                     Caption = 'Beginning Line';
                     ToolTip = 'Specifies the first line of the attachment.';
                 }
-                field("Ending Line"; Rec."Ending Line")
+                field("Ending Line"; HasEndingLine)
                 {
                     ApplicationArea = All;
                     Caption = 'Ending Line';
@@ -54,4 +54,25 @@ page 839 "Reminder View Attachment Text"
             }
         }
     }
+
+    trigger OnAfterGetRecord()
+    var
+        ReminderAttachmentTextLine: Record "Reminder Attachment Text Line";
+    begin
+        HasBeginningLine := false;
+        HasEndingLine := false;
+        ReminderAttachmentTextLine.SetRange(Id, Rec.Id);
+        ReminderAttachmentTextLine.SetRange("Language Code", Rec."Language Code");
+        ReminderAttachmentTextLine.SetRange(Position, ReminderAttachmentTextLine.Position::"Beginning Line");
+        if not ReminderAttachmentTextLine.IsEmpty() then
+            HasBeginningLine := true;
+
+        ReminderAttachmentTextLine.SetRange(Position, ReminderAttachmentTextLine.Position::"Ending Line");
+        if not ReminderAttachmentTextLine.IsEmpty() then
+            HasEndingLine := true;
+    end;
+
+    var
+        HasBeginningLine: Boolean;
+        HasEndingLine: Boolean;
 }

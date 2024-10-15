@@ -307,12 +307,10 @@ codeunit 144013 "Sales Documents With Tax"
     var
         Location: Record Location;
     begin
-        with Location do begin
-            LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-            Validate("Tax Area Code", TaxAreaCode);
-            Modify(true);
-            exit(Code);
-        end;
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Tax Area Code", TaxAreaCode);
+        Location.Modify(true);
+        exit(Location.Code);
     end;
 
     local procedure CreateItem(): Code[20]
@@ -418,16 +416,14 @@ codeunit 144013 "Sales Documents With Tax"
     local procedure CreateSalesLineWithTaxSetup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Enum "Sales Line Type"; No: Code[20]; Qty: Decimal; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; TaxLiable: Boolean; VATPct: Decimal; UnitPrice: Decimal; LineAmount: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, LineType, No, Qty);
-        with SalesLine do begin
-            "Tax Group Code" := TaxGroupCode;
-            "Tax Area Code" := TaxAreaCode;
-            "Tax Liable" := TaxLiable;
-            "VAT %" := VATPct;
-            "Unit Price" := UnitPrice;
-            "Line Amount" := LineAmount;
-            Amount := LineAmount;
-            Modify();
-        end;
+        SalesLine."Tax Group Code" := TaxGroupCode;
+        SalesLine."Tax Area Code" := TaxAreaCode;
+        SalesLine."Tax Liable" := TaxLiable;
+        SalesLine."VAT %" := VATPct;
+        SalesLine."Unit Price" := UnitPrice;
+        SalesLine."Line Amount" := LineAmount;
+        SalesLine.Amount := LineAmount;
+        SalesLine.Modify();
     end;
 
     local procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; TaxBelowMaximum: Decimal)

@@ -327,13 +327,11 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
-        with CurrencyExchangeRate do begin
-            Validate("Exchange Rate Amount", ExchangeRateAmount);
-            Validate("Relational Exch. Rate Amount", RelationalExchRateAmt);
-            Validate("Adjustment Exch. Rate Amount", ExchangeRateAmount);
-            Validate("Relational Adjmt Exch Rate Amt", RelationalExchRateAmt);
-            Modify(true);
-        end;
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", ExchangeRateAmount);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalExchRateAmt);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", ExchangeRateAmount);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalExchRateAmt);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreateGLAccount(VATProdPostingGroup: Code[20]): Code[20]
@@ -576,27 +574,23 @@ codeunit 134110 "ERM Prepayment ACY Posting"
     begin
         ExpectedRoundingAmt := InvoiceAmount - Round(InvoiceAmount, RoundingPrecision);
 
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetFilter("G/L Account No.", '%1|%2', RoundingAccNo, VATRoundingAccNo);
-            CalcSums("Additional-Currency Amount");
-            Assert.AreEqual(ExpectedRoundingAmt, "Additional-Currency Amount", IncorrectRoundingAmtErr);
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetFilter("G/L Account No.", '%1|%2', RoundingAccNo, VATRoundingAccNo);
+        GLEntry.CalcSums("Additional-Currency Amount");
+        Assert.AreEqual(ExpectedRoundingAmt, GLEntry."Additional-Currency Amount", IncorrectRoundingAmtErr);
     end;
 
     local procedure VerifyACYAmountIsZero(GLAccNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("G/L Account No.", GLAccNo);
-            Assert.IsFalse(IsEmpty, NoGLEntriesPostedErr);
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        Assert.IsFalse(GLEntry.IsEmpty, NoGLEntriesPostedErr);
 
-            FindSet();
-            repeat
-                Assert.AreEqual(0, "Additional-Currency Amount", LCYAmtMustBeZeroErr);
-            until Next() = 0;
-        end;
+        GLEntry.FindSet();
+        repeat
+            Assert.AreEqual(0, GLEntry."Additional-Currency Amount", LCYAmtMustBeZeroErr);
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyAdjustmentAmountsOnCreditMemo(CurrencyCode: Code[10]; PrepmtGLAccountNo: array[2] of Code[20]; FirstPostingDate: Date; LastPostingDate: Date; AmountFCY: array[2] of Decimal)

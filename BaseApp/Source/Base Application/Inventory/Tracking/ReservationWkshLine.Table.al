@@ -1,15 +1,9 @@
 namespace Microsoft.Inventory.Tracking;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Planning;
 using Microsoft.Sales.Customer;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using System.Reflection;
 
 table 346 "Reservation Wksh. Line"
@@ -324,76 +318,13 @@ table 346 "Reservation Wksh. Line"
         UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
         ExceedingQtyErr: Label '%1 cannot exceed %2.', Comment = '%1: Qty. to Reserve, %2: Remaining Qty. to Reserve or Available Qty. to Reserve';
 
-    procedure IsOutdated(): Boolean
+    procedure IsOutdated() Outdated: Boolean
     var
-        SalesLine: Record "Sales Line";
-        TransferLine: Record "Transfer Line";
-        ServiceLine: Record "Service Line";
-        JobPlanningLine: Record "Job Planning Line";
-        AssemblyLine: Record "Assembly Line";
-        ProdOrderComponent: Record "Prod. Order Component";
     begin
-        case "Source Type" of
-            Database::"Sales Line":
-                begin
-                    if not SalesLine.Get("Record ID") then
-                        exit(true);
-                    if not SalesLine.IsInventoriableItem() or
-                       ("Item No." <> SalesLine."No.") or ("Variant Code" <> SalesLine."Variant Code") or ("Location Code" <> SalesLine."Location Code") or
-                       ("Unit of Measure Code" <> SalesLine."Unit of Measure Code")
-                    then
-                        exit(true);
-                end;
-            Database::"Transfer Line":
-                begin
-                    if not TransferLine.Get("Record ID") then
-                        exit(true);
-                    if ("Item No." <> TransferLine."Item No.") or ("Variant Code" <> TransferLine."Variant Code") or ("Location Code" <> TransferLine."Transfer-from Code") or
-                       ("Unit of Measure Code" <> TransferLine."Unit of Measure Code")
-                    then
-                        exit(true);
-                end;
-            Database::"Service Line":
-                begin
-                    if not ServiceLine.Get("Record ID") then
-                        exit(true);
-                    if not ServiceLine.IsInventoriableItem() or
-                       ("Item No." <> ServiceLine."No.") or ("Variant Code" <> ServiceLine."Variant Code") or ("Location Code" <> ServiceLine."Location Code") or
-                       ("Unit of Measure Code" <> ServiceLine."Unit of Measure Code")
-                    then
-                        exit(true);
-                end;
-            Database::"Job Planning Line":
-                begin
-                    if not JobPlanningLine.Get("Record ID") then
-                        exit(true);
-                    if not JobPlanningLine.IsInventoriableItem() or
-                       ("Item No." <> JobPlanningLine."No.") or ("Variant Code" <> JobPlanningLine."Variant Code") or ("Location Code" <> JobPlanningLine."Location Code") or
-                       ("Unit of Measure Code" <> JobPlanningLine."Unit of Measure Code")
-                    then
-                        exit(true);
-                end;
-            Database::"Assembly Line":
-                begin
-                    if not AssemblyLine.Get("Record ID") then
-                        exit(true);
-                    if not AssemblyLine.IsInventoriableItem() or
-                       ("Item No." <> AssemblyLine."No.") or ("Variant Code" <> AssemblyLine."Variant Code") or ("Location Code" <> AssemblyLine."Location Code") or
-                       ("Unit of Measure Code" <> AssemblyLine."Unit of Measure Code")
-                    then
-                        exit(true);
-                end;
-            Database::"Prod. Order Component":
-                begin
-                    if not ProdOrderComponent.Get("Record ID") then
-                        exit(true);
-                    if not ProdOrderComponent.IsInventoriableItem() or
-                       ("Item No." <> ProdOrderComponent."Item No.") or ("Variant Code" <> ProdOrderComponent."Variant Code") or ("Location Code" <> ProdOrderComponent."Location Code") or
-                       ("Unit of Measure Code" <> ProdOrderComponent."Unit of Measure Code")
-                    then
-                        exit(true);
-                end;
-        end;
+        Outdated := false;
+        OnIsOutdated(Rec, Outdated);
+        if Outdated then
+            exit(true);
 
         exit(false);
     end;
@@ -439,5 +370,10 @@ table 346 "Reservation Wksh. Line"
                 ReservationWkshLine.Validate("Avail. Qty. to Reserve (Base)", Rec."Avail. Qty. to Reserve (Base)");
                 ReservationWkshLine.Modify();
             until ReservationWkshLine.Next() = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsOutdated(ReservationWkshLine: Record "Reservation Wksh. Line"; var Outdated: Boolean)
+    begin
     end;
 }

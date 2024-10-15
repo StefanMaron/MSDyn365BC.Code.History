@@ -32,7 +32,9 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         ModifyFailedErr: Label 'Modifying %1 failed because of the following error: %2.', Comment = '%1 = Table Caption, %2 = Error from modify process.';
         ModifyFailedSimpleErr: Label 'Modifying %1 failed.', Comment = '%1 = Table Caption';
         ConfigurationTemplateNotFoundErr: Label 'The %1 %2 was not found.', Comment = '%1 = Configuration Template table caption, %2 = Configuration Template Name';
+#pragma warning disable AA0470
         CoupledRecordIsDeletedErr: Label 'The %1 record cannot be updated because it is coupled to a deleted record.', Comment = '1% = Source Table Caption';
+#pragma warning restore AA0470
         CopyDataErr: Label 'The data could not be updated because of the following error: %1.', Comment = '%1 = Error message from transferdata process.';
         SynchActionContext: Option;
         IgnoreSynchOnlyCoupledRecordsContext: Boolean;
@@ -155,7 +157,7 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
 
         if SourceWasChanged or (SynchAction = SynchActionType::ForceModify) then
             TransferFields(
-              IntegrationRecordSynch, SourceRecordRef, DestinationRecordRef, SynchAction, AdditionalFieldsModified, JobId, BothModified);
+              IntegrationRecordSynch, IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, SynchAction, AdditionalFieldsModified, JobId, BothModified);
 
         if BothModified then begin
             if IntegrationRecordSynch.GetWasBidirectionalFieldModified() then begin
@@ -285,9 +287,9 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         OnBeforeDetermineConfigTemplateCode(IntegrationTableMapping, ConfigTemplateCode, Handled);
         if not Handled then
             if DestinationRecordRef.Number() = IntegrationTableMapping."Integration Table ID" then
-                ConfigTemplateCode := IntegrationTableMapping."Int. Tbl. Config Template Code"
+                ConfigTemplateCode := FindIntTableConfigTemplate(IntegrationTableMapping, SourceRecordRef)
             else
-                ConfigTemplateCode := IntegrationTableMapping."Table Config Template Code";
+                ConfigTemplateCode := FindTableConfigTemplate(IntegrationTableMapping, SourceRecordRef);
         if ConfigTemplateCode <> '' then begin
             OnBeforeApplyRecordTemplate(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, ConfigTemplateCode);
 
@@ -494,13 +496,13 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     end;
 
     [Scope('OnPrem')]
-    procedure CheckTransferFields(var IntegrationRecordSynch: Codeunit "Integration Record Synch."; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var FieldsModified: Boolean; var BidirectionalFieldsModified: Boolean)
+    procedure CheckTransferFields(var IntegrationRecordSynch: Codeunit "Integration Record Synch."; IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var FieldsModified: Boolean; var BidirectionalFieldsModified: Boolean)
     var
         CDSTransformationRuleMgt: Codeunit "CDS Transformation Rule Mgt.";
         AdditionalFieldsModified: Boolean;
     begin
         OnBeforeTransferRecordFields(SourceRecordRef, DestinationRecordRef);
-        CDSTransformationRuleMgt.ApplyTransformations(SourceRecordRef, DestinationRecordRef);
+        CDSTransformationRuleMgt.ApplyTransformations(SourceRecordRef, DestinationRecordRef, IntegrationTableMapping);
         IntegrationRecordSynch.SetParameters(SourceRecordRef, DestinationRecordRef, true);
         Commit();
         if IntegrationRecordSynch.Run() then begin
@@ -516,13 +518,13 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
             FieldsModified := true;
     end;
 
-    local procedure TransferFields(var IntegrationRecordSynch: Codeunit "Integration Record Synch."; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var SynchAction: Option; var AdditionalFieldsModified: Boolean; JobId: Guid; BothModified: Boolean)
+    local procedure TransferFields(var IntegrationRecordSynch: Codeunit "Integration Record Synch."; IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var SynchAction: Option; var AdditionalFieldsModified: Boolean; JobId: Guid; BothModified: Boolean)
     var
         CDSTransformationRuleMgt: Codeunit "CDS Transformation Rule Mgt.";
     begin
         OnBeforeTransferRecordFields(SourceRecordRef, DestinationRecordRef);
 
-        CDSTransformationRuleMgt.ApplyTransformations(SourceRecordRef, DestinationRecordRef);
+        CDSTransformationRuleMgt.ApplyTransformations(SourceRecordRef, DestinationRecordRef, IntegrationTableMapping);
         IntegrationRecordSynch.SetParameters(SourceRecordRef, DestinationRecordRef, SynchAction <> SynchActionType::Insert);
         if IntegrationRecordSynch.Run() then begin
             if BothModified and IntegrationRecordSynch.GetWasBidirectionalFieldModified() then
@@ -662,6 +664,64 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
     local procedure RemoveTrailingDots(Message: Text): Text
     begin
         exit(DelChr(Message, '>', '.'));
+    end;
+
+    internal procedure FindTableConfigTemplate(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef): Code[10]
+    var
+        TableConfigTemplate: Record "Table Config Template";
+        SearchRecordRef: RecordRef;
+        SearchFieldRef: FieldRef;
+        TableConfigTemplateFilter: Text;
+    begin
+        if IntegrationTableMapping."Parent Name" <> '' then
+            TableConfigTemplate.SetRange("Integration Table Mapping Name", IntegrationTableMapping."Parent Name")
+        else
+            TableConfigTemplate.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+        TableConfigTemplate.SetCurrentKey(Priority);
+        TableConfigTemplate.SetAscending(Priority, true);
+        if TableConfigTemplate.FindSet() then
+            repeat
+                TableConfigTemplateFilter := TableConfigTemplate.GetIntegrationTableFilter();
+                if TableConfigTemplateFilter = '' then
+                    exit(TableConfigTemplate."Table Config Template Code");
+
+                SearchRecordRef.Open(SourceRecordRef.Number);
+                SearchRecordRef.SetView(TableConfigTemplateFilter);
+                SearchFieldRef := SearchRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.");
+                SearchFieldRef.SetRange(SourceRecordRef.Field(IntegrationTableMapping."Integration Table UID Fld. No.").Value());
+                if not SearchRecordRef.IsEmpty() then
+                    exit(TableConfigTemplate."Table Config Template Code");
+                SearchRecordRef.Close();
+            until TableConfigTemplate.Next() = 0;
+    end;
+
+    internal procedure FindIntTableConfigTemplate(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef): Code[10]
+    var
+        IntTableConfigTemplate: Record "Int. Table Config Template";
+        SearchRecordRef: RecordRef;
+        SearchFieldRef: FieldRef;
+        IntTableConfigTemplateFilter: Text;
+    begin
+        if IntegrationTableMapping."Parent Name" <> '' then
+            IntTableConfigTemplate.SetRange("Integration Table Mapping Name", IntegrationTableMapping."Parent Name")
+        else
+            IntTableConfigTemplate.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+        IntTableConfigTemplate.SetCurrentKey(Priority);
+        IntTableConfigTemplate.SetAscending(Priority, true);
+        if IntTableConfigTemplate.FindSet() then
+            repeat
+                IntTableConfigTemplateFilter := IntTableConfigTemplate.GetTableFilter();
+                if IntTableConfigTemplateFilter = '' then
+                    exit(IntTableConfigTemplate."Int. Tbl. Config Template Code");
+
+                SearchRecordRef.Open(SourceRecordRef.Number);
+                SearchRecordRef.SetView(IntTableConfigTemplateFilter);
+                SearchFieldRef := SearchRecordRef.Field(SourceRecordRef.SystemIdNo);
+                SearchFieldRef.SetRange(SourceRecordRef.Field(SourceRecordRef.SystemIdNo).Value());
+                if not SearchRecordRef.IsEmpty() then
+                    exit(IntTableConfigTemplate."Int. Tbl. Config Template Code");
+                SearchRecordRef.Close();
+            until IntTableConfigTemplate.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

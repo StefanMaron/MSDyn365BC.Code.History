@@ -339,22 +339,20 @@ report 10163 "Vendor Purchases by Item"
             PurchasesText := ''
         else
             PurchasesText := StrSubstNo(Text002, MinPurchases);
-        if MaxPurchases <> 0 then begin
+        if MaxPurchases <> 0 then
             if PurchasesText = '' then
                 PurchasesText := StrSubstNo(Text003, MaxPurchases)
             else
                 PurchasesText := PurchasesText + StrSubstNo(Text004, MaxPurchases);
-        end;
         if MinQty = 0 then
             QtyText := ''
         else
             QtyText := StrSubstNo(Text005, MinQty);
-        if MaxQty <> 0 then begin
+        if MaxQty <> 0 then
             if QtyText = '' then
                 QtyText := StrSubstNo(Text006, MaxQty)
             else
                 QtyText := QtyText + StrSubstNo(Text007, MaxQty);
-        end;
     end;
 
     var

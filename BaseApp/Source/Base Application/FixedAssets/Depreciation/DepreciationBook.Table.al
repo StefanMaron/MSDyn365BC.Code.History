@@ -337,8 +337,12 @@ table 5611 "Depreciation Book"
         FASetup: Record "FA Setup";
         FAJnlSetup: Record "FA Journal Setup";
 
+#pragma warning disable AA0074
         Text000: Label 'The book cannot be deleted because it is in use.';
+#pragma warning disable AA0470
         Text001: Label 'The book cannot be deleted because %1 %2 = %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         FAPostingTypeSetup: Record "FA Posting Type Setup";

@@ -1908,7 +1908,7 @@ codeunit 132207 "Library - Assembly"
         AssemblySetup.Modify(true);
     end;
 
-    procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
+    procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Enum "Average Cost Period Type")
     begin
         InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
@@ -3401,12 +3401,14 @@ codeunit 132207 "Library - Assembly"
         if EarliestStartingDate > 0D then begin
             EarliestEndingDate :=
               // earliest starting date + lead time calculation
-              LeadTimeMgt.PlannedEndingDate(AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code",
+              LeadTimeMgt.GetPlannedEndingDate(
+                AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code",
                 '', LeadTimeMgt.ManufacturingLeadTime(AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code"),
                 ReqLine."Ref. Order Type"::Assembly, EarliestStartingDate);
             EarliestDueDate :=
               // earliest ending date + (default) safety lead time
-              LeadTimeMgt.PlannedDueDate(AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code",
+              LeadTimeMgt.GetPlannedDueDate(
+                AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code",
                 EarliestEndingDate, '', ReqLine."Ref. Order Type"::Assembly);
         end;
     end;

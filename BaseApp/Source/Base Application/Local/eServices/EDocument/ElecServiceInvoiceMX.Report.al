@@ -1014,7 +1014,7 @@ report 10479 "Elec. Service Invoice MX"
                     TotalInclVATText := StrSubstNo(Text002, "Currency Code");
                     TotalExclVATText := StrSubstNo(Text006, "Currency Code");
                 end;
-                FormatAddr.ServiceInvBillTo(CustAddr, "Service Invoice Header");
+                ServiceFormatAddress.ServiceInvBillTo(CustAddr, "Service Invoice Header");
                 if not Cust.Get("Bill-to Customer No.") then
                     Clear(Cust);
 
@@ -1023,7 +1023,7 @@ report 10479 "Elec. Service Invoice MX"
                 else
                     PaymentTerms.Get("Payment Terms Code");
 
-                ShowShippingAddr := FormatAddr.ServiceInvShipTo(ShipToAddr, CustAddr, "Service Invoice Header");
+                ShowShippingAddr := ServiceFormatAddress.ServiceInvShipTo(ShipToAddr, CustAddr, "Service Invoice Header");
 
                 "Service Invoice Header".CalcFields("Original String", "Digital Stamp SAT", "Digital Stamp PAC");
 
@@ -1132,6 +1132,7 @@ report 10479 "Elec. Service Invoice MX"
         LanguageMgt: Codeunit Language;
         ServiceInvCountPrinted: Codeunit "Service Inv.-Printed";
         FormatAddr: Codeunit "Format Address";
+        ServiceFormatAddress: Codeunit "Service Format Address";
         PostedShipmentDate: Date;
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];

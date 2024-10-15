@@ -1212,22 +1212,20 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         CustomReportSelection.SetRange(Usage, ReportUsage);
         CustomReportSelection.DeleteAll();
 
-        WITH CustomReportSelection do begin
-            Init();
-            Validate("Source Type", DATABASE::Customer);
-            Validate("Source No.", Customer."No.");
-            Validate(Usage, ReportUsage);
-            Validate(Sequence, COUNT + 1);
-            Validate("Report ID", ReportID);
-            Validate("Use For Email Attachment", UseForEmailAttachment);
-            if "Use For Email Attachment" then
-                Validate("Custom Report Layout Code", GetBuiltInLayoutCode(ReportID));
-            Validate("Use For Email Body", UseForEmailBody);
-            if "Use For Email Body" then
-                Validate("Email Body Layout Code", GetBuiltInLayoutCode(ReportID));
-            Validate("Send To Email", SendToAddress);
-            Insert(true);
-        end;
+        CustomReportSelection.Init();
+        CustomReportSelection.Validate("Source Type", DATABASE::Customer);
+        CustomReportSelection.Validate("Source No.", Customer."No.");
+        CustomReportSelection.Validate(Usage, ReportUsage);
+        CustomReportSelection.Validate(Sequence, CustomReportSelection.COUNT + 1);
+        CustomReportSelection.Validate("Report ID", ReportID);
+        CustomReportSelection.Validate("Use For Email Attachment", UseForEmailAttachment);
+        if CustomReportSelection."Use For Email Attachment" then
+            CustomReportSelection.Validate("Custom Report Layout Code", GetBuiltInLayoutCode(ReportID));
+        CustomReportSelection.Validate("Use For Email Body", UseForEmailBody);
+        if CustomReportSelection."Use For Email Body" then
+            CustomReportSelection.Validate("Email Body Layout Code", GetBuiltInLayoutCode(ReportID));
+        CustomReportSelection.Validate("Send To Email", SendToAddress);
+        CustomReportSelection.Insert(true);
     end;
 
     local procedure InsertReportSelections(var ReportSelections: Record "Report Selections"; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; ReportUsage: Enum "Report Selection Usage");
@@ -1235,19 +1233,17 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         ReportSelections.SetRange(Usage, ReportUsage);
         ReportSelections.DeleteAll();
 
-        WITH ReportSelections do begin
-            Init();
-            Validate(Usage, ReportUsage);
-            Validate(Sequence, '1');
-            Validate("Report ID", ReportID);
-            Validate("Use For Email Attachment", UseForEmailAttachment);
-            if "Use For Email Attachment" then
-                Validate("Custom Report Layout Code", GetBuiltInLayoutCode(ReportID));
-            Validate("Use For Email Body", UseForEmailBody);
-            if "Use For Email Body" then
-                Validate("Email Body Layout Code", GetBuiltInLayoutCode(ReportID));
-            Insert(true);
-        end;
+        ReportSelections.Init();
+        ReportSelections.Validate(Usage, ReportUsage);
+        ReportSelections.Validate(Sequence, '1');
+        ReportSelections.Validate("Report ID", ReportID);
+        ReportSelections.Validate("Use For Email Attachment", UseForEmailAttachment);
+        if ReportSelections."Use For Email Attachment" then
+            ReportSelections.Validate("Custom Report Layout Code", GetBuiltInLayoutCode(ReportID));
+        ReportSelections.Validate("Use For Email Body", UseForEmailBody);
+        if ReportSelections."Use For Email Body" then
+            ReportSelections.Validate("Email Body Layout Code", GetBuiltInLayoutCode(ReportID));
+        ReportSelections.Insert(true);
     end;
 
     local procedure RunCustomerStatements(var Customer: array[2] of Record "Customer"; PrintIfEmailIsMissing: Boolean);

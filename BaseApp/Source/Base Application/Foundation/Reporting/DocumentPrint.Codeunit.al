@@ -14,6 +14,7 @@ using Microsoft.Inventory.Counting.History;
 using Microsoft.Inventory.Counting.Recording;
 using Microsoft.Inventory.Document;
 using Microsoft.Inventory.History;
+using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.Archive;
 using Microsoft.Purchases.Document;
@@ -21,8 +22,6 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Document;
 
 codeunit 229 "Document-Print"
 {
@@ -34,9 +33,6 @@ codeunit 229 "Document-Print"
     var
         SalesSetup: Record "Sales & Receivables Setup";
         PurchSetup: Record "Purchases & Payables Setup";
-
-        Text001: Label '%1 is missing for %2 %3.';
-        Text002: Label '%1 for %2 is missing in %3.';
 
     procedure EmailSalesHeader(SalesHeader: Record "Sales Header")
     begin
@@ -329,48 +325,25 @@ codeunit 229 "Document-Print"
         ReportSelections.PrintReport(ReportSelections.Usage::Inv1, TransHeader);
     end;
 
-    procedure PrintServiceContract(ServiceContractHeader: Record "Service Contract Header")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure PrintServiceContract in codeunit Serv. Report Management', '25.0')]
+    procedure PrintServiceContract(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header")
     var
-        ReportSelection: Record "Report Selections";
-        ReportUsage: Enum "Report Selection Usage";
-        IsPrinted: Boolean;
+        ServDocumentPrint: Codeunit "Serv. Document Print";
     begin
-        ReportUsage := GetServContractTypeUsage(ServiceContractHeader);
-
-        ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        OnBeforePrintServiceContract(ServiceContractHeader, ReportUsage.AsInteger(), IsPrinted);
-        if IsPrinted then
-            exit;
-
-        ReportSelection.Reset();
-        ReportSelection.SetRange(Usage, ReportUsage);
-        if ReportSelection.IsEmpty() then
-            Error(Text001, ReportSelection.TableCaption(), Format(ServiceContractHeader."Contract Type"), ServiceContractHeader."Contract No.");
-
-        ReportSelection.PrintForCust(ReportUsage, ServiceContractHeader, ServiceContractHeader.FieldNo("Bill-to Customer No."));
+        ServDocumentPrint.PrintServiceContract(ServiceContractHeader);
     end;
+#endif
 
-    procedure PrintServiceHeader(ServiceHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Replaced by procedure PrintServiceHeader in codeunit Serv. Report Management', '25.0')]
+    procedure PrintServiceHeader(ServiceHeader: Record Microsoft.Service.Document."Service Header")
     var
-        ReportSelection: Record "Report Selections";
-        ReportUsage: Enum "Report Selection Usage";
-        IsPrinted: Boolean;
+        ServDocumentPrint: Codeunit "Serv. Document Print";
     begin
-        ReportUsage := GetServHeaderDocTypeUsage(ServiceHeader);
-        ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type");
-        ServiceHeader.SetRange("No.", ServiceHeader."No.");
-        CalcServDisc(ServiceHeader);
-        OnBeforePrintServiceHeader(ServiceHeader, ReportUsage.AsInteger(), IsPrinted);
-        if IsPrinted then
-            exit;
-
-        ReportSelection.Reset();
-        ReportSelection.SetRange(Usage, ReportUsage);
-        if ReportSelection.IsEmpty() then
-            Error(Text002, ReportSelection.FieldCaption("Report ID"), ServiceHeader.TableCaption(), ReportSelection.TableCaption());
-
-        ReportSelection.PrintForCust(ReportUsage, ServiceHeader, ServiceHeader.FieldNo("Customer No."));
+        ServDocumentPrint.PrintServiceHeader(ServiceHeader);
     end;
+#endif
 
     procedure PrintAsmHeader(AsmHeader: Record "Assembly Header")
     var
@@ -546,6 +519,9 @@ codeunit 229 "Document-Print"
                 ReportSelections.SetRange(Usage, ReportSelections.Usage::"Inventory Shipment");
         end;
         ReportSelections.SetFilter("Report ID", '<>0');
+
+        CheckNoReportSelectionThrowError(ReportSelections, InvtDocHeader);
+
         if ReportSelections.FindSet() then
             repeat
                 REPORT.RunModal(ReportSelections."Report ID", ShowRequestPage, false, InvtDocHeader);
@@ -664,51 +640,25 @@ codeunit 229 "Document-Print"
         end;
     end;
 
-    procedure GetServContractTypeUsage(ServiceContractHeader: Record "Service Contract Header"): Enum "Report Selection Usage"
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Serv. Report Management ', '25.0')]
+    procedure GetServContractTypeUsage(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"): Enum "Report Selection Usage"
     var
-        ReportSelections: Record "Report Selections";
-        TypeUsage: Integer;
-        IsHandled: Boolean;
+        ServDocumentPrint: Codeunit "Serv. Document Print";
     begin
-        case ServiceContractHeader."Contract Type" of
-            ServiceContractHeader."Contract Type"::Quote:
-                exit(ReportSelections.Usage::"SM.Contract Quote");
-            ServiceContractHeader."Contract Type"::Contract:
-                exit(ReportSelections.Usage::"SM.Contract");
-            else begin
-                IsHandled := false;
-                OnGetServContractTypeUsageElseCase(ServiceContractHeader, TypeUsage, IsHandled);
-                if IsHandled then
-                    exit("Report Selection Usage".FromInteger(TypeUsage));
-                Error('');
-            end;
-        end;
+        exit(ServDocumentPrint.GetServContractTypeUsage(ServiceContractHeader));
     end;
+#endif
 
-    procedure GetServHeaderDocTypeUsage(ServiceHeader: Record "Service Header"): Enum "Report Selection Usage"
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Serv. Report Management ', '25.0')]
+    procedure GetServHeaderDocTypeUsage(ServiceHeader: Record Microsoft.Service.Document."Service Header"): Enum "Report Selection Usage"
     var
-        ReportSelections: Record "Report Selections";
-        TypeUsage: Integer;
-        IsHandled: Boolean;
+        ServDocumentPrint: Codeunit "Serv. Document Print";
     begin
-        case ServiceHeader."Document Type" of
-            ServiceHeader."Document Type"::Quote:
-                exit(ReportSelections.Usage::"SM.Quote");
-            ServiceHeader."Document Type"::Order:
-                exit(ReportSelections.Usage::"SM.Order");
-            ServiceHeader."Document Type"::Invoice:
-                exit(ReportSelections.Usage::"SM.Invoice");
-            ServiceHeader."Document Type"::"Credit Memo":
-                exit(ReportSelections.Usage::"SM.Credit Memo");
-            else begin
-                IsHandled := false;
-                OnGetServHeaderDocTypeUsageElseCase(ServiceHeader, TypeUsage, IsHandled);
-                if IsHandled then
-                    exit("Report Selection Usage".FromInteger(TypeUsage));
-                Error('');
-            end;
-        end;
+        exit(ServDocumentPrint.GetServHeaderDocTypeUsage(ServiceHeader));
     end;
+#endif
 
     procedure GetAsmHeaderDocTypeUsage(AsmHeader: Record "Assembly Header"): Enum "Report Selection Usage"
     var
@@ -845,72 +795,78 @@ codeunit 229 "Document-Print"
         end;
     end;
 
-    procedure CalcServDisc(var ServHeader: Record "Service Header")
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Serv. Report Management', '25.0')]
+    procedure CalcServDisc(var ServHeader: Record Microsoft.Service.Document."Service Header")
     var
-        ServLine: Record "Service Line";
-        IsHandled: Boolean;
+        ServDocumentPrint: Codeunit "Serv. Document Print";
     begin
-        IsHandled := false;
-        OnBeforeCalcServDisc(ServHeader, IsHandled);
-        if IsHandled then
+        ServDocumentPrint.CalcServDisc(ServHeader);
+    end;
+#endif
+
+    local procedure CheckNoReportSelectionThrowError(var ReportSelections: Record "Report Selections"; InvtDocumentHeader: Record "Invt. Document Header")
+    var
+        NoReportSelectionErrorInfo: ErrorInfo;
+        NoReportSelectionTitleLbl: Label 'Report ID not selected';
+        NoReportSelectionMessageLbl: Label 'For printing the document, a report must be selected. Please select a report and try again.';
+        OpenReportSelectionInventoryLbl: Label 'Open Report Selection - Inventory';
+    begin
+        if not ReportSelections.IsEmpty then
             exit;
+        NoReportSelectionErrorInfo.ErrorType(ErrorType::Client);
+        NoReportSelectionErrorInfo.Verbosity(Verbosity::Error);
+        NoReportSelectionErrorInfo.RecordId(InvtDocumentHeader.RecordId);
+        NoReportSelectionErrorInfo.TableId(Database::"Invt. Document Header");
+        NoReportSelectionErrorInfo.Title(NoReportSelectionTitleLbl);
+        NoReportSelectionErrorInfo.Message(NoReportSelectionMessageLbl);
+        NoReportSelectionErrorInfo.AddAction(OpenReportSelectionInventoryLbl, Codeunit::"Document-Print", 'OpenReportSelectionInventory');
+        Error(NoReportSelectionErrorInfo);
+    end;
 
-        SalesSetup.Get();
-        if SalesSetup."Calc. Inv. Discount" then begin
-            ServLine.Reset();
-            ServLine.SetRange("Document Type", ServHeader."Document Type");
-            ServLine.SetRange("Document No.", ServHeader."No.");
-            ServLine.FindFirst();
-            CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServLine);
-            ServHeader.Get(ServHeader."Document Type", ServHeader."No.");
-            Commit();
+    procedure OpenReportSelectionInventory(NoReportSelectionErrorInfo: ErrorInfo)
+    var
+        ReportSelections: Record "Report Selections";
+        InvtDocumentHeader: Record "Invt. Document Header";
+        ReportSelectionInventory: Page "Report Selection - Inventory";
+    begin
+        case NoReportSelectionErrorInfo.TableId of
+            Database::"Invt. Document Header":
+                begin
+                    InvtDocumentHeader.Get(NoReportSelectionErrorInfo.RecordId);
+
+                    case InvtDocumentHeader."Document Type" of
+                        InvtDocumentHeader."Document Type"::Receipt:
+                            ReportSelections.SetRange(Usage, ReportSelections.Usage::"Inventory Receipt");
+                        InvtDocumentHeader."Document Type"::Shipment:
+                            ReportSelections.SetRange(Usage, ReportSelections.Usage::"Inventory Shipment");
+                    end;
+                end;
         end;
+
+        ReportSelectionInventory.SetTableView(ReportSelections);
+        ReportSelectionInventory.RunModal();
     end;
 
-    procedure PrintServiceHeaderToDocumentAttachment(var ServiceHeader: Record "Service Header");
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Serv. Report Management ', '25.0')]
+    procedure PrintServiceHeaderToDocumentAttachment(var ServiceHeader: Record Microsoft.Service.Document."Service Header");
     var
-        ShowNotificationAction: Boolean;
+        ServDocumentPrint: Codeunit "Serv. Document Print";
     begin
-        ShowNotificationAction := ServiceHeader.Count() = 1;
-        if ServiceHeader.FindSet() then
-            repeat
-                DoPrintServiceHeaderToDocumentAttachment(ServiceHeader, ShowNotificationAction);
-            until ServiceHeader.Next() = 0;
+        ServDocumentPrint.PrintServiceHeaderToDocumentAttachment(ServiceHeader);
     end;
+#endif
 
-    local procedure DoPrintServiceHeaderToDocumentAttachment(ServiceHeader: Record "Service Header"; ShowNotificationAction: Boolean);
+#if not CLEAN25
+    [Obsolete('Replaced by same procedure in codeunit Serv. Report Management ', '25.0')]
+    procedure PrintServiceContractToDocumentAttachment(var ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header");
     var
-        ReportUsage: Enum "Report Selection Usage";
+        ServDocumentPrint: Codeunit "Serv. Document Print";
     begin
-        ReportUsage := GetServHeaderDocTypeUsage(ServiceHeader);
-
-        ServiceHeader.SetRecFilter();
-        CalcServDisc(ServiceHeader);
-
-        RunSaveAsDocumentAttachment(ReportUsage.AsInteger(), ServiceHeader, ServiceHeader."No.", ServiceHeader."Customer No.", ShowNotificationAction);
+        ServDocumentPrint.PrintServiceContractToDocumentAttachment(ServiceContractHeader);
     end;
-
-    procedure PrintServiceContractToDocumentAttachment(var ServiceContractHeader: Record "Service Contract Header");
-    var
-        ShowNotificationAction: Boolean;
-    begin
-        ShowNotificationAction := ServiceContractHeader.Count() = 1;
-        if ServiceContractHeader.FindSet() then
-            repeat
-                DoPrintServiceContractToDocumentAttachment(ServiceContractHeader, ShowNotificationAction);
-            until ServiceContractHeader.Next() = 0;
-    end;
-
-    local procedure DoPrintServiceContractToDocumentAttachment(ServiceContractHeader: Record "Service Contract Header"; ShowNotificationAction: Boolean);
-    var
-        ReportUsage: Enum "Report Selection Usage";
-    begin
-        ReportUsage := GetServContractTypeUsage(ServiceContractHeader);
-
-        ServiceContractHeader.SetRecFilter();
-
-        RunSaveAsDocumentAttachment(ReportUsage.AsInteger(), ServiceContractHeader, ServiceContractHeader."Contract No.", ServiceContractHeader."Bill-to Customer No.", ShowNotificationAction);
-    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDoPrintSalesHeader(var SalesHeader: Record "Sales Header"; SendAsEmail: Boolean)
@@ -932,10 +888,18 @@ codeunit 229 "Document-Print"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnBeforeCalcServDisc(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
+    begin
+        OnBeforeCalcServDisc(ServiceHeader, IsHandled);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit Serv. Report Management', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcServDisc(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCalcServDisc(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPurchDisc(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
@@ -987,15 +951,31 @@ codeunit 229 "Document-Print"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintServiceContract(var ServiceContractHeader: Record "Service Contract Header"; ReportUsage: Integer; var IsPrinted: Boolean)
+#if not CLEAN25
+    internal procedure RunOnBeforePrintServiceContract(var ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; ReportUsage: Integer; var IsPrinted: Boolean)
     begin
+        OnBeforePrintServiceContract(ServiceContractHeader, ReportUsage, IsPrinted);
     end;
 
+    [Obsolete('Replaced by same event in codeunit Serv. Report Management', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrintServiceHeader(var ServiceHeader: Record "Service Header"; ReportUsage: Integer; var IsPrinted: Boolean)
+    local procedure OnBeforePrintServiceContract(var ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; ReportUsage: Integer; var IsPrinted: Boolean)
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforePrintServiceHeader(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; ReportUsage: Integer; var IsPrinted: Boolean)
+    begin
+        OnBeforePrintServiceHeader(ServiceHeader, ReportUsage, IsPrinted);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit Serv. Report Management', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintServiceHeader(var ServiceHeader: Record Microsoft.Service.Document."Service Header"; ReportUsage: Integer; var IsPrinted: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintAsmHeader(var AssemblyHeader: Record "Assembly Header"; ReportUsage: Integer; var IsPrinted: Boolean)
@@ -1042,15 +1022,31 @@ codeunit 229 "Document-Print"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnGetServHeaderDocTypeUsageElseCase(ServiceHeader: Record "Service Header"; var TypeUsage: Integer; var IsHandled: Boolean)
+#if not CLEAN25
+    internal procedure RunOnGetServHeaderDocTypeUsageElseCase(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var TypeUsage: Integer; var IsHandled: Boolean)
     begin
+        OnGetServHeaderDocTypeUsageElseCase(ServiceHeader, TypeUsage, IsHandled);
     end;
 
+    [Obsolete('Replaced by same event in codeunit Serv. Report Management', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnGetServContractTypeUsageElseCase(ServiceContractHeader: Record "Service Contract Header"; var TypeUsage: Integer; var IsHandled: Boolean)
+    local procedure OnGetServHeaderDocTypeUsageElseCase(ServiceHeader: Record Microsoft.Service.Document."Service Header"; var TypeUsage: Integer; var IsHandled: Boolean)
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnGetServContractTypeUsageElseCase(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var TypeUsage: Integer; var IsHandled: Boolean)
+    begin
+        OnGetServContractTypeUsageElseCase(ServiceContractHeader, TypeUsage, IsHandled);
+    end;
+
+    [Obsolete('Replaced by same event in codeunit Serv. Report Management', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnGetServContractTypeUsageElseCase(ServiceContractHeader: Record Microsoft.Service.Contract."Service Contract Header"; var TypeUsage: Integer; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetSalesArchDocTypeUsageElseCase(SalesHeaderArchive: Record "Sales Header Archive"; var TypeUsage: Integer; var IsHandled: Boolean)

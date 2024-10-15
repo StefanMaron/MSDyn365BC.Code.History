@@ -1663,16 +1663,14 @@ codeunit 138012 "O365 Templates Test"
         DefaultDimension: Record "Default Dimension";
         NewDimValCode: Code[20];
     begin
-        with DefaultDimension do begin
-            SetRange("Table ID", TableID);
-            SetRange("No.", No);
-            if FindSet() then
-                repeat
-                    NewDimValCode := LibraryDimension.FindDifferentDimensionValue("Dimension Code", "Dimension Value Code");
-                    Validate("Dimension Value Code", NewDimValCode);
-                    Modify(true);
-                until Next() = 0;
-        end;
+        DefaultDimension.SetRange("Table ID", TableID);
+        DefaultDimension.SetRange("No.", No);
+        if DefaultDimension.FindSet() then
+            repeat
+                NewDimValCode := LibraryDimension.FindDifferentDimensionValue(DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
+                DefaultDimension.Validate("Dimension Value Code", NewDimValCode);
+                DefaultDimension.Modify(true);
+            until DefaultDimension.Next() = 0;
     end;
 
     local procedure ClearTable(TableID: Integer)
@@ -2378,20 +2376,18 @@ codeunit 138012 "O365 Templates Test"
     var
         PostCodeRec: Record "Post Code";
     begin
-        with PostCodeRec do begin
-            SetFilter(City, CityName);
-            DeleteAll();
-            Reset();
-            SetFilter(Code, PostCode);
-            DeleteAll();
+        PostCodeRec.SetFilter(City, CityName);
+        PostCodeRec.DeleteAll();
+        PostCodeRec.Reset();
+        PostCodeRec.SetFilter(Code, PostCode);
+        PostCodeRec.DeleteAll();
 
-            Init();
-            Code := PostCode;
-            City := CityName;
-            "Search City" := CityName;
-            "Country/Region Code" := ExpectedRegionCode;
-            Insert(true);
-        end;
+        PostCodeRec.Init();
+        PostCodeRec.Code := PostCode;
+        PostCodeRec.City := CityName;
+        PostCodeRec."Search City" := CityName;
+        PostCodeRec."Country/Region Code" := ExpectedRegionCode;
+        PostCodeRec.Insert(true);
     end;
 
     local procedure IsValueInArray(Haystack: array[2] of Text; Needle: Text): Boolean
@@ -2548,14 +2544,12 @@ codeunit 138012 "O365 Templates Test"
     var
         ConfigTemplateLine: Record "Config. Template Line";
     begin
-        with ConfigTemplateLine do begin
-            SetRange("Data Template Code", DataTemplateCode);
-            SetRange(Type, Type::Field);
-            SetRange("Table ID", TableID);
-            SetRange("Field ID", FieldNumber);
-            FindFirst();
-            TestField("Default Value", DefaultValue);
-        end;
+        ConfigTemplateLine.SetRange("Data Template Code", DataTemplateCode);
+        ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::Field);
+        ConfigTemplateLine.SetRange("Table ID", TableID);
+        ConfigTemplateLine.SetRange("Field ID", FieldNumber);
+        ConfigTemplateLine.FindFirst();
+        ConfigTemplateLine.TestField("Default Value", DefaultValue);
     end;
 
     local procedure VerifyItemNoWithSeries(ItemNo: Code[20]; ExpectedNo: Code[20]; ExpectedNoSeries: Code[20])

@@ -78,19 +78,16 @@ codeunit 1890 "Reminder Communication"
             ReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
             ReminderLine."Reminder No." := ReminderHeader."No.";
 
-            if ReminderLine.FindFirst() then begin
-                LineSpacing := ReminderLine."Line No." div 3;
-                if LineSpacing = 0 then
-                    Error(NoEnoughSpaceForTextErr);
-            end else
-                LineSpacing := 10000;
-
-            if ReminderAttachmentText.Get(ReminderLevel."Reminder Attachment Text", LanguageCode) then
-                ReminderHeader.InsertTextLines(ReminderHeader, ReminderAttachmentText, Enum::"Reminder Line Type"::"Beginning Text", NextLineNo, LineSpacing)
+            if ReminderAttachmentText.Get(ReminderLevel."Reminder Attachment Text", LanguageCode) then begin
+                LineSpacing := CalculateLineSpacingForBeginningText(ReminderLine, ReminderAttachmentText);
+                ReminderHeader.InsertTextLines(ReminderHeader, ReminderAttachmentText, Enum::"Reminder Line Type"::"Beginning Text", NextLineNo, LineSpacing);
+            end
             else begin
                 ReminderTerms.Get(ReminderLevel."Reminder Terms Code");
-                if ReminderAttachmentText.Get(ReminderTerms."Reminder Attachment Text", LanguageCode) then
+                if ReminderAttachmentText.Get(ReminderTerms."Reminder Attachment Text", LanguageCode) then begin
+                    LineSpacing := CalculateLineSpacingForBeginningText(ReminderLine, ReminderAttachmentText);
                     ReminderHeader.InsertTextLines(ReminderHeader, ReminderAttachmentText, Enum::"Reminder Line Type"::"Beginning Text", NextLineNo, LineSpacing)
+                end;
             end;
         end;
 
@@ -127,19 +124,17 @@ codeunit 1890 "Reminder Communication"
             ReminderLine2 := ReminderLine;
             ReminderLine2.CopyFilters(ReminderLine);
             ReminderLine2.SetFilter("Line Type", '<>%1', ReminderLine2."Line Type"::"Line Fee");
-            if ReminderLine2.Next() <> 0 then begin
-                LineSpacing := (ReminderLine2."Line No." - ReminderLine."Line No.") div 3;
-                if LineSpacing = 0 then
-                    Error(NoEnoughSpaceForTextErr);
-            end else
-                LineSpacing := 10000;
 
-            if ReminderAttachmentText.Get(ReminderLevel."Reminder Attachment Text", LanguageCode) then
-                ReminderHeader.InsertTextLines(ReminderHeader, ReminderAttachmentText, Enum::"Reminder Line Type"::"Ending Text", NextLineNo, LineSpacing)
+            if ReminderAttachmentText.Get(ReminderLevel."Reminder Attachment Text", LanguageCode) then begin
+                LineSpacing := CalculateLineSpacingForEndingText(ReminderLine, ReminderLine2, ReminderAttachmentText);
+                ReminderHeader.InsertTextLines(ReminderHeader, ReminderAttachmentText, Enum::"Reminder Line Type"::"Ending Text", NextLineNo, LineSpacing);
+            end
             else begin
                 ReminderTerms.Get(ReminderLevel."Reminder Terms Code");
-                if ReminderAttachmentText.Get(ReminderTerms."Reminder Attachment Text", LanguageCode) then
-                    ReminderHeader.InsertTextLines(ReminderHeader, ReminderAttachmentText, Enum::"Reminder Line Type"::"Ending Text", NextLineNo, LineSpacing)
+                if ReminderAttachmentText.Get(ReminderTerms."Reminder Attachment Text", LanguageCode) then begin
+                    LineSpacing := CalculateLineSpacingForEndingText(ReminderLine, ReminderLine2, ReminderAttachmentText);
+                    ReminderHeader.InsertTextLines(ReminderHeader, ReminderAttachmentText, Enum::"Reminder Line Type"::"Ending Text", NextLineNo, LineSpacing);
+                end;
             end;
         end;
 
@@ -562,15 +557,18 @@ codeunit 1890 "Reminder Communication"
                         AffectedReminderLevels := Format(ReminderLevel."No.")
                     else
                         AffectedReminderLevels := StrSubstNo(CommaSeparatedTok, AffectedReminderLevels, ReminderLevel."No.");
+
                 if FirstLevel then
                     FirstLevel := false
                 else
                     if (PreviousReminderLevelAttachmentLanguages <> ReminderLevelAttachmentLanguages) or (PreviousReminderLevelEmailLanguages <> ReminderLevelEmailLanguages) then
                         MissalignedLevels := true;
+
                 PreviousReminderLevelAttachmentLanguages := ReminderLevelAttachmentLanguages;
                 PreviousReminderLevelEmailLanguages := ReminderLevelEmailLanguages;
             until ReminderLevel.Next() = 0;
         end;
+
         if AffectedReminderLevels <> '' then begin
             ConfirmMessage := StrSubstNo(MismatchLanguagesBetweenTermsAndLevelsMsg, AffectedReminderLevels);
             if MissalignedLevels then
@@ -579,8 +577,10 @@ codeunit 1890 "Reminder Communication"
         else
             if MissalignedLevels then
                 ConfirmMessage := MismatchLanguagesBetweenLevelsMsg;
+
         if ConfirmMessage <> '' then
             exit(Confirm(ConfirmMessage));
+
         exit(false);
     end;
 
@@ -589,6 +589,7 @@ codeunit 1890 "Reminder Communication"
         ReminderLevels: Record "Reminder Level";
         ReminderText: Record "Reminder Text";
         ReminderAttachmentText: Record "Reminder Attachment Text";
+        ReminderAttachmentTextLine: Record "Reminder Attachment Text Line";
         ReminderEmailText: Record "Reminder Email Text";
         Language: Codeunit Language;
         TypeHelper: Codeunit "Type Helper";
@@ -625,13 +626,23 @@ codeunit 1890 "Reminder Communication"
                     case ReminderText.Position of
                         Enum::"Reminder Text Position"::Beginning:
                             begin
-                                ReminderAttachmentText."Beginning Line" := CopyStr(StrSubstNo('%1 %2', ReminderAttachmentText."Beginning Line", ReminderText.Text), 1, 100);
-                                ReminderAttachmentText.Modify(true);
+                                ReminderAttachmentTextLine.Init();
+                                ReminderAttachmentTextLine.Id := ReminderAttachmentText.Id;
+                                ReminderAttachmentTextLine."Language Code" := ReminderAttachmentText."Language Code";
+                                ReminderAttachmentTextLine.Position := ReminderAttachmentTextLine.Position::"Beginning Line";
+                                ReminderAttachmentTextLine."Line No." := ReminderText."Line No.";
+                                ReminderAttachmentTextLine.Text := ReminderText.Text;
+                                ReminderAttachmentTextLine.Insert(true);
                             end;
                         Enum::"Reminder Text Position"::Ending:
                             begin
-                                ReminderAttachmentText."Ending Line" := CopyStr(StrSubstNo('%1 %2', ReminderAttachmentText."Ending Line", ReminderText.Text), 1, 100);
-                                ReminderAttachmentText.Modify(true);
+                                ReminderAttachmentTextLine.Init();
+                                ReminderAttachmentTextLine.Id := ReminderAttachmentText.Id;
+                                ReminderAttachmentTextLine."Language Code" := ReminderAttachmentText."Language Code";
+                                ReminderAttachmentTextLine.Position := ReminderAttachmentTextLine.Position::"Ending Line";
+                                ReminderAttachmentTextLine."Line No." := ReminderText."Line No.";
+                                ReminderAttachmentTextLine.Text := ReminderText.Text;
+                                ReminderAttachmentTextLine.Insert(true);
                             end;
                         Enum::"Reminder Text Position"::"Email Body":
                             if ReminderText."Email Text".HasValue() then begin
@@ -812,6 +823,43 @@ codeunit 1890 "Reminder Communication"
             exit(true);
 
         exit(false);
+    end;
+
+    local procedure CalculateLineSpacingForBeginningText(var ReminderLine: Record "Reminder Line"; var ReminderAttachmentText: Record "Reminder Attachment Text"): Integer
+    var
+        ReminderAttachmentTextLine: Record "Reminder Attachment Text Line";
+        LineSpacing: Integer;
+    begin
+        if ReminderLine.FindFirst() then begin
+            ReminderAttachmentTextLine.SetRange(Id, ReminderAttachmentText.Id);
+            ReminderAttachmentTextLine.SetRange("Language Code", ReminderAttachmentText."Language Code");
+            ReminderAttachmentTextLine.SetRange(Position, ReminderAttachmentTextLine.Position::"Beginning Line");
+            LineSpacing := ReminderLine."Line No." div (ReminderAttachmentTextLine.Count() + 2);
+            if LineSpacing = 0 then
+                Error(NoEnoughSpaceForTextErr);
+        end else
+            LineSpacing := 10000;
+
+        exit(LineSpacing);
+    end;
+
+    local procedure CalculateLineSpacingForEndingText(var ReminderLine: Record "Reminder Line"; var ReminderLine2: Record "Reminder Line"; var ReminderAttachmentText: Record "Reminder Attachment Text"): Integer
+    var
+        ReminderAttachmentTextLine: Record "Reminder Attachment Text Line";
+        LineSpacing: Integer;
+    begin
+
+        if ReminderLine2.Next() <> 0 then begin
+            ReminderAttachmentTextLine.SetRange(Id, ReminderAttachmentText.Id);
+            ReminderAttachmentTextLine.SetRange("Language Code", ReminderAttachmentText."Language Code");
+            ReminderAttachmentTextLine.SetRange(Position, ReminderAttachmentTextLine.Position::"Ending Line");
+            LineSpacing := (ReminderLine2."Line No." - ReminderLine."Line No.") div (ReminderAttachmentTextLine.Count() + 2);
+            if LineSpacing = 0 then
+                Error(NoEnoughSpaceForTextErr);
+        end else
+            LineSpacing := 10000;
+
+        exit(LineSpacing);
     end;
 
     local procedure GetReminderAttachmentText(var IssuedReminderHeader: Record "Issued Reminder Header"; var ReminderAttachmentText: Record "Reminder Attachment Text"): Boolean

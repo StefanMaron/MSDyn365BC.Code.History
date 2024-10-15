@@ -495,11 +495,9 @@ codeunit 142074 "UT REP Export Electronic Pmt."
 
     local procedure ModifyGenJnlLineBankPaymentType(var GenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLine do begin
-            "Amount (LCY)" := Amount;
-            "Bank Payment Type" := "Bank Payment Type"::"Electronic Payment-IAT";
-            Modify();
-        end;
+        GenJournalLine."Amount (LCY)" := GenJournalLine.Amount;
+        GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Electronic Payment-IAT";
+        GenJournalLine.Modify();
     end;
 
     local procedure EnqueueValuesForExportElectronicPayment(GenJournalLine: Record "Gen. Journal Line")

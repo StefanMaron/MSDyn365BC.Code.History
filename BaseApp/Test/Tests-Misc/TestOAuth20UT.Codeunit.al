@@ -561,31 +561,27 @@ codeunit 134780 "Test OAuth 2.0 UT"
 
     local procedure CreateCustomOAuthSetup(var OAuth20Setup: Record "OAuth 2.0 Setup"; NewStatus: Option)
     begin
-        with OAuth20Setup do begin
-            Code := LibraryUtility.GenerateGUID();
-            Status := NewStatus;
-            Description := LibraryUtility.GenerateGUID();
-            "Service URL" := 'https://TestServiceURL';
-            "Redirect URL" := 'https://TestRedirectURL';
-            Scope := LibraryUtility.GenerateGUID();
-            "Authorization URL Path" := '/TestAuthorizationURLPath';
-            "Access Token URL Path" := '/TestAccessTokenURLPath';
-            "Refresh Token URL Path" := '/TestRefreshTokenURLPath';
-            "Authorization Response Type" := LibraryUtility.GenerateGUID();
-            "Token DataScope" := "Token DataScope"::Company;
-            SetOAuthSetupTestTokens(OAuth20Setup);
-            Insert();
-        end;
+        OAuth20Setup.Code := LibraryUtility.GenerateGUID();
+        OAuth20Setup.Status := NewStatus;
+        OAuth20Setup.Description := LibraryUtility.GenerateGUID();
+        OAuth20Setup."Service URL" := 'https://TestServiceURL';
+        OAuth20Setup."Redirect URL" := 'https://TestRedirectURL';
+        OAuth20Setup.Scope := LibraryUtility.GenerateGUID();
+        OAuth20Setup."Authorization URL Path" := '/TestAuthorizationURLPath';
+        OAuth20Setup."Access Token URL Path" := '/TestAccessTokenURLPath';
+        OAuth20Setup."Refresh Token URL Path" := '/TestRefreshTokenURLPath';
+        OAuth20Setup."Authorization Response Type" := LibraryUtility.GenerateGUID();
+        OAuth20Setup."Token DataScope" := OAuth20Setup."Token DataScope"::Company;
+        SetOAuthSetupTestTokens(OAuth20Setup);
+        OAuth20Setup.Insert();
     end;
 
     local procedure CreateCustomOAuthSetupWithTokenScope(var OAuth20Setup: Record "OAuth 2.0 Setup"; NewTokenDataScope: Option)
     begin
-        with OAuth20Setup do begin
-            Code := LibraryUtility.GenerateGUID();
-            "Token DataScope" := NewTokenDataScope;
-            SetOAuthSetupTestTokens(OAuth20Setup);
-            Insert();
-        end;
+        OAuth20Setup.Code := LibraryUtility.GenerateGUID();
+        OAuth20Setup."Token DataScope" := NewTokenDataScope;
+        SetOAuthSetupTestTokens(OAuth20Setup);
+        OAuth20Setup.Insert();
     end;
 
     local procedure MockHttpLogEntries(OAuth20Setup: Record "OAuth 2.0 Setup"; CurrentDate: Date);
@@ -612,11 +608,11 @@ codeunit 134780 "Test OAuth 2.0 UT"
     [NonDebuggable]
     local procedure GetAuthorizationURLString(OAuth20Setup: Record "OAuth 2.0 Setup"): Text
     begin
-        with OAuth20Setup do
-            exit(
+        exit(
               StrSubstNo(
                 '%1%2?response_type=%3&client_id=%4&scope=%5&redirect_uri=%6',
-                "Service URL", "Authorization URL Path", "Authorization Response Type", GetTokenAsSecretText("Client ID").Unwrap(), Scope, "Redirect URL"));
+                OAuth20Setup."Service URL", OAuth20Setup."Authorization URL Path", OAuth20Setup."Authorization Response Type",
+                OAuth20Setup.GetTokenAsSecretText(OAuth20Setup."Client ID").Unwrap(), OAuth20Setup.Scope, OAuth20Setup."Redirect URL"));
     end;
 
     local procedure SetOAuthSetupTestTokens(var OAuth20Setup: Record "OAuth 2.0 Setup")
@@ -691,13 +687,11 @@ codeunit 134780 "Test OAuth 2.0 UT"
         else
             ExpectedStatusOption := ActivityLog.Status::Failed;
 
-        with ActivityLog do begin
-            Get(OAuth20Setup."Activity Log ID");
-            TestField(Status, ExpectedStatusOption);
-            TestField(Context, StrSubstNo('OAuth 2.0 %1', OAuth20Setup.Code));
-            TestField(Description, ExpectedDescription);
-            TestField("Activity Message", ExpectedActivityMessage);
-        end;
+        ActivityLog.Get(OAuth20Setup."Activity Log ID");
+        ActivityLog.TestField(Status, ExpectedStatusOption);
+        ActivityLog.TestField(Context, StrSubstNo('OAuth 2.0 %1', OAuth20Setup.Code));
+        ActivityLog.TestField(Description, ExpectedDescription);
+        ActivityLog.TestField("Activity Message", ExpectedActivityMessage);
     end;
 
     local procedure VerifyHttpLogWithBlankedDetails(OAuth20Setup: Record "OAuth 2.0 Setup")
@@ -705,11 +699,9 @@ codeunit 134780 "Test OAuth 2.0 UT"
         ActivityLog: Record "Activity Log";
     begin
         OAuth20Setup.Find();
-        with ActivityLog do begin
-            Get(OAuth20Setup."Activity Log ID");
-            CalcFields("Detailed Info");
-            Assert.IsFalse("Detailed Info".HasValue(), '');
-        end;
+        ActivityLog.Get(OAuth20Setup."Activity Log ID");
+        ActivityLog.CalcFields("Detailed Info");
+        Assert.IsFalse(ActivityLog."Detailed Info".HasValue(), '');
     end;
 
     [SendNotificationHandler]

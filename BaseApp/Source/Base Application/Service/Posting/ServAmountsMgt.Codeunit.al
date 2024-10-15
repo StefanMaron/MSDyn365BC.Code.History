@@ -41,8 +41,12 @@ codeunit 5986 "Serv-Amounts Mgt."
         FALineNo: Integer;
 #endif
         RoundingLineNo: Integer;
+#pragma warning disable AA0074
         Text016: Label 'VAT Amount';
+#pragma warning disable AA0470
         Text017: Label '%1% VAT';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         RoundingLineIsInserted: Boolean;
         IsInitialized: Boolean;
 #if not CLEAN23
@@ -494,6 +498,12 @@ codeunit 5986 "Serv-Amounts Mgt."
                   UseDate, ServiceHeader."Currency Code",
                   TotalServiceLine."VAT Difference", ServiceHeader."Currency Factor")) -
               TotalServiceLineLCY."VAT Difference";
+        ServiceLine."Pmt. Discount Amount" :=
+          Round(
+            CurrExchRate.ExchangeAmtFCYToLCY(
+              UseDate, ServiceHeader."Currency Code",
+              TotalServiceLine."Pmt. Discount Amount", ServiceHeader."Currency Factor")) -
+          TotalServiceLineLCY."Pmt. Discount Amount";
         end;
         ServiceLine."VAT Base Amount" :=
           Round(
@@ -524,6 +534,7 @@ codeunit 5986 "Serv-Amounts Mgt."
         ServiceLine."Amount Including VAT" := -ServiceLine."Amount Including VAT";
         ServiceLine."Line Discount Amount" := -ServiceLine."Line Discount Amount";
         ServiceLine."Inv. Discount Amount" := -ServiceLine."Inv. Discount Amount";
+        ServiceLine."Pmt. Discount Amount" := -ServiceLine."Pmt. Discount Amount";
 
         OnAfterReverseAmount(ServiceLine);
     end;
@@ -602,6 +613,7 @@ codeunit 5986 "Serv-Amounts Mgt."
         Increment(TotalServiceLine."Line Discount Amount", ServiceLine."Line Discount Amount");
         Increment(TotalServiceLine."Inv. Discount Amount", ServiceLine."Inv. Discount Amount");
         Increment(TotalServiceLine."Inv. Disc. Amount to Invoice", ServiceLine."Inv. Disc. Amount to Invoice");
+        Increment(TotalServiceLine."Pmt. Discount Amount", ServiceLine."Pmt. Discount Amount");
 
         OnAfterIncrAmount(TotalServiceLine, ServiceLine);
     end;
@@ -675,7 +687,7 @@ codeunit 5986 "Serv-Amounts Mgt."
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
         GLSetup: Record "General Ledger Setup";
         Currency: Record Currency;
-        CostCalcMgt: Codeunit "Cost Calculation Management";
+        ServCostCalculationMgt: Codeunit "Serv. Cost Calculation Mgt.";
         ServLineQty: Decimal;
         LastLineRetrieved: Boolean;
         AdjCostLCY: Decimal;
@@ -756,7 +768,7 @@ codeunit 5986 "Serv-Amounts Mgt."
                     if not (QtyType in [QtyType::Shipping]) and
                        not InsertServLine and CalcAdCostLCY
                     then begin
-                        AdjCostLCY := CostCalcMgt.CalcServLineCostLCY(ServLine, QtyType);
+                        AdjCostLCY := ServCostCalculationMgt.CalcServLineCostLCY(ServLine, QtyType);
                         TotalAdjCostLCY := TotalAdjCostLCY + GetServLineAdjCostLCY(ServLine, QtyType, AdjCostLCY);
                     end;
 

@@ -42,15 +42,15 @@ codeunit 131340 "Library - Cost Accounting"
     begin
         CostAllocationSource.CalcFields("Total Share");
         CostAllocationTarget.SetFilter(ID, '%1', CostAllocationSource.ID);
-        if CostAllocationTarget.FindSet() then begin
+        if CostAllocationTarget.FindSet() then
             repeat
                 CurrentValue := Round(CostAllocationTarget.Percent, 0.1, '=');
                 ExpectedValue := Round(100 * CostAllocationTarget.Share / CostAllocationSource."Total Share", 0.1, '=');
                 Assert.AreEqual(
                   CurrentValue, ExpectedValue,
                   StrSubstNo(IncorrectPercentValueErr, CostAllocationSource.ID, CostAllocationTarget."Line No.", CurrentValue, ExpectedValue));
-            until CostAllocationTarget.Next() = 0;
-        end else
+            until CostAllocationTarget.Next() = 0
+        else
             Error(NoRecordsInFilterErr, CostAllocationTarget.TableCaption(), CostAllocationTarget.GetFilters);
     end;
 
@@ -420,13 +420,12 @@ codeunit 131340 "Library - Cost Accounting"
         GLAccount.Modify(true);
 
         if CostType.Get(GLAccount."Cost Type No.") then
-            if CostType."G/L Account Range" <> GLAccount."No." then begin
+            if CostType."G/L Account Range" <> GLAccount."No." then
                 if CostType."G/L Account Range" = '' then begin
                     CostType.Validate("G/L Account Range", GLAccount."No.");
                     CostType.Modify(true);
                 end else
                     Error(IncorrectGLAccountNo, CostType."G/L Account Range", CostType."No.", GLAccount."No.");
-            end;
     end;
 
     procedure CreateJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])

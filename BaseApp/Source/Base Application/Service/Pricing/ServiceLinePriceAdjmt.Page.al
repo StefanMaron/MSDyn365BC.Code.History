@@ -262,7 +262,9 @@ page 6084 "Service Line Price Adjmt."
         Remaining: Decimal;
         InclVat: Boolean;
         OKPressed: Boolean;
+#pragma warning disable AA0074
         Text001: Label 'Cancel price adjustment?';
+#pragma warning restore AA0074
 
     procedure SetVars(SetTotalAmount: Decimal; SetInclVat: Boolean)
     begin

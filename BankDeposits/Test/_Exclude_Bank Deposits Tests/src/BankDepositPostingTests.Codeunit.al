@@ -102,7 +102,7 @@ codeunit 139769 "Bank Deposit Posting Tests"
         GLEntry: Record "G/L Entry";
         TransactionNo: Integer;
     begin
-        // Verify G/L Entry after post Deposit with Unchecked Force Doc. Balance.
+        // Verify that when bank deposit has multiple lines, and 'Post as Lump Sum' is checked - it posts it as lump sum
 
         // Setup: Create GL Account and Vendor, create Bank Deposit with Account Type GL, Vendor.
         Initialize();
@@ -155,7 +155,7 @@ codeunit 139769 "Bank Deposit Posting Tests"
         GLEntry: Record "G/L Entry";
         TransactionNo: Integer;
     begin
-        // Verify G/L Entry after post Deposit with Unchecked Force Doc. Balance.
+        // Bug 539413: Verify that when bank deposit has one line, and 'Post as Lump Sum' is checked - it posts it as lump sum
 
         // Setup: Create GL Account and Vendor, create Bank Deposit with Account Type GL, Vendor.
         Initialize();
@@ -710,7 +710,7 @@ codeunit 139769 "Bank Deposit Posting Tests"
         EntryApplicationMgt: Codeunit "Entry Application Mgt";
         InvoiceEntryNo: Integer;
     begin
-        // [SCENARIO 542679] Applications are correctly retrieved for posted bank deposits
+        // [SCENARIO 542679] Applications on Customer Ledger Entries are correctly retrieved for posted bank deposits
         // [GIVEN] A posted bank deposit fully applied to an open sales document.
         Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
@@ -734,12 +734,56 @@ codeunit 139769 "Bank Deposit Posting Tests"
         PostedBankDepositLine.FindFirst();
         BankDeposit.FilterDepositCustLedgerEntry(PostedBankDepositLine, PaymentCustLedgerEntry);
         // [THEN] Only one entry is attached to the deposit line
-        Assert.AreEqual(1, PaymentCustLedgerEntry.Count, 'Only one entry should be found attached to this deposit line.');
+        Assert.RecordCount(PaymentCustLedgerEntry, 1);
         PaymentCustLedgerEntry.FindFirst();
         // [THEN] Only one invoice entry is found as applied
         EntryApplicationMgt.GetAppliedCustEntries(AppliedCustLedgerEntry, PaymentCustLedgerEntry, false);
-        Assert.AreEqual(1, AppliedCustLedgerEntry.Count, 'There should be one invoice found as applied to this deposit line.');
+        Assert.RecordCount(AppliedCustLedgerEntry, 1);
         Assert.AreEqual(AppliedCustLedgerEntry."Entry No.", InvoiceEntryNo, 'The found entry should be the invoice.');
+    end;
+
+    [Test]
+    [HandlerFunctions('GeneralJournalBatchesPageHandler,ConfirmHandler')]
+    procedure PostedBankDepositReportShowsVendorApplications()
+    var
+        BankDepositHeader: Record "Bank Deposit Header";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentVendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PostedBankDepositLine: Record "Posted Bank Deposit Line";
+        AppliedVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
+        BankDeposit: Report "Bank Deposit";
+        EntryApplicationMgt: Codeunit "Entry Application Mgt";
+        InvoiceEntryNo: Integer;
+    begin
+        // [SCENARIO 542679] Applications on Vendor Ledger Entries are correctly retrieved for posted bank deposits
+        // [GIVEN] A posted bank deposit fully applied to an open purchase document.
+        Initialize();
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PurchaseHeader."Last Posting No.");
+        InvoiceEntryNo := VendorLedgerEntry."Entry No.";
+        CreateBankDeposit(BankDepositHeader, PurchaseLine."Buy-from Vendor No.", GenJournalLine."Account Type"::Vendor, 1);
+        BankDepositHeader."Total Deposit Amount" := -550;
+        GenJournalLine.SetRange("Journal Batch Name", BankDepositHeader."Journal Batch Name");
+        GenJournalLine.SetRange("Journal Template Name", BankDepositHeader."Journal Template Name");
+        GenJournalLine.FindLast();
+        GenJournalLine.Validate(Amount, 550);
+        GenJournalLine.Modify();
+        UpdateApplicationOnGenJournalLine(GenJournalLine, BankDepositHeader."Journal Template Name", BankDepositHeader."Journal Batch Name", VendorLedgerEntry."Document No.", 0D, 550);
+        PostBankDeposit(BankDepositHeader);
+        // [WHEN] Getting the applied vendor ledger entries as the report does
+        PostedBankDepositLine.SetRange("Bank Deposit No.", BankDepositHeader."No.");
+        PostedBankDepositLine.FindFirst();
+        BankDeposit.FilterDepositVendorLedgerEntry(PostedBankDepositLine, PaymentVendorLedgerEntry);
+        // [THEN] Only one entry is attached to the deposit line
+        Assert.RecordCount(PaymentVendorLedgerEntry, 1);
+        // [THEN] Only one invoice entry is found as applied
+        EntryApplicationMgt.GetAppliedVendEntries(AppliedVendorLedgerEntry, PaymentVendorLedgerEntry, false);
+        Assert.RecordCount(AppliedVendorLedgerEntry, 1);
+        Assert.AreEqual(AppliedVendorLedgerEntry."Entry No.", InvoiceEntryNo, 'The found entry should be the invoice.');
     end;
 
     local procedure Initialize()

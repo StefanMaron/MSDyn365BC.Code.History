@@ -9,7 +9,7 @@ using Microsoft.Sales.Customer;
 table 7023 "Sales Price Worksheet"
 {
     Caption = 'Sales Price Worksheet';
-#if not CLEAN23
+#if not CLEAN25
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
 #else
@@ -27,7 +27,7 @@ table 7023 "Sales Price Worksheet"
             NotBlank = true;
             TableRelation = Item;
 
-#if not CLEAN23
+#if not CLEAN25
             trigger OnValidate()
             begin
                 if "Item No." <> xRec."Item No." then begin
@@ -55,7 +55,7 @@ table 7023 "Sales Price Worksheet"
             else
             if ("Sales Type" = const(Campaign)) Campaign;
 
-#if not CLEAN23
+#if not CLEAN25
             trigger OnValidate()
             begin
                 if ("Sales Code" <> '') and ("Sales Type" = "Sales Type"::"All Customers") then
@@ -99,7 +99,7 @@ table 7023 "Sales Price Worksheet"
             Caption = 'Currency Code';
             TableRelation = Currency;
 
-#if not CLEAN23
+#if not CLEAN25
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
@@ -110,7 +110,7 @@ table 7023 "Sales Price Worksheet"
         {
             Caption = 'Starting Date';
 
-#if not CLEAN23
+#if not CLEAN25
             trigger OnValidate()
             begin
                 if ("Starting Date" > "Ending Date") and ("Ending Date" <> 0D) then
@@ -168,7 +168,7 @@ table 7023 "Sales Price Worksheet"
             Caption = 'Minimum Quantity';
             MinValue = 0;
 
-#if not CLEAN23
+#if not CLEAN25
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
@@ -179,7 +179,7 @@ table 7023 "Sales Price Worksheet"
         {
             Caption = 'Ending Date';
 
-#if not CLEAN23
+#if not CLEAN25
             trigger OnValidate()
             begin
                 Validate("Starting Date");
@@ -205,7 +205,7 @@ table 7023 "Sales Price Worksheet"
             Caption = 'Unit of Measure Code';
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
-#if not CLEAN23
+#if not CLEAN25
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
@@ -217,7 +217,7 @@ table 7023 "Sales Price Worksheet"
             Caption = 'Variant Code';
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
-#if not CLEAN23
+#if not CLEAN25
             trigger OnValidate()
             begin
                 CalcCurrentPrice(PriceAlreadyExists);
@@ -246,7 +246,7 @@ table 7023 "Sales Price Worksheet"
     {
     }
 
-#if not CLEAN23
+#if not CLEAN25
     trigger OnInsert()
     begin
         if "Sales Type" = "Sales Type"::"All Customers" then
@@ -269,9 +269,13 @@ table 7023 "Sales Price Worksheet"
         Campaign: Record Campaign;
         PriceAlreadyExists: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 cannot be after %2';
         Text001: Label '%1 must be blank.';
         Text002: Label '%1 and %2 can only be altered from the Campaign Card when %3 = %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         Item: Record Item;
@@ -326,7 +330,7 @@ table 7023 "Sales Price Worksheet"
         end;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcCurrentPriceFound(var SalesPriceWorksheet: Record "Sales Price Worksheet"; SalesPrice: Record "Sales Price")
     begin

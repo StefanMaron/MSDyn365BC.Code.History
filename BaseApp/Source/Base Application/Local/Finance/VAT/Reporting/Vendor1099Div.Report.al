@@ -167,11 +167,10 @@ report 10109 "Vendor 1099 Div"
                                     Amounts[i] := -Amounts[i];
                                     PrintThis := true;
                                 end;
-                            end else begin   /* ie Minimum Reportable >= 0.0 */
+                            end else // ie Minimum Reportable >= 0.0
                                 if Amounts[i] >= FormBox."Minimum Reportable" then
                                     if Amounts[i] <> 0.0 then
                                         PrintThis := true;
-                            end;
 
                     if not PrintThis then
                         CurrReport.Skip();
@@ -371,10 +370,10 @@ report 10109 "Vendor 1099 Div"
 
     procedure FormatCompanyAddress(var CompanyAddress: array[5] of Text[100]; var CompanyInfo: Record "Company Information"; TestPrint: Boolean)
     begin
-        if TestPrint then begin
+        if TestPrint then
             for i := 1 to ArrayLen(CompanyAddress) do
-                CompanyAddress[i] := PadStr('x', MaxStrLen(CompanyAddress[i]), 'X');
-        end else begin
+                CompanyAddress[i] := PadStr('x', MaxStrLen(CompanyAddress[i]), 'X')
+        else begin
             CompanyInfo.Get();
 
             Clear(CompanyAddress);

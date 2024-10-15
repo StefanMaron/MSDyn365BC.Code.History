@@ -565,14 +565,12 @@
         GLAccount: array[4] of Record "G/L Account";
     begin
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATCalculationType);
-        with VATPostingSetup do begin
-            Validate("Unrealized VAT Type", UnrealizedVATType);
-            Validate("Sales VAT Account", CreateGLAccount(GLAccount[1], "VAT Prod. Posting Group"));
-            Validate("Sales VAT Unreal. Account", CreateGLAccount(GLAccount[2], "VAT Prod. Posting Group"));
-            Validate("Purchase VAT Account", CreateGLAccount(GLAccount[3], "VAT Prod. Posting Group"));
-            Validate("Purch. VAT Unreal. Account", CreateGLAccount(GLAccount[4], "VAT Prod. Posting Group"));
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("Unrealized VAT Type", UnrealizedVATType);
+        VATPostingSetup.Validate("Sales VAT Account", CreateGLAccount(GLAccount[1], VATPostingSetup."VAT Prod. Posting Group"));
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", CreateGLAccount(GLAccount[2], VATPostingSetup."VAT Prod. Posting Group"));
+        VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccount(GLAccount[3], VATPostingSetup."VAT Prod. Posting Group"));
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", CreateGLAccount(GLAccount[4], VATPostingSetup."VAT Prod. Posting Group"));
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateAndPostPaymentGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; ApplyToDocID: Code[20]; Amount: Decimal; PostingDate: Date)
@@ -689,12 +687,10 @@
     begin
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
-        with GLAccount do begin
-            Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
-            Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-            Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-            Modify(true);
-        end;
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        GLAccount.Modify(true);
         exit(GLAccount."No.");
     end;
 
@@ -775,13 +771,11 @@
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            SetFilter("Gen. Posting Type", '<>%1', "Gen. Posting Type"::" ");
-            FindLast();
-            TestField(Amount, GLAmount);
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.SetFilter("Gen. Posting Type", '<>%1', GLEntry."Gen. Posting Type"::" ");
+        GLEntry.FindLast();
+        GLEntry.TestField(Amount, GLAmount);
     end;
 
     local procedure VerifyVATAmountsInLastPmtVATEntry(VATType: Enum "General Posting Type"; DocumentNo: Code[20]; VATAmount: Decimal; VATBase: Decimal)
@@ -808,12 +802,10 @@
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            TestField("Remaining Unrealized Amount", VATAmount);
-            TestField("Remaining Unrealized Base", VATBase);
-        end;
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        VATEntry.TestField("Remaining Unrealized Amount", VATAmount);
+        VATEntry.TestField("Remaining Unrealized Base", VATBase);
     end;
 
     [MessageHandler]

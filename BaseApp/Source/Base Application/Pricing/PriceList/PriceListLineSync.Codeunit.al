@@ -79,7 +79,9 @@ codeunit 4114 "Price List Line Sync"
 
     local procedure HasRequiredPermissions(): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         JobQueueEntry: Record "Job Queue Entry";
+        [SecurityFiltering(SecurityFilter::Ignored)]
         PriceListLine: Record "Price List Line";
     begin
         exit(JobQueueEntry.WritePermission() and JobQueueEntry.ReadPermission() and

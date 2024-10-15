@@ -285,6 +285,11 @@ page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region code of the address that the items are shipped to.';
                 }
+                field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the telephone number of the company''s shipping address.';
+                }
                 field("Ship-to Contact"; Rec."Ship-to Contact")
                 {
                     ApplicationArea = Suite;
@@ -340,36 +345,6 @@ page 1 "Company Information"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how dates based on calendar and calendar-related documents are calculated.';
                 }
-#if not CLEAN22
-                group(ElectronicDocument)
-                {
-                    Caption = 'Electronic Document';
-                    ObsoleteReason = 'Moved to Fixed Asset page';
-                    ObsoleteState = Pending;
-#pragma warning disable AS0072
-                    ObsoleteTag = '22.0';
-#pragma warning restore AS0072
-
-                    field("SCT Permission Type"; Rec."SCT Permission Type")
-                    {
-                        ApplicationArea = BasicMX;
-                        ToolTip = 'Specifies the type of permission provided by SecretarпїЅa de Comunicaciones y Transportes which must correspond to the type of motor transport used for the transfer of goods or merchandise.';
-                        ObsoleteReason = 'Moved to Fixed Asset page';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-                        Visible = false;
-                    }
-                    field("SCT Permission Number"; Rec."SCT Permission Number")
-                    {
-                        ApplicationArea = BasicMX;
-                        ToolTip = 'Specifies the permission number as defined by the SecretarпїЅa de Comunicaciones y Transportes that must correspond to the type of motor transport that is used for the transfer of goods or merchandise.';
-                        ObsoleteReason = 'Moved to Fixed Asset page';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-                        Visible = false;
-                    }
-                }
-#endif
             }
             group(Tax)
             {
@@ -409,17 +384,6 @@ page 1 "Company Information"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the federal registration number for taxpayers.';
                 }
-#if not CLEAN22
-                field("RFC No."; Rec."RFC No.")
-                {
-                    ApplicationArea = BasicMX;
-                    ToolTip = 'Specifies the federal registration number for taxpayers.';
-                    ObsoleteReason = 'Replaced with RFC Number';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    Visible = false;
-                }
-#endif                
                 field("CURP No."; Rec."CURP No.")
                 {
                     ApplicationArea = BasicMX;
@@ -803,6 +767,7 @@ page 1 "Company Information"
 
         if SystemIndicatorChanged then begin
             Message(CompanyBadgeRefreshPageTxt);
+            Session.LogAuditMessage(StrSubstNo(CompanyBadgeChangedLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
             RestartSession();
         end;
     end;
@@ -843,6 +808,7 @@ page 1 "Company Information"
         BankAcctPostingGroup: Code[20];
         CountyVisible: Boolean;
         CompanyBadgeRefreshPageTxt: Label 'The Company Badge settings have changed. Refresh the browser (Ctrl+F5) to update the badge.';
+        CompanyBadgeChangedLbl: Label 'The Company badge settings have changed by UserSecurityId %1.', Locked = true;
 
     protected var
         SystemIndicatorChanged: Boolean;
@@ -858,9 +824,12 @@ page 1 "Company Information"
     end;
 
     local procedure SystemIndicatorOnAfterValidate()
+    var
+        CompanyBadgeChangedLbl: Label 'Company badge changed.', Locked = true;
     begin
         SystemIndicatorChanged := true;
         UpdateSystemIndicator();
+        Session.LogAuditMessage(CompanyBadgeChangedLbl, SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
     end;
 
     local procedure SetShowMandatoryConditions()

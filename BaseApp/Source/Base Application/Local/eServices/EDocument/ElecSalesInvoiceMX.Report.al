@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -596,7 +596,7 @@ report 10477 "Elec. Sales Invoice MX"
                                 UnitPriceToPrint := Round(AmountExclInvDisc / TempSalesInvoiceLine.Quantity, 0.00001);
                             TotalAmountIncludingVAT += TempSalesInvoiceLine."Amount Including VAT";
 
-                            SATClassification := SATUtilities.GetSATClassification(TempSalesInvoiceLine.Type, TempSalesInvoiceLine."No.");
+                            SATClassification := SATUtilities.GetSATItemClassification(TempSalesInvoiceLine.Type.AsInteger(), TempSalesInvoiceLine."No.");
 
                             CollectAsmInformation(TempSalesInvoiceLine);
                             if OnLineNumber = NumberOfLines then
@@ -782,7 +782,7 @@ report 10477 "Elec. Sales Invoice MX"
                     ShipmentMethod.Get("Shipment Method Code");
 
                 if LogInteraction then
-                    if not CurrReport.Preview then begin
+                    if not CurrReport.Preview then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
@@ -791,7 +791,6 @@ report 10477 "Elec. Sales Invoice MX"
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                               "Campaign No.", "Posting Description", '');
-                    end;
 
                 "Sales Invoice Header".CalcFields("Original String", "Digital Stamp SAT", "Digital Stamp PAC");
 

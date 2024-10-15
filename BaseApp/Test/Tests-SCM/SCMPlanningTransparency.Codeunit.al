@@ -828,12 +828,8 @@ codeunit 137058 "SCM Planning Transparency"
     end;
 
     local procedure OpenOrderTrackingForPurchase(var PurchaseLine: Record "Purchase Line")
-    var
-        OrderTracking: Page "Order Tracking";
     begin
-        // Open Order Tracking page for required Purchase Order.
-        OrderTracking.SetPurchLine(PurchaseLine);
-        OrderTracking.RunModal();
+        PurchaseLine.ShowOrderTracking();
     end;
 
     local procedure OpenOrderTrackingForRequisition(var RequisitionLine: Record "Requisition Line")
@@ -846,12 +842,8 @@ codeunit 137058 "SCM Planning Transparency"
     end;
 
     local procedure OpenOrderTrackingForProduction(var ProdOrderLine: Record "Prod. Order Line")
-    var
-        OrderTracking: Page "Order Tracking";
     begin
-        // Open Order Tracking page for required Production Order.
-        OrderTracking.SetProdOrderLine(ProdOrderLine);
-        OrderTracking.RunModal();
+        ProdOrderLine.ShowOrderTracking();
     end;
 
     local procedure CarryOutActionMessage(ItemNo: Code[20])

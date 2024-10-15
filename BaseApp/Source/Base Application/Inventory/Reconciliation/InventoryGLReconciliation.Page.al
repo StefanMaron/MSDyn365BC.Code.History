@@ -250,8 +250,10 @@ page 5845 "Inventory - G/L Reconciliation"
         DateFilter: Text[30];
         ItemFilter: Code[250];
         LocationFilter: Code[250];
+#pragma warning disable AA0074
         Text004: Label 'Income Statement';
         Text005: Label 'Balance Sheet';
+#pragma warning restore AA0074
         ShowWarning: Boolean;
         ShowEditable: Boolean;
 

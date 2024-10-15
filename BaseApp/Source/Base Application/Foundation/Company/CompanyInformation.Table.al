@@ -384,6 +384,11 @@ table 79 "Company Information"
         {
             Caption = 'Contact Person';
         }
+        field(52; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(90; GLN; Code[13])
         {
             Caption = 'GLN';
@@ -539,22 +544,8 @@ table 79 "Company Information"
         {
             Caption = 'RFC No.';
             ObsoleteReason = 'Replaced with RFC Number';
-
-#if CLEAN22
             ObsoleteTag = '25.0';
             ObsoleteState = Removed;
-#else
-            ObsoleteTag = '22.0';
-            ObsoleteState = Pending;
-
-            trigger OnValidate()
-            begin
-                if StrLen("RFC No.") <> 12 then
-                    Error(Text10000, "RFC No.");
-
-                "RFC Number" := "RFC No.";
-            end;
-#endif            
         }
         field(10024; "CURP No."; Code[18])
         {
@@ -582,10 +573,6 @@ table 79 "Company Information"
             begin
                 if not (StrLen("RFC Number") in [0, 12, 13]) then
                     Error(Text10000, "RFC Number");
-#if not CLEAN22
-                if StrLen("RFC Number") = 12 then
-                    "RFC No." := "RFC Number";
-#endif
             end;
         }
         field(27000; "SAT Tax Regime Classification"; Code[10])
@@ -602,25 +589,15 @@ table 79 "Company Information"
             Caption = 'SCT Permission Type';
             TableRelation = "SAT Permission Type";
             ObsoleteReason = 'Moved to Fixed Asset table';
-#if CLEAN22
             ObsoleteTag = '25.0';
             ObsoleteState = Removed;
-#else
-            ObsoleteTag = '22.0';
-            ObsoleteState = Pending;
-#endif
         }
         field(27003; "SCT Permission Number"; Code[20])
         {
             Caption = 'SCT Permission Number';
             ObsoleteReason = 'Moved to Fixed Asset table';
-#if CLEAN22
             ObsoleteTag = '25.0';
             ObsoleteState = Removed;
-#else
-            ObsoleteTag = '22.0';
-            ObsoleteState = Pending;
-#endif
         }
     }
 
@@ -659,8 +636,10 @@ table 79 "Company Information"
         Text10000: Label '%1 is not a valid RFC No.';
         Text10001: Label '%1 is not a valid CURP No.';
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
+#pragma warning disable AA0470
         NoPaymentInfoMsg: Label 'No payment information is provided in %1. Review the report.';
         GLNCheckDigitErr: Label 'The %1 is not valid.';
+#pragma warning restore AA0470
         DevBetaModeTxt: Label 'DEV_BETA', Locked = true;
         ContactUsFullTxt: Label 'Questions? Contact us at %1 or %2.', Comment = '%1 = phone number, %2 = email';
         ContactUsShortTxt: Label 'Questions? Contact us at %1.', Comment = '%1 = phone number or email';

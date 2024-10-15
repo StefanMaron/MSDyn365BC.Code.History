@@ -95,7 +95,11 @@ page 376 "Job Journal Reconcile"
         OldWorkTypeCode: Code[10];
         Emphasize: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Total %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetJobJnlLine(var JobJnlLine2: Record "Job Journal Line")
     begin

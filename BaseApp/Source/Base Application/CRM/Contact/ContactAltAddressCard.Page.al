@@ -145,7 +145,9 @@ page 5056 "Contact Alt. Address Card"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'untitled';
+#pragma warning restore AA0074
 
     procedure Caption(): Text
     var

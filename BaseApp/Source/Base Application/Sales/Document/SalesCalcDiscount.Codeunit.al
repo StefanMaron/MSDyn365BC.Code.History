@@ -42,7 +42,9 @@ codeunit 60 "Sales-Calc. Discount"
         CurrencyDate: Date;
         UpdateHeader: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Service Charge';
+#pragma warning restore AA0074
 
     local procedure CalculateInvoiceDiscount(var SalesHeader: Record "Sales Header"; var SalesLine2: Record "Sales Line")
     var

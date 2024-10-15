@@ -1141,43 +1141,6 @@ codeunit 134761 "Test Custom Reports"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestCustomerStandardStatementWithFixedRequest()
-    var
-        Customer: Record Customer;
-        CustomerStatementSubscr: Codeunit "Customer Statement Subscr";
-        TempBlob: Codeunit "Temp Blob";
-        CustomLayoutReporting: Codeunit "Custom Layout Reporting";
-        RecRef: RecordRef;
-        OutStream: OutStream;
-        LineAmount: Decimal;
-        LastUsedParameters: Text;
-    begin
-        // [SCENARIO C4F integration] Standard Statement with predefined Request PAge .
-        Initialize();
-
-        // [GIVEN] Customer "CUS".
-        LibrarySales.CreateCustomer(Customer);
-        Customer.SetRecFilter();
-        RecRef.GetTable(Customer);
-
-        LineAmount := LibraryRandom.RandDec(99, 2);
-
-        // [GIVEN] Two Customer Ledger Entries for "CUS" where each has "Amount", "PostingDate" and "DueDate".
-        // [GIVEN] Entry1 "PostingDate" = 08/01/2017, "DueDate" = 22/01/2017, is overdue.
-        // [GIVEN] Entry2 "PostingDate" = 22/01/2017, "DueDate" = 22/02/2017, is NOT overdue.
-        CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount, LibraryRandom.RandDec(99, 2));
-
-        // Then the Statement report should be generated without errors
-        TempBlob.CreateOutStream(OutStream);
-        LastUsedParameters := CustomLayoutReporting.GetReportRequestPageParameters(Report::"Standard Statement");
-
-        BindSubscription(CustomerStatementSubscr);
-        Report.SaveAs(Report::"Standard Statement", LastUsedParameters, ReportFormat::Pdf, OutStream, Recref);
-        UnbindSubscription(CustomerStatementSubscr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestCustomerStandardStatementAgingTotalsByDueDate()
     var
         Customer: Record Customer;
@@ -2685,20 +2648,18 @@ codeunit 134761 "Test Custom Reports"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." :=
-              LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            "Customer No." := CustomerNo;
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Document Type" := "Document Type"::Invoice;
-            "Posting Date" := PostingDate;
-            "Due Date" := DueDate;
-            Amount := EntryAmount;
-            "Amount (LCY)" := EntryAmount;
-            Open := true;
-            Insert();
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry."Customer No." := CustomerNo;
+        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+        CustLedgerEntry."Posting Date" := PostingDate;
+        CustLedgerEntry."Due Date" := DueDate;
+        CustLedgerEntry.Amount := EntryAmount;
+        CustLedgerEntry."Amount (LCY)" := EntryAmount;
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry.Insert();
         InsertDetailedCustLedgerEntry(
           CustLedgerEntry."Entry No.", CustomerNo, CustLedgerEntry."Document No.", EntryAmount, PostingDate);
     end;
@@ -2707,20 +2668,18 @@ codeunit 134761 "Test Custom Reports"
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            Init();
-            "Entry No." :=
-              LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Customer No." := CustomerNo;
-            "Document No." := DocumentNo;
-            "Document Type" := "Document Type"::Invoice;
-            "Cust. Ledger Entry No." := CustLedgerEntryNo;
-            Amount := EntryAmount;
-            "Amount (LCY)" := EntryAmount;
-            "Posting Date" := PostingDate;
-            "Ledger Entry Amount" := true;
-            Insert();
-        end;
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Customer No." := CustomerNo;
+        DetailedCustLedgEntry."Document No." := DocumentNo;
+        DetailedCustLedgEntry."Document Type" := DetailedCustLedgEntry."Document Type"::Invoice;
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
+        DetailedCustLedgEntry.Amount := EntryAmount;
+        DetailedCustLedgEntry."Amount (LCY)" := EntryAmount;
+        DetailedCustLedgEntry."Posting Date" := PostingDate;
+        DetailedCustLedgEntry."Ledger Entry Amount" := true;
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure CountReportSelectionEntriesByUsage(var CustomReportSelection: Record "Custom Report Selection"; UsageValue: Enum "Report Selection Usage"; RecordCount: Integer)

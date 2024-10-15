@@ -146,10 +146,9 @@ report 10010 "Cross Reference by Source"
 
                 trigger OnAfterGetRecord()
                 begin
-                    if PrintAccountNames and ("G/L Account No." <> GLAccount."No.") then begin
+                    if PrintAccountNames and ("G/L Account No." <> GLAccount."No.") then
                         if not GLAccount.Get("G/L Account No.") then
                             GLAccount.Init();
-                    end;
                     Credits := "Credit Amount";
                     Debits := "Debit Amount";
                     Entries := 1;
@@ -172,10 +171,9 @@ report 10010 "Cross Reference by Source"
 
             trigger OnAfterGetRecord()
             begin
-                if "Source Code" <> LastSourceCode then begin
+                if "Source Code" <> LastSourceCode then
                     if not Source.Get("Source Code") then
                         Source.Init();
-                end
             end;
 
             trigger OnPreDataItem()

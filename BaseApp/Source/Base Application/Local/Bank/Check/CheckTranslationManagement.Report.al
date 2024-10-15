@@ -576,12 +576,11 @@ report 10400 "Check Translation Management"
                 Hundreds := Ones div 100;
                 Tens := (Ones mod 100) div 10;
                 Ones := Ones mod 10;
-                if Hundreds > 0 then begin
+                if Hundreds > 0 then
                     if (Hundreds = 1) and (Tens = 0) and (Ones = 0) then
                         AddToNoText(NoText, NoTextIndex, PrintExponent, HundredText, ' ')
                     else
                         AddToNoText(NoText, NoTextIndex, PrintExponent, HundredsText[Hundreds], ' ');
-                end;
                 case Tens of
                     0:
                         if (Hundreds = 0) and (Ones = 1) and (Exponent > 1) then
@@ -599,12 +598,11 @@ report 10400 "Check Translation Management"
                         end;
                     end;
                 end;
-                if PrintExponent and (Exponent > 1) then begin
+                if PrintExponent and (Exponent > 1) then
                     if (Hundreds = 0) and (Tens = 0) and (Ones = 1) and (Exponent = 3) then
                         AddToNoText(NoText, NoTextIndex, PrintExponent, OneMillionText, ' ')
                     else
                         AddToNoText(NoText, NoTextIndex, PrintExponent, ExponentText[Exponent], ' ');
-                end;
                 No := No - (Hundreds * 100 + Tens * 10 + Ones) * Power(1000, Exponent - 1);
             end;
 
@@ -690,33 +688,29 @@ report 10400 "Check Translation Management"
             2:
                 begin
                     AddToNoText(NoText, NoTextIndex, PrintExponent, TensText[2], ' ');
-                    if Ones > 0 then begin
+                    if Ones > 0 then
                         if Ones = 1 then begin
                             AddToNoText(NoText, NoTextIndex, PrintExponent, AndText, ' ');
                             AddToNoText(NoText, NoTextIndex, PrintExponent, OnesText[Ones], ' ');
                         end else
                             AddToNoText(NoText, NoTextIndex, PrintExponent, OnesText[Ones], '-');
-                    end;
                 end;
             1:
                 AddToNoText(NoText, NoTextIndex, PrintExponent, OnesText[Tens * 10 + Ones], ' ');
             0:
-                begin
-                    if Ones > 0 then
-                        if (Ones = 1) and (Hundreds < 1) and (Exponent = 2) then
-                            PrintExponent := true
-                        else
-                            AddToNoText(NoText, NoTextIndex, PrintExponent, OnesText[Ones], ' ');
-                end;
+                if Ones > 0 then
+                    if (Ones = 1) and (Hundreds < 1) and (Exponent = 2) then
+                        PrintExponent := true
+                    else
+                        AddToNoText(NoText, NoTextIndex, PrintExponent, OnesText[Ones], ' ');
             else begin
                 AddToNoText(NoText, NoTextIndex, PrintExponent, TensText[Tens], ' ');
-                if Ones > 0 then begin
+                if Ones > 0 then
                     if Ones = 1 then begin
                         AddToNoText(NoText, NoTextIndex, PrintExponent, AndText, ' ');
                         AddToNoText(NoText, NoTextIndex, PrintExponent, OnesText[Ones], ' ');
                     end else
                         AddToNoText(NoText, NoTextIndex, PrintExponent, OnesText[Ones], '-');
-                end;
             end;
         end;
     end;
@@ -815,12 +809,11 @@ report 10400 "Check Translation Management"
         end;
         if CheckLanguage <> WindowsLanguage."Language ID" then
             WindowsLanguage.Get(CheckLanguage);
-        if not WindowsLanguage."Globally Enabled" then begin
+        if not WindowsLanguage."Globally Enabled" then
             if CheckLanguage = 4105 then
                 CheckLanguage := 1033
             else
                 Error(USTextErr, WindowsLanguage.Name, CheckToAddr);
-        end;
     end;
 }
 

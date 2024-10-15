@@ -100,7 +100,7 @@ codeunit 2675 "Allocation Account Mgt."
         AllocationLine.Modify();
     end;
 
-    internal procedure VerifyNoInheritFromParentUsed(AccountNo: Code[20])
+    procedure VerifyNoInheritFromParentUsed(AccountNo: Code[20])
     var
         AllocAccountDistribution: Record "Alloc. Account Distribution";
     begin

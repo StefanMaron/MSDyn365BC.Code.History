@@ -48,6 +48,10 @@ page 9009 "Whse. Worker WMS Role Center"
             {
                 ApplicationArea = Suite;
             }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part("Emails"; "Email Activities")
             {
                 ApplicationArea = Basic, Suite;

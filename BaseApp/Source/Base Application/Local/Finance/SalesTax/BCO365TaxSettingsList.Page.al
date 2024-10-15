@@ -46,7 +46,7 @@ page 10351 "BC O365 Tax Settings List"
                 Caption = 'New';
                 Image = New;
                 ToolTip = 'Create a new tax rate.';
-                Visible = NOT IsCanada;
+                Visible = not IsCanada;
 
                 trigger OnAction()
                 var

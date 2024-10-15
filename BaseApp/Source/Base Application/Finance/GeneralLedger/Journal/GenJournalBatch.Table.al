@@ -284,8 +284,12 @@ table 232 "Gen. Journal Batch"
         GenJnlAlloc: Record "Gen. Jnl. Allocation";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Only the %1 field can be filled in on recurring journals.';
         Text001: Label 'must not be %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         BankStmtImpFormatBalAccErr: Label 'must be blank. When Bal. Account Type = Bank Account, then Bank Statement Import Format on the Bank Account card will be used', Comment = 'FIELDERROR ex: Bank Statement Import Format must be blank. When Bal. Account Type = Bank Account, then Bank Statement Import Format on the Bank Account card will be used in Gen. Journal Batch Journal Template Name=''GENERAL'',Name=''CASH''.';
         CannotBeSpecifiedForRecurrJnlErr: Label 'cannot be specified when using recurring journals';
         BalAccountIdDoesNotMatchAGLAccountErr: Label 'The "balancingAccountNumber" does not match to a G/L Account.', Locked = true;

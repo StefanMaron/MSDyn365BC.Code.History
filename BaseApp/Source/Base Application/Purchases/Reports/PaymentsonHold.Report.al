@@ -104,6 +104,8 @@ report 319 "Payments on Hold"
 
     requestpage
     {
+        AboutTitle = 'About Payments on Hold';
+        AboutText = 'Print a checklist of all vendor ledger entries where the invoice is in dispute and the On Hold field isn''''t blank.';
 
         layout
         {

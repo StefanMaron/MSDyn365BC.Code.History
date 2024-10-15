@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.VAT.Ledger;
+﻿namespace Microsoft.Finance.VAT.Ledger;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -19,7 +19,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Security.AccessControl;
 using System.Utilities;
@@ -30,8 +29,10 @@ table 254 "VAT Entry"
     LookupPageID = "VAT Entries";
     Permissions = TableData "Sales Invoice Header" = rm,
                     TableData "Sales Cr.Memo Header" = rm,
-                    TableData "Service Invoice Header" = rm,
-                    TableData "Service Cr.Memo Header" = rm,
+#if not CLEAN25
+                    TableData Microsoft.Service.History."Service Invoice Header" = rm,
+                    TableData Microsoft.Service.History."Service Cr.Memo Header" = rm,
+#endif
                     TableData "Issued Reminder Header" = rm,
                     TableData "Issued Fin. Charge Memo Header" = rm,
                     TableData "Purch. Inv. Header" = rm,
@@ -613,7 +614,11 @@ table 254 "VAT Entry"
         GLSetup: Record "General Ledger Setup";
         NonDeductibleVAT: Codeunit "Non-Deductible VAT";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot change the contents of this field when %1 is %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ConfirmAdjustQst: Label 'Do you want to fill the G/L Account No. field in VAT entries that are linked to G/L Entries?';
         ProgressMsg: Label 'Processed entries: @2@@@@@@@@@@@@@@@@@\';
         AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';

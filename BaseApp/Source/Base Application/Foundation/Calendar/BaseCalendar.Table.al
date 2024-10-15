@@ -24,7 +24,7 @@ table 7600 "Base Calendar"
         }
         field(3; "Customized Changes Exist"; Boolean)
         {
-            CalcFormula = exist ("Customized Calendar Change" where("Base Calendar Code" = field(Code)));
+            CalcFormula = exist("Customized Calendar Change" where("Base Calendar Code" = field(Code)));
             Caption = 'Customized Changes Exist';
             Editable = false;
             FieldClass = FlowField;
@@ -58,6 +58,10 @@ table 7600 "Base Calendar"
 
     var
         BaseCalendarLine: Record "Base Calendar Change";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot delete this record. Customized calendar changes exist for calendar code=<%1>.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

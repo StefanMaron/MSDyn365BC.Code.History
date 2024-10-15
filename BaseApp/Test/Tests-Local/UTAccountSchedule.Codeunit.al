@@ -39,36 +39,6 @@ codeunit 142068 "UT Account Schedule"
         LibraryReportDataset.AssertElementWithValueExists('SubTitle', 'for ' + AccScheduleLine.Description);
     end;
 
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Obsolete('This page is now opened from Financial Reports Page intead (Overview action).', '22.0')]
-#pragma warning restore AS0072
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure OnOpenPageAccScheduleOverview()
-    var
-        AccScheduleLine: Record "Acc. Schedule Line";
-        AccScheduleOverview: TestPage "Acc. Schedule Overview";
-        AccountScheduleNames: TestPage "Account Schedule Names";
-    begin
-        // Purpose of the test is to validate Acc. Schedule Overview - OnOpenPage trigger of Page ID - 490.
-        // Setup: Create Account Schedule.
-        CreateAccScheduleName(AccScheduleLine);
-        AccountScheduleNames.OpenEdit();
-        AccountScheduleNames.FILTER.SetFilter(Name, AccScheduleLine."Schedule Name");
-        AccScheduleOverview.Trap();
-
-        // Exercise.
-        AccountScheduleNames.Overview.Invoke();
-
-        // Verify: New Created Schedule Name exist in Acc. Schedule Overview.
-        AccScheduleOverview.CurrentSchedName.SetValue(AccScheduleLine."Schedule Name");
-        AccScheduleOverview.Close();
-        AccountScheduleNames.Close();
-    end;
-
-#endif
     [Test]
     procedure DoubleUnderlineIsTrueWhenTotalingTypeIsDoubleUnderline()
     var

@@ -273,10 +273,9 @@ codeunit 134030 "ERM VAT 2010"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
 
         // Create General Journal Line.
-        with GenJournalBatch do
-            EUServiceOld :=
+        EUServiceOld :=
               CreateGeneralJournal(
-                GenJournalLine, "Journal Template Name", Name, DocumentType, AccountType, AccountNo, Amount, BalGenPostingType, EUService);
+                GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount, BalGenPostingType, EUService);
 
         // Post General Journal Line
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -285,10 +284,8 @@ codeunit 134030 "ERM VAT 2010"
     local procedure FindVATLedgerEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
     begin
         // Finds the matching VAT Ledger Entry from a General Journal Line
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-        end;
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
     end;
 
     local procedure PostAndVerifyVATEntry(ServiceHeader: Record "Service Header"; VATPostingSetup: Record "VAT Posting Setup"; EUService: Boolean; LineNo: Integer)

@@ -91,15 +91,26 @@ page 6302 "Azure AD Access Dialog"
     var
         AzureAdMgt: Codeunit "Azure AD Mgt.";
         ClientTypeManagement: Codeunit "Client Type Management";
-        AuthCode: Text;
+        AuthCode: SecretText;
         ResourceUrl: Text;
         AuthorizationTxt: Label 'Error occurred while trying to authorize with Microsoft Entra ID. Please try again or contact your system administrator if error persist.';
         ResourceFriendlyName: Text;
         CloseWindowMsg: Label 'Authorization sucessful. Close the window to proceed.';
         LinkNameTxt: Label 'Authorize Azure Services';
         LinkTooltipTxt: Label 'You will be redirected to the authorization provider in a different browser instance.';
+#if not CLEAN25
 
+    [NonDebuggable]
+    [Obsolete('Replaced by GetAuthorizationCodeAsSecretText', '25.0')]
     procedure GetAuthorizationCode(Resource: Text; ResourceName: Text): Text
+    begin
+        exit(GetAuthorizationCodeAsSecretText(Resource, ResourceName).Unwrap());
+    end;
+#endif
+
+    procedure GetAuthorizationCodeAsSecretText(Resource: Text; ResourceName: Text): SecretText
+    var
+        BlankSecretText: SecretText;
     begin
         ResourceUrl := Resource;
         ResourceFriendlyName := ResourceName;
@@ -107,7 +118,7 @@ page 6302 "Azure AD Access Dialog"
         if not AzureAdMgt.IsAzureADAppSetupDone() then begin
             PAGE.RunModal(PAGE::"Azure AD App Setup Wizard");
             if not AzureAdMgt.IsAzureADAppSetupDone() then
-                exit('');
+                exit(BlankSecretText);
         end;
 
         CurrPage.RunModal();

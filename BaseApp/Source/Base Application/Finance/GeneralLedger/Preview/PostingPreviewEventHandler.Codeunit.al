@@ -21,7 +21,6 @@ using Microsoft.Purchases.Posting;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Posting;
 using Microsoft.Sales.Receivables;
-using Microsoft.Service.Ledger;
 using Microsoft.Warehouse.Ledger;
 
 codeunit 20 "Posting Preview Event Handler"
@@ -46,8 +45,6 @@ codeunit 20 "Posting Preview Event Handler"
         TempDtldEmplLedgEntry: Record "Detailed Employee Ledger Entry" temporary;
         TempBankAccLedgerEntry: Record "Bank Account Ledger Entry" temporary;
         TempResLedgerEntry: Record "Res. Ledger Entry" temporary;
-        TempServiceLedgerEntry: Record "Service Ledger Entry" temporary;
-        TempWarrantyLedgerEntry: Record "Warranty Ledger Entry" temporary;
         TempMaintenanceLedgerEntry: Record "Maintenance Ledger Entry" temporary;
         TempJobLedgerEntry: Record "Job Ledger Entry" temporary;
         TempExchRateAdjmtLedgEntry: Record "Exch. Rate Adjmt. Ledg. Entry" temporary;
@@ -88,10 +85,6 @@ codeunit 20 "Posting Preview Event Handler"
                 RecRef.GETTABLE(TempBankAccLedgerEntry);
             Database::"Res. Ledger Entry":
                 RecRef.GETTABLE(TempResLedgerEntry);
-            Database::"Service Ledger Entry":
-                RecRef.GETTABLE(TempServiceLedgerEntry);
-            Database::"Warranty Ledger Entry":
-                RecRef.GETTABLE(TempWarrantyLedgerEntry);
             Database::"Maintenance Ledger Entry":
                 RecRef.GETTABLE(TempMaintenanceLedgerEntry);
             Database::"Job Ledger Entry":
@@ -164,10 +157,6 @@ codeunit 20 "Posting Preview Event Handler"
                 Page.Run(Page::"Bank Acc. Ledg. Entr. Preview", TempBankAccLedgerEntry);
             Database::"Res. Ledger Entry":
                 Page.Run(Page::"Resource Ledg. Entries Preview", TempResLedgerEntry);
-            Database::"Service Ledger Entry":
-                Page.Run(Page::"Service Ledger Entries Preview", TempServiceLedgerEntry);
-            Database::"Warranty Ledger Entry":
-                Page.Run(Page::"Warranty Ledg. Entries Preview", TempWarrantyLedgerEntry);
             Database::"Maintenance Ledger Entry":
                 Page.Run(Page::"Maint. Ledg. Entries Preview", TempMaintenanceLedgerEntry);
             Database::"Job Ledger Entry":
@@ -201,8 +190,6 @@ codeunit 20 "Posting Preview Event Handler"
         InsertDocumentEntry(TempFALedgEntry, TempDocumentEntry);
         InsertDocumentEntry(TempBankAccLedgerEntry, TempDocumentEntry);
         InsertDocumentEntry(TempResLedgerEntry, TempDocumentEntry);
-        InsertDocumentEntry(TempServiceLedgerEntry, TempDocumentEntry);
-        InsertDocumentEntry(TempWarrantyLedgerEntry, TempDocumentEntry);
         InsertDocumentEntry(TempMaintenanceLedgerEntry, TempDocumentEntry);
         InsertDocumentEntry(TempJobLedgerEntry, TempDocumentEntry);
         InsertDocumentEntry(TempExchRateAdjmtLedgEntry, TempDocumentEntry);
@@ -494,45 +481,6 @@ codeunit 20 "Posting Preview Event Handler"
         if not ShowDocNo then
             TempResLedgerEntry."Document No." := '***';
         TempResLedgerEntry.Insert();
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
-    local procedure OnInsertServiceLedgerEntry(var Rec: Record "Service Ledger Entry"; RunTrigger: Boolean)
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        PreventCommit();
-        TempServiceLedgerEntry := Rec;
-        if not ShowDocNo then
-            TempServiceLedgerEntry."Document No." := '***';
-        TempServiceLedgerEntry.Insert();
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Service Ledger Entry", 'OnAfterModifyEvent', '', false, false)]
-    local procedure OnModifyServiceLedgerEntry(var Rec: Record "Service Ledger Entry"; var xRec: Record "Service Ledger Entry"; RunTrigger: Boolean)
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        PreventCommit();
-        TempServiceLedgerEntry := Rec;
-        if not ShowDocNo then
-            TempServiceLedgerEntry."Document No." := '***';
-        if TempServiceLedgerEntry.Insert() then;
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Warranty Ledger Entry", 'OnAfterInsertEvent', '', false, false)]
-    local procedure OnInsertWarrantyLedgerEntry(var Rec: Record "Warranty Ledger Entry")
-    begin
-        if Rec.IsTemporary() then
-            exit;
-
-        PreventCommit();
-        TempWarrantyLedgerEntry := Rec;
-        if not ShowDocNo then
-            TempWarrantyLedgerEntry."Document No." := '***';
-        TempWarrantyLedgerEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Maintenance Ledger Entry", 'OnAfterInsertEvent', '', false, false)]

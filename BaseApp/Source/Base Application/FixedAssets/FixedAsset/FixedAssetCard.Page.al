@@ -21,6 +21,8 @@ page 5600 "Fixed Asset Card"
     RefreshOnActivate = true;
     SourceTable = "Fixed Asset";
     AdditionalSearchTerms = 'FA, Asset Profile, Property Details, Tangible Asset Info, Asset Data, Capital Good Info, Asset Detail, Ownership Info, Property Data';
+    AboutTitle = 'About Fixed Asset Card';
+    AboutText = 'With the **Fixed Asset Card**, you manage information about a fixed asset and specify the Class Subclass and Depreciation details. From here you can also drill down on past and ongoing fixed asset activity.';
 
     layout
     {
@@ -186,6 +188,8 @@ page 5600 "Fixed Asset Card"
             group("Depreciation Book")
             {
                 Caption = 'Depreciation Book';
+                AboutTitle = 'Manage the Fixed Asset Invoicing and Depreciation';
+                AboutText = 'Specify the depreciation method to calculate and post the depreciation. Assign posting groups to control how the fixed asset transactions are grouped and posted, based on the type of fixed asset.';
                 Visible = Simple;
                 field(DepreciationBookCode; FADepreciationBook."Depreciation Book Code")
                 {
@@ -348,12 +352,16 @@ page 5600 "Fixed Asset Card"
             {
                 ApplicationArea = FixedAssets;
                 Caption = 'Depreciation Books';
+                AboutTitle = 'About Depreciation Table List';
+                AboutText = 'Here you overview all the fixed assets with registered depreciation books, FA Posting Group, Depreciation Method, Starting date, Ending date, No. of depreciation years, Depreciation percentage, Book value details.';
                 SubPageLink = "FA No." = field("No.");
                 Visible = not Simple;
             }
             group(Maintenance)
             {
                 Caption = 'Maintenance';
+                AboutTitle = 'Manage the Fixed Asset Maintenance';
+                AboutText = 'Specify the vendor, warranty and service date details.';
                 field("Vendor No."; Rec."Vendor No.")
                 {
                     ApplicationArea = FixedAssets;
@@ -452,10 +460,23 @@ page 5600 "Fixed Asset Card"
                 Caption = 'Fixed Asset Picture';
                 SubPageLink = "No." = field("No.");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Fixed Asset"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Fixed Asset"),
                               "No." = field("No.");
             }

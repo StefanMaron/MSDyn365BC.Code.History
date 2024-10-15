@@ -16,8 +16,12 @@ codeunit 5053 TAPIManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'No Contact found.';
+#pragma warning disable AA0470
         Text002: Label 'No registered phone numbers have been found for this %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure Dial(PhoneNumber: Text[80]): Boolean
     begin

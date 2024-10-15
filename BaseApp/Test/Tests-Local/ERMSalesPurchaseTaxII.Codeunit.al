@@ -4508,12 +4508,10 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", GLAccountNo, 1);
-            Validate("Unit Price", UnitPrice);
-            Validate("Tax Group Code", TaxGroupCode);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccountNo, 1);
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Validate("Tax Group Code", TaxGroupCode);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreateServiceDocumentWithCurrency(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"): Decimal
@@ -4640,10 +4638,8 @@
         TaxAreaLine: Record "Tax Area Line";
     begin
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode);
-        with TaxAreaLine do begin
-            Validate("Calculation Order", CalculationOrder);
-            Modify(true);
-        end;
+        TaxAreaLine.Validate("Calculation Order", CalculationOrder);
+        TaxAreaLine.Modify(true);
     end;
 
     local procedure CreateGLAccNoWithTaxSetup(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean): Code[20]
@@ -4651,13 +4647,11 @@
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with GLAccount do begin
-            Validate("Tax Area Code", TaxAreaCode);
-            Validate("Tax Liable", TaxLiable);
-            Validate("Tax Group Code", TaxGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        GLAccount.Validate("Tax Area Code", TaxAreaCode);
+        GLAccount.Validate("Tax Liable", TaxLiable);
+        GLAccount.Validate("Tax Group Code", TaxGroupCode);
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     local procedure PrepareLineValues_TFS212811(var UnitPrice: array[13] of Decimal)
@@ -4679,12 +4673,10 @@
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LineType: Enum "Purchase Line Type")
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            SetRange(Type, LineType);
-            FindFirst();
-        end;
+        PurchaseLine.SetRange("Document Type", DocumentType);
+        PurchaseLine.SetRange("Document No.", DocumentNo);
+        PurchaseLine.SetRange(Type, LineType);
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentNo: Code[20])
@@ -4805,15 +4797,14 @@
           CreateItem(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode),
           LibraryRandom.RandInt(10));
         CreateItemCharge(ItemCharge, VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode);
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader,
-              Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
-            Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
-            Modify(true);
-            ShowItemChargeAssgnt(); // Assign value equally in Handler
-            exit("Direct Unit Cost" * Quantity);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader,
+            PurchaseLine.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Modify(true);
+        PurchaseLine.ShowItemChargeAssgnt();
+        // Assign value equally in Handler
+        exit(PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity);
     end;
 
     local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
@@ -5157,26 +5148,23 @@
         CreateSalesTaxSetup(TaxAreaCode, TaxGroupCode, GLAccountArray, SalesTaxPct);
         VATPostingSetup.Get('', '');
 
-        with GLAccount do begin
-            Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Modify(true);
-        end;
+        GLAccount.Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Modify(true);
 
         CreatePurchaseHeaderWithTaxArea(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateCurrencyWithRandomExchRate(), TaxAreaCode);
         DirectUnitCost := LibraryRandom.RandDecInRange(100, 1000, 2);
         SalesTaxAmount := DirectUnitCost / 100 * SalesTaxPct;
 
-        with PurchaseLine do
-            for I := 1 to PurchaseLineCount do begin
-                LibraryPurchase.CreatePurchaseLine(
-                  PurchaseLine, PurchaseHeader, Type::"G/L Account",
-                  GLAccount."No.", 1);
-                Validate("Direct Unit Cost", DirectUnitCost);
-                Validate("Use Tax", DoesLineUseTax(UseTaxLineNo, I));
-                Modify(true);
-            end;
+        for I := 1 to PurchaseLineCount do begin
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+              GLAccount."No.", 1);
+            PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+            PurchaseLine.Validate("Use Tax", DoesLineUseTax(UseTaxLineNo, I));
+            PurchaseLine.Modify(true);
+        end;
 
         GetExpectedAmounts(
           ExpectedAmountArray, DirectUnitCost, SalesTaxAmount,
@@ -5407,11 +5395,9 @@
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        with Currency do begin
-            Validate("Amount Rounding Precision", 0.01);
-            Validate("Invoice Rounding Precision", 0.01);
-            Modify(true);
-        end;
+        Currency.Validate("Amount Rounding Precision", 0.01);
+        Currency.Validate("Invoice Rounding Precision", 0.01);
+        Currency.Modify(true);
         LibraryERM.CreateExchangeRate(
           Currency.Code, WorkDate(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
         exit(Currency.Code);
@@ -5439,12 +5425,10 @@
 
     local procedure InsertSalesTaxLineWithFixedValues(var SalesTaxAmountLine: Record "Sales Tax Amount Line"; TaxBaseAmountFCY: Decimal; TaxPct: Decimal)
     begin
-        with SalesTaxAmountLine do begin
-            "Tax Area Code for Key" := LibraryERMTax.CreateTaxArea_US();
-            "Tax Base Amount FCY" := TaxBaseAmountFCY;
-            "Tax %" := TaxPct;
-            Insert();
-        end;
+        SalesTaxAmountLine."Tax Area Code for Key" := LibraryERMTax.CreateTaxArea_US();
+        SalesTaxAmountLine."Tax Base Amount FCY" := TaxBaseAmountFCY;
+        SalesTaxAmountLine."Tax %" := TaxPct;
+        SalesTaxAmountLine.Insert();
     end;
 
     local procedure ModifyPurchaseLineDepreciationBook(PurchaseLine: Record "Purchase Line"; DepreciationBookCode: Code[10])
@@ -5483,14 +5467,12 @@
 
     local procedure ModifyPurchLineWithJobTask(var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task")
     begin
-        with PurchaseLine do begin
-            Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
-            Validate("Job No.", JobTask."Job No.");
-            Validate("Job Task No.", JobTask."Job Task No.");
-            Validate("Job Line Type", "Job Line Type"::"Both Budget and Billable");
-            Validate("Job Unit Price", LibraryRandom.RandInt(100));
-            Modify(true);
-        end;
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::"Both Budget and Billable");
+        PurchaseLine.Validate("Job Unit Price", LibraryRandom.RandInt(100));
+        PurchaseLine.Modify(true);
     end;
 
     local procedure MockSalesTaxCalc(var SalesTaxAmountLine: Record "Sales Tax Amount Line"; DocumentNo: Code[20]; PostingDate: Date; TableID: Integer)
@@ -5602,15 +5584,13 @@
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
-        with ItemChargeAssignmentPurch do begin
-            SetRange("Document Type", PurchaseLine."Document Type");
-            SetRange("Document No.", PurchaseLine."Document No.");
-            SetRange("Document Line No.", PurchaseLine."Line No.");
-            FindFirst();
+        ItemChargeAssignmentPurch.SetRange("Document Type", PurchaseLine."Document Type");
+        ItemChargeAssignmentPurch.SetRange("Document No.", PurchaseLine."Document No.");
+        ItemChargeAssignmentPurch.SetRange("Document Line No.", PurchaseLine."Line No.");
+        ItemChargeAssignmentPurch.FindFirst();
 
-            Validate("Qty. to Assign", NewQtyToAssign);
-            Modify(true);
-        end;
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", NewQtyToAssign);
+        ItemChargeAssignmentPurch.Modify(true);
     end;
 
     local procedure UpdateTaxAreaCodeCompanyInformation(TaxAreaCode: Code[20])
@@ -5666,11 +5646,9 @@
     var
         TaxDetail: Record "Tax Detail";
     begin
-        with TaxDetail do begin
-            Get(TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate());
-            Validate("Expense/Capitalize", NewValue);
-            Modify(true);
-        end;
+        TaxDetail.Get(TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate());
+        TaxDetail.Validate("Expense/Capitalize", NewValue);
+        TaxDetail.Modify(true);
     end;
 
     local procedure UpdateReportLayoutSelection(ReportID: Integer; NewType: Option)
@@ -6055,24 +6033,20 @@
     var
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
-        with JobLedgerEntry do begin
-            SetRange("Job No.", JobNo);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedAmount, "Total Cost", '');
-        end;
+        JobLedgerEntry.SetRange("Job No.", JobNo);
+        JobLedgerEntry.SetRange("Document No.", DocumentNo);
+        JobLedgerEntry.FindFirst();
+        Assert.AreEqual(ExpectedAmount, JobLedgerEntry."Total Cost", '');
     end;
 
     local procedure VerifyValueEntriesCostAmount(DocumentNo: Code[20]; ExpectedAmount: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Document Type", "Document Type"::"Purchase Invoice");
-            SetRange("Document No.", DocumentNo);
-            CalcSums("Cost Amount (Actual)");
-            Assert.AreEqual(ExpectedAmount, "Cost Amount (Actual)", WrongValueEntryAmountErr);
-        end;
+        ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Purchase Invoice");
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        Assert.AreEqual(ExpectedAmount, ValueEntry."Cost Amount (Actual)", WrongValueEntryAmountErr);
     end;
 
     local procedure VerifyUnitCostWithTaxInJobLedgEntry(PurchLine: Record "Purchase Line"; DocNo: Code[20])
@@ -6080,17 +6054,15 @@
         JobLedgerEntry: Record "Job Ledger Entry";
         GLSetup: Record "General Ledger Setup";
     begin
-        with JobLedgerEntry do begin
-            SetRange("Job No.", PurchLine."Job No.");
-            SetRange("Document No.", DocNo);
-            FindFirst();
-            GLSetup.Get();
-            Assert.AreEqual(
-              Round(
-                PurchLine."Unit Cost (LCY)" + PurchLine."Tax To Be Expensed" / PurchLine.Quantity,
-                GLSetup."Unit-Amount Rounding Precision"),
-              "Unit Cost (LCY)", StrSubstNo(WrongUnitCostErr, "Entry No."));
-        end;
+        JobLedgerEntry.SetRange("Job No.", PurchLine."Job No.");
+        JobLedgerEntry.SetRange("Document No.", DocNo);
+        JobLedgerEntry.FindFirst();
+        GLSetup.Get();
+        Assert.AreEqual(
+          Round(
+            PurchLine."Unit Cost (LCY)" + PurchLine."Tax To Be Expensed" / PurchLine.Quantity,
+            GLSetup."Unit-Amount Rounding Precision"),
+          JobLedgerEntry."Unit Cost (LCY)", StrSubstNo(WrongUnitCostErr, JobLedgerEntry."Entry No."));
     end;
 
     local procedure CreatePurchaseDocumentWithSpecificAmountAndTaxArea(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; DirectUnitCost: Decimal)
@@ -6194,32 +6166,26 @@
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", TaxAccountNo);
-            CalcSums(Amount);
-            Assert.AreEqual(ExpectedAmount, Amount, TaxAmountErr)
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", TaxAccountNo);
+        GLEntry.CalcSums(Amount);
+        Assert.AreEqual(ExpectedAmount, GLEntry.Amount, TaxAmountErr)
     end;
 
     local procedure VerifyGLEntryAmountNearlyEqual(var GLEntry: Record "G/L Entry"; TaxAccountNo: Code[20]; ExpectedAmount: Decimal)
     begin
-        with GLEntry do begin
-            SetRange("G/L Account No.", TaxAccountNo);
-            FindFirst();
-            Assert.AreNearlyEqual(ExpectedAmount, Amount, LibraryERM.GetAmountRoundingPrecision(), GLEntryAmountErr);
-        end;
+        GLEntry.SetRange("G/L Account No.", TaxAccountNo);
+        GLEntry.FindFirst();
+        Assert.AreNearlyEqual(ExpectedAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), GLEntryAmountErr);
     end;
 
     local procedure VerifyItemChargeIsPosted(ItemNo: Code[20])
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetFilter("Item Charge No.", '<>%1', '');
-            Assert.IsFalse(IsEmpty, StrSubstNo(ItemChargeVENotPostedErr, ItemNo));
-        end;
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetFilter("Item Charge No.", '<>%1', '');
+        Assert.IsFalse(ValueEntry.IsEmpty, StrSubstNo(ItemChargeVENotPostedErr, ItemNo));
     end;
 
     local procedure VerifyGLEntryCustomAmount(DocNo: Code[20])
@@ -6235,26 +6201,22 @@
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-            CalcFields(Amount);
-            TestField(Amount, ExpectedAmount);
-        end;
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields(Amount);
+        CustLedgerEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyVLEAmount(DocumentNo: Code[20]; VendorNo: Code[20]; ExpectedAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Vendor No.", VendorNo);
-            FindFirst();
-            CalcFields(Amount);
-            TestField(Amount, ExpectedAmount);
-        end;
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields(Amount);
+        VendorLedgerEntry.TestField(Amount, ExpectedAmount);
     end;
 
     local procedure VerifyGLEntriesCount(DocumentNo: Code[20]; ExpectedCount: Integer)

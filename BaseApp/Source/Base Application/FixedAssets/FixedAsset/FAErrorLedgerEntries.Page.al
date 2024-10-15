@@ -11,6 +11,8 @@ page 5605 "FA Error Ledger Entries"
     Editable = false;
     PageType = List;
     SourceTable = "FA Ledger Entry";
+    AboutTitle = 'About FA Error Ledger Entry';
+    AboutText = 'Shows the entries that have been posted as a result of you using the cancel function to cancel an entry.';
 
     layout
     {

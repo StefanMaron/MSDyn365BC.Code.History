@@ -193,6 +193,7 @@ page 5774 "Warehouse Activity List"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Warehouse Put-away List';
         Text001: Label 'Warehouse Pick List';
         Text002: Label 'Warehouse Movement List';
@@ -200,6 +201,7 @@ page 5774 "Warehouse Activity List"
         Text004: Label 'Inventory Put-away List';
         Text005: Label 'Inventory Pick List';
         Text006: Label 'Inventory Movement List';
+#pragma warning restore AA0074
 
     local procedure OpenRelatedCard()
     begin

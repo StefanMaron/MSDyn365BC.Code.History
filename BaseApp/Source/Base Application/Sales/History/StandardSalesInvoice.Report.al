@@ -240,6 +240,9 @@ report 1306 "Standard Sales - Invoice"
             column(ShipToAddress8; ShipToAddr[8])
             {
             }
+            column(ShipToPhoneNo; Header."Ship-to Phone No.")
+            {
+            }
             column(SellToContactPhoneNoLbl; SellToContactPhoneNoLbl)
             {
             }
@@ -730,6 +733,8 @@ report 1306 "Standard Sales - Invoice"
 
                     OnAfterCalculateSalesTax(Header, Line, TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
 
+                    if FormatDocument.HideDocumentLine(HideLinesWithZeroQuantity, Line, FieldNo(Quantity)) then
+                        CurrReport.Skip();
                     if FirstLineHasBeenOutput then
                         Clear(DummyCompanyInfo.Picture);
                     FirstLineHasBeenOutput := true;
@@ -1279,6 +1284,12 @@ report 1306 "Standard Sales - Invoice"
                         Caption = 'Show Additional Fee Note';
                         ToolTip = 'Specifies if you want notes about additional fees to be shown on the document.';
                     }
+                    field(HideLinesWithZeroQuantityControl; HideLinesWithZeroQuantity)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies if the lines with zero quantity are printed.';
+                        Caption = 'Hide lines with zero quantity';
+                    }
                 }
             }
         }
@@ -1289,12 +1300,7 @@ report 1306 "Standard Sales - Invoice"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-        end;
-
-        trigger OnOpenPage()
-        begin
-            InitLogInteraction();
+            LogInteraction := LogInteractionTemplateExists();
             LogInteractionEnable := LogInteraction;
         end;
     }
@@ -1321,6 +1327,13 @@ report 1306 "Standard Sales - Invoice"
             LayoutFile = './Sales/History/StandardSalesInvoiceBlueSimple.docx';
             Caption = 'Standard Sales Invoice - Blue (Word)';
             Summary = 'The Standard Sales Invoice - Blue (Word) provides a simple layout with a blue theme.';
+        }
+        layout("StandardSalesInvoiceBlueSimpleThemable.docx")
+        {
+            Type = Word;
+            LayoutFile = './Sales/History/StandardSalesInvoiceBlueSimpleThemable.docx';
+            Caption = 'Standard Sales Invoice - themable Word layout';
+            Summary = 'The Standard Sales Invoice - Themable (Word) provides a simple Themable layout.';
         }
         layout("StandardSalesInvoiceVatSpec.docx")
         {
@@ -1388,9 +1401,6 @@ report 1306 "Standard Sales - Invoice"
     begin
         if Header.GetFilters = '' then
             Error(NoFilterSetErr);
-
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
 
         CompanyLogoPosition := SalesSetup."Logo Position on Documents";
     end;
@@ -1478,8 +1488,10 @@ report 1306 "Standard Sales - Invoice"
         ChecksPayableLbl: Label 'Please make checks payable to %1', Comment = '%1 = company name';
         QuestionsLbl: Label 'Questions?';
         ThanksLbl: Label 'Thank You!';
+#pragma warning disable AA0074
         JobNoLbl2: Label 'Project No.';
         JobTaskNoLbl2: Label 'Project Task No.';
+#pragma warning restore AA0074
         JobTaskDescription: Text[100];
         JobTaskDescLbl: Label 'Project Task Description';
         UnitLbl: Label 'Unit';
@@ -1538,10 +1550,11 @@ report 1306 "Standard Sales - Invoice"
         PaymentTermsDescLbl: Label 'Payment Terms';
         ShptMethodDescLbl: Label 'Shipment Method';
         ShiptoAddrLbl: Label 'Ship-to Address';
+        HideLinesWithZeroQuantity: Boolean;
 
-    local procedure InitLogInteraction()
+    local procedure LogInteractionTemplateExists(): Boolean
     begin
-        LogInteraction := SegManagement.FindInteractionTemplateCode(Enum::"Interaction Log Entry Document Type"::"Sales Inv.") <> '';
+        exit(SegManagement.FindInteractionTemplateCode(Enum::"Interaction Log Entry Document Type"::"Sales Inv.") <> '');
     end;
 
     local procedure InitializeShipmentLine()

@@ -7,6 +7,7 @@ namespace Microsoft.Utilities;
 using Microsoft.AccountantPortal;
 using Microsoft.Bank.Setup;
 using Microsoft.CashFlow.Forecast;
+using Microsoft.System.Threading;
 using Microsoft.CRM.Outlook;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
@@ -173,6 +174,11 @@ codeunit 1814 "Assisted Setup Subscribers"
         SetupCopilotAICapabilitiesShortTitleTxt: Label 'Set up Copilot & AI capabilities', MaxLength = 50;
         SetupCopilotAICapabilitiesDescriptionTxt: Label 'Set up Copilot & AI capabilities to unlock AI-powered experiences.';
         SetupCopilotAICapabilitiesHelpTxt: Label 'https://aka.ms/bcai', Locked = true;
+        SetupJobQueueNotificationTitleTxt: Label 'Set up Job Queue Notifications';
+        SetupJobQueueNotificationShortTitleTxt: Label 'Set up Job Queue Notifications', MaxLength = 50;
+        SetupJobQueueNotificationDescriptionTxt: Label 'Set up Job Queue Notifications to receive notifications when jobs are failed.';
+        SetupJobQueueNotificationHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2282396', Locked = true;
+
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
     local procedure Initialize()
@@ -371,6 +377,13 @@ codeunit 1814 "Assisted Setup Subscribers"
             GlobalLanguage(CurrentGlobalLanguage);
         end;
 
+        GuidedExperience.InsertAssistedSetup(SetupJobQueueNotificationTitleTxt, SetupJobQueueNotificationShortTitleTxt, SetupJobQueueNotificationDescriptionTxt, 5, ObjectType::Page,
+            Page::"Job Queue Notification Wizard", AssistedSetupGroup::DoMoreWithBC, '', VideoCategory::DoMoreWithBC, SetupJobQueueNotificationHelpTxt);
+        GlobalLanguage(Language.GetDefaultApplicationLanguageId());
+        GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+            Page::"Job Queue Notification Wizard", Language.GetDefaultApplicationLanguageId(), SetupJobQueueNotificationTitleTxt);
+        GlobalLanguage(CurrentGlobalLanguage);
+
         UpdateStatus();
     end;
 
@@ -559,3 +572,4 @@ codeunit 1814 "Assisted Setup Subscribers"
         exit(EmailAccount.IsAnyAccountRegistered());
     end;
 }
+

@@ -3809,6 +3809,9 @@ End Function</Code>
         <Field Name="CompanyInfoEMail">
           <DataField>CompanyInfoEMail</DataField>
         </Field>
+        <Field Name="CompanyPicture">
+          <DataField>CompanyPicture</DataField>
+        </Field>
         <Field Name="CompanyInfoVATRegNo">
           <DataField>CompanyInfoVATRegNo</DataField>
         </Field>

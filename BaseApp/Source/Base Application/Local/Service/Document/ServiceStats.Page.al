@@ -366,7 +366,7 @@ page 10053 "Service Stats."
                     Editable = false;
                     ToolTip = 'Specifies the cost adjustment amount, in local currency.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         Rec.LookupAdjmtValueEntries(1);
                     end;
@@ -922,10 +922,10 @@ page 10053 "Service Stats."
 
         for i := 1 to MaxIndexNo do begin
             if (i = 1) or not PartialInvoicing then
-                if IndexNo[i] = 1 then begin
+                if IndexNo[i] = 1 then
                     TempSalesTaxLine1.SetInvoiceDiscountAmount(
-                      TotalServLine[IndexNo[i]]."Inv. Discount Amount", TotalServLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
-                end else
+                      TotalServLine[IndexNo[i]]."Inv. Discount Amount", TotalServLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %")
+                else
                     TempSalesTaxLine2.SetInvoiceDiscountAmount(
                       TotalServLine[IndexNo[i]]."Inv. Discount Amount", TotalServLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
 

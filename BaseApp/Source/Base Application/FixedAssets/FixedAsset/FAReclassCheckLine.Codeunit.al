@@ -31,7 +31,9 @@ codeunit 5641 "FA Reclass. Check Line"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'must be the same in all journal lines';
+#pragma warning restore AA0074
         DeprBookCode: Code[10];
 
     [IntegrationEvent(false, false)]
