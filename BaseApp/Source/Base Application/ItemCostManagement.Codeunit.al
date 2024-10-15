@@ -1,4 +1,4 @@
-codeunit 5804 ItemCostManagement
+﻿codeunit 5804 ItemCostManagement
 {
     Permissions = TableData Item = rm,
                   TableData "Stockkeeping Unit" = rm,
@@ -239,6 +239,7 @@ codeunit 5804 ItemCostManagement
         UnitCostUpdated: Boolean;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeUpdateUnitCostSKU(Item, SKU, LastDirectCost, NewStdCost, MatchSKU, CalledByFieldNo, UnitCostUpdated, CalledFromAdjustment);
         if not UnitCostUpdated then
             with SKU do begin
@@ -278,6 +279,7 @@ codeunit 5804 ItemCostManagement
                                     Item.SetRange("Variant Filter");
                                     if (Item."Net Invoiced Qty." > 0) and (Item."Net Invoiced Qty." <= InvoicedQty) then
                                         "Unit Cost" := LastDirectCost;
+                                    OnUpdateUnitCostSKUOnAfterSetSKUUnitCosts(SKU, Item, InvoicedQty, LastDirectCost);
                                 end;
                     end else
                         "Unit Cost" := Item."Unit Cost";
@@ -763,6 +765,11 @@ codeunit 5804 ItemCostManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCostPlusPrices(ItemNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateUnitCostSKUOnAfterSetSKUUnitCosts(var SKU: Record "Stockkeeping Unit"; var Item: Record Item; var InvoicedQty: Decimal; var LastDirectCost: Decimal)
     begin
     end;
 }

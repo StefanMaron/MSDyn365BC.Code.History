@@ -39,6 +39,7 @@ table 5878 "Phys. Invt. Record Line"
             trigger OnValidate()
             var
                 TempPhysInvtRecordLine: Record "Phys. Invt. Record Line" temporary;
+                IsHandled: Boolean;
             begin
                 TestStatusOpen();
 
@@ -56,7 +57,11 @@ table 5878 "Phys. Invt. Record Line"
 
                 GetPhysInvtRecordHeader();
                 GetItem();
-                Item.TestField(Blocked, false);
+
+                IsHandled := false;
+                OnValidateItemNoOnBeforeTestfieldBlocked(Rec, Item, IsHandled);
+                If not IsHandled then
+                    Item.TestField(Blocked, false);
 
                 Validate(Description, Item.Description);
                 Validate("Description 2", Item."Description 2");
@@ -375,7 +380,13 @@ table 5878 "Phys. Invt. Record Line"
         WhseEntry: Record "Warehouse Entry";
         TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary;
         PhysInvtTrackingLines: Page "Phys. Invt. Tracking Lines";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowUsedTrackLines(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         GetItem();
 
         TempPhysInvtTracking.Reset();
@@ -509,6 +520,16 @@ table 5878 "Phys. Invt. Record Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterInitFromTempRecord(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; TempPhysInvtRecordLine: Record "Phys. Invt. Record Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnBeforeTestfieldBlocked(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowUsedTrackLines(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

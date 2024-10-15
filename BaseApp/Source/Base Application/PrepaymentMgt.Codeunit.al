@@ -339,7 +339,7 @@ codeunit 441 "Prepayment Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestSalesPayment(SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeTestSalesPayment(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

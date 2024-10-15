@@ -1882,6 +1882,45 @@ codeunit 134335 "ERM Purch. Doc. Reports"
             LibraryReportValidation.CheckIfValueExistsInSpecifiedColumn('AA', Format(Round(Quantity * "Direct Unit Cost" * 100 / (100 + "VAT %"))));
     end;
 
+    [Test]
+    [HandlerFunctions('ReportHandlerVendorBalanceToDate')]
+    [Scope('OnPrem')]
+    procedure VendorBalanceToDateForZeroAmountInvoiceWithShowEntriesWithZeroBalance()
+    var
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        VendorLedgerEntryInvoice: Record "Vendor Ledger Entry";
+        InvoiceDocumentNo: Code[20];
+    begin
+        // [SCENARIO 442479] Check Vendor Balance To Date for zero amount invoice
+        Initialize();
+
+        // [GIVEN] Create Purchase Invoice with GL and Amount will be 0.
+        CreatePurchaseDocumentWithZeroAmount(
+          PurchaseHeaderInvoice,
+          PurchaseHeaderInvoice."Document Type"::Invoice,
+          '',
+          '',
+          LibraryPurchase.CreateVendorNo,
+          0,
+          1);
+
+        // [THEN] Post Purchase Invoice of 0 amount
+        InvoiceDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true);
+
+        // [GIVEN] Found Vendor Ledger Entries for created Documents
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntryInvoice, VendorLedgerEntryInvoice."Document Type"::Invoice, InvoiceDocumentNo);
+        VendorLedgerEntryInvoice.CalcFields("Original Amount");
+
+        // [WHEN]  Save Report "Vendor Balance to Date". for Show Entrie with Zero Balancce = true 
+        SaveVendorBalanceToDate(PurchaseHeaderInvoice, false, false, true);
+
+        // [THEN] Report was created
+        LibraryReportDataset.LoadDataSetFile();
+
+        // [VERIFY] Original Amount was filled correctly
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(VendorLedgerEntryInvoice."Original Amount"));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2971,6 +3010,19 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryReportValidation.VerifyCellValueByRef(
           ColumnName, RowNo + 1, 1, LibraryReportValidation.FormatDecimalValue(-InvDicountAmount));
         LibraryReportValidation.VerifyCellValueByRef(ColumnName, RowNo + 2, 1, LibraryReportValidation.FormatDecimalValue(ExclVATAmount));
+    end;
+
+    local procedure CreatePurchaseDocumentWithZeroAmount(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]; ItemNo: Code[20]; VendorNo: Code[20]; DirectUnitCost: Decimal; ItemQuantity: Integer)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", '', 1);  // Use Random Value.
+        PurchaseLine.Validate(Quantity, 1);
+        PurchaseLine.Modify(true);
     end;
 
     [ConfirmHandler]

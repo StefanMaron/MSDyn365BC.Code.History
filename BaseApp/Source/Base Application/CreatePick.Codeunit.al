@@ -1564,6 +1564,7 @@ codeunit 7312 "Create Pick"
                     ValidateWhseActivLineQtyFIeldsFromCreateWhseDocPlaceLine(WhseActivLine, TempWhseActivLine3);
 
                     ProcessDoNotFillQtytoHandle(WhseActivLine);
+                    OnCreateWhseDocPlaceLineOnBeforeWhseActivLineInsert(WhseActivLine);
                     WhseActivLine.Insert();
                     OnAfterWhseActivLineInsert(WhseActivLine);
                 end;
@@ -3937,6 +3938,11 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateWhseDocPlaceLineOnAfterSetFilters(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line"; LineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocPlaceLineOnBeforeWhseActivLineInsert(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 

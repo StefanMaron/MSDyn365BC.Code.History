@@ -502,8 +502,9 @@ page 343 "Check Credit Limit"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcCreditLimitLCY(Cust2, OutstandingRetOrdersLCY, RcdNotInvdRetOrdersLCY, NewOrderAmountLCY,
-            OrderAmountTotalLCY, OrderAmountThisOrderLCY, ShippedRetRcdNotIndLCY, CustCreditAmountLCY, CustNo, ExtensionAmountsDic, IsHandled);
+        OnBeforeCalcCreditLimitLCY(
+            Cust2, OutstandingRetOrdersLCY, RcdNotInvdRetOrdersLCY, NewOrderAmountLCY, OrderAmountTotalLCY, OrderAmountThisOrderLCY,
+            ShippedRetRcdNotIndLCY, CustCreditAmountLCY, CustNo, ExtensionAmountsDic, IsHandled, DeltaAmount);
         if not IsHandled then begin
             if GetFilter("Date Filter") = '' then
                 SetFilter("Date Filter", '..%1', WorkDate());
@@ -639,8 +640,8 @@ page 343 "Check Credit Limit"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcCreditLimitLCY(var Customer: Record Customer; var OutstandingRetOrdersLCY: Decimal; var RcdNotInvdRetOrdersLCY: Decimal; var NewOrderAmountLCY: Decimal; var OrderAmountTotalLCY: Decimal; var OrderAmountThisOrderLCY: Decimal; var ShippedRetRcdNotIndLCY: Decimal; var CustCreditAmountLCY: Decimal; var CustNo: Code[20]; var ExtensionAmountsDic: Dictionary of [Guid, Decimal]; var IsHandled: Boolean)
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCalcCreditLimitLCY(var Customer: Record Customer; var OutstandingRetOrdersLCY: Decimal; var RcdNotInvdRetOrdersLCY: Decimal; var NewOrderAmountLCY: Decimal; var OrderAmountTotalLCY: Decimal; var OrderAmountThisOrderLCY: Decimal; var ShippedRetRcdNotIndLCY: Decimal; var CustCreditAmountLCY: Decimal; var CustNo: Code[20]; var ExtensionAmountsDic: Dictionary of [Guid, Decimal]; var IsHandled: Boolean; DeltaAmount: Decimal)
     begin
     end;
 
@@ -659,12 +660,12 @@ page 343 "Check Credit Limit"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeSalesHeaderShowWarning(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeSalesLineShowWarning(var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean);
     begin
     end;
@@ -704,7 +705,7 @@ page 343 "Check Credit Limit"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnShowWarningOnBeforeExitValue(var Customer: Record Customer; ExitValue: Integer; var Result: Boolean; var IsHandled: Boolean; var Heading: Text[250]; var SecondHeading: Text[250]; var NotificationID: Guid)
     begin
     end;
@@ -714,7 +715,7 @@ page 343 "Check Credit Limit"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCalcCreditLimitLCYProcedure(var Customer: Record Customer; var CustCreditAmountLCY: Decimal; var ExtensionAmountsDic: Dictionary of [Guid, Decimal])
     begin
     end;

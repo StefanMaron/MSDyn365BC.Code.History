@@ -103,6 +103,11 @@
         IsHandled: Boolean;
         UpdateCondition: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferBOM(ProdBOMNo, Level, LineQtyPerUOM, ItemQtyPerUOM, ReqLine, Blocked, IsHandled);
+        if IsHandled then
+            exit;
+
         if ReqLine."Production BOM No." = '' then
             exit;
 
@@ -589,10 +594,7 @@
                 Critical := Item2.Critical;
 
             "Flushing Method" := CompSKU."Flushing Method";
-            if (SKU."Manufacturing Policy" = SKU."Manufacturing Policy"::"Make-to-Order") and
-               (CompSKU."Manufacturing Policy" = CompSKU."Manufacturing Policy"::"Make-to-Order") and
-               (CompSKU."Replenishment System" = CompSKU."Replenishment System"::"Prod. Order")
-            then
+            if SetPlanningLevelCode(PlanningComponent, ProdBOMLine, SKU, CompSKU) then
                 "Planning Level Code" := ReqLine."Planning Level" + 1;
 
             "Ref. Order Type" := ReqLine."Ref. Order Type";
@@ -601,6 +603,16 @@
             OnBeforeInsertPlanningComponent(ReqLine, ProdBOMLine, PlanningComponent, LineQtyPerUOM, ItemQtyPerUOM);
             Insert();
         end;
+    end;
+
+    local procedure SetPlanningLevelCode(var PlanningComponent: Record "Planning Component"; var ProdBOMLine: Record "Production BOM Line"; var SKU: Record "Stockkeeping Unit"; var ComponentSKU: Record "Stockkeeping Unit") Result: Boolean
+    begin
+        Result :=
+            (SKU."Manufacturing Policy" = SKU."Manufacturing Policy"::"Make-to-Order") and
+            (ComponentSKU."Manufacturing Policy" = ComponentSKU."Manufacturing Policy"::"Make-to-Order") and
+            (ComponentSKU."Replenishment System" = ComponentSKU."Replenishment System"::"Prod. Order");
+
+        OnAfterSetPlanningLevelCode(PlanningComponent, ProdBOMLine, SKU, ComponentSKU, Result);
     end;
 
     procedure Recalculate(var ReqLine2: Record "Requisition Line"; Direction: Option Forward,Backward)
@@ -695,6 +707,7 @@
         PlanningComp.SetFilter("Item No.", '<>%1', '');
         PlanningComp.SetFilter("Expected Quantity", '<>0');
         PlanningComp.SetFilter("Planning Level Code", '>0');
+        OnCheckMultiLevelStructureOnAfterPlanningCompSetFilters(PlanningComp, ReqLine2);
         NoOfComponents := PlanningComp.Count();
         if PlanningLevel = 0 then begin
             ReqLine3.Reset();
@@ -1029,6 +1042,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferBOM(ProdBOMNo: Code[20]; Level: Integer; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal; var RequisitionLine: Record "Requisition Line"; Blocked: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferRouting(var RequisitionLine: Record "Requisition Line"; PlanningResilency: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -1045,6 +1063,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckMultiLevelStructureOnBeforeInsertPlanningLine(var ReqLine: Record "Requisition Line"; var PlanningComponent: Record "Planning Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckMultiLevelStructureOnAfterPlanningCompSetFilters(var PlanningComponent: Record "Planning Component"; RequisitionLine2: Record "Requisition Line")
     begin
     end;
 
@@ -1090,6 +1113,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculate(var CalcComponents: Boolean; var SKU: Record "Stockkeeping Unit"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPlanningLevelCode(var PlanningComponent: Record "Planning Component"; var ProdBOMLine: Record "Production BOM Line"; var SKU: Record "Stockkeeping Unit"; var ComponentSKU: Record "Stockkeeping Unit"; var Result: Boolean)
     begin
     end;
 }

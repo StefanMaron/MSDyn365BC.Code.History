@@ -364,7 +364,13 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnAfterTransferRecordFields', '', false, false)]
     procedure OnAfterTransferRecordFields(SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var AdditionalFieldsWereModified: Boolean; DestinationIsInserted: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeGetSourceDestCodeOnAfterTransferRecordFields(SourceRecordRef, DestinationRecordRef, AdditionalFieldsWereModified, DestinationIsInserted, IsHandled);
+        if IsHandled then
+            exit;
+
         case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'CRM Account-Customer':
                 if UpdateCustomerBlocked(SourceRecordRef, DestinationRecordRef) then
@@ -2949,6 +2955,11 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateCRMProductAfterTransferRecordFieldsOnAfterCalcItemBlocked(SourceRecordRef: RecordRef; var Blocked: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSourceDestCodeOnAfterTransferRecordFields(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var AdditionalFieldsWereModified: Boolean; DestinationIsInserted: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

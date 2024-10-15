@@ -38,6 +38,7 @@ codeunit 134421 "Report Selections Tests"
         EmailAddressErr: Label 'Destination email address does not match expected address.';
         StatementTitlePdfTxt: Label 'Statement';
         ReportTitleTemplatePdfTxt: Label '%1 for %2 as of %3.pdf';
+        InvalidCustomReportSelectionErr: Label 'Invalid Custom Report Selection';
 
     [Test]
     [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
@@ -1837,6 +1838,40 @@ codeunit 134421 "Report Selections Tests"
         VerifyCopiedCustomReportSelection(ReportSelections, Database::Vendor, Vendor."No.", 3);
     end;
 
+    [Test]
+    [HandlerFunctions('ProFormInvoiceCustomerReportSelectionsHandler')]
+    procedure VerifyProFormaInvoiceIsAvailableInDocumentLayouts()
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+        ReportSelections: Record "Report Selections";
+        Customer: Record Customer;
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [FEATURE] [Custom Report Selection]
+        // [SCENARIO 449768] Verify Pro forma invoice report is available in Customer Documents Layout
+        Initialize();
+
+        // [GIVEN] Report Selections: Pro Forma Invoice
+        LibraryERM.SetupReportSelection("Report Selection Usage"::"Pro Forma S. Invoice", 1302);
+        ReportSelections.SetFilter(Usage, '%1', "Report Selection Usage"::"Pro Forma S. Invoice");
+
+        // [GIVEN] Customer with custom report selection "CR".
+        LibrarySales.CreateCustomer(Customer);
+        InsertCustomReportSelectionCustomer(CustomReportSelection, Customer."No.", 1302, false, false, '', '', CustomReportSelection.Usage::"Pro Forma S. Invoice");
+
+        // [WHEN] Open Document Layouts page from Customer Card using modal page handler and assign Usage as Pro Forma Invoice
+        CustomerCard.OpenEdit();
+        CustomerCard.GoToKey(Customer."No.");
+        CustomerCard.CustomerReportSelections.Invoke();
+
+        // [THEN] Verify Pro Forma S. Invoice is available in Custom Report Selection
+        CustomReportSelection.Reset();
+        CustomReportSelection.SetRange("Source Type", Database::Customer);
+        CustomReportSelection.SetRange("Source No.", Customer."No.");
+        CustomReportSelection.SetRange(Usage, CustomReportSelection.Usage::"Pro Forma S. Invoice");
+        Assert.RecordIsNotEmpty(CustomReportSelection);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -2631,6 +2666,13 @@ codeunit 134421 "Report Selections Tests"
         VendorReportSelections.First();
         VendorReportSelections."Custom Report Description".Drilldown();
         VendorReportSelections."Custom Report Description".AssertEquals(LibraryVariableStorage.DequeueText());
+    end;
+
+    [ModalPageHandler]
+    procedure ProFormInvoiceCustomerReportSelectionsHandler(var CustomerReportSelections: TestPage "Customer Report Selections")
+    begin
+        CustomerReportSelections.First();
+        CustomerReportSelections.Usage2.SetValue('Pro Forma Invoice');
     end;
 }
 

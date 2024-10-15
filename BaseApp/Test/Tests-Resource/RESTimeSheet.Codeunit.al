@@ -1202,6 +1202,61 @@ codeunit 136504 "RES Time Sheet"
         Assert.ExpectedError(ResourceBlockedErr);
     end;
 
+    [Test]
+    [HandlerFunctions('MoveTimeSheetHandler,MessageHandler,StrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyCommentonHeaderArchiveTimeSheet()
+    var
+        Resource: Record Resource;
+        TimeSheetHeader: Record "Time Sheet Header";
+        TimeSheetLine: Record "Time Sheet Line";
+        TimeSheetHeaderArchive: Record "Time Sheet Header Archive";
+        MoveTimeSheetsToArchive: Report "Move Time Sheets to Archive";
+        TimeSheet: TestPage "Time Sheet";
+        TimeSheetArchive: TestPage "Time Sheet Archive";
+        TimeSheetArchiveList: TestPage "Time Sheet Archive List";
+        TimeSheetArcCommentSheet: TestPage "Time Sheet Arc. Comment Sheet";
+        ManagerTimeSheet: TestPage "Manager Time Sheet";
+        ResourceNo: Code[20];
+    begin
+        // [SCENARIO 450262] Header Comments not visible/saved in Time Sheet Archive Card
+        Initialize();
+
+        // [GIVEN] Setup: Create User Setup, Resource, Time Sheet and enter comments for Header and Line.
+        BindSubscription(RESTimeSheet);
+        CreateUserSetupAndTimeSheet(TimeSheetHeader);
+        UpdateTimeSheetLine(TimeSheetHeader."No.");
+        TimeSheetNo := TimeSheetHeader."No.";
+        ResourceNo := TimeSheetHeader."Resource No.";
+        OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
+        OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
+        TimeSheet.Submit.Invoke;
+        TimeSheet.OK.Invoke;
+        ManagerTimeSheetApproval(TimeSheetHeader."No.");
+        Commit();
+
+        // [THEN] Exercise: Run Move Time Sheets to Archive Report.
+        Clear(MoveTimeSheetsToArchive);
+        ManagerTimeSheet.OpenView;
+        MoveTimeSheetsToArchive.Run();
+
+        TimeSheetArchiveList.OpenView;
+        TimeSheetArchiveList.FILTER.SetFilter("No.", TimeSheetHeader."No.");
+        TimeSheetArchive.Trap;
+        TimeSheetArchiveList."&View Time Sheet".Invoke;
+        // [VERIFY] Verify comments on Archive Time Sheet.
+        TimeSheetArchive.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
+        TimeSheetArcCommentSheet.Trap;
+        TimeSheetArchive.TimeSheetComments.Invoke();
+        TimeSheetArcCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
+        TimeSheetArcCommentSheet.Close();
+
+        // [THEN] Tear Down: Delete Resource.
+        Resource.Get(ResourceNo);
+        Resource.Delete(true);
+        UnbindSubscription(RESTimeSheet);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

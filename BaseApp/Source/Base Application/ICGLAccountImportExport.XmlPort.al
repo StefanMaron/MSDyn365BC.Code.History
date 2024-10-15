@@ -65,8 +65,13 @@ xmlport 10 "IC G/L Account Import/Export"
     trigger OnPostXmlPort()
     var
         OrgICGLAcc: Record "IC G/L Account";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         MsgTxt: Text[1024];
     begin
+        FeatureTelemetry.LogUptake('0000IKS', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
+        FeatureTelemetry.LogUsage('0000IKT', ICMapping.GetFeatureTelemetryName(), 'IC GL Account Import/Export');
+
         if XMLInbound then begin
             if TempICGLAcc.Find('-') then
                 repeat

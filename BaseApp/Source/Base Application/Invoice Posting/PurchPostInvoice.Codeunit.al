@@ -1100,6 +1100,7 @@
                                 InvoicePostingBuffer."VAT Base Amount (ACY)" := Round(InvoicePostingBuffer."VAT Base Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100));
                             end;
                             InvoicePostingBuffer."VAT Base (ACY)" := 0;
+                            PurchPostInvoiceEvents.RunOnCalculateVATAmountsOnReverseChargeVATOnBeforeModify(PurchHeader, CurrencyDocument, VATPostingSetup, InvoicePostingBuffer);
                             InvoicePostingBuffer.Modify();
                         end;
                     InvoicePostingBuffer."VAT Calculation Type"::"Sales Tax":
@@ -1116,6 +1117,7 @@
                                     CurrExchRate.ExchangeAmtLCYToFCY(
                                         PurchHeader."Posting Date", GLSetup."Additional Reporting Currency",
                                         InvoicePostingBuffer."VAT Amount", 0);
+                            InvoicePostingBuffer.Modify();
                         end;
                 end;
             until InvoicePostingBuffer.Next() = 0;

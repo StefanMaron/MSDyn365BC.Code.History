@@ -156,12 +156,17 @@
     var
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        IsHandled: Boolean;
     begin
         SalesInvoiceHeader.Get(InvoiceNotification.GetData(SalesInvoiceHeader.FieldName("No.")));
         InvoiceNotification.Recall();
 
         CreateCopyDocument(SalesInvoiceHeader, SalesHeader, SalesHeader."Document Type"::"Credit Memo", false);
-        PAGE.Run(PAGE::"Sales Credit Memo", SalesHeader);
+
+        IsHandled := false;
+        OnCreateCorrectiveCreditMemoOnBeforePageRun(SalesHeader, IsHandled);
+        if not IsHandled then
+            PAGE.Run(PAGE::"Sales Credit Memo", SalesHeader);
     end;
 
     procedure ShowAppliedEntries(var InvoiceNotification: Notification)
@@ -654,9 +659,10 @@
             Error(CheckPrepaymentErr);
     end;
 
-    local procedure IsCommentLine(SalesInvoiceLine: Record "Sales Invoice Line"): Boolean
+    local procedure IsCommentLine(SalesInvoiceLine: Record "Sales Invoice Line") Result: Boolean
     begin
-        exit((SalesInvoiceLine.Type = SalesInvoiceLine.Type::" ") or (SalesInvoiceLine."No." = ''));
+        Result := (SalesInvoiceLine.Type = SalesInvoiceLine.Type::" ") or (SalesInvoiceLine."No." = '');
+        OnAfterIsCommentLine(SalesInvoiceLine, Result);
     end;
 
     local procedure WasNotCancelled(InvNo: Code[20]): Boolean
@@ -940,6 +946,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterIsCommentLine(SalesInvoiceLine: Record "Sales Invoice Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTestCorrectInvoiceIsAllowed(var SalesInvoiceHeader: Record "Sales Invoice Header"; Cancelling: Boolean)
     begin
     end;
@@ -1036,6 +1047,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestIfInvoiceIsPaid(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCorrectiveCreditMemoOnBeforePageRun(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }
